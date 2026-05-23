@@ -203,10 +203,23 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .confessional-entry:last-child{border-bottom:none}
 /* Death recap */
 .death-recap{max-width:500px;margin:1.5rem auto;padding:1rem;background:var(--bg2);border:1px solid var(--border);text-align:left}
-.recap-title{color:var(--gold);font-size:0.9rem;text-align:center;margin-bottom:0.3rem;letter-spacing:0.2em}
+.recap-title{color:var(--gold);font-size:0.9rem;text-align:center;margin-bottom:0.5rem;letter-spacing:0.2em}
 .recap-line{color:var(--text);font-size:0.8rem;padding:0.3rem 0;border-bottom:1px solid var(--border);line-height:1.6}
 .recap-line:last-of-type{border-bottom:none}
 .recap-final{color:var(--text-dim);font-size:0.75rem;text-align:center;margin-top:0.8rem;font-style:italic}
+.recap-section{margin-top:0.6rem;padding-top:0.4rem;border-top:1px solid var(--border)}
+.recap-section:first-of-type{border-top:none;margin-top:0.3rem}
+.recap-section-label{color:var(--gold);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.2rem}
+.recap-section-content{color:var(--text);font-size:0.8rem;line-height:1.6}
+.recap-section-meta{color:var(--text-dim);font-size:0.7rem;margin-top:0.1rem}
+.recap-section-item{color:var(--text);font-size:0.8rem;padding:0.15rem 0;line-height:1.5}
+/* First death animations */
+.death-anim-physical{animation:deathBlackout 2s ease-in forwards}
+.death-anim-mental{animation:deathDistort 2s ease-in forwards}
+@keyframes deathBlackout{0%{opacity:1}40%{opacity:1}100%{opacity:0.15}}
+@keyframes deathDistort{0%{filter:none;transform:none}30%{filter:blur(0.5px)}60%{filter:blur(1px) hue-rotate(10deg);transform:skewX(0.5deg)}100%{filter:blur(0.3px) hue-rotate(5deg);transform:skewX(0.2deg)}}
+/* Tutorial hints */
+.tutorial-hint{background:rgba(138,48,48,0.08);border:1px solid rgba(138,48,48,0.15);border-radius:4px;padding:0.4rem 0.7rem;font-size:0.75rem;color:var(--text-dim);line-height:1.5;text-align:center;margin-bottom:0.5rem}
 /* Perception levels (P3) — text: brightness/shadow on narrative text */
 .perception-text-1 .narrative-text{text-shadow:0 0 1px rgba(255,255,255,0.15)}
 .perception-text-2 .narrative-text{letter-spacing:0.01em}

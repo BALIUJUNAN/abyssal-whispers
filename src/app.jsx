@@ -96,7 +96,8 @@ const initialState=()=>({
   activeBlessings:[],
   archetype:null,
   runMemory:[],
-  audioMuted:false
+  audioMuted:false,
+  tutorialSeen:{}
 });
 
 function initSkills(){
@@ -265,8 +266,21 @@ function addRunMemory(state, text, type='choice'){
 }
 function buildDeathRecap(state){
   const mem=state.runMemory||[];
-  if(mem.length>0)return mem.slice(-5);
-  return [{day:state.day,type:'death',text:'第 '+state.day+' 天：你走到了记录无法继续的地方。'}];
+  const deathType=state.hp<=0?'physical':state.san<=0?'mental':state.day>28?'time':'unknown';
+  const deathEntry=mem.filter(m=>m.type==='death').slice(-1)[0];
+  const causeEvent=deathEntry?deathEntry.text.replace(/^第 \d+ 天：/,''):(state.day>28?'封印崩溃，时间耗尽。':'你倒在了沃切斯特的黑暗中。');
+  const timeline=mem.length>0?mem.slice(-8).map(m=>({day:m.day,type:m.type,text:typeof m==='string'?m:m.text})):[{day:state.day,type:'death',text:'第 '+state.day+' 天：你走到了记录无法继续的地方。'}];
+  const keyDiscoveries=(state.clues||[]).slice(-5).map(c=>typeof c==='object'?c.text:c);
+  const conclusionsUnlocked=(state.discoveredConclusions||[]);
+  const npcEntries=Object.entries(state.npcTrust||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const pollutionGained=state.pollution||0;
+  const adviceLines=[];
+  if(deathType==='physical')adviceLines.push('也许下次该更加小心，或者准备一些治疗物品。');
+  else if(deathType==='mental')adviceLines.push('理智比你想的更加脆弱。也许该寻找能帮助你保持清醒的盟友。');
+  if(state.day<=3)adviceLines.push('你走得还不够远。试着多和人交谈，获取更多信息。');
+  else if(state.day<=7)adviceLines.push('你已经开始触及真相了。保持耐心。');
+  else adviceLines.push('你已经走了很远。下一个轮回，你会记得更多。');
+  return {deathType,day:state.day,causeEvent,timeline,keyDiscoveries,conclusionsUnlocked,npcTrustHighlights:npcEntries,permanentUnlocks:state.activeBlessings||[],pollutionGained,adviceLine:adviceLines[0]||'雾不会放弃。你也不应该。'};
 }
 
 // === SAN破壁事件 (P1-3) ===
@@ -467,7 +481,7 @@ function gameReducer(state,action){
       if(sceneText)narr('system',sceneText);
     }
     s.objectives=checkObjCompletion(s.objectives,s);
-    log('前往'+displayName);return s;
+    log('前往'+displayName);if(!s.tutorialSeen.first_move)s.tutorialSeen={...s.tutorialSeen,first_move:true};return s;
   }
   case 'EXPLORE':{ensureMutableArrays();cloneInv();
     if(s.ap<2){narr('system','行动点不足（需要2AP）。');return s;}
@@ -546,6 +560,7 @@ function gameReducer(state,action){
       const failPhys=GD.implementation_notes?.failure_states?.failure_types?.physical_death;
       s.ending={name:failPhys?.name||'死亡',type:'bad',description:failPhys?.narrative_result||'你倒在了沃切斯特的黑暗中。',recap:buildDeathRecap(s)};
       addRunMemory(s,'在'+(s.currentArea||'某处')+'倒下，肉体消亡。','death');
+      if(!s.tutorialSeen.first_death)s.tutorialSeen={...s.tutorialSeen,first_death:true};
     }
     if(s.san<=0){
       const ending=checkEnding(s,ctx);
@@ -554,6 +569,7 @@ function gameReducer(state,action){
         s.ending={name:failMental?.name||'疯狂',type:'bad',description:failMental?.narrative_result||'你的理智彻底崩塌。',permanent_pollution:failMental?.permanent_pollution||0,recap:buildDeathRecap(s)};
       }
       addRunMemory(s,'理智归零，灵魂沉入深渊。','death');
+      if(!s.tutorialSeen.first_death)s.tutorialSeen={...s.tutorialSeen,first_death:true};
     }
     s.objectives=checkObjCompletion(s.objectives,s);
     // Event chain progress: check if triggered event advances a chain
@@ -595,7 +611,7 @@ function gameReducer(state,action){
         narr('system','【'+(stageNames[manifest.stage]||'异常')+'】'+manifest.manifestation);
       }
     }
-    log('探索：'+evt.name);return s;
+    log('探索：'+evt.name);if(!s.tutorialSeen.first_explore)s.tutorialSeen={...s.tutorialSeen,first_explore:true};return s;
   }
   case 'DO_SKILL_CHECK':{
     if(!s.pendingEvent||s.pendingEvent.rolled)return s;
@@ -659,7 +675,7 @@ function gameReducer(state,action){
         narr('system',npc.name+'突然说："'+pick(dejaVuLines)+'"');
       }
     }
-    log('与'+npc.name+'对话');return s;
+    log('与'+npc.name+'对话');if(!s.tutorialSeen.first_talk)s.tutorialSeen={...s.tutorialSeen,first_talk:true};return s;
   }
   case 'NPC_RESPONSE':{
     const npc=s.pendingNpc.npc;const trust=s.npcTrust[npc.name]||0;const choice=action.choice;const ns=s.npcStates[npc.name]||{};
@@ -847,7 +863,7 @@ function gameReducer(state,action){
 
     // Auto-save after rest
     saveGame(s);
-
+    if(!s.tutorialSeen.first_rest)s.tutorialSeen={...s.tutorialSeen,first_rest:true};
     return s;
   }
   case 'DISMISS_PENDING':s.pendingEvent=null;s.pendingNpc=null;s.pendingGamble=null;ensureArr('objectives');s.objectives=checkObjCompletion(s.objectives,s);return s;
@@ -907,7 +923,7 @@ function gameReducer(state,action){
         const availableClues=(GD.clue_chains||[]).flatMap(c=>c.clues||[]).filter(c=>!s.clues.includes(c.id));
         if(availableClues.length>0){
           const found=pick(availableClues);
-          s.clues.push(found.id);
+          s.clues.push(found.id);if(!s.tutorialSeen.first_clue&&s.clues.length===1)s.tutorialSeen={...s.tutorialSeen,first_clue:true};
           narr('system',reward.text_on_success+' 线索：'+(found.name||found.id),{isSpecial:true});
         }else{
           narr('system',reward.text_on_success,{isSpecial:true});
@@ -992,6 +1008,7 @@ function gameReducer(state,action){
     f.retainedKnowledge=[...(s.retainedKnowledge||[])];
     f.discoveredConclusions=[...(s.discoveredConclusions||[])];
     f.humanityScore=s.humanityScore||50;
+    f.tutorialSeen={...(s.tutorialSeen||{})};
     f.mythosLevel=Math.max(0,(s.mythosLevel||0)-2); // Mythos fades slightly between loops
     // Apply knowledge effects
     if(f.retainedKnowledge.includes('knowledge_npc_trust_shadow')){
@@ -1183,7 +1200,21 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
         </div>
       </div></div>}
     </div>
-    {!state.pendingEvent?.rolled&&!state.pendingNpc&&!state.pendingGamble&&!state.ending&&<div className="action-area"><div className="action-grid">
+    {!state.pendingEvent?.rolled&&!state.pendingNpc&&!state.pendingGamble&&!state.ending&&<div className="action-area">
+      {(() => {
+        const ts=state.tutorialSeen||{};
+        const hints=[
+          {key:'first_explore',text:'探索区域可能发现线索或遭遇异常。需要2AP。'},
+          {key:'first_move',text:'移动到相邻区域会消耗1AP。试试和NPC交谈获取情报。'},
+          {key:'first_talk',text:'和NPC交谈可以获取情报，建立信任会解锁更多内容。'},
+          {key:'first_clue',text:'你发现了一条线索！线索会保存在右侧面板。'},
+          {key:'first_rest',text:'结束一天会消耗食物恢复AP和SAN。注意食物管理。'},
+        ];
+        const hint=hints.find(h=>!ts[h.key]);
+        if(!hint)return null;
+        return <div className="tutorial-hint" key={hint.key}>{hint.text}</div>;
+      })()}
+      <div className="action-grid">
       <button className="action-btn" onClick={()=>dispatch({type:'EXPLORE'})} disabled={state.ap<2}>{getOptionText('investigate_sound',state.san)||'探索区域'}<span className="cost">2 AP</span></button>
       {conn.map(aid=>{const a=areas.find(ar=>ar.id===aid);if(!a)return null;const unlocked=isAreaUnlocked(a,state.day);const isRumor=a.chapter_1_role==='rumor_only'&&!unlocked;return <button key={aid} className="action-btn" onClick={()=>dispatch({type:'MOVE',areaId:aid})} disabled={state.ap<1||!unlocked}>{isRumor?'听说：':''}前往{a.name}{!unlocked?' [锁定]':''}<span className="cost">{!unlocked?'需要线索':'1 AP'}</span></button>;})}
       {npcs.map(n=><button key={n.name} className="action-btn" onClick={()=>dispatch({type:'TALK_NPC',npc:n})} disabled={state.ap<1}>与{n.name}交谈<span className="cost">1 AP</span></button>)}
@@ -1262,16 +1293,58 @@ const RightPanel=memo(function RightPanel({state,dispatch}){
 
 function EndingScreen({ending,state,dispatch}){
   const tc=ending.type==='good'?'good':ending.type==='bad'?'bad':ending.type==='hidden'?'hidden':'neutral';
-  const memories=ending.recap||state.runMemory||[];
-  return <div className={'ending-screen '+tc}>
+  const recap=ending.recap;
+  const isStructured=recap&&typeof recap==='object'&&!Array.isArray(recap)&&recap.deathType;
+  const isFirstDeath=state.loopCount===0&&tc==='bad';
+  const deathAnimClass=isFirstDeath?(isStructured&&recap.deathType==='mental'?'death-anim-mental':'death-anim-physical'):'';
+  return <div className={'ending-screen '+tc+' '+deathAnimClass}>
     <h2>{ending.name}</h2>
     <div className="ending-desc">{ending.description}</div>
     {ending.rewards&&<div className="rewards"><div style={{marginBottom:'0.3rem'}}>奖励：</div>{ending.rewards.map((r,i)=><div key={i}>{r}</div>)}</div>}
-    {memories.length>0&&<div className="death-recap">
+    {isFirstDeath&&<div className="tutorial-hint" style={{maxWidth:'500px',margin:'0 auto 1rem'}}>死亡不是终点。你的部分知识会在下一轮保留。点击"再次踏入深渊"开始新的轮回。</div>}
+    {isStructured?<>
+      <div className="death-recap">
+        <div className="recap-title">死因报告</div>
+        <div className="recap-section">
+          <div className="recap-section-label">终结</div>
+          <div className="recap-section-content">{recap.causeEvent}</div>
+          <div className="recap-section-meta">Day {recap.day} · {recap.deathType==='physical'?'肉体消亡':recap.deathType==='mental'?'理智崩塌':recap.deathType==='time'?'时间耗尽':'未知'}</div>
+        </div>
+        {recap.keyDiscoveries.length>0&&<div className="recap-section">
+          <div className="recap-section-label">关键发现</div>
+          {recap.keyDiscoveries.map((d,i)=><div key={i} className="recap-section-item">⚡ {d}</div>)}
+        </div>}
+        {recap.conclusionsUnlocked.length>0&&<div className="recap-section">
+          <div className="recap-section-label">已解锁结论</div>
+          {recap.conclusionsUnlocked.map((c,i)=><div key={i} className="recap-section-item">  {typeof c==='string'?c:c}</div>)}
+        </div>}
+        {recap.npcTrustHighlights.length>0&&<div className="recap-section">
+          <div className="recap-section-label">NPC关系</div>
+          {recap.npcTrustHighlights.map(([name,trust],i)=><div key={i} className="recap-section-item">{name}：信任 {trust}/5</div>)}
+        </div>}
+        {recap.permanentUnlocks.length>0&&<div className="recap-section">
+          <div className="recap-section-label">永久解锁</div>
+          {recap.permanentUnlocks.map((b,i)=><div key={i} className="recap-section-item">{b}</div>)}
+        </div>}
+        {recap.pollutionGained>0&&<div className="recap-section">
+          <div className="recap-section-label">污染</div>
+          <div className="recap-section-content" style={{color:'var(--purple)'}}>世界污染 {Math.round(recap.pollutionGained*100)}%</div>
+        </div>}
+        {recap.adviceLine&&<div className="recap-section">
+          <div className="recap-section-label">建议</div>
+          <div className="recap-section-content" style={{fontStyle:'italic'}}>{recap.adviceLine}</div>
+        </div>}
+        {recap.timeline.length>0&&<div className="recap-section">
+          <div className="recap-section-label">时间线</div>
+          {recap.timeline.map((m,i)=><div key={i} className="recap-line">Day {m.day}｜{m.text.replace(/^第 \d+ 天：/,'')}</div>)}
+        </div>}
+        <div className="recap-final">{state.san<=0?'疯狂不是终点。它记住了你的选择。':'死亡不是终点。雾会把你送回原处。'}</div>
+      </div>
+    </>:(recap&&Array.isArray(recap)?<div className="death-recap">
       <div className="recap-title">本轮留下的痕迹</div>
-      {memories.slice(-5).map((m,i)=><div key={i} className="recap-line">{typeof m==='string'?m:m.text}</div>)}
+      {recap.slice(-5).map((m,i)=><div key={i} className="recap-line">{typeof m==='string'?m:m.text}</div>)}
       <div className="recap-final">{state.san<=0?'疯狂不是终点。它记住了你的选择。':'死亡不是终点。雾会把你送回原处。'}</div>
-    </div>}
+    </div>:null)}
     <div className="stats-summary">存活天数：{state.day} | 收集线索：{state.clues.length} | 最终SAN：{state.san} | 检定成功：{state.stats_run.checks_passed} | 探索区域：{state.stats_run.areas_explored||state.visitedAreas.length} | 总轮数：{state.stats_run.runs}{state.loopCount>0?' | 轮回：'+state.loopCount+'次':''}{state.humanityScore!==undefined?' | 人性：'+(state.humanityScore>=60?'尚存':state.humanityScore>=30?'脆弱':'迷失'):''}{state.discoveredConclusions?.length>0?' | 结论：'+state.discoveredConclusions.length+'个':''}</div>
     <button className="btn btn-primary" onClick={()=>dispatch({type:'NEW_GAME'})}>{state.loopCount>0?'这次不一样':'再次踏入深渊'}</button>
   </div>;
