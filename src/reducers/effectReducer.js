@@ -2,6 +2,7 @@
 // All game effects (items, events, NPCs, areas, endings) go through applyEffects().
 
 import { clamp, rollDice } from './utils.js';
+import { applyExtendedEffect } from './extendedEvents.js';
 
 /**
  * Apply a list of effects to game state.
@@ -77,8 +78,13 @@ export function applyEffects(state, effects, context) {
         state.eventLog.push({ day: state.day, text: eff.text || '' });
         break;
       }
-      default:
+      default: {
+        // Try extended effect handler
+        if (!applyExtendedEffect(state, eff)) {
+          // Unknown effect type, ignore
+        }
         break;
+      }
     }
   }
 }

@@ -4,12 +4,16 @@ import { getDistortedName } from './reducers/worldReducer.js';
 import { getPollutionText } from './reducers/loopReducer.js';
 import { getChapterForDay, getMythosCap, getChapterAlias, checkChapterTransition, getMotifFlavorText, getMonsterManifestation } from './reducers/chapterReducer.js';
 import { checkConclusions, checkFalseInterpretations } from './reducers/conclusionReducer.js';
-import { getGambleOptions } from './reducers/eventReducer.js';
+import { getGambleOptions, checkTriggerExtended } from './reducers/eventReducer.js';
 import { checkNPCCorruption, applyNPCCorruption, setCorruptionFlag } from './reducers/npcReducer.js';
+import { selectEventV2, resetDailyCategoryCounts, buildPreviousRunSummary, applyExtendedEffect } from './reducers/extendedEvents.js';
+import { ensureExtendedState, mergeExtendedEvents } from './reducers/extendedEventsLoader.js';
+import { initExtendedEvents } from './reducers/extendedEventsInit.js';
+import { resolveDeath } from './reducers/deathSystem.js';
 // __GAME_DATA__ 占位符在构建时替换为实际 JSON 数据
 
 const {useState,useReducer,useEffect,useRef,useMemo,useCallback,memo}=React;
-const GD=__GAME_DATA__;
+const GD=initExtendedEvents(__GAME_DATA__);
 const ctx={GD};
 
 // === Audio Manager (Module 4) ===
@@ -64,8 +68,8 @@ function getAreaDisplayName(area, state) {
 }
 
 // === GAME STATE ===
-const initialState=()=>({
-  screen:'title',day:1,ap:12,maxAp:12,
+const initialState=()=>{
+  const base={screen:'title',day:1,ap:12,maxAp:12,
   stats:{STR:50,CON:55,DEX:55,APP:50,POW:60,INT:65,SIZ:60,EDU:70},
   hp:11,maxHp:11,san:60,maxSan:60,luck:50,mp:12,
   currentArea:'town_center',visitedAreas:['town_center'],
@@ -78,7 +82,7 @@ const initialState=()=>({
   triggeredEvents:[],triggeredSilentEvents:[],longTermEffects:[],madnessActive:null,
   objectives:[],completedChains:[],
   difficulty:'normal',
-  narrative:[],eventLog:[],pendingEvent:null,pendingNpc:null,pendingGamble:null,ending:null,
+  narrative:[],eventLog:[],pendingEvent:null,pendingNpc:null,pendingGamble:null,ending:null,transition:null,
   safehouseCorruption:0,currentSafehouse:'main',
   harborRiskReduction:0,
   tempSkillBonus:null,
@@ -98,7 +102,10 @@ const initialState=()=>({
   runMemory:[],
   audioMuted:false,
   tutorialSeen:{}
-});
+  };
+  // Extended event system fields (backward-compatible defaults)
+  return ensureExtendedState(base);
+};
 
 function initSkills(){
   const base={};
@@ -264,9 +271,17 @@ function addRunMemory(state, text, type='choice'){
   state.runMemory.push({day:state.day,type,text:'第 '+state.day+' 天：'+text});
   if(state.runMemory.length>12)state.runMemory=state.runMemory.slice(-12);
 }
-function buildDeathRecap(state){
+function buildDeathRecap(state, deathContext=null){
   const mem=state.runMemory||[];
-  const deathType=state.hp<=0?'physical':state.san<=0?'mental':state.day>28?'time':'unknown';
+  // Use precise death type from resolveDeath if available, fall back to binary check
+  const HP_TYPES=['drowning','bleeding','infection','starvation','falling','darkness_taken','physical'];
+  const SAN_TYPES=['madness','possession','identity_erasure','mythos_absorption','loop_collapse','becomes_event','mental'];
+  let deathType;
+  if(deathContext?.type){
+    deathType = HP_TYPES.includes(deathContext.type) ? 'physical' : SAN_TYPES.includes(deathContext.type) ? 'mental' : 'hybrid';
+  } else {
+    deathType=state.hp<=0?'physical':state.san<=0?'mental':state.day>28?'time':'unknown';
+  }
   const deathEntry=mem.filter(m=>m.type==='death').slice(-1)[0];
   const causeEvent=deathEntry?deathEntry.text.replace(/^第 \d+ 天：/,''):(state.day>28?'封印崩溃，时间耗尽。':'你倒在了沃切斯特的黑暗中。');
   const timeline=mem.length>0?mem.slice(-8).map(m=>({day:m.day,type:m.type,text:typeof m==='string'?m:m.text})):[{day:state.day,type:'death',text:'第 '+state.day+' 天：你走到了记录无法继续的地方。'}];
@@ -481,12 +496,14 @@ function gameReducer(state,action){
       if(sceneText)narr('system',sceneText);
     }
     s.objectives=checkObjCompletion(s.objectives,s);
+    s.transition='move';
     log('前往'+displayName);if(!s.tutorialSeen.first_move)s.tutorialSeen={...s.tutorialSeen,first_move:true};return s;
   }
   case 'EXPLORE':{ensureMutableArrays();cloneInv();
     if(s.ap<2){narr('system','行动点不足（需要2AP）。');return s;}
     s.ap-=2;
-    const evt=selectEvent(s.currentArea,s,ctx,pick);
+    // Use V2 scheduler for extended events, fall back to original
+    const evt=(GD._extendedEventsLoaded?selectEventV2:selectEvent)(s.currentArea,s,ctx,pick);
     if(!evt){
       narr('system','四周平静，暂时没有发现异常。');
       const chains=GD.event_chains||GD.module4_event_extensions?.event_chains||[];
@@ -543,6 +560,7 @@ function gameReducer(state,action){
         }
         s.san=clamp(s.san-sanDmg,0,s.maxSan);
         narr('system','SAN -'+sanDmg,{isEffect:true});
+        if(sanDmg>=3)s.transition='san-loss';
         // Achievement tracking
         s.stats_run.max_san_loss_single=Math.max(s.stats_run.max_san_loss_single||0,sanDmg);
         s.stats_run.total_san_loss=(s.stats_run.total_san_loss||0)+sanDmg;
@@ -556,20 +574,32 @@ function gameReducer(state,action){
       addRunMemory(s,'经历了临时疯狂——'+mad.name,'madness');
       audioManager.playEffect('madness');
     }
-    if(s.hp<=0){
-      const failPhys=GD.implementation_notes?.failure_states?.failure_types?.physical_death;
-      s.ending={name:failPhys?.name||'死亡',type:'bad',description:failPhys?.narrative_result||'你倒在了沃切斯特的黑暗中。',recap:buildDeathRecap(s)};
-      addRunMemory(s,'在'+(s.currentArea||'某处')+'倒下，肉体消亡。','death');
-      if(!s.tutorialSeen.first_death)s.tutorialSeen={...s.tutorialSeen,first_death:true};
-    }
-    if(s.san<=0){
-      const ending=checkEnding(s,ctx);
-      if(ending){s.ending={...ending,recap:buildDeathRecap(s)};}else{
-        const failMental=GD.implementation_notes?.failure_states?.failure_types?.mental_death;
-        s.ending={name:failMental?.name||'疯狂',type:'bad',description:failMental?.narrative_result||'你的理智彻底崩塌。',permanent_pollution:failMental?.permanent_pollution||0,recap:buildDeathRecap(s)};
+    // --- Death resolution (unified) ---
+    {
+      const deathCtx = resolveDeath(s, evt, null);
+      if(deathCtx){
+        s.deathContext = deathCtx;
+        s.lastDeathType = deathCtx.type;
+        s.lastDeathMode = deathCtx.mode;
+        // Write death narrative
+        narr('death', deathCtx.finalText, { isSpecial: true });
+        // Build ending object
+        if(deathCtx.mode === 'hp'){
+          const failPhys=GD.implementation_notes?.failure_states?.failure_types?.physical_death;
+          s.ending={name:failPhys?.name||deathCtx.type,type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};
+        }else if(deathCtx.mode === 'san'){
+          const ending=checkEnding(s,ctx);
+          if(ending){s.ending={...ending,recap:buildDeathRecap(s,deathCtx)};}else{
+            const failMental=GD.implementation_notes?.failure_states?.failure_types?.mental_death;
+            s.ending={name:failMental?.name||deathCtx.type,type:'bad',description:deathCtx.finalText,permanent_pollution:failMental?.permanent_pollution||0,recap:buildDeathRecap(s,deathCtx)};
+          }
+        }else{
+          // hybrid
+          s.ending={name:'身心俱灭',type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};
+        }
+        addRunMemory(s, deathCtx.finalText.split('\n')[0], 'death');
+        if(!s.tutorialSeen.first_death)s.tutorialSeen={...s.tutorialSeen,first_death:true};
       }
-      addRunMemory(s,'理智归零，灵魂沉入深渊。','death');
-      if(!s.tutorialSeen.first_death)s.tutorialSeen={...s.tutorialSeen,first_death:true};
     }
     s.objectives=checkObjCompletion(s.objectives,s);
     // Event chain progress: check if triggered event advances a chain
@@ -800,6 +830,8 @@ function gameReducer(state,action){
     try{const phase=getPhase(s.ap,s.maxAp);if(phase==='night'||phase==='midnight')audioManager.playAmbientNight();else audioManager.playAmbientDay();}catch(e){audioManager.playAmbientDay();}
     // Clear area name cache on new day
     s.areaNameCache={};
+    // Reset daily event category counts (extended events)
+    resetDailyCategoryCounts(s);
     // Chapter transition
     const chTransition=checkChapterTransition(oldDay,s.day,ctx);
     if(chTransition){
@@ -853,7 +885,11 @@ function gameReducer(state,action){
     const area=getAreaInfo(s.currentArea,ctx);
     if(area)narr('location',area.description,{locationName:getAreaDisplayName(area,s)});
     const ending=checkEnding(s,ctx);if(ending)s.ending={...ending,recap:buildDeathRecap(s)};
-    if(s.day>28)s.ending={name:'时间耗尽',type:'bad',description:'封印崩溃，沃切斯特沉入深渊。',recap:buildDeathRecap(s)};
+    if(s.day>28){
+      s.deathContext={mode:'hp',type:'physical',area:s.currentArea,day:s.day,loop:s.loopCount,sourceEventId:null,sourceEventName:'时间耗尽',finalText:'封印崩溃，沃切斯特沉入深渊。',residueFlag:'death_echo_time'};
+      s.lastDeathType='physical';s.lastDeathMode='hp';
+      s.ending={name:'时间耗尽',type:'bad',description:'封印崩溃，沃切斯特沉入深渊。',recap:buildDeathRecap(s)};
+    }
     s.objectives=genObjectives(s.day,ctx);
     s.stats_run.days_best=Math.max(s.stats_run.days_best,s.day);
     log('第'+s.day+'天开始');
@@ -863,10 +899,12 @@ function gameReducer(state,action){
 
     // Auto-save after rest
     saveGame(s);
+    s.transition='rest';
     if(!s.tutorialSeen.first_rest)s.tutorialSeen={...s.tutorialSeen,first_rest:true};
     return s;
   }
   case 'DISMISS_PENDING':s.pendingEvent=null;s.pendingNpc=null;s.pendingGamble=null;ensureArr('objectives');s.objectives=checkObjCompletion(s.objectives,s);return s;
+  case 'CLEAR_TRANSITION':s.transition=null;return s;
   case 'AUDIO_MUTE_TOGGLE':s.audioMuted=!s.audioMuted;audioManager.setMuted(s.audioMuted);return s;
   case 'ACCESSIBILITY_TOGGLE':{
     const key=action.key;
@@ -903,7 +941,7 @@ function gameReducer(state,action){
           narr('system','SAN -'+sanDmg,{isEffect:true});
           s.stats_run.max_san_loss_single=Math.max(s.stats_run.max_san_loss_single||0,sanDmg);
           s.stats_run.total_san_loss=(s.stats_run.total_san_loss||0)+sanDmg;
-          if(sanDmg>=3)audioManager.playEffect('san_loss');
+          if(sanDmg>=3){audioManager.playEffect('san_loss');s.transition='san-loss';}
         }
       }
     }else if(choiceId==='deep_investigate'){
@@ -914,7 +952,7 @@ function gameReducer(state,action){
       narr('system','SAN -'+sanRoll,{isEffect:true});
       s.stats_run.max_san_loss_single=Math.max(s.stats_run.max_san_loss_single||0,sanRoll);
       s.stats_run.total_san_loss=(s.stats_run.total_san_loss||0)+sanRoll;
-      if(sanRoll>=3)audioManager.playEffect('san_loss');
+      if(sanRoll>=3){audioManager.playEffect('san_loss');s.transition='san-loss';}
       // Independent reward check
       const reward=opt.reward||{};
       const r=Math.random();
@@ -955,11 +993,18 @@ function gameReducer(state,action){
         if(baseSanDmg>0){s.san=clamp(s.san-baseSanDmg,0,s.maxSan);narr('system','SAN -'+baseSanDmg,{isEffect:true});if(baseSanDmg>=3)audioManager.playEffect('san_loss');}
       }
     }
-    // Post-gamble: check death
-    if(s.san<=0){
-      const ending=checkEnding(s,ctx);
-      if(ending)s.ending={...ending,recap:buildDeathRecap(s)};
-      else{s.ending={name:'疯狂',type:'bad',description:'你的理智彻底崩塌。',recap:buildDeathRecap(s)};}
+    // Post-gamble: check death (unified)
+    {
+      const deathCtx = resolveDeath(s, evt, null);
+      if(deathCtx){
+        s.deathContext = deathCtx;
+        s.lastDeathType = deathCtx.type;
+        s.lastDeathMode = deathCtx.mode;
+        narr('death', deathCtx.finalText, { isSpecial: true });
+        const ending=checkEnding(s,ctx);
+        if(ending)s.ending={...ending,recap:buildDeathRecap(s,deathCtx)};
+        else{s.ending={name:deathCtx.type,type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};}
+      }
     }
     applyLegacyEffects(s,evt.effects);
     s.objectives=checkObjCompletion(s.objectives,s);
@@ -967,6 +1012,8 @@ function gameReducer(state,action){
     return s;
   }
   case 'NEW_GAME':{
+    // Build previous run summary before reset (extended events system)
+    const prevSummary = buildPreviousRunSummary(s);
     const f=initialState();
     f.stats_run.deaths=s.stats_run.deaths+(s.hp<=0||s.san<=0?1:0);
     f.stats_run.runs=s.stats_run.runs+1;
@@ -1018,6 +1065,33 @@ function gameReducer(state,action){
         f.npcTrust[target.name]=1;
       }
     }
+    // Extended loop memory: save previous run summary
+    f.previousRunSummary = prevSummary;
+    f.previousDeathsByArea = { ...(s.previousDeathsByArea || {}) };
+    if (s.currentArea && (s.hp <= 0 || s.san <= 0)) {
+      f.previousDeathsByArea[s.currentArea] = (f.previousDeathsByArea[s.currentArea] || 0) + 1;
+    }
+    f.previousEndings = [...(s.previousEndings || [])];
+    if (s.ending?.id && !f.previousEndings.includes(s.ending.id)) {
+      f.previousEndings.push(s.ending.id);
+    }
+    f.endingHistory = [...(s.endingHistory || []), {
+      ending_id: s.ending?.id || null,
+      ending_name: s.ending?.name || null,
+      loop: s.loopCount || 0,
+      day: s.day || 1,
+      humanity: s.humanityScore || 50,
+    }];
+    f.loopEchoFlags = [...(s.loopEchoFlags || [])];
+    f.worldCorrectionFlags = [...(s.worldCorrectionFlags || [])];
+    f.everTriggeredEvents = [...(s.everTriggeredEvents || [])];
+    // Death context carry-over
+    f.previousDeathContext = s.deathContext || null;
+    f.lastDeathType = s.deathContext?.type || s.lastDeathType || null;
+    f.lastDeathMode = s.deathContext?.mode || s.lastDeathMode || null;
+    if (s.deathContext?.residueFlag) {
+      f.loopEchoFlags = [...f.loopEchoFlags, s.deathContext.residueFlag];
+    }
     clearSave();
     return f;
   }
@@ -1037,7 +1111,9 @@ function gameReducer(state,action){
     return s;
   }
   case 'CONTINUE_GAME':{
-    return { ...action.savedState, screen: 'game', narrative: [{id:Date.now(),type:'system',text:'—— 你从存档中醒来。'}] };
+    const loaded={ ...action.savedState, screen: 'game', transition: null, narrative: [{id:Date.now(),type:'system',text:'—— 你从存档中醒来。'}] };
+    // Ensure extended state fields exist (backward-compatible migration)
+    return ensureExtendedState(loaded);
   }
   default:return s;
   }
@@ -1133,7 +1209,9 @@ const LeftPanel=memo(function LeftPanel({state}){
 const NarrativeBlock=memo(function NarrativeBlock({block}){
   if(!block)return null;
   const isSanRecovery=block.type==='san-recovery';
-  return <div className={'narrative-block'+(block.type==='system'?' system':'')+(block.isEffect?' system':'')+(block.isSpecial?' system':'')+(isSanRecovery?' san-recovery':'')}>
+  const mythosTypes=['超自然遭遇','怪物遭遇','神秘事件'];
+  const isMythos=block.eventType&&mythosTypes.includes(block.eventType);
+  return <div className={'narrative-block'+(block.type==='system'?' system':'')+(block.isEffect?' system':'')+(block.isSpecial?' system':'')+(block.type==='death'?' death-narrative':'')+(isSanRecovery?' san-recovery':'')+(isMythos?' mythos-text':'')}>
     {block.locationName&&<div className="location-name">📍 {block.locationName}</div>}
     {block.eventTitle&&<div className="event-title">{block.eventTitle}</div>}
     {block.eventType&&<div className={'event-type '+block.eventType}>{block.eventType}</div>}
@@ -1145,7 +1223,7 @@ const NarrativeBlock=memo(function NarrativeBlock({block}){
 function NPCDialog({npc,trust,layer,dispatch,state}){
   const [show,setShow]=useState(false);
   const ns=state?.npcStates?.[npc.name]||{};
-  return <div className="narrative-block"><div className="skill-check">
+  return <div className="narrative-block npc-dialogue"><div className="skill-check">
     <div style={{color:'var(--cyan)',fontSize:'0.9rem',marginBottom:'0.3rem'}}>与 {npc.name} 交谈</div>
     <div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.3rem'}}>{npc.role}</div>
     <div style={{fontSize:'0.75rem',color:'var(--gold)',marginBottom:'0.3rem'}}>信任：{'★'.repeat(Math.max(0,trust))}{'☆'.repeat(Math.max(0,5-trust))}</div>
@@ -1166,7 +1244,16 @@ function NPCDialog({npc,trust,layer,dispatch,state}){
 
 const CenterPanel=memo(function CenterPanel({state,dispatch}){
   const ref=useRef(null);
+  const transitionTimer=useRef(null);
   useEffect(()=>{if(ref.current)ref.current.scrollTop=ref.current.scrollHeight},[state.narrative.length]);
+  // Auto-clear transition overlays after animation
+  useEffect(()=>{
+    if(!state.transition)return;
+    const dur={move:800,rest:1800,'san-loss':500}[state.transition]||800;
+    if(transitionTimer.current)clearTimeout(transitionTimer.current);
+    transitionTimer.current=setTimeout(()=>dispatch({type:'CLEAR_TRANSITION'}),dur);
+    return ()=>{if(transitionTimer.current)clearTimeout(transitionTimer.current);};
+  },[state.transition,dispatch]);
   const conn=useMemo(()=>getConnectedAreas(state.currentArea,ctx),[state.currentArea]);
   const npcs=useMemo(()=>getNpcsHere(state),[state.day,state.currentArea,state.npcStates,state.npcTrust]);
   const areas=GD.areas||GD.module2_areas||[];
@@ -1183,6 +1270,9 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
   try{if(perceptionAudio>=2){audioManager._volumeScale=0.6+perceptionAudio*0.15;}else{audioManager._volumeScale=1;}}catch(e){}
 
   return <div className="center-panel">
+    {state.transition&&<div className={'transition-overlay transition-'+state.transition}>
+      {state.transition==='rest'&&<div className="transition-day">第 {state.day} 天</div>}
+    </div>}
     <div className={'narrative-area'+percCls} ref={ref}>
       {state.narrative.map(b=><NarrativeBlock key={b.id} block={b}/>)}
       {state.pendingEvent&&!state.pendingEvent.rolled&&state.pendingEvent.effects?.skill_check&&<div className="narrative-block"><div className="skill-check"><div className="check-title">技能检定：{state.pendingEvent.effects.skill_check.skill}（阈值 {state.pendingEvent.effects.skill_check.threshold||50}）</div><button className="btn btn-sm" onClick={()=>dispatch({type:'DO_SKILL_CHECK'})} style={{marginTop:'0.3rem'}}>掷骰 (d100)</button></div></div>}
@@ -1303,12 +1393,12 @@ function EndingScreen({ending,state,dispatch}){
     {ending.rewards&&<div className="rewards"><div style={{marginBottom:'0.3rem'}}>奖励：</div>{ending.rewards.map((r,i)=><div key={i}>{r}</div>)}</div>}
     {isFirstDeath&&<div className="tutorial-hint" style={{maxWidth:'500px',margin:'0 auto 1rem'}}>死亡不是终点。你的部分知识会在下一轮保留。点击"再次踏入深渊"开始新的轮回。</div>}
     {isStructured?<>
-      <div className="death-recap">
+      <div className={'death-recap '+(recap.deathType==='mental'?'death-san':'death-physical')}>
         <div className="recap-title">死因报告</div>
         <div className="recap-section">
           <div className="recap-section-label">终结</div>
           <div className="recap-section-content">{recap.causeEvent}</div>
-          <div className="recap-section-meta">Day {recap.day} · {recap.deathType==='physical'?'肉体消亡':recap.deathType==='mental'?'理智崩塌':recap.deathType==='time'?'时间耗尽':'未知'}</div>
+          <div className={'recap-section-meta'+(recap.deathType==='mental'?' system-line':'')}>Day {recap.day} · {recap.deathType==='physical'?'肉体消亡':recap.deathType==='mental'?'理智崩塌':recap.deathType==='time'?'时间耗尽':'未知'}</div>
         </div>
         {recap.keyDiscoveries.length>0&&<div className="recap-section">
           <div className="recap-section-label">关键发现</div>

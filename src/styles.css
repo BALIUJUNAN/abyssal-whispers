@@ -1,3 +1,5 @@
+/* Typography: layered font system */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@400;700&family=JetBrains+Mono:wght@400;700&family=LXGW+WenKai:wght@400&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a25;--bg4:#222230;
@@ -8,16 +10,16 @@
   --border:#2a2a35;--border2:#3a3a45;
   --san-high:#4a8a4a;--san-mid:#8a8a3a;--san-low:#8a3a3a;
 }
-body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;min-height:100vh;overflow-x:hidden}
 #root{min-height:100vh}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .title-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;background:radial-gradient(ellipse at center,#0f1a1f 0%,#0a0a0f 70%)}
-.title-screen h1{font-size:2.5rem;color:var(--gold);text-shadow:0 0 20px rgba(184,150,58,0.3);margin-bottom:0.5rem;letter-spacing:0.2em}
-.title-screen h2{font-size:1rem;color:var(--text-dim);margin-bottom:3rem;letter-spacing:0.5em}
-.title-screen .subtitle{color:var(--text-dim);font-size:0.85rem;max-width:500px;line-height:1.8;margin-bottom:2rem}
-.btn{background:var(--bg3);color:var(--text);border:1px solid var(--border2);padding:0.7rem 2rem;cursor:pointer;font-family:inherit;font-size:0.9rem;transition:all 0.3s;letter-spacing:0.1em}
+.title-screen h1{font-size:2.5rem;color:var(--gold);text-shadow:0 0 20px rgba(184,150,58,0.3);margin-bottom:0.5rem;letter-spacing:0.2em;font-family:'Noto Serif SC','Source Han Serif SC','Songti SC',serif}
+.title-screen h2{font-size:1rem;color:var(--text-dim);margin-bottom:3rem;letter-spacing:0.5em;font-family:'Noto Serif SC','Songti SC',serif}
+.title-screen .subtitle{color:var(--text-dim);font-size:0.85rem;max-width:500px;line-height:1.85;margin-bottom:2rem;font-family:'Noto Serif SC','Songti SC',serif;letter-spacing:0.02em}
+.btn{background:var(--bg3);color:var(--text);border:1px solid var(--border2);padding:0.7rem 2rem;cursor:pointer;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:0.9rem;transition:all 0.3s;letter-spacing:0.1em}
 .btn:hover{background:var(--bg4);border-color:var(--accent);color:var(--text-bright)}
 .btn-primary{background:var(--accent);border-color:var(--accent2);color:var(--text-bright)}
 .btn-primary:hover{background:var(--accent2)}
@@ -36,12 +38,12 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .derived-item .label{color:var(--text-dim)}
 .derived-item .value{color:var(--cyan)}
 .game-layout{display:grid;grid-template-columns:260px 1fr 280px;grid-template-rows:auto 1fr;height:100vh;overflow:hidden}
-.game-header{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--border);padding:0.5rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.game-header{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--border);padding:0.5rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .game-header .title{color:var(--gold);font-size:0.9rem}
 .game-header .day-info{display:flex;gap:1rem;font-size:0.75rem;color:var(--text-dim)}
 .game-header .day-info .value{color:var(--text-bright)}
 .left-panel{background:var(--bg2);border-right:1px solid var(--border);padding:0.8rem;overflow-y:auto;font-size:0.8rem}
-.panel-title{color:var(--gold);font-size:0.75rem;letter-spacing:0.15em;margin-bottom:0.5rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border)}
+.panel-title{color:var(--gold);font-size:0.75rem;letter-spacing:0.15em;margin-bottom:0.5rem;padding-bottom:0.3rem;border-bottom:1px solid var(--border);font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .stat-bar{margin-bottom:0.4rem}
 .stat-bar .bar-label{display:flex;justify-content:space-between;margin-bottom:0.15rem}
 .stat-bar .bar-label .name{color:var(--text-dim)}
@@ -79,13 +81,13 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .safehouse-info.s3 .stage-name{color:var(--gold)}
 .safehouse-info.s4 .stage-name{color:var(--danger)}
 .safehouse-info.s5 .stage-name{color:var(--danger2)}
-.center-panel{display:flex;flex-direction:column;overflow:hidden}
+.center-panel{display:flex;flex-direction:column;overflow:hidden;position:relative}
 .narrative-area{flex:1;overflow-y:auto;padding:1.2rem}
 .narrative-block{margin-bottom:1rem;animation:fadeIn 0.5s}
-.narrative-block .location-name{color:var(--gold);font-size:0.8rem;margin-bottom:0.3rem}
-.narrative-block .narrative-text{color:var(--text);line-height:1.8;font-size:0.85rem;white-space:pre-wrap}
-.narrative-block .event-title{color:var(--purple2);font-size:0.9rem;margin-bottom:0.3rem;font-weight:bold}
-.narrative-block .event-type{font-size:0.7rem;padding:0.1rem 0.4rem;border:1px solid;display:inline-block;margin-bottom:0.3rem}
+.narrative-block .location-name{color:var(--gold);font-size:0.8rem;margin-bottom:0.3rem;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
+.narrative-block .narrative-text{color:var(--text);line-height:1.85;font-size:0.85rem;white-space:pre-wrap;font-family:'Noto Serif SC','Source Han Serif SC','Songti SC','SimSun',serif;letter-spacing:0.02em}
+.narrative-block .event-title{color:var(--purple2);font-size:0.9rem;margin-bottom:0.3rem;font-weight:bold;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
+.narrative-block .event-type{font-size:0.7rem;padding:0.1rem 0.4rem;border:1px solid;display:inline-block;margin-bottom:0.3rem;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .narrative-block .event-type.超自然遭遇{color:var(--danger);border-color:var(--danger)}
 .narrative-block .event-type.怪物遭遇{color:var(--danger);border-color:var(--danger)}
 .narrative-block .event-type.神秘事件{color:var(--purple);border-color:var(--purple)}
@@ -95,7 +97,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .narrative-block .event-type.正常事件{color:var(--accent2);border-color:var(--accent2)}
 .narrative-block .event-type.轻微异常{color:var(--gold);border-color:var(--gold)}
 .narrative-block .effects{margin-top:0.5rem;padding:0.4rem;background:var(--bg);border:1px solid var(--border);font-size:0.75rem}
-.narrative-block .skill-check{margin-top:0.5rem;padding:0.4rem;background:var(--bg2);border:1px solid var(--border)}
+.narrative-block .skill-check{margin-top:0.5rem;padding:0.4rem;background:var(--bg2);border:1px solid var(--border);font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .narrative-block .skill-check .check-title{color:var(--gold);font-size:0.75rem}
 .narrative-block .skill-check .result-success{color:var(--accent2);margin-top:0.2rem}
 .narrative-block .skill-check .result-fail{color:var(--danger2);margin-top:0.2rem}
@@ -103,14 +105,16 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .narrative-block .roll-result .roll-num{font-size:1.2rem;font-weight:bold}
 .narrative-block .roll-result .success{color:var(--accent2)}
 .narrative-block .roll-result .fail{color:var(--danger2)}
-.narrative-block .madness-effect{background:var(--danger);color:var(--text-bright);padding:0.3rem;margin-top:0.3rem;font-size:0.8rem}
+.narrative-block .madness-effect{background:var(--danger);color:var(--text-bright);padding:0.3rem;margin-top:0.3rem;font-size:0.8rem;font-family:'Noto Serif SC','Songti SC',serif}
 .narrative-block.system{border-left:2px solid var(--border2);padding-left:0.5rem}
-.narrative-block.system .narrative-text{color:var(--text-dim);font-style:italic}
+.narrative-block.system .narrative-text{color:var(--text-dim);font-style:italic;font-family:'JetBrains Mono','SFMono-Regular','Consolas','Noto Sans Mono CJK SC',monospace;letter-spacing:0.01em;line-height:1.7}
+.narrative-block.death-narrative{border-left:2px solid var(--danger);padding-left:0.5rem}
+.narrative-block.death-narrative .narrative-text{color:var(--text);font-style:normal;font-family:'Noto Serif SC','Songti SC',serif;line-height:1.9;letter-spacing:0.03em}
 .narrative-block.san-recovery{border-left:2px solid var(--accent);padding-left:0.5rem}
-.narrative-block.san-recovery .narrative-text{color:var(--accent2)}
+.narrative-block.san-recovery .narrative-text{color:var(--accent2);font-family:'Noto Serif SC','Songti SC',serif}
 .action-area{border-top:1px solid var(--border);padding:0.8rem;background:var(--bg2)}
 .action-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.4rem}
-.action-btn{background:var(--bg3);color:var(--text);border:1px solid var(--border2);padding:0.5rem 0.3rem;cursor:pointer;font-family:inherit;font-size:0.75rem;transition:all 0.2s;text-align:center}
+.action-btn{background:var(--bg3);color:var(--text);border:1px solid var(--border2);padding:0.5rem 0.3rem;cursor:pointer;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:0.75rem;transition:all 0.2s;text-align:center}
 .action-btn:hover{background:var(--bg4);border-color:var(--accent);color:var(--text-bright)}
 .action-btn:disabled{opacity:0.3;cursor:not-allowed}
 .action-btn .cost{font-size:0.65rem;color:var(--text-dim);display:block}
@@ -138,17 +142,17 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .clue-entry{padding:0.2rem 0;font-size:0.75rem;color:var(--blue)}
 .endings-section .ending-hint{font-size:0.7rem;color:var(--text-dim);padding:0.2rem 0}
 .event-log{border-top:1px solid var(--border);padding:0.4rem 0.8rem;background:var(--bg);max-height:100px;overflow-y:auto}
-.event-log .log-entry{font-size:0.7rem;color:var(--text-dim);padding:0.1rem 0}
+.event-log .log-entry{font-size:0.7rem;color:var(--text-dim);padding:0.1rem 0;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .event-log .log-entry .log-day{color:var(--gold)}
 .ending-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
-.ending-screen h2{font-size:2rem;color:var(--gold);margin-bottom:1rem}
-.ending-screen .ending-desc{max-width:600px;line-height:1.8;margin-bottom:2rem;color:var(--text)}
+.ending-screen h2{font-size:2rem;color:var(--gold);margin-bottom:1rem;font-family:'Noto Serif SC','Source Han Serif SC','Songti SC',serif}
+.ending-screen .ending-desc{max-width:600px;line-height:1.85;margin-bottom:2rem;color:var(--text);font-family:'Noto Serif SC','Songti SC',serif;letter-spacing:0.02em}
 .ending-screen .rewards{color:var(--accent2);margin-bottom:1rem}
 .ending-screen .stats-summary{color:var(--text-dim);font-size:0.8rem;margin-bottom:2rem}
 .ending-screen.good h2{color:var(--accent2)}
 .ending-screen.bad h2{color:var(--danger2)}
 .ending-screen.hidden h2{color:var(--purple2)}
-.save-load-bar{display:flex;gap:0.5rem;padding:0.3rem 0.5rem;background:var(--bg);border-top:1px solid var(--border)}
+.save-load-bar{display:flex;gap:0.5rem;padding:0.3rem 0.5rem;background:var(--bg);border-top:1px solid var(--border);font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .save-load-bar .btn-sm{font-size:0.65rem;padding:0.2rem 0.6rem}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:900px){.game-layout{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto}.left-panel,.right-panel{max-height:30vh}}
@@ -199,18 +203,18 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 .confessional{max-width:500px;margin:1.5rem auto;padding:1rem;background:var(--bg2);border:1px solid var(--border);text-align:left}
 .confessional-title{color:var(--gold);font-size:0.9rem;text-align:center;margin-bottom:0.3rem;letter-spacing:0.2em}
 .confessional-subtitle{color:var(--text-dim);font-size:0.75rem;text-align:center;margin-bottom:0.8rem}
-.confessional-entry{color:var(--text);font-size:0.8rem;padding:0.3rem 0;border-bottom:1px solid var(--border);line-height:1.6}
+.confessional-entry{color:var(--text);font-size:0.8rem;padding:0.3rem 0;border-bottom:1px solid var(--border);line-height:1.9;font-family:'LXGW WenKai','Kaiti SC','KaiTi',serif;letter-spacing:0.03em}
 .confessional-entry:last-child{border-bottom:none}
 /* Death recap */
 .death-recap{max-width:500px;margin:1.5rem auto;padding:1rem;background:var(--bg2);border:1px solid var(--border);text-align:left}
 .recap-title{color:var(--gold);font-size:0.9rem;text-align:center;margin-bottom:0.5rem;letter-spacing:0.2em}
-.recap-line{color:var(--text);font-size:0.8rem;padding:0.3rem 0;border-bottom:1px solid var(--border);line-height:1.6}
+.recap-line{color:var(--text);font-size:0.8rem;padding:0.3rem 0;border-bottom:1px solid var(--border);line-height:1.6;font-family:'Noto Serif SC','Songti SC',serif}
 .recap-line:last-of-type{border-bottom:none}
 .recap-final{color:var(--text-dim);font-size:0.75rem;text-align:center;margin-top:0.8rem;font-style:italic}
 .recap-section{margin-top:0.6rem;padding-top:0.4rem;border-top:1px solid var(--border)}
 .recap-section:first-of-type{border-top:none;margin-top:0.3rem}
 .recap-section-label{color:var(--gold);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.2rem}
-.recap-section-content{color:var(--text);font-size:0.8rem;line-height:1.6}
+.recap-section-content{color:var(--text);font-size:0.8rem;line-height:1.6;font-family:'Noto Serif SC','Songti SC',serif}
 .recap-section-meta{color:var(--text-dim);font-size:0.7rem;margin-top:0.1rem}
 .recap-section-item{color:var(--text);font-size:0.8rem;padding:0.15rem 0;line-height:1.5}
 /* First death animations */
@@ -219,7 +223,7 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 @keyframes deathBlackout{0%{opacity:1}40%{opacity:1}100%{opacity:0.15}}
 @keyframes deathDistort{0%{filter:none;transform:none}30%{filter:blur(0.5px)}60%{filter:blur(1px) hue-rotate(10deg);transform:skewX(0.5deg)}100%{filter:blur(0.3px) hue-rotate(5deg);transform:skewX(0.2deg)}}
 /* Tutorial hints */
-.tutorial-hint{background:rgba(138,48,48,0.08);border:1px solid rgba(138,48,48,0.15);border-radius:4px;padding:0.4rem 0.7rem;font-size:0.75rem;color:var(--text-dim);line-height:1.5;text-align:center;margin-bottom:0.5rem}
+.tutorial-hint{background:rgba(138,48,48,0.08);border:1px solid rgba(138,48,48,0.15);border-radius:4px;padding:0.4rem 0.7rem;font-size:0.75rem;color:var(--text-dim);line-height:1.5;text-align:center;margin-bottom:0.5rem;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 /* Perception levels (P3) — text: brightness/shadow on narrative text */
 .perception-text-1 .narrative-text{text-shadow:0 0 1px rgba(255,255,255,0.15)}
 .perception-text-2 .narrative-text{letter-spacing:0.01em}
@@ -236,3 +240,38 @@ body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;
 /* perception-text-3 + SAN <40 tremor */
 .perception-text-3 .narrative-text{animation:percTremor 5s ease-in-out infinite}
 @keyframes percTremor{0%,100%{transform:translateX(0)}30%{transform:translateX(-0.3px)}60%{transform:translateX(0.2px)}}
+/* === Layered Typography Classes === */
+/* Mythos text: serif with typographic anomalies */
+.mythos-text .narrative-text,
+.narrative-block.mythos-text .narrative-text{letter-spacing:0.05em;line-height:2;opacity:0.92}
+.text-distorted .narrative-text{letter-spacing:0.08em;filter:blur(0.2px);text-shadow:0 0 1px currentColor}
+/* Meta / system corruption text: monospace */
+.meta-text .narrative-text,
+.narrative-block.meta-text .narrative-text{font-family:'JetBrains Mono','SFMono-Regular','Consolas','Noto Sans Mono CJK SC',monospace;letter-spacing:0.01em;line-height:1.7}
+/* NPC dialogue: sans-serif */
+.npc-dialogue{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;line-height:1.75}
+.npc-dialogue .narrative-text{font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:0.85rem;line-height:1.75}
+/* Note / letter / diary text: kai handwriting */
+.note-text .narrative-text{font-family:'LXGW WenKai','Kaiti SC','KaiTi',serif;line-height:1.9;letter-spacing:0.03em}
+/* Death type-specific fonts */
+.death-physical .recap-section-content,
+.death-physical .recap-line{font-family:'Noto Serif SC','Songti SC',serif;line-height:1.9}
+.death-san .recap-section-content{font-family:'Noto Serif SC','Songti SC',serif;line-height:1.9}
+.death-san .system-line{font-family:'JetBrains Mono','Consolas',monospace;font-size:0.75rem;opacity:0.8}
+/* Mythos event type badge */
+.narrative-block .event-type.超自然遭遇{font-style:italic}
+.narrative-block .event-type.怪物遭遇{font-style:italic}
+.narrative-block .event-type.神秘事件{font-style:italic}
+/* === Transition Overlays === */
+.transition-overlay{position:absolute;top:0;left:0;right:0;bottom:0;z-index:100;pointer-events:none;display:flex;align-items:center;justify-content:center}
+/* MOVE: fade to black and back */
+.transition-move{background:var(--bg);animation:transitionMove 0.8s ease-in-out forwards}
+@keyframes transitionMove{0%{opacity:0}30%{opacity:1}70%{opacity:1}100%{opacity:0}}
+/* REST: longer blackout with day text */
+.transition-rest{background:#000;animation:transitionRest 1.8s ease-in-out forwards}
+.transition-rest .transition-day{color:var(--gold);font-family:'Noto Serif SC','Songti SC',serif;font-size:1.5rem;letter-spacing:0.3em;opacity:0;animation:transitionDayFade 1.8s ease-in-out forwards}
+@keyframes transitionRest{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes transitionDayFade{0%{opacity:0}20%{opacity:0}35%{opacity:1}65%{opacity:1}80%{opacity:0}100%{opacity:0}}
+/* SAN loss: red flash */
+.transition-san-loss{background:radial-gradient(ellipse at center,rgba(138,48,48,0.6) 0%,rgba(138,48,48,0) 70%);animation:transitionSanLoss 0.5s ease-out forwards}
+@keyframes transitionSanLoss{0%{opacity:0}15%{opacity:1}100%{opacity:0}}

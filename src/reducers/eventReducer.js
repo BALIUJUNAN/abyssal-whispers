@@ -2,6 +2,7 @@
 
 import { d100 } from './utils.js';
 import { getPhase } from './worldReducer.js';
+import { checkTriggerExtended, selectEventV2 } from './extendedEvents.js';
 
 export function checkTrigger(evt, state) {
   const t = evt.trigger;
@@ -32,6 +33,9 @@ export function checkTrigger(evt, state) {
   }
   return true;
 }
+
+// Re-export extended trigger check for use by other modules
+export { checkTriggerExtended };
 
 export function selectEvent(areaId, state, ctx, pick) {
   const { GD } = ctx;

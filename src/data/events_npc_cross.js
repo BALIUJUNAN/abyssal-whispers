@@ -1,0 +1,716 @@
+// NPC交叉与关系网事件 - 65 events
+// Directions: 双人对话(20), 秘密交换(15), 三角关系(10), 信任连锁(12), 联合对抗(8)
+export const events = [
+  // =============================================
+  // 双人对话 (20) - 两个NPC信任>=2, 同一区域
+  // =============================================
+  {
+    id: "npc_cross_duo_001", name: "玛莎与老费舍的争执", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "martha", "fisher"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "玛莎·格雷": 2, "老费舍": 2 }, probability: 0.15, once_per_run: true, npc_alive: ["玛莎·格雷", "老费舍"] },
+    description: "你走进酒吧。玛莎和老费舍在争吵。\n“你不能总是一个人出海！”玛莎说，“太危险了。”\n老费舍摇了摇头。“海里有我需要的东西。”\n“你需要的是活着！”玛莎的声音提高了。\n他们看到你，都停了下来。\n“你来得正好，”玛莎说，“你来告诉他，他不能一个人出海。”\n老费舍看着你。“你觉得呢？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "支持玛莎", text: "“她说得对。一个人出海太危险了。”老费舍沉默了很久。", effects: { npc_trust: { "玛莎·格雷": 1, "老费舍": -1 }, add_run_memory: { text: "在玛莎和老费舍的争执中支持了玛莎。" } } },
+      { label: "支持老费舍", text: "“他知道自己在做什么。”玛莎看了你一眼，表情复杂。", effects: { npc_trust: { "玛莎·格雷": -1, "老费舍": 1 }, add_run_memory: { text: "在玛莎和老费舍的争执中支持了老费舍。" } } },
+      { label: "沉默", text: "你没有说话。玛莎叹了口气，老费舍继续喝酒。", effects: { add_run_memory: { text: "在玛莎和老费舍的争执中保持了沉默。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_002", name: "伊莱亚斯与汤米的讨论", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "elias", "tommy"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莱亚斯·沃德": 2, "汤米·陈": 2 }, probability: 0.15, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "汤米·陈"] },
+    description: "你走进汤米的店铺。伊莱亚斯也在。他们正在看一张照片。\n“你看这个，”汤米指着照片，“这是我在码头拍的。”\n照片上是一艘船。船身很旧，但你注意到——船的名字是用一种你不认识的文字写的。\n伊莱亚斯凑近看。“这不是英文。也不是拉丁文。”\n他看着你。“你见过这种文字吗？”",
+    effects: { add_clue: "clue_npc_cross_strange_text" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "告诉他们你见过", text: "你告诉他们在墓穴里见过类似的符号。伊莱亚斯的眼睛亮了。", effects: { npc_trust: { "伊莱亚斯·沃德": 1, "汤米·陈": 1 }, add_run_memory: { text: "告诉伊莱亚斯和汤米你见过类似的文字。" } } },
+      { label: "说没见过", text: "你摇了摇头。伊莱亚斯看起来有些失望。", effects: { add_run_memory: { text: "对伊莱亚斯和汤米隐瞒了信息。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_003", name: "希尔达与伊莎贝拉的密谈", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "hilda", "isabella"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "希尔达·莫里斯": 2, "伊莎贝拉·韦伯": 2 }, probability: 0.12, once_per_run: true, npc_alive: ["希尔达·莫里斯", "伊莎贝拉·韦伯"] },
+    description: "你在教堂附近看到了希尔达和伊莎贝拉。她们在低声交谈。\n你走近时，她们停了下来。\n希尔达看了你一眼。“你来得正好。”她说。\n伊莎贝拉点了点头。“我们需要你的帮助。”\n她们交换了一个眼神。然后希尔达说：\n“关于封印——我们知道一些事情。但我们不确定该不该告诉你。”",
+    effects: { add_clue: "clue_npc_cross_seal_secret" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "请求她们告诉你", text: "“请告诉我。我需要知道真相。”她们又交换了一个眼神。", effects: { npc_trust: { "希尔达·莫里斯": 1, "伊莎贝拉·韦伯": 1 }, add_clue: "clue_npc_cross_seal_truth", add_run_memory: { text: "希尔达和伊莎贝拉告诉你了关于封印的秘密。" } } },
+      { label: "说你会自己调查", text: "“我会自己找到答案的。”希尔达看起来有些失望。", effects: { add_run_memory: { text: "拒绝了希尔达和伊莎贝拉的帮助。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_004", name: "约书亚与老费舍的沉默", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "joshua", "fisher"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "约书亚·布莱克": 2, "老费舍": 2 }, probability: 0.12, once_per_run: true, npc_alive: ["约书亚·布莱克", "老费舍"] },
+    description: "你在码头边看到约书亚和老费舍坐在一起。他们没有说话。\n你走过去坐下。他们看了你一眼，继续沉默。\n过了很久，约书亚开口了：\n“你有没有想过——海下面有什么？”\n老费舍补充道：“不是鱼。是别的什么。”\n他们看着海面。海面很平静。但你知道——水下面不是。",
+    effects: { add_clue: "clue_npc_cross_sea_below" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "问他们知道什么", text: "“你们知道什么？”他们交换了一个眼神。然后老费舍说：\n“灯塔下面有东西。不是灯——是门。", effects: { npc_trust: { "约书亚·布莱克": 1, "老费舍": 1 }, add_clue: "clue_npc_cross_lighthouse_door", add_run_memory: { text: "约书亚和老费舍告诉你灯塔下面有门。" } } },
+      { label: "保持沉默", text: "你没有说话。你们三个坐在码头边，看着海面。", effects: { add_run_memory: { text: "和约书亚、老费舍一起沉默地看着海面。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_005", name: "埃德加与伊莱亚斯的辩论", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "edgar", "elias"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "埃德加·洛夫克拉夫特": 2, "伊莱亚斯·沃德": 2 }, probability: 0.12, once_per_run: true, npc_alive: ["埃德加·洛夫克拉夫特", "伊莱亚斯·沃德"] },
+    description: "你走进图书馆。埃德加和伊莱亚斯在辩论。\n“真相应该被公开！”埃德加说，“人们有权知道！”\n“有些真相太危险了，”伊莱亚斯反驳，“公开会导致恐慌。”\n他们看到你，都停了下来。\n“你来得正好，”埃德加说，“你觉得真相应该被公开吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "支持埃德加", text: "“人们有权知道真相。”伊莱亚斯叹了口气。", effects: { npc_trust: { "埃德加·洛夫克拉夫特": 1, "伊莱亚斯·沃德": -1 }, add_run_memory: { text: "在埃德加和伊莱亚斯的辩论中支持了公开真相。" } } },
+      { label: "支持伊莱亚斯", text: "“有些真相确实太危险了。”埃德加看起来很失望。", effects: { npc_trust: { "埃德加·洛夫克拉夫特": -1, "伊莱亚斯·沃德": 1 }, add_run_memory: { text: "在埃德加和伊莱亚斯的辩论中支持了隐瞒真相。" } } },
+      { label: "两不相帮", text: "“你们都有道理。”他们看起来都不太满意。", effects: { add_run_memory: { text: "在埃德加和伊莱亚斯的辩论中保持中立。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_006", name: "玛莎与伊莎贝拉的交易", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "martha", "isabella"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "玛莎·格雷": 2, "伊莎贝拉·韦伯": 2 }, probability: 0.12, once_per_run: true, npc_alive: ["玛莎·格雷", "伊莎贝拉·韦伯"] },
+    description: "你在教堂附近看到玛莎和伊莎贝拉在交谈。她们的表情都很严肃。\n你走近时，玛莎说：\n“我们需要你的帮助。伊莎贝拉找到了一些东西——关于封印的。但需要有人去取。”\n伊莎贝拉补充道：“东西在灯塔的地下室。很危险。”\n她们看着你。\n“你愿意去吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "答应", text: "“我去。”她们都松了一口气。", effects: { npc_trust: { "玛莎·格雷": 1, "伊莎贝拉·韦伯": 1 }, add_clue: "clue_npc_cross_lighthouse_quest", add_run_memory: { text: "答应帮玛莎和伊莎贝拉去灯塔取东西。" } } },
+      { label: "拒绝", text: "“我不能去。太危险了。”她们看起来很失望。", effects: { add_run_memory: { text: "拒绝了玛莎和伊莎贝拉的请求。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_007", name: "汤米与希尔达的相遇", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "tommy", "hilda"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "汤米·陈": 2, "希尔达·莫里斯": 2 }, probability: 0.1, once_per_run: true, npc_alive: ["汤米·陈", "希尔达·莫里斯"] },
+    description: "你在镇中心看到汤米和希尔达在交谈。这很不寻常——希尔达很少来镇中心。\n你走近时，希尔达说：\n“汤米给我看了一些照片。是庄园的。”\n汤米补充道：“我拍的时候没有看到任何人。但照片里有人影。”\n希尔达看着你。“你觉得庄园里还有什么？”",
+    effects: { add_clue: "clue_npc_cross_manor_photo" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "告诉他们你的发现", text: "你告诉了他们在庄园里的发现。希尔达的脸色变了。", effects: { npc_trust: { "汤米·陈": 1, "希尔达·莫里斯": 1 }, add_run_memory: { text: "和汤米、希尔达分享了庄园的发现。" } } },
+      { label: "隐瞒", text: "“我不确定。”他们看起来不太相信你。", effects: { add_run_memory: { text: "对汤米和希尔达隐瞒了信息。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_008", name: "老费舍与伊莱亚斯的交流", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "fisher", "elias"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "老费舍": 2, "伊莱亚斯·沃德": 2 }, probability: 0.1, once_per_run: true, npc_alive: ["老费舍", "伊莱亚斯·沃德"] },
+    description: "你在码头看到伊莱亚斯和老费舍在交谈。这很不寻常——他们平时不怎么来往。\n你走近时，伊莱亚斯说：\n“老费舍告诉我一些关于海里的事。很有趣。”\n老费舍补充道：“教授想知道为什么海水有时候是黑色的。”\n伊莱亚斯看着你。“你知道吗？”",
+    effects: { add_clue: "clue_npc_cross_black_sea" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "告诉他们你知道的", text: "你告诉了他们你关于海水变黑的观察。伊莱亚斯记了下来。", effects: { npc_trust: { "老费舍": 1, "伊莱亚斯·沃德": 1 }, add_run_memory: { text: "和伊莱亚斯、老费舍讨论了黑色海水。" } } },
+      { label: "说不知道", text: "你摇了摇头。伊莱亚斯有些失望。", effects: { add_run_memory: { text: "对伊莱亚斯和老费舍隐瞒了信息。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_009", name: "约书亚与玛莎的争执", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "joshua", "martha"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "约书亚·布莱克": 2, "玛莎·格雷": 2 }, probability: 0.12, once_per_run: true, npc_alive: ["约书亚·布莱克", "玛莎·格雷"] },
+    description: "你走进酒吧。约书亚和玛莎在争吵。\n“你不能告诉他！”玛莎说。\n“他需要知道！”约书亚反驳。\n他们看到你，都停了下来。\n约书亚看着你。“你想知道灯塔下面有什么吗？”\n玛莎摇了摇头。“别告诉他。那太危险了。”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "想知道", text: "“告诉我。”约书亚开始说。玛莎转身走了。", effects: { npc_trust: { "约书亚·布莱克": 1, "玛莎·格雷": -1 }, add_clue: "clue_npc_cross_lighthouse_below", add_run_memory: { text: "从约书亚那里知道了灯塔下面的秘密。" } } },
+      { label: "听玛莎的", text: "“也许我不该知道。”约书亚叹了口气。", effects: { npc_trust: { "约书亚·布莱克": -1, "玛莎·格雷": 1 }, add_run_memory: { text: "听从了玛莎的建议，没有追问灯塔的秘密。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_010", name: "伊莎贝拉与埃德加的合作", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "isabella", "edgar"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莎贝拉·韦伯": 2, "埃德加·洛夫克拉夫特": 2 }, probability: 0.1, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯", "埃德加·洛夫克拉夫特"] },
+    description: "你在教堂看到伊莎贝拉和埃德加在合作。他们在整理一些古老的文献。\n“我们在找关于封印的记录，”伊莎贝拉解释，“埃德加的写作技巧很有用。”\n埃德加补充道：“这些文献记载了封印的历史。如果我们能理解——”\n他停住了。看着你。\n“你能帮我们翻译一些段落吗？”",
+    effects: { add_clue: "clue_npc_cross_seal_records" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "帮忙翻译", text: "你花了一些时间帮他们翻译了几个段落。内容很惊人。", effects: { npc_trust: { "伊莎贝拉·韦伯": 1, "埃德加·洛夫克拉夫特": 1 }, add_clue: "clue_npc_cross_seal_translation", add_run_memory: { text: "帮伊莎贝拉和埃德加翻译了封印文献。" } } },
+      { label: "拒绝", text: "“我现在太忙了。”他们看起来很失望。", effects: { add_run_memory: { text: "拒绝了伊莎贝拉和埃德加的翻译请求。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_011", name: "希尔达与老费舍的秘密", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "hilda", "fisher"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "希尔达·莫里斯": 3, "老费舍": 3 }, probability: 0.08, once_per_run: true, npc_alive: ["希尔达·莫里斯", "老费舍"] },
+    description: "你在码头看到希尔达和老费舍坐在一起。他们看到你，停下了交谈。\n希尔达犹豫了一下，然后说：\n“我们在讨论家族的事。老费舍知道一些关于莫里斯家族的秘密。”\n老费舍补充道：“我知道的不多。但我知道——你的血脉和海有关系。”\n希尔达看着你。“你想听吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "听", text: "他们告诉你了莫里斯家族和海的关系。内容很惊人。", effects: { npc_trust: { "希尔达·莫里斯": 1, "老费舍": 1 }, add_clue: "clue_npc_cross_morris_sea", add_run_memory: { text: "知道了莫里斯家族和海的秘密关系。" } } },
+      { label: "不听", text: "“也许我不该知道。”他们看起来松了一口气。", effects: { add_run_memory: { text: "拒绝了希尔达和老费舍的秘密。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_012", name: "汤米与约书亚的交换", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "tommy", "joshua"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "汤米·陈": 2, "约书亚·布莱克": 2 }, probability: 0.1, once_per_run: true, npc_alive: ["汤米·陈", "约书亚·布莱克"] },
+    description: "你在码头看到汤米和约书亚在交换东西。汤米给了约书亚一些照片，约书亚给了汤米一些……\n你看不清是什么。\n他们看到你，立刻停止了交换。\n汤米说：“只是朋友之间的小交易。”\n约书亚补充道：“没什么特别的。”\n你注意到约书亚的手在发抖。",
+    effects: { add_clue: "clue_npc_cross_tommy_joshua_trade" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "追问", text: "“你们在交换什么？”他们交换了一个眼神。然后汤米说：\n“照片。约书亚有灯塔的照片。我有庄园的照片。", effects: { npc_trust: { "汤米·陈": -1, "约书亚·布莱克": -1 }, add_clue: "clue_npc_cross_photo_trade", add_run_memory: { text: "追问了汤米和约书亚的交换内容。" } } },
+      { label: "不追问", text: "你点了点头。没有追问。", effects: { add_run_memory: { text: "没有追问汤米和约书亚的交换。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_013", name: "伊莱亚斯与玛莎的密谈", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "elias", "martha"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "伊莱亚斯·沃德": 2, "玛莎·格雷": 2 }, probability: 0.1, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "玛莎·格雷"] },
+    description: "你走进酒吧。伊莱亚斯和玛莎在角落里低声交谈。\n你走近时，他们停了下来。\n伊莱亚斯说：“我们正在讨论一些……学术问题。”\n玛莎补充道：“关于酒吧的历史。”\n你注意到玛莎的手在吧台上敲着一种有节奏的敲击。伊莱亚斯也在敲——同样的节奏。",
+    effects: { add_clue: "clue_npc_cross_elias_martha_rhythm" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "问他们在讨论什么", text: "“你们在讨论什么？”他们交换了一个眼神。然后伊莱亚斯说：\n“关于封印。玛莎知道一些我不知道的事。", effects: { npc_trust: { "伊莱亚斯·沃德": 1, "玛莎·格雷": 1 }, add_clue: "clue_npc_cross_seal_martha", add_run_memory: { text: "知道了伊莱亚斯和玛莎在讨论封印。" } } },
+      { label: "不追问", text: "你点了点头。没有追问。", effects: { add_run_memory: { text: "没有追问伊莱亚斯和玛莎的密谈。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_014", name: "希尔达与伊莱亚斯的联盟", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "hilda", "elias"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "希尔达·莫里斯": 3, "伊莱亚斯·沃德": 3 }, probability: 0.08, once_per_run: true, npc_alive: ["希尔达·莫里斯", "伊莱亚斯·沃德"] },
+    description: "你在伊莱亚斯的书房里看到希尔达。他们正在研究一些古老的文献。\n“我们找到了一些东西，”伊莱亚斯说，“关于封印的运作方式。”\n希尔达补充道：“封印需要维护。维护的方式是——”\n她停住了。看着你。\n“你愿意加入我们吗？我们需要一个能去危险地方的人。”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "加入", text: "“我加入。”他们看起来很高兴。", effects: { npc_trust: { "希尔达·莫里斯": 1, "伊莱亚斯·沃德": 1 }, add_clue: "clue_npc_cross_alliance", add_run_memory: { text: "加入了希尔达和伊莱亚斯的联盟。" } } },
+      { label: "拒绝", text: "“我需要更多时间考虑。”他们点了点头。", effects: { add_run_memory: { text: "拒绝了希尔达和伊莱亚斯的联盟邀请。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_015", name: "玛莎与汤米的友谊", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "martha", "tommy"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "玛莎·格雷": 2, "汤米·陈": 2 }, probability: 0.12, once_per_run: true, npc_alive: ["玛莎·格雷", "汤米·陈"] },
+    description: "你在镇中心看到玛莎和汤米在交谈。玛莎手里拿着一张照片。\n“汤米帮我拍了一些照片，”玛莎解释，“是酒吧的。”\n汤米补充道：“酒吧有些角落很有趣。光线很特别。”\n玛莎看着你。“你想看看吗？”\n她递给你一张照片。照片上是酒吧的吧台。你注意到——吧台的木纹里有字。",
+    effects: { add_clue: "clue_npc_cross_bar_text" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "仔细看照片", text: "你仔细看了照片。吧台的木纹里确实有字。你认出了几个词。", effects: { npc_trust: { "玛莎·格雷": 1, "汤米·陈": 1 }, add_clue: "clue_npc_cross_bar_message", add_run_memory: { text: "在玛莎和汤米的照片里发现了隐藏的文字。" } } },
+      { label: "还给玛莎", text: "你把照片还给了玛莎。没有仔细看。", effects: { add_run_memory: { text: "没有仔细看玛莎和汤米的照片。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_016", name: "老费舍与伊莎贝拉的相遇", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "fisher", "isabella"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "老费舍": 2, "伊莎贝拉·韦伯": 2 }, probability: 0.08, once_per_run: true, npc_alive: ["老费舍", "伊莎贝拉·韦伯"] },
+    description: "你在码头看到伊莎贝拉和老费舍在交谈。这很不寻常——伊莎贝拉很少来码头。\n你走近时，伊莎贝拉说：\n“老费舍告诉我一些关于海里的事。关于……那些东西。”\n老费舍补充道：“她想知道为什么海水有时候是黑色的。”\n伊莎贝拉看着你。“你知道吗？黑色的海水意味着什么？”",
+    effects: { add_clue: "clue_npc_cross_black_sea_meaning" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "告诉他们你知道的", text: "你告诉了他们你的观察。伊莎贝拉的表情变得严肃。", effects: { npc_trust: { "老费舍": 1, "伊莎贝拉·韦伯": 1 }, add_clue: "clue_npc_cross_sea_knowledge", add_run_memory: { text: "和伊莎贝拉、老费舍讨论了黑色海水的含义。" } } },
+      { label: "说不知道", text: "你摇了摇头。伊莎贝拉看起来有些失望。", effects: { add_run_memory: { text: "对伊莎贝拉和老费舍隐瞒了信息。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_017", name: "约书亚与伊莱亚斯的交流", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "joshua", "elias"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "约书亚·布莱克": 2, "伊莱亚斯·沃德": 2 }, probability: 0.1, once_per_run: true, npc_alive: ["约书亚·布莱克", "伊莱亚斯·沃德"] },
+    description: "你在伊莱亚斯的书房里看到约书亚。他们在看一张地图。\n“约书亚在海军的时候见过一些东西，”伊莱亚斯解释，“关于海里的。”\n约书亚补充道：“我在太平洋服役的时候，看到过一些……不应该存在的东西。”\n他指着地图上的一个位置。“在这里。深海里。”\n伊莱亚斯看着你。“你想听吗？”",
+    effects: { add_clue: "clue_npc_cross_pacific_deep" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "听", text: "约书亚告诉你了他在太平洋的见闻。内容很惊人。", effects: { npc_trust: { "约书亚·布莱克": 1, "伊莱亚斯·沃德": 1 }, add_clue: "clue_npc_cross_pacific_truth", add_run_memory: { text: "知道了约书亚在太平洋的见闻。" } } },
+      { label: "不听", text: "“也许我不该知道。”他们看起来很失望。", effects: { add_run_memory: { text: "拒绝了约书亚和伊莱亚斯的分享。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_018", name: "希尔达与玛莎的对话", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "hilda", "martha"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "希尔达·莫里斯": 2, "玛莎·格雷": 2 }, probability: 0.08, once_per_run: true, npc_alive: ["希尔达·莫里斯", "玛莎·格雷"] },
+    description: "你在酒吧看到希尔达和玛莎在交谈。希尔达很少来酒吧。\n你走近时，希尔达说：\n“玛莎在告诉我关于码头的事。关于那些失踪的人。”\n玛莎补充道：“有些人失踪了。但他们的船还在。”\n希尔达看着你。“你觉得他们去了哪里？”",
+    effects: { add_clue: "clue_npc_cross_missing_sailors" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "告诉他们你的猜测", text: "你告诉了他们你的猜测。希尔达的脸色变了。", effects: { npc_trust: { "希尔达·莫里斯": 1, "玛莎·格雷": 1 }, add_run_memory: { text: "和希尔达、玛莎讨论了失踪水手的事。" } } },
+      { label: "说不知道", text: "你摇了摇头。她们看起来很失望。", effects: { add_run_memory: { text: "对希尔达和玛莎隐瞒了信息。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_019", name: "汤米与埃德加的合作", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "tommy", "edgar"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "汤米·陈": 2, "埃德加·洛夫克拉夫特": 2 }, probability: 0.1, once_per_run: true, npc_alive: ["汤米·陈", "埃德加·洛夫克拉夫特"] },
+    description: "你在汤米的店铺里看到埃德加。他们正在看一些照片。\n“埃德加在帮我整理照片，”汤米解释，“他在写一篇关于沃切斯特的文章。”\n埃德加补充道：“这些照片很有价值。它们记录了沃切斯特的变化。”\n他指着一张照片。“你看这个——这是灯塔。但灯塔的光不对。”\n你仔细看。灯塔的光确实是绿色的。",
+    effects: { add_clue: "clue_npc_cross_green_light" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "问他们灯塔的光", text: "“灯塔的光为什么是绿色的？”他们交换了一个眼神。", effects: { npc_trust: { "汤米·陈": 1, "埃德加·洛夫克拉夫特": 1 }, add_clue: "clue_npc_cross_green_light_truth", add_run_memory: { text: "知道了灯塔的绿光之谜。" } } },
+      { label: "不追问", text: "你点了点头。没有追问。", effects: { add_run_memory: { text: "没有追问灯塔的绿光。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_duo_020", name: "老费舍与伊莱亚斯的联盟", type: "npc_cross", subtype: "duo_dialogue",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "fisher", "elias"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "老费舍": 3, "伊莱亚斯·沃德": 3 }, probability: 0.08, once_per_run: true, npc_alive: ["老费舍", "伊莱亚斯·沃德"] },
+    description: "你在码头看到伊莱亚斯和老费舍坐在一起。他们的表情都很严肃。\n伊莱亚斯说：“我们决定合作。老费舍知道海里的事，我知道文献里的事。”\n老费舍补充道：“我们需要一个人去灯塔下面。”\n他们看着你。\n“你愿意去吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "答应", text: "“我去。”他们看起来松了一口气。", effects: { npc_trust: { "老费舍": 1, "伊莱亚斯·沃德": 1 }, add_clue: "clue_npc_cross_lighthouse_mission", add_run_memory: { text: "答应帮伊莱亚斯和老费舍去灯塔下面。" } } },
+      { label: "拒绝", text: "“我现在不能去。”他们看起来很失望。", effects: { add_run_memory: { text: "拒绝了伊莱亚斯和老费舍的请求。" } } }
+    ]
+  },
+
+  // =============================================
+  // 秘密交换 (15) - 玩家同时拥有两个NPC高信任
+  // =============================================
+  {
+    id: "npc_cross_secret_001", name: "送信", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "letter"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莱亚斯·沃德": 3, "希尔达·莫里斯": 3 }, probability: 0.12, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "希尔达·莫里斯"] },
+    description: "伊莱亚斯递给你一封信。“帮我把这封信交给希尔达，”他说，“不要打开。”\n你接过信。信封是用蜡封住的。蜡的颜色是深红色。\n你把信送到了希尔达手里。希尔达看到信封，脸色变了。\n“他终于……”她低声说。然后她看着你。\n“你想知道信里写了什么吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "想知道", text: "希尔达犹豫了一下，然后打开了信。她读了信，脸色变得苍白。\n“封印的钥匙……在莫里斯家族的血脉里。”\n她看着你。\n“伊莱亚斯说——如果封印破碎，我必须——”\n她没有说完。", effects: { npc_trust: { "希尔达·莫里斯": 1 }, add_clue: "clue_npc_cross_seal_key_blood", add_run_memory: { text: "知道了封印的钥匙在莫里斯家族的血脉里。" } } },
+      { label: "不想知道", text: "“那是你们的事。”希尔达点了点头。", effects: { add_run_memory: { text: "没有追问伊莱亚斯给希尔达的信。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_secret_002", name: "转交物品", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "item"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "玛莎·格雷": 3, "老费舍": 3 }, probability: 0.1, once_per_run: true, npc_alive: ["玛莎·格雷", "老费舍"] },
+    description: "玛莎递给你一个小包裹。“帮我把这个给老费舍，”她说，“不要打开。”\n你把包裹送到了老费舍手里。老费舍打开包裹，里面是一瓶酒和一张纸条。\n他读了纸条，沉默了很久。\n“她还是知道了，”他低声说。\n他看着你。“你知道玛莎是谁吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "问他是谁", text: "“她是……”老费舍停住了。“她是我女儿。”\n他看着海面。\n“她不知道。我不能告诉她。", effects: { npc_trust: { "老费舍": 1 }, add_clue: "clue_npc_cross_martha_fisher", add_run_memory: { text: "知道了玛莎是老费舍的女儿。" } } },
+      { label: "不追问", text: "“那是你们的事。”老费舍点了点头。", effects: { add_run_memory: { text: "没有追问玛莎和老费舍的关系。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_secret_003", name: "偷看内容", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "peek"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "汤米·陈": 3, "埃德加·洛夫克拉夫特": 3 }, probability: 0.1, once_per_run: true, npc_alive: ["汤米·陈", "埃德加·洛夫克拉夫特"] },
+    description: "汤米递给你一叠照片。“帮我把这些给埃德加，”他说，“他需要这些。”\n你看着照片。照片上是沃切斯特的各种场景。但你注意到——有些照片里有一些不应该存在的东西。\n你想偷看更多。但你答应了汤米不打开。",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "偷看", text: "你快速翻看了所有照片。你看到了——在某张照片的角落里，有一个不属于人类的轮廓。\n你把照片送到了埃德加手里。埃德加看到照片，脸色变了。\n“你看了？”他问。\n你点了点头。\n“那你现在知道了——沃切斯特不是你看到的那样。", effects: { npc_trust: { "汤米·陈": -1, "埃德加·洛夫克拉夫特": 1 }, add_clue: "clue_npc_cross_photo_secret", add_run_memory: { text: "偷看了汤米给埃德加的照片。" } } },
+      { label: "不偷看", text: "你把照片原封不动地送到了埃德加手里。", effects: { npc_trust: { "汤米·陈": 1, "埃德加·洛夫克拉夫特": 1 }, add_run_memory: { text: "没有偷看汤米给埃德加的照片。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_secret_004", name: "改变关系", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "relationship"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莎贝拉·韦伯": 3, "伊莱亚斯·沃德": 3 }, probability: 0.08, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯", "伊莱亚斯·沃德"] },
+    description: "伊莎贝拉递给你一本旧书。“帮我把这个给伊莱亚斯，”她说，“这是他一直在找的。”\n你把书送到了伊莱亚斯手里。伊莱亚斯看到书，眼睛亮了。\n“这是——”他翻开书，“《封印之书》。我找了二十年。”\n他看着你。“伊莎贝拉怎么会有这个？”\n你想起了伊莎贝拉的话——“不要告诉他这是从教堂的密室里找到的。”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "告诉他真相", text: "“这是从教堂的密室里找到的。”伊莱亚斯的表情变得复杂。\n“她一直在隐瞒这个……", effects: { npc_trust: { "伊莱亚斯·沃德": 1, "伊莎贝拉·韦伯": -1 }, add_run_memory: { text: "告诉了伊莱亚斯书的来源，导致伊莎贝拉不满。" } } },
+      { label: "隐瞒", text: "“她没有说。”伊莱亚斯点了点头。", effects: { npc_trust: { "伊莱亚斯·沃德": 1, "伊莎贝拉·韦伯": 1 }, add_run_memory: { text: "隐瞒了书的来源，维护了伊莎贝拉和伊莱亚斯的关系。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_secret_005", name: "秘密的传递", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "pass"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "约书亚·布莱克": 3, "玛莎·格雷": 3 }, probability: 0.08, once_per_run: true, npc_alive: ["约书亚·布莱克", "玛莎·格雷"] },
+    description: "约书亚递给你一个密封的信封。“帮我把这个给玛莎，”他说，“不要打开。”\n你把信封送到了玛莎手里。玛莎看到信封，脸色变了。\n“他终于说了……”她低声说。\n她看着你。“你知道约书亚是谁吗？”\n你摇了摇头。\n“他是——”她停住了。“他是我哥哥。",
+    effects: { npc_trust: { "玛莎·格雷": 1 }, add_clue: "clue_npc_cross_joshua_martha" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_secret_006", name: "希尔达的委托", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "commission"],
+    trigger: { areas: ["voxchester_manor"], npc_trust_gte: { "希尔达·莫里斯": 3, "汤米·陈": 3 }, probability: 0.08, once_per_run: true, npc_alive: ["希尔达·莫里斯", "汤米·陈"] },
+    description: "希尔达递给你一把钥匙。“帮我把这个给汤米，”她说，“他会知道怎么用。”\n你把钥匙送到了汤米手里。汤米看到钥匙，眼睛亮了。\n“这是庄园地下室的钥匙。”\n他看着你。“希尔达终于信任我了。”\n他从柜台下面拿出一个包裹。“帮我把这个给她。”\n包裹里是一些照片——庄园的照片。你注意到——照片里有一些不应该存在的东西。",
+    effects: { add_clue: "clue_npc_cross_manor_photos_secret" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_secret_007", name: "伊莱亚斯的托付", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "trust"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莱亚斯·沃德": 4, "约书亚·布莱克": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "约书亚·布莱克"] },
+    description: "伊莱亚斯递给你一个密封的包裹。“帮我把这个给约书亚，”他说，“这是他一直在找的东西。”\n他看着你。\n“我信任你。不要让我失望。”\n你把包裹送到了约书亚手里。约书亚打开包裹，里面是一本旧日记。\n“这是我父亲的日记，”约书亚的声音在发抖。\n“他……他在灯塔下面。”\n他看着你。“你想知道灯塔下面有什么吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "想知道", text: "约书亚告诉你了灯塔下面的秘密。内容很惊人。", effects: { npc_trust: { "约书亚·布莱克": 1, "伊莱亚斯·沃德": 1 }, add_clue: "clue_npc_cross_lighthouse_father", add_run_memory: { text: "知道了灯塔下面的秘密。" } } },
+      { label: "不想知道", text: "“那是你们的事。”约书亚点了点头。", effects: { add_run_memory: { text: "没有追问灯塔下面的秘密。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_secret_008", name: "老费舍的信物", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "token"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "老费舍": 4, "伊莎贝拉·韦伯": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["老费舍", "伊莎贝拉·韦伯"] },
+    description: "老费舍递给你一个贝壳。“帮我把这个给伊莎贝拉，”他说，“她会知道这是什么。”\n你把贝壳送到了伊莎贝拉手里。伊莎贝拉看到贝壳，脸色变了。\n“这是——”她把贝壳翻过来。背面刻着一个符号。\n“这是封印的符号。”\n她看着你。“老费舍怎么会有这个？”\n你想起了老费舍的话——“不要告诉她这是从海里找到的。”",
+    effects: { add_clue: "clue_npc_cross_shell_symbol" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_secret_009", name: "汤米的发现", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "discovery"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "汤米·陈": 3, "伊莱亚斯·沃德": 3 }, probability: 0.08, once_per_run: true, npc_alive: ["汤米·陈", "伊莱亚斯·沃德"] },
+    description: "汤米递给你一张照片。“帮我把这个给伊莱亚斯，”他说，“他需要看这个。”\n照片上是灯塔。但灯塔的光是绿色的。\n你把照片送到了伊莱亚斯手里。伊莱亚斯看到照片，脸色变了。\n“这是——”他仔细看照片。\n“灯塔的光不是正常的光。这是——”\n他停住了。看着你。\n“你去过灯塔吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "去过", text: "“去过。”伊莱亚斯的表情变得严肃。\n“那你应该知道——灯塔下面有什么。", effects: { npc_trust: { "伊莱亚斯·沃德": 1 }, add_clue: "clue_npc_cross_lighthouse_green", add_run_memory: { text: "告诉伊莱亚斯你去过灯塔。" } } },
+      { label: "没去过", text: "“没去过。”伊莱亚斯点了点头。\n“那你应该去一次。但要小心。", effects: { add_run_memory: { text: "对伊莱亚斯隐瞒了灯塔的访问。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_secret_010", name: "玛莎的秘密", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "martha"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "玛莎·格雷": 4, "希尔达·莫里斯": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["玛莎·格雷", "希尔达·莫里斯"] },
+    description: "玛莎递给你一个小盒子。“帮我把这个给希尔达，”她说，“这是她母亲的东西。”\n你把盒子送到了希尔达手里。希尔达打开盒子，里面是一枚戒指。\n“这是我母亲的……”希尔达的声音在发抖。\n“她——她失踪了。二十年前。”\n她看着你。“玛莎怎么会有这个？”\n你想起了玛莎的话——“不要告诉她这是我在酒吧的地下室找到的。”",
+    effects: { add_clue: "clue_npc_cross_hilda_mother" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_secret_011", name: "伊莎贝拉的委托", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "isabella"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莎贝拉·韦伯": 4, "埃德加·洛夫克拉夫特": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯", "埃德加·洛夫克拉夫特"] },
+    description: "伊莎贝拉递给你一叠文件。“帮我把这些给埃德加，”她说，“他需要这些来写他的文章。”\n你把文件送到了埃德加手里。埃德加看到文件，眼睛亮了。\n“这是——”他翻开文件，“封印的仪式记录。”\n他看着你。“伊莎贝拉怎么会有这个？”\n你想起了伊莎贝拉的话——“不要告诉他这是从教堂的密室里找到的。”",
+    effects: { add_clue: "clue_npc_cross_ritual_records" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_secret_012", name: "约书亚的信", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "joshua"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "约书亚·布莱克": 4, "玛莎·格雷": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["约书亚·布莱克", "玛莎·格雷"] },
+    description: "约书亚递给你一封信。“帮我把这个给玛莎，”他说，“这是我一直想说的。”\n你把信送到了玛莎手里。玛莎读了信，沉默了很久。\n“他终于承认了……”她低声说。\n她看着你。“你知道约书亚是谁吗？”\n你摇了摇头。\n“他是我哥哥。失踪了十年。我以为他死了。”\n她的眼眶红了。“但他一直在这里。一直在沃切斯特。”",
+    effects: { npc_trust: { "玛莎·格雷": 1 }, add_clue: "clue_npc_cross_joshua_identity" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_secret_013", name: "希尔达的地图", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "map"],
+    trigger: { areas: ["voxchester_manor"], npc_trust_gte: { "希尔达·莫里斯": 4, "伊莱亚斯·沃德": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["希尔达·莫里斯", "伊莱亚斯·沃德"] },
+    description: "希尔达递给你一张地图。“帮我把这个给伊莱亚斯，”她说，“这是庄园的地下结构图。”\n你把地图送到了伊莱亚斯手里。伊莱亚斯看到地图，眼睛亮了。\n“这是——”他仔细看地图，“庄园下面有一个封印的入口。”\n他看着你。“你去过庄园的地下室吗？”\n你想起了希尔达的话——“不要告诉他我在地下室发现了什么。”",
+    effects: { add_clue: "clue_npc_cross_manor_basement" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_secret_014", name: "老费舍的钥匙", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "key"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "老费舍": 4, "汤米·陈": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["老费舍", "汤米·陈"] },
+    description: "老费舍递给你一把旧钥匙。“帮我把这个给汤米，”他说，“他会知道怎么用。”\n你把钥匙送到了汤米手里。汤米看到钥匙，眼睛亮了。\n“这是——”他仔细看钥匙，“仓库的钥匙。”\n他看着你。“老费舍怎么会有这个？”\n你想起了老费舍的话——“不要告诉他这是我在海里找到的。”",
+    effects: { add_clue: "clue_npc_cross_warehouse_key" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_secret_015", name: "埃德加的手稿", type: "npc_cross", subtype: "secret_exchange",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "secret", "manuscript"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "埃德加·洛夫克拉夫特": 4, "伊莎贝拉·韦伯": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["埃德加·洛夫克拉夫特", "伊莎贝拉·韦伯"] },
+    description: "埃德加递给你一叠手稿。“帮我把这个给伊莎贝拉，”他说，“她需要看这个。”\n你把手稿送到了伊莎贝拉手里。伊莎贝拉看到手稿，脸色变了。\n“这是——”她翻看手稿，“封印的真正历史。”\n她看着你。“埃德加怎么知道这些？”\n你想起了埃德加的话——“不要告诉她这是我在灯塔下面找到的。”",
+    effects: { add_clue: "clue_npc_cross_seal_history" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+
+  // =============================================
+  // 三角关系 (10) - 三个NPC信任>=3
+  // =============================================
+  {
+    id: "npc_cross_triangle_001", name: "封印的真相", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "seal"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莱亚斯·沃德": 3, "希尔达·莫里斯": 3, "伊莎贝拉·韦伯": 3 }, probability: 0.06, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "希尔达·莫里斯", "伊莎贝拉·韦伯"] },
+    description: "你把伊莱亚斯、希尔达和伊莎贝拉召集到了一起。他们看着彼此，沉默了很久。\n伊莱亚斯先开口了：“我们都知道一些事情。但只有把所有拼图拼在一起，才能看到全貌。”\n希尔达补充道：“莫里斯家族的血脉。”\n伊莎贝拉补充道：“教堂的仪式。”\n他们看着你。\n“你愿意听我们说完吗？”\n你知道——这将改变一切。",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "听", text: "他们轮流讲述了各自知道的真相。拼图终于完整了。", effects: { npc_trust: { "伊莱亚斯·沃德": 1, "希尔达·莫里斯": 1, "伊莎贝拉·韦伯": 1 }, add_clue: "clue_npc_cross_full_truth", mythos: 3, san: -3, add_run_memory: { text: "知道了封印的完整真相。" } } },
+      { label: "不听", text: "“我不想知道。”他们看起来很失望。但也许你是对的。", effects: { add_run_memory: { text: "拒绝了封印的完整真相。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_triangle_002", name: "血脉的钥匙", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "blood"],
+    trigger: { areas: ["voxchester_manor"], npc_trust_gte: { "希尔达·莫里斯": 3, "老费舍": 3, "玛莎·格雷": 3 }, probability: 0.05, once_per_run: true, npc_alive: ["希尔达·莫里斯", "老费舍", "玛莎·格雷"] },
+    description: "你把希尔达、老费舍和玛莎召集到了一起。他们看着彼此，沉默了很久。\n希尔达先开口了：“我们都有莫里斯家族的血脉。”\n老费舍补充道：“我是混血。”\n玛莎补充道：“我也是。”\n他们看着你。\n“封印的钥匙——需要三个人的血。”\n你知道——这将是一个艰难的选择。",
+    effects: { add_clue: "clue_npc_cross_three_blood" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_triangle_003", name: "灯塔的秘密", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "lighthouse"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "约书亚·布莱克": 3, "老费舍": 3, "玛莎·格雷": 3 }, probability: 0.05, once_per_run: true, npc_alive: ["约书亚·布莱克", "老费舍", "玛莎·格雷"] },
+    description: "你把约书亚、老费舍和玛莎召集到了一起。他们看着彼此，沉默了很久。\n约书亚先开口了：“灯塔下面有东西。”\n老费舍补充道：“是门。”\n玛莎补充道：“门后面是——”\n他们同时看向海面。\n“海下面有另一个世界。”\n你知道——他们说的是真的。",
+    effects: { add_clue: "clue_npc_cross_sea_world", mythos: 2 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_triangle_004", name: "仪式的参与者", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "ritual"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莎贝拉·韦伯": 3, "伊莱亚斯·沃德": 3, "埃德加·洛夫克拉夫特": 3 }, probability: 0.05, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯", "伊莱亚斯·沃德", "埃德加·洛夫克拉夫特"] },
+    description: "你把伊莎贝拉、伊莱亚斯和埃德加召集到了一起。他们看着彼此，沉默了很久。\n伊莎贝拉先开口了：“仪式需要三个人。”\n伊莱亚斯补充道：“一个读经。一个献祭。一个见证。”\n埃德加补充道：“我来记录。”\n他们看着你。\n“你愿意成为仪式的一部分吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "答应", text: "“我愿意。”他们看起来松了一口气。", effects: { npc_trust: { "伊莎贝拉·韦伯": 1, "伊莱亚斯·沃德": 1, "埃德加·洛夫克拉夫特": 1 }, add_clue: "clue_npc_cross_ritual_participant", add_run_memory: { text: "答应成为仪式的一部分。" } } },
+      { label: "拒绝", text: "“我不能。”他们看起来很失望。", effects: { add_run_memory: { text: "拒绝成为仪式的一部分。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_triangle_005", name: "联合调查", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "investigation"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "汤米·陈": 3, "埃德加·洛夫克拉夫特": 3, "伊莱亚斯·沃德": 3 }, probability: 0.05, once_per_run: true, npc_alive: ["汤米·陈", "埃德加·洛夫克拉夫特", "伊莱亚斯·沃德"] },
+    description: "你把汤米、埃德加和伊莱亚斯召集到了一起。他们看着彼此，沉默了很久。\n汤米先开口了：“我有照片。”\n埃德加补充道：“我有文字。”\n伊莱亚斯补充道：“我有知识。”\n他们看着你。\n“你有勇气。”\n“我们四个——可以揭开沃切斯特的真相。”",
+    effects: { npc_trust: { "汤米·陈": 1, "埃德加·洛夫克拉夫特": 1, "伊莱亚斯·沃德": 1 }, add_clue: "clue_npc_cross_joint_investigation" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_triangle_006", name: "莫里斯家族的秘密", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "morris"],
+    trigger: { areas: ["voxchester_manor"], npc_trust_gte: { "希尔达·莫里斯": 4, "伊莱亚斯·沃德": 3, "老费舍": 3 }, probability: 0.04, once_per_run: true, npc_alive: ["希尔达·莫里斯", "伊莱亚斯·沃德", "老费舍"] },
+    description: "你把希尔达、伊莱亚斯和老费舍召集到了庄园的地下室。他们看着彼此，沉默了很久。\n希尔达先开口了：“莫里斯家族的秘密——”\n伊莱亚斯补充道：“我研究了二十年。”\n老费舍补充道：“我知道海里的部分。”\n他们看着你。\n“现在——拼图终于完整了。”\n他们轮流讲述了各自知道的真相。拼图终于完整了。",
+    effects: { add_clue: "clue_npc_cross_morris_full_truth", mythos: 3, san: -3 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_triangle_007", name: "码头的联盟", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "harbor"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "玛莎·格雷": 3, "约书亚·布莱克": 3, "老费舍": 3 }, probability: 0.05, once_per_run: true, npc_alive: ["玛莎·格雷", "约书亚·布莱克", "老费舍"] },
+    description: "你把玛莎、约书亚和老费舍召集到了一起。他们看着彼此，沉默了很久。\n玛莎先开口了：“码头的人都知道一些事情。”\n约书亚补充道：“但没有人敢说出来。”\n老费舍补充道：“因为说出来——就会失踪。”\n他们看着你。\n“你愿意听我们说出来吗？”\n你知道——这将是一个危险的选择。",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "听", text: "他们轮流讲述了码头的秘密。内容很惊人。", effects: { npc_trust: { "玛莎·格雷": 1, "约书亚·布莱克": 1, "老费舍": 1 }, add_clue: "clue_npc_cross_harbor_secret", mythos: 2, san: -2, add_run_memory: { text: "知道了码头的秘密。" } } },
+      { label: "不听", text: "“我不想知道。”他们看起来很失望。但也许你是对的。", effects: { add_run_memory: { text: "拒绝了码头的秘密。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_triangle_008", name: "封印的维护者", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "seal", "maintenance"],
+    trigger: { areas: ["town_center"], npc_trust_gte: { "伊莎贝拉·韦伯": 4, "希尔达·莫里斯": 4, "伊莱亚斯·沃德": 4 }, probability: 0.03, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯", "希尔达·莫里斯", "伊莱亚斯·沃德"] },
+    description: "你把伊莎贝拉、希尔达和伊莱亚斯召集到了一起。他们看着彼此，沉默了很久。\n伊莎贝拉先开口了：“封印需要维护。”\n希尔达补充道：“维护需要三个人。”\n伊莱亚斯补充道：“我们三个——可以成为封印的维护者。”\n他们看着你。\n“但我们需要你的帮助。”\n你知道——这将是一个重大的决定。",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "帮助他们", text: "“我愿意帮助你们。”他们看起来松了一口气。", effects: { npc_trust: { "伊莎贝拉·韦伯": 1, "希尔达·莫里斯": 1, "伊莱亚斯·沃德": 1 }, add_clue: "clue_npc_cross_seal_maintenance", unlock_ending_condition: "ending_seal_maintenance_available", add_run_memory: { text: "帮助三人成为封印的维护者。" } } },
+      { label: "拒绝", text: "“我不能。”他们看起来很失望。", effects: { add_run_memory: { text: "拒绝帮助三人成为封印的维护者。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_triangle_009", name: "逃离的计划", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "escape"],
+    trigger: { areas: ["harbor_district"], npc_trust_gte: { "玛莎·格雷": 4, "约书亚·布莱克": 4, "老费舍": 4 }, probability: 0.03, once_per_run: true, npc_alive: ["玛莎·格雷", "约书亚·布莱克", "老费舍"] },
+    description: "你把玛莎、约书亚和老费舍召集到了一起。他们看着彼此，沉默了很久。\n玛莎先开口了：“我们可以逃离沃切斯特。”\n约书亚补充道：“我知道一条海路。”\n老费舍补充道：“我有船。”\n他们看着你。\n“你愿意和我们一起走吗？”\n你知道——这将是一个重大的决定。",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "答应", text: "“我和你们一起走。”他们看起来很高兴。", effects: { npc_trust: { "玛莎·格雷": 1, "约书亚·布莱克": 1, "老费舍": 1 }, add_clue: "clue_npc_cross_escape_plan", unlock_ending_condition: "ending_escape_available", add_run_memory: { text: "答应和三人一起逃离沃切斯特。" } } },
+      { label: "拒绝", text: "“我不能走。还有事情没做完。”他们看起来很失望。", effects: { add_run_memory: { text: "拒绝了逃离沃切斯特的计划。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_triangle_010", name: "最后的选择", type: "npc_cross", subtype: "triangle",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "triangle", "final"],
+    trigger: { areas: ["deep_catacombs"], npc_trust_gte: { "伊莱亚斯·沃德": 4, "希尔达·莫里斯": 4, "伊莎贝拉·韦伯": 4 }, probability: 0.02, min_loop: 5, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "希尔达·莫里斯", "伊莎贝拉·韦伯"] },
+    description: "你把伊莱亚斯、希尔达和伊莎贝拉召集到了深渊墓穴的最深处。他们看着彼此，沉默了很久。\n伊莱亚斯先开口了：“这是最后的选择。”\n希尔达补充道：“封印需要一个人来维持。”\n伊莎贝拉补充道：“或者——我们可以一起。”\n他们看着你。\n“你愿意和我们一起面对吗？”\n你知道——这将是一个不可逆转的决定。",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "一起面对", text: "“我们一起面对。”他们点了点头。你们四个人站在封印前面。", effects: { npc_trust: { "伊莱亚斯·沃德": 1, "希尔达·莫里斯": 1, "伊莎贝拉·韦伯": 1 }, add_clue: "clue_npc_cross_final_choice", unlock_ending_condition: "ending_seal_joint_available", add_run_memory: { text: "选择和三人一起面对封印。" } } },
+      { label: "独自面对", text: "“我来。你们走。”他们看起来很担心。", effects: { unlock_ending_condition: "ending_seal_player_keeper_available", add_run_memory: { text: "选择独自面对封印。" } } }
+    ]
+  },
+
+  // =============================================
+  // 信任连锁 (12) - 某NPC死亡后，与其他NPC对话
+  // =============================================
+  {
+    id: "npc_cross_death_001", name: "玛莎的哀悼", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "martha"],
+    trigger: { areas: ["harbor_district"], npc_dead: ["老费舍"], npc_alive: ["玛莎·格雷"], npc_trust_gte: { "玛莎·格雷": 2 }, probability: 0.2, once_per_run: true },
+    description: "你走进酒吧。玛莎坐在吧台后面，眼睛红红的。\n“老费舍走了，”她说，声音很轻。\n她擦了擦眼睛。“他……他是我父亲。”\n她看着你。“你知道吗？”\n你点了点头。\n“他一直在这里。一直在沃切斯特。但他从来没有告诉我——”\n她的声音哽咽了。",
+    effects: { npc_trust: { "玛莎·格雷": 1 }, san: -1, add_run_memory: { text: "玛莎告诉你老费舍是她的父亲。" } },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_death_002", name: "伊莱亚斯的悲伤", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "elias"],
+    trigger: { areas: ["town_center"], npc_dead: ["伊莎贝拉·韦伯"], npc_alive: ["伊莱亚斯·沃德"], npc_trust_gte: { "伊莱亚斯·沃德": 2 }, probability: 0.2, once_per_run: true },
+    description: "你走进伊莱亚斯的书房。他坐在椅子上，手里握着一本旧书。\n“伊莎贝拉走了，”他说，声音很平静。\n他翻开书。“她知道很多关于封印的事。现在——”\n他合上了书。\n“现在这些知识都消失了。”\n他看着你。“你还记得她告诉过你什么吗？”",
+    effects: { npc_trust: { "伊莱亚斯·沃德": 1 }, san: -1, add_run_memory: { text: "伊莱亚斯因为伊莎贝拉的死而悲伤。" } },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_death_003", name: "希尔达的崩溃", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "hilda"],
+    trigger: { areas: ["voxchester_manor"], npc_dead: ["伊莱亚斯·沃德"], npc_alive: ["希尔达·莫里斯"], npc_trust_gte: { "希尔达·莫里斯": 3 }, probability: 0.15, once_per_run: true },
+    description: "你走进庄园。希尔达坐在壁炉旁，手里握着一封信。\n“伊莱亚斯走了，”她说，声音很轻。\n她把信递给你。信是伊莱亚斯写的。你读了信。\n信里写道：“希尔达，如果我走了，请把地下室的东西交给那个调查员。他会知道怎么做。”\n希尔达看着你。“你想知道地下室有什么吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "想知道", text: "“告诉我。”希尔达带你去了地下室。", effects: { npc_trust: { "希尔达·莫里斯": 1 }, add_clue: "clue_npc_cross_elias_basement", add_run_memory: { text: "希尔达告诉你了伊莱亚斯留在地下室的东西。" } } },
+      { label: "不追问", text: "“也许现在不是时候。”希尔达点了点头。", effects: { add_run_memory: { text: "没有追问伊莱亚斯留在地下室的东西。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_death_004", name: "汤米的愤怒", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "tommy", "anger"],
+    trigger: { areas: ["town_center"], npc_dead: ["埃德加·洛夫克拉夫特"], npc_alive: ["汤米·陈"], npc_trust_gte: { "汤米·陈": 2 }, probability: 0.15, once_per_run: true },
+    description: "你走进汤米的店铺。他的眼睛红红的。\n“埃德加走了，”他说，声音很愤怒。\n他把一叠照片摔在柜台上。“他一直在写关于沃切斯特的文章。他知道了太多。”\n他看着你。“你觉得他是怎么死的？”\n你没有回答。\n“我知道是怎么死的。是沃切斯特杀了他。是这个该死的城市。”",
+    effects: { npc_trust: { "汤米·陈": 1 }, san: -1, add_run_memory: { text: "汤米因为埃德加的死而愤怒。" } },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_death_005", name: "约书亚的沉默", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "joshua", "silence"],
+    trigger: { areas: ["harbor_district"], npc_dead: ["玛莎·格雷"], npc_alive: ["约书亚·布莱克"], npc_trust_gte: { "约书亚·布莱克": 2 }, probability: 0.15, once_per_run: true },
+    description: "你走到码头边。约书亚坐在那里，看着海面。\n你坐下来。他没有看你。\n过了很久，他开口了：\n“玛莎走了。”\n他沉默了很久。\n“她是我妹妹。”\n他看着海面。“我一直在这里。一直在保护她。但我——”\n他的声音哽咽了。\n“我没能保护她。”",
+    effects: { npc_trust: { "约书亚·布莱克": 1 }, san: -1, add_run_memory: { text: "约书亚告诉你玛莎是他的妹妹。" } },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_death_006", name: "伊莎贝拉的祈祷", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "isabella", "prayer"],
+    trigger: { areas: ["town_center"], npc_dead: ["希尔达·莫里斯"], npc_alive: ["伊莎贝拉·韦伯"], npc_trust_gte: { "伊莎贝拉·韦伯": 2 }, probability: 0.15, once_per_run: true },
+    description: "你走进教堂。伊莎贝拉跪在祭坛前，低声祈祷。\n你走近时，她站了起来。\n“希尔达走了，”她说，声音很平静。\n她看着你。“她是莫里斯家族最后的血脉。现在——”\n她停住了。\n“现在封印的钥匙——”\n她没有说完。但你知道——封印的钥匙消失了。",
+    effects: { npc_trust: { "伊莎贝拉·韦伯": 1 }, san: -2, add_run_memory: { text: "伊莎贝拉告诉你希尔达的死意味着封印的钥匙消失了。" } },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_death_007", name: "老费舍的遗言", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "fisher", "legacy"],
+    trigger: { areas: ["harbor_district"], npc_dead: ["约书亚·布莱克"], npc_alive: ["老费舍"], npc_trust_gte: { "老费舍": 3 }, probability: 0.15, once_per_run: true },
+    description: "你走到码头边。老费舍坐在那里，手里握着一个贝壳。\n“约书亚走了，”他说，声音很轻。\n他把贝壳递给你。“这是他留给你的。”\n你接过贝壳。贝壳的背面刻着一个符号——和封印上的符号一样。\n“他说——如果你找到了灯塔下面的东西，用这个。”\n老费舍看着海面。\n“他一直在保护我们。但他没能保护自己。”",
+    effects: { add_item: { item_id: "joshua_shell", name: "约书亚的贝壳", uses: 1 }, add_clue: "clue_npc_cross_joshua_shell", add_run_memory: { text: "收到了约书亚留下的贝壳。" } },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_death_008", name: "埃德加的遗稿", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "edgar", "manuscript"],
+    trigger: { areas: ["town_center"], npc_dead: ["伊莱亚斯·沃德"], npc_alive: ["埃德加·洛夫克拉夫特"], npc_trust_gte: { "埃德加·洛夫克拉夫特": 2 }, probability: 0.15, once_per_run: true },
+    description: "你走进埃德加的房间。他坐在桌前，手里握着一叠手稿。\n“伊莱亚斯走了，”他说，声音很平静。\n他把手稿递给你。“这是他留给你的。”\n你翻看手稿。里面记载了伊莱亚斯关于封印的研究。\n“他研究了二十年。现在——”\n埃德加看着你。\n“现在这些知识需要有人继承。你愿意吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "愿意", text: "“我愿意。”埃德加点了点头。", effects: { npc_trust: { "埃德加·洛夫克拉夫特": 1 }, add_clue: "clue_npc_cross_elias_legacy", add_run_memory: { text: "继承了伊莱亚斯的研究。" } } },
+      { label: "不能", text: "“我不能。”埃德加叹了口气。", effects: { add_run_memory: { text: "拒绝了继承伊莱亚斯的研究。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_death_009", name: "希尔达的遗产", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "hilda", "legacy"],
+    trigger: { areas: ["voxchester_manor"], npc_dead: ["希尔达·莫里斯"], npc_alive: ["伊莱亚斯·沃德"], npc_trust_gte: { "伊莱亚斯·沃德": 3 }, probability: 0.1, once_per_run: true },
+    description: "你走进伊莱亚斯的书房。他坐在椅子上，手里握着一把钥匙。\n“希尔达走了，”他说，声音很平静。\n他把钥匙递给你。“这是她留给你的。庄园地下室的钥匙。”\n你接过钥匙。钥匙很旧，但保养得很好。\n“她在地下室藏了东西。关于封印的东西。”\n伊莱亚斯看着你。\n“你想去看看吗？”",
+    effects: { add_item: { item_id: "hilda_basement_key", name: "希尔达的地下室钥匙", uses: 1 }, add_clue: "clue_npc_cross_hilda_basement" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_death_010", name: "玛莎的酒吧", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "martha", "bar"],
+    trigger: { areas: ["harbor_district"], npc_dead: ["玛莎·格雷"], npc_alive: ["老费舍"], npc_trust_gte: { "老费舍": 2 }, probability: 0.15, once_per_run: true },
+    description: "你走进酒吧。老费舍坐在吧台后面，手里握着一瓶酒。\n“玛莎走了，”他说，声音很轻。\n他给你倒了一杯酒。“她一直在这里。一直在等我。”\n他看着酒吧的四周。\n“现在——酒吧是你的了。”\n你摇了摇头。\n“不。酒吧是大家的。”\n老费舍点了点头。\n“你说得对。酒吧是大家的。”",
+    effects: { npc_trust: { "老费舍": 1 }, san: 1, add_run_memory: { text: "老费舍说酒吧是大家的。" } },
+    event_classification: "NPC互动", normalcy_anchor: true,
+    choices: []
+  },
+  {
+    id: "npc_cross_death_011", name: "汤米的告别", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "normal", tags: ["npc", "cross", "death", "tommy", "farewell"],
+    trigger: { areas: ["town_center"], npc_dead: ["汤米·陈"], npc_alive: ["伊莱亚斯·沃德"], npc_trust_gte: { "伊莱亚斯·沃德": 2 }, probability: 0.15, once_per_run: true },
+    description: "你走进伊莱亚斯的书房。他坐在椅子上，手里握着一张照片。\n“汤米走了，”他说，声音很平静。\n他把照片递给你。照片上是沃切斯特的全景。\n“他一直在记录这个城市。现在——”\n伊莱亚斯看着照片。\n“现在他的照片需要有人来保管。你愿意吗？”",
+    effects: {},
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: [
+      { label: "愿意", text: "“我愿意。”伊莱亚斯点了点头。", effects: { npc_trust: { "伊莱亚斯·沃德": 1 }, add_clue: "clue_npc_cross_tommy_photos_legacy", add_run_memory: { text: "保管了汤米的照片。" } } },
+      { label: "不能", text: "“我不能。”伊莱亚斯叹了口气。", effects: { add_run_memory: { text: "拒绝了保管汤米的照片。" } } }
+    ]
+  },
+  {
+    id: "npc_cross_death_012", name: "最后的联盟", type: "npc_cross", subtype: "death_chain",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "death", "final"],
+    trigger: { areas: ["town_center"], npc_dead: ["伊莎贝拉·韦伯", "希尔达·莫里斯"], npc_alive: ["伊莱亚斯·沃德", "老费舍"], npc_trust_gte: { "伊莱亚斯·沃德": 3, "老费舍": 3 }, probability: 0.05, once_per_run: true },
+    description: "你走进伊莱亚斯的书房。老费舍也在。\n“伊莎贝拉和希尔达都走了，”伊莱亚斯说，声音很沉重。\n老费舍补充道：“封印的钥匙——只剩下我们了。”\n他们看着你。\n“我们三个——必须一起面对。”\n你知道——这将是最后的联盟。",
+    effects: { npc_trust: { "伊莱亚斯·沃德": 1, "老费舍": 1 }, add_clue: "clue_npc_cross_final_alliance", unlock_ending_condition: "ending_seal_final_alliance_available" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+
+  // =============================================
+  // 联合对抗 (8) - 高周目，多个NPC信任>=4
+  // =============================================
+  {
+    id: "npc_cross_team_001", name: "灯塔突击", type: "npc_cross", subtype: "team_action",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "team", "lighthouse"],
+    trigger: { areas: ["lighthouse"], min_loop: 3, npc_trust_gte: { "约书亚·布莱克": 4, "老费舍": 4 }, probability: 0.08, once_per_run: true, npc_alive: ["约书亚·布莱克", "老费舍"] },
+    description: "你站在灯塔前面。约书亚和老费舍站在你身边。\n“我们一起去，”约书亚说，“灯塔下面的东西——我们一起面对。”\n老费舍点了点头。“我知道路。”\n你们三个人走进了灯塔。灯塔的灯光在你们头顶旋转。\n你们开始往下走。楼梯很长，很暗。\n你知道——灯塔下面有什么东西在等着你们。",
+    effects: { add_clue: "clue_npc_cross_lighthouse_team", san: -2 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_team_002", name: "墓穴探索", type: "npc_cross", subtype: "team_action",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "team", "catacombs"],
+    trigger: { areas: ["catacombs_entrance"], min_loop: 3, npc_trust_gte: { "伊莱亚斯·沃德": 4, "希尔达·莫里斯": 4 }, probability: 0.08, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "希尔达·莫里斯"] },
+    description: "你站在墓穴入口。伊莱亚斯和希尔达站在你身边。\n“我们一起去，”伊莱亚斯说，“墓穴下面的东西——我们一起面对。”\n希尔达点了点头。“我知道路。”\n你们三个人走进了墓穴。空气变得冰冷。\n你们开始往下走。楼梯很长，很暗。\n你知道——墓穴下面有什么东西在等着你们。",
+    effects: { add_clue: "clue_npc_cross_catacombs_team", san: -2 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_team_003", name: "庄园调查", type: "npc_cross", subtype: "team_action",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "team", "manor"],
+    trigger: { areas: ["voxchester_manor"], min_loop: 3, npc_trust_gte: { "希尔达·莫里斯": 4, "汤米·陈": 4 }, probability: 0.08, once_per_run: true, npc_alive: ["希尔达·莫里斯", "汤米·陈"] },
+    description: "你站在庄园门口。希尔达和汤米站在你身边。\n“我们一起去，”希尔达说，“庄园下面的东西——我们一起面对。”\n汤米点了点头。“我带了相机。”\n你们三个人走进了庄园。空气变得沉重。\n你们开始往下走。楼梯很长，很暗。\n你知道——庄园下面有什么东西在等着你们。",
+    effects: { add_clue: "clue_npc_cross_manor_team", san: -2 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_team_004", name: "森林探险", type: "npc_cross", subtype: "team_action",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "team", "forest"],
+    trigger: { areas: ["whispering_forest"], min_loop: 3, npc_trust_gte: { "伊莱亚斯·沃德": 4, "埃德加·洛夫克拉夫特": 4 }, probability: 0.08, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "埃德加·洛夫克拉夫特"] },
+    description: "你站在森林入口。伊莱亚斯和埃德加站在你身边。\n“我们一起去，”伊莱亚斯说，“森林深处的东西——我们一起面对。”\n埃德加点了点头。“我来记录。”\n你们三个人走进了森林。空气变得潮湿。\n你们开始往前走。路很长，很暗。\n你知道——森林深处有什么东西在等着你们。",
+    effects: { add_clue: "clue_npc_cross_forest_team", san: -2 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_team_005", name: "码头的巡逻", type: "npc_cross", subtype: "team_action",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "team", "harbor"],
+    trigger: { areas: ["harbor_district"], min_loop: 3, npc_trust_gte: { "玛莎·格雷": 4, "约书亚·布莱克": 4, "老费舍": 4 }, probability: 0.06, once_per_run: true, npc_alive: ["玛莎·格雷", "约书亚·布莱克", "老费舍"] },
+    description: "你站在码头边。玛莎、约书亚和老费舍站在你身边。\n“我们一起巡逻，”玛莎说，“码头最近不太平。”\n约书亚点了点头。“我知道那些东西从哪里来。”\n老费舍补充道：“我知道怎么对付它们。”\n你们四个人开始沿着码头巡逻。海面很平静。但你知道——水下面不是。",
+    effects: { add_clue: "clue_npc_cross_harbor_patrol", san: -1 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_team_006", name: "遗迹探索", type: "npc_cross", subtype: "team_action",
+    weight: 1, tier: "rare", tags: ["npc", "cross", "team", "ruins"],
+    trigger: { areas: ["ruins_of_yith"], min_loop: 5, npc_trust_gte: { "伊莱亚斯·沃德": 4, "希尔达·莫里斯": 4, "埃德加·洛夫克拉夫特": 4 }, probability: 0.05, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "希尔达·莫里斯", "埃德加·洛夫克拉夫特"] },
+    description: "你站在伊斯遗迹前面。伊莱亚斯、希尔达和埃德加站在你身边。\n“我们一起去，”伊莱亚斯说，“遗迹里面的东西——我们一起面对。”\n希尔达点了点头。“我知道怎么启动机器。”\n埃德加补充道：“我来记录一切。”\n你们四个人走进了遗迹。空气变得异常寒冷。\n你们开始往前走。路很长，很暗。\n你知道——遗迹里面有什么东西在等着你们。",
+    effects: { add_clue: "clue_npc_cross_ruins_team", san: -3, mythos: 2 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_team_007", name: "深渊的远征", type: "npc_cross", subtype: "team_action",
+    weight: 1, tier: "signature", tags: ["npc", "cross", "team", "deep"],
+    trigger: { areas: ["deep_catacombs"], min_loop: 5, npc_trust_gte: { "伊莱亚斯·沃德": 4, "希尔达·莫里斯": 4, "伊莎贝拉·韦伯": 4, "老费舍": 4 }, probability: 0.03, once_per_run: true, npc_alive: ["伊莱亚斯·沃德", "希尔达·莫里斯", "伊莎贝拉·韦伯", "老费舍"] },
+    description: "你站在深渊墓穴的入口。伊莱亚斯、希尔达、伊莎贝拉和老费舍站在你身边。\n“这是最后一次，”伊莱亚斯说，“深渊下面的东西——我们一起面对。”\n希尔达点了点头。“我的血脉可以打开门。”\n伊莎贝拉补充道：“我的祈祷可以保护我们。”\n老费舍补充道：“我知道水下的路。”\n你们五个人走进了深渊。空气变得稠密。\n你们开始往下走。路很长，很暗。\n你知道——深渊下面有什么东西在等着你们。",
+    effects: { add_clue: "clue_npc_cross_deep_team", san: -3, mythos: 3, unlock_ending_condition: "ending_seal_team_available" },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "npc_cross_team_008", name: "最后的防线", type: "npc_cross", subtype: "team_action",
+    weight: 1, tier: "signature", tags: ["npc", "cross", "team", "final"],
+    trigger: { areas: ["deep_catacombs"], min_loop: 7, npc_trust_gte: { "伊莱亚斯·沃德": 4, "希尔达·莫里斯": 4, "伊莎贝拉·韦伯": 4, "约书亚·布莱克": 4, "老费舍": 4, "玛莎·格雷": 4, "汤米·陈": 4, "埃德加·洛夫克拉夫特": 4 }, probability: 0.01, once_per_run: true },
+    description: "你站在深渊墓穴的最深处。所有的NPC都站在你身边。\n“这是最后的防线，”伊莱亚斯说，“如果封印破碎——”\n“我们一起面对，”希尔达补充道。\n伊莎贝拉开始祈祷。约书亚握紧了拳头。老费舍看着海面。玛莎擦了擦眼睛。汤米举起了相机。埃德加拿出了笔记本。\n你们八个人站在封印前面。\n你知道——这是最后的防线。",
+    effects: { add_clue: "clue_npc_cross_final_defense", unlock_ending_condition: "ending_seal_all_available", san: -5, mythos: 5 },
+    event_classification: "NPC互动", normalcy_anchor: false,
+    choices: []
+  }
+];
+
