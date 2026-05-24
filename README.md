@@ -12,7 +12,7 @@
 <p align="center">
   <em>Abyssal Whispers: Shadow of Voxchester</em>
 </p>
-![Uploading abyssal-whispers.png…]()
+
 <p align="center">
   <strong>1926年，马萨诸塞州。一座被浓雾吞噬的港口城市。</strong><br>
   失踪、疯狂、十三声钟响——你被卷入了一场超越人类认知的噩梦。<br>
