@@ -155,7 +155,51 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC','Microsof
 .save-load-bar{display:flex;gap:0.5rem;padding:0.3rem 0.5rem;background:var(--bg);border-top:1px solid var(--border);font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .save-load-bar .btn-sm{font-size:0.65rem;padding:0.2rem 0.6rem}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:900px){.game-layout{grid-template-columns:1fr;grid-template-rows:auto auto 1fr auto}.left-panel,.right-panel{max-height:30vh}}
+/* === Responsive Design === */
+
+/* Tablet (landscape): 768px-1199px — keep three columns but compact */
+@media(max-width:1199px) and (min-width:769px){
+  .game-layout{grid-template-columns:220px 1fr 240px}
+  .left-panel,.right-panel{font-size:0.75rem;padding:0.6rem}
+  .narrative-area{padding:1rem}
+  .action-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+  .base-stats{grid-template-columns:repeat(4,1fr)}
+}
+
+/* Tablet (portrait) / large phone: ≤768px */
+@media(max-width:768px){
+  .game-layout{
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto 1fr auto auto;
+    height:auto;min-height:100vh
+  }
+  .game-header{padding:0.5rem 0.8rem;font-size:0.85rem}
+  .left-panel{order:2;max-height:none;border-right:none;border-bottom:1px solid var(--border)}
+  .center-panel{order:3;min-height:50vh}
+  .right-panel{order:4;max-height:none;border-left:none;border-bottom:1px solid var(--border)}
+  .action-area{order:5}
+  .stat-grid{grid-template-columns:repeat(2,1fr);gap:0.4rem}
+  .base-stats{grid-template-columns:repeat(2,1fr)}
+  .action-grid{grid-template-columns:repeat(2,1fr)}
+  .action-btn{padding:0.65rem 0.5rem;font-size:0.8rem}
+  .title-screen h1{font-size:1.8rem}
+  .title-screen h2{font-size:0.85rem}
+  .char-creation{padding:1rem}
+  .ending-screen h2{font-size:1.5rem}
+  .confessional,.death-recap{margin:1rem auto;padding:0.8rem}
+  .save-load-bar{flex-wrap:wrap;justify-content:center}
+}
+
+/* Small phone: ≤480px */
+@media(max-width:480px){
+  .game-header{flex-direction:column;align-items:flex-start;gap:0.3rem}
+  .game-header .day-info{font-size:0.7rem}
+  .left-panel,.right-panel{padding:0.5rem;font-size:0.72rem}
+  .narrative-area{padding:0.8rem}
+  .narrative-text{font-size:0.82rem;line-height:1.9}
+  .action-grid{grid-template-columns:1fr 1fr}
+  .btn{padding:0.55rem 1.2rem;font-size:0.85rem}
+}
 /* UI corruption layers */
 .corruption-1 .narrative-text{text-shadow:0 0 1px rgba(200,200,208,0.1)}
 .corruption-2 .narrative-text{text-shadow:0 0 2px rgba(200,200,208,0.15);animation:corruptionFlicker 8s infinite}

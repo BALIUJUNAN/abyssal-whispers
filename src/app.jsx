@@ -18,12 +18,12 @@ const ctx={GD};
 
 // === Audio Manager (Module 4) ===
 const AUDIO_PATHS={
-  ambient_day:'/audio/ambient_day_loop.mp3',
-  ambient_night:'/audio/ambient_night_loop.mp3',
-  san_loss:'/audio/san_drop_heartbeat.mp3',
-  wall_break:'/audio/break_wall_noise.mp3',
-  madness:'/audio/madness_tinnitus.mp3',
-  begin:'/audio/begin_low_bell.mp3'
+  ambient_day:'audio/ambient_day_loop.mp3',
+  ambient_night:'audio/ambient_night_loop.mp3',
+  san_loss:'audio/san_drop_heartbeat.mp3',
+  wall_break:'audio/break_wall_noise.mp3',
+  madness:'audio/madness_tinnitus.mp3',
+  begin:'audio/begin_low_bell.mp3'
 };
 const audioManager={
   muted:false,suddenMuted:false,ambientEl:null,_volumeScale:1,
