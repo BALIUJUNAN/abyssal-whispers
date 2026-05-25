@@ -4,6 +4,7 @@
 import { getPhase } from './worldReducer.js';
 import { clamp } from './utils.js';
 import { shouldTriggerMissing600, createMissing600Event, MISSING_600_EVENT_ID } from '../data/events_missing_600.js';
+import { checkOmens } from '../data/events_omens_600.js';
 
 // =============================================
 // SECTION 1: Extended Trigger Checking
@@ -250,18 +251,29 @@ export function selectEventV2(areaId, state, ctx, pick) {
   if (!state.abnormalStreak) state.abnormalStreak = 0;
   if (!state.eventCooldowns) state.eventCooldowns = {};
 
-  // Step 0: Virtual 600th event check (before all normal filtering)
-  // Build the extended-only subset (last N events where N = _extendedEventCount).
+  // Step 0: Omen check — light foreshadowing before event 600
+  const omen = checkOmens(state);
+  if (omen) {
+    trackEvent(omen, state);
+    return omen;
+  }
+
+  // Step 1: Virtual 600th event check (before all normal filtering)
   // shouldTriggerMissing600 guards on length===599 internally.
-  const extCount = GD._extendedEventCount || 0;
-  const extendedOnly = extCount > 0 ? allEvents.slice(-extCount - (GD._deathEchoCount || 0), - (GD._deathEchoCount || 0) || undefined) : allEvents;
-  if (shouldTriggerMissing600(state, extendedOnly) && Math.random() < 0.35) {
+  const extendedEvents = GD._extendedEvents
+    || (allEvents.length > (GD._deathEchoCount || 0)
+      ? allEvents.slice(0, allEvents.length - (GD._deathEchoCount || 0))
+      : allEvents);
+  if (shouldTriggerMissing600(state, extendedEvents) && Math.random() < 0.35) {
+    if (!state.triggeredEvents.includes("missing_event_600_seen")) {
+      state.triggeredEvents.push("missing_event_600_seen");
+    }
     const missing = createMissing600Event(state);
     trackEvent(missing, state);
     return missing;
   }
 
-  // Step 1: Force anchor if abnormal streak >= 3
+  // Step 2: Force anchor if abnormal streak >= 3
   if (state.abnormalStreak >= 3) {
     const anchorEvents = allEvents.filter(e => {
       const isAnchor = ANCHOR_TYPES.has(e.type) || e.normalcy_anchor;
@@ -274,7 +286,7 @@ export function selectEventV2(areaId, state, ctx, pick) {
     }
   }
 
-  // Step 2: Get all eligible events for this area
+  // Step 3: Get all eligible events for this area
   const eligible = allEvents.filter(e => {
     if (!e.trigger || !e.trigger.areas) return false;
     if (!e.trigger.areas.includes(areaId)) return false;
@@ -283,7 +295,7 @@ export function selectEventV2(areaId, state, ctx, pick) {
 
   if (eligible.length === 0) return null;
 
-  // Step 3: Apply budget filtering
+  // Step 4: Apply budget filtering
   const budgetFiltered = eligible.filter(e => {
     const cat = e.type || 'unknown';
     const budget = EVENT_BUDGET[cat];
@@ -309,7 +321,7 @@ export function selectEventV2(areaId, state, ctx, pick) {
     return null;
   }
 
-  // Step 4: Weight calculation
+  // Step 5: Weight calculation
   const weighted = [];
   budgetFiltered.forEach(e => {
     const cat = e.type || 'unknown';

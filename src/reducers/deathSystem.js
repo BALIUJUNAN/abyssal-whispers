@@ -57,6 +57,9 @@ export function resolveDeath(state, sourceEvent = null, sourceChoice = null) {
 
   const type = inferDeathType(state, sourceEvent, sourceChoice, mode);
 
+  state.lastDeathType = type;
+  state.lastDeathMode = mode;
+
   return {
     mode,
     type,

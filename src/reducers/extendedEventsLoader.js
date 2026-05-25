@@ -26,6 +26,7 @@ export function mergeExtendedEvents(GD, extendedModules) {
 
   // Store metadata
   GD._extendedEventsLoaded = true;
+  GD._extendedEvents = [...newEvents];
   GD._extendedEventCount = newEvents.length;
   GD._totalEventCount = GD.events.length;
 

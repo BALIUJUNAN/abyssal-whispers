@@ -65,7 +65,7 @@ export function createMissing600Event(state) {
     subtype: "missing_600",
     weight: 1,
     tier: "meta",
-    tags: ["meta", "missing", "600", "ending", "final"],
+    tags: ["meta", "missing", "600", "ending", "final", "missing_600"],
     trigger: {
       areas: [state.currentArea || "town_center"],
       probability: 1,
@@ -129,8 +129,9 @@ export function createMissing600Event(state) {
           "是沃切斯特记录了你。\n\n" +
           "笔记本的页面开始发光。你感到自己正在被写入某个更深的地方。",
         effects: {
-          add_flag: "missing_event_600_seen",
+          add_flag: ["missing_event_600_seen", "ending_player_becomes_event"],
           unlock_ending_condition: "ending_player_becomes_event",
+          death_hint: "becomes_event",
           san: -10,
           mythos: 10,
         },

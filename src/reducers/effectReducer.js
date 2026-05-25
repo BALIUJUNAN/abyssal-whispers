@@ -61,7 +61,12 @@ export function applyEffects(state, effects, context) {
         break;
       }
       case 'add_flag': {
-        if (!state.triggeredEvents.includes(eff.flag_id)) state.triggeredEvents.push(eff.flag_id);
+        const flags = Array.isArray(eff.flag_id) ? eff.flag_id : [eff.flag_id];
+        for (const flag of flags) {
+          if (flag && !state.triggeredEvents.includes(flag)) {
+            state.triggeredEvents.push(flag);
+          }
+        }
         break;
       }
       case 'modify_npc_trust': {
@@ -97,4 +102,17 @@ export function applyLegacyEffects(state, eff) {
   if (eff.HP) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.HP }]);
   if (eff.san) applyEffects(state, [{ type: 'modify_stat', target: 'SAN', amount: eff.san }]);
   if (eff.food) state._foodDelta = (state._foodDelta || 0) + eff.food;
+  if (eff.mythos != null) applyExtendedEffect(state, { type: 'modify_mythos', amount: eff.mythos });
+  if (eff.add_flag) {
+    const flags = Array.isArray(eff.add_flag) ? eff.add_flag : [eff.add_flag];
+    for (const fid of flags) {
+      applyEffects(state, { type: 'add_flag', flag_id: fid });
+    }
+  }
+  if (eff.unlock_ending_condition) {
+    applyExtendedEffect(state, { type: 'unlock_ending_condition', condition_id: eff.unlock_ending_condition });
+  }
+  if (eff.death_hint) {
+    applyExtendedEffect(state, { type: 'set_last_death_hint', hint: eff.death_hint });
+  }
 }

@@ -1,4 +1,9 @@
 {
+  "type": "module",
+  "scripts": {
+    "test:missing600": "node src/data/test_missing_600.js",
+    "lint:events": "node src/data/lint_extended_events.js"
+  },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
     "@babel/preset-react": "^7.28.5"

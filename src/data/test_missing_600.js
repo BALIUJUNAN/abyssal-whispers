@@ -1,6 +1,6 @@
 // data/test_missing_600.js
 // 测试用例：虚拟第600个事件机制
-// 运行：node --input-type=module test_missing_600.js
+// 运行：node src/data/test_missing_600.js
 
 import { ALL_EXTENDED_EVENTS as allExtended } from './extended_events_index.js';
 import {
@@ -317,6 +317,7 @@ assert(
 // Build a mock GD with 599 events (the real extended events) + area + systems
 const mockGD2 = {
   events: [...allExtended],
+  _extendedEvents: [...allExtended],
   _extendedEventsLoaded: true,
   _extendedEventCount: 599,
   areas: [{ id: 'town_center', connected_areas: [], resource_pressure: { required_light_level: 0 } }],
@@ -329,9 +330,10 @@ const mockGD2 = {
 const pickFirst = arr => arr[0];
 
 // State that satisfies all missing_600 conditions
+// Include omen IDs so they don't fire before event 600 in tests
 const readyState = makeState({
   ap: 12, maxAp: 12, day: 20,
-  triggeredEvents: ['loop_endpoint_001'],
+  triggeredEvents: ['loop_endpoint_001', 'omen_600_notebook_page', 'omen_600_event_log', 'omen_600_npc_whisper'],
   triggeredSilentEvents: [],
 });
 

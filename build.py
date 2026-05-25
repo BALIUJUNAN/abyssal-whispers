@@ -37,21 +37,40 @@ REACT_PATH = os.path.join(VENDOR_DIR, 'react.production.min.js')
 REACTDOM_PATH = os.path.join(VENDOR_DIR, 'react-dom.production.min.js')
 
 # Order matters: utils first, then dependencies
+# Includes both reducer modules and data files with function exports
 REDUCER_FILES = [
-    'utils.js',
-    'worldReducer.js',
-    'sanReducer.js',
-    'eventReducer.js',
-    'safehouseReducer.js',
-    'effectReducer.js',
-    'itemReducer.js',
-    'endingReducer.js',
-    'objectiveReducer.js',
-    'saveReducer.js',
-    'loopReducer.js',
-    'chapterReducer.js',
-    'conclusionReducer.js',
-    'npcReducer.js',
+    'reducers/utils.js',
+    'reducers/worldReducer.js',
+    'reducers/sanReducer.js',
+    'data/events_missing_600.js',
+    'data/events_omens_600.js',
+    'reducers/extendedEvents.js',
+    'reducers/eventReducer.js',
+    'reducers/safehouseReducer.js',
+    'data/events_loop.js',
+    'data/events_humanity.js',
+    'data/events_mythos.js',
+    'data/events_resource.js',
+    'data/events_npc_cross.js',
+    'data/events_area_deep.js',
+    'data/events_ending.js',
+    'data/events_silent.js',
+    'data/events_meta.js',
+    'data/extended_events_index.js',
+    'data/ending_missing_600.js',
+    'data/events_death_echo.js',
+    'reducers/extendedEventsLoader.js',
+    'reducers/extendedEventsInit.js',
+    'reducers/effectReducer.js',
+    'reducers/itemReducer.js',
+    'reducers/endingReducer.js',
+    'reducers/objectiveReducer.js',
+    'reducers/saveReducer.js',
+    'reducers/loopReducer.js',
+    'reducers/chapterReducer.js',
+    'reducers/conclusionReducer.js',
+    'reducers/npcReducer.js',
+    'reducers/deathSystem.js',
 ]
 
 
@@ -73,21 +92,52 @@ def strip_es_modules(code):
     code = re.sub(r"^import\s+\w+\s+from\s+['\"][^'\"]+['\"];?\s*$", '', code, flags=re.MULTILINE)
     # Remove export keyword from declarations: export function, export const, export class
     code = re.sub(r"^export\s+", '', code, flags=re.MULTILINE)
+    # Remove export default: 'export default X;' -> remove entirely (value already assigned above)
+    code = re.sub(r"^default\s+\w+;\s*$", '', code, flags=re.MULTILINE)
     # Remove trailing blank lines
     code = code.strip() + '\n'
     return code
 
 
+# Data files that export 'const events' and need unique names to avoid collision.
+# Maps filename -> global variable name used by importing code.
+DATA_FILE_EVENTS_ALIAS = {
+    'data/events_loop.js': 'loopEvents',
+    'data/events_humanity.js': 'humanityEvents',
+    'data/events_mythos.js': 'mythosEvents',
+    'data/events_resource.js': 'resourceEvents',
+    'data/events_npc_cross.js': 'npcCrossEvents',
+    'data/events_area_deep.js': 'areaDeepEvents',
+    'data/events_ending.js': 'endingEvents',
+    'data/events_silent.js': 'silentEvents',
+    'data/events_meta.js': 'metaEvents',
+    'data/events_death_echo.js': 'deathEchoEvents',
+}
+
+
+def process_events_data_file(code, alias):
+    """Process a data file that exports 'const events'. Renames the variable
+    to avoid collisions when bundled, then assigns to the expected global name."""
+    unique = '_events_' + alias
+    code = re.sub(r'\bexport const events\b', f'const {unique}', code)
+    code = strip_es_modules(code)
+    code += f'var {alias} = {unique};\n'
+    return code
+
+
 def bundle_reducers():
-    """Read all reducer files, strip module syntax, concatenate."""
+    """Read all reducer/data files, strip module syntax, concatenate."""
     parts = []
     for fname in REDUCER_FILES:
-        path = os.path.join(REDUCERS_DIR, fname)
+        path = os.path.join(SRC, fname)
         if os.path.exists(path):
             code = read_file(path)
-            code = strip_es_modules(code)
+            if fname in DATA_FILE_EVENTS_ALIAS:
+                code = process_events_data_file(code, DATA_FILE_EVENTS_ALIAS[fname])
+            else:
+                code = strip_es_modules(code)
             parts.append(f'// === {fname} ===\n{code}')
-            print(f'  Bundled: reducers/{fname} ({len(code)} bytes)')
+            print(f'  Bundled: {fname} ({len(code)} bytes)')
         else:
             print(f'  Warning: {path} not found, skipping')
     return '\n'.join(parts)
@@ -108,12 +158,15 @@ def compile_jsx_with_babel(jsx_code):
         result = subprocess.run(
             [npx_cmd, '--no-install', 'babel', tmp_path, '--out-file', out_path,
              '--presets', '@babel/preset-react'],
-            capture_output=True, text=True, timeout=120
+            capture_output=True, text=True, timeout=120, encoding='utf-8', errors='replace'
         )
         if result.returncode != 0:
             print(f'Babel compilation failed:\n{result.stderr}', file=sys.stderr)
             return None
-        return read_file(out_path)
+        compiled = read_file(out_path)
+        if result.stderr:
+            print(f'  Babel: {result.stderr.strip()[:200]}')
+        return compiled
     except (subprocess.TimeoutExpired, FileNotFoundError) as e:
         print(f'Babel not available: {e}', file=sys.stderr)
         return None
@@ -158,7 +211,7 @@ def build(use_babel=True):
         print('Attempting JSX compilation with Babel...')
         compiled_js = compile_jsx_with_babel(js_with_data)
         if compiled_js:
-            print('JSX compiled successfully with Babel.')
+            print(f'JSX compiled successfully with Babel.')
         else:
             print('Babel not available, falling back to Babel standalone CDN.')
 
@@ -186,13 +239,13 @@ def build(use_babel=True):
 
     write_file(OUTPUT, html)
 
-    # Report
-    size = len(html)
+    # Report (use byte counts for accurate file sizes with CJK text)
+    size = os.path.getsize(OUTPUT)
     print(f'\nBuild complete: {OUTPUT}')
     print(f'  Output size: {size:,} bytes ({size / 1024:.1f} KB)')
-    print(f'  Game data:   {len(game_data):,} bytes')
-    print(f'  CSS:         {len(css):,} bytes')
-    print(f'  JS:          {len(compiled_js or js_with_data):,} bytes')
+    print(f'  Game data:   {len(game_data.encode("utf-8")):,} bytes')
+    print(f'  CSS:         {len(css.encode("utf-8")):,} bytes')
+    print(f'  JS:          {len((compiled_js or js_with_data).encode("utf-8")):,} bytes')
     print(f'  Babel used:  {"yes" if compiled_js else "no (standalone)"}')
 
 
