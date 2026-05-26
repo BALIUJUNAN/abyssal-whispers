@@ -39,6 +39,7 @@ REACTDOM_PATH = os.path.join(VENDOR_DIR, 'react-dom.production.min.js')
 # Order matters: utils first, then dependencies
 # Includes both reducer modules and data files with function exports
 REDUCER_FILES = [
+    'portraitMap.js',
     'reducers/utils.js',
     'reducers/worldReducer.js',
     'reducers/sanReducer.js',
@@ -58,6 +59,7 @@ REDUCER_FILES = [
     'data/events_meta.js',
     'data/extended_events_index.js',
     'data/ending_missing_600.js',
+    'data/behavior_endings.js',
     'data/events_death_echo.js',
     'reducers/extendedEventsLoader.js',
     'reducers/extendedEventsInit.js',
@@ -86,15 +88,10 @@ def write_file(path, content):
 
 def strip_es_modules(code):
     """Remove ES module import/export statements for inlining."""
-    # Remove single-line imports: import { x, y } from './module.js';
     code = re.sub(r"^import\s+\{[^}]*\}\s+from\s+['\"][^'\"]+['\"];?\s*$", '', code, flags=re.MULTILINE)
-    # Remove default imports: import x from './module.js';
     code = re.sub(r"^import\s+\w+\s+from\s+['\"][^'\"]+['\"];?\s*$", '', code, flags=re.MULTILINE)
-    # Remove export keyword from declarations: export function, export const, export class
+    code = re.sub(r"^export\s+default\s+[^;]+;?\s*$", '', code, flags=re.MULTILINE)
     code = re.sub(r"^export\s+", '', code, flags=re.MULTILINE)
-    # Remove export default: 'export default X;' -> remove entirely (value already assigned above)
-    code = re.sub(r"^default\s+\w+;\s*$", '', code, flags=re.MULTILINE)
-    # Remove trailing blank lines
     code = code.strip() + '\n'
     return code
 

@@ -19,6 +19,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC','Microsof
 .title-screen h1{font-size:2.5rem;color:var(--gold);text-shadow:0 0 20px rgba(184,150,58,0.3);margin-bottom:0.5rem;letter-spacing:0.2em;font-family:'Noto Serif SC','Source Han Serif SC','Songti SC',serif}
 .title-screen h2{font-size:1rem;color:var(--text-dim);margin-bottom:3rem;letter-spacing:0.5em;font-family:'Noto Serif SC','Songti SC',serif}
 .title-screen .subtitle{color:var(--text-dim);font-size:0.85rem;max-width:500px;line-height:1.85;margin-bottom:2rem;font-family:'Noto Serif SC','Songti SC',serif;letter-spacing:0.02em}
+.title-poster{width:min(520px,72vw);max-height:42vh;object-fit:contain;margin-bottom:1.4rem;border:1px solid var(--border2);box-shadow:0 0 30px rgba(184,150,58,0.16)}
 .btn{background:var(--bg3);color:var(--text);border:1px solid var(--border2);padding:0.7rem 2rem;cursor:pointer;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:0.9rem;transition:all 0.3s;letter-spacing:0.1em}
 .btn:hover{background:var(--bg4);border-color:var(--accent);color:var(--text-bright)}
 .btn-primary{background:var(--accent);border-color:var(--accent2);color:var(--text-bright)}
@@ -96,6 +97,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC','Microsof
 .narrative-block .event-type.NPC对话{color:var(--accent2);border-color:var(--accent2)}
 .narrative-block .event-type.正常事件{color:var(--accent2);border-color:var(--accent2)}
 .narrative-block .event-type.轻微异常{color:var(--gold);border-color:var(--gold)}
+.narrative-image{display:block;width:min(100%,720px);max-height:360px;object-fit:cover;margin:0.4rem 0 0.7rem;border:1px solid var(--border2);background:var(--bg2);box-shadow:0 0 18px rgba(0,0,0,0.22)}
+.npc-portrait{display:block;width:min(240px,100%);max-height:320px;object-fit:cover;margin:0 auto 0.7rem;border:1px solid var(--border2);background:var(--bg);box-shadow:0 0 16px rgba(58,122,122,0.16)}
 .narrative-block .effects{margin-top:0.5rem;padding:0.4rem;background:var(--bg);border:1px solid var(--border);font-size:0.75rem}
 .narrative-block .skill-check{margin-top:0.5rem;padding:0.4rem;background:var(--bg2);border:1px solid var(--border);font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .narrative-block .skill-check .check-title{color:var(--gold);font-size:0.75rem}
@@ -146,6 +149,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC','Microsof
 .event-log .log-entry .log-day{color:var(--gold)}
 .ending-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
 .ending-screen h2{font-size:2rem;color:var(--gold);margin-bottom:1rem;font-family:'Noto Serif SC','Source Han Serif SC','Songti SC',serif}
+.ending-cg{width:min(760px,86vw);max-height:48vh;object-fit:contain;margin-bottom:1.2rem;border:1px solid var(--border2);background:var(--bg2);box-shadow:0 0 28px rgba(0,0,0,0.35)}
 .ending-screen .ending-desc{max-width:600px;line-height:1.85;margin-bottom:2rem;color:var(--text);font-family:'Noto Serif SC','Songti SC',serif;letter-spacing:0.02em}
 .ending-screen .rewards{color:var(--accent2);margin-bottom:1rem}
 .ending-screen .stats-summary{color:var(--text-dim);font-size:0.8rem;margin-bottom:2rem}
@@ -184,8 +188,12 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC','Microsof
   .action-btn{padding:0.65rem 0.5rem;font-size:0.8rem}
   .title-screen h1{font-size:1.8rem}
   .title-screen h2{font-size:0.85rem}
+  .title-poster{width:min(420px,86vw);max-height:34vh}
   .char-creation{padding:1rem}
+  .narrative-image{max-height:280px}
+  .npc-portrait{width:min(220px,80vw);max-height:280px}
   .ending-screen h2{font-size:1.5rem}
+  .ending-cg{width:90vw;max-height:40vh}
   .confessional,.death-recap{margin:1rem auto;padding:0.8rem}
   .save-load-bar{flex-wrap:wrap;justify-content:center}
 }

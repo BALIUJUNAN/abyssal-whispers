@@ -77,14 +77,14 @@ export function createMissing600Event(state) {
       "你的笔记本翻到了最后一页。\n\n" +
       "你没有写过这一页。但上面有字。\n\n" +
       "字迹是你的。内容是：\n\n" +
-      "「你在沃切斯特记录了 " + (599 + endingsCount) + " 件事。\n" +
+      "你在沃切斯特记录了 " + (599 + endingsCount) + " 件事。\n" +
       "其中 599 件是真实的。\n" +
       "最后一件——是你正在阅读的这一件。\n\n" +
       "它不存在于任何事件池中。\n" +
       "它不在 game_data.json 里。\n" +
       "它只在你走到这里的时候出现。\n\n" +
       "你已经看到了所有能看的东西。\n" +
-      "现在，你有三个选择。」",
+      "现在，你有三个选择。",
     effects: { san: -5, mythos: 5 },
     sanity_damage: -5,
     skill_check: null,
@@ -96,7 +96,7 @@ export function createMissing600Event(state) {
         label: "继续阅读",
         text:
           "你读完了最后一页。\n\n" +
-          "笔记本的封底写着一行小字：「循环不会终止。但你可以选择不再回来。」\n\n" +
+          "笔记本的封底写着一行小字：『循环不会终止。但你可以选择不再回来。』\n\n" +
           "你合上了笔记本。但你知道——下次你打开它的时候，第一页会是空白的。",
         effects: {
           add_flag: "missing_event_600_seen",
@@ -110,7 +110,7 @@ export function createMissing600Event(state) {
         text:
           "你合上了笔记本。\n\n" +
           "封面变热了。你松开手。笔记本落在地上，翻到了某一页。\n\n" +
-          "页面上只有一句话：「世界拒绝被完成。」\n\n" +
+          "页面上只有一句话：『世界拒绝被完成。』\n\n" +
           "你捡起笔记本。最后一页不见了。取而代之的是一张空白页，和一个墨水还没干的指纹。",
         effects: {
           add_flag: "missing_event_600_seen",

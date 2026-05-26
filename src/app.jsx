@@ -448,7 +448,7 @@ function gameReducer(state,action){
     if(!s.triggeredEvents.includes('evt_day1_opening_cut')){
       s.triggeredEvents.push('evt_day1_opening_cut');
       const cutText='公告栏最下面有一张新的失踪告示。\n纸面干燥，边缘还没有卷起。\n\n照片里的人低着头，外套领口沾着海盐。\n\n你认出那件外套。\n\n你低头看了一眼自己。\n同一颗纽扣，缺了一半。\n\n告示下方写着：\n失踪时间：今天傍晚。';
-      narr('event',cutText,{eventTitle:'第一张告示',eventType:'opening_cut',isSpecial:true});
+      narr('event',cutText,{eventTitle:'第一张告示',eventType:'opening_cut',isSpecial:true,imageSrc:getAreaSceneImage(s.currentArea,s),imageAlt:'第一张告示'});
       if(!s.clues.includes('clue_missing_notice_self'))s.clues.push('clue_missing_notice_self');
       addRunMemory(s,'你在公告栏上看见了自己的失踪告示。','opening_cut');
     }
@@ -476,7 +476,7 @@ function gameReducer(state,action){
     const lightCorrPenalty=(s.lightLevel||0)<(targetArea?.resource_pressure?.required_light_level||0)?2:1;
     let desc=getSanTextVariant(targetArea.description,s.san,pick,ctx);
     if(lightCorrPenalty>1&&Math.random()<0.3)desc+='\n\n光线不足。你不确定自己看到的是不是真的。';
-    narr('location',desc,{locationName:displayName});
+    narr('location',desc,{locationName:displayName,imageSrc:getAreaSceneImage(target,s),imageAlt:displayName});
     if(targetArea.micro_events&&targetArea.micro_events.length>0&&Math.random()<0.35){
       const me=pick(targetArea.micro_events);
       const meText=getSanTextVariant(me.description,s.san,pick,ctx);
@@ -513,7 +513,7 @@ function gameReducer(state,action){
           if(fe&&!s.triggeredEvents.includes(eid)&&checkTrigger(fe,s)){
             narr('system','【保底推进】你注意到一些之前忽略的细节。',{isSpecial:true});
             s.triggeredEvents.push(eid);
-            narr('event',fe.description,{eventTitle:fe.name,eventType:fe.type||fe.event_classification});
+            narr('event',fe.description,{eventTitle:fe.name,eventType:fe.type||fe.event_classification,imageSrc:getEventImage(fe.id)||getAreaSceneImage(s.currentArea,s),imageAlt:fe.name});
             return s;
           }
         }
@@ -522,7 +522,7 @@ function gameReducer(state,action){
     }
     s.triggeredEvents.push(evt.id);
     const evtText=getPollutionText(getSanTextVariant(evt.description,s.san,pick,ctx),s.pollution||0);
-    narr('event',evtText,{eventTitle:evt.name,eventType:evt.type||evt.event_classification});
+    narr('event',evtText,{eventTitle:evt.name,eventType:evt.type||evt.event_classification,imageSrc:getEventImage(evt.id)||getAreaSceneImage(s.currentArea,s),imageAlt:evt.name});
     // SAN赌博机制：25%概率触发选择
     const gambleOpts=getGambleOptions(evt,s,ctx);
     if(gambleOpts){
@@ -883,7 +883,7 @@ function gameReducer(state,action){
     checkBreakWallEvent(s,narr);
     narr('system','\n═══ 第 '+s.day+' 天 ═══ 天气：'+s.weather+' ═══ 封印：'+s.sealState+' ═══');
     const area=getAreaInfo(s.currentArea,ctx);
-    if(area)narr('location',area.description,{locationName:getAreaDisplayName(area,s)});
+    if(area)narr('location',area.description,{locationName:getAreaDisplayName(area,s),imageSrc:getAreaSceneImage(s.currentArea,s),imageAlt:getAreaDisplayName(area,s)});
     const ending=checkEnding(s,ctx);if(ending)s.ending={...ending,recap:buildDeathRecap(s)};
     if(s.day>28){
       s.deathContext={mode:'hp',type:'physical',area:s.currentArea,day:s.day,loop:s.loopCount,sourceEventId:null,sourceEventName:'时间耗尽',finalText:'封印崩溃，沃切斯特沉入深渊。',residueFlag:'death_echo_time'};
@@ -1121,7 +1121,9 @@ function gameReducer(state,action){
 
 // === COMPONENTS ===
 function TitleScreen({onStart, onContinue, saveExists}){
+  const posterSrc=getEventImage('poster2')||getEventImage('poster');
   return <div className="title-screen">
+    {posterSrc&&<img className="title-poster" src={posterSrc} alt="深渊低语海报" onError={e=>{e.currentTarget.style.display='none';}}/>}
     <h1>深渊低语</h1><h2>沃切斯特之影</h2>
     <div className="subtitle">公元1926年，马萨诸塞州，一座被浓雾笼罩的港口城市。失踪、疯狂、不可名状的低语——你被卷入了一场超越人类认知的噩梦。在理智崩塌之前，揭开古老封印的秘密。</div>
     <div style={{display:'flex',gap:'1rem',flexDirection:'column',alignItems:'center'}}>
@@ -1215,6 +1217,7 @@ const NarrativeBlock=memo(function NarrativeBlock({block}){
     {block.locationName&&<div className="location-name">📍 {block.locationName}</div>}
     {block.eventTitle&&<div className="event-title">{block.eventTitle}</div>}
     {block.eventType&&<div className={'event-type '+block.eventType}>{block.eventType}</div>}
+    {block.imageSrc&&<img className="narrative-image" src={block.imageSrc} alt={block.imageAlt||block.eventTitle||block.locationName||'事件插图'} onError={e=>{e.currentTarget.style.display='none';}}/>}
     <div className="narrative-text">{block.text}</div>
     {block.madness&&<div className="madness-effect">⚠ {block.madness.name}：{block.madness.description}</div>}
   </div>;
@@ -1223,7 +1226,9 @@ const NarrativeBlock=memo(function NarrativeBlock({block}){
 function NPCDialog({npc,trust,layer,dispatch,state}){
   const [show,setShow]=useState(false);
   const ns=state?.npcStates?.[npc.name]||{};
+  const npcImage=getNpcImage(npc.name,state?.npcStates);
   return <div className="narrative-block npc-dialogue"><div className="skill-check">
+    {npcImage&&<img className="npc-portrait" src={npcImage} alt={npc.name+'立绘'} onError={e=>{e.currentTarget.style.display='none';}}/>}
     <div style={{color:'var(--cyan)',fontSize:'0.9rem',marginBottom:'0.3rem'}}>与 {npc.name} 交谈</div>
     <div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.3rem'}}>{npc.role}</div>
     <div style={{fontSize:'0.75rem',color:'var(--gold)',marginBottom:'0.3rem'}}>信任：{'★'.repeat(Math.max(0,trust))}{'☆'.repeat(Math.max(0,5-trust))}</div>
@@ -1384,11 +1389,13 @@ const RightPanel=memo(function RightPanel({state,dispatch}){
 function EndingScreen({ending,state,dispatch}){
   const tc=ending.type==='good'?'good':ending.type==='bad'?'bad':ending.type==='hidden'?'hidden':'neutral';
   const recap=ending.recap;
+  const endingImage=ending.id?getEndingCgImage(ending.id):null;
   const isStructured=recap&&typeof recap==='object'&&!Array.isArray(recap)&&recap.deathType;
   const isFirstDeath=state.loopCount===0&&tc==='bad';
   const deathAnimClass=isFirstDeath?(isStructured&&recap.deathType==='mental'?'death-anim-mental':'death-anim-physical'):'';
   return <div className={'ending-screen '+tc+' '+deathAnimClass}>
     <h2>{ending.name}</h2>
+    {endingImage&&<img className="ending-cg" src={endingImage} alt={ending.name+'结局图'} onError={e=>{e.currentTarget.style.display='none';}}/>}
     <div className="ending-desc">{ending.description}</div>
     {ending.rewards&&<div className="rewards"><div style={{marginBottom:'0.3rem'}}>奖励：</div>{ending.rewards.map((r,i)=><div key={i}>{r}</div>)}</div>}
     {isFirstDeath&&<div className="tutorial-hint" style={{maxWidth:'500px',margin:'0 auto 1rem'}}>死亡不是终点。你的部分知识会在下一轮保留。点击"再次踏入深渊"开始新的轮回。</div>}

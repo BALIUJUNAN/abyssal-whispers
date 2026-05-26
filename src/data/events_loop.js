@@ -8,7 +8,7 @@ export const events = [
     id: "loop_whisper_001", name: "熟悉的声音", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "early"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.3, once_per_run: true },
-    description: "你经过公告栏时，一个声音从你背后传来——音色和你自己的一模一样：“你又选了这条路。”\n你转身。没有人。\n公告栏上多了一张告示，墨迹还没干。上面是你的笔迹。",
+    description: "你经过公告栏时，一个声音从你背后传来——音色和你自己的一模一样：「你又选了这条路。」\n你转身。没有人。\n公告栏上多了一张告示，墨迹还没干。上面是你的笔迹。",
     effects: { san: -1, mythos: 1 },
     event_classification: "轻微异常", normalcy_anchor: false,
     choices: []
@@ -26,7 +26,7 @@ export const events = [
     id: "loop_whisper_003", name: "未写完的信", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "safehouse"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.2, once_per_run: true },
-    description: "你在安全屋的桌上发现一封信。笔迹是你的。\n开头写着：“如果你又读到这封信——”\n后面的内容被水渍模糊了。你没有写过这封信的记忆。\n纸张的折痕说明它已经被打开过很多次。",
+    description: "你在安全屋的桌上发现一封信。笔迹是你的。\n开头写着：「如果你又读到这封信——」\n后面的内容被水渍模糊了。你没有写过这封信的记忆。\n纸张的折痕说明它已经被打开过很多次。",
     effects: { san: -1, add_clue: "clue_loop_letter" },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -62,7 +62,7 @@ export const events = [
     id: "loop_whisper_007", name: "汤米的困惑", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "npc"],
     trigger: { areas: ["town_center"], min_loop: 3, probability: 0.2, once_per_run: true, npc_alive: ["汤米·陈"] },
-    description: "汤米看到你时愣了一下。\n“你……你昨天不是走了吗？我看到你坐上了去波士顿的长途车。”\n你告诉他你没有离开过。\n他揉了揉眼睛：“也许我记错了。最近总觉得日子过得……重叠。”",
+    description: "汤米看到你时愣了一下。\n「你……你昨天不是走了吗？我看到你坐上了去波士顿的长途车。」\n你告诉他你没有离开过。\n他揉了揉眼睛：「也许我记错了。最近总觉得日子过得……重叠。」",
     effects: { san: -1 },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -71,7 +71,7 @@ export const events = [
     id: "loop_whisper_008", name: "玛莎的回避", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "npc"],
     trigger: { areas: ["harbor_district"], min_loop: 3, probability: 0.2, once_per_run: true, npc_alive: ["玛莎·格雷"] },
-    description: "你走进酒吧。玛莎看到你时，手指在吧台上敲了三下——一种无意识的节奏。\n“又来了，”她说，然后立刻改口，“我是说，欢迎。”\n她给你倒了一杯酒，手微微发抖。\n“你让我想起一个人。一个总是回来的人。”",
+    description: "你走进酒吧。玛莎看到你时，手指在吧台上敲了三下——一种无意识的节奏。\n「又来了，」她说，然后立刻改口，「我是说，欢迎。」\n她给你倒了一杯酒，手微微发抖。\n「你让我想起一个人。一个总是回来的人。」",
     effects: { san: -1 },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -80,7 +80,7 @@ export const events = [
     id: "loop_whisper_009", name: "重复的梦", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "rest"],
     trigger: { areas: ["town_center", "harbor_district"], min_loop: 2, probability: 0.2, time_phase: ["midnight"], once_per_run: true },
-    description: "你在半梦半醒间听到一个声音在数数。\n“一。二。三。四。五——”\n每数一个数字，你感到身体轻了一点。\n“六。”\n你猛地睁开眼。安全屋的墙壁上，有人用指甲刮出了六道竖痕。你的指甲缝里有石灰粉。",
+    description: "你在半梦半醒间听到一个声音在数数。\n「一。二。三。四。五——」\n每数一个数字，你感到身体轻了一点。\n「六。」\n你猛地睁开眼。安全屋的墙壁上，有人用指甲刮出了六道竖痕。你的指甲缝里有石灰粉。",
     effects: { san: -2 },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -98,7 +98,7 @@ export const events = [
     id: "loop_whisper_011", name: "渔夫的低语", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "npc"],
     trigger: { areas: ["harbor_district"], min_loop: 3, probability: 0.2, once_per_run: true, npc_alive: ["老费舍"] },
-    description: "老费舍坐在码头边补网。你走近时，他没有抬头。\n“第几次了？”他问。\n你问他什么意思。\n“没什么。只是……你身上的雾气比别人重。像是走过很多次同样的路。”\n他继续补网，手指灵活得不像一个老人。",
+    description: "老费舍坐在码头边补网。你走近时，他没有抬头。\n「第几次了？」他问。\n你问他什么意思。\n「没什么。只是……你身上的雾气比别人重。像是走过很多次同样的路。」\n他继续补网，手指灵活得不像一个老人。",
     effects: { san: -1 },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -107,7 +107,7 @@ export const events = [
     id: "loop_whisper_012", name: "重复的对话", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "npc"],
     trigger: { areas: ["town_center"], min_loop: 4, probability: 0.15, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
-    description: "伊莱亚斯看到你，话说到一半突然停住。\n“……我刚才说过这些话，对吗？”\n你告诉他没有。\n“奇怪。我记得很清楚。你问了一个关于封印的问题，然后——”他揉了揉太阳穴，“算了。也许是我太累了。最近总是分不清记忆和……别的什么。”",
+    description: "伊莱亚斯看到你，话说到一半突然停住。\n「……我刚才说过这些话，对吗？」\n你告诉他没有。\n「奇怪。我记得很清楚。你问了一个关于封印的问题，然后——」他揉了揉太阳穴，「算了。也许是我太累了。最近总是分不清记忆和……别的什么。」",
     effects: { san: -1 },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -125,7 +125,7 @@ export const events = [
     id: "loop_whisper_014", name: "回声", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "catacombs"],
     trigger: { areas: ["catacombs_entrance"], min_loop: 3, probability: 0.2, once_per_run: true },
-    description: "你在墓穴入口喊了一声。回声传来——但回声说的是不同的话。\n你喊的是“有人吗？”\n回声说的是“又来了。”\n你又喊了一次。这次没有回声。沉默持续了太久，久到你开始怀疑自己刚才是不是真的喊过。",
+    description: "你在墓穴入口喊了一声。回声传来——但回声说的是不同的话。\n你喊的是「有人吗？」\n回声说的是「又来了。」\n你又喊了一次。这次没有回声。沉默持续了太久，久到你开始怀疑自己刚才是不是真的喊过。",
     effects: { san: -2 },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -134,7 +134,7 @@ export const events = [
     id: "loop_whisper_015", name: "照片的增减", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "photo"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.2, once_per_run: true, npc_alive: ["汤米·陈"] },
-    description: "汤米给你看了一张照片。是码头的全景。\n“数数船，”他说。\n你数了。六艘。\n“你上次来的时候也是六艘。但我拍的时候只有五艘。”\n他翻出之前的照片给你看。确实是五艘。多出来的那艘船，你认出了它的名字——是你上一周目死前最后看到的那艘。",
+    description: "汤米给你看了一张照片。是码头的全景。\n「数数船，」他说。\n你数了。六艘。\n「你上次来的时候也是六艘。但我拍的时候只有五艘。」\n他翻出之前的照片给你看。确实是五艘。多出来的那艘船，你认出了它的名字——是你上一周目死前最后看到的那艘。",
     effects: { san: -2, add_clue: "clue_loop_photo_boat" },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -143,7 +143,7 @@ export const events = [
     id: "loop_whisper_016", name: "教堂的钟声", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "church"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.25, time_phase: ["evening", "midnight"], once_per_run: true },
-    description: "教堂的钟响了。\n你数了一下。十三下。\n然后又响了十三下。\n你等了一会儿。没有第三次。\n伊莎贝拉从教堂里走出来，看到你站在原地。\n“你听到了？”她问。\n你点头。\n“只有回来过的人才会听到第二次。”",
+    description: "教堂的钟响了。\n你数了一下。十三下。\n然后又响了十三下。\n你等了一会儿。没有第三次。\n伊莎贝拉从教堂里走出来，看到你站在原地。\n「你听到了？」她问。\n你点头。\n「只有回来过的人才会听到第二次。」",
     effects: { san: -1, add_clue: "clue_loop_bell" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -152,7 +152,7 @@ export const events = [
     id: "loop_whisper_017", name: "被覆盖的涂鸦", type: "loop_locked", subtype: "loop_whisper",
     weight: 1, tier: "normal", tags: ["loop", "whisper", "wall"],
     trigger: { areas: ["harbor_district", "town_center"], min_loop: 3, probability: 0.2, once_per_run: true },
-    description: "墙上有一片新刷的白漆。漆面还没完全干。\n你用指甲抠了一下。底下有字。\n是一句话，反复写了十几遍，字迹越来越潦草：\n“不要去灯塔。不要去灯塔。不要去灯塔。不要去灯塔。”\n最后几行变成了另一种笔迹。你的笔迹。",
+    description: "墙上有一片新刷的白漆。漆面还没完全干。\n你用指甲抠了一下。底下有字。\n是一句话，反复写了十几遍，字迹越来越潦草：\n「不要去灯塔。不要去灯塔。不要去灯塔。不要去灯塔。」\n最后几行变成了另一种笔迹。你的笔迹。",
     effects: { san: -1, add_clue: "clue_loop_wall_writing" },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -219,7 +219,7 @@ export const events = [
     id: "loop_memory_004", name: "地下的蜡烛", type: "loop_locked", subtype: "memory_fragment",
     weight: 1, tier: "rare", tags: ["loop", "memory", "catacombs"],
     trigger: { areas: ["catacombs_entrance"], min_loop: 3, requires_prev_area_death: "catacombs_entrance", probability: 0.35, once_per_run: true },
-    description: "墓穴墙壁的缝隙里插着一根蜡烛。蜡油已经凝固成层层叠叠的形状。\n你数了一下蜡油的层数——和你的周目数一样。\n最底层的蜡油里封着一张纸条。你小心翼翼地剥开。\n纸条上只有一句话：“这次带够了蜡烛吗？”",
+    description: "墓穴墙壁的缝隙里插着一根蜡烛。蜡油已经凝固成层层叠叠的形状。\n你数了一下蜡油的层数——和你的周目数一样。\n最底层的蜡油里封着一张纸条。你小心翼翼地剥开。\n纸条上只有一句话：「这次带够了蜡烛吗？」",
     effects: { san: -2, add_clue: "clue_memory_candle" },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -237,7 +237,7 @@ export const events = [
     id: "loop_memory_006", name: "树洞里的东西", type: "loop_locked", subtype: "memory_fragment",
     weight: 1, tier: "rare", tags: ["loop", "memory", "forest"],
     trigger: { areas: ["whispering_forest"], min_loop: 4, requires_prev_area_death: "whispering_forest", probability: 0.3, once_per_run: true },
-    description: "一棵老橡树的树洞里塞着一个布包。你打开它。\n里面是你的笔记本——但不是你手上的这本。封面磨损更严重，内页写满了你的笔迹。\n最后一页写着：“第三次了。每次都在这里停下来。为什么？”\n你翻回第一页。日期是未来的。",
+    description: "一棵老橡树的树洞里塞着一个布包。你打开它。\n里面是你的笔记本——但不是你手上的这本。封面磨损更严重，内页写满了你的笔迹。\n最后一页写着：「第三次了。每次都在这里停下来。为什么？」\n你翻回第一页。日期是未来的。",
     effects: { san: -3, add_clue: "clue_memory_notebook_copy", mythos: 2 },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -264,7 +264,7 @@ export const events = [
     id: "loop_memory_009", name: "深渊的回音", type: "loop_locked", subtype: "memory_fragment",
     weight: 1, tier: "rare", tags: ["loop", "memory", "deep"],
     trigger: { areas: ["deep_catacombs"], min_loop: 4, requires_prev_area_death: "deep_catacombs", probability: 0.3, once_per_run: true },
-    description: "竖井深处传来声音。不是回声——是有人在说话。\n你听到了自己的声音，说的是一句你完全不记得说过的话：\n“如果这次还不行，我会在第七天去灯塔。”\n声音停了。竖井里吹上来一阵风，带着海水和铁锈的气味。\n你知道自己从未去过灯塔。至少这一周目没有。",
+    description: "竖井深处传来声音。不是回声——是有人在说话。\n你听到了自己的声音，说的是一句你完全不记得说过的话：\n「如果这次还不行，我会在第七天去灯塔。」\n声音停了。竖井里吹上来一阵风，带着海水和铁锈的气味。\n你知道自己从未去过灯塔。至少这一周目没有。",
     effects: { san: -3, mythos: 2, add_clue: "clue_memory_abyss_voice" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -291,7 +291,7 @@ export const events = [
     id: "loop_memory_012", name: "安全屋的记号", type: "loop_locked", subtype: "memory_fragment",
     weight: 1, tier: "rare", tags: ["loop", "memory", "safehouse"],
     trigger: { areas: ["town_center"], min_loop: 3, probability: 0.25, once_per_run: true },
-    description: "你检查安全屋的门框。上面有一道浅浅的刻痕。\n你用手指量了一下——正好是你食指的长度。\n你确信上周目你在这里做了这个记号。但那是为了什么？\n门框下方还有一行小字，需要蹲下才能看到：“门会换位置。”",
+    description: "你检查安全屋的门框。上面有一道浅浅的刻痕。\n你用手指量了一下——正好是你食指的长度。\n你确信上周目你在这里做了这个记号。但那是为了什么？\n门框下方还有一行小字，需要蹲下才能看到：「门会换位置。」",
     effects: { san: -1, add_clue: "clue_memory_safehouse_mark" },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -300,7 +300,7 @@ export const events = [
     id: "loop_memory_013", name: "伊莱亚斯的笔记", type: "loop_locked", subtype: "memory_fragment",
     weight: 1, tier: "rare", tags: ["loop", "memory", "npc"],
     trigger: { areas: ["town_center"], min_loop: 3, probability: 0.2, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
-    description: "伊莱亚斯递给你一张纸。\n“这个掉在了我的书桌上。不是我写的。”\n纸上是你的笔迹。记录着一个仪式的步骤——你从未学过的仪式。\n但你的身体记得每一个动作。你的舌尖能尝到仪式中使用的草药味道。\n你上周目一定做过这个仪式。",
+    description: "伊莱亚斯递给你一张纸。\n「这个掉在了我的书桌上。不是我写的。」\n纸上是你的笔迹。记录着一个仪式的步骤——你从未学过的仪式。\n但你的身体记得每一个动作。你的舌尖能尝到仪式中使用的草药味道。\n你上周目一定做过这个仪式。",
     effects: { san: -2, add_clue: "clue_memory_ritual_notes", mythos: 1 },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -309,7 +309,7 @@ export const events = [
     id: "loop_memory_014", name: "水中的倒影", type: "loop_locked", subtype: "memory_fragment",
     weight: 1, tier: "rare", tags: ["loop", "memory", "water"],
     trigger: { areas: ["harbor_district"], min_loop: 3, probability: 0.25, once_per_run: true, time_phase: ["midnight"] },
-    description: "你走到码头边缘，低头看水。\n水面映出了你的脸。但倒影里的你穿着不同的衣服，脸上多了一道伤疤。\n倒影动了——它抬起手，在水面上写了什么。\n你只能看清最后一个字：“逃。”\n然后水面恢复了平静。你的倒影和你一样了。",
+    description: "你走到码头边缘，低头看水。\n水面映出了你的脸。但倒影里的你穿着不同的衣服，脸上多了一道伤疤。\n倒影动了——它抬起手，在水面上写了什么。\n你只能看清最后一个字：「逃。」\n然后水面恢复了平静。你的倒影和你一样了。",
     effects: { san: -2, add_clue: "clue_memory_water_reflection" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -331,7 +331,7 @@ export const events = [
     id: "loop_contradiction_001", name: "玛莎的困惑", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "martha"],
     trigger: { areas: ["harbor_district"], min_loop: 4, probability: 0.25, once_per_run: true, npc_alive: ["玛莎·格雷"] },
-    description: "玛莎看着你，眉头紧锁。\n“你昨天不是问过了吗？关于灯塔的事。”\n你告诉她这是你第一次问。\n“不可能。我记得很清楚。你坐在那个位置，问了一模一样的问题。我还给了你同样的回答。”\n她停顿了一下。\n“……也许我记错了。最近总觉得时间在打转。”",
+    description: "玛莎看着你，眉头紧锁。\n「你昨天不是问过了吗？关于灯塔的事。」\n你告诉她这是你第一次问。\n「不可能。我记得很清楚。你坐在那个位置，问了一模一样的问题。我还给了你同样的回答。」\n她停顿了一下。\n「……也许我记错了。最近总觉得时间在打转。」",
     effects: { san: -2, npc_trust: { "玛莎·格雷": -1 } },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -340,7 +340,7 @@ export const events = [
     id: "loop_contradiction_002", name: "伊莱亚斯的预言", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "elias"],
     trigger: { areas: ["town_center"], min_loop: 4, probability: 0.2, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
-    description: "伊莱亚斯正在翻阅一本古籍。看到你时，他合上了书。\n“你会问我关于封印的事，”他说。\n你还没开口。\n“你还会问我希尔达和莫里斯家族的关系。然后你会去码头。”\n他的眼神很疲惫。\n“我也不知道我是怎么知道的。也许我做了一个梦。一个很长的梦。”",
+    description: "伊莱亚斯正在翻阅一本古籍。看到你时，他合上了书。\n「你会问我关于封印的事，」他说。\n你还没开口。\n「你还会问我希尔达和莫里斯家族的关系。然后你会去码头。」\n他的眼神很疲惫。\n「我也不知道我是怎么知道的。也许我做了一个梦。一个很长的梦。」",
     effects: { san: -2, add_clue: "clue_contradiction_elias_prophecy" },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -349,7 +349,7 @@ export const events = [
     id: "loop_contradiction_003", name: "汤米的照片墙", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "tommy"],
     trigger: { areas: ["town_center"], min_loop: 4, probability: 0.2, once_per_run: true, npc_alive: ["汤米·陈"] },
-    description: "汤米的店铺墙上挂满了照片。你注意到其中有几张拍的是你。\n“这些都是我拍的，”汤米说，“但我不记得什么时候拍的。”\n你仔细看照片。背景是你从未去过的地方——至少你没有去过。\n“还有一张更奇怪的，”汤米指着角落里一张模糊的照片，“这张是在你来之前就挂在那里的。”",
+    description: "汤米的店铺墙上挂满了照片。你注意到其中有几张拍的是你。\n「这些都是我拍的，」汤米说，「但我不记得什么时候拍的。」\n你仔细看照片。背景是你从未去过的地方——至少你没有去过。\n「还有一张更奇怪的，」汤米指着角落里一张模糊的照片，「这张是在你来之前就挂在那里的。」",
     effects: { san: -2, add_clue: "clue_contradiction_tommy_photos" },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -358,7 +358,7 @@ export const events = [
     id: "loop_contradiction_004", name: "希尔达的等待", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "hilda"],
     trigger: { areas: ["voxchester_manor"], min_loop: 5, probability: 0.2, once_per_run: true, npc_alive: ["希尔达·莫里斯"] },
-    description: "希尔达站在庄园门口，像是在等你。\n“你来了，”她说，语气平淡得像在陈述天气。\n你问她怎么知道你会来。\n“我不知道。但我知道你会问这个问题。”\n她转身走进庄园。\n“你还会问我关于地下室的事。然后你会犹豫。然后你会下去。”\n她回头看了你一眼。\n“每次都一样。”",
+    description: "希尔达站在庄园门口，像是在等你。\n「你来了，」她说，语气平淡得像在陈述天气。\n你问她怎么知道你会来。\n「我不知道。但我知道你会问这个问题。」\n她转身走进庄园。\n「你还会问我关于地下室的事。然后你会犹豫。然后你会下去。」\n她回头看了你一眼。\n「每次都一样。」",
     effects: { san: -3, add_clue: "clue_contradiction_hilda_wait" },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -367,7 +367,7 @@ export const events = [
     id: "loop_contradiction_005", name: "约书亚的拒绝", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "joshua"],
     trigger: { areas: ["harbor_district"], min_loop: 4, probability: 0.2, once_per_run: true, npc_alive: ["约书亚·布莱克"] },
-    description: "你走向约书亚。他看到你时后退了一步。\n“不，”他说，“我不会再告诉你了。”\n你问他告诉过你什么。\n“灯塔下面的事。我上周告诉过你了。”\n你坚持说这是第一次。\n约书亚盯着你看了很久。\n“你的眼睛……和上次不一样。但你确实问过同样的问题。我记得因为那天晚上下了雨。”",
+    description: "你走向约书亚。他看到你时后退了一步。\n「不，」他说，「我不会再告诉你了。」\n你问他告诉过你什么。\n「灯塔下面的事。我上周告诉过你了。」\n你坚持说这是第一次。\n约书亚盯着你看了很久。\n「你的眼睛……和上次不一样。但你确实问过同样的问题。我记得因为那天晚上下了雨。」",
     effects: { san: -2 },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -376,7 +376,7 @@ export const events = [
     id: "loop_contradiction_006", name: "伊莎贝拉的警告", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "isabella"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.2, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯"] },
-    description: "伊莎贝拉看到你时，在胸前画了一个十字。\n“你不应该来的，”她低声说。\n你问她为什么。\n“因为你上次来的时候……”她停住了。\n“你上次什么时候来的？今天是……”她看了看日历，困惑地摇了摇头。\n“我记不清了。但我知道你来过。你问过我关于第十二声钟响的事。”\n你没有问过。至少你不记得。",
+    description: "伊莎贝拉看到你时，在胸前画了一个十字。\n「你不应该来的，」她低声说。\n你问她为什么。\n「因为你上次来的时候……」她停住了。\n「你上次什么时候来的？今天是……」她看了看日历，困惑地摇了摇头。\n「我记不清了。但我知道你来过。你问过我关于第十二声钟响的事。」\n你没有问过。至少你不记得。",
     effects: { san: -2, add_clue: "clue_contradiction_isabella_warn" },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -385,7 +385,7 @@ export const events = [
     id: "loop_contradiction_007", name: "老费舍的沉默", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "fisher"],
     trigger: { areas: ["harbor_district"], min_loop: 4, probability: 0.2, once_per_run: true, npc_alive: ["老费舍"] },
-    description: "老费舍坐在码头边，看着海面。你走过去坐下。\n他没有转头，但开了口：\n“你又来了。”\n你告诉他你今天第一次来。\n“不。你来过。你坐在这里，问了我关于海里的东西。我告诉了你。然后你走了。”\n他终于转头看你。\n“但你的眼睛变了。上次更暗一些。”",
+    description: "老费舍坐在码头边，看着海面。你走过去坐下。\n他没有转头，但开了口：\n「你又来了。」\n你告诉他你今天第一次来。\n「不。你来过。你坐在这里，问了我关于海里的东西。我告诉了你。然后你走了。」\n他终于转头看你。\n「但你的眼睛变了。上次更暗一些。」",
     effects: { san: -2 },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -394,7 +394,7 @@ export const events = [
     id: "loop_contradiction_008", name: "埃德加的书稿", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "edgar"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, once_per_run: true, npc_alive: ["埃德加·洛夫克拉夫特"] },
-    description: "埃德加递给你几页手稿。\n“我写了这个故事。但我不记得写过。”\n你读了手稿。故事讲的是一个人来到一座被雾笼罩的城市，调查一系列失踪案。\n故事里的主角死了。然后又回来了。一次又一次。\n“你看，”埃德加指着最后一段，“这里写了主角的反应。和你现在一模一样。”\n你看向最后一段。确实一样。",
+    description: "埃德加递给你几页手稿。\n「我写了这个故事。但我不记得写过。」\n你读了手稿。故事讲的是一个人来到一座被雾笼罩的城市，调查一系列失踪案。\n故事里的主角死了。然后又回来了。一次又一次。\n「你看，」埃德加指着最后一段，「这里写了主角的反应。和你现在一模一样。」\n你看向最后一段。确实一样。",
     effects: { san: -3, add_clue: "clue_contradiction_edgar_manuscript", mythos: 2 },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -403,7 +403,7 @@ export const events = [
     id: "loop_contradiction_009", name: "重复的日期", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "time"],
     trigger: { areas: ["town_center", "harbor_district"], min_loop: 5, probability: 0.15, once_per_run: true },
-    description: "你问路人今天是几号。\n“三月十五号，”他说。\n你昨天问的也是三月十五号。\n你又问了另一个人。\n“三月十四号，”她回答。\n你看了看教堂的日历。三月十六号。\n三个答案。同一天。",
+    description: "你问路人今天是几号。\n「三月十五号，」他说。\n你昨天问的也是三月十五号。\n你又问了另一个人。\n「三月十四号，」她回答。\n你看了看教堂的日历。三月十六号。\n三个答案。同一天。",
     effects: { san: -3, add_clue: "clue_contradiction_date" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -412,7 +412,7 @@ export const events = [
     id: "loop_contradiction_010", name: "NPC的重叠", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.15, once_per_run: true },
-    description: "你在镇中心同时看到了两个汤米。\n一个在店铺门口整理货架。另一个在街对面拍照。\n你眨了眨眼。街对面的汤米消失了。\n店铺门口的汤米抬头看你。\n“怎么了？”\n你问他刚才有没有看到街对面有人。\n“没有。我一直在这里。”\n但他的相机里确实有一张照片——拍的是街对面的他。",
+    description: "你在镇中心同时看到了两个汤米。\n一个在店铺门口整理货架。另一个在街对面拍照。\n你眨了眨眼。街对面的汤米消失了。\n店铺门口的汤米抬头看你。\n「怎么了？」\n你问他刚才有没有看到街对面有人。\n「没有。我一直在这里。」\n但他的相机里确实有一张照片——拍的是街对面的他。",
     effects: { san: -3, add_clue: "clue_contradiction_double" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -421,7 +421,7 @@ export const events = [
     id: "loop_contradiction_011", name: "未完成的对话", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "martha"],
     trigger: { areas: ["harbor_district"], min_loop: 5, probability: 0.2, once_per_run: true, npc_alive: ["玛莎·格雷"] },
-    description: "你走进酒吧。玛莎看到你，话说到一半：\n“——所以你觉得封印的关键在——”\n她突然停住。\n“等等。我刚才在和谁说话？”\n你告诉她你刚进来。\n“不可能。我刚才明明在……”她看了看吧台。上面有两个杯子。一个在你面前，一个在角落的空位前。\n角落的杯子里还有半杯酒。酒是温的。",
+    description: "你走进酒吧。玛莎看到你，话说到一半：\n「——所以你觉得封印的关键在——」\n她突然停住。\n「等等。我刚才在和谁说话？」\n你告诉她你刚进来。\n「不可能。我刚才明明在……」她看了看吧台。上面有两个杯子。一个在你面前，一个在角落的空位前。\n角落的杯子里还有半杯酒。酒是温的。",
     effects: { san: -2, add_clue: "clue_contradiction_unfinished" },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -430,7 +430,7 @@ export const events = [
     id: "loop_contradiction_012", name: "地图的矛盾", type: "loop_locked", subtype: "loop_contradiction",
     weight: 1, tier: "rare", tags: ["loop", "contradiction", "map"],
     trigger: { areas: ["town_center"], min_loop: 4, probability: 0.2, once_per_run: true },
-    description: "你打开笔记本上的地图。路线和你记忆中的不一样。\n有一条路你从未画过——从镇中心直接通往一个你从未去过的地方。\n但你认出了那个地方的名字。你梦到过它。\n你问伊莱亚斯那个地方在哪里。\n“那里？那里什么都没有。只有一片空地。”\n你去了。确实什么都没有。但地上的土是新翻过的。",
+    description: "你打开笔记本上的地图。路线和你记忆中的不一样。\n有一条路你从未画过——从镇中心直接通往一个你从未去过的地方。\n但你认出了那个地方的名字。你梦到过它。\n你问伊莱亚斯那个地方在哪里。\n「那里？那里什么都没有。只有一片空地。」\n你去了。确实什么都没有。但地上的土是新翻过的。",
     effects: { san: -2, add_clue: "clue_contradiction_map" },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -461,7 +461,7 @@ export const events = [
     id: "loop_wall_003", name: "墙后的低语", type: "loop_locked", subtype: "wall_entity",
     weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "whisper"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, time_phase: ["midnight"], once_per_run: true },
-    description: "你把耳朵贴在墙上。另一边有声音。\n不是风。是有人在说话。声音很轻，你只能听清几个词：\n“……他还不知道……”\n“……再给他一次机会……”\n“……第七天……”\n你猛地把耳朵移开。墙面上留下了一小片潮湿的印记——像是有人从另一边贴着墙呼出的气。",
+    description: "你把耳朵贴在墙上。另一边有声音。\n不是风。是有人在说话。声音很轻，你只能听清几个词：\n「……他还不知道……」\n「……再给他一次机会……」\n「……第七天……」\n你猛地把耳朵移开。墙面上留下了一小片潮湿的印记——像是有人从另一边贴着墙呼出的气。",
     effects: { san: -3, add_clue: "clue_wall_whisper" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -506,7 +506,7 @@ export const events = [
     id: "loop_wall_008", name: "墙壁的文字", type: "loop_locked", subtype: "wall_entity",
     weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "text"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.1, once_per_run: true },
-    description: "你醒来时发现墙上有字。\n字迹是凸起的，像是从墙里长出来的。你摸了摸——触感像骨头。\n字写的是：“你不属于这里。”\n你试图用手刮掉它们。刮不动。字迹像是墙体的一部分。\n到了晚上，字变了：“但你无处可去。”",
+    description: "你醒来时发现墙上有字。\n字迹是凸起的，像是从墙里长出来的。你摸了摸——触感像骨头。\n字写的是：「你不属于这里。」\n你试图用手刮掉它们。刮不动。字迹像是墙体的一部分。\n到了晚上，字变了：「但你无处可去。」",
     effects: { san: -3, add_clue: "clue_wall_text" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -524,7 +524,7 @@ export const events = [
     id: "loop_wall_010", name: "墙后的呼唤", type: "loop_locked", subtype: "wall_entity",
     weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "call"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.1, time_phase: ["midnight"], once_per_run: true },
-    description: "你听到有人在叫你的名字。\n声音从墙后传来。你认出了那个声音——是你自己的。\n“过来，”它说，“这边有出路。”\n你把手贴在墙上。墙壁是软的。\n你的手指陷了进去。像是按在皮肤上。\n你抽回手。墙上留下了五个指印。指印慢慢消失了。\n声音没有再响起。",
+    description: "你听到有人在叫你的名字。\n声音从墙后传来。你认出了那个声音——是你自己的。\n「过来，」它说，「这边有出路。」\n你把手贴在墙上。墙壁是软的。\n你的手指陷了进去。像是按在皮肤上。\n你抽回手。墙上留下了五个指印。指印慢慢消失了。\n声音没有再响起。",
     effects: { san: -4 },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -537,7 +537,7 @@ export const events = [
     id: "loop_correction_001", name: "被划掉的线索", type: "loop_locked", subtype: "world_correction",
     weight: 1, tier: "signature", tags: ["loop", "correction", "clue"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.2, once_per_run: true },
-    description: "你翻开笔记本。上周目记录的一条关键线索被划掉了。\n不是你划的——笔迹不同，力度更大，像是有人用力地、反复地涂抹。\n你试图辨认被划掉的内容。依稀能看到几个字：“灯塔……地下室……钥匙……”\n系统提示：世界试图隐藏它。",
+    description: "你翻开笔记本。上周目记录的一条关键线索被划掉了。\n不是你划的——笔迹不同，力度更大，像是有人用力地、反复地涂抹。\n你试图辨认被划掉的内容。依稀能看到几个字：「灯塔……地下室……钥匙……」\n系统提示：世界试图隐藏它。",
     effects: { san: -3, add_clue: "clue_correction_redacted", mythos: 2 },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -564,7 +564,7 @@ export const events = [
     id: "loop_correction_004", name: "被替换的物品", type: "loop_locked", subtype: "world_correction",
     weight: 1, tier: "signature", tags: ["loop", "correction", "item"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.15, once_per_run: true },
-    description: "你打开抽屉。里面的东西和你记忆中的不一样。\n上周目你放在这里的钥匙碎片不见了。取而代之的是一张照片——拍的是同一把钥匙，但已经碎成了更多块。\n照片背面写着一行字：“它不想被找到。”\n你翻过照片。正面的钥匙碎片在照片里慢慢消失，像是被什么抹去了。",
+    description: "你打开抽屉。里面的东西和你记忆中的不一样。\n上周目你放在这里的钥匙碎片不见了。取而代之的是一张照片——拍的是同一把钥匙，但已经碎成了更多块。\n照片背面写着一行字：「它不想被找到。」\n你翻过照片。正面的钥匙碎片在照片里慢慢消失，像是被什么抹去了。",
     effects: { san: -3, add_clue: "clue_correction_replaced" },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -573,7 +573,7 @@ export const events = [
     id: "loop_correction_005", name: "被篡改的日历", type: "loop_locked", subtype: "world_correction",
     weight: 1, tier: "signature", tags: ["loop", "correction", "time"],
     trigger: { areas: ["town_center"], min_loop: 7, probability: 0.15, once_per_run: true },
-    description: "你查看教堂的日历。三月十五日被撕掉了。\n不是被人撕掉的——纸张的边缘是光滑的，像是从来没有那一页。\n你问伊莎贝拉。\n“三月十五？今年没有那一天。三月十四直接跳到了三月十六。”\n她看着你的表情，补充道：“一直都是这样。”",
+    description: "你查看教堂的日历。三月十五日被撕掉了。\n不是被人撕掉的——纸张的边缘是光滑的，像是从来没有那一页。\n你问伊莎贝拉。\n「三月十五？今年没有那一天。三月十四直接跳到了三月十六。」\n她看着你的表情，补充道：「一直都是这样。」",
     effects: { san: -3, add_clue: "clue_correction_calendar" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -600,7 +600,7 @@ export const events = [
     id: "loop_correction_008", name: "被重写的历史", type: "loop_locked", subtype: "world_correction",
     weight: 1, tier: "signature", tags: ["loop", "correction", "library"],
     trigger: { areas: ["town_center"], min_loop: 7, probability: 0.1, once_per_run: true },
-    description: "你在图书馆找到一本关于沃切斯特历史的书。你翻到关于莫里斯家族的章节。\n和你记忆中的不一样。上周目你读到的内容被整段替换了。\n你对比了两个版本。关键的差异只有一个：原版提到了一个封印的位置。新版完全没有。\n书页的边缘有一行极小的铅笔字：“它会修改记录。小心。”\n是你的笔迹。",
+    description: "你在图书馆找到一本关于沃切斯特历史的书。你翻到关于莫里斯家族的章节。\n和你记忆中的不一样。上周目你读到的内容被整段替换了。\n你对比了两个版本。关键的差异只有一个：原版提到了一个封印的位置。新版完全没有。\n书页的边缘有一行极小的铅笔字：「它会修改记录。小心。」\n是你的笔迹。",
     effects: { san: -3, add_clue: "clue_correction_history", mythos: 2 },
     event_classification: "神秘事件", normalcy_anchor: false,
     choices: []
@@ -613,7 +613,7 @@ export const events = [
     id: "loop_endpoint_001", name: "墓碑上的结局", type: "loop_locked", subtype: "loop_endpoint",
     weight: 1, tier: "signature", tags: ["loop", "endpoint", "ending"],
     trigger: { areas: ["catacombs_entrance"], min_loop: 8, probability: 0.1, once_per_run: true },
-    description: "你在墓穴深处找到一块墓碑。上面刻着字——不是名字，而是结局。\n你逐行阅读：\n“献祭者。希尔达的选择。古老血脉。第十二声。”\n“逃离海岸。证据逃离。异端黎明。深渊吞噬。”\n“超越者。命运漂流。”\n最后有一行空格。还没填上。\n你伸手去摸那个空格。石头是温热的。",
+    description: "你在墓穴深处找到一块墓碑。上面刻着字——不是名字，而是结局。\n你逐行阅读：\n「献祭者。希尔达的选择。古老血脉。第十二声。」\n「逃离海岸。证据逃离。异端黎明。深渊吞噬。」\n「超越者。命运漂流。」\n最后有一行空格。还没填上。\n你伸手去摸那个空格。石头是温热的。",
     effects: { san: -4, mythos: 3, add_clue: "clue_endpoint_tombstone" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -622,7 +622,7 @@ export const events = [
     id: "loop_endpoint_002", name: "倒计时", type: "loop_locked", subtype: "loop_endpoint",
     weight: 1, tier: "signature", tags: ["loop", "endpoint", "countdown"],
     trigger: { areas: ["town_center"], min_loop: 8, probability: 0.1, once_per_run: true },
-    description: "你打开怀表。表盘上的数字在变化——不是时间，而是数字。\n从十开始倒数。九。八。七。\n你试着合上表盖。合不上。\n六。五。四。\n你把怀表翻过来。背面刻着一行字：“当数字归零，你将不再回来。”\n三。二。一。\n表盘恢复了正常时间。但你注意到——今天是第“数字”天。你记不清具体是第几天了。",
+    description: "你打开怀表。表盘上的数字在变化——不是时间，而是数字。\n从十开始倒数。九。八。七。\n你试着合上表盖。合不上。\n六。五。四。\n你把怀表翻过来。背面刻着一行字：「当数字归零，你将不再回来。」\n三。二。一。\n表盘恢复了正常时间。但你注意到——今天是第「数字」天。你记不清具体是第几天了。",
     effects: { san: -4, add_clue: "clue_endpoint_countdown" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -631,7 +631,7 @@ export const events = [
     id: "loop_endpoint_003", name: "所有周目的你", type: "loop_locked", subtype: "loop_endpoint",
     weight: 1, tier: "signature", tags: ["loop", "endpoint", "self"],
     trigger: { areas: ["lighthouse"], min_loop: 9, probability: 0.08, once_per_run: true },
-    description: "灯塔的灯室里有一面镜子。镜子里映出了很多个人影。\n你数了一下。数量和你的周目数一样。\n每个人影的姿势都不同——有的在奔跑，有的在战斗，有的蜷缩在地上，有的面朝深渊。\n你走到镜子前。所有的人影同时转头看你。\n它们的嘴同时动了。你读出了唇语：\n“选一个结局。”",
+    description: "灯塔的灯室里有一面镜子。镜子里映出了很多个人影。\n你数了一下。数量和你的周目数一样。\n每个人影的姿势都不同——有的在奔跑，有的在战斗，有的蜷缩在地上，有的面朝深渊。\n你走到镜子前。所有的人影同时转头看你。\n它们的嘴同时动了。你读出了唇语：\n「选一个结局。」",
     effects: { san: -5, mythos: 3, add_clue: "clue_endpoint_mirror" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -640,7 +640,7 @@ export const events = [
     id: "loop_endpoint_004", name: "最后一次机会", type: "loop_locked", subtype: "loop_endpoint",
     weight: 1, tier: "signature", tags: ["loop", "endpoint", "final"],
     trigger: { areas: ["deep_catacombs"], min_loop: 9, probability: 0.08, once_per_run: true },
-    description: "深渊墓穴的最深处。你看到了一面墙。墙上写满了名字——你认出了几个。\n是其他调查员的名字。有些你见过，在失踪告示上。有些你没见过。\n每个名字旁边都有一个结局：疯狂、死亡、逃离、献祭……\n最后一个名字是你的。旁边的结局栏是空的。\n墙的底部刻着一行字：“这是你的最后一次机会。选择你的结局。”",
+    description: "深渊墓穴的最深处。你看到了一面墙。墙上写满了名字——你认出了几个。\n是其他调查员的名字。有些你见过，在失踪告示上。有些你没见过。\n每个名字旁边都有一个结局：疯狂、死亡、逃离、献祭……\n最后一个名字是你的。旁边的结局栏是空的。\n墙的底部刻着一行字：「这是你的最后一次机会。选择你的结局。」",
     effects: { san: -5, mythos: 3, add_clue: "clue_endpoint_final_wall" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
@@ -649,7 +649,7 @@ export const events = [
     id: "loop_endpoint_005", name: "循环的尽头", type: "loop_locked", subtype: "loop_endpoint",
     weight: 1, tier: "signature", tags: ["loop", "endpoint", "loop_truth"],
     trigger: { areas: ["ruins_of_yith"], min_loop: 10, probability: 0.05, once_per_run: true },
-    description: "伊斯机器完全亮了起来。你看到了一段影像——\n是你自己。很多个你。每一个都在做不同的选择。\n有的你重铸了封印。有的你逃离了沃切斯特。有的你沉入了深渊。\n影像的最后，所有的你同时看向你。\n一个声音响起——不是任何人的声音，而是机器本身的声音：\n“你已经看到了所有的可能。现在，做出你的选择。这是最后一次循环。”\n机器的光芒开始消退。",
+    description: "伊斯机器完全亮了起来。你看到了一段影像——\n是你自己。很多个你。每一个都在做不同的选择。\n有的你重铸了封印。有的你逃离了沃切斯特。有的你沉入了深渊。\n影像的最后，所有的你同时看向你。\n一个声音响起——不是任何人的声音，而是机器本身的声音：\n「你已经看到了所有的可能。现在，做出你的选择。这是最后一次循环。」\n机器的光芒开始消退。",
     effects: { san: -5, mythos: 5, add_clue: "clue_endpoint_yith_final", unlock_ending_condition: "ending_loop_truth_available" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []

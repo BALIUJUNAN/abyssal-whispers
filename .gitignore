@@ -16,3 +16,12 @@ desktop.ini
 # Internal configs
 .codebuddy/
 .claude/
+.claude-edge-profile/
+
+# Python
+__pycache__/
+*.pyc
+
+# Temporary files
+check_result*
+extra_files*

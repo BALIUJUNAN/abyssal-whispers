@@ -33,12 +33,12 @@ export const events = [
     id: "resource_food_003", name: "玛莎的施舍", type: "resource_pressure", subtype: "food_choice",
     weight: 1, tier: "normal", tags: ["resource", "food", "npc", "martha"],
     trigger: { areas: ["harbor_district"], food_lte: 1, probability: 0.2, once_per_run: true, npc_alive: ["玛莎·格雷"] },
-    description: "你走进酒吧。玛莎看到你，叹了口气。\n“你又没吃东西。”\n她从后厨端出一碗汤。汤很稀，但里面有土豆和一点鱼肉。\n“吃吧，”她说，“别客气。”\n你犹豫了。你不想欠她太多。",
+    description: "你走进酒吧。玛莎看到你，叹了口气。\n「你又没吃东西。」\n她从后厨端出一碗汤。汤很稀，但里面有土豆和一点鱼肉。\n「吃吧，」她说，「别客气。」\n你犹豫了。你不想欠她太多。",
     effects: {},
     event_classification: "NPC互动", normalcy_anchor: true,
     choices: [
       { label: "接受", text: "你坐下来喝完了汤。味道很好。你的胃安静了下来。", effects: { food: 1, san: 1, npc_trust: { "玛莎·格雷": 1 }, add_run_memory: { text: "接受了玛莎的施舍。" } } },
-      { label: "拒绝", text: "“我没事。”玛莎看了你一眼。她不信。但她没有坚持。", effects: { san: -1, add_run_memory: { text: "拒绝了玛莎的施舍。" } } }
+      { label: "拒绝", text: "「我没事。」玛莎看了你一眼。她不信。但她没有坚持。", effects: { san: -1, add_run_memory: { text: "拒绝了玛莎的施舍。" } } }
     ]
   },
   {
@@ -94,7 +94,7 @@ export const events = [
     id: "resource_food_008", name: "汤米的零食", type: "resource_pressure", subtype: "food_choice",
     weight: 1, tier: "normal", tags: ["resource", "food", "npc", "tommy"],
     trigger: { areas: ["town_center"], food_lte: 2, probability: 0.2, once_per_run: true, npc_alive: ["汤米·陈"] },
-    description: "你走进汤米的店铺。他看到你，从柜台下面拿出一个小包裹。\n“我猜你又没吃东西，”他说，“这是我老婆做的包子。还热着。”\n他把包裹推到你面前。\n“不用钱。就当是我请你。”",
+    description: "你走进汤米的店铺。他看到你，从柜台下面拿出一个小包裹。\n「我猜你又没吃东西，」他说，「这是我老婆做的包子。还热着。」\n他把包裹推到你面前。\n「不用钱。就当是我请你。」",
     effects: { food: 2, npc_trust: { "汤米·陈": 1 }, add_run_memory: { text: "汤米给了你一些食物。" } },
     event_classification: "NPC互动", normalcy_anchor: true,
     choices: []
@@ -112,12 +112,12 @@ export const events = [
     id: "resource_food_010", name: "交换", type: "resource_pressure", subtype: "food_choice",
     weight: 1, tier: "normal", tags: ["resource", "food", "trade"],
     trigger: { areas: ["town_center"], food_lte: 2, probability: 0.2, once_per_run: true },
-    description: "一个人拦住了你。他手里拿着一些食物。\n“我有吃的，”他说，“但我需要一些东西来换。”\n他看着你手里的手电筒。\n“用你的手电筒换。我需要光。”",
+    description: "一个人拦住了你。他手里拿着一些食物。\n「我有吃的，」他说，「但我需要一些东西来换。」\n他看着你手里的手电筒。\n「用你的手电筒换。我需要光。」",
     effects: {},
     event_classification: "正常事件", normalcy_anchor: false,
     choices: [
       { label: "交换", text: "你把手电筒给了他。他给了你一些食物和一瓶水。", effects: { food: 3, remove_item: { item_id: "flashlight" }, add_run_memory: { text: "用手电筒换了食物。" } } },
-      { label: "拒绝", text: "“我需要手电筒。”他耸了耸肩，走了。", effects: { add_run_memory: { text: "拒绝了用手电筒换食物的交易。" } } }
+      { label: "拒绝", text: "「我需要手电筒。」他耸了耸肩，走了。", effects: { add_run_memory: { text: "拒绝了用手电筒换食物的交易。" } } }
     ]
   },
   {
@@ -148,7 +148,7 @@ export const events = [
     id: "resource_food_013", name: "老费舍的鱼", type: "resource_pressure", subtype: "food_choice",
     weight: 1, tier: "normal", tags: ["resource", "food", "npc", "fisher"],
     trigger: { areas: ["harbor_district"], food_lte: 1, probability: 0.2, once_per_run: true, npc_alive: ["老费舍"], npc_trust_gte: { "老费舍": 2 } },
-    description: "老费舍看到你，从桶里捞出一条鱼。\n“拿着，”他说，“别客气。”\n鱼还是活的，在你手里挣扎。\n“你会处理鱼吗？”他问。\n你摇了摇头。\n他叹了口气，从你手里拿回鱼，三两下就处理好了。\n“给你。下次自己学。”",
+    description: "老费舍看到你，从桶里捞出一条鱼。\n「拿着，」他说，「别客气。」\n鱼还是活的，在你手里挣扎。\n「你会处理鱼吗？」他问。\n你摇了摇头。\n他叹了口气，从你手里拿回鱼，三两下就处理好了。\n「给你。下次自己学。」",
     effects: { food: 2, npc_trust: { "老费舍": 1 }, add_run_memory: { text: "老费舍给了你一条处理好的鱼。" } },
     event_classification: "NPC互动", normalcy_anchor: true,
     choices: []
@@ -245,7 +245,7 @@ export const events = [
     id: "resource_light_007", name: "灯光的代价", type: "resource_pressure", subtype: "light_exhaustion",
     weight: 1, tier: "normal", tags: ["resource", "light", "cost"],
     trigger: { areas: ["town_center"], light_lte: 1, probability: 0.2, once_per_run: true },
-    description: "你需要光。你走进一家杂货店。\n店主有灯油。但价格是平时的三倍。\n“雾季涨价，”他解释，“灯油不好进。”\n你看着手里的钱。够买一瓶。但买了灯油，你就没钱买别的了。",
+    description: "你需要光。你走进一家杂货店。\n店主有灯油。但价格是平时的三倍。\n「雾季涨价，」他解释，「灯油不好进。」\n你看着手里的钱。够买一瓶。但买了灯油，你就没钱买别的了。",
     effects: {},
     event_classification: "正常事件", normalcy_anchor: false,
     choices: [
@@ -321,19 +321,19 @@ export const events = [
     id: "resource_med_002", name: "危险的交易", type: "resource_pressure", subtype: "medicine_shortage",
     weight: 1, tier: "normal", tags: ["resource", "medicine", "trade"],
     trigger: { areas: ["town_center"], hp_lte_ratio: 0.3, probability: 0.2, once_per_run: true },
-    description: "一个人拦住了你。他看到了你身上的伤。\n“你需要药？”他问。\n他从口袋里掏出一个小瓶。“这个能治你的伤。但代价是——”\n他看着你的眼睛。\n“一个秘密。告诉我一个你没有告诉过任何人的秘密。”",
+    description: "一个人拦住了你。他看到了你身上的伤。\n「你需要药？」他问。\n他从口袋里掏出一个小瓶。「这个能治你的伤。但代价是——」\n他看着你的眼睛。\n「一个秘密。告诉我一个你没有告诉过任何人的秘密。」",
     effects: {},
     event_classification: "正常事件", normalcy_anchor: false,
     choices: [
       { label: "交换", text: "你告诉了他一个秘密。他把小瓶递给了你。", effects: { hp: 3, add_run_memory: { text: "用秘密换了一瓶药。" } } },
-      { label: "拒绝", text: "“我的秘密不是用来交换的。”他耸了耸肩，走了。", effects: { add_run_memory: { text: "拒绝了用秘密换药的交易。" } } }
+      { label: "拒绝", text: "「我的秘密不是用来交换的。」他耸了耸肩，走了。", effects: { add_run_memory: { text: "拒绝了用秘密换药的交易。" } } }
     ]
   },
   {
     id: "resource_med_003", name: "伊莱亚斯的药", type: "resource_pressure", subtype: "medicine_shortage",
     weight: 1, tier: "normal", tags: ["resource", "medicine", "npc", "elias"],
     trigger: { areas: ["town_center"], hp_lte_ratio: 0.3, probability: 0.2, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
-    description: "伊莱亚斯看到你的伤，皱了皱眉。\n“你受伤了，”他说，“进来。”\n他从书架后面拿出一个小盒子。里面是一些药粉和绷带。\n“这是我以前研究时准备的。对伤口有效。”\n他帮你处理了伤口。手法很熟练。",
+    description: "伊莱亚斯看到你的伤，皱了皱眉。\n「你受伤了，」他说，「进来。」\n他从书架后面拿出一个小盒子。里面是一些药粉和绷带。\n「这是我以前研究时准备的。对伤口有效。」\n他帮你处理了伤口。手法很熟练。",
     effects: { hp: 3, npc_trust: { "伊莱亚斯·沃德": 1 }, add_run_memory: { text: "伊莱亚斯帮你处理了伤口。" } },
     event_classification: "NPC互动", normalcy_anchor: true,
     choices: []
@@ -351,7 +351,7 @@ export const events = [
     id: "resource_med_005", name: "教堂的急救", type: "resource_pressure", subtype: "medicine_shortage",
     weight: 1, tier: "normal", tags: ["resource", "medicine", "church"],
     trigger: { areas: ["town_center"], hp_lte_ratio: 0.3, probability: 0.15, once_per_run: true },
-    description: "你走进教堂。伊莎贝拉看到你，立刻站起来。\n“你受伤了，”她说，“坐下。”\n她从祭坛下面拿出一个急救箱。里面有一些基本的药品和绷带。\n她帮你处理了伤口。手法很温柔。\n“你应该更小心，”她说，“沃切斯特已经够危险了。”",
+    description: "你走进教堂。伊莎贝拉看到你，立刻站起来。\n「你受伤了，」她说，「坐下。」\n她从祭坛下面拿出一个急救箱。里面有一些基本的药品和绷带。\n她帮你处理了伤口。手法很温柔。\n「你应该更小心，」她说，「沃切斯特已经够危险了。」",
     effects: { hp: 2, add_run_memory: { text: "伊莎贝拉在教堂帮你处理了伤口。" } },
     event_classification: "NPC互动", normalcy_anchor: true,
     choices: []
@@ -369,7 +369,7 @@ export const events = [
     id: "resource_med_007", name: "玛莎的药酒", type: "resource_pressure", subtype: "medicine_shortage",
     weight: 1, tier: "normal", tags: ["resource", "medicine", "npc", "martha"],
     trigger: { areas: ["harbor_district"], hp_lte_ratio: 0.3, probability: 0.15, once_per_run: true, npc_alive: ["玛莎·格雷"] },
-    description: "玛莎看到你的伤，从吧台下面拿出一瓶酒。\n“这不是普通的酒，”她说，“是药酒。泡了一些草药。”\n她倒了一杯递给你。“喝下去。然后用剩下的洗伤口。”\n你喝了一口。酒很烈，但你能尝到草药的味道。伤口的疼痛减轻了一些。",
+    description: "玛莎看到你的伤，从吧台下面拿出一瓶酒。\n「这不是普通的酒，」她说，「是药酒。泡了一些草药。」\n她倒了一杯递给你。「喝下去。然后用剩下的洗伤口。」\n你喝了一口。酒很烈，但你能尝到草药的味道。伤口的疼痛减轻了一些。",
     effects: { hp: 2, san: 1, add_run_memory: { text: "玛莎用药酒帮你处理了伤口。" } },
     event_classification: "NPC互动", normalcy_anchor: true,
     choices: []
@@ -387,12 +387,12 @@ export const events = [
     id: "resource_med_009", name: "代价", type: "resource_pressure", subtype: "medicine_shortage",
     weight: 1, tier: "normal", tags: ["resource", "medicine", "cost"],
     trigger: { areas: ["town_center"], hp_lte_ratio: 0.3, probability: 0.12, once_per_run: true },
-    description: "你在街上遇到了一个人。他看到了你的伤。\n“我可以帮你，”他说，“但代价很大。”\n他从口袋里掏出一个小瓶。里面的液体是红色的。\n“喝下去。你的伤会好。但你会忘记一些东西。”\n他看着你。\n“你愿意吗？”",
+    description: "你在街上遇到了一个人。他看到了你的伤。\n「我可以帮你，」他说，「但代价很大。」\n他从口袋里掏出一个小瓶。里面的液体是红色的。\n「喝下去。你的伤会好。但你会忘记一些东西。」\n他看着你。\n「你愿意吗？」",
     effects: {},
     event_classification: "正常事件", normalcy_anchor: false,
     choices: [
       { label: "喝下去", text: "你把红色液体喝了下去。伤口的疼痛立刻消失了。但你忘记了——什么？你记不清了。", effects: { hp: 5, san: -3, add_run_memory: { text: "喝了一种奇怪的药，伤好了但失去了部分记忆。" } } },
-      { label: "拒绝", text: "“不。”他点了点头，收起了小瓶。", effects: { add_run_memory: { text: "拒绝了代价不明的药物。" } } }
+      { label: "拒绝", text: "「不。」他点了点头，收起了小瓶。", effects: { add_run_memory: { text: "拒绝了代价不明的药物。" } } }
     ]
   },
   {
@@ -430,12 +430,12 @@ export const events = [
     id: "resource_safehouse_003", name: "NPC的闯入", type: "resource_pressure", subtype: "safehouse_invasion",
     weight: 1, tier: "normal", tags: ["resource", "safehouse", "npc", "invasion"],
     trigger: { areas: ["town_center"], safehouse_corruption_gte: 60, probability: 0.15, once_per_run: true },
-    description: "你回到安全屋。门开着。\n你走进去。一个人坐在你的椅子上。\n你认出了他——是镇上的一个居民。但他的眼睛不对——瞳孔太大了，像是没有光的深井。\n他看到你，站了起来。\n“我来找你，”他说，“它让我来找你。”\n他朝你走了一步。你注意到他的脚是湿的。",
+    description: "你回到安全屋。门开着。\n你走进去。一个人坐在你的椅子上。\n你认出了他——是镇上的一个居民。但他的眼睛不对——瞳孔太大了，像是没有光的深井。\n他看到你，站了起来。\n「我来找你，」他说，「它让我来找你。」\n他朝你走了一步。你注意到他的脚是湿的。",
     effects: { san: -3, safehouseCorruption: 5 },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: [
-      { label: "把他赶出去", text: "你用力把他推出了门外。他没有反抗。但他站在门外，看着你。\n“它还会来的，”他说，“它总会来的。”\n然后他转身走了。", effects: { san: -1, add_run_memory: { text: "把一个被控制的人赶出了安全屋。" } } },
-      { label: "和他交谈", text: "你问他：“它是谁？”\n他的嘴角抽搐了一下。\n“它在水下面。它一直在看着。”\n然后他倒下了。你扶住他。他的身体很冷。", effects: { san: -2, add_clue: "clue_safehouse_invader", add_run_memory: { text: "和一个被控制的人交谈。" } } }
+      { label: "把他赶出去", text: "你用力把他推出了门外。他没有反抗。但他站在门外，看着你。\n「它还会来的，」他说，「它总会来的。」\n然后他转身走了。", effects: { san: -1, add_run_memory: { text: "把一个被控制的人赶出了安全屋。" } } },
+      { label: "和他交谈", text: "你问他：「它是谁？」\n他的嘴角抽搐了一下。\n「它在水下面。它一直在看着。」\n然后他倒下了。你扶住他。他的身体很冷。", effects: { san: -2, add_clue: "clue_safehouse_invader", add_run_memory: { text: "和一个被控制的人交谈。" } } }
     ]
   },
   {
@@ -460,7 +460,7 @@ export const events = [
     id: "resource_safehouse_006", name: "NPC的信任危机", type: "resource_pressure", subtype: "safehouse_invasion",
     weight: 1, tier: "normal", tags: ["resource", "safehouse", "npc", "trust"],
     trigger: { areas: ["town_center"], safehouse_corruption_gte: 60, probability: 0.15, once_per_run: true },
-    description: "你邀请一个NPC来你的安全屋。他看到安全屋的状态，皱了皱眉。\n“你住在这种地方？”他问。\n你解释说安全屋被污染了。他看着墙上的痕迹，摇了摇头。\n“我不会再来这里了，”他说，“这里不安全。”\n他走了。你知道——安全屋的状态正在影响你和NPC的关系。",
+    description: "你邀请一个NPC来你的安全屋。他看到安全屋的状态，皱了皱眉。\n「你住在这种地方？」他问。\n你解释说安全屋被污染了。他看着墙上的痕迹，摇了摇头。\n「我不会再来这里了，」他说，「这里不安全。」\n他走了。你知道——安全屋的状态正在影响你和NPC的关系。",
     effects: { npc_trust: { "汤米·陈": -1 }, add_run_memory: { text: "NPC因为安全屋的状态拒绝来访。" } },
     event_classification: "NPC互动", normalcy_anchor: false,
     choices: []
@@ -542,7 +542,7 @@ export const events = [
     id: "resource_extreme_004", name: "血月的低语", type: "resource_pressure", subtype: "extreme_weather",
     weight: 1, tier: "normal", tags: ["resource", "weather", "blood_moon", "whisper"],
     trigger: { areas: ["town_center", "harbor_district"], san_lte: 40, requires_weather: ["血月"], probability: 0.2, once_per_run: true },
-    description: "血月的光照在你身上。你感到了——什么？不是热，不是冷。是某种更基本的东西。\n你听到了低语。不是从外面来的——是从你自己的脑海里来的。\n低语在说话。用一种你不认识的语言。但你听得懂。\n“血月之夜。门会变薄。”\n你摇了摇头。低语消失了。但你知道——你刚才听到的是真的。",
+    description: "血月的光照在你身上。你感到了——什么？不是热，不是冷。是某种更基本的东西。\n你听到了低语。不是从外面来的——是从你自己的脑海里来的。\n低语在说话。用一种你不认识的语言。但你听得懂。\n「血月之夜。门会变薄。」\n你摇了摇头。低语消失了。但你知道——你刚才听到的是真的。",
     effects: { san: -2, mythos: 1 },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
