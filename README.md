@@ -6,15 +6,13 @@
 
 <div align="center">
 
+<img src="docs/dossier.png" alt="沃切斯特档案" style="max-width:860px; border:1px solid #333; box-shadow: 0 4px 24px rgba(0,0,0,0.5);">
+
 **"第十三声钟响的那天晚上，我没有离开沃切斯特。"**
 
 *不是我不肯走。是这个城镇不允许我离开。*
 
-<br>
-
-[在线游玩](https://baliujunan.github.io/abyssal-whispers/) · [如何开始](#快速开始) · [世界观](#你踏入了什么) · [系统介绍](#深渊机制) · [技术档案](#技术档案)
-
-<img src="docs/dossier.png" alt="沃切斯特档案" style="max-width:800px; border:1px solid #333;">
+[在线游玩 ▶](https://baliujunan.github.io/abyssal-whispers/) &nbsp;·&nbsp; [如何开始](#快速开始) &nbsp;·&nbsp; [世界观](#你踏入了什么) &nbsp;·&nbsp; [系统介绍](#深渊机制)
 
 </div>
 
