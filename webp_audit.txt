@@ -1,0 +1,187 @@
+﻿============================================================
+WebP 素材审计报告
+============================================================
+assets/webp/       : 138 张
+assets/webp_ending/ : 72 张
+总计               : 210 张
+portraitMap.js 引用: 202 个路径
+
+============================================================
+PART 1: assets/webp/ 审计
+============================================================
+
+  未被引用 (4 张):
+    [DEAD] 沃切斯特教堂外观 深夜.webp                                  223 KB
+    [DEAD] 沃切斯特教堂外观 白天.webp                                  323 KB
+    [DEAD] 镇民  酒馆客人 正常.webp                                   97 KB
+    [DEAD] 镇民  酒馆客人 污染.webp                                   67 KB
+
+  引用但缺失 (68):
+    [MISSING] assets/webp/希尔达 救赎.webp
+    [MISSING] 人肉税.webp
+    [MISSING] 伊莎贝拉 救赎.webp
+    [MISSING] 伊莎贝拉：第十二声.webp
+    [MISSING] 伊莱亚斯 守门人.webp
+    [MISSING] 伪神.webp
+    [MISSING] 删档祈愿者.webp
+    [MISSING] 十三响的先知.webp
+    [MISSING] 升座的牺牲品.webp
+    [MISSING] 囚徒.webp
+    [MISSING] 回音.webp
+    [MISSING] 埃德加 观测者.webp
+    [MISSING] 多余的餐具.webp
+    [MISSING] 守财奴.webp
+    [MISSING] 守门人.webp
+    [MISSING] 容器.webp
+    [MISSING] 封印的亲吻.webp
+    [MISSING] 屠宰场.webp
+    [MISSING] 希尔达的选择.webp
+    [MISSING] 希尔达：封印代价.webp
+    [MISSING] 希尔达：终局知情.webp
+    [MISSING] 异端降临.webp
+    [MISSING] 归海.webp
+    [MISSING] 循环的蛀虫.webp
+    [MISSING] 悦纳者.webp
+    [MISSING] 愉悦的先知.webp
+    [MISSING] 成为事件的残页.webp
+    [MISSING] 整洁的屠夫.webp
+    [MISSING] 断环.webp
+    [MISSING] 无效档案.webp
+    [MISSING] 旧汗渍.webp
+    [MISSING] 最佳员工.webp
+    [MISSING] 木偶师.webp
+    [MISSING] 档案吞噬者.webp
+    [MISSING] 永恒记录员.webp
+    [MISSING] 污圣徒.webp
+    [MISSING] 洗不掉的印记.webp
+    [MISSING] 海上逃离.webp
+    [MISSING] 深渊吞噬.webp
+    [MISSING] 溶盐者.webp
+    [MISSING] 漫游者.webp
+    [MISSING] 潮声之婚.webp
+    [MISSING] 王座上的蛆.webp
+    [MISSING] 玩家成为事件.webp
+    [MISSING] 白页.webp
+    [MISSING] 空白事件卡.webp
+    [MISSING] 空白墓碑.webp
+    [MISSING] 第600事件：笔记本最后一页.webp
+    [MISSING] 第600结局：墨水化.webp
+    [MISSING] 第600预兆：事件日志问号.webp
+    [MISSING] 第600预兆：路人低语.webp
+    [MISSING] 第十二声.webp
+    [MISSING] 筹码.webp
+    [MISSING] 约书亚 救赎.webp
+    [MISSING] 老费舍 码头残影.webp
+    [MISSING] 血肉合唱.webp
+    [MISSING] 被观察者.webp
+    [MISSING] 裂痕.webp
+    [MISSING] 证据逃离.webp
+    [MISSING] 账房先生.webp
+    [MISSING] 超越者.webp
+    [MISSING] 身心俱灭.webp
+    [MISSING] 镜中缺席者.webp
+    [MISSING] 长眠者.webp
+    [MISSING] 页码599变600.webp
+    [MISSING] 骨头落地的声音.webp
+    [MISSING] 黑暗中的手.webp
+    [MISSING] 黑潮圣婚.webp
+
+============================================================
+PART 2: assets/webp_ending/ 结局CG审计
+============================================================
+
+  未引用 (13):
+    [DEAD] 伊莎贝拉 救赎.webp                                 216 KB
+    [DEAD] 希尔达：封印代价.webp                                172 KB
+    [DEAD] 希尔达：终局知情.webp                                195 KB
+    [DEAD] 循环的蛀虫.webp                                   353 KB
+    [DEAD] 愉悦的先知.webp                                   255 KB
+    [DEAD] 整洁的屠夫.webp                                   297 KB
+    [DEAD] 最后的人事.webp                                   253 KB
+    [DEAD] 漂浮的外套.webp                                   258 KB
+    [DEAD] 约书亚 救赎.webp                                  163 KB
+    [DEAD] 老费舍 最后的人事.webp                               149 KB
+    [DEAD] 观测者.webp                                     225 KB
+    [DEAD] 轮回破壁.webp                                    323 KB
+    [DEAD] 餐具.webp                                      373 KB
+
+  引用但文件缺失 (11):
+    [MISSING] 封印崩塌.webp
+    [MISSING] 封印核心 石门版.webp
+    [MISSING] 封印石门.webp
+    [MISSING] 希尔达 救赎.webp
+    [MISSING] 我 被封印容器.webp
+    [MISSING] 时间停止的街道.webp
+    [MISSING] 深夜港口集体归海.webp
+    [MISSING] 深夜集体祈祷.webp
+    [MISSING] 第二个自己.webp
+    [MISSING] 第四次归来.webp
+    [MISSING] 肖像全部转头.webp
+
+============================================================
+PART 3: 综合统计与复用分析
+============================================================
+
+  事件数据额外引用: 0 个WebP
+  webp未使用总计:   4 张
+    [UNUSED] 沃切斯特教堂外观 深夜.webp                                  223 KB
+    [UNUSED] 沃切斯特教堂外观 白天.webp                                  323 KB
+    [UNUSED] 镇民  酒馆客人 正常.webp                                   97 KB
+    [UNUSED] 镇民  酒馆客人 污染.webp                                   67 KB
+
+  场景变体（可动态切换的图片）:
+    伊莎贝拉·韦伯.webp              -> 伊莎贝拉·韦伯 正常.webp, 伊莎贝拉·韦伯 污染.webp
+    伊莱亚斯·沃德.webp              -> 伊莱亚斯·沃德 正常.webp, 伊莱亚斯·沃德 污染.webp
+    医生.webp                   -> 医生 正常.webp, 医生 污染.webp
+    可疑摊贩.webp                 -> 可疑摊贩 正常.webp, 可疑摊贩 污染.webp
+    埃德加·洛夫克拉夫特.webp           -> 埃德加·洛夫克拉夫特 正常.webp, 埃德加·洛夫克拉夫特 污染.webp
+    夜魔.webp                   -> 夜魔 正常.webp, 夜魔 污染.webp
+    希尔达·莫里斯.webp              -> 希尔达·莫里斯 正常.webp, 希尔达·莫里斯 污染.webp
+    庄园仆人幽影.webp               -> 庄园仆人幽影 正常.webp, 庄园仆人幽影 污染.webp
+    我.webp                    -> 我 正常.webp, 我 污染.webp
+    报童.webp                   -> 报童 正常.webp, 报童 污染.webp
+    教堂祈祷者.webp                -> 教堂祈祷者 正常.webp, 教堂祈祷者 污染.webp
+    晨星会教徒.webp                -> 晨星会教徒 正常.webp, 晨星会教徒 污染.webp
+    晨星会祭司.webp                -> 晨星会祭司 正常.webp, 晨星会祭司 污染.webp
+    汤米·陈.webp                 -> 汤米·陈 正常.webp, 汤米·陈 污染.webp
+    沃切斯特教堂外观.webp             -> 沃切斯特教堂外观 深夜.webp, 沃切斯特教堂外观 白天.webp
+    沃切斯特码头.webp               -> 沃切斯特码头 深夜.webp, 沃切斯特码头 白天.webp
+    沉锚酒馆外观.webp               -> 沉锚酒馆外观 污染.webp, 沉锚酒馆外观 白天.webp
+    治安官.webp                  -> 治安官 正常.webp, 治安官 污染.webp
+    溺亡水手  失踪者残影.webp          -> 溺亡水手  失踪者残影 正常.webp, 溺亡水手  失踪者残影 污染.webp
+    玛莎·格雷.webp                -> 玛莎·格雷 正常.webp, 玛莎·格雷 污染.webp
+    疯乞丐.webp                  -> 疯乞丐 正常.webp, 疯乞丐 污染.webp
+    码头工人  渔民.webp             -> 码头工人  渔民 正常.webp, 码头工人  渔民 污染.webp
+    约书亚·布莱克.webp              -> 约书亚·布莱克 正常.webp, 约书亚·布莱克 污染.webp
+    老费舍.webp                  -> 老费舍 救赎.webp, 老费舍 正常.webp, 老费舍 污染.webp
+    莫里斯庄园外观.webp              -> 莫里斯庄园外观 深夜.webp, 莫里斯庄园外观 白天.webp
+    镇中心街道.webp                -> 镇中心街道 崩坏.webp, 镇中心街道 深夜.webp, 镇中心街道 白天.webp
+    镇民  酒馆客人.webp             -> 镇民  酒馆客人 正常.webp, 镇民  酒馆客人 污染.webp
+    镇民.webp                   -> 镇民 正常.webp, 镇民 污染.webp
+
+  结局CG共享情况:
+    '封印崩塌.webp' <- 共用于: [seal_collapse]
+    '肖像全部转头.webp' <- 共用于: [evt_portrait_watch]
+    '教堂地下仪式.webp' <- 共用于: [church_underground_ritual]
+    '潮声之婚.webp' <- 共用于: [ending_candle_oath]
+    '封印的亲吻.webp' <- 共用于: [ending_seal_of_kiss]
+    '升座的牺牲品.webp' <- 共用于: [ending_premium_seat]
+    '归海.webp' <- 共用于: [ending_escape_by_sea]
+    '埃德加 观测者.webp' <- 共用于: [ending_edgar_observer]
+    '断环.webp' <- 共用于: [ending_loop_truth]
+    '白页.webp' <- 共用于: [ending_white_page_clean]
+    '无效档案.webp' <- 共用于: [ending_load_failed]
+    '深渊吞噬.webp' <- 共用于: [ending_abyss_consumed_alt]
+    '证据逃离.webp' <- 共用于: [ending_witness_protection]
+    '伊莎贝拉：第十二声.webp' <- 共用于: [ending_retired_priest]
+    '成为事件的残页.webp' <- 共用于: [ending_blank_fragment]
+    '空白事件卡.webp' <- 共用于: [ending_blank_record]
+    '骨头落地的声音.webp' <- 共用于: [ending_horse_fish]
+
+============================================================
+最终总结
+============================================================
+  类别              总数   已用   未用    使用率
+  assets/webp/        138    134      4     97.1%
+  webp_ending/         72     59     13     81.9%
+  合计                  210    193     17     91.9%

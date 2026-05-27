@@ -265,9 +265,7 @@ export function selectEventV2(areaId, state, ctx, pick) {
       ? allEvents.slice(0, allEvents.length - (GD._deathEchoCount || 0))
       : allEvents);
   if (shouldTriggerMissing600(state, extendedEvents) && Math.random() < 0.35) {
-    if (!state.triggeredEvents.includes("missing_event_600_seen")) {
-      state.triggeredEvents.push("missing_event_600_seen");
-    }
+    // Don't set missing_event_600_seen here — it's set by the player's choice effects
     const missing = createMissing600Event(state);
     trackEvent(missing, state);
     return missing;

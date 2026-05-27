@@ -150,7 +150,12 @@ var EVENT_IMAGE_MAP = {
   'loop_entry_5':          '沃切斯特入口 Loop5.webp',
   'voxchester_end':        '沃切斯特终局.webp',
   'poster':                '海报.webp',
-  'poster2':               '海报 2.webp'
+  'poster2':               '海报 2.webp',
+  // 区域变体/备用图（用于特定事件或污染状态切换）
+  'church_exterior_day':   '沃切斯特教堂外观 白天.webp',
+  'church_exterior_night': '沃切斯特教堂外观 深夜.webp',
+  'tavern_patron_normal':  '镇民  酒馆客人 正常.webp',
+  'tavern_patron_polluted':'镇民  酒馆客人 污染.webp'
 };
 
 // === 查询函数 ===
@@ -253,7 +258,7 @@ var ENDING_CG_MAP = {
   'ending_loop_truth':           '断环.webp',
   'ending_player_becomes_event': '成为事件的残页.webp',
   // NPC redemption / special endings
-  'ending_hilda_redeemed':       'assets/webp/希尔达 救赎.webp',
+  'ending_hilda_redeemed':       '希尔达 救赎.webp',
   'ending_hilda_seal_cost':      '希尔达：封印代价.webp',
   'ending_hilda_endgame':        '希尔达：终局知情.webp',
   'ending_isabella_redeemed':    '伊莎贝拉 救赎.webp',
@@ -289,6 +294,18 @@ var ENDING_CG_MAP = {
   'ending_blank_record':         '空白事件卡.webp',
   'ending_seal_of_kiss':         '封印的亲吻.webp',
   'ending_abyss_consumed_alt':   '深渊吞噬.webp',
+  // 行为结局变体CG（备选/高质量版本）
+  'ending_loop_worm':            '循环的蛀虫.webp',
+  'ending_pleased_prophet':      '愉悦的先知.webp',
+  'ending_clean_butcher':        '整洁的屠夫.webp',
+  'ending_cannibal_alt':         '餐具.webp',
+  // NPC/角色特殊结局CG
+  'ending_old_fisher_epilogue':  '最后的人事.webp',
+  'ending_old_fisher_last':      '老费舍 最后的人事.webp',
+  'ending_observer_alt':         '观测者.webp',
+  // 特殊事件/轮回CG
+  'ending_loop_breakthrough':    '轮回破壁.webp',
+  'ending_death_echo_coat':      '漂浮的外套.webp',
 };
 
 // 结局类型→打字机前导词

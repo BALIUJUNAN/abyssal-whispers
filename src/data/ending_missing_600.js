@@ -11,7 +11,7 @@ export const ENDING_PLAYER_BECOMES_EVENT = {
   conditions: [
     { type: "has_flag", flag_id: "ending_player_becomes_event" },
   ],
-  blocking_conditions: [],
+  blocking_conds: [],
   npc_requirements: {},
   resource_requirements: {},
   humanity_variants: {

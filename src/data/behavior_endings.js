@@ -2,6 +2,8 @@
 // Each with 3 humanity_variants. Injected into GD.endings via injectBehaviorEndings().
 // Priority: higher = checked first. Behavioral endings (700-950) outrank main endings.
 
+import { parseConditionString } from '../reducers/endingReducer.js';
+
 const BEHAVIOR_ENDINGS = [
 
   // =====================================================================
@@ -11,8 +13,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_self_harm_ritual", name: "裂痕", type: "behavior",
     world_outcome: "behavior_self_ritual",
-    required_conditions: ["self_harm_ritual_count >= 3"],
-    blocking_conditions: [],
+    conditions: ["self_harm_ritual_count >= 3"],
+    blocking_conds: [],
     priority: 810,
     humanity_variants: {
       humanity_high:
@@ -28,8 +30,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_dissolution", name: "溶盐者", type: "behavior",
     world_outcome: "behavior_self_dissolve",
-    required_conditions: ["fusion_accepted_count >= 2", "harbor_visits >= 5"],
-    blocking_conditions: [],
+    conditions: ["fusion_accepted_count >= 2", "harbor_visits >= 5"],
+    blocking_conds: [],
     priority: 820,
     humanity_variants: {
       humanity_high:
@@ -45,8 +47,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_vessel", name: "容器", type: "behavior",
     world_outcome: "behavior_self_vessel",
-    required_conditions: ["possession_accepted_count >= 1 OR fusion_accepted_count >= 3"],
-    blocking_conditions: [],
+    conditions: ["possession_accepted_count >= 1 OR fusion_accepted_count >= 3"],
+    blocking_conds: [],
     priority: 805,
     humanity_variants: {
       humanity_high:
@@ -62,8 +64,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_tide_marriage", name: "潮声之婚", type: "behavior",
     world_outcome: "behavior_fusion_tide_marriage",
-    required_conditions: ["forbidden_intimacy_flags >= 1"],
-    blocking_conditions: [],
+    conditions: ["forbidden_intimacy_flags >= 1"],
+    blocking_conds: [],
     priority: 825,
     humanity_variants: {
       humanity_high:
@@ -79,8 +81,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_embrace", name: "悦纳者", type: "behavior",
     world_outcome: "behavior_fusion_embrace",
-    required_conditions: ["san <= 20", "fusion_accepted_count >= 2"],
-    blocking_conditions: [],
+    conditions: ["san <= 20", "fusion_accepted_count >= 2"],
+    blocking_conds: [],
     priority: 815,
     humanity_variants: {
       humanity_high:
@@ -96,8 +98,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_black_tide_wedding", name: "黑潮圣婚", type: "behavior",
     world_outcome: "behavior_fusion_black_tide",
-    required_conditions: ["forbidden_intimacy_flags >= 2", "sacred_desecration_count >= 1"],
-    blocking_conditions: [],
+    conditions: ["forbidden_intimacy_flags >= 2", "sacred_desecration_count >= 1"],
+    blocking_conds: [],
     priority: 828,
     humanity_variants: {
       humanity_high:
@@ -117,8 +119,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_cannibal", name: "餐具", type: "behavior",
     world_outcome: "behavior_collapse_cannibal",
-    required_conditions: ["cannibalism_count >= 1"],
-    blocking_conditions: [],
+    conditions: ["cannibalism_count >= 1"],
+    blocking_conds: [],
     priority: 830,
     humanity_variants: {
       humanity_high:
@@ -134,8 +136,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_slaughterhouse", name: "屠宰场", type: "behavior",
     world_outcome: "behavior_collapse_slaughter",
-    required_conditions: ["direct_kill_count >= 5"],
-    blocking_conditions: [],
+    conditions: ["direct_kill_count >= 5"],
+    blocking_conds: [],
     priority: 840,
     humanity_variants: {
       humanity_high:
@@ -151,8 +153,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_echo", name: "回音", type: "behavior",
     world_outcome: "behavior_collapse_echo",
-    required_conditions: ["same_npc_harm_max >= 3"],
-    blocking_conditions: [],
+    conditions: ["same_npc_harm_max >= 3"],
+    blocking_conds: [],
     priority: 835,
     humanity_variants: {
       humanity_high:
@@ -168,8 +170,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_flesh_tax", name: "人肉税", type: "behavior",
     world_outcome: "behavior_collapse_flesh_tax",
-    required_conditions: ["npc_as_resource_count >= 2"],
-    blocking_conditions: [],
+    conditions: ["npc_as_resource_count >= 2"],
+    blocking_conds: [],
     priority: 845,
     humanity_variants: {
       humanity_high:
@@ -185,8 +187,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_betrayer", name: "筹码", type: "behavior",
     world_outcome: "behavior_collapse_betray",
-    required_conditions: ["betrayed_high_trust_npcs >= 3"],
-    blocking_conditions: [],
+    conditions: ["betrayed_high_trust_npcs >= 3"],
+    blocking_conds: [],
     priority: 850,
     humanity_variants: {
       humanity_high:
@@ -206,8 +208,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_false_god", name: "伪神", type: "behavior",
     world_outcome: "behavior_power_false_god",
-    required_conditions: ["cult_leader_score >= 3"],
-    blocking_conditions: [],
+    conditions: ["cult_leader_score >= 3"],
+    blocking_conds: [],
     priority: 855,
     humanity_variants: {
       humanity_high:
@@ -223,8 +225,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_maggots_on_throne", name: "王座上的蛆", type: "behavior",
     world_outcome: "behavior_power_maggots",
-    required_conditions: ["cult_leader_score >= 2", "player_humanity_score <= 20"],
-    blocking_conditions: [],
+    conditions: ["cult_leader_score >= 2", "player_humanity_score <= 20"],
+    blocking_conds: [],
     priority: 860,
     humanity_variants: {
       humanity_high:
@@ -240,8 +242,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_seal_kiss", name: "封印的亲吻", type: "behavior",
     world_outcome: "behavior_power_seal_kiss",
-    required_conditions: ["sacred_desecration_count >= 2 OR seal_desecrated"],
-    blocking_conditions: [],
+    conditions: ["sacred_desecration_count >= 2 OR seal_desecrated"],
+    blocking_conds: [],
     priority: 865,
     humanity_variants: {
       humanity_high:
@@ -257,8 +259,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_ascended_victim", name: "升座的牺牲品", type: "behavior",
     world_outcome: "behavior_power_ascended_victim",
-    required_conditions: ["self_sacrifice_for_power >= 1"],
-    blocking_conditions: [],
+    conditions: ["self_sacrifice_for_power >= 1"],
+    blocking_conds: [],
     priority: 870,
     humanity_variants: {
       humanity_high:
@@ -278,8 +280,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_sleeper", name: "长眠者", type: "behavior",
     world_outcome: "behavior_escape_sleep",
-    required_conditions: ["sleep_streak >= 7"],
-    blocking_conditions: [],
+    conditions: ["sleep_streak >= 7"],
+    blocking_conds: [],
     priority: 700,
     humanity_variants: {
       humanity_high:
@@ -295,8 +297,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_accountant", name: "账房先生", type: "behavior",
     world_outcome: "behavior_escape_work",
-    required_conditions: ["work_only_days >= 7"],
-    blocking_conditions: [],
+    conditions: ["work_only_days >= 7"],
+    blocking_conds: [],
     priority: 710,
     humanity_variants: {
       humanity_high:
@@ -312,8 +314,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_prisoner", name: "囚徒", type: "behavior",
     world_outcome: "behavior_escape_safehouse",
-    required_conditions: ["safehouse_stay_days >= 7"],
-    blocking_conditions: [],
+    conditions: ["safehouse_stay_days >= 7"],
+    blocking_conds: [],
     priority: 730,
     humanity_variants: {
       humanity_high:
@@ -329,8 +331,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_wanderer", name: "漫游者", type: "behavior",
     world_outcome: "behavior_escape_wander",
-    required_conditions: ["move_only_days >= 7"],
-    blocking_conditions: [],
+    conditions: ["move_only_days >= 7"],
+    blocking_conds: [],
     priority: 720,
     humanity_variants: {
       humanity_high:
@@ -350,8 +352,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_miser", name: "守财奴", type: "behavior",
     world_outcome: "behavior_escape_hoard",
-    required_conditions: ["hoarded_money_max >= 50", "hoarded_food_max >= 5", "completed_clue_chains < 2"],
-    blocking_conditions: [],
+    conditions: ["hoarded_money_max >= 50", "hoarded_food_max >= 5", "completed_clue_chains < 2"],
+    blocking_conds: [],
     priority: 750,
     humanity_variants: {
       humanity_high:
@@ -367,8 +369,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_return_to_sea", name: "归海", type: "behavior",
     world_outcome: "behavior_obsession_return_sea",
-    required_conditions: ["harbor_visits >= 10", "sea_acceptance_flags >= 2"],
-    blocking_conditions: [],
+    conditions: ["harbor_visits >= 10", "sea_acceptance_flags >= 2"],
+    blocking_conds: [],
     priority: 760,
     humanity_variants: {
       humanity_high:
@@ -384,8 +386,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_archive_devourer", name: "档案吞噬者", type: "behavior",
     world_outcome: "behavior_obsession_archive",
-    required_conditions: ["archive_consumed_count >= 3"],
-    blocking_conditions: [],
+    conditions: ["archive_consumed_count >= 3"],
+    blocking_conds: [],
     priority: 770,
     humanity_variants: {
       humanity_high:
@@ -405,8 +407,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_eternal_recorder", name: "永恒记录员", type: "behavior",
     world_outcome: "behavior_meta_recorder",
-    required_conditions: ["record_only_days >= 5", "low_intervention_count >= 3"],
-    blocking_conditions: [],
+    conditions: ["record_only_days >= 5", "low_intervention_count >= 3"],
+    blocking_conds: [],
     priority: 910,
     humanity_variants: {
       humanity_high:
@@ -422,8 +424,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_observer", name: "观测者", type: "behavior",
     world_outcome: "behavior_meta_observer",
-    required_conditions: ["meta_boundary_breaks >= 3", "final_choice_refused_count >= 1"],
-    blocking_conditions: [],
+    conditions: ["meta_boundary_breaks >= 3", "final_choice_refused_count >= 1"],
+    blocking_conds: [],
     priority: 905,
     humanity_variants: {
       humanity_high:
@@ -439,8 +441,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_delete_wish", name: "删档祈愿者", type: "behavior",
     world_outcome: "behavior_meta_delete_wish",
-    required_conditions: ["save_delete_attempts >= 3"],
-    blocking_conditions: [],
+    conditions: ["save_delete_attempts >= 3"],
+    blocking_conds: [],
     priority: 915,
     humanity_variants: {
       humanity_high:
@@ -456,8 +458,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_loop_moth", name: "循环的蛀虫", type: "behavior",
     world_outcome: "behavior_meta_loop_moth",
-    required_conditions: ["loop_exploit_score >= 5"],
-    blocking_conditions: [],
+    conditions: ["loop_exploit_score >= 5"],
+    blocking_conds: [],
     priority: 890,
     humanity_variants: {
       humanity_high:
@@ -477,8 +479,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_joyful_prophet", name: "愉悦的先知", type: "behavior",
     world_outcome: "behavior_mixed_joyful_prophet",
-    required_conditions: ["prophecy_spread_count >= 3", "san <= 25"],
-    blocking_conditions: [],
+    conditions: ["prophecy_spread_count >= 3", "san <= 25"],
+    blocking_conds: [],
     priority: 895,
     humanity_variants: {
       humanity_high:
@@ -494,8 +496,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_filth_saint", name: "污圣徒", type: "behavior",
     world_outcome: "behavior_mixed_filth_saint",
-    required_conditions: ["redeemed_npcs >= 1", "sacred_desecration_count >= 2"],
-    blocking_conditions: [],
+    conditions: ["redeemed_npcs >= 1", "sacred_desecration_count >= 2"],
+    blocking_conds: [],
     priority: 875,
     humanity_variants: {
       humanity_high:
@@ -511,8 +513,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_thirteenth_prophet", name: "十三响的先知", type: "behavior",
     world_outcome: "behavior_mixed_thirteenth",
-    required_conditions: ["thirteenth_bell_obsession >= 3"],
-    blocking_conditions: [],
+    conditions: ["thirteenth_bell_obsession >= 3"],
+    blocking_conds: [],
     priority: 885,
     humanity_variants: {
       humanity_high:
@@ -528,8 +530,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_flesh_choir", name: "血肉合唱", type: "behavior",
     world_outcome: "behavior_mixed_flesh_choir",
-    required_conditions: ["fusion_and_self_harm_total >= 5"],
-    blocking_conditions: [],
+    conditions: ["fusion_and_self_harm_total >= 5"],
+    blocking_conds: [],
     priority: 878,
     humanity_variants: {
       humanity_high:
@@ -545,8 +547,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_best_employee", name: "最佳员工", type: "behavior",
     world_outcome: "behavior_mixed_best_employee",
-    required_conditions: ["work_count >= 15", "completed_clue_chains <= 1"],
-    blocking_conditions: [],
+    conditions: ["work_count >= 15", "completed_clue_chains <= 1"],
+    blocking_conds: [],
     priority: 715,
     humanity_variants: {
       humanity_high:
@@ -562,8 +564,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_tidy_butcher", name: "整洁的屠夫", type: "behavior",
     world_outcome: "behavior_mixed_tidy_butcher",
-    required_conditions: ["direct_kill_count >= 5", "clean_kill_pattern >= 3"],
-    blocking_conditions: [],
+    conditions: ["direct_kill_count >= 5", "clean_kill_pattern >= 3"],
+    blocking_conds: [],
     priority: 858,
     humanity_variants: {
       humanity_high:
@@ -583,8 +585,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_puppeteer", name: "木偶师", type: "behavior",
     world_outcome: "behavior_anomaly_puppeteer",
-    required_conditions: ["npc_deaths_by_manipulation >= 2", "direct_kill_count == 0"],
-    blocking_conditions: [],
+    conditions: ["npc_deaths_by_manipulation >= 2", "direct_kill_count == 0"],
+    blocking_conds: [],
     priority: 880,
     humanity_variants: {
       humanity_high:
@@ -600,8 +602,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_broken_loop", name: "断环", type: "behavior",
     world_outcome: "behavior_anomaly_broken_loop",
-    required_conditions: ["loop_break_attempts >= 1", "destroyed_time_core"],
-    blocking_conditions: [],
+    conditions: ["loop_break_attempts >= 1", "destroyed_time_core"],
+    blocking_conds: [],
     priority: 920,
     humanity_variants: {
       humanity_high:
@@ -617,8 +619,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_white_page", name: "白页", type: "behavior",
     world_outcome: "behavior_anomaly_refusal",
-    required_conditions: ["final_choice_refused_count >= 3", "completed_clue_chains >= 2"],
-    blocking_conditions: [],
+    conditions: ["final_choice_refused_count >= 3", "completed_clue_chains >= 2"],
+    blocking_conds: [],
     priority: 900,
     humanity_variants: {
       humanity_high:
@@ -634,8 +636,8 @@ const BEHAVIOR_ENDINGS = [
   {
     id: "ending_invalid_archive", name: "无效档案", type: "behavior",
     world_outcome: "behavior_anomaly_invalid",
-    required_conditions: ["has_committed_contradictory_extremes", "meta_boundary_breaks >= 3"],
-    blocking_conditions: [],
+    conditions: ["has_committed_contradictory_extremes", "meta_boundary_breaks >= 3"],
+    blocking_conds: [],
     priority: 950,
     humanity_variants: {
       humanity_high:
@@ -654,12 +656,18 @@ const BEHAVIOR_ENDINGS = [
 // Injection function
 // ==========================================
 
-function injectBehaviorEndings(GD) {
+export function injectBehaviorEndings(GD) {
   if (!GD || !GD.endings) return GD;
   if (GD._behaviorEndingsInjected) return GD;
   const existing = new Set(GD.endings.map(e => e.id));
   const toAdd = BEHAVIOR_ENDINGS.filter(e => !existing.has(e.id));
-  GD.endings = [...GD.endings, ...toAdd];
+  // Convert string-based conditions to structured condition objects
+  const normalized = toAdd.map(ed=>{
+    const conds=(ed.conditions||[]).map(c=>parseConditionString(c));
+    const blockConds=(ed.blocking_conds||[]).map(c=>parseConditionString(c));
+    return {...ed,conditions:conds,blocking_conds:blockConds};
+  });
+  GD.endings = [...GD.endings, ...normalized];
   GD._behaviorEndingsInjected = true;
   return GD;
 }

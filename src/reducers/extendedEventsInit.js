@@ -5,6 +5,7 @@ import { mergeExtendedEvents } from './extendedEventsLoader.js';
 import { EXTENDED_EVENT_MODULES, EXTENDED_EVENT_STATS } from '../data/extended_events_index.js';
 import { injectMissingEnding } from '../data/ending_missing_600.js';
 import { events as deathEchoEvents } from '../data/events_death_echo.js';
+import { injectBehaviorEndings } from '../data/behavior_endings.js';
 
 /**
  * Initialize the extended event system.
@@ -34,6 +35,9 @@ export function initExtendedEvents(GD) {
 
   // Inject hidden ending for missing_event_600
   injectMissingEnding(GD);
+
+  // Inject behavior endings into GD.endings
+  injectBehaviorEndings(GD);
 
   console.log('[ExtendedEvents] Loaded', coreExtendedCount, 'core events +', GD._deathEchoCount || 0, 'death echo events');
   console.log('[ExtendedEvents] Total events:', GD.events.length);
