@@ -99,6 +99,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC','Microsof
 .narrative-block .event-type.轻微异常{color:var(--gold);border-color:var(--gold)}
 .narrative-image{display:block;width:min(100%,720px);max-height:360px;object-fit:cover;margin:0.4rem 0 0.7rem;border:1px solid var(--border2);background:var(--bg2);box-shadow:0 0 18px rgba(0,0,0,0.22)}
 .npc-portrait{display:block;width:min(240px,100%);max-height:320px;object-fit:cover;margin:0 auto 0.7rem;border:1px solid var(--border2);background:var(--bg);box-shadow:0 0 16px rgba(58,122,122,0.16)}
+.player-portrait-container{text-align:center;margin-bottom:0.5rem;padding:0.3rem 0;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
+.player-portrait{display:inline-block;width:min(180px,100%);max-height:240px;object-fit:cover;border:1px solid var(--border2);border-radius:2px;box-shadow:0 0 12px rgba(58,122,122,0.12);transition:filter 0.8s ease,transform 0.8s ease}
 .narrative-block .effects{margin-top:0.5rem;padding:0.4rem;background:var(--bg);border:1px solid var(--border);font-size:0.75rem}
 .narrative-block .skill-check{margin-top:0.5rem;padding:0.4rem;background:var(--bg2);border:1px solid var(--border);font-family:'Noto Sans SC','Microsoft YaHei',sans-serif}
 .narrative-block .skill-check .check-title{color:var(--gold);font-size:0.75rem}

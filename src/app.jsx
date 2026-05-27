@@ -1542,7 +1542,9 @@ const LeftPanel=memo(function LeftPanel({state}){
     if(state.currentSafehouse==='main')return 0;
     return (GD.systems?.safehouse?.relocation_rules?.alternative_safehouses||[]).find(a=>a.name===state.currentSafehouse)?.functions?.san_restore||0;
   },[state.currentSafehouse]);
+  const playerImage=getPlayerImage(state);
   return <div className="left-panel">
+    {playerImage&&<div className="player-portrait-container"><img className="portrait-img player-portrait" src={playerImage} alt="我" onError={e=>{e.currentTarget.style.display='none';}}/></div>}
     <div className="panel-title">状态</div>
     <StatBar label="HP" value={state.hp} max={state.maxHp} cls="hp"/>
     <StatBar label="SAN" value={state.san} max={state.maxSan} cls={'san'+(state.san<=30?' low':state.san<=50?' mid':'')}/>
