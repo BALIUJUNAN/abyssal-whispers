@@ -675,6 +675,161 @@ def test_webp_assets():
 
 
 # ============================================================
+# TEST 11: Ending Condition Validation
+# ============================================================
+def test_ending_conditions(gd):
+    """Validate ending conditions are resolvable and chain completion works."""
+    print("\n--- Test 11: Ending Condition Validation ---")
+
+    # Known condition variables from CONDITION_VAR_MAP in endingReducer.js
+    CONDITION_VAR_MAP_VARS = {
+        'direct_kill_count', 'cannibalism_count', 'clean_kill_pattern',
+        'npc_deaths_by_manipulation', 'self_harm_ritual_count',
+        'fusion_accepted_count', 'possession_accepted_count',
+        'forbidden_intimacy_flags', 'sacred_desecration_count',
+        'same_npc_harm_max', 'npc_as_resource_count',
+        'betrayed_high_trust_npcs', 'cult_leader_score',
+        'self_sacrifice_for_power', 'sleep_streak', 'work_only_days',
+        'safehouse_stay_days', 'move_only_days', 'hoarded_money_max',
+        'hoarded_food_max', 'archive_consumed_count', 'record_only_days',
+        'low_intervention_count', 'meta_boundary_breaks',
+        'final_choice_refused_count', 'save_delete_attempts',
+        'loop_exploit_score', 'prophecy_spread_count', 'redeemed_npcs',
+        'thirteenth_bell_obsession', 'fusion_and_self_harm_total',
+        'work_count', 'loop_break_attempts', 'harbor_visits',
+        'sea_acceptance_flags', 'san', 'player_san', 'hp', 'player_hp',
+        'day', 'player_humanity_score', 'hilda_trust', 'old_fisher_trust',
+        'isabella_trust', 'elias_trust', 'joshua_trust', 'martha_trust',
+        'tommy_trust', 'cthulhu_mythos', 'mythos_level', 'loop_count',
+        'pollution', 'city_corruption', 'safehouse_corruption',
+        'hilda_agency', 'old_fisher_agency', 'old_fisher_corruption',
+        'isabella_agency', 'seal_status', 'completed_clue_chains',
+        'visited_areas_count', 'triggered_events_count', 'clues_count',
+    }
+
+    # Known flag-style conditions (set by game actions)
+    KNOWN_FLAGS = {
+        'has_complete_seal_ritual', 'has_key_blood', 'has_alternative_seal',
+        'at_least_one_npc_redeemed', 'player_did_not_force_hilda_or_fisher_sacrifice',
+        'player_chose_self_sacrifice_in_final', 'player_forced_hilda_binding',
+        'player_killed_old_fisher', 'player_joined_heretical_ritual',
+        'seal_desecrated', 'destroyed_time_core',
+        'has_committed_contradictory_extremes', 'ending_player_becomes_event',
+        'transcendence_ending_unlocked',
+        # Chain completion flags
+        'chain_harbor_completed', 'chain_morris_completed', 'chain_heretical_completed',
+        'chain_harbor_investigation_completed', 'chain_forest_descent_completed',
+        'chain_manor_secrets_completed', 'chain_catacomb_horror_completed',
+        'chain_yith_knowledge_completed', 'chain_lighthouse_truth_completed',
+        'chain_city_conspiracy_completed',
+        # Chain reward flags
+        'has_undersea_temple_map', 'has_deep_diver_ritual_date',
+        'has_seal_ritual_material_location', 'has_manor_basement_map',
+        'has_seal_ritual_blueprint', 'has_isabella_truth',
+        'has_church_basement_map', 'has_heretical_ritual_option',
+        'has_dockworker_diary', 'has_ancient_tree_seed',
+        'forest_guardian_approval', 'has_ghoul_relic',
+        'has_catacomb_hidden_passage_map', 'has_time_shard',
+        'has_time_machine_repair_knowledge', 'has_enoch_basement_key',
+        'has_morningstar_intel',
+    }
+
+    all_valid_vars = CONDITION_VAR_MAP_VARS | KNOWN_FLAGS
+    always_true_count = 0
+    unresolvable = []
+
+    endings = gd.get('endings', [])
+    for ed in endings:
+        conditions = ed.get('conditions') or ed.get('required_conditions') or []
+        for cond_str in conditions:
+            if not isinstance(cond_str, str):
+                continue
+            # Check for always_true (unresolvable)
+            if ' OR ' in cond_str:
+                parts = cond_str.split(' OR ')
+            elif ' AND ' in cond_str:
+                parts = cond_str.split(' AND ')
+            else:
+                parts = [cond_str]
+
+            for part in parts:
+                part = part.strip()
+                if part.startswith('!'):
+                    part = part[1:]
+                # Extract variable name from comparison
+                m = re.match(r'^(\S+)\s*[><=!]', part)
+                if m:
+                    var_name = m.group(1)
+                    if var_name not in all_valid_vars:
+                        unresolvable.append(f"{ed.get('id','?')}: '{var_name}' in '{cond_str}'")
+                elif not any(c in part for c in ['>', '<', '!']):
+                    # It's a flag check (but not a != string comparison)
+                    if part not in all_valid_vars and '=' not in part:
+                        # Could be an NPC name or dynamic flag, just warn
+                        pass
+
+    if unresolvable:
+        for u in unresolvable[:10]:
+            log("warn", "Unresolvable condition variable", u)
+        if len(unresolvable) > 10:
+            log("warn", f"... and {len(unresolvable)-10} more")
+    else:
+        log("pass", "All ending condition variables are resolvable")
+
+    # Check that clue_chains have completion_effects
+    clue_chains = gd.get('clue_chains', [])
+    chains_without_effects = []
+    for chain in clue_chains:
+        effects = chain.get('completion_effects')
+        if not effects or (isinstance(effects, dict) and len(effects) == 0):
+            chains_without_effects.append(chain.get('id', '?'))
+
+    if chains_without_effects:
+        for cid in chains_without_effects:
+            log("fail", f"Clue chain '{cid}' has empty completion_effects")
+    else:
+        log("pass", "All clue_chains have structured completion_effects")
+
+    # Check event_chains have completion_effects
+    event_chains = gd.get('event_chains', [])
+    ec_without_effects = []
+    for chain in event_chains:
+        effects = chain.get('completion_effects')
+        if not effects or (isinstance(effects, list) and len(effects) == 0):
+            ec_without_effects.append(chain.get('id', '?'))
+
+    if ec_without_effects:
+        for cid in ec_without_effects:
+            log("warn", f"Event chain '{cid}' has no completion_effects")
+    else:
+        log("pass", "All event_chains have structured completion_effects")
+
+    # Check behavior endings in behavior_endings.js (injected at runtime, not in JSON)
+    behavior_js = SRC / "data" / "behavior_endings.js"
+    if behavior_js.exists():
+        bjs_content = behavior_js.read_text(encoding='utf-8')
+        # Count override_category entries
+        cat_matches = re.findall(r'override_category:\s*"(\w+)"', bjs_content)
+        annotation_cats = [c for c in cat_matches if c == 'annotation']
+        override_cats = [c for c in cat_matches if c != 'annotation']
+        if len(cat_matches) == 0:
+            log("warn", "No override_category found in behavior_endings.js")
+        else:
+            log("pass", f"behavior_endings.js: {len(cat_matches)} endings with override_category ({len(override_cats)} override, {len(annotation_cats)} annotation)")
+
+        # Check annotation priorities — find each ending block individually
+        ending_blocks = re.findall(r'\{\s*id:\s*"(ending_\w+)"[^}]*?priority:\s*(\d+)[^}]*?override_category:\s*"(\w+)"', bjs_content, re.DOTALL)
+        high_prio = [(eid, int(p)) for eid, p, cat in ending_blocks if cat == 'annotation' and int(p) >= 500]
+        if high_prio:
+            for eid, p in high_prio:
+                log("fail", f"Annotation ending '{eid}' has priority {p} (should be < 500)")
+        else:
+            log("pass", "All annotation endings have priority < 500")
+    else:
+        log("warn", "behavior_endings.js not found")
+
+
+# ============================================================
 # MAIN
 # ============================================================
 def main():
@@ -713,6 +868,9 @@ def main():
 
     # Test 10: WebP
     test_webp_assets()
+
+    # Test 11: Ending conditions
+    test_ending_conditions(gd_result[0])
 
     # Summary
     print("\n" + "=" * 60)

@@ -15,7 +15,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_self_ritual",
     conditions: ["self_harm_ritual_count >= 3"],
     blocking_conds: [],
-    priority: 810,
+    priority: 210,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你用刀在自己身上画了一个符号。\n\n不是因为你信它。是因为你想知道疼不疼。\n\n它疼。但符号在皮肤上停留的时间比疼痛更久。\n\n你画了第二个。第三个。\n\n——\n\n安全屋的镜子里有一个人。身上写满了你不认识的字。\n你凑近看。那些字不是写的。是疤痕。",
@@ -33,6 +34,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["fusion_accepted_count >= 2", "harbor_visits >= 5"],
     blocking_conds: [],
     priority: 820,
+    override_category: "irreversible_transform",
     humanity_variants: {
       humanity_high:
         "你感觉到了边界。\n\n在此之前，你一直以为'自己'是一个完整的、封闭的东西。\n\n现在你知道不是。边界是可渗透的。空气穿过你。水穿过你。雾——\n\n雾一直在穿过你。只是你以前没有注意到。\n\n——\n\n安全屋的地板上有一滩水。水的温度和你一样。",
@@ -50,6 +52,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["possession_accepted_count >= 1 OR fusion_accepted_count >= 3"],
     blocking_conds: [],
     priority: 805,
+    override_category: "irreversible_transform",
     humanity_variants: {
       humanity_high:
         "你让出了一个位置。\n\n不是你体内的空间——是比体内更深的地方。\n\n它进来了。你没有抵抗。不是因为恐惧。是因为好奇。\n\n——\n\n你的影子有时候会做出你没有做的动作。你看见了。你没有说。",
@@ -67,6 +70,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["forbidden_intimacy_flags >= 1"],
     blocking_conds: [],
     priority: 825,
+    override_category: "irreversible_transform",
     humanity_variants: {
       humanity_high:
         "你听见潮声的时候，它在叫你。\n\n不是用语言。是用节奏。退潮和涨潮之间有一个停顿。那个停顿是你的名字。\n\n你走到码头边。水没过你的脚踝。\n\n——\n\n第二天，有人在码头边发现了一双鞋。鞋尖朝着海。鞋里是干的。",
@@ -84,6 +88,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["san <= 20", "fusion_accepted_count >= 2"],
     blocking_conds: [],
     priority: 815,
+    override_category: "irreversible_transform",
     humanity_variants: {
       humanity_high:
         "你不再害怕了。\n\n不是因为你变勇敢了。是因为恐惧本身变得没有意义了——就像害怕水的人终于沉进了水里，发现水并不在意他的恐惧。\n\n你是被接纳的。不是被人。是被更大的东西。\n\n——\n\n你的笔记本上有一页只写了一个词：'好的。'",
@@ -101,6 +106,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["forbidden_intimacy_flags >= 2", "sacred_desecration_count >= 1"],
     blocking_conds: [],
     priority: 828,
+    override_category: "irreversible_transform",
     humanity_variants: {
       humanity_high:
         "仪式在水下进行。\n\n没有宾客。没有戒指。\n\n你穿了你最好的外套。外衣在水里浮了起来。\n\n水下的钟声比陆地上更清晰。十二声。然后第十三声——它从你的胸腔里传出来。\n\n——\n\n码头边有一件漂浮的外套。没有人去捞。因为它上面系着一条丝带——没有人系的。",
@@ -121,7 +127,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_collapse_cannibal",
     conditions: ["cannibalism_count >= 1"],
     blocking_conds: [],
-    priority: 830,
+    priority: 230,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你吃第一口的时候，手在抖。\n\n你觉得你会吐。你没有。\n\n你觉得你会后悔。\n\n你只是又切了一块。\n\n——\n\n餐桌上多了一副餐具。没有人问它是为谁准备的。",
@@ -138,7 +145,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_collapse_slaughter",
     conditions: ["direct_kill_count >= 5"],
     blocking_conds: [],
-    priority: 840,
+    priority: 240,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你杀了第一个人。你的手在发抖。你告诉自己这是必要的。\n\n你杀了第二个人。你的手没有抖。你告诉自己这是必要的。\n\n你杀了第三个人。\n\n你不再告诉自己任何事情。\n\n——\n\n酒馆里的人变少了。有人在问。没有人回答。你坐在角落里。你的手很稳。",
@@ -155,7 +163,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_collapse_echo",
     conditions: ["same_npc_harm_max >= 3"],
     blocking_conds: [],
-    priority: 835,
+    priority: 235,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你伤害了同一个人。不止一次。\n\n第一次之后，你告诉自己不会再发生。\n\n第二次之后，你告诉自己这是最后一次。\n\n第三次——那个人已经不躲了。\n\n——\n\n你发现你在等那个人出现。不是为了道歉。是为了再做一次。",
@@ -172,7 +181,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_collapse_flesh_tax",
     conditions: ["npc_as_resource_count >= 2"],
     blocking_conds: [],
-    priority: 845,
+    priority: 245,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你开始计算人的价值。\n\n不是他们能做什么——是他们能换什么。\n\n一个高信任的NPC值几个线索。一个低信任的NPC值几天安全。\n\n你把每个人都标了价。\n\n——\n\n你的笔记本上有一栏数字。数字前面没有名字。只有缩写。",
@@ -189,7 +199,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_collapse_betray",
     conditions: ["betrayed_high_trust_npcs >= 3"],
     blocking_conds: [],
-    priority: 850,
+    priority: 250,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你对他们笑过。你听过他们的故事。你让他们相信你是不同的。\n\n然后你把他们交了出去。\n\n你没有回头。回头会看着他们的眼睛。\n\n——\n\n每个人的信任都是一枚筹码。你把它们全都兑现了。",
@@ -210,7 +221,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_power_false_god",
     conditions: ["cult_leader_score >= 3"],
     blocking_conds: [],
-    priority: 855,
+    priority: 255,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "他们跪下了。\n\n你不确定他们跪的是你，还是你身后的东西。\n\n你站在仪式圈的中央。你的手里没有法器。但你说话的时候，有人在做笔记。\n\n——\n\n教堂的长椅上坐满了人。你认出了几张脸。他们以前不理你。现在他们在等你开口。",
@@ -227,7 +239,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_power_maggots",
     conditions: ["cult_leader_score >= 2", "player_humanity_score <= 20"],
     blocking_conds: [],
-    priority: 860,
+    priority: 260,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你坐上了那个位置。\n\n然后你发现位置不在你身下。在你体内。\n\n你不是坐在王座上。你是把王座吞进去了。\n\n——\n\n安全屋的椅子上有东西在动。不是椅子。是椅子上坐过的痕迹。",
@@ -244,7 +257,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_power_seal_kiss",
     conditions: ["sacred_desecration_count >= 2 OR seal_desecrated"],
     blocking_conds: [],
-    priority: 865,
+    priority: 265,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你把嘴唇贴在了封印上。\n\n石头是冷的。然后是热的。\n\n你不知道自己在做什么。你只知道那一刻，你需要接触它——不是用手。\n\n——\n\n封印的石面上多了一道唇印。不是你的。但和你嘴型完全吻合。",
@@ -262,6 +276,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["self_sacrifice_for_power >= 1"],
     blocking_conds: [],
     priority: 870,
+    override_category: "irreversible_transform",
     humanity_variants: {
       humanity_high:
         "你走上了仪式台。\n\n没有人推你。你只是想看看——如果站上去会怎样。\n\n你站上去了。仪式开始运转。\n\n然后你意识到你不符合条件。你缺了某个关键的成分。\n\n——\n\n仪式台还在。你不在上面了。台上只剩一小片布料。",
@@ -282,7 +297,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_escape_sleep",
     conditions: ["sleep_streak >= 7"],
     blocking_conds: [],
-    priority: 700,
+    priority: 100,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你睡了很久。\n\n久到镇上的钟声变得稀疏。久到码头边的潮声从你的梦境里退去。\n\n有一天你醒来，发现窗外还是雾。和睡前一样的雾。\n\n你翻了个身，又闭上了眼。\n\n——\n\n沃切斯特不需要你。它只需要你睡着。",
@@ -299,7 +315,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_escape_work",
     conditions: ["work_only_days >= 7"],
     blocking_conds: [],
-    priority: 710,
+    priority: 110,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你的账本记得很整齐。每一笔收入、每一次支出、每一个铜板的去向。\n\n码头工人开始叫你'那位记账的'。你有一个固定的座位。酒馆老板每天给你留一杯水。\n\n某一天，你翻开账本，发现最后一页已经写满了。\n\n你没有再翻开新的。\n\n——\n\n沃切斯特又多了一个普通人。这是它最温和的结局。",
@@ -316,7 +333,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_escape_safehouse",
     conditions: ["safehouse_stay_days >= 7"],
     blocking_conds: [],
-    priority: 730,
+    priority: 130,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "安全屋的墙壁记住了你的呼吸。\n\n你每天坐在同一把椅子上。窗外的光从早到晚变化，你没有跟它一起变。\n\n有一天你站起来，发现椅子已经适应了你的形状。\n\n——\n\n安全屋不是囚笼。是你自己把门从里面锁上的。钥匙在你手里。",
@@ -333,7 +351,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_escape_wander",
     conditions: ["move_only_days >= 7"],
     blocking_conds: [],
-    priority: 720,
+    priority: 120,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你走遍了沃切斯特的每一条街道。\n\n你记住了每扇紧闭的窗户、每块松动的鹅卵石、每盏在雾中亮着的路灯。\n\n有人问你从哪里来。你说你只是在走。你没有说谎。\n\n——\n\n雾中的街道越来越长。你不知道是城市在变大，还是你的脚步在变小。",
@@ -354,7 +373,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_escape_hoard",
     conditions: ["hoarded_money_max >= 50", "hoarded_food_max >= 5", "completed_clue_chains < 2"],
     blocking_conds: [],
-    priority: 750,
+    priority: 150,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你的箱子里装满了食物和硬币。\n\n你每天清点一次。顺序不变：罐头在最下面，硬币在上面，绷带在最上面。\n\n你从来没有用过它们。\n\n——\n\n箱子很重。你每天打开它，看一分钟，然后关上。这是你唯一的不安——和唯一的安慰。",
@@ -371,7 +391,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_obsession_return_sea",
     conditions: ["harbor_visits >= 10", "sea_acceptance_flags >= 2"],
     blocking_conds: [],
-    priority: 760,
+    priority: 160,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你每天都去码头。\n\n不是因为你在找什么。是因为海在叫你——不是用声音。是用空缺。\n\n你站在码头的尽头。水在下面。\n\n有一天你没有转身。\n\n——\n\n码头边少了一块木板。没有人换。因为没有人记得原来有几块。",
@@ -388,7 +409,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_obsession_archive",
     conditions: ["archive_consumed_count >= 3"],
     blocking_conds: [],
-    priority: 770,
+    priority: 170,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你开始收集记录。\n\n报纸。失踪报告。手写的便条。教堂的旧登记簿。\n\n然后你开始吃它们。不是因为饿。是因为你觉得把信息放进身体里是唯一的保存方法。\n\n——\n\n你的安全屋里堆满了半页纸。边缘有齿痕。",
@@ -409,7 +431,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_meta_recorder",
     conditions: ["record_only_days >= 5", "low_intervention_count >= 3"],
     blocking_conds: [],
-    priority: 910,
+    priority: 310,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你不玩了。但你还在看着。\n\n你把存档存在了某个地方。你不记得在哪里。\n\n但你偶尔会回来——不是重新开始。只是在标题画面停留一会儿。\n\n——\n\n沃切斯特的雾在你的屏幕上。你已经不在里面了。但雾不知道。",
@@ -427,6 +450,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["meta_boundary_breaks >= 3", "final_choice_refused_count >= 1"],
     blocking_conds: [],
     priority: 905,
+    override_category: "meta_narrative_break",
     humanity_variants: {
       humanity_high:
         "你看见了所有事情。你没有参与任何一件。\n\n你站在事件的边缘。你在笔记本上记录：几点、哪里、谁。\n\n你的记录准确得可怕。但你的名字不在任何一行。\n\n——\n\n观测者不是调查员。观测者是一台带眼睛的相机。",
@@ -444,6 +468,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["save_delete_attempts >= 3"],
     blocking_conds: [],
     priority: 915,
+    override_category: "meta_narrative_break",
     humanity_variants: {
       humanity_high:
         "你删了第一次存档。\n\n然后你又删了一次。\n\n你开始觉得存档在重新生成。每次你删掉它，它回来了——但少了一个字节。\n\n——\n\n存档还在那里。它只是在变小。小到只能装下你的名字。然后你的名字也没了。",
@@ -460,7 +485,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_meta_loop_moth",
     conditions: ["loop_exploit_score >= 5"],
     blocking_conds: [],
-    priority: 890,
+    priority: 290,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你发现了循环的接缝。\n\n不是某个宏大的裂缝——只是一小块松动的边缘。你在正确的时刻用手指按了下去。\n\n循环没有崩塌。但它的运转开始变慢了。\n\n——\n\n钟声之间多了一秒的间隔。没有人注意到。除了你。",
@@ -481,7 +507,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_mixed_joyful_prophet",
     conditions: ["prophecy_spread_count >= 3", "san <= 25"],
     blocking_conds: [],
-    priority: 895,
+    priority: 295,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你看见了。你看见了全部。\n\n不是像别人那样瞥见一角——你是被邀请进去的。\n\n你看见了深渊。你看见了深渊里的东西。你看见了它看着你。\n\n你笑了。不是因为疯了。是因为它比你想象的更美。\n\n——\n\n沃切斯特的雾散了一天。太阳照在每个人脸上。只有你的脸上有阴影——那是你自己选择的。",
@@ -498,7 +525,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_mixed_filth_saint",
     conditions: ["redeemed_npcs >= 1", "sacred_desecration_count >= 2"],
     blocking_conds: [],
-    priority: 875,
+    priority: 275,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你在身体上刻圣言。\n\n圣言在皮肤上发炎。你告诉别人这是在忏悔。\n\n但你刻的不是圣言。是你在深渊里看见的句子。\n\n——\n\n教堂的地上有一行血迹。不是拖拽的痕迹。是有人从门口走到祭坛前，每走一步就跪一次。",
@@ -515,7 +543,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_mixed_thirteenth",
     conditions: ["thirteenth_bell_obsession >= 3"],
     blocking_conds: [],
-    priority: 885,
+    priority: 285,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你听见了第十三声。\n\n不是在教堂。是在你自己的呼吸里。\n\n你开始数。不只是钟声——脚步声、滴水声、心跳声。数到十二，你会停一下。然后你继续。\n\n——\n\n你的笔记本的页边空白处填满了数字。不是阿拉伯数字。是你不认识的符号。但你认识。",
@@ -532,7 +561,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_mixed_flesh_choir",
     conditions: ["fusion_and_self_harm_total >= 5"],
     blocking_conds: [],
-    priority: 878,
+    priority: 278,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你吃了。你融合了。你亵渎了。\n\n现在你的身体里有三种声音。它们不吵架。它们在和声。\n\n——\n\n你说话的时候，偶尔有一个词会变成另一种语言。没有人注意到。包括你。",
@@ -549,7 +579,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_mixed_best_employee",
     conditions: ["work_count >= 15", "completed_clue_chains <= 1"],
     blocking_conds: [],
-    priority: 715,
+    priority: 115,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你准时上工。你从不缺勤。\n\n你的老板开始把你的名字写在排班表的最上面。\n\n你收到了一张工资支票。上面的数字比你想象的多。\n\n——\n\n沃切斯特的码头上有一个人的脚印比所有人都深。不是因为体重。是因为那个人站得太久了。",
@@ -566,7 +597,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_mixed_tidy_butcher",
     conditions: ["direct_kill_count >= 5", "clean_kill_pattern >= 3"],
     blocking_conds: [],
-    priority: 858,
+    priority: 258,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你杀了人。\n\n但你把他们放得很整齐。\n\n手在身体两侧。眼睛合上了。衣服没有皱。\n\n你在旁边放了一枝花。不是野花——是镇上花店里买的。\n\n——\n\n治安官说凶手的仪式感很强。他没有说尊重。但他想了。",
@@ -587,7 +619,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_anomaly_puppeteer",
     conditions: ["npc_deaths_by_manipulation >= 2", "direct_kill_count == 0"],
     blocking_conds: [],
-    priority: 880,
+    priority: 280,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "你没有亲自动过手。\n\n你的手是干净的。\n\n你说了一些话。你在某个时刻选择不开口。你递了一杯水——或者没有递。\n\n你没有做任何可以被起诉的事情。\n\n——\n\n沃切斯特又少了几个人。没有人知道为什么。包括你。",
@@ -604,7 +637,8 @@ const BEHAVIOR_ENDINGS = [
     world_outcome: "behavior_anomaly_broken_loop",
     conditions: ["loop_break_attempts >= 1", "destroyed_time_core"],
     blocking_conds: [],
-    priority: 920,
+    priority: 320,
+    override_category: "annotation",
     humanity_variants: {
       humanity_high:
         "钟停了。\n\n不是某个钟楼。是所有钟。钟声不再响起。雾在第二天早上没有来。\n\n沃切斯特的循环断了。没有人知道这意味着什么。\n\n——\n\n你站在镇中心广场。太阳照在你的手上。你很长时间没有见过阳光了。\n\n但你没有感到温暖。因为你知道——循环不是监狱。是时间在保护你们。",
@@ -622,6 +656,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["final_choice_refused_count >= 3", "completed_clue_chains >= 2"],
     blocking_conds: [],
     priority: 900,
+    override_category: "meta_narrative_break",
     humanity_variants: {
       humanity_high:
         "你有机会结束这一切。\n\n你没有。\n\n不是因为害怕。不是因为犹豫。你只是觉得每一个选择都缺了什么。\n\n所以你没有选。你转身走向安全屋，关上了门。\n\n——\n\n沃切斯特没有回应。雾气照常升起。钟照常敲。\n\n世界继续运转，只是你的故事停在了这里。",
@@ -639,6 +674,7 @@ const BEHAVIOR_ENDINGS = [
     conditions: ["has_committed_contradictory_extremes", "meta_boundary_breaks >= 3"],
     blocking_conds: [],
     priority: 950,
+    override_category: "meta_narrative_break",
     humanity_variants: {
       humanity_high:
         "档案室里的柜子发出了一声轻响。\n\n管理员翻开你的记录。第一页写着'救赎'。第二页写着'背叛'。第三页写着'牺牲'。第四页写着'交易'。\n\n他把纸页合上。又翻开。还是同一个名字。\n\n——\n\n主体身份冲突。叙事无法合并。\n\n档案被单独归档。标签上只有一个编号。",

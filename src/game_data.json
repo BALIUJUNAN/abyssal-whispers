@@ -10143,7 +10143,11 @@
         "evt_drowned_voice"
       ],
       "description": "从仓库异响开始，你一步步深入码头的黑暗秘密",
-      "chain_reward": "完成链后解锁：码头工人日记（揭示海底神殿入口线索）"
+      "chain_reward": "完成链后解锁：码头工人日记（揭示海底神殿入口线索）",
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_harbor_investigation_completed"},
+        {"type": "add_flag", "flag_id": "has_dockworker_diary"}
+      ]
     },
     {
       "id": "chain_forest_descent",
@@ -10155,7 +10159,12 @@
         "evt_tree_speech"
       ],
       "description": "从林中低语到古树之语，你逐渐理解了森林的意志",
-      "chain_reward": "完成链后解锁：古树种子+森林守护者认同（禁忌之林危险等级-1）"
+      "chain_reward": "完成链后解锁：古树种子+森林守护者认同（禁忌之林危险等级-1）",
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_forest_descent_completed"},
+        {"type": "add_flag", "flag_id": "has_ancient_tree_seed"},
+        {"type": "add_flag", "flag_id": "forest_guardian_approval"}
+      ]
     },
     {
       "id": "chain_manor_secrets",
@@ -10167,7 +10176,12 @@
         "evt_library_secret"
       ],
       "description": "从肖像的注视到禁忌书架，莫里斯家族的秘密逐渐揭开",
-      "chain_reward": "完成链后解锁：封印仪式图谱+希尔达信任+3"
+      "chain_reward": "完成链后解锁：封印仪式图谱+希尔达信任+3",
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_manor_secrets_completed"},
+        {"type": "add_flag", "flag_id": "has_seal_ritual_blueprint"},
+        {"type": "modify_npc_trust", "npc_id": "希尔达·莫里斯", "amount": 3}
+      ]
     },
     {
       "id": "chain_catacomb_horror",
@@ -10179,7 +10193,12 @@
         "evt_ghoul_nest"
       ],
       "description": "从被打开的石棺到食尸鬼巢穴，墓穴的恐怖层层深入",
-      "chain_reward": "完成链后解锁：食尸鬼秘物+墓穴隐藏通道地图"
+      "chain_reward": "完成链后解锁：食尸鬼秘物+墓穴隐藏通道地图",
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_catacomb_horror_completed"},
+        {"type": "add_flag", "flag_id": "has_ghoul_relic"},
+        {"type": "add_flag", "flag_id": "has_catacomb_hidden_passage_map"}
+      ]
     },
     {
       "id": "chain_yith_knowledge",
@@ -10191,7 +10210,13 @@
         "evt_time_slip"
       ],
       "description": "从回声到时间滑移，你触及了伊斯伟大种族的遗产",
-      "chain_reward": "完成链后解锁：时间碎片+时间机器修复知识（解锁超越者结局）"
+      "chain_reward": "完成链后解锁：时间碎片+时间机器修复知识（解锁超越者结局）",
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_yith_knowledge_completed"},
+        {"type": "add_flag", "flag_id": "has_time_shard"},
+        {"type": "add_flag", "flag_id": "has_time_machine_repair_knowledge"},
+        {"type": "unlock_final_option", "option_id": "transcendence_ending_unlocked"}
+      ]
     },
     {
       "id": "chain_lighthouse_truth",
@@ -10203,7 +10228,12 @@
         "evt_cthulhu_dream"
       ],
       "description": "从不应存在的光到克苏鲁的梦，灯塔的秘密呼唤着你",
-      "chain_reward": "完成链后解锁：以诺·沃特的地下室钥匙+深潜者祭祀日期"
+      "chain_reward": "完成链后解锁：以诺·沃特的地下室钥匙+深潜者祭祀日期",
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_lighthouse_truth_completed"},
+        {"type": "add_flag", "flag_id": "has_enoch_basement_key"},
+        {"type": "add_flag", "flag_id": "has_deep_diver_ritual_date"}
+      ]
     },
     {
       "id": "chain_city_conspiracy",
@@ -10216,7 +10246,12 @@
         "evt_strange_clock"
       ],
       "description": "从失踪者名单到十三声钟响，你发现了城市表面下的暗流",
-      "chain_reward": "完成链后解锁：晨星会情报+伊莎贝拉真实目的线索"
+      "chain_reward": "完成链后解锁：晨星会情报+伊莎贝拉真实目的线索",
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_city_conspiracy_completed"},
+        {"type": "add_flag", "flag_id": "has_morningstar_intel"},
+        {"type": "add_flag", "flag_id": "has_isabella_truth"}
+      ]
     }
   ],
   "clue_chains": [
@@ -10326,7 +10361,12 @@
       "required_for": [],
       "optional_reveals": [],
       "false_interpretations": [],
-      "completion_effects": {}
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_harbor_completed"},
+        {"type": "add_flag", "flag_id": "has_undersea_temple_map"},
+        {"type": "add_flag", "flag_id": "has_deep_diver_ritual_date"},
+        {"type": "add_flag", "flag_id": "has_seal_ritual_material_location"}
+      ]
     },
     {
       "id": "chain_morris",
@@ -10405,7 +10445,12 @@
       "required_for": [],
       "optional_reveals": [],
       "false_interpretations": [],
-      "completion_effects": {}
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_morris_completed"},
+        {"type": "add_flag", "flag_id": "has_manor_basement_map"},
+        {"type": "modify_npc_trust", "npc_id": "希尔达·莫里斯", "amount": 3},
+        {"type": "add_flag", "flag_id": "has_seal_ritual_blueprint"}
+      ]
     },
     {
       "id": "chain_heretical",
@@ -10494,7 +10539,12 @@
       "required_for": [],
       "optional_reveals": [],
       "false_interpretations": [],
-      "completion_effects": {}
+      "completion_effects": [
+        {"type": "add_flag", "flag_id": "chain_heretical_completed"},
+        {"type": "add_flag", "flag_id": "has_isabella_truth"},
+        {"type": "add_flag", "flag_id": "has_church_basement_map"},
+        {"type": "add_flag", "flag_id": "has_heretical_ritual_option"}
+      ]
     }
   ],
   "endings": [
