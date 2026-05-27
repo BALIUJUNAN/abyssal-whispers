@@ -55,7 +55,7 @@ export function processSanLoss(base, inv, weather, day, difficulty, ctx) {
   let loss = base;
   const prots = (GD.systems?.sanity?.item_protection || GD.module5_player?.item_san_protection || []);
   inv.forEach(item => {
-    const p = prots.find(pr => pr.name === item);
+    const p = prots.find(pr => pr.name === (item && item.name ? item.name : item));
     if (p) loss -= p.san_reduction;
   });
   if (weather === '血月') loss += 3;

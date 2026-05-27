@@ -57,10 +57,7 @@ export function resolveDeath(state, sourceEvent = null, sourceChoice = null) {
 
   const type = inferDeathType(state, sourceEvent, sourceChoice, mode);
 
-  state.lastDeathType = type;
-  state.lastDeathMode = mode;
-
-  return {
+  const result = {
     mode,
     type,
     area: state.currentArea || null,
@@ -70,7 +67,10 @@ export function resolveDeath(state, sourceEvent = null, sourceChoice = null) {
     sourceEventName: sourceEvent?.name || null,
     finalText: getDeathText(mode, type, state, sourceEvent),
     residueFlag: `death_echo_${type}`,
+    lastDeathType: type,
+    lastDeathMode: mode,
   };
+  return result;
 }
 
 // =============================================

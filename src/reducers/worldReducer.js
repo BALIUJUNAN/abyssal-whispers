@@ -1,7 +1,7 @@
 // src/reducers/worldReducer.js - World, seal state, weather, phase logic
 
 export function getPhase(ap, maxAp) {
-  const ratio = ap / maxAp;
+  const ratio = (maxAp && maxAp > 0) ? ap / maxAp : 0;
   if (ratio > 0.66) return 'morning';
   if (ratio > 0.33) return 'afternoon';
   if (ratio > 0) return 'evening';

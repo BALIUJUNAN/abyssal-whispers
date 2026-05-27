@@ -80,6 +80,7 @@ export function applyEffects(state, effects, context) {
         break;
       }
       case 'add_log': {
+        if (!state.eventLog) state.eventLog = [];
         state.eventLog.push({ day: state.day, text: eff.text || '' });
         break;
       }
@@ -95,23 +96,58 @@ export function applyEffects(state, effects, context) {
 }
 
 /**
- * Adapter: converts legacy {HP: 3, SAN: -2} event effect format to applyEffects calls.
+ * Adapter: converts legacy {HP: 3, SAN: -2, food: 1, add_clue: "..."} event effect format.
+ * Also handles extended event formats: npc_trust, safehouseCorruption, add_item, add_run_memory.
  */
 export function applyLegacyEffects(state, eff) {
   if (!eff) return;
+  // HP / SAN (both casings)
   if (eff.HP) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.HP }]);
+  if (eff.hp) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.hp }]);
   if (eff.san) applyEffects(state, [{ type: 'modify_stat', target: 'SAN', amount: eff.san }]);
+  // Food
   if (eff.food) state._foodDelta = (state._foodDelta || 0) + eff.food;
+  // Mythos
   if (eff.mythos != null) applyExtendedEffect(state, { type: 'modify_mythos', amount: eff.mythos });
+  // Humanity
+  if (eff.humanity != null) applyExtendedEffect(state, { type: 'modify_humanity', amount: eff.humanity });
+  // Flags
   if (eff.add_flag) {
     const flags = Array.isArray(eff.add_flag) ? eff.add_flag : [eff.add_flag];
     for (const fid of flags) {
       applyEffects(state, { type: 'add_flag', flag_id: fid });
     }
   }
+  // Clues (string or array)
+  if (eff.add_clue) {
+    const clues = Array.isArray(eff.add_clue) ? eff.add_clue : [eff.add_clue];
+    for (const cid of clues) {
+      if (!state.clues.includes(cid)) state.clues.push(cid);
+    }
+  }
+  // Items
+  if (eff.add_item) {
+    applyEffects(state, [{ type: 'add_item', ...eff.add_item }]);
+  }
+  // NPC trust: { "NPC名": amount }
+  if (eff.npc_trust) {
+    for (const [npcId, amount] of Object.entries(eff.npc_trust)) {
+      state.npcTrust[npcId] = Math.min(5, Math.max(0, (state.npcTrust[npcId] || 0) + amount));
+    }
+  }
+  // Safehouse corruption
+  if (eff.safehouseCorruption) {
+    state.safehouseCorruption = Math.max(0, (state.safehouseCorruption || 0) + eff.safehouseCorruption);
+  }
+  // Run memory
+  if (eff.add_run_memory) {
+    applyExtendedEffect(state, { type: 'add_run_memory', ...eff.add_run_memory });
+  }
+  // Ending condition unlock
   if (eff.unlock_ending_condition) {
     applyExtendedEffect(state, { type: 'unlock_ending_condition', condition_id: eff.unlock_ending_condition });
   }
+  // Death hint
   if (eff.death_hint) {
     applyExtendedEffect(state, { type: 'set_last_death_hint', hint: eff.death_hint });
   }
