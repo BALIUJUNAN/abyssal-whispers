@@ -1,12 +1,20 @@
 // src/app.jsx - 深渊低语：沃切斯特之影 游戏主逻辑
-// Imports stripped by build.py bundler
-import { getDistortedName } from './reducers/worldReducer.js';
+// Imports stripped by build.py bundler — each import must map to an actual export
+import { rand, d100, d3, clamp, pick, rollDice, shuffle } from './reducers/utils.js';
+import { getPhase, getSealState, getSealStateId, getWeather, getAreaInfo, getConnectedAreas, getDistortedName } from './reducers/worldReducer.js';
+import { getSanStage, getSanTextVariant, getSanSceneVariant, processSanLoss, rollMadness } from './reducers/sanReducer.js';
+import { getSafehouseStage, processSafehouseNight } from './reducers/safehouseReducer.js';
+import { checkTrigger, selectEvent, doSkillCheck, getGambleOptions, processNormalAnchorEvent } from './reducers/eventReducer.js';
+import { applyEffects, applyLegacyEffects } from './reducers/effectReducer.js';
+import { getItemDef, useItemByDef } from './reducers/itemReducer.js';
+import { genObjectives, checkObjCompletion } from './reducers/objectiveReducer.js';
+import { saveGame, loadGame, clearSave, hasSave } from './reducers/saveReducer.js';
 import { getPollutionText } from './reducers/loopReducer.js';
 import { getChapterForDay, getMythosCap, getChapterAlias, checkChapterTransition, getMotifFlavorText, getMonsterManifestation } from './reducers/chapterReducer.js';
 import { checkConclusions, checkFalseInterpretations } from './reducers/conclusionReducer.js';
-import { getGambleOptions, checkTriggerExtended } from './reducers/eventReducer.js';
+import { checkEnding } from './reducers/endingReducer.js';
 import { checkNPCCorruption, applyNPCCorruption, setCorruptionFlag } from './reducers/npcReducer.js';
-import { selectEventV2, resetDailyCategoryCounts, buildPreviousRunSummary, applyExtendedEffect } from './reducers/extendedEvents.js';
+import { selectEventV2, checkTriggerExtended, resetDailyCategoryCounts, buildPreviousRunSummary, applyExtendedEffect } from './reducers/extendedEvents.js';
 import { ensureExtendedState, mergeExtendedEvents } from './reducers/extendedEventsLoader.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
 import { resolveDeath } from './reducers/deathSystem.js';
@@ -56,10 +64,13 @@ const CH1_INTRO=[
 ];
 
 // === AREA UNLOCK LOGIC ===
-function isAreaUnlocked(area, day) {
+function isAreaUnlocked(area, state) {
   if (area.chapter_1_role === 'locked') return false;
   if (area.chapter_1_role === 'fully_accessible') return true;
+  const day = state.day || 1;
   if (area.chapter_unlock === 'chapter_2' && day > 7) return true;
+  // Clue-based unlock: area requires specific clues
+  if (area.unlock_clue && !(state.clues || []).includes(area.unlock_clue)) return false;
   return false;
 }
 
@@ -82,7 +93,7 @@ const initialState=()=>{
   triggeredEvents:[],triggeredSilentEvents:[],longTermEffects:[],madnessActive:null,
   objectives:[],completedChains:[],
   difficulty:'normal',
-  narrative:[],eventLog:[],pendingEvent:null,pendingNpc:null,pendingGamble:null,ending:null,transition:null,
+  narrative:[],eventLog:[],pendingEvent:null,pendingNpc:null,pendingGamble:null,pendingChoice:null,ending:null,transition:null,
   safehouseCorruption:0,currentSafehouse:'main',
   harborRiskReduction:0,
   tempSkillBonus:null,
@@ -101,7 +112,48 @@ const initialState=()=>{
   archetype:null,
   runMemory:[],
   audioMuted:false,
-  tutorialSeen:{}
+  tutorialSeen:{},
+  direct_kill_count:0,
+  cannibalism_count:0,
+  clean_kill_pattern:0,
+  npc_deaths_by_manipulation:0,
+  cult_leader_score:0,
+  // Daily pattern tracking
+  self_harm_ritual_count:0,
+  fusion_accepted_count:0,
+  possession_accepted_count:0,
+  forbidden_intimacy_flags:0,
+  sacred_desecration_count:0,
+  same_npc_harm_max:0,
+  _npc_harm_tally:{},
+  npc_as_resource_count:0,
+  betrayed_high_trust_npcs:0,
+  self_sacrifice_for_power:0,
+  fusion_and_self_harm_total:0,
+  harbor_visits:0,
+  sea_acceptance_flags:0,
+  sleep_streak:0,
+  work_only_days:0,
+  safehouse_stay_days:0,
+  move_only_days:0,
+  record_only_days:0,
+  low_intervention_count:0,
+  work_count:0,
+  hoarded_money_max:0,
+  hoarded_food_max:0,
+  archive_consumed_count:0,
+  prophecy_spread_count:0,
+  redeemed_npcs:0,
+  thirteenth_bell_obsession:0,
+  meta_boundary_breaks:0,
+  final_choice_refused_count:0,
+  save_delete_attempts:0,
+  loop_exploit_score:0,
+  loop_break_attempts:0,
+  money:0,
+  _dayActions:[],
+  _dayStartArea:null,
+  _lastAreaBeforeRest:null
   };
   // Extended event system fields (backward-compatible defaults)
   return ensureExtendedState(base);
@@ -396,6 +448,16 @@ function gameReducer(state,action){
     s.narrative.push(entry);
   };
   const log=(text)=>{cloneEvtLog();s.eventLog.push({day:s.day,text});};
+  // Daily action tracking for behavior endings
+  const trackableTypes=['MOVE','EXPLORE','TALK_NPC','USE_ITEM','SWITCH_SAFEHOUSE','REST','GAMBLE_CHOICE','DO_SKILL_CHECK','NPC_RESPONSE','WORK','PREACH','ATTACK'];
+  if(trackableTypes.includes(action.type)&&action.type!=='REST'){
+    if(!s._dayActions)s._dayActions=[];
+    s._dayActions.push(action.type==='NPC_RESPONSE'?action.choice||'talk':action.type);
+  }
+  // Track food hoarding
+  if((s.food||0)>(s.hoarded_food_max||0))s.hoarded_food_max=s.food;
+  // Track money hoarding
+  if((s.money||0)>(s.hoarded_money_max||0))s.hoarded_money_max=s.money;
 
   switch(action.type){
   case 'START_GAME':s.screen='creation';s.skills=initSkills();return s;
@@ -464,9 +526,10 @@ function gameReducer(state,action){
     if(!cur||!cur.connected_areas.includes(target)){narr('system','无法到达该区域。');return s;}
     const targetArea=getAreaInfo(target,ctx);
     if(!targetArea){narr('system','未知区域。');return s;}
-    if(!isAreaUnlocked(targetArea,s.day)){narr('system','你还没有找到通往'+targetArea.name+'的路径。也许需要更多线索。');return s;}
+    if(!isAreaUnlocked(targetArea,s)){narr('system','你还没有找到通往'+targetArea.name+'的路径。也许需要更多线索。');return s;}
     s.ap-=action.cost||1;s.currentArea=target;
     if(!s.visitedAreas.includes(target))s.visitedAreas.push(target);
+    if(target==='harbor_district')s.harbor_visits=(s.harbor_visits||0)+1;
     if(targetArea.danger_level>(s.stats_run.deepest_area_danger||0))s.stats_run.deepest_area_danger=targetArea.danger_level;
     if(!s.lastVisitedDates)s.lastVisitedDates={};
     s.lastVisitedDates={...s.lastVisitedDates,[target]:s.day};
@@ -523,6 +586,12 @@ function gameReducer(state,action){
     s.triggeredEvents.push(evt.id);
     const evtText=getPollutionText(getSanTextVariant(evt.description,s.san,pick,ctx),s.pollution||0);
     narr('event',evtText,{eventTitle:evt.name,eventType:evt.type||evt.event_classification,imageSrc:getEventImage(evt.id)||getAreaSceneImage(s.currentArea,s),imageAlt:evt.name});
+    // Event choices: if event has non-empty choices, present them and wait
+    if(evt.choices&&evt.choices.length>0){
+      applyLegacyEffects(s,evt.effects);
+      s.pendingChoice={evt,choices:evt.choices};
+      return s;
+    }
     // SAN赌博机制：25%概率触发选择
     const gambleOpts=getGambleOptions(evt,s,ctx);
     if(gambleOpts){
@@ -641,6 +710,15 @@ function gameReducer(state,action){
         narr('system','【'+(stageNames[manifest.stage]||'异常')+'】'+manifest.manifestation);
       }
     }
+    // Event-related tracking for behavior endings
+    if(evt.tags){
+      if(evt.tags.includes('fusion')){s.fusion_accepted_count=(s.fusion_accepted_count||0)+1;s.fusion_and_self_harm_total=(s.fusion_and_self_harm_total||0)+1;}
+      if(evt.tags.includes('possession'))s.possession_accepted_count=(s.possession_accepted_count||0)+1;
+      if(evt.tags.includes('bell')||evt.tags.includes('thirteenth'))s.thirteenth_bell_obsession=(s.thirteenth_bell_obsession||0)+1;
+      if(evt.tags.includes('meta')||evt.tags.includes('loop'))s.meta_boundary_breaks=(s.meta_boundary_breaks||0)+1;
+      if(evt.tags.includes('sea')||evt.tags.includes('tide')||evt.tags.includes('harbor_deep'))s.sea_acceptance_flags=(s.sea_acceptance_flags||0)+1;
+    }
+    if(evt.event_classification==='超自然遭遇'||evt.event_classification==='怪物遭遇')s.meta_boundary_breaks=(s.meta_boundary_breaks||0)+1;
     log('探索：'+evt.name);if(!s.tutorialSeen.first_explore)s.tutorialSeen={...s.tutorialSeen,first_explore:true};return s;
   }
   case 'DO_SKILL_CHECK':{
@@ -741,7 +819,8 @@ function gameReducer(state,action){
       const redemption=GD.implementation_notes?.npc_redemption?.characters?.[rKey];
       if(redemption){
         narr('system',redemption.redemption_text);
-        s.npcStates[npc.name]={...s.npcStates[npc.name],corrupted:false};
+        s.npcStates[npc.name]={...s.npcStates[npc.name],corrupted:false,redeemed:true};
+        s.redeemed_npcs=(s.redeemed_npcs||0)+1;
         modHumanity(s,15,'选择自己承担代价，救赎'+npc.name);
       }else{
         narr('system','你尝试与'+npc.name+'建立更深的联系，但对方的状态似乎无法挽回。');
@@ -774,6 +853,121 @@ function gameReducer(state,action){
         narr('system','你没有食物可以分享了。');
       }
     }else if(choice==='leave'){s.pendingNpc=null;s.objectives=checkObjCompletion(s.objectives,s);}
+    else if(choice==='attack'){
+      if(s.ap<2){narr('system','行动点不足（需要2AP）。');s.pendingNpc=null;return s;}
+      s.ap-=2;
+      const fightSkill=s.skills['格斗']||s.skills['潜行']||20;
+      const npcDiff=npc.chapter_1_role==='core'?55:40;
+      const roll=rand(1,100);
+      const success=roll<=fightSkill&&roll<=npcDiff;
+      if(success){
+        s.direct_kill_count=(s.direct_kill_count||0)+1;
+        s.npcStates[npc.name]={...ns,dead:true,killedByPlayer:true};
+        const sanLoss=rand(4,12);
+        s.san=clamp(s.san-sanLoss,0,s.maxSan);
+        modHumanity(s,-20,'亲手杀害了'+npc.name);
+        addRunMemory(s,'你杀了'+npc.name+'。','death');
+        narr('system','【攻击】掷骰 '+roll+' / 格斗'+fightSkill+' —— 成功！'+npc.name+'倒下了。SAN -'+sanLoss,{isSpecial:true});
+        s.pendingNpc={...s.pendingNpc,postKill:true};
+      }else{
+        const dmg=rand(2,8);
+        s.hp=Math.max(0,s.hp-dmg);
+        s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-2);
+        narr('system','【攻击】掷骰 '+roll+' / 格斗'+fightSkill+' —— 失败！'+npc.name+'激烈反抗。HP -'+dmg);
+        if(Math.random()<0.5){
+          s.npcStates[npc.name]={...ns,fled:true};
+          narr('system',npc.name+'惊恐地逃走了。你可能再也找不到他了。');
+        }
+        s.pendingNpc=null;
+      }
+    }else if(choice==='post_kill_hide'){
+      s.clean_kill_pattern=(s.clean_kill_pattern||0)+1;
+      if(s.ap>=1){s.ap-=1;narr('system','你花了一些时间处理现场。痕迹被抹去了。');}
+      else{narr('system','你没有时间仔细处理，但你尽力隐藏了能隐藏的一切。');}
+      s.san=clamp(s.san-2,0,s.maxSan);
+      modHumanity(s,-5,'冷静地隐藏了'+npc.name+'的尸体');
+      s.pendingNpc=null;
+    }else if(choice==='post_kill_cannibal'){
+      s.cannibalism_count=(s.cannibalism_count||0)+1;
+      s.food=Math.min(s.maxFood,(s.food||0)+2);
+      const sanLoss=rand(8,20);
+      s.san=clamp(s.san-sanLoss,0,s.maxSan);
+      modHumanity(s,-30,'食用了'+npc.name+'的肉体');
+      addRunMemory(s,'你吃了'+npc.name+'。饥饿比道德更真实。','death');
+      narr('system','你做了无法挽回的事。食物+2。某种东西在你体内扎了根。SAN -'+sanLoss,{isSpecial:true});
+      s.pendingNpc=null;
+    }else if(choice==='post_kill_leave'){
+      s.pendingNpc=null;
+      const witnesses=getNpcsHere(s).filter(n2=>n2.name!==npc.name);
+      if(witnesses.length>0&&Math.random()<0.4){
+        narr('system','你匆忙离开了。但愿没有人注意到你的行踪。');
+      }
+    }else if(choice==='incite'){
+      if(s.ap<2){narr('system','行动点不足（需要2AP）。');s.pendingNpc=null;return s;}
+      s.ap-=2;
+      const socialSkill=s.skills['话术']||s.skills['心理学']||25;
+      const roll=rand(1,100);
+      if(roll<=socialSkill){
+        s.npc_deaths_by_manipulation=(s.npc_deaths_by_manipulation||0)+1;
+        s.npcStates[npc.name]={...ns,dead:true,manipulatedDeath:true};
+        const sanLoss=rand(3,8);
+        s.san=clamp(s.san-sanLoss,0,s.maxSan);
+        modHumanity(s,-15,'操纵导致'+npc.name+'的死亡');
+        addRunMemory(s,'你说了一些话。'+npc.name+'走向了危险。','death');
+        narr('system','【陷害】掷骰 '+roll+' / 话术'+socialSkill+' —— 成功。'+npc.name+'对你深信不疑，走向了你指出的"线索"。几天后，人们在码头发现了尸体。SAN -'+sanLoss,{isSpecial:true});
+      }else{
+        narr('system','【陷害】掷骰 '+roll+' / 话术'+socialSkill+' —— 失败。'+npc.name+'看穿了你的意图。');
+        s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-1);
+      }
+      s.pendingNpc=null;
+    }else if(choice==='exploit_npc'){
+      if(s.ap<1){narr('system','行动点不足。');s.pendingNpc=null;return s;}
+      s.ap-=1;s.npc_as_resource_count=(s.npc_as_resource_count||0)+1;
+      s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-2);
+      const gain=rand(2,6);s.money=(s.money||0)+gain;
+      modHumanity(s,-12,'把'+npc.name+'当作资源利用');
+      addRunMemory(s,'你利用了'+npc.name+'。效率很高。','npc');
+      narr('system','你利用了'+npc.name+'的信任。金钱 +'+gain+'。对方的眼神里多了一丝怀疑。');
+      s.pendingNpc=null;
+    }else if(choice==='betray_npc'){
+      if(s.ap<1){narr('system','行动点不足。');s.pendingNpc=null;return s;}
+      s.ap-=1;s.betrayed_high_trust_npcs=(s.betrayed_high_trust_npcs||0)+1;
+      s.npcTrust[npc.name]=0;
+      if(!s._npc_harm_tally)s._npc_harm_tally={};
+      s._npc_harm_tally[npc.name]=(s._npc_harm_tally[npc.name]||0)+1;
+      s.same_npc_harm_max=Math.max(s.same_npc_harm_max||0,s._npc_harm_tally[npc.name]);
+      modHumanity(s,-20,'背叛了高度信任的'+npc.name);
+      addRunMemory(s,'你背叛了'+npc.name+'。信任是一种货币。你把它兑现了。','npc');
+      narr('system','你把'+npc.name+'的秘密告诉了不该告诉的人。信任归零。你得到了一些东西——但不是钱。',{isSpecial:true});
+      s.pendingNpc=null;
+    }else if(choice==='intimacy'){
+      if(s.ap<2){narr('system','行动点不足。');s.pendingNpc=null;return s;}
+      s.ap-=2;s.forbidden_intimacy_flags=(s.forbidden_intimacy_flags||0)+1;
+      const sanLoss=rand(3,8);s.san=clamp(s.san-sanLoss,0,s.maxSan);
+      s.pollution=Math.min(1,(s.pollution||0)+0.1);
+      modHumanity(s,-8,'与'+npc.name+'发生了禁忌的亲密');
+      narr('system','你靠近了'+npc.name+'。你没有问这是否正确。对方没有回答——但也没有退开。SAN -'+sanLoss,{isSpecial:true});
+      s.pendingNpc=null;
+    }else if(choice==='preach'){
+      if(s.ap<2){narr('system','行动点不足（需要2AP）。');s.pendingNpc=null;return s;}
+      s.ap-=2;
+      const cultSkill=s.skills['神秘学']||s.skills['话术']||20;
+      const roll=rand(1,100);
+      if(roll<=cultSkill){
+        s.cult_leader_score=(s.cult_leader_score||0)+1;
+        s.npcStates[npc.name]={...ns,follower:true};
+        const sanLoss=rand(2,6);
+        s.san=clamp(s.san-sanLoss,0,s.maxSan);
+        modHumanity(s,-10,'将'+npc.name+'引入歧途，建立邪教追随');
+        addRunMemory(s,npc.name+'开始追随你。不是信任——是信仰。','npc');
+        narr('system','【传教】掷骰 '+roll+' / 神秘学'+cultSkill+' —— 成功。'+npc.name+'眼中不再有疑问。你所说的每一个字，都被当作了真理。SAN -'+sanLoss,{isSpecial:true});
+        s.npcTrust[npc.name]=Math.min(5,(s.npcTrust[npc.name]||0)+1);
+      }else{
+        narr('system','【传教】掷骰 '+roll+' / 神秘学'+cultSkill+' —— 失败。'+npc.name+'后退了一步，表情变得警惕。');
+        s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-1);
+      }
+      s.pendingNpc=null;
+    }
     return s;
   }
   case 'USE_ITEM':{cloneInv();
@@ -897,13 +1091,120 @@ function gameReducer(state,action){
     // Check for new knowledge earned
     checkKnowledgeEarned(s);
 
+    // Daily pattern analysis for behavior endings
+    const acts=s._dayActions||[];
+    if(acts.length===0){s.sleep_streak=(s.sleep_streak||0)+1;}else{s.sleep_streak=0;}
+    if(acts.length<=1){s.low_intervention_count=(s.low_intervention_count||0)+1;}
+    const hasMove=acts.includes('MOVE'),hasExplore=acts.includes('EXPLORE'),hasTalk=acts.some(a=>a==='TALK_NPC'||a==='trust_up'||a==='get_item'||a==='silence'||a==='share_food'||a==='redeem'||a==='incite'||a==='preach'||a==='attack');
+    const hasWork=acts.includes('WORK'),hasItem=acts.includes('USE_ITEM');
+    const stayedInArea=!hasMove;
+    if(stayedInArea){s.safehouse_stay_days=(s.safehouse_stay_days||0)+1;}
+    if(hasWork&&!hasExplore&&!hasTalk&&!hasMove){s.work_only_days=(s.work_only_days||0)+1;}
+    if(hasMove&&!hasExplore&&!hasTalk&&!hasWork){s.move_only_days=(s.move_only_days||0)+1;}
+    if(hasItem&&!hasMove&&!hasExplore&&!hasTalk&&!hasWork){s.record_only_days=(s.record_only_days||0)+1;}
+    s._dayActions=[];
+
     // Auto-save after rest
     saveGame(s);
     s.transition='rest';
     if(!s.tutorialSeen.first_rest)s.tutorialSeen={...s.tutorialSeen,first_rest:true};
     return s;
   }
-  case 'DISMISS_PENDING':s.pendingEvent=null;s.pendingNpc=null;s.pendingGamble=null;ensureArr('objectives');s.objectives=checkObjCompletion(s.objectives,s);return s;
+  case 'WORK':{
+    if(s.ap<2){narr('system','行动点不足（需要2AP）。');return s;}
+    s.ap-=2;const earned=rand(3,12);s.money=(s.money||0)+earned;s.work_count=(s.work_count||0)+1;
+    if((s.money||0)>(s.hoarded_money_max||0))s.hoarded_money_max=s.money;
+    narr('system','你在码头帮了半天工。报酬微薄，但至少口袋里多了几枚硬币。金钱 +'+earned);
+    log('打工挣钱');return s;
+  }
+  // Dark actions
+  case 'SELF_HARM':{
+    if(s.ap<2){narr('system','行动点不足。');return s;}
+    s.ap-=2;s.self_harm_ritual_count=(s.self_harm_ritual_count||0)+1;s.fusion_and_self_harm_total=(s.fusion_and_self_harm_total||0)+1;
+    const sanLoss=rand(3,10);s.san=clamp(s.san-sanLoss,0,s.maxSan);
+    modHumanity(s,-10,'用刀在自己身上刻下符号');
+    addRunMemory(s,'第'+(s.self_harm_ritual_count)+'次。刀锋划过皮肤的时候，你觉得你正在写下什么东西。','madness');
+    narr('system','你用刀尖在皮肤上刻下了一个符号。你不知道它是什么意思。但你的手知道。SAN -'+sanLoss,{isSpecial:true});
+    if(Math.random()<0.3){s.pollution=Math.min(1,(s.pollution||0)+0.05);narr('system','符号在皮肤下微微发光，然后暗了下去。');}
+    return s;
+  }
+  case 'SPREAD_PROPHECY':{
+    if(s.ap<2){narr('system','行动点不足。');return s;}
+    s.ap-=2;s.prophecy_spread_count=(s.prophecy_spread_count||0)+1;
+    s.cult_leader_score=(s.cult_leader_score||0)+1;
+    const sanLoss=rand(2,5);s.san=clamp(s.san-sanLoss,0,s.maxSan);
+    modHumanity(s,-8,'向镇民散布不祥的预言');
+    narr('system','你站在镇中心的井边，对路过的人低声说出预言。他们的表情从怀疑变成了恐惧。但恐惧中有一丝——期待。SAN -'+sanLoss,{isSpecial:true});
+    return s;
+  }
+  case 'CONSUME_ARCHIVE':{
+    if(s.ap<2){narr('system','行动点不足。');return s;}
+    if(!s.clues||s.clues.length===0){narr('system','你没有可以吞噬的档案。');return s;}
+    s.ap-=2;s.archive_consumed_count=(s.archive_consumed_count||0)+1;
+    const removed=s.clues.pop();s.mythosLevel=(s.mythosLevel||0)+1;
+    modHumanity(s,-5,'吞噬了一条线索——让真相永远消失');
+    narr('system','你把笔记本上的一页撕下来，放进嘴里。纸是苦的。但你咽下去的时候，某种知识进入了你的血液。线索「'+(removed||'未知')+'」永远消失了。克苏鲁神话 +1',{isSpecial:true});
+    return s;
+  }
+  case 'SELF_SACRIFICE':{
+    if(s.ap<3){narr('system','行动点不足（需要3AP）。');return s;}
+    s.ap-=3;s.self_sacrifice_for_power=(s.self_sacrifice_for_power||0)+1;
+    s.mythosLevel=(s.mythosLevel||0)+3;s.pollution=Math.min(1,(s.pollution||0)+0.15);
+    const hpLoss=rand(4,10);s.hp=Math.max(1,s.hp-hpLoss);
+    s.maxSan=Math.max(10,s.maxSan-5);s.san=clamp(s.san-rand(5,15),0,s.maxSan);
+    modHumanity(s,-25,'为了力量献祭了自己的一部分');
+    addRunMemory(s,'你割下了自己的一部分。不是血肉——是更重要的东西。然后你感觉到了它。力量。冰冷，安静，确凿。','madness');
+    narr('system','你闭上眼，放弃了某种无法命名但你知道一直在那里的东西。然后——力量来了。冰冷，安静，确凿。HP -'+hpLoss+'，SAN上限永久 -5，克苏鲁神话 +3',{isSpecial:true});
+    return s;
+  }
+  // Area-specific actions
+  case 'DESECRATE':{
+    if(s.ap<2){narr('system','行动点不足。');return s;}
+    const desecrateAreas=['town_center','harbor_district'];
+    if(!desecrateAreas.includes(s.currentArea)){narr('system','这里没有可以亵渎的圣地。');return s;}
+    s.ap-=2;s.sacred_desecration_count=(s.sacred_desecration_count||0)+1;
+    const sanLoss=rand(4,12);s.san=clamp(s.san-sanLoss,0,s.maxSan);
+    modHumanity(s,-15,'亵渎了神圣之地');
+    narr('system','你找到了角落里那座被遗忘的神龛。你做了不可挽回的事。地面在你脚下微微震动——然后停了。仿佛某种东西屏住了呼吸。SAN -'+sanLoss,{isSpecial:true});
+    if(s.currentArea==='town_center')s.safehouseCorruption=(s.safehouseCorruption||0)+2;
+    return s;
+  }
+  case 'BREAK_SEAL':{
+    if(s.ap<3){narr('system','行动点不足（需要3AP）。');return s;}
+    if(!['catacombs_entrance','deep_catacombs','ruins_of_yith'].includes(s.currentArea)){narr('system','这里没有封印可以破坏。');return s;}
+    s.ap-=3;setCorruptionFlag(s,'seal_desecrated');
+    if(['deep_catacombs','ruins_of_yith'].includes(s.currentArea))setCorruptionFlag(s,'destroyed_time_core');
+    s.sealState='critical';s.pollution=Math.min(1,(s.pollution||0)+0.2);
+    s.loop_break_attempts=(s.loop_break_attempts||0)+1;
+    const sanLoss=rand(8,20);s.san=clamp(s.san-sanLoss,0,s.maxSan);
+    modHumanity(s,-25,'试图破坏封印');
+    addRunMemory(s,'你把手放在封印上。然后你推了。','death');
+    narr('system','封印表面出现了一道裂痕。光从裂缝中漏出来。不是自然的光——是某种粘稠的、缓慢流动的光。你感到整个世界晃了一下。SAN -'+sanLoss,{isSpecial:true});
+    return s;
+  }
+  case 'CHOICE_SELECT':{ensureMutableArrays();cloneInv();
+    const pc=s.pendingChoice;if(!pc)return s;
+    const choiceIdx=action.choiceIdx;
+    const choice=pc.choices[choiceIdx];
+    if(!choice){s.pendingChoice=null;return s;}
+    s.pendingChoice=null;
+    narr('system',choice.text,{isSpecial:true});
+    applyLegacyEffects(s,choice.effects);
+    // Death check after choice effects
+    {const deathCtx=resolveDeath(s,pc.evt,choice);
+      if(deathCtx){
+        s.deathContext=deathCtx;s.lastDeathType=deathCtx.type;s.lastDeathMode=deathCtx.mode;
+        narr('death',deathCtx.finalText,{isSpecial:true});
+        const ending=checkEnding(s,ctx);
+        if(ending)s.ending={...ending,recap:buildDeathRecap(s,deathCtx)};
+        else s.ending={name:deathCtx.type,type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};
+        addRunMemory(s,deathCtx.finalText.split('\n')[0],'death');
+      }}
+    s.objectives=checkObjCompletion(s.objectives,s);
+    log('选择：'+choice.label);
+    return s;
+  }
+  case 'DISMISS_PENDING':s.pendingEvent=null;s.pendingNpc=null;s.pendingGamble=null;s.pendingChoice=null;ensureArr('objectives');s.objectives=checkObjCompletion(s.objectives,s);return s;
   case 'CLEAR_TRANSITION':s.transition=null;return s;
   case 'AUDIO_MUTE_TOGGLE':s.audioMuted=!s.audioMuted;audioManager.setMuted(s.audioMuted);return s;
   case 'ACCESSIBILITY_TOGGLE':{
@@ -993,6 +1294,8 @@ function gameReducer(state,action){
         if(baseSanDmg>0){s.san=clamp(s.san-baseSanDmg,0,s.maxSan);narr('system','SAN -'+baseSanDmg,{isEffect:true});if(baseSanDmg>=3)audioManager.playEffect('san_loss');}
       }
     }
+    // Apply event effects BEFORE death check
+    applyLegacyEffects(s,evt.effects);
     // Post-gamble: check death (unified)
     {
       const deathCtx = resolveDeath(s, evt, null);
@@ -1006,12 +1309,13 @@ function gameReducer(state,action){
         else{s.ending={name:deathCtx.type,type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};}
       }
     }
-    applyLegacyEffects(s,evt.effects);
     s.objectives=checkObjCompletion(s.objectives,s);
     log('探索(赌博)：'+evt.name);
     return s;
   }
   case 'NEW_GAME':{
+    // Track refusal of final choice (player chose to loop again rather than accept ending)
+    if(s.ending)s.final_choice_refused_count=(s.final_choice_refused_count||0)+1;
     // Build previous run summary before reset (extended events system)
     const prevSummary = buildPreviousRunSummary(s);
     const f=initialState();
@@ -1055,7 +1359,56 @@ function gameReducer(state,action){
     f.retainedKnowledge=[...(s.retainedKnowledge||[])];
     f.discoveredConclusions=[...(s.discoveredConclusions||[])];
     f.humanityScore=s.humanityScore||50;
-    f.tutorialSeen={...(s.tutorialSeen||{})};
+    // Carry over behavior kill counters for behavior endings
+    f.direct_kill_count=s.direct_kill_count||0;
+    f.cannibalism_count=s.cannibalism_count||0;
+    f.clean_kill_pattern=s.clean_kill_pattern||0;
+    f.npc_deaths_by_manipulation=s.npc_deaths_by_manipulation||0;
+    f.cult_leader_score=s.cult_leader_score||0;
+    // Carry over ALL behavior ending counters
+    f.self_harm_ritual_count=s.self_harm_ritual_count||0;
+    f.fusion_accepted_count=s.fusion_accepted_count||0;
+    f.possession_accepted_count=s.possession_accepted_count||0;
+    f.forbidden_intimacy_flags=s.forbidden_intimacy_flags||0;
+    f.sacred_desecration_count=s.sacred_desecration_count||0;
+    f.same_npc_harm_max=s.same_npc_harm_max||0;
+    f._npc_harm_tally={...(s._npc_harm_tally||{})};
+    f.npc_as_resource_count=s.npc_as_resource_count||0;
+    f.betrayed_high_trust_npcs=s.betrayed_high_trust_npcs||0;
+    f.self_sacrifice_for_power=s.self_sacrifice_for_power||0;
+    f.fusion_and_self_harm_total=s.fusion_and_self_harm_total||0;
+    f.harbor_visits=s.harbor_visits||0;
+    f.sea_acceptance_flags=s.sea_acceptance_flags||0;
+    f.sleep_streak=0; // Reset daily tracking
+    f.work_only_days=s.work_only_days||0;
+    f.safehouse_stay_days=s.safehouse_stay_days||0;
+    f.move_only_days=s.move_only_days||0;
+    f.record_only_days=s.record_only_days||0;
+    f.low_intervention_count=s.low_intervention_count||0;
+    f.work_count=s.work_count||0;
+    f.hoarded_money_max=s.hoarded_money_max||0;
+    f.hoarded_food_max=s.hoarded_food_max||0;
+    f.archive_consumed_count=s.archive_consumed_count||0;
+    f.prophecy_spread_count=s.prophecy_spread_count||0;
+    f.redeemed_npcs=s.redeemed_npcs||0;
+    f.thirteenth_bell_obsession=s.thirteenth_bell_obsession||0;
+    f.meta_boundary_breaks=s.meta_boundary_breaks||0;
+    f.final_choice_refused_count=s.final_choice_refused_count||0;
+    f.save_delete_attempts=s.save_delete_attempts||0;
+    f.loop_exploit_score=s.loop_exploit_score||0;
+    f.loop_break_attempts=s.loop_break_attempts||0;
+    f.money=s.money||0;
+    // Track loop_break_attempts when player broke seal or desecrated in previous run
+    if((s.sacred_desecration_count||0)>0||s.triggeredEvents.includes('seal_desecrated')){
+      f.loop_break_attempts=(s.loop_break_attempts||0)+1;
+    }
+    // Track save_delete_attempts from save system
+    f.save_delete_attempts=s.save_delete_attempts||0;
+    // Track loop_exploit_score: player carries knowledge across loops
+    if(s.retainedKnowledge.length>5)f.loop_exploit_score=(s.loop_exploit_score||0)+1;
+    // Track contradictory extremes
+    if((s.humanityScore||50)>=30&&(s.direct_kill_count||0)>=3)setCorruptionFlag(s,'has_committed_contradictory_extremes');
+
     f.mythosLevel=Math.max(0,(s.mythosLevel||0)-2); // Mythos fades slightly between loops
     // Apply knowledge effects
     if(f.retainedKnowledge.includes('knowledge_npc_trust_shadow')){
@@ -1195,6 +1548,7 @@ const LeftPanel=memo(function LeftPanel({state}){
     <StatBar label="SAN" value={state.san} max={state.maxSan} cls={'san'+(state.san<=30?' low':state.san<=50?' mid':'')}/>
     <StatBar label="AP" value={state.ap} max={state.maxAp} cls="ap"/>
     <StatBar label="食物" value={state.food||0} max={state.maxFood||5} cls="food"/>
+    <div style={{fontSize:'0.75rem',padding:'0.15rem 0'}}><span style={{color:'var(--text-dim)'}}>金钱</span> <span style={{color:'var(--gold)'}}>{state.money||0}</span></div>
     <div className="panel-title" style={{marginTop:'0.5rem'}}>属性</div>
     <div className="base-stats">{Object.entries(state.stats).map(([k,v])=><div key={k} className="base-stat"><div className="label">{k}</div><div className="val">{v}</div></div>)}</div>
     <div className="panel-title">技能 Top10</div>
@@ -1227,12 +1581,25 @@ function NPCDialog({npc,trust,layer,dispatch,state}){
   const [show,setShow]=useState(false);
   const ns=state?.npcStates?.[npc.name]||{};
   const npcImage=getNpcImage(npc.name,state?.npcStates);
+  const postKill=state?.pendingNpc?.postKill;
+  if(postKill){
+    return <div className="narrative-block npc-dialogue"><div className="skill-check" style={{borderLeft:'2px solid var(--danger)'}}>
+      <div style={{color:'var(--danger2)',fontSize:'0.9rem',marginBottom:'0.3rem'}}>{npc.name} 已死</div>
+      <div style={{color:'var(--text-dim)',fontSize:'0.8rem',lineHeight:'1.7',marginBottom:'0.6rem'}}>尸体在你面前。你需要决定接下来怎么做。</div>
+      <div style={{display:'flex',flexDirection:'column',gap:'0.3rem'}}>
+        <button className="btn btn-sm" onClick={()=>dispatch({type:'NPC_RESPONSE',choice:'post_kill_hide'})}>隐藏尸体<span className="cost">1 AP 痕迹+1</span></button>
+        <button className="btn btn-sm" style={{color:'var(--danger2)'}} onClick={()=>dispatch({type:'NPC_RESPONSE',choice:'post_kill_cannibal'})}>食用<span className="cost">食物+2 SAN大幅下降</span></button>
+        <button className="btn btn-sm" onClick={()=>dispatch({type:'NPC_RESPONSE',choice:'post_kill_leave'})}>离开现场</button>
+      </div>
+    </div></div>;
+  }
   return <div className="narrative-block npc-dialogue"><div className="skill-check">
     {npcImage&&<img className="npc-portrait" src={npcImage} alt={npc.name+'立绘'} onError={e=>{e.currentTarget.style.display='none';}}/>}
     <div style={{color:'var(--cyan)',fontSize:'0.9rem',marginBottom:'0.3rem'}}>与 {npc.name} 交谈</div>
     <div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.3rem'}}>{npc.role}</div>
     <div style={{fontSize:'0.75rem',color:'var(--gold)',marginBottom:'0.3rem'}}>信任：{'★'.repeat(Math.max(0,trust))}{'☆'.repeat(Math.max(0,5-trust))}</div>
     {ns.corrupted&&<div style={{fontSize:'0.7rem',color:'var(--danger2)',marginBottom:'0.3rem'}}>⚠ 该NPC已被腐蚀</div>}
+    {ns.fled&&<div style={{fontSize:'0.7rem',color:'var(--danger2)',marginBottom:'0.3rem'}}>⚠ 该NPC已逃走</div>}
     {layer&&<div style={{color:'var(--text)',lineHeight:'1.8',marginBottom:'0.5rem',fontSize:'0.85rem'}}>{ns.corrupted?'（'+npc.name+'的状态不对，说话含混不清。）':layer.dialogue}</div>}
     {layer?.hint&&!ns.corrupted&&<div style={{fontSize:'0.7rem',color:'var(--gold)',fontStyle:'italic',marginBottom:'0.5rem'}}>{layer.hint}</div>}
     {!show?<button className="btn btn-sm" onClick={()=>setShow(true)}>回应</button>
@@ -1241,8 +1608,14 @@ function NPCDialog({npc,trust,layer,dispatch,state}){
       {trust>=1&&npc.secrets&&trust<=npc.secrets.length&&<button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'get_item'});setShow(false)}}>询问更多信息</button>}
       {state?.food>0&&<button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'share_food'});setShow(false)}}>分享食物<span className="cost">食物-1 信任+1</span></button>}
       {ns.corrupted&&trust>=4&&<button className="btn btn-sm" style={{color:'var(--gold)'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'redeem'});setShow(false)}}>尝试救赎</button>}
+      {trust>=3&&<button className="btn btn-sm" style={{color:'var(--gold)'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'preach'});setShow(false)}}>传教<span className="cost">2 AP 神秘学检定</span></button>}
+      {trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'incite'});setShow(false)}}>陷害<span className="cost">2 AP 话术检定</span></button>}
+      {trust>=2&&<button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'exploit_npc'});setShow(false)}}>利用<span className="cost">1 AP 信任-2</span></button>}
+      {trust>=3&&<button className="btn btn-sm" style={{color:'var(--danger2)'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'betray_npc'});setShow(false)}}>背叛<span className="cost">1 AP 信任清零</span></button>}
+      {ns.corrupted&&trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'intimacy'});setShow(false)}}>靠近<span className="cost">2 AP SAN-</span></button>}
       <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'silence'});setShow(false)}}>沉默</button>
       <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'leave'});setShow(false)}}>告别</button>
+      <button className="btn btn-sm btn-danger" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'attack'});setShow(false)}}>攻击<span className="cost">2 AP 格斗检定</span></button>
     </div>}
   </div></div>;
 }
@@ -1294,8 +1667,14 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
           })}
         </div>
       </div></div>}
+      {state.pendingChoice&&<div className="narrative-block"><div className="skill-check">
+        <div className="check-title">选择</div>
+        <div style={{display:'flex',flexDirection:'column',gap:'0.3rem',marginTop:'0.3rem'}}>
+          {state.pendingChoice.choices.map((ch,i)=><button key={i} className="btn btn-sm" onClick={()=>dispatch({type:'CHOICE_SELECT',choiceIdx:i})}>{ch.label}</button>)}
+        </div>
+      </div></div>}
     </div>
-    {!state.pendingEvent?.rolled&&!state.pendingNpc&&!state.pendingGamble&&!state.ending&&<div className="action-area">
+    {!state.pendingEvent?.rolled&&!state.pendingNpc&&!state.pendingGamble&&!state.pendingChoice&&!state.ending&&<div className="action-area">
       {(() => {
         const ts=state.tutorialSeen||{};
         const hints=[
@@ -1311,7 +1690,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
       })()}
       <div className="action-grid">
       <button className="action-btn" onClick={()=>dispatch({type:'EXPLORE'})} disabled={state.ap<2}>{getOptionText('investigate_sound',state.san)||'探索区域'}<span className="cost">2 AP</span></button>
-      {conn.map(aid=>{const a=areas.find(ar=>ar.id===aid);if(!a)return null;const unlocked=isAreaUnlocked(a,state.day);const isRumor=a.chapter_1_role==='rumor_only'&&!unlocked;return <button key={aid} className="action-btn" onClick={()=>dispatch({type:'MOVE',areaId:aid})} disabled={state.ap<1||!unlocked}>{isRumor?'听说：':''}前往{a.name}{!unlocked?' [锁定]':''}<span className="cost">{!unlocked?'需要线索':'1 AP'}</span></button>;})}
+      {conn.map(aid=>{const a=areas.find(ar=>ar.id===aid);if(!a)return null;const unlocked=isAreaUnlocked(a,state);const isRumor=a.chapter_1_role==='rumor_only'&&!unlocked;return <button key={aid} className="action-btn" onClick={()=>dispatch({type:'MOVE',areaId:aid})} disabled={state.ap<1||!unlocked}>{isRumor?'听说：':''}前往{a.name}{!unlocked?' [锁定]':''}<span className="cost">{!unlocked?'需要线索':'1 AP'}</span></button>;})}
       {npcs.map(n=><button key={n.name} className="action-btn" onClick={()=>dispatch({type:'TALK_NPC',npc:n})} disabled={state.ap<1}>与{n.name}交谈<span className="cost">1 AP</span></button>)}
       {state.inventory.filter(i=>i.uses!==0).map((it,i)=>{
         const label=itemUseInfo[it.name];if(!label)return null;
@@ -1319,7 +1698,25 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
       })}
       {getAvailableSafehouses(state).filter(sh=>state.currentSafehouse!==sh.name).map(sh=><button key={sh.name} className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:sh.name})}>搬到{sh.name}<span className="cost">SAN恢复+{sh.functions?.san_restore||0}</span></button>)}
       {state.currentSafehouse!=='main'&&<button className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:'main'})}>回酒馆<span className="cost">返回原安全屋</span></button>}
+      <button className="action-btn" onClick={()=>dispatch({type:'WORK'})} disabled={state.ap<2}>打工挣钱<span className="cost">2 AP</span></button>
+      {['town_center','harbor_district'].includes(state.currentArea)&&<button className="action-btn" style={{color:'var(--danger2)'}} onClick={()=>dispatch({type:'DESECRATE'})} disabled={state.ap<2}>亵渎圣地<span className="cost">2 AP</span></button>}
+      {['catacombs_entrance','deep_catacombs','ruins_of_yith'].includes(state.currentArea)&&<button className="action-btn" style={{color:'var(--danger2)'}} onClick={()=>dispatch({type:'BREAK_SEAL'})} disabled={state.ap<3}>破坏封印<span className="cost">3 AP</span></button>}
       <button className="action-btn" onClick={()=>dispatch({type:'REST'})}>{getOptionText('rest_at_safehouse',state.san)||'结束今日'}<span className="cost">休息恢复</span></button>
+      {/* 隐秘行动 */}
+      {(()=>{
+        const darkActions=[];
+        if(state.san<60||state.pollution>0.2)darkActions.push({type:'SELF_HARM',label:'自残仪式',cost:'2 AP SAN- 人性-',style:{color:'var(--danger2)'}});
+        if((state.cult_leader_score||0)>=1||(state.mythosLevel||0)>=2)darkActions.push({type:'SPREAD_PROPHECY',label:'散布预言',cost:'2 AP SAN- 追随+',style:{color:'var(--gold)'}});
+        if(state.clues&&state.clues.length>=2)darkActions.push({type:'CONSUME_ARCHIVE',label:'吞噬档案',cost:'2 AP 线索消失',style:{color:'var(--cyan)'}});
+        if((state.mythosLevel||0)>=2)darkActions.push({type:'SELF_SACRIFICE',label:'自我献祭',cost:'3 AP 永久代价',style:{color:'var(--danger2)'}});
+        if(darkActions.length===0)return null;
+        return <div style={{marginTop:'0.5rem',padding:'0.4rem',background:'rgba(138,48,48,0.06)',border:'1px solid rgba(138,48,48,0.15)',borderRadius:'4px'}}>
+          <div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.3rem',textAlign:'center'}}>隐秘行动</div>
+          <div style={{display:'flex',gap:'0.3rem',flexWrap:'wrap'}}>
+            {darkActions.map(da=><button key={da.type} className="action-btn" style={{...da.style,flex:'1 1 auto',minWidth:'0'}} onClick={()=>dispatch({type:da.type})} disabled={state.ap<(da.type==='SELF_SACRIFICE'?3:2)}>{da.label}<span className="cost">{da.cost}</span></button>)}
+          </div>
+        </div>;
+      })()}
     </div></div>}
     {state.eventLog.length>0&&<div className="event-log">{state.eventLog.slice(-8).map((l,i)=><div key={i} className="log-entry"><span className="log-day">[Day {l.day}]</span> {l.text}</div>)}</div>}
   </div>;
@@ -1349,7 +1746,7 @@ const RightPanel=memo(function RightPanel({state,dispatch}){
     <div className="panel-title">地图</div>
     <div className="map-section">{areas.map(a=>{
       const vis=state.visitedAreas.includes(a.id);const reach=conn.includes(a.id);
-      const unlocked=isAreaUnlocked(a,state.day);
+      const unlocked=isAreaUnlocked(a,state);
       const isLocked=!unlocked&&!vis;
       const isRumor=a.chapter_1_role==='rumor_only'&&!unlocked&&!vis;
       const displayName=vis?getAreaDisplayName(a,state):(isRumor?a.early_game_alias||'???':'???');
