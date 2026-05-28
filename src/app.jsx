@@ -99,7 +99,7 @@ const initialState=()=>{
   tempSkillBonus:null,
   stats_run:{deaths:0,runs:1,checks_passed:0,checks_failed:0,days_best:0,max_san_loss_single:0,total_san_loss:0,deepest_area_danger:0},
   ch1IntroComplete:false,
-  food:3,maxFood:5,lightLevel:2,
+  food:3,maxFood:5,lightLevel:2,starvationDays:0,
   loopCount:0,pollution:0,
   areaNameCache:{},
   retainedKnowledge:[],
@@ -945,6 +945,7 @@ function gameReducer(state,action){
     }else if(choice==='post_kill_cannibal'){
       s.cannibalism_count=(s.cannibalism_count||0)+1;
       s.food=Math.min(s.maxFood,(s.food||0)+2);
+      s.starvationDays=0; // 饥饿解除
       const sanLoss=rand(8,20);
       s.san=clamp(s.san-sanLoss,0,s.maxSan);
       modHumanity(s,-30,'食用了'+npc.name+'的肉体');
@@ -1044,9 +1045,30 @@ function gameReducer(state,action){
     const restArea=getAreaInfo(s.currentArea,ctx);
     const foodMod=restArea?.resource_pressure?.food_consumption_modifier||1.0;
     const foodConsume=Math.ceil(1*foodMod);
-    s.food=Math.max(0,(s.food||3)-foodConsume);
+    s.food=Math.max(0,(s.food??0)-foodConsume);
+    // Starvation system: track consecutive days without food
     if(s.food<=0){
-      narr('system','你腹中空空，饥饿让意志动摇。疲劳感加剧。',{isSpecial:true});
+      s.starvationDays=(s.starvationDays||0)+1;
+      const sd=s.starvationDays;
+      if(sd===1){
+        // Day 1: SAN -1, light hunger text
+        s.san=clamp(s.san-1,0,s.maxSan);
+        narr('system','你腹中空空。胃部的抽搐让你难以集中注意力。',{isSpecial:true});
+      }else if(sd===2){
+        // Day 2: HP -1, skill check -5
+        s.hp=Math.max(1,s.hp-1);
+        narr('system','饥饿在啃噬你的意志。你的手脚开始发软，动作变得迟缓。',{isSpecial:true});
+      }else{
+        // Day 3+: HP -2, skill check -10, death chance
+        s.hp=Math.max(1,s.hp-2);
+        narr('system','你的身体已经开始消耗自身。视线模糊，每一个动作都是折磨。',{isSpecial:true});
+        // Death chance scales with starvation days (10% base + 5% per extra day)
+        if(Math.random()<(0.10+(sd-3)*0.05)){
+          narr('system','你的身体再也无法支撑……饥饿夺走了最后一点意识。',{isDeath:true,isSpecial:true});
+          s.pendingDeath={type:'starvation',reason:'连续'+sd+'天未进食，饿死在沃切斯特'};
+          return s;
+        }
+      }
       // Starvation: NPC trust decay chance
       const npcs=GD.npcs||GD.module3_npcs||[];
       npcs.forEach(npc=>{
@@ -1054,6 +1076,9 @@ function gameReducer(state,action){
           s.npcTrust[npc.name]=Math.max(0,s.npcTrust[npc.name]-1);
         }
       });
+    }else{
+      // Food recovered — reset starvation counter
+      s.starvationDays=0;
     }
     // Safehouse degradation
     s.safehouseCorruption=processSafehouseNight(s,ctx);

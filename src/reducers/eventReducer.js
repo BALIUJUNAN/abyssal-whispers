@@ -95,7 +95,9 @@ export function selectEvent(areaId, state, ctx, pick) {
 export function doSkillCheck(skillName, threshold, state, difficulty, ctx) {
   const { GD } = ctx;
   const tempBonus = (state.tempSkillBonus && state.tempSkillBonus.skill === skillName) ? state.tempSkillBonus.bonus : 0;
-  const playerSkill = (state.skills[skillName] || 0) + tempBonus;
+  // Starvation penalty: Day2=-5, Day3+=-10
+  const starvePenalty = (state.starvationDays >= 3) ? -10 : (state.starvationDays === 2) ? -5 : 0;
+  const playerSkill = (state.skills[skillName] || 0) + tempBonus + starvePenalty;
   const roll = d100();
   const dl = GD.core_loop?.difficulty_levels?.[difficulty] || {};
   const diffBonus = dl.skill_check_bonus || 0;

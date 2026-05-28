@@ -27,6 +27,7 @@ export function applyEffects(state, effects, context) {
         const res = eff.resource || 'food';
         if (res === 'food') {
           state.food = Math.min(state.maxFood || 5, (state.food || 0) + (eff.amount || 0));
+          if (state.food > 0) state.starvationDays = 0; // 饥饿解除
         } else if (res === 'light') {
           state.lightLevel = Math.max(0, Math.min(3, (state.lightLevel || 0) + (eff.amount || 0)));
         } else {
