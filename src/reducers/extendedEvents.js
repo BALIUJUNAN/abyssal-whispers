@@ -451,7 +451,7 @@ export function applyExtendedEffect(state, eff) {
   switch (eff.type) {
     case 'modify_humanity': {
       const amount = eff.amount || 0;
-      state.humanityScore = clamp((state.humanityScore || 50) + amount, 0, 100);
+      state.humanityScore = clamp((state.humanityScore ?? 50) + amount, 0, 100);
       return true;
     }
     case 'modify_mythos': {
@@ -530,7 +530,7 @@ export function buildPreviousRunSummary(state) {
     deathType,
     deathArea: state.currentArea || null,
     day: state.day || 1,
-    humanity: state.humanityScore || 50,
+    humanity: state.humanityScore ?? 50,
     mythos: state.mythosLevel || 0,
     highTrustNpcs,
     triggeredKeyEvents: (state.triggeredEvents || []).filter(id =>

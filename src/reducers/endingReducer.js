@@ -44,7 +44,7 @@ const CONDITION_VAR_MAP = {
   hp: s=>s.hp||0,
   player_hp: s=>s.hp||0,
   day: s=>s.day||1,
-  player_humanity_score: s=>s.humanityScore||50,
+  player_humanity_score: s=>s.humanityScore??50,
   // NPC trust (main ending variables)
   hilda_trust: s=>(s.npcTrust||{})['希尔达·莫里斯']||0,
   old_fisher_trust: s=>(s.npcTrust||{})['老费舍']||0,

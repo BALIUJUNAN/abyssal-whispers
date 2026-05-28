@@ -360,7 +360,7 @@ function getCorruptedSystemText(baseText, layer){
 
 // === Humanity Tracking (implementation_notes.ending_system_v2) ===
 function modHumanity(state, amount, reason){
-  state.humanityScore=clamp((state.humanityScore||50)+amount,0,100);
+  state.humanityScore=clamp((state.humanityScore??50)+amount,0,100);
   if(Math.abs(amount)>=5){
     const narr=state.narrative;
     const label=amount>0?'人性光辉':'人性暗面';
@@ -523,7 +523,7 @@ function gameReducer(state,action){
   case 'ROLL_STATS':{
     const d=(GD.systems?.player?.default_template||GD.module5_player?.default_template||{}).base_stats||{};
     const st={};
-    Object.entries(d).forEach(([k,v])=>{st[k]=typeof v==='object'?rollDice(v.dice)*(v.multiplier||5):50;});
+    Object.entries(d).forEach(([k,v])=>{st[k]=typeof v==='object'?rollDice(v.dice)*(v.multiplier??5):50;});
     // Apply archetype stat modifiers (P1-1)
     const archDef=(GD.systems?.player?.archetypes||[]).find(a=>a.id===s.archetype);
     if(archDef?.stat_modifiers){Object.entries(archDef.stat_modifiers).forEach(([k,v])=>{st[k]=(st[k]||50)+v;});}
@@ -1438,7 +1438,7 @@ function gameReducer(state,action){
     // Carry over retained knowledge and conclusions
     f.retainedKnowledge=[...(s.retainedKnowledge||[])];
     f.discoveredConclusions=[...(s.discoveredConclusions||[])];
-    f.humanityScore=s.humanityScore||50;
+    f.humanityScore=s.humanityScore??50;
     // Carry over behavior kill counters for behavior endings
     f.direct_kill_count=s.direct_kill_count||0;
     f.cannibalism_count=s.cannibalism_count||0;
@@ -1487,7 +1487,7 @@ function gameReducer(state,action){
     // Track loop_exploit_score: player carries knowledge across loops
     if(s.retainedKnowledge.length>5)f.loop_exploit_score=(s.loop_exploit_score||0)+1;
     // Track contradictory extremes
-    if((s.humanityScore||50)>=30&&(s.direct_kill_count||0)>=3)setCorruptionFlag(s,'has_committed_contradictory_extremes');
+    if((s.humanityScore??30)>=30&&(s.direct_kill_count||0)>=3)setCorruptionFlag(s,'has_committed_contradictory_extremes');
 
     f.mythosLevel=Math.max(0,(s.mythosLevel||0)-2); // Mythos fades slightly between loops
     // Apply knowledge effects
@@ -1513,7 +1513,7 @@ function gameReducer(state,action){
       ending_name: s.ending?.name || null,
       loop: s.loopCount || 0,
       day: s.day || 1,
-      humanity: s.humanityScore || 50,
+      humanity: s.humanityScore ?? 50,
     }];
     f.loopEchoFlags = [...(s.loopEchoFlags || [])];
     f.worldCorrectionFlags = [...(s.worldCorrectionFlags || [])];

@@ -32,7 +32,7 @@ export function applyNPCCorruption(state, npc, trigger, narr) {
     narr('system', npc.name + '："' + trigger.dialogue_after + '"');
   }
   if (trigger.humanity_cost) {
-    state.humanityScore = Math.max(0, (state.humanityScore || 50) + trigger.humanity_cost);
+    state.humanityScore = Math.max(0, (state.humanityScore ?? 50) + trigger.humanity_cost);
   }
 }
 
