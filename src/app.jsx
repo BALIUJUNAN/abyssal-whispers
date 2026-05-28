@@ -8,7 +8,9 @@ import { checkTrigger, selectEvent, doSkillCheck, getGambleOptions, processNorma
 import { applyEffects, applyLegacyEffects } from './reducers/effectReducer.js';
 import { getItemDef, useItemByDef } from './reducers/itemReducer.js';
 import { genObjectives, checkObjCompletion } from './reducers/objectiveReducer.js';
-import { saveGame, loadGame, clearSave, hasSave } from './reducers/saveReducer.js';
+import { saveGame, loadGame, clearSave, hasSave, getAllSlots, autoSave, manualSave, loadSlot, deleteSlotById, migrateOldSave } from './reducers/saveReducer.js';
+import { loadSettings, saveSettings } from './reducers/settingsReducer.js';
+import { loadAchievements, saveAchievements, checkAchievements, getAchievementDef, getAllAchievements, incrementStat, resetRunStats } from './reducers/achievementReducer.js';
 import { getPollutionText } from './reducers/loopReducer.js';
 import { getChapterForDay, getMythosCap, getChapterAlias, checkChapterTransition, getMotifFlavorText, getMonsterManifestation } from './reducers/chapterReducer.js';
 import { checkConclusions, checkFalseInterpretations } from './reducers/conclusionReducer.js';
@@ -26,13 +28,91 @@ const ctx={GD};
 
 // === Audio Manager (Module 4) ===
 const AUDIO_PATHS={
+  // Legacy fallback
   ambient_day:'audio/ambient_day_loop.mp3',
   ambient_night:'audio/ambient_night_loop.mp3',
+  // Area ambient loops
+  amb_town_day:'audio/amb_town_day_loop.wav',
+  amb_town_night:'audio/amb_town_night_loop.wav',
+  amb_harbor_day:'audio/amb_harbor_day_loop.wav',
+  amb_harbor_night:'audio/amb_harbor_night_loop.wav',
+  amb_lighthouse:'audio/amb_lighthouse_wind_loop.wav',
+  amb_manor:'audio/amb_manor_hall_loop.wav',
+  amb_catacombs:'audio/amb_catacombs_drip_loop.wav',
+  amb_forest:'audio/amb_forest_whisper_loop.wav',
+  // Bell variants
+  bell_normal:'audio/bell_12_normal.wav',
+  bell_reverse:'audio/bell_13_reverse.wav',
+  bell_underwater:'audio/bell_13_underwater.wav',
+  bell_wrong:'audio/bell_13_wrong.wav',
+  bell_memory:'audio/bell_memory_after_death.wav',
+  // SAN loss (tiered)
   san_loss:'audio/san_drop_heartbeat.mp3',
-  wall_break:'audio/break_wall_noise.mp3',
+  san_loss_minor:'audio/san_loss_minor.wav',
+  san_loss_medium:'audio/san_loss_medium.wav',
+  san_loss_major:'audio/san_loss_major.wav',
+  san_critical_breath:'audio/san_critical_layer_breath.wav',
+  // Death variants
+  death_physical:'audio/death_physical_short.wav',
+  death_mental:'audio/death_san_collapse.wav',
+  death_hybrid:'audio/death_hybrid_void.wav',
+  // Madness
   madness:'audio/madness_tinnitus.mp3',
-  begin:'audio/begin_low_bell.mp3'
+  madness_loop:'audio/madness_tinnitus_loop_short.wav',
+  // Wall break / corruption
+  wall_break:'audio/break_wall_noise.mp3',
+  catacombs_stone:'audio/catacombs_stone_shift.wav',
+  // Clue / discovery
+  clue_found:'audio/clue_found.wav',
+  // Items
+  item_gain:'audio/item_gain.wav',
+  item_use:'audio/item_use.wav',
+  // Skill checks
+  skill_roll:'audio/skill_roll.wav',
+  skill_success:'audio/skill_success.wav',
+  skill_fail:'audio/skill_fail.wav',
+  skill_critical_fail:'audio/skill_critical_fail.wav',
+  // Loop system
+  loop_memory:'audio/loop_memory_flash.wav',
+  loop_pollution:'audio/loop_pollution_gain.wav',
+  loop_restart:'audio/loop_restart_breath.wav',
+  // Area-specific events
+  harbor_water_omen:'audio/harbor_water_omen.wav',
+  lighthouse_lens_crack:'audio/lighthouse_lens_crack.wav',
+  // Begin / first bell
+  begin:'audio/begin_low_bell.mp3',
+  // UI
+  ui_click:'audio/ui_click_soft.wav',
+  ui_click_forbidden:'audio/ui_click_forbidden.wav',
+  ui_hover:'audio/ui_hover_paper.wav',
+  ui_panel_open:'audio/ui_panel_open.wav',
+  ui_panel_close:'audio/ui_panel_close.wav',
+  ui_log_write:'audio/ui_log_write.wav',
+  ui_save:'audio/ui_save.wav',
+  ui_error:'audio/ui_error_soft.wav',
+  // Safehouse / rest voice lines
+  rest_generic:'audio/安全屋休息 1.wav',
+  rest_alt:'audio/安全屋休息 2.wav',
+  safehouse_breath:'audio/安全屋像在呼吸.wav',
+  safehouse_not_safe:'audio/不能叫安全屋.wav',
+  safehouse_wall:'audio/不是门外，是墙里.wav'
 };
+
+// Area → ambient key mapping
+const AREA_AMBIENT_MAP={
+  town_center:'amb_town',
+  harbor_district:'amb_harbor',
+  lighthouse:'amb_lighthouse',
+  voxchester_manor:'amb_manor',
+  catacombs_entrance:'amb_catacombs',
+  deep_catacombs:'amb_catacombs',
+  ruins_of_yith:'amb_catacombs',
+  whispering_forest:'amb_forest',
+  forbidden_grove:'amb_forest'
+};
+
+const SUDDEN_EFFECTS=['san_loss','san_loss_minor','san_loss_medium','san_loss_major','wall_break','madness','madness_loop','death_physical','death_mental','death_hybrid'];
+
 const audioManager={
   muted:false,suddenMuted:false,ambientEl:null,_volumeScale:1,
   _play(src,loop=false){
@@ -41,14 +121,49 @@ const audioManager={
       const el=new Audio(src);el.loop=loop;el.volume=0.5*(this._volumeScale||1);el.play().catch(()=>{});return el;
     }catch(e){return null;}
   },
+  playAreaAmbient(areaId,phase){
+    try{
+      this.stopAmbient();
+      const base=AREA_AMBIENT_MAP[areaId];
+      if(!base){this.ambientEl=this._play(phase==='night'||phase==='midnight'?AUDIO_PATHS.ambient_night:AUDIO_PATHS.ambient_day,true);return;}
+      // Town/Harbor have day/night variants
+      const dayNightMap={amb_town:'amb_town',amb_harbor:'amb_harbor'};
+      if(dayNightMap[base]){
+        const suffix=(phase==='night'||phase==='midnight')?'_night':'_day';
+        const key=base+suffix;
+        this.ambientEl=this._play(AUDIO_PATHS[key],true);
+      }else{
+        this.ambientEl=this._play(AUDIO_PATHS[base],true);
+      }
+    }catch(e){}
+  },
   playAmbientDay(){try{this.stopAmbient();this.ambientEl=this._play(AUDIO_PATHS.ambient_day,true);}catch(e){}},
   playAmbientNight(){try{this.stopAmbient();this.ambientEl=this._play(AUDIO_PATHS.ambient_night,true);}catch(e){}},
   playEffect(type){
     try{
-      const sudden=['san_loss','wall_break','madness'];
-      if(this.suddenMuted&&sudden.includes(type))return;
+      if(this.suddenMuted&&SUDDEN_EFFECTS.includes(type))return;
       const src=AUDIO_PATHS[type];if(src)this._play(src);
     }catch(e){}
+  },
+  playSanLoss(dmg){
+    try{
+      if(this.suddenMuted)return;
+      if(dmg>=7){this._play(AUDIO_PATHS.san_loss_major);this._play(AUDIO_PATHS.san_critical_breath);}
+      else if(dmg>=5)this._play(AUDIO_PATHS.san_loss_major);
+      else if(dmg>=3)this._play(AUDIO_PATHS.san_loss_medium);
+      else if(dmg>=1)this._play(AUDIO_PATHS.san_loss_minor);
+    }catch(e){}
+  },
+  playSkillEffect(result){
+    try{
+      if(result==='critical_fail')this._play(AUDIO_PATHS.skill_critical_fail);
+      else if(result==='fail')this._play(AUDIO_PATHS.skill_fail);
+      else if(result==='success')this._play(AUDIO_PATHS.skill_success);
+      else this._play(AUDIO_PATHS.skill_roll);
+    }catch(e){}
+  },
+  playUI(type){
+    try{const src=AUDIO_PATHS['ui_'+type]||AUDIO_PATHS.ui_click;if(src)this._play(src);}catch(e){}
   },
   stopAmbient(){try{if(this.ambientEl){this.ambientEl.pause();this.ambientEl.currentTime=0;this.ambientEl=null;}}catch(e){}},
   setMuted(m){this.muted=m;if(m)this.stopAmbient();}
@@ -153,7 +268,11 @@ const initialState=()=>{
   money:0,
   _dayActions:[],
   _dayStartArea:null,
-  _lastAreaBeforeRest:null
+  _lastAreaBeforeRest:null,
+  _dayStartSan:null,
+  _dayStartHp:null,
+  _dayStartClueCount:null,
+  _dailyTrustGains:{}
   };
   // Extended event system fields (backward-compatible defaults)
   return ensureExtendedState(base);
@@ -412,7 +531,7 @@ function checkBreakWallEvent(state, narr){
   if(state.san>=30)return;
   if(Math.random()>=0.10)return;
   const r=Math.random();
-  audioManager.playEffect('wall_break');
+  audioManager.playEffect('wall_break');audioManager.playEffect('safehouse_wall');audioManager.playEffect('bell_wrong');
   if(r<0.33){
     // Effect 1: Fake save message
     narr('system','存档完成。Day '+state.day+' - '+(state.currentArea||'???'),{isSpecial:true});
@@ -467,6 +586,175 @@ function applyBlessing(state, blessing, narr){
     const skills=Object.keys(state.skills);
     if(skills.length>0){const sk=pick(skills);state.skills[sk]=(state.skills[sk]||0)+blessing.bonus_skill_points;}
   }
+}
+
+// === Trust Gate System (per-NPC) ===
+function checkTrustGate(nextTrust, s, npcName) {
+  const visited = s.visitedAreas || [];
+  const clues = s.clues || [];
+  const chains = s.completedChains || [];
+  const day = s.day || 1;
+  const harborVisits = s.harbor_visits || 0;
+  const hasChain = (id) => chains.includes(id);
+  const hasClue = (id) => clues.includes(id);
+  const hasAnyClueFrom = (ids) => ids.some(id => hasClue(id));
+  const harborClues = ['clue_1_1', 'clue_1_2', 'clue_1_3'];
+  const morrisClues = ['clue_m_1', 'clue_m_2', 'clue_m_3'];
+  const heresyClues = ['clue_h_1', 'clue_h_2', 'clue_h_3'];
+
+  // 伊莱亚斯·沃德 — 退休教授，神秘学家
+  if (npcName === '伊莱亚斯·沃德') {
+    if (nextTrust === 3) {
+      if (!visited.includes('lighthouse') && !visited.includes('catacombs_entrance') && clues.length < 1)
+        return '你需要先去探索灯塔或墓穴入口，或找到一些线索，他才会愿意深谈。';
+      return null;
+    }
+    if (nextTrust === 4) {
+      if (!hasAnyClueFrom([...morrisClues, ...heresyClues]) && day < 5)
+        return '他对你还不够了解。试着调查莫里斯家族或教堂的秘密，或者等到第5天。';
+      return null;
+    }
+    if (nextTrust === 5) {
+      if (chains.length < 1 && !(s.discoveredConclusions?.length > 0))
+        return '他需要看到你真正触及了真相的证据。完成一条线索链或达成一个结论。';
+      return null;
+    }
+  }
+
+  // 玛莎·格雷 — 码头酒吧老板娘
+  if (npcName === '玛莎·格雷') {
+    if (nextTrust === 3) {
+      if (!visited.includes('harbor_district'))
+        return '你还没去过码头区。去看看她丈夫曾经工作的地方吧。';
+      return null;
+    }
+    if (nextTrust === 4) {
+      if (!hasAnyClueFrom(harborClues) && harborVisits < 2)
+        return '你需要在码头区找到更多线索（失踪者名单、潮汐时刻表、酒馆传闻），或者多去几次码头。';
+      return null;
+    }
+    if (nextTrust === 5) {
+      if (!hasChain('chain_harbor'))
+        return '你还没有解开港口失踪案的真相。完成这条线索链，她才会告诉你最后的秘密。';
+      return null;
+    }
+  }
+
+  // 约书亚·布莱克 — 前海军陆战队员
+  if (npcName === '约书亚·布莱克') {
+    if (nextTrust === 3) {
+      if (!visited.includes('lighthouse') && harborVisits < 2)
+        return '他只信任见过灯塔的人。去灯塔看看，或者多去几次码头。';
+      return null;
+    }
+    if (nextTrust === 4) {
+      if (!hasAnyClueFrom([...harborClues, 'clue_2_1', 'clue_2_2']) && day < 4)
+        return '他需要你带来灯塔或码头的情报。继续调查吧。';
+      return null;
+    }
+    if (nextTrust === 5) {
+      if (!hasChain('chain_harbor') && !visited.includes('deep_catacombs'))
+        return '他想知道你是否真的见过深渊。完成港口失踪案，或深入地下墓穴。';
+      return null;
+    }
+  }
+
+  // 希尔达·莫里斯 — 莫里斯家族继承人
+  if (npcName === '希尔达·莫里斯') {
+    if (nextTrust === 3) {
+      if (!visited.includes('voxchester_manor'))
+        return '你还没有去过沃切斯特庄园。去她的家看看。';
+      return null;
+    }
+    if (nextTrust === 4) {
+      if (!hasAnyClueFrom(morrisClues))
+        return '你需要在庄园里找到关于莫里斯家族的秘密线索。';
+      return null;
+    }
+    if (nextTrust === 5) {
+      if (!hasChain('chain_morris'))
+        return '你还没有揭开莫里斯家族诅咒的真相。完成这条线索链。';
+      return null;
+    }
+  }
+
+  // 汤米·陈 — 杂货店老板，业余摄影师
+  if (npcName === '汤米·陈') {
+    if (nextTrust === 3) {
+      if (clues.length < 2)
+        return '他对你还不够信任。多收集一些线索再来。';
+      return null;
+    }
+    if (nextTrust === 4) {
+      if (visited.length < 3)
+        return '他想看看你是不是认真在调查。多探索几个区域。';
+      return null;
+    }
+    if (nextTrust === 5) {
+      if (chains.length < 1)
+        return '他需要你完成一条线索链，才会把最重要的照片给你看。';
+      return null;
+    }
+  }
+
+  // 伊莎贝拉·韦伯 — 教堂执事，秘密异端研究者
+  if (npcName === '伊莎贝拉·韦伯') {
+    if (nextTrust === 3) {
+      if (!hasClue('clue_h_1') && !hasClue('clue_h_2'))
+        return '你还没有注意到教堂的异常。去听听那十三声钟响。';
+      return null;
+    }
+    if (nextTrust === 4) {
+      if (!hasAnyClueFrom(heresyClues) && day < 4)
+        return '你需要深入调查教堂的秘密。找找异端仪式的线索。';
+      return null;
+    }
+    if (nextTrust === 5) {
+      if (!hasChain('chain_heretical'))
+        return '你还没有揭开教堂异端仪式的真相。完成这条线索链。';
+      return null;
+    }
+  }
+
+  // 老费舍 — 老渔夫，深潜者混血后裔
+  if (npcName === '老费舍') {
+    if (nextTrust === 3) {
+      if (!visited.includes('harbor_district'))
+        return '他只在码头附近活动。去码头区找他。';
+      return null;
+    }
+    if (nextTrust === 4) {
+      if (harborVisits < 2 && day < 4)
+        return '他需要看到你对码头的执着。多去几次，或者等到第4天。';
+      return null;
+    }
+    if (nextTrust === 5) {
+      if (!hasChain('chain_harbor') && !visited.includes('lighthouse'))
+        return '他想知道你是否了解海的秘密。完成港口失踪案，或亲眼看看灯塔。';
+      return null;
+    }
+  }
+
+  // 埃德加·洛夫克拉夫特 — 作家
+  if (npcName === '埃德加·洛夫克拉夫特') {
+    if (nextTrust === 3) {
+      if (clues.length < 1)
+        return '他是一个作家，需要素材。带一些线索来，他会更愿意交谈。';
+      return null;
+    }
+    if (nextTrust === 4) {
+      if (clues.length < 3)
+        return '他需要更多故事素材。收集更多线索。';
+      return null;
+    }
+    if (nextTrust === 5) {
+      if (chains.length < 1 && !(s.discoveredConclusions?.length > 0))
+        return '他需要一个完整的故事。完成一条线索链或达成一个结论。';
+      return null;
+    }
+  }
+
+  return null;
 }
 
 // === REDUCER ===
@@ -539,12 +827,13 @@ function gameReducer(state,action){
   case 'BEGIN_ADVENTURE':{
     s.screen='game';ensureMutableArrays();
     s.objectives=genObjectives(1,ctx);
-    audioManager.playEffect('begin');audioManager.playAmbientDay();
+    audioManager.playEffect('begin');audioManager.playAreaAmbient(s.currentArea||'town_center','morning');
     s.currentChapter=getChapterForDay(s.day,ctx).key||'chapter_1';
     // Apply archetype NPC trust mods (P1-1)
     const archDef2=(GD.systems?.player?.archetypes||[]).find(a=>a.id===s.archetype);
     if(archDef2?.npc_trust_mod){Object.entries(archDef2.npc_trust_mod).forEach(([npc,v])=>{s.npcTrust[npc]=(s.npcTrust[npc]||0)+v;});}
     if(s.loopCount>0){
+      audioManager.playEffect('loop_restart');audioManager.playEffect('loop_memory');audioManager.playEffect('bell_memory');
       const drt=GD.implementation_notes?.death_restart_text?.death_types;
       const restartTexts=s.lastDeathType==='mental'?drt?.mental_death?.restart_text:drt?.physical_death?.restart_text;
       const loopKey=s.loopCount>=5?'loop_5_plus':s.loopCount>=3&&s.lastDeathType==='mental'?'loop_3_plus':'loop_'+s.loopCount;
@@ -586,7 +875,9 @@ function gameReducer(state,action){
     if(!isAreaUnlocked(targetArea,s)){narr('system','你还没有找到通往'+targetArea.name+'的路径。也许需要更多线索。');return s;}
     s.ap-=action.cost||1;s.currentArea=target;
     if(!s.visitedAreas.includes(target))s.visitedAreas.push(target);
-    if(target==='harbor_district')s.harbor_visits=(s.harbor_visits||0)+1;
+    if(target==='harbor_district'){s.harbor_visits=(s.harbor_visits||0)+1;audioManager.playEffect('harbor_water_omen');}
+    if(target==='lighthouse')audioManager.playEffect('lighthouse_lens_crack');
+    if(target==='catacombs_entrance'||target==='deep_catacombs')audioManager.playEffect('catacombs_stone');
     if(targetArea.danger_level>(s.stats_run.deepest_area_danger||0))s.stats_run.deepest_area_danger=targetArea.danger_level;
     if(!s.lastVisitedDates)s.lastVisitedDates={};
     s.lastVisitedDates={...s.lastVisitedDates,[target]:s.day};
@@ -597,6 +888,8 @@ function gameReducer(state,action){
     let desc=getSanTextVariant(targetArea.description,s.san,pick,ctx);
     if(lightCorrPenalty>1&&Math.random()<0.3)desc+='\n\n光线不足。你不确定自己看到的是不是真的。';
     narr('location',desc,{locationName:displayName,imageSrc:getAreaSceneImage(target,s),imageAlt:displayName});
+    // Switch ambient to match new area
+    try{const phase=getPhase(s.ap,s.maxAp);audioManager.playAreaAmbient(target,phase);}catch(e){}
     if(targetArea.micro_events&&targetArea.micro_events.length>0&&Math.random()<0.35){
       const me=pick(targetArea.micro_events);
       const meText=getSanTextVariant(me.description,s.san,pick,ctx);
@@ -674,12 +967,15 @@ function gameReducer(state,action){
       sanDmg=processSanLoss(sanDmg,s.inventory.map(i=>i.name),s.weather,s.day,s.difficulty,ctx);
       if(sanDmg>0){
         if(evt.skill_check){
+          audioManager.playSkillEffect('roll');
           const check=doSkillCheck(evt.skill_check.skill,evt.skill_check.threshold||50,s,s.difficulty,ctx);
           if(check.success){
+            audioManager.playSkillEffect('success');
             sanDmg=Math.max(1,Math.round(sanDmg*0.5));
             narr('system','【技能检定：'+check.skillName+'】掷骰 '+check.roll+' / 技能'+check.playerSkill+' —— 成功！SAN损失减半。');
             s.stats_run.checks_passed++;
           }else{
+            audioManager.playSkillEffect(check.isCritFail?'critical_fail':'fail');
             narr('system','【技能检定：'+check.skillName+'】掷骰 '+check.roll+' / 技能'+check.playerSkill+' —— 失败！');
             s.stats_run.checks_failed++;
           }
@@ -690,15 +986,16 @@ function gameReducer(state,action){
         // Achievement tracking
         s.stats_run.max_san_loss_single=Math.max(s.stats_run.max_san_loss_single||0,sanDmg);
         s.stats_run.total_san_loss=(s.stats_run.total_san_loss||0)+sanDmg;
-        if(sanDmg>=3){addRunMemory(s,'在'+(s.currentArea||'某处')+'遭遇了什么——SAN -'+sanDmg,'san_loss');audioManager.playEffect('san_loss');}
+        if(sanDmg>=1){addRunMemory(s,'在'+(s.currentArea||'某处')+'遭遇了什么——SAN -'+sanDmg,'san_loss');audioManager.playSanLoss(sanDmg);}
       }
     }
     applyLegacyEffects(s, evt.effects);
     if(sanDmg>=5){
       const mad=rollMadness(ctx);s.madnessActive=mad;
+      try{incrementStat('madness_count');}catch(e){}
       narr('madness','【临时疯狂：'+mad.name+'】'+mad.description,{madness:mad});
       addRunMemory(s,'经历了临时疯狂——'+mad.name,'madness');
-      audioManager.playEffect('madness');
+      audioManager.playEffect('madness');audioManager.playEffect('madness_loop');
     }
     // --- Death resolution (unified) ---
     {
@@ -707,6 +1004,12 @@ function gameReducer(state,action){
         s.deathContext = deathCtx;
         s.lastDeathType = deathCtx.type;
         s.lastDeathMode = deathCtx.mode;
+        // Play death sound based on type
+        const HP_TYPES=['drowning','bleeding','infection','starvation','falling','darkness_taken','physical'];
+        const SAN_TYPES=['madness','possession','identity_erasure','mythos_absorption','loop_collapse','becomes_event','mental'];
+        if(HP_TYPES.includes(deathCtx.type))audioManager.playEffect('death_physical');
+        else if(SAN_TYPES.includes(deathCtx.type))audioManager.playEffect('death_mental');
+        else audioManager.playEffect('death_hybrid');
         // Write death narrative
         narr('death', deathCtx.finalText, { isSpecial: true });
         // Build ending object
@@ -747,6 +1050,7 @@ function gameReducer(state,action){
     for(const conc of newConclusions){
       s.discoveredConclusions.push(conc.id);
       narr('system','【结论达成】'+conc.name,{isSpecial:true});
+      audioManager.playEffect('clue_found');
       conc.evidence.forEach(e=>narr('system','  · '+e));
       // Add unlocks as clues
       conc.unlocks.forEach(u=>{if(!s.clues.includes(u))s.clues.push(u)});
@@ -780,14 +1084,17 @@ function gameReducer(state,action){
     if(!s.pendingEvent||s.pendingEvent.rolled)return s;
     const evt=s.pendingEvent;const sc=evt.effects?.skill_check;
     if(!sc){s.pendingEvent={...evt,rolled:true,result:'no_check'};return s;}
+    audioManager.playSkillEffect('roll');
     const result=doSkillCheck(sc.skill,sc.threshold||50,s,s.difficulty,ctx);
     s.pendingEvent={...evt,rolled:true,result:result.success?'success':'failure',roll:result.roll,playerSkill:result.playerSkill,threshold:result.threshold};
     if(result.success){
+      audioManager.playSkillEffect('success');
       s.stats_run.checks_passed++;
       narr('system','【技能检定：'+result.skillName+'】掷骰 '+result.roll+' / 技能'+result.playerSkill+' / 难度'+result.threshold+' —— 成功！');
       narr('system',sc.success?.text||sc.success||'检定成功。');
       if(Math.random()<0.1)s.skills[result.skillName]=(s.skills[result.skillName]||0)+rand(1,3);
     }else{
+      audioManager.playSkillEffect(result.isCritFail?'critical_fail':'fail');
       s.stats_run.checks_failed++;
       narr('system','【技能检定：'+result.skillName+'】掷骰 '+result.roll+' / 技能'+result.playerSkill+' / 难度'+result.threshold+' —— 失败！'+(result.isCritFail?'（大失败！）':''));
       narr('system',sc.failure?.text||sc.failure||'检定失败。');
@@ -796,7 +1103,8 @@ function gameReducer(state,action){
   }
   case 'TALK_NPC':{
     if(s.ap<1){narr('system','行动点不足。');return s;}
-    s.ap-=1;ensureMutableArrays();const npc=action.npc;const trust=s.npcTrust[npc.name]||0;const ns=s.npcStates[npc.name]||{};
+    s.ap-=1;
+    try{incrementStat('run_npc_talks');}catch(e){}ensureMutableArrays();const npc=action.npc;const trust=s.npcTrust[npc.name]||0;const ns=s.npcStates[npc.name]||{};
     const layer=npc.trust_layers?npc.trust_layers.find(l=>l.level===trust)||npc.trust_layers[0]:null;
     s.pendingNpc={npc,trust,layer};
     // Loop text variants: NPC dialogue changes with loop count
@@ -843,18 +1151,40 @@ function gameReducer(state,action){
   case 'NPC_RESPONSE':{
     const npc=s.pendingNpc.npc;const trust=s.npcTrust[npc.name]||0;const choice=action.choice;const ns=s.npcStates[npc.name]||{};
     if(choice==='trust_up'){
-      if(ns.corrupted&&Math.random()<0.6){
-        narr('system',npc.name+'似乎很热情地回应你，但你隐约感到有些不对劲。');
+      // Daily limit: each NPC can only gain trust once per day
+      if(s._dailyTrustGains&&s._dailyTrustGains[npc.name]){
+        narr('system',npc.name+'今天已经对你敞开心扉了。也许明天再来，关系会更进一步。');
+        s.pendingNpc=null;
+      }else if(s.ap<1){
+        narr('system','你需要行动点来深入交谈。（需要1 AP）');
+        s.pendingNpc=null;
       }else{
-        const newTrust=Math.min(5,trust+1);
-        s.npcTrust[npc.name]=newTrust;
-        for(let lv=trust+1;lv<=newTrust;lv++){
-          const layer=npc.trust_layers?npc.trust_layers.find(l=>l.level===lv):null;
-          if(layer?.unlocks)layer.unlocks.forEach(u=>{if(!s.clues.includes(u))s.clues.push(u)});
+        // Trust gate: levels 3/4/5 require progression conditions
+        const nextTrust=trust+1;
+        const gate=checkTrustGate(nextTrust,s,npc.name);
+        if(gate){
+          narr('system',npc.name+'似乎想对你说些什么，但犹豫了。'+gate);
+          s.pendingNpc=null;
+        }else if(ns.corrupted&&Math.random()<0.6){
+          narr('system',npc.name+'似乎很热情地回应你，但你隐约感到有些不对劲。');
+          s.pendingNpc=null;
+        }else{
+          s.ap-=1;
+          const newTrust=Math.min(5,nextTrust);
+          s.npcTrust[npc.name]=newTrust;
+          if(!s._dailyTrustGains)s._dailyTrustGains={};
+          s._dailyTrustGains[npc.name]='talk';
+          for(let lv=trust+1;lv<=newTrust;lv++){
+            const layer=npc.trust_layers?npc.trust_layers.find(l=>l.level===lv):null;
+            if(layer?.unlocks)layer.unlocks.forEach(u=>{if(!s.clues.includes(u))s.clues.push(u)});
+          }
+          narr('system',npc.name+'对你的信任度提升了。（信任等级：'+newTrust+'）');
+          modHumanity(s,3,'与'+npc.name+'建立真诚的联系');
+          addRunMemory(s,npc.name+'开始相信你。','npc');
+          // Keep dialog open with updated trust & layer
+          const newLayer=npc.trust_layers?npc.trust_layers.find(l=>l.level===newTrust)||npc.trust_layers[0]:null;
+          s.pendingNpc={npc,trust:newTrust,layer:newLayer};
         }
-        narr('system',npc.name+'对你的信任度提升了。（信任等级：'+newTrust+'）');
-        modHumanity(s,3,'与'+npc.name+'建立真诚的联系');
-        addRunMemory(s,npc.name+'开始相信你。','npc');
       }
     }else if(choice==='get_item'){
       if(npc.secrets&&npc.secrets.length>trust){
@@ -887,30 +1217,47 @@ function gameReducer(state,action){
       modHumanity(s,-5,'在'+npc.name+'面前选择沉默，隐瞒真相');
       addRunMemory(s,'你没有回答。沉默也被记录了。','humanity');
     }else if(choice==='share_food'){
-      if((s.food||0)>=1){
-        s.food--;
-        const npcResourceMap={'约书亚·布莱克':'joshua','汤米·陈':'tommy','希尔达·莫里斯':'hilda','老费舍':'old_fisher'};
-        const rKey=npcResourceMap[npc.name];
-        const foodChoices=GD.systems?.resources?.resources?.food?.usage_choices||[];
-        const choice_data=foodChoices.find(c=>c.target===rKey);
-        if(choice_data){
-          narr('system',choice_data.description||('你把食物分给了'+npc.name+'。'));
-          if(choice_data.humanity_impact)modHumanity(s,choice_data.humanity_impact,'把食物分给'+npc.name);
-          if(choice_data.effect)narr('system',choice_data.effect);
-        }else{
-          narr('system','你把食物分给了'+npc.name+'。对方默默接了过去。');
-          modHumanity(s,2,'把食物分给'+npc.name);
-        }
-        // Trust bonus for sharing food
-        s.npcTrust[npc.name]=Math.min(5,(s.npcTrust[npc.name]||0)+1);
-        addRunMemory(s,'你把食物分给了'+npc.name+'。','npc');
-      }else{
+      if(s._dailyTrustGains&&s._dailyTrustGains[npc.name]){
+        narr('system',npc.name+'今天已经接受过你的心意了。明天再来吧。');
+      }else if(s.ap<1){
+        narr('system','你需要行动点来照顾对方。（需要1 AP）');
+      }else if((s.food||0)<1){
         narr('system','你没有食物可以分享了。');
+      }else{
+        // Check trust gate before consuming resources
+        const curTrust=s.npcTrust[npc.name]||0;
+        const gate=checkTrustGate(curTrust+1,s,npc.name);
+        if(gate){
+          narr('system',npc.name+'看着你递来的食物，摇了摇头。'+gate);
+        }else{
+          s.ap-=1;s.food--;
+          const npcResourceMap={'约书亚·布莱克':'joshua','汤米·陈':'tommy','希尔达·莫里斯':'hilda','老费舍':'old_fisher'};
+          const rKey=npcResourceMap[npc.name];
+          const foodChoices=GD.systems?.resources?.resources?.food?.usage_choices||[];
+          const choice_data=foodChoices.find(c=>c.target===rKey);
+          if(choice_data){
+            narr('system',choice_data.description||('你把食物分给了'+npc.name+'。'));
+            if(choice_data.humanity_impact)modHumanity(s,choice_data.humanity_impact,'把食物分给'+npc.name);
+            if(choice_data.effect)narr('system',choice_data.effect);
+          }else{
+            narr('system','你把食物分给了'+npc.name+'。对方默默接了过去。');
+            modHumanity(s,2,'把食物分给'+npc.name);
+          }
+          const newTrust=Math.min(5,curTrust+1);
+          s.npcTrust[npc.name]=newTrust;
+          if(!s._dailyTrustGains)s._dailyTrustGains={};
+          s._dailyTrustGains[npc.name]='food';
+          addRunMemory(s,'你把食物分给了'+npc.name+'。','npc');
+          // Update dialog with new trust
+          const newLayer=npc.trust_layers?npc.trust_layers.find(l=>l.level===newTrust)||npc.trust_layers[0]:null;
+          s.pendingNpc={npc,trust:newTrust,layer:newLayer};
+        }
       }
     }else if(choice==='leave'){s.pendingNpc=null;s.objectives=checkObjCompletion(s.objectives,s);}
     else if(choice==='attack'){
       if(s.ap<2){narr('system','行动点不足（需要2AP）。');s.pendingNpc=null;return s;}
       s.ap-=2;
+      try{incrementStat('run_combat');}catch(e){}
       const fightSkill=s.skills['格斗']||s.skills['潜行']||20;
       const npcDiff=npc.chapter_1_role==='core'?55:40;
       const roll=rand(1,100);
@@ -1000,7 +1347,7 @@ function gameReducer(state,action){
       if(s.ap<2){narr('system','行动点不足。');s.pendingNpc=null;return s;}
       s.ap-=2;s.forbidden_intimacy_flags=(s.forbidden_intimacy_flags||0)+1;
       const sanLoss=rand(3,8);s.san=clamp(s.san-sanLoss,0,s.maxSan);
-      s.pollution=Math.min(1,(s.pollution||0)+0.1);
+      s.pollution=Math.min(1,(s.pollution||0)+0.1);audioManager.playEffect('loop_pollution');
       modHumanity(s,-8,'与'+npc.name+'发生了禁忌的亲密');
       narr('system','你靠近了'+npc.name+'。你没有问这是否正确。对方没有回答——但也没有退开。SAN -'+sanLoss,{isSpecial:true});
       s.pendingNpc=null;
@@ -1029,6 +1376,7 @@ function gameReducer(state,action){
   case 'USE_ITEM':{cloneInv();
     const item=action.item;const idx=s.inventory.findIndex(i=>i.name===item.name);
     if(idx<0||s.inventory[idx].uses===0)return s;
+    audioManager.playEffect('item_use');
     const consume=()=>{if(s.inventory[idx].uses>0){s.inventory[idx].uses--;if(s.inventory[idx].uses<=0)s.inventory.splice(idx,1);}};
 
     const def=getItemDef(item.id,ctx);
@@ -1041,6 +1389,9 @@ function gameReducer(state,action){
     return s;
   }
   case 'REST':{ensureMutableArrays();
+    // Capture start-of-day values for daily summary
+    const _startSan=state.san,_startHp=state.hp,_startClues=(state.clues||[]).length;
+    const _startArea=state._dayStartArea||state.currentArea;
     // Food consumption (with area resource_pressure modifier)
     const restArea=getAreaInfo(s.currentArea,ctx);
     const foodMod=restArea?.resource_pressure?.food_consumption_modifier||1.0;
@@ -1083,6 +1434,10 @@ function gameReducer(state,action){
     // Safehouse degradation
     s.safehouseCorruption=processSafehouseNight(s,ctx);
     const shStage=getSafehouseStage(s.safehouseCorruption,ctx);
+    // Safehouse voice lines based on corruption
+    if(s.safehouseCorruption>=60)audioManager.playEffect('safehouse_not_safe');
+    else if(s.safehouseCorruption>=30)audioManager.playEffect('safehouse_breath');
+    else audioManager.playEffect(Math.random()<0.5?'rest_generic':'rest_alt');
     let sanRec=shStage.available_functions?.san_recovery||0;
     const fatigueRec=shStage.available_functions?.fatigue_recovery||30;
     // Alternative safehouse bonus
@@ -1100,8 +1455,9 @@ function gameReducer(state,action){
     s.harborRiskReduction=0;
     const oldDay=s.day;
     s.day++;s.ap=s.maxAp;s.weather=getWeather(pick).name;s.sealState=getSealStateId(s.day,ctx);
-    audioManager.playEffect('rest');
-    try{const phase=getPhase(s.ap,s.maxAp);if(phase==='night'||phase==='midnight')audioManager.playAmbientNight();else audioManager.playAmbientDay();}catch(e){audioManager.playAmbientDay();}
+    try{incrementStat('night_survived');if(s.san<=10)incrementStat('low_san_days');}catch(e){}
+    audioManager.playEffect('rest_generic');
+    try{const phase=getPhase(s.ap,s.maxAp);audioManager.playAreaAmbient(s.currentArea,phase);}catch(e){audioManager.playAreaAmbient('town_center','morning');}
     // Clear area name cache on new day
     s.areaNameCache={};
     // Reset daily event category counts (extended events)
@@ -1155,6 +1511,28 @@ function gameReducer(state,action){
     checkSilentEvent(s,narr,'safehouse');
     // SAN破壁事件 (P1-3)
     checkBreakWallEvent(s,narr);
+    // Daily summary card (P2-2)
+    {
+      const acts=s._dayActions||[];
+      const areaObj=getAreaInfo(_startArea,ctx);
+      const areaName=areaObj?.name||'沃切斯特';
+      const sanDelta=s.san-_startSan;
+      const hpDelta=s.hp-_startHp;
+      const cluesFound=(s.clues?.length||0)-_startClues;
+      const parts=['今日在'+areaName+'活动。'];
+      if(acts.length===0)parts.push('整天待在安全屋休息。');
+      else{
+        const actCounts={};acts.forEach(a=>{actCounts[a]=(actCounts[a]||0)+1;});
+        const actNames={MOVE:'移动',EXPLORE:'探索',TALK_NPC:'交谈',WORK:'打工',USE_ITEM:'使用物品',SWITCH_SAFEHOUSE:'更换安全屋'};
+        const desc=Object.entries(actCounts).map(([k,v])=>(actNames[k]||k)+(v>1?'×'+v:'')).join('、');
+        parts.push('行动：'+desc+'。');
+      }
+      if(sanDelta!==0)parts.push('精神'+(sanDelta>0?'+':'')+sanDelta);
+      if(hpDelta!==0)parts.push('体力'+(hpDelta>0?'+':'')+hpDelta);
+      if(cluesFound>0)parts.push('发现'+cluesFound+'条线索');
+      if(acts.includes('EXPLORE')&&cluesFound===0)parts.push('探索未发现新线索');
+      narr('system','【今日总结】'+parts.join('，')+'。',{isSpecial:true});
+    }
     narr('system','\n═══ 第 '+s.day+' 天 ═══ 天气：'+s.weather+' ═══ 封印：'+s.sealState+' ═══');
     const area=getAreaInfo(s.currentArea,ctx);
     if(area)narr('location',area.description,{locationName:getAreaDisplayName(area,s),imageSrc:getAreaSceneImage(s.currentArea,s),imageAlt:getAreaDisplayName(area,s)});
@@ -1162,6 +1540,7 @@ function gameReducer(state,action){
     if(s.day>28){
       s.deathContext={mode:'hp',type:'physical',area:s.currentArea,day:s.day,loop:s.loopCount,sourceEventId:null,sourceEventName:'时间耗尽',finalText:'封印崩溃，沃切斯特沉入深渊。',residueFlag:'death_echo_time'};
       s.lastDeathType='physical';s.lastDeathMode='hp';
+      audioManager.playEffect('death_physical');
       s.ending={name:'时间耗尽',type:'bad',description:'封印崩溃，沃切斯特沉入深渊。',recap:buildDeathRecap(s)};
     }
     s.objectives=genObjectives(s.day,ctx);
@@ -1183,9 +1562,11 @@ function gameReducer(state,action){
     if(hasMove&&!hasExplore&&!hasTalk&&!hasWork){s.move_only_days=(s.move_only_days||0)+1;}
     if(hasItem&&!hasMove&&!hasExplore&&!hasTalk&&!hasWork){s.record_only_days=(s.record_only_days||0)+1;}
     s._dayActions=[];
+    s._dailyTrustGains={};
+    s._dayStartArea=s.currentArea;
 
     // Auto-save after rest
-    saveGame(s);
+    saveGame(s);audioManager.playUI('save');
     s.transition='rest';
     if(!s.tutorialSeen.first_rest)s.tutorialSeen={...s.tutorialSeen,first_rest:true};
     return s;
@@ -1205,7 +1586,7 @@ function gameReducer(state,action){
     modHumanity(s,-10,'用刀在自己身上刻下符号');
     addRunMemory(s,'第'+(s.self_harm_ritual_count)+'次。刀锋划过皮肤的时候，你觉得你正在写下什么东西。','madness');
     narr('system','你用刀尖在皮肤上刻下了一个符号。你不知道它是什么意思。但你的手知道。SAN -'+sanLoss,{isSpecial:true});
-    if(Math.random()<0.3){s.pollution=Math.min(1,(s.pollution||0)+0.05);narr('system','符号在皮肤下微微发光，然后暗了下去。');}
+    if(Math.random()<0.3){s.pollution=Math.min(1,(s.pollution||0)+0.05);narr('system','符号在皮肤下微微发光，然后暗了下去。');audioManager.playEffect('loop_pollution');}
     return s;
   }
   case 'SPREAD_PROPHECY':{
@@ -1229,7 +1610,7 @@ function gameReducer(state,action){
   case 'SELF_SACRIFICE':{
     if(s.ap<3){narr('system','行动点不足（需要3AP）。');return s;}
     s.ap-=3;s.self_sacrifice_for_power=(s.self_sacrifice_for_power||0)+1;
-    s.mythosLevel=(s.mythosLevel||0)+3;s.pollution=Math.min(1,(s.pollution||0)+0.15);
+    s.mythosLevel=(s.mythosLevel||0)+3;s.pollution=Math.min(1,(s.pollution||0)+0.15);audioManager.playEffect('loop_pollution');
     const hpLoss=rand(4,10);s.hp=Math.max(1,s.hp-hpLoss);
     s.maxSan=Math.max(10,s.maxSan-5);s.san=clamp(s.san-rand(5,15),0,s.maxSan);
     modHumanity(s,-25,'为了力量献祭了自己的一部分');
@@ -1254,7 +1635,7 @@ function gameReducer(state,action){
     if(!['catacombs_entrance','deep_catacombs','ruins_of_yith'].includes(s.currentArea)){narr('system','这里没有封印可以破坏。');return s;}
     s.ap-=3;setCorruptionFlag(s,'seal_desecrated');
     if(['deep_catacombs','ruins_of_yith'].includes(s.currentArea))setCorruptionFlag(s,'destroyed_time_core');
-    s.sealState='critical';s.pollution=Math.min(1,(s.pollution||0)+0.2);
+    s.sealState='critical';s.pollution=Math.min(1,(s.pollution||0)+0.2);audioManager.playEffect('loop_pollution');
     s.loop_break_attempts=(s.loop_break_attempts||0)+1;
     const sanLoss=rand(8,20);s.san=clamp(s.san-sanLoss,0,s.maxSan);
     modHumanity(s,-25,'试图破坏封印');
@@ -1274,6 +1655,11 @@ function gameReducer(state,action){
     {const deathCtx=resolveDeath(s,pc.evt,choice);
       if(deathCtx){
         s.deathContext=deathCtx;s.lastDeathType=deathCtx.type;s.lastDeathMode=deathCtx.mode;
+        const HP_T2=['drowning','bleeding','infection','starvation','falling','darkness_taken','physical'];
+        const SAN_T2=['madness','possession','identity_erasure','mythos_absorption','loop_collapse','becomes_event','mental'];
+        if(HP_T2.includes(deathCtx.type))audioManager.playEffect('death_physical');
+        else if(SAN_T2.includes(deathCtx.type))audioManager.playEffect('death_mental');
+        else audioManager.playEffect('death_hybrid');
         narr('death',deathCtx.finalText,{isSpecial:true});
         const ending=checkEnding(s,ctx);
         if(ending)s.ending={...ending,recap:buildDeathRecap(s,deathCtx)};
@@ -1291,7 +1677,11 @@ function gameReducer(state,action){
     const key=action.key;
     if(!s.accessibilityOptions)s.accessibilityOptions={};
     if(key==='visual_distortion'){
-      s.accessibilityOptions={...s.accessibilityOptions,visual_distortion:s.accessibilityOptions.visual_distortion==='off'?'medium':'off'};
+      const val=action.value||(s.accessibilityOptions.visual_distortion==='off'?'medium':'off');
+      s.accessibilityOptions={...s.accessibilityOptions,visual_distortion:val};
+    }else if(key==='flicker_control'){
+      const val=action.value||(s.accessibilityOptions.flicker_control==='off'?'medium':'off');
+      s.accessibilityOptions={...s.accessibilityOptions,flicker_control:val};
     }else if(key==='sudden_sounds'){
       const cur=s.accessibilityOptions.sudden_sounds;
       s.accessibilityOptions={...s.accessibilityOptions,sudden_sounds:cur==='off'?'on':'off'};
@@ -1314,15 +1704,16 @@ function gameReducer(state,action){
         sanDmg=processSanLoss(sanDmg,s.inventory.map(i=>i.name),s.weather,s.day,s.difficulty,ctx);
         if(sanDmg>0){
           if(evt.skill_check){
+            audioManager.playSkillEffect('roll');
             const check=doSkillCheck(evt.skill_check.skill,evt.skill_check.threshold||50,s,s.difficulty,ctx);
-            if(check.success){sanDmg=Math.max(1,Math.round(sanDmg*0.5));narr('system','【技能检定：'+check.skillName+'】成功！SAN损失减半。');s.stats_run.checks_passed++;}
-            else{narr('system','【技能检定：'+check.skillName+'】失败！');s.stats_run.checks_failed++;}
+            if(check.success){audioManager.playSkillEffect('success');sanDmg=Math.max(1,Math.round(sanDmg*0.5));narr('system','【技能检定：'+check.skillName+'】成功！SAN损失减半。');s.stats_run.checks_passed++;}
+            else{audioManager.playSkillEffect(check.isCritFail?'critical_fail':'fail');narr('system','【技能检定：'+check.skillName+'】失败！');s.stats_run.checks_failed++;}
           }
           s.san=clamp(s.san-sanDmg,0,s.maxSan);
           narr('system','SAN -'+sanDmg,{isEffect:true});
           s.stats_run.max_san_loss_single=Math.max(s.stats_run.max_san_loss_single||0,sanDmg);
           s.stats_run.total_san_loss=(s.stats_run.total_san_loss||0)+sanDmg;
-          if(sanDmg>=3){audioManager.playEffect('san_loss');s.transition='san-loss';}
+          if(sanDmg>=1){audioManager.playSanLoss(sanDmg);s.transition='san-loss';}
         }
       }
     }else if(choiceId==='deep_investigate'){
@@ -1333,7 +1724,7 @@ function gameReducer(state,action){
       narr('system','SAN -'+sanRoll,{isEffect:true});
       s.stats_run.max_san_loss_single=Math.max(s.stats_run.max_san_loss_single||0,sanRoll);
       s.stats_run.total_san_loss=(s.stats_run.total_san_loss||0)+sanRoll;
-      if(sanRoll>=3){audioManager.playEffect('san_loss');s.transition='san-loss';}
+      if(sanRoll>=1){audioManager.playSanLoss(sanRoll);s.transition='san-loss';}
       // Independent reward check
       const reward=opt.reward||{};
       const r=Math.random();
@@ -1342,7 +1733,7 @@ function gameReducer(state,action){
         const availableClues=(GD.clue_chains||[]).flatMap(c=>c.clues||[]).filter(c=>!s.clues.includes(c.id));
         if(availableClues.length>0){
           const found=pick(availableClues);
-          s.clues.push(found.id);if(!s.tutorialSeen.first_clue&&s.clues.length===1)s.tutorialSeen={...s.tutorialSeen,first_clue:true};
+          s.clues.push(found.id);audioManager.playEffect('clue_found');if(!s.tutorialSeen.first_clue&&s.clues.length===1)s.tutorialSeen={...s.tutorialSeen,first_clue:true};
           narr('system',reward.text_on_success+' 线索：'+(found.name||found.id),{isSpecial:true});
         }else{
           narr('system',reward.text_on_success,{isSpecial:true});
@@ -1362,7 +1753,7 @@ function gameReducer(state,action){
         narr('system',reward.text_on_madness,{isSpecial:true});
         narr('system','被某种东西记住了。',{isSpecial:true});
         addRunMemory(s,'深入探究时被某种东西记住了——'+mad.name,'madness');
-        audioManager.playEffect('madness');
+        audioManager.playEffect('madness');audioManager.playEffect('madness_loop');
       }else{
         // No special outcome — default causal feedback
         narr('system','它只学会了你的呼吸频率。',{isSpecial:true});
@@ -1371,7 +1762,7 @@ function gameReducer(state,action){
       let baseSanDmg=Math.abs(evt.sanity_damage||0);
       if(baseSanDmg>0){
         baseSanDmg=processSanLoss(baseSanDmg,s.inventory.map(i=>i.name),s.weather,s.day,s.difficulty,ctx);
-        if(baseSanDmg>0){s.san=clamp(s.san-baseSanDmg,0,s.maxSan);narr('system','SAN -'+baseSanDmg,{isEffect:true});if(baseSanDmg>=3)audioManager.playEffect('san_loss');}
+        if(baseSanDmg>0){s.san=clamp(s.san-baseSanDmg,0,s.maxSan);narr('system','SAN -'+baseSanDmg,{isEffect:true});audioManager.playSanLoss(baseSanDmg);}
       }
     }
     // Apply event effects BEFORE death check
@@ -1383,6 +1774,11 @@ function gameReducer(state,action){
         s.deathContext = deathCtx;
         s.lastDeathType = deathCtx.type;
         s.lastDeathMode = deathCtx.mode;
+        const HP_T3=['drowning','bleeding','infection','starvation','falling','darkness_taken','physical'];
+        const SAN_T3=['madness','possession','identity_erasure','mythos_absorption','loop_collapse','becomes_event','mental'];
+        if(HP_T3.includes(deathCtx.type))audioManager.playEffect('death_physical');
+        else if(SAN_T3.includes(deathCtx.type))audioManager.playEffect('death_mental');
+        else audioManager.playEffect('death_hybrid');
         narr('death', deathCtx.finalText, { isSpecial: true });
         const ending=checkEnding(s,ctx);
         if(ending)s.ending={...ending,recap:buildDeathRecap(s,deathCtx)};
@@ -1396,6 +1792,8 @@ function gameReducer(state,action){
   case 'NEW_GAME':{
     // Track refusal of final choice (player chose to loop again rather than accept ending)
     if(s.ending)s.final_choice_refused_count=(s.final_choice_refused_count||0)+1;
+    // Achievement stats
+    try{incrementStat('total_runs');if(s.hp<=0||s.san<=0)incrementStat('total_deaths');}catch(e){}
     // Build previous run summary before reset (extended events system)
     const prevSummary = buildPreviousRunSummary(s);
     const f=initialState();
@@ -1563,28 +1961,40 @@ const TITLE_TAGLINES=[
   '你已经来过这里。只是这一次，门牌还没有认出你。',
 ];
 
-function TitleScreen({onStart, onContinue, saveExists}){
+function TitleScreen({onStart, onContinue, saveExists, onSettingsOpen, onAchOpen}){
   const [tagIdx,setTagIdx]=useState(0);
+  const [fading,setFading]=useState(false);
+  const particles=useMemo(()=>Array.from({length:18},(_,i)=>({id:i,left:(i*5.7+13)%100,top:(i*7.3+29)%100,delay:(i*1.3)%10,dur:15+(i*1.7)%10})),[]);
   useEffect(()=>{
     const iv=setInterval(()=>{setTagIdx(i=>(i+1)%TITLE_TAGLINES.length);},8000);
     return ()=>clearInterval(iv);
   },[]);
-  return <div className="title-screen">
+  useEffect(()=>{
+    try{audioManager.playAreaAmbient('harbor_district','morning');}catch(e){}
+    return ()=>{try{audioManager.stopAmbient&&audioManager.stopAmbient();}catch(e){}};
+  },[]);
+  const handleStart=()=>{setFading(true);setTimeout(onStart,800);};
+  return <div className={'title-screen'+(fading?' fading':'')}>
     <div className="title-bg-harbor"/>
     <div className="title-bg-vignette"/>
     <div className="title-fog-layer fog-1"/>
     <div className="title-fog-layer fog-2"/>
     <div className="title-fog-layer fog-3"/>
+    <div className="title-particles">{particles.map(p=><div key={p.id} className="particle" style={{left:p.left+'%',top:p.top+'%',animationDelay:p.delay+'s',animationDuration:p.dur+'s'}}/>)}</div>
     <main className="title-content">
       <div className="title-kicker">调查档案 / 1926</div>
       <h1>深渊低语</h1>
       <h2>沃切斯特之影</h2>
       <p key={tagIdx} className="title-tagline">{TITLE_TAGLINES[tagIdx]}</p>
       <div className="title-actions">
-        <button className="btn btn-primary" onClick={onStart}>踏入深渊</button>
+        <button className="btn btn-primary" onClick={handleStart}>踏入深渊</button>
         {saveExists && <button className="btn" onClick={onContinue}>翻阅旧档案</button>}
       </div>
       <div className="title-version">ABYSSAL WHISPERS · v1.0</div>
+      <div className="title-corner-btns">
+        {onAchOpen&&<button className="title-settings-btn" onClick={onAchOpen} title="成就">🏆</button>}
+        {onSettingsOpen&&<button className="title-settings-btn" onClick={onSettingsOpen} title="设置">⚙️</button>}
+      </div>
     </main>
   </div>;
 }
@@ -1616,11 +2026,12 @@ function CharCreation({state,onRoll,onStart,onSetDifficulty,onSetArchetype}){
       {selectedArch&&<div style={{color:'var(--text)',fontSize:'0.75rem',marginTop:'0.4rem',textAlign:'center',lineHeight:'1.6'}}>
         <strong>{selectedArch.name}</strong>：{selectedArch.description}
         <br/><span style={{color:'var(--gold)'}}>{selectedArch.special}</span>
+        {selectedArch.stat_modifiers&&<div style={{fontSize:'0.65rem',color:'var(--text-dim)',marginTop:'0.2rem'}}>{Object.entries(selectedArch.stat_modifiers).map(([k,v])=>{const statNames={STR:'力量',CON:'体质',DEX:'敏捷',APP:'外貌',POW:'意志',INT:'智力',SIZ:'体型',EDU:'教育'};return <span key={k} style={{margin:'0 0.3rem'}}>{statNames[k]||k}{v>0?'+':''}{v}</span>;})}</div>}
       </div>}
     </div>}
     <div style={{textAlign:'center',marginBottom:'1rem'}}><button className="btn" onClick={onRoll}>{rolled?'重新掷骰':'掷骰生成属性'}</button></div>
     {rolled&&<>
-      <div className="stat-grid">{Object.entries(s).map(([k,v])=>{const mod=selectedArch?.stat_modifiers?.[k]||0;return <div key={k} className="stat-item"><div className="label">{k}</div><div className="value">{v}{mod!==0&&<span style={{fontSize:'0.65rem',color:mod>0?'var(--accent2)':'var(--danger2)'}}>{mod>0?'+':''}{mod}</span>}</div></div>;})}</div>
+      <div className="stat-grid">{Object.entries(s).map(([k,v])=>{const mod=selectedArch?.stat_modifiers?.[k]||0;const statNames={STR:'力量',CON:'体质',DEX:'敏捷',APP:'外貌',POW:'意志',INT:'智力',SIZ:'体型',EDU:'教育'};return <div key={k} className="stat-item"><div className="label">{k}<span style={{fontSize:'0.6rem',color:'var(--text-dim)',marginLeft:'0.2rem'}}>{statNames[k]||''}</span></div><div className="value">{v}{mod!==0&&<span style={{fontSize:'0.65rem',color:mod>0?'var(--accent2)':'var(--danger2)'}}>{mod>0?'+':''}{mod}</span>}</div></div>;})}</div>
       <div className="derived-stats"><h3>衍生属性</h3><div className="derived-row">
         <span className="derived-item"><span className="label">HP </span><span className="value">{Math.floor((s.CON+s.SIZ)/10)}</span></span>
         <span className="derived-item"><span className="label"> SAN </span><span className="value">{s.POW}</span></span>
@@ -1639,12 +2050,32 @@ function StatBar({label,value,max,cls,colorMap}){
   return <div className={'stat-bar '+(cls||'')}><div className="bar-label"><span className="name">{label}</span><span className="val">{value}/{max}</span></div><div className="bar-track"><div className="bar-fill" style={bg?{width:pct+'%',background:bg}:{width:pct+'%'}}/></div></div>;
 }
 
+// Modal — 通用弹窗组件
+function Modal({open,onClose,title,children,width}){
+  useEffect(()=>{
+    if(!open) return;
+    const handler=e=>{if(e.key==='Escape')onClose();};
+    window.addEventListener('keydown',handler);
+    return ()=>window.removeEventListener('keydown',handler);
+  },[open,onClose]);
+  if(!open) return null;
+  return <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-content" style={width?{maxWidth:width}:undefined} onClick={e=>e.stopPropagation()}>
+      <div className="modal-header">
+        <span className="modal-title">{title}</span>
+        <button className="modal-close" onClick={onClose}>×</button>
+      </div>
+      <div className="modal-body">{children}</div>
+    </div>
+  </div>;
+}
+
 // CollapsibleSection — 档案折叠区
-function CollapsibleSection({title,count,defaultOpen,children}){
+function CollapsibleSection({title,count,defaultOpen,summary,children}){
   const [open,setOpen]=useState(defaultOpen||false);
   return <div className="dossier-section">
     <div className="dossier-section-title" onClick={()=>setOpen(!open)}>
-      <span>{title}{count!=null&&' ('+count+')'}</span>
+      <span>{title}{count!=null&&' ('+count+')'}{!open&&summary&&<span className="section-summary">{summary}</span>}</span>
       <span className={'chevron'+(open?' open':'')}>▶</span>
     </div>
     <div className={'dossier-section-body'+(open?' expanded':' collapsed')} style={open?{maxHeight:'600px'}:undefined}>
@@ -1673,35 +2104,33 @@ const LeftPanel=memo(function LeftPanel({state}){
       <div style={{fontSize:'0.7rem',padding:'0.1rem 0',display:'flex',justifyContent:'space-between'}}><span style={{color:'var(--text-dim)'}}>金钱</span><span style={{color:'var(--gold)',fontFamily:'JetBrains Mono,monospace'}}>{state.money||0}</span></div>
     </div>
     {/* 折叠：身体记录 */}
-    <CollapsibleSection title="身体记录">
+    <CollapsibleSection title="身体记录" defaultOpen={false}>
       <div className="base-stats">{Object.entries(state.stats).map(([k,v])=><div key={k} className="base-stat"><div className="label">{k}</div><div className="val">{v}</div></div>)}</div>
     </CollapsibleSection>
     {/* 折叠：调查技能 */}
-    <CollapsibleSection title="调查技能">
+    {(()=>{const top=Object.entries(state.skills).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1])[0];return <CollapsibleSection title="调查技能" defaultOpen={false} summary={top?top[0]:''}>
       {Object.entries(state.skills).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,v])=><div key={k} className="skill-item"><span className="name">{k}</span><span className="val">{v}%</span></div>)}
-    </CollapsibleSection>
+    </CollapsibleSection>;})()}
     {/* 折叠：随身物件 */}
-    <CollapsibleSection title="随身物件" count={state.inventory.length}>
+    <CollapsibleSection title="随身物件" count={state.inventory.length} defaultOpen={true}>
       {state.inventory.map((item,i)=><div key={i} className="item-entry"><span className="name">{item.name}</span>{item.uses>0&&<span className="uses"> ×{item.uses}</span>}{item.uses===-1&&<span className="uses"> ∞</span>}</div>)}
     </CollapsibleSection>
     {/* 折叠：已知线索 */}
-    {state.clues.length>0&&<CollapsibleSection title="已知线索" count={state.clues.length}>
+    {state.clues.length>0&&<CollapsibleSection title="已知线索" count={state.clues.length} defaultOpen={true} summary={state.clues[state.clues.length-1]?.slice(0,12)||''}>
       {state.clues.slice(-5).map((c,i)=><div key={i} className="clue-entry">· {c}</div>)}
     </CollapsibleSection>}
     {/* 折叠：封印记录 */}
-    {seal&&<CollapsibleSection title="封印记录">
+    {seal&&<CollapsibleSection title="封印记录" defaultOpen={false} summary={seal?.name||''}>
       <div className={'seal-status '+(state.sealState||'intact')}><div className="state">{seal.name}</div><div style={{fontSize:'0.62rem',color:'var(--text-dim)'}}>{(seal.description||'').slice(0,40)}...</div></div>
     </CollapsibleSection>}
     {/* 折叠：避难所状态 */}
-    <CollapsibleSection title="避难所状态">
+    <CollapsibleSection title="避难所状态" summary={shStage.name}>
       <div className={'safehouse-info s'+shStage.stage}><div className="stage-name">{shStage.name}{state.currentSafehouse!=='main'?' · '+state.currentSafehouse:''}</div><div style={{fontSize:'0.62rem',color:'var(--text-dim)'}}>恢复：{shStage.available_functions?.san_recovery||0}{altSanRestore>0?' +'+altSanRestore:''} | 污染：{state.safehouseCorruption}%</div></div>
     </CollapsibleSection>
     {/* 折叠：环境记录 */}
-    <CollapsibleSection title="环境记录">
+    <CollapsibleSection title="环境记录" defaultOpen={false} summary={state.weather}>
       <div className="weather-info">天气：{state.weather} | 光源：Lv.{state.lightLevel||0}</div>
     </CollapsibleSection>
-    <div className="weather-info">天气：{state.weather} | 光源：Lv.{state.lightLevel||0}</div>
-    {state.clues.length>0&&<><div className="panel-title" style={{marginTop:'0.5rem'}}>线索 ({state.clues.length})</div>{state.clues.slice(-5).map((c,i)=><div key={i} style={{fontSize:'0.7rem',color:'var(--blue)',padding:'0.1rem 0'}}>• {c}</div>)}</>}
   </div>;
 })
 
@@ -1723,6 +2152,7 @@ const NarrativeBlock=memo(function NarrativeBlock({block}){
 function NPCDialog({npc,trust,layer,dispatch,state}){
   const [show,setShow]=useState(false);
   const [dangerOpen,setDangerOpen]=useState(false);
+  const [confirmAction,setConfirmAction]=useState(null);
   const ns=state?.npcStates?.[npc.name]||{};
   const npcImage=getNpcImage(npc.name,state?.npcStates);
   const postKill=state?.pendingNpc?.postKill;
@@ -1751,9 +2181,9 @@ function NPCDialog({npc,trust,layer,dispatch,state}){
       {/* 安全选项 */}
       <div className="npc-response-group">
         <div style={{display:'flex',flexDirection:'column',gap:'0.25rem'}}>
-          {trust<5&&<button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'trust_up'});setShow(false)}}>{trust<2?'尝试建立信任':'加深了解'}（信任+1）</button>}
+          {trust<5&&(()=>{const already=state?._dailyTrustGains?.[npc.name];const gate=checkTrustGate(trust+1,state,npc.name);if(already)return <div style={{fontSize:'0.7rem',color:'var(--text-dim)',padding:'0.2rem 0'}}>⏳ 今日已提升信赖（{already==='talk'?'对话':'食物'}）</div>;if(gate)return <div style={{fontSize:'0.7rem',color:'var(--text-dim)',padding:'0.2rem 0',lineHeight:'1.6'}}>🔒 {trust<2?'尝试建立信任':'加深了解'}（1 AP 信任+1）<br/><span style={{fontSize:'0.62rem',color:'var(--gold)'}}>{gate}</span></div>;return <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'trust_up'});setShow(false)}}>{trust<2?'尝试建立信任':'加深了解'}<span className="cost">1 AP 信任+1</span></button>;})()}
           {trust>=1&&npc.secrets&&trust<=npc.secrets.length&&<button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'get_item'});setShow(false)}}>询问更多信息</button>}
-          {state?.food>0&&<button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'share_food'});setShow(false)}}>分享食物（食物-1 信任+1）</button>}
+          {(()=>{const already=state?._dailyTrustGains?.[npc.name];const curTrust=state?.npcTrust?.[npc.name]||0;const gate=trust<5?checkTrustGate(curTrust+1,state,npc.name):'max';if(already)return null;if(trust>=5)return null;return <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'share_food'});setShow(false)}} disabled={(state?.food||0)<1||(state?.ap||0)<1||!!gate} title={gate||''}>分享食物{gate?<span className="cost">🔒 {gate.slice(0,15)}…</span>:<span className="cost">1 AP 食物-1 信任+1</span>}</button>;})()}
           {ns.corrupted&&trust>=4&&<button className="btn btn-sm" style={{color:'var(--gold)'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'redeem'});setShow(false)}}>尝试救赎</button>}
           <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'silence'});setShow(false)}}>保持沉默</button>
           <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'leave'});setShow(false)}}>告别</button>
@@ -1763,15 +2193,23 @@ function NPCDialog({npc,trust,layer,dispatch,state}){
       <div className="npc-danger-section" style={{marginTop:'0.3rem'}}>
         {!dangerOpen?<button className="npc-more-btn" onClick={()=>setDangerOpen(true)}>更多选择 ›</button>
         :<div>
-          <div className="group-label">危险行为</div>
-          <div style={{display:'flex',flexDirection:'column',gap:'0.2rem',marginTop:'0.15rem'}}>
-            {trust>=3&&<button className="btn btn-sm" style={{color:'var(--text-dim)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'preach'});setShow(false)}}>传教（2 AP 神秘学检定）</button>}
-            {trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'incite'});setShow(false)}}>陷害（2 AP 话术检定）</button>}
-            {trust>=2&&<button className="btn btn-sm" style={{color:'var(--text-dim)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'exploit_npc'});setShow(false)}}>利用（1 AP 信任-2）</button>}
-            {trust>=3&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'betray_npc'});setShow(false)}}>背叛（1 AP 信任清零）</button>}
-            {ns.corrupted&&trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'intimacy'});setShow(false)}}>靠近（2 AP SAN-）</button>}
-            <button className="btn btn-sm btn-danger" style={{fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'attack'});setShow(false)}}>攻击（2 AP 格斗检定）</button>
-          </div>
+          {confirmAction?<div className="npc-confirm">
+            <div style={{color:'var(--danger2)',fontSize:'0.8rem',marginBottom:'0.4rem'}}>⚠ 确定要{confirmAction==='attack'?'攻击':'背叛'}吗？此操作不可撤销。</div>
+            <div style={{display:'flex',gap:'0.4rem'}}>
+              <button className="btn btn-sm btn-danger" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:confirmAction});setShow(false);setConfirmAction(null);}}>确认</button>
+              <button className="btn btn-sm" onClick={()=>setConfirmAction(null)}>取消</button>
+            </div>
+          </div>:<div>
+            <div className="group-label">⚠ 危险行为</div>
+            <div style={{display:'flex',flexDirection:'column',gap:'0.2rem',marginTop:'0.15rem'}}>
+              {trust>=3&&<button className="btn btn-sm" style={{color:'var(--text-dim)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'preach'});setShow(false)}}>⚠ 传教（2 AP 神秘学检定）</button>}
+              {trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'incite'});setShow(false)}}>⚠ 陷害（2 AP 话术检定）</button>}
+              {trust>=2&&<button className="btn btn-sm" style={{color:'var(--text-dim)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'exploit_npc'});setShow(false)}}>⚠ 利用（1 AP 信任-2）</button>}
+              {trust>=3&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>setConfirmAction('betray_npc')}>⚠ 背叛（1 AP 信任清零）</button>}
+              {ns.corrupted&&trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'intimacy'});setShow(false)}}>⚠ 靠近（2 AP SAN-）</button>}
+              <button className="btn btn-sm btn-danger" style={{fontSize:'0.72rem'}} onClick={()=>setConfirmAction('attack')}>⚠ 攻击（2 AP 格斗检定）</button>
+            </div>
+          </div>}
         </div>}
       </div>
     </div>}
@@ -1782,6 +2220,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
   const ref=useRef(null);
   const transitionTimer=useRef(null);
   const [forbiddenOpen,setForbiddenOpen]=useState(false);
+  const [logOpen,setLogOpen]=useState(false);
   useEffect(()=>{if(ref.current)ref.current.scrollTop=ref.current.scrollHeight},[state.narrative.length]);
   // Keyboard shortcuts: 1-9 for action buttons
   useEffect(()=>{
@@ -1849,6 +2288,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
       </div></div>}
     </div>
     {!state.pendingEvent?.rolled&&!state.pendingNpc&&!state.pendingGamble&&!state.pendingChoice&&!state.ending&&<div className="action-area">
+      {(()=>{window.__n=0;return null;})()}
       {(() => {
         const ts=state.tutorialSeen||{};
         const hints=[
@@ -1865,33 +2305,34 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
 
       {/* A. 调查行动 */}
       <div className="action-group">
-        <div className="action-group-title">调查行动</div>
+        <div className="action-group-title"><span className="action-group-icon">🔍</span>调查行动</div>
         <div className="action-group-grid">
-          <button className="action-btn" onClick={()=>dispatch({type:'EXPLORE'})} disabled={state.ap<2}><span className="action-icon">🔍</span>{getOptionText('investigate_sound',state.san)||'探索区域'}<span className="cost">2 AP</span></button>
-          {conn.map(aid=>{const a=areas.find(ar=>ar.id===aid);if(!a)return null;const unlocked=isAreaUnlocked(a,state);const isRumor=a.chapter_1_role==='rumor_only'&&!unlocked;return <button key={aid} className="action-btn" onClick={()=>dispatch({type:'MOVE',areaId:aid})} disabled={state.ap<1||!unlocked}><span className="action-icon">{isRumor?'?':'👣'}</span>{isRumor?'听说：':''}{a.name}{!unlocked?' [锁定]':''}<span className="cost">{!unlocked?'需要线索':'1 AP'}</span></button>;})}
-          {npcs.map(n=><button key={n.name} className="action-btn" onClick={()=>dispatch({type:'TALK_NPC',npc:n})} disabled={state.ap<1}><span className="action-icon">💬</span>{n.name}<span className="cost">1 AP</span></button>)}
+          <button className="action-btn primary-action" onClick={()=>dispatch({type:'EXPLORE'})} disabled={state.ap<2}><span className="btn-hint">{(()=>{window.__n=(window.__n||0)+1;return window.__n;})()}</span><span className="action-icon">🔍</span>{getOptionText('investigate_sound',state.san)||'探索区域'}<span className="cost">2 AP</span></button>
+          {conn.map(aid=>{const a=areas.find(ar=>ar.id===aid);if(!a)return null;const unlocked=isAreaUnlocked(a,state);const isRumor=a.chapter_1_role==='rumor_only'&&!unlocked;window.__n=(window.__n||0)+1;const n=window.__n;return <button key={aid} className="action-btn primary-action" onClick={()=>dispatch({type:'MOVE',areaId:aid})} disabled={state.ap<1||!unlocked}><span className="btn-hint">{n}</span><span className="action-icon">{isRumor?'?':'👣'}</span>{isRumor?'听说：':''}{a.name}{!unlocked?' [锁定]':''}<span className="cost">{!unlocked?'需要线索':'1 AP'}</span></button>;})}
+          {npcs.map(npc=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button key={npc.name} className="action-btn" onClick={()=>dispatch({type:'TALK_NPC',npc:npc})} disabled={state.ap<1}><span className="btn-hint">{n}</span><span className="action-icon">💬</span>{npc.name}<span className="cost">1 AP</span></button>;})}
         </div>
       </div>
 
       {/* B. 随身物件 */}
       {state.inventory.filter(i=>i.uses!==0).some(it=>itemUseInfo[it.name])&&<div className="action-group">
-        <div className="action-group-title">随身物件</div>
+        <div className="action-group-title"><span className="action-group-icon">🎒</span>随身物件</div>
         <div className="action-group-grid">
           {state.inventory.filter(i=>i.uses!==0).map((it,i)=>{
             const label=itemUseInfo[it.name];if(!label)return null;
-            return <button key={i} className="action-btn" onClick={()=>dispatch({type:'USE_ITEM',item:it})}><span className="action-icon">🧪</span>{it.name}<span className="cost">{label}{it.uses>0?' ×'+it.uses:''}</span></button>;
+            window.__n=(window.__n||0)+1;const n=window.__n;
+            return <button key={i} className="action-btn" onClick={()=>dispatch({type:'USE_ITEM',item:it})}><span className="btn-hint">{n}</span><span className="action-icon">🧪</span>{it.name}<span className="cost">{label}{it.uses>0?' ×'+it.uses:''}</span></button>;
           })}
         </div>
       </div>}
 
       {/* C. 日常行动 */}
       <div className="action-group">
-        <div className="action-group-title">日常行动</div>
+        <div className="action-group-title"><span className="action-group-icon">☀️</span>日常行动</div>
         <div className="action-group-grid">
-          {getAvailableSafehouses(state).filter(sh=>state.currentSafehouse!==sh.name).map(sh=><button key={sh.name} className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:sh.name})}><span className="action-icon">🏠</span>搬到{sh.name}<span className="cost">恢复+{sh.functions?.san_restore||0}</span></button>)}
-          {state.currentSafehouse!=='main'&&<button className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:'main'})}><span className="action-icon">🍺</span>回酒馆<span className="cost">返回原处</span></button>}
-          <button className="action-btn" onClick={()=>dispatch({type:'WORK'})} disabled={state.ap<2}><span className="action-icon">💰</span>打工挣钱<span className="cost">2 AP</span></button>
-          <button className="action-btn" onClick={()=>dispatch({type:'REST'})}><span className="action-icon">🏕️</span>{getOptionText('rest_at_safehouse',state.san)||'结束今日'}<span className="cost">休息恢复</span></button>
+          {getAvailableSafehouses(state).filter(sh=>state.currentSafehouse!==sh.name).map(sh=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button key={sh.name} className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:sh.name})}><span className="btn-hint">{n}</span><span className="action-icon">🏠</span>搬到{sh.name}<span className="cost">恢复+{sh.functions?.san_restore||0}</span></button>;})}
+          {state.currentSafehouse!=='main'&&(()=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:'main'})}><span className="btn-hint">{n}</span><span className="action-icon">🍺</span>回酒馆<span className="cost">返回原处</span></button>;})()}
+          {(()=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button className="action-btn" onClick={()=>dispatch({type:'WORK'})} disabled={state.ap<2}><span className="btn-hint">{n}</span><span className="action-icon">💰</span>打工挣钱<span className="cost">2 AP</span></button>;})()}
+          {(()=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button className="action-btn" onClick={()=>dispatch({type:'REST'})}><span className="btn-hint">{n}</span><span className="action-icon">🏕️</span>{getOptionText('rest_at_safehouse',state.san)||'结束今日'}<span className="cost">休息恢复</span></button>;})()}
         </div>
       </div>
 
@@ -1906,7 +2347,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
         if((state.mythosLevel||0)>=2)dangerActions.push({type:'SELF_SACRIFICE',label:'自我献祭',cost:'3 AP',costAp:3});
         if(dangerActions.length===0)return null;
         return <div className={'action-group forbidden'+(forbiddenOpen?' open':'')}>
-          <button type="button" className="forbidden-toggle" onClick={()=>setForbiddenOpen(v=>!v)}>
+          <button type="button" className="forbidden-toggle" onClick={()=>{setForbiddenOpen(v=>{audioManager.playUI(v?'panel_close':'panel_open');return !v;});}}>
             <span className="forbidden-mark">{forbiddenOpen?'▾':'▸'}</span>
             <span className="forbidden-title">{forbiddenOpen?'禁忌批注':'不要翻开这一页'}</span>
             <span className="forbidden-count">{dangerActions.length}</span>
@@ -1914,13 +2355,19 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
           {forbiddenOpen&&<div className="forbidden-actions">
             <div className="forbidden-warning">这些选择会留下痕迹。不是所有痕迹都会消失在下一次轮回里。</div>
             <div className="action-group-grid forbidden-grid">
-              {dangerActions.map(da=><button key={da.type} className="action-btn forbidden-btn" onClick={()=>dispatch({type:da.type})} disabled={state.ap<da.costAp}><span className="forbidden-bullet">※</span>{da.label}<span className="cost">{da.cost}</span></button>)}
+              {dangerActions.map(da=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button key={da.type} className="action-btn forbidden-btn" onClick={()=>dispatch({type:da.type})} disabled={state.ap<da.costAp}><span className="btn-hint">{n}</span><span className="forbidden-bullet">※</span>{da.label}<span className="cost">{da.cost}</span></button>;})}
             </div>
           </div>}
         </div>;
       })()}
     </div>}
-    {state.eventLog.length>0&&<div className="event-log">{state.eventLog.slice(-8).map((l,i)=><div key={i} className="log-entry"><span className="log-day">[Day {l.day}]</span> {l.text}</div>)}</div>}
+    {state.eventLog.length>0&&<div className="event-log">
+      <div className="event-log-header" onClick={()=>setLogOpen(v=>!v)}>
+        <span className="event-log-toggle">{logOpen?'▾':'▸'}</span>
+        <span>事件日志 ({state.eventLog.length})</span>
+      </div>
+      {logOpen&&<div className="event-log-body">{state.eventLog.slice(-8).map((l,i)=><div key={i} className="log-entry"><span className="log-day">[Day {l.day}]</span> {l.text}</div>)}</div>}
+    </div>}
   </div>;
 })
 
@@ -2001,6 +2448,7 @@ function CitySketchMap({areas,state,dispatch,conn}){
 }
 
 const RightPanel=memo(function RightPanel({state,dispatch}){
+  const [tab,setTab]=useState('map');
   const areas=GD.areas||GD.module2_areas||[];
   const npcs=GD.npcs||GD.module3_npcs||[];
   const conn=useMemo(()=>getConnectedAreas(state.currentArea,ctx),[state.currentArea]);
@@ -2020,36 +2468,45 @@ const RightPanel=memo(function RightPanel({state,dispatch}){
       </div>;
     }).filter(Boolean);
   },[state.discoveredConclusions,state.triggeredEvents,state.npcTrust]);
+  const tabs=[{id:'map',label:'地图'},{id:'people',label:'人物'},{id:'clues',label:'线索'},{id:'goals',label:'目标'}];
+  const clueCount=state.clues.length+(state.completedChains?.length||0)+(state.discoveredConclusions?.length||0);
   return <div className="right-panel">
-    <div className="panel-title">沃切斯特地图</div>
-    <div className="map-section">
-      <CitySketchMap areas={areas} state={state} dispatch={dispatch} conn={conn}/>
-    </div>
-    <div className="panel-title">NPC</div>
-    <div className="npc-section">{npcs.filter(n=>!state.npcStates[n.name]?.dead).map(n=>{
-      const trust=state.npcTrust[n.name]||0;const ns=state.npcStates[n.name]||{};
-      const d=((state.day-1)%5)+1;const sch=(n.schedule||[]).find(s=>s.startsWith('day'+d));
-      const loc=sch?sch.split(':')[1]:'???';const ln=(areas.find(a=>a.id===loc)||{}).name||loc;
-      return <div key={n.name} className="npc-entry">
-        <div className="npc-name">{n.name}{n.chapter_1_availability==='core'&&<span style={{fontSize:'0.6rem',color:'var(--gold)',marginLeft:'0.2rem'}}>核心</span>}{ns.corrupted&&<span className="npc-status corrupted"> [腐蚀]</span>}{ns.dead&&<span className="npc-status dead"> [死亡]</span>}</div>
-        <div className="npc-role">{n.role}</div><div className="npc-trust">{'★'.repeat(Math.max(0,trust))}{'☆'.repeat(Math.max(0,5-trust))} | {ln}</div>
-      </div>;
-    })}</div>
-    {state.objectives&&state.objectives.length>0&&<><div className="panel-title">当前目标</div><div className="clues-section">{state.objectives.map((o,i)=><div key={i} style={{fontSize:'0.7rem',padding:'0.15rem 0',color:o.done?'var(--san-high)':'var(--text-dim)'}}>{o.icon} {o.text} {o.done?'✓':''}</div>)}</div></>}
-    {state.clues.length>0&&<><div className="panel-title">线索 ({state.clues.length})</div><div className="clues-section">{state.clues.map((c,i)=><div key={i} className="clue-entry">• {c}</div>)}</div></>}
-    {state.completedChains&&state.completedChains.length>0&&<><div className="panel-title">事件链 ({state.completedChains.length})</div><div className="clues-section">{state.completedChains.map((cid,i)=><div key={i} style={{fontSize:'0.7rem',color:'var(--san-high)',padding:'0.15rem 0'}}>✓ {cid}</div>)}</div></>}
-    {state.loopCount>0&&<><div className="panel-title" style={{color:'var(--purple)'}}>轮回</div><div style={{fontSize:'0.7rem',color:'var(--purple)',padding:'0.15rem 0'}}>第 {state.loopCount} 次轮回 | 污染：{Math.round((state.pollution||0)*100)}%</div></>}
-    {state.activeBlessings&&state.activeBlessings.length>0&&<><div className="panel-title" style={{color:'var(--gold)'}}>恩赐</div>{state.activeBlessings.map((bkey,i)=>{
-      const b=GD.systems?.loop?.loop_blessings?.[bkey];
-      return b?<div key={i} style={{fontSize:'0.7rem',color:'var(--gold)',padding:'0.15rem 0'}}>★ {b.name}</div>:null;
-    })}</>}
-    {state.discoveredConclusions&&state.discoveredConclusions.length>0&&<><div className="panel-title" style={{color:'var(--gold)'}}>结论</div><div className="clues-section">{state.discoveredConclusions.map((cid,i)=>{
-      const conc=(GD.systems?.clue_conclusion?.conclusions||[]).find(c=>c.id===cid);
-      return <div key={i} className="conclusion-entry">★ {conc?.name||cid}</div>;
-    })}</div></>}
-    {/* In-progress conclusions (P2-2) */}
-    {inProgressConclusions}
-    {(state.humanityScore!==undefined&&state.humanityScore!==50)&&<><div className="panel-title" style={{color:state.humanityScore>=60?'var(--accent2)':state.humanityScore>=30?'var(--gold)':'var(--danger2)'}}>人性</div><div style={{fontSize:'0.7rem',color:state.humanityScore>=60?'var(--accent2)':state.humanityScore>=30?'var(--gold)':'var(--danger2)',padding:'0.15rem 0'}}>{state.humanityScore>=60?'尚存人性':state.humanityScore>=30?'人性脆弱':'人性迷失'} ({state.humanityScore})</div></>}
+    <div className="right-panel-tabs">{tabs.map(t=><button key={t.id} className={'tab-btn'+(tab===t.id?' active':'')} onClick={()=>setTab(t.id)}>{t.label}{t.id==='clues'&&clueCount>0&&<span className="tab-badge">{clueCount}</span>}</button>)}</div>
+    {tab==='map'&&<div className="tab-content">
+      <div className="panel-title">沃切斯特地图</div>
+      <div className="map-section"><CitySketchMap areas={areas} state={state} dispatch={dispatch} conn={conn}/></div>
+    </div>}
+    {tab==='people'&&<div className="tab-content">
+      <div className="panel-title">NPC</div>
+      <div className="npc-section">{npcs.filter(n=>!state.npcStates[n.name]?.dead).map(n=>{
+        const trust=state.npcTrust[n.name]||0;const ns=state.npcStates[n.name]||{};
+        const d=((state.day-1)%5)+1;const sch=(n.schedule||[]).find(s=>s.startsWith('day'+d));
+        const loc=sch?sch.split(':')[1]:'???';const ln=(areas.find(a=>a.id===loc)||{}).name||loc;
+        return <div key={n.name} className="npc-entry">
+          <div className="npc-name">{n.name}{n.chapter_1_availability==='core'&&<span style={{fontSize:'0.6rem',color:'var(--gold)',marginLeft:'0.2rem'}}>核心</span>}{ns.corrupted&&<span className="npc-status corrupted"> [腐蚀]</span>}{ns.dead&&<span className="npc-status dead"> [死亡]</span>}</div>
+          <div className="npc-role">{n.role}</div><div className="npc-trust">{'★'.repeat(Math.max(0,trust))}{'☆'.repeat(Math.max(0,5-trust))} | {ln}</div>
+        </div>;
+      })}</div>
+      {state.activeBlessings&&state.activeBlessings.length>0&&<><div className="panel-title" style={{color:'var(--gold)'}}>恩赐</div>{state.activeBlessings.map((bkey,i)=>{
+        const b=GD.systems?.loop?.loop_blessings?.[bkey];
+        return b?<div key={i} style={{fontSize:'0.7rem',color:'var(--gold)',padding:'0.15rem 0'}}>★ {b.name}</div>:null;
+      })}</>}
+      {(state.humanityScore!==undefined&&state.humanityScore!==50)&&<><div className="panel-title" style={{color:state.humanityScore>=60?'var(--accent2)':state.humanityScore>=30?'var(--gold)':'var(--danger2)'}}>人性</div><div style={{fontSize:'0.7rem',color:state.humanityScore>=60?'var(--accent2)':state.humanityScore>=30?'var(--gold)':'var(--danger2)',padding:'0.15rem 0'}}>{state.humanityScore>=60?'尚存人性':state.humanityScore>=30?'人性脆弱':'人性迷失'} ({state.humanityScore})</div></>}
+    </div>}
+    {tab==='clues'&&<div className="tab-content">
+      {state.clues.length>0&&<><div className="panel-title">线索 ({state.clues.length})</div><div className="clues-section">{state.clues.map((c,i)=><div key={i} className="clue-entry">• {c}</div>)}</div></>}
+      {state.completedChains&&state.completedChains.length>0&&<><div className="panel-title">事件链 ({state.completedChains.length})</div><div className="clues-section">{state.completedChains.map((cid,i)=><div key={i} style={{fontSize:'0.7rem',color:'var(--san-high)',padding:'0.15rem 0'}}>✓ {cid}</div>)}</div></>}
+      {state.discoveredConclusions&&state.discoveredConclusions.length>0&&<><div className="panel-title" style={{color:'var(--gold)'}}>结论</div><div className="clues-section">{state.discoveredConclusions.map((cid,i)=>{
+        const conc=(GD.systems?.clue_conclusion?.conclusions||[]).find(c=>c.id===cid);
+        return <div key={i} className="conclusion-entry">★ {conc?.name||cid}</div>;
+      })}</div></>}
+      {inProgressConclusions}
+      {state.loopCount>0&&<><div className="panel-title" style={{color:'var(--purple)'}}>轮回</div><div style={{fontSize:'0.7rem',color:'var(--purple)',padding:'0.15rem 0'}}>第 {state.loopCount} 次轮回 | 污染：{Math.round((state.pollution||0)*100)}%</div></>}
+    </div>}
+    {tab==='goals'&&<div className="tab-content">
+      {state.objectives&&state.objectives.length>0&&<><div className="panel-title">当前目标</div><div className="clues-section">{state.objectives.map((o,i)=><div key={i} style={{fontSize:'0.7rem',padding:'0.15rem 0',color:o.done?'var(--san-high)':'var(--text-dim)'}}>{o.icon} {o.text} {o.done?'✓':''}</div>)}</div></>}
+      {state.eventLog.length>0&&<><div className="panel-title">事件记录</div><div className="clues-section">{state.eventLog.slice(-10).map((l,i)=><div key={i} style={{fontSize:'0.65rem',color:'var(--text-dim)',padding:'0.1rem 0'}}><span style={{color:'var(--text-dim)',opacity:0.5}}>[Day {l.day}]</span> {l.text}</div>)}</div></>}
+    </div>}
   </div>;
 })
 
@@ -2129,7 +2586,7 @@ function EndingScreen({ending,state,dispatch}){
   </div>;
 }
 
-function GameHeader({state,dispatch,areas}){
+function GameHeader({state,dispatch,areas,onSettingsOpen}){
   const area=areas.find(a=>a.id===state.currentArea);
   const areaName=area?getAreaDisplayName(area,state):state.currentArea;
   const sanStage=getSanStage(state.san,ctx);
@@ -2155,30 +2612,165 @@ function GameHeader({state,dispatch,areas}){
       <span className="header-status-pill ap">行动余裕：{state.ap}/{state.maxAp}</span>
     </div>
     <div className="header-controls">
+      <button className="header-btn" onClick={onSettingsOpen} title="设置">⚙️</button>
       <button className="header-btn" onClick={()=>dispatch({type:'AUDIO_MUTE_TOGGLE'})} title={state.audioMuted?'取消静音':'静音'}>{state.audioMuted?'🔇':'🔊'}</button>
-      <button className="header-btn" onClick={()=>dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion'})} title={state.accessibilityOptions?.visual_distortion==='off'?'视觉特效：已关闭':'关闭视觉特效'}>👁</button>
-      <button className="header-btn" onClick={()=>{try{saveGame(state)}catch(e){}}} title="写入调查记录">💾</button>
+      <button className="header-btn header-btn-state" onClick={()=>dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion'})} title="切换视觉特效">{state.accessibilityOptions?.visual_distortion==='off'?'特效:关':'特效:开'}</button>
+      <button className="header-btn" onClick={()=>{setSaveLoadMode('save');setSaveLoadOpen(true);audioManager.playUI('panel_open');}} title="写入调查记录">💾</button>
     </div>
   </header>;
 }
 
+function SettingsModal({open,onClose,settings,onChange,onAchOpen}){
+  const update=(key,val)=>onChange({...settings,[key]:val});
+  return <Modal open={open} onClose={onClose} title="设置" width="400px">
+    <div className="settings-group-title">音频</div>
+    <div className="settings-row">
+      <span className="settings-label">音量</span>
+      <input type="range" className="settings-slider" min="0" max="100" value={settings.volume} onChange={e=>update('volume',Number(e.target.value))}/>
+      <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.volume}%</span>
+    </div>
+    <div className="settings-row">
+      <span className="settings-label">突袭音效</span>
+      <button className={'settings-toggle'+(settings.suddenSounds?' on':'')} onClick={()=>update('suddenSounds',!settings.suddenSounds)}/>
+    </div>
+    <div className="settings-group-title">显示</div>
+    <div className="settings-row">
+      <span className="settings-label">叙事字号</span>
+      <div className="font-size-group">
+        {[['small','小'],['medium','中'],['large','大']].map(([k,l])=>
+          <button key={k} className={'font-size-btn'+(settings.narrativeFontSize===k?' active':'')} onClick={()=>update('narrativeFontSize',k)}>{l}</button>
+        )}
+      </div>
+    </div>
+    <div className="settings-group-title">效果</div>
+    <div className="settings-row">
+      <span className="settings-label">视觉抖动</span>
+      <button className={'settings-toggle'+(settings.visualDistortion?' on':'')} onClick={()=>update('visualDistortion',!settings.visualDistortion)}/>
+    </div>
+    <div className="settings-row">
+      <span className="settings-label">闪烁效果</span>
+      <button className={'settings-toggle'+(settings.flickerEffect?' on':'')} onClick={()=>update('flickerEffect',!settings.flickerEffect)}/>
+    </div>
+    {onAchOpen&&<><div className="settings-group-title">其他</div>
+    <div className="settings-row">
+      <span className="settings-label">成就</span>
+      <button className="btn btn-sm" onClick={()=>{onClose();onAchOpen();}}>查看成就</button>
+    </div></>}
+  </Modal>;
+}
+
+function SaveLoadModal({open,onClose,state,onLoad,mode}){
+  const slots=getAllSlots();
+  const autoSlots=slots.filter(s=>s.slotId.startsWith('auto'));
+  const manualSlots=slots.filter(s=>s.slotId.startsWith('manual'));
+  const formatTime=(ts)=>{if(!ts)return'—';const d=new Date(ts);return d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});};
+  const renderSlot=(slot)=>{
+    const isManual=slot.slotId.startsWith('manual');
+    const label=isManual?'手动 '+slot.slotId.split('_')[1]:slot.slotId==='auto_1'?'最近自动':'自动 '+slot.slotId.split('_')[1];
+    if(!slot.exists)return <div key={slot.slotId} className="save-slot empty" onClick={()=>{if(mode==='save'&&isManual){manualSave(slot.slotId,state);onClose();}}}>
+      <div className="save-slot-label">{label}</div>
+      <div className="save-slot-meta">空</div>
+    </div>;
+    const m=slot.meta||{};
+    return <div key={slot.slotId} className={'save-slot'+(isManual?' manual':' auto')} onClick={()=>{
+      if(mode==='save'&&isManual){if(confirm('覆盖此存档？')){manualSave(slot.slotId,state);onClose();}}
+      else if(mode==='load'){const loaded=loadSlot(slot.slotId);if(loaded&&!loaded.incompatible){onLoad(loaded);onClose();}else if(loaded?.incompatible){alert('存档版本不兼容');}}
+    }}>
+      <div className="save-slot-label">{label}</div>
+      <div className="save-slot-meta">第{m.day||'?'}日 · {m.area||'?'} · SAN:{m.san||'?'}</div>
+      <div className="save-slot-time">{formatTime(slot.timestamp)}</div>
+    </div>;
+  };
+  return <Modal open={open} onClose={onClose} title={mode==='save'?'写入调查记录':'读取调查记录'} width="440px">
+    {mode==='save'&&<div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.6rem'}}>手动存档槽位（点击覆盖）：</div>}
+    <div className="save-slots-grid">{manualSlots.map(renderSlot)}</div>
+    {mode==='load'&&<>
+      <div style={{fontSize:'0.7rem',color:'var(--text-dim)',margin:'0.8rem 0 0.4rem',borderTop:'1px solid var(--border)',paddingTop:'0.5rem'}}>自动存档：</div>
+      <div className="save-slots-grid">{autoSlots.map(renderSlot)}</div>
+    </>}
+  </Modal>;
+}
+
+function AchievementToast({achievement,onDismiss}){
+  useEffect(()=>{const t=setTimeout(onDismiss,4000);return()=>clearTimeout(t);},[onDismiss]);
+  return <div className="achievement-toast" onClick={onDismiss}>
+    <div className="achievement-toast-icon">{achievement.icon}</div>
+    <div className="achievement-toast-text">
+      <div className="achievement-toast-label">成就解锁</div>
+      <div className="achievement-toast-name">{achievement.name}</div>
+    </div>
+  </div>;
+}
+
+function AchievementGallery({open,onClose}){
+  const all=getAllAchievements();
+  const data=loadAchievements();
+  return <Modal open={open} onClose={onClose} title="成就" width="480px">
+    <div className="achievement-gallery">
+      {all.map(ach=>{
+        const unlocked=data.unlocked.includes(ach.id);
+        return <div key={ach.id} className={'achievement-card'+(unlocked?'':' locked')}>
+          <div className="achievement-card-icon">{unlocked?ach.icon:'❓'}</div>
+          <div className="achievement-card-info">
+            <div className="achievement-card-name">{ach.name}</div>
+            <div className="achievement-card-desc">{unlocked?ach.desc:'???'}</div>
+          </div>
+        </div>;
+      })}
+    </div>
+  </Modal>;
+}
+
 function App(){
   const [state,dispatch]=useReducer(gameReducer,null,initialState);
+  const [settings,setSettings]=useState(loadSettings);
+  const [settingsOpen,setSettingsOpen]=useState(false);
+  const [saveLoadOpen,setSaveLoadOpen]=useState(false);
+  const [saveLoadMode,setSaveLoadMode]=useState('save');
+  const [achOpen,setAchOpen]=useState(false);
+  const [toasts,setToasts]=useState([]);
   const savedExists = hasSave();
 
-  if(state.screen==='title')return <TitleScreen
-    onStart={()=>dispatch({type:'START_GAME'})}
-    saveExists={savedExists}
-    onContinue={()=>{
-      const loaded = loadGame();
-      if (loaded && !loaded.incompatible) {
-        dispatch({type:'CONTINUE_GAME', savedState: loaded});
-      } else if (loaded && loaded.incompatible) {
-        alert('存档版本不兼容，请开始新游戏。');
-        clearSave();
-      }
-    }}
-  />;
+  // Achievement checking
+  useEffect(()=>{
+    const achData=loadAchievements();
+    const newUnlocks=checkAchievements(state,achData.unlocked,achData.stats);
+    if(newUnlocks.length>0){
+      achData.unlocked.push(...newUnlocks);
+      saveAchievements(achData);
+      newUnlocks.forEach(id=>{
+        const def=getAchievementDef(id);
+        if(def)setToasts(prev=>[...prev,{id,def,key:Date.now()}]);
+      });
+    }
+  },[state.day,state.ending,state.visitedAreas?.length,state.clues?.length]);
+
+  useEffect(()=>{migrateOldSave();},[]);
+
+  useEffect(()=>{
+    audioManager._volumeScale=settings.volume/100;
+    audioManager.suddenMuted=!settings.suddenSounds;
+    dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion',value:settings.visualDistortion?'medium':'off'});
+    dispatch({type:'ACCESSIBILITY_TOGGLE',key:'flicker_control',value:settings.flickerEffect?'medium':'off'});
+  },[settings]);
+
+  const handleSettingsChange=(s)=>{saveSettings(s);setSettings(s);};
+  const fontSizeClass='narrative-size-'+settings.narrativeFontSize;
+
+  const handleLoadSlot=(loaded)=>{dispatch({type:'CONTINUE_GAME', savedState: loaded});};
+
+  if(state.screen==='title')return <>
+    <TitleScreen
+      onStart={()=>dispatch({type:'START_GAME'})}
+      saveExists={savedExists}
+      onContinue={()=>{setSaveLoadMode('load');setSaveLoadOpen(true);}}
+      onSettingsOpen={()=>setSettingsOpen(true)}
+      onAchOpen={()=>setAchOpen(true)}
+    />
+    <SettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>setAchOpen(true)}/>
+    <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={null} onLoad={handleLoadSlot} mode="load"/>
+    <AchievementGallery open={achOpen} onClose={()=>setAchOpen(false)}/>
+  </>;
   if(state.screen==='creation')return <CharCreation state={state} onRoll={()=>dispatch({type:'ROLL_STATS'})} onStart={()=>dispatch({type:'BEGIN_ADVENTURE'})} onSetDifficulty={(d)=>dispatch({type:'SET_DIFFICULTY',difficulty:d})} onSetArchetype={(id)=>dispatch({type:'SET_ARCHETYPE',archetypeId:id})}/>;
   if(state.ending)return <EndingScreen ending={state.ending} state={state} dispatch={dispatch}/>;
   const corrLevel=getCorruptionLevel(state.san,state.loopCount);
@@ -2186,12 +2778,20 @@ function App(){
   const visualDistortion=state.accessibilityOptions?.visual_distortion;
   const allowVisualFX=visualDistortion!=='none'&&visualDistortion!=='off';
   const sanClass=allowVisualFX?(state.san<20?' san-fracture':state.san<40?' san-tremor':''):'';
-  return <div className={'game-layout'+(corrLevel>0?' corruption-'+corrLevel:'')+sanClass}>
-    <GameHeader state={state} dispatch={dispatch} areas={areas}/>
-    <LeftPanel state={state}/>
-    <CenterPanel state={state} dispatch={dispatch}/>
-    <RightPanel state={state} dispatch={dispatch}/>
-  </div>;
+  return <>
+    <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+' '+fontSizeClass}>
+      <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>setSettingsOpen(true)}/>
+      <LeftPanel state={state}/>
+      <CenterPanel state={state} dispatch={dispatch}/>
+      <RightPanel state={state} dispatch={dispatch}/>
+    </div>
+    <SettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>setAchOpen(true)}/>
+    <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={state} onLoad={handleLoadSlot} mode={saveLoadMode}/>
+    <AchievementGallery open={achOpen} onClose={()=>setAchOpen(false)}/>
+    {toasts.length>0&&<div className="achievement-toast-container">
+      {toasts.map(t=><AchievementToast key={t.key} achievement={t.def} onDismiss={()=>setToasts(prev=>prev.filter(x=>x.key!==t.key))}/>)}
+    </div>}
+  </>;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);

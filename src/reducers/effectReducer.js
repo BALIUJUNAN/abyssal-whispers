@@ -3,6 +3,7 @@
 
 import { clamp, rollDice } from './utils.js';
 import { applyExtendedEffect } from './extendedEvents.js';
+import { incrementStat } from './achievementReducer.js';
 
 /**
  * Apply a list of effects to game state.
@@ -43,6 +44,8 @@ export function applyEffects(state, effects, context) {
         } else {
           state.inventory.push({ id: eff.item_id, name: eff.name || eff.item_id, uses: eff.uses || 1 });
         }
+        try{incrementStat('items_collected');}catch(e){}
+        try{if(typeof audioManager!=='undefined')audioManager.playEffect('item_gain');}catch(e){}
         break;
       }
       case 'remove_item': {
@@ -58,7 +61,7 @@ export function applyEffects(state, effects, context) {
         break;
       }
       case 'add_clue': {
-        if (!state.clues.includes(eff.clue_id)) state.clues.push(eff.clue_id);
+        if (!state.clues.includes(eff.clue_id)) { state.clues.push(eff.clue_id); try{if(typeof audioManager!=='undefined')audioManager.playEffect('clue_found');}catch(e){} }
         break;
       }
       case 'add_flag': {

@@ -68,6 +68,8 @@ REDUCER_FILES = [
     'reducers/endingReducer.js',
     'reducers/objectiveReducer.js',
     'reducers/saveReducer.js',
+    'reducers/settingsReducer.js',
+    'reducers/achievementReducer.js',
     'reducers/loopReducer.js',
     'reducers/chapterReducer.js',
     'reducers/conclusionReducer.js',
