@@ -20,9 +20,20 @@ import { selectEventV2, checkTriggerExtended, resetDailyCategoryCounts, buildPre
 import { ensureExtendedState, mergeExtendedEvents } from './reducers/extendedEventsLoader.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
 import { resolveDeath } from './reducers/deathSystem.js';
+import { PROLOGUE_EVENTS } from './data/prologue_events.js';
+import { initPrologueState, handlePrologueChoice, handleSkipPrologue, getPrologueEvent, getPrologueSceneOrder } from './reducers/prologueReducer.js';
+import { getFearEventWeightModifier, applyFearLens, getFearNpcLine, applyFearCorruption } from './systems/fearLens.js';
 // __GAME_DATA__ 占位符在构建时替换为实际 JSON 数据
 
 const {useState,useReducer,useEffect,useRef,useMemo,useCallback,memo}=React;
+
+// === 线索 ID → 可读名称映射 ===
+// 来源: clue_chains + 前传事件 + game_data 中的命名线索
+const CLUE_NAME_MAP=(()=>{const m={};(GD.clue_chains||[]).forEach(ch=>{(ch.clues||[]).forEach(c=>{if(c.id&&c.name)m[c.id]=c.name});});if(PROLOGUE_EVENTS)PROLOGUE_EVENTS.forEach(e=>{(e.choices||[]).forEach(ch=>{const ac=ch.effects&&ch.effects.add_clue;if(ac&&typeof ac==='object'&&ac.id&&ac.name)m[ac.id]=ac.name;});});(GD.events||[]).forEach(e=>{const ac=e.effects&&e.effects.add_clue;if(ac&&typeof ac==='object'&&ac.id&&ac.name)m[ac.id]=ac.name;});return m})();
+
+/** 将线索 ID 转为可读名称，未知 ID 自动生成友好显示名 */
+function resolveClueName(id){if(CLUE_NAME_MAP[id])return CLUE_NAME_MAP[id];return id.replace(/^clue_/,'').replace(/_/g,' ')}
+
 const GD=initExtendedEvents(__GAME_DATA__);
 const ctx={GD};
 
@@ -229,6 +240,9 @@ const initialState=()=>{
   runMemory:[],
   audioMuted:false,
   tutorialSeen:{},
+  // Prologue system
+  prologue: null,
+  fearTuning: null,
   direct_kill_count:0,
   cannibalism_count:0,
   clean_kill_pattern:0,
@@ -458,6 +472,12 @@ function getUICorruptionLayer(san, loopCount, safehouseCorruption){
 }
 
 function getCorruptedSystemText(baseText, layer){
+  // Fear lens corruption: prologue-derived fear-specific UI corruption
+  // Applied before generic corruption
+  if(layer>0&&_currentFearTuning&&_currentFearTuning.primary){
+    const fearCorrupted=applyFearCorruption({fearTuning:_currentFearTuning},baseText,layer);
+    if(fearCorrupted!==baseText)return fearCorrupted;
+  }
   if(layer<=0||Math.random()>0.3)return baseText;
   const corruptions=GD.systems?.ui_corruption?.layers;
   if(!corruptions)return baseText;
@@ -758,11 +778,16 @@ function checkTrustGate(nextTrust, s, npcName) {
   return null;
 }
 
+// Fear lens: module-level reference for corruption function
+let _currentFearTuning = null;
+
 // === REDUCER ===
 // Lazy-clone pattern: arrays/objects are only cloned when a given action actually mutates them.
 // Helper functions (checkSilentEvent, addRunMemory, checkChainCompletion, etc.) receive `s`
 // and may push into its arrays, so we ensure those arrays are cloned before calling them.
 function gameReducer(state,action){
+  // Update module-level fear tuning for corruption functions
+  _currentFearTuning = state.fearTuning || null;
   // Shallow copy of state; arrays stay as references until explicitly cloned
   let s={...state};
   let _cloned={};
@@ -806,7 +831,7 @@ function gameReducer(state,action){
   if((s.money||0)>(s.hoarded_money_max||0))s.hoarded_money_max=s.money;
 
   switch(action.type){
-  case 'START_GAME':s.screen='creation';s.skills=initSkills();return s;
+  case 'START_GAME':s.screen='prologue';s.prologue=initPrologueState();s.fearTuning=null;s.skills=initSkills();return s;
   case 'SET_DIFFICULTY':s.difficulty=action.difficulty;return s;
   case 'SET_ARCHETYPE':s.archetype=action.archetypeId;return s;
   case 'ROLL_STATS':{
@@ -917,7 +942,30 @@ function gameReducer(state,action){
     if(s.ap<2){narr('system','行动点不足（需要2AP）。');return s;}
     s.ap-=2;
     // Use V2 scheduler for extended events, fall back to original
-    const evt=(GD._extendedEventsLoaded?selectEventV2:selectEvent)(s.currentArea,s,ctx,pick);
+    // Fear lens: adjust event selection weights based on prologue fear profile
+    let evt;
+    if(s.fearTuning&&s.fearTuning.primary&&GD._extendedEventsLoaded){
+      // 轻微影响事件选择：通过多次尝试来增加命中fear-weighted事件的概率
+      const candidates=[];
+      for(let i=0;i<3;i++){
+        const candidate=selectEventV2(s.currentArea,s,ctx,pick);
+        if(candidate&&!candidates.find(c=>c.id===candidate.id)){
+          const weight=getFearEventWeightModifier(candidate,s);
+          candidates.push({evt:candidate,weight});
+        }
+      }
+      if(candidates.length>0){
+        // 按权重排序，概率性选择
+        candidates.sort((a,b)=>b.weight-a.weight);
+        const roll=Math.random();
+        if(roll<0.6&&candidates[0])evt=candidates[0].evt;
+        else if(roll<0.85&&candidates[1])evt=candidates[1].evt;
+        else evt=candidates[candidates.length-1].evt;
+      }
+      if(!evt)evt=selectEventV2(s.currentArea,s,ctx,pick);
+    }else{
+      evt=(GD._extendedEventsLoaded?selectEventV2:selectEvent)(s.currentArea,s,ctx,pick);
+    }
     if(!evt){
       narr('system','四周平静，暂时没有发现异常。');
       const chains=GD.event_chains||GD.module4_event_extensions?.event_chains||[];
@@ -935,7 +983,9 @@ function gameReducer(state,action){
       return s;
     }
     s.triggeredEvents.push(evt.id);
-    const evtText=getPollutionText(getSanTextVariant(evt.description,s.san,pick,ctx),s.pollution||0);
+    let evtText=getPollutionText(getSanTextVariant(evt.description,s.san,pick,ctx),s.pollution||0);
+    // Fear lens: append fear-related flavor text
+    if(s.fearTuning&&s.fearTuning.primary)evtText=applyFearLens(evt,evtText,s);
     narr('event',evtText,{eventTitle:evt.name,eventType:evt.type||evt.event_classification,imageSrc:getEventImage(evt.id)||getAreaSceneImage(s.currentArea,s),imageAlt:evt.name});
     // Event choices: if event has non-empty choices, present them and wait
     if(evt.choices&&evt.choices.length>0){
@@ -1131,6 +1181,11 @@ function gameReducer(state,action){
       }else if(trust<3){
         const rec=d3()-1;if(rec>0){s.san=clamp(s.san+rec,0,s.maxSan);narr('san-recovery','与'+npc.name+'交谈让你感到些许安慰。SAN +'+rec);}
       }
+    }
+    // NPC fear line: subtle observation based on prologue fear profile
+    if(s.fearTuning&&s.fearTuning.primary){
+      const fearLine=getFearNpcLine(npc.name,s);
+      if(fearLine)narr('system',npc.name+'突然说："'+fearLine+'"');
     }
     // NPC déjà vu: loop threshold-based awareness
     if(s.loopCount>=3){
@@ -1889,6 +1944,10 @@ function gameReducer(state,action){
     // Track contradictory extremes
     if((s.humanityScore??30)>=30&&(s.direct_kill_count||0)>=3)setCorruptionFlag(s,'has_committed_contradictory_extremes');
 
+    // Carry over prologue fear tuning (persists across all loops)
+    f.prologue=s.prologue||null;
+    f.fearTuning=s.fearTuning||null;
+
     f.mythosLevel=Math.max(0,(s.mythosLevel||0)-2); // Mythos fades slightly between loops
     // Apply knowledge effects
     if(f.retainedKnowledge.includes('knowledge_npc_trust_shadow')){
@@ -1948,6 +2007,64 @@ function gameReducer(state,action){
     // Ensure extended state fields exist (backward-compatible migration)
     return ensureExtendedState(loaded);
   }
+  // ═══════════════════════════════════════════
+  // 前传系统 actions
+  // ═══════════════════════════════════════════
+  case 'START_PROLOGUE':{
+    s.screen='prologue';
+    s.prologue=initPrologueState();
+    s.fearTuning=null;
+    // 前传初始状态：SAN满，AP重置
+    s.san=s.maxSan;
+    s.ap=s.maxAp;
+    s.clues=[];
+    s.narrative=[{
+      id:Date.now(),
+      type:'system',
+      text:'这不是沃切斯特的第一份档案。',
+      isSpecial:true
+    }];
+    return s;
+  }
+  case 'PROLOGUE_CHOICE':{
+    if(!s.prologue||s.prologue.completed)return s;
+    const currentEvent=getPrologueEvent(s.prologue.currentScene);
+    if(!currentEvent)return s;
+    const pChoice=currentEvent.choices.find(c=>c.id===action.choiceId);
+    if(!pChoice)return s;
+    // AP消耗（前传中简化）
+    if(pChoice.cost&&pChoice.cost>0){
+      s.ap=Math.max(0,s.ap-pChoice.cost);
+    }
+    // handlePrologueChoice 现在返回 { state, narration, nextScene, completed }
+    const result=handlePrologueChoice(s,action.choiceId);
+    // 用返回的新 state 替换 s（不可变）
+    s=result.state;
+    // 添加叙述文本
+    for(const block of result.narration){
+      narr(block.type,block.text,{isEffect:block.isEffect,isSpecial:block.isSpecial});
+    }
+    // 如果完成前传，恢复初始状态用于角色创建
+    if(result.completed){
+      s.san=s.maxSan;
+      s.ap=s.maxAp;
+    }
+    return s;
+  }
+  case 'COMPLETE_PROLOGUE':{
+    // 前传完成，进入角色创建
+    s.screen='creation';
+    s.skills=initSkills();
+    // 保留前传结果
+    s.prologue.completed=true;
+    return s;
+  }
+  case 'SKIP_PROLOGUE':{
+    handleSkipPrologue(s);
+    s.screen='creation';
+    s.skills=initSkills();
+    return s;
+  }
   default:return s;
   }
 }
@@ -1996,6 +2113,131 @@ function TitleScreen({onStart, onContinue, saveExists, onSettingsOpen, onAchOpen
       <div className="title-corner-btns">
         {onAchOpen&&<button className="title-settings-btn" onClick={onAchOpen} title="成就">🏆</button>}
         {onSettingsOpen&&<button className="title-settings-btn" onClick={onSettingsOpen} title="设置">⚙️</button>}
+      </div>
+    </main>
+  </div>;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 前传：入城前夜 — PrologueScreen
+// ═══════════════════════════════════════════════════════════
+function PrologueScreen({state,dispatch}){
+  const prologue=state.prologue;
+  if(!prologue)return null;
+
+  const currentEvent=getPrologueEvent(prologue.currentScene);
+  const [showHint,setShowHint]=useState(false);
+  const [choiceMade,setChoiceMade]=useState(false);
+  const [selectedChoice,setSelectedChoice]=useState(null);
+
+  // 当场景变化时重置
+  useEffect(()=>{
+    setChoiceMade(false);
+    setSelectedChoice(null);
+    setShowHint(false);
+  },[prologue.currentScene]);
+
+  if(!currentEvent)return null;
+
+  const isDawn=currentEvent.id==='prologue_dawn';
+  const isCompleted=prologue.completed;
+
+  // 前传完成画面
+  if(isCompleted){
+    return <div className="prologue-screen prologue-complete">
+      <div className="prologue-bg"/>
+      <div className="prologue-vignette"/>
+      <main className="prologue-content">
+        <div className="prologue-kicker">前传档案 / 入城前夜</div>
+        <div className="prologue-complete-text">
+          <p>档案已建立。</p>
+          <p>你害怕的东西，比你先一步抵达。</p>
+        </div>
+        <div className="prologue-choices">
+          <button className="btn btn-primary" onClick={()=>dispatch({type:'COMPLETE_PROLOGUE'})}>
+            继续
+          </button>
+        </div>
+      </main>
+    </div>;
+  }
+
+  const handleChoice=(choiceId)=>{
+    setChoiceMade(true);
+    setSelectedChoice(choiceId);
+    // 延迟dispatch以显示选择反馈
+    setTimeout(()=>{
+      dispatch({type:'PROLOGUE_CHOICE',choiceId});
+    },800);
+  };
+
+  const handleSkip=()=>{
+    if(confirm('跳过前传？你可以随时从主菜单重新开始。')){
+      dispatch({type:'SKIP_PROLOGUE'});
+    }
+  };
+
+  return <div className="prologue-screen">
+    <div className="prologue-bg"/>
+    <div className="prologue-vignette"/>
+    <div className="prologue-fog-layer fog-1"/>
+    <div className="prologue-fog-layer fog-2"/>
+    <main className="prologue-content">
+      <div className="prologue-kicker">前传 / 入城前夜</div>
+
+      {/* 场景标题 */}
+      <h2 className="prologue-scene-title">{currentEvent.name}</h2>
+
+      {/* 叙述文本 */}
+      <div className="narrative-block prologue-narrative">
+        {currentEvent.description.split('\n').map((line,i)=>
+          <p key={i} className="narrative-line">{line}</p>
+        )}
+      </div>
+
+      {/* 教学提示 */}
+      {currentEvent.tutorial_hint&&<div className="prologue-hint" onClick={()=>setShowHint(!showHint)}>
+        <span className="prologue-hint-icon">?</span>
+        <span className="prologue-hint-text">{currentEvent.tutorial_hint}</span>
+      </div>}
+
+      {/* AP显示（如果场景有AP消耗） */}
+      {currentEvent.ap_cost&&<div className="prologue-ap">
+        <span className="prologue-ap-label">行动点：</span>
+        <span className="prologue-ap-value">{state.ap}</span>
+      </div>}
+
+      {/* 选择按钮 */}
+      {!choiceMade&&<div className="prologue-choices">
+        {currentEvent.choices.map(choice=>
+          <button key={choice.id}
+            className={'action-btn prologue-choice-btn'+(choice.cost?' has-cost':'')}
+            onClick={()=>handleChoice(choice.id)}>
+            <span className="choice-label">{choice.label}</span>
+            {choice.cost&&<span className="choice-cost">AP -{choice.cost}</span>}
+          </button>
+        )}
+      </div>}
+
+      {/* 选择反馈 */}
+      {choiceMade&&selectedChoice&&<div className="prologue-choice-feedback">
+        <div className="feedback-indicator"/>
+      </div>}
+
+      {/* 跳过按钮（非最后一个场景） */}
+      {!isDawn&&!isCompleted&&<div className="prologue-skip">
+        <button className="btn btn-sm" onClick={handleSkip}>跳过前传</button>
+      </div>}
+
+      {/* 底部状态栏 */}
+      <div className="prologue-footer">
+        <span className="prologue-footer-item">SAN：{state.san}</span>
+        <span className="prologue-footer-separator">·</span>
+        <span className="prologue-footer-item">场景 {getPrologueSceneOrder().indexOf(prologue.currentScene)+1}/{getPrologueSceneOrder().length}</span>
+        {state.clues.length>0&&<>
+          <span className="prologue-footer-separator">·</span>
+          <span className="prologue-footer-item">线索：{state.clues.length}</span>
+        </>}
       </div>
     </main>
   </div>;
@@ -2127,8 +2369,8 @@ const LeftPanel=memo(function LeftPanel({state}){
       {state.inventory.map((item,i)=><div key={i} className="item-entry"><span className="name">{item.name}</span>{item.uses>0&&<span className="uses"> ×{item.uses}</span>}{item.uses===-1&&<span className="uses"> ∞</span>}</div>)}
     </CollapsibleSection></div>
     {/* 折叠：已知线索 */}
-    {state.clues.length>0&&<CollapsibleSection title="已知线索" count={state.clues.length} defaultOpen={true} summary={state.clues[state.clues.length-1]?.slice(0,12)||''}>
-      {state.clues.slice(-5).map((c,i)=><div key={i} className="clue-entry">· {c}</div>)}
+    {state.clues.length>0&&<CollapsibleSection title="已知线索" count={state.clues.length} defaultOpen={true} summary={resolveClueName(state.clues[state.clues.length-1]||'').slice(0,12)||''}>
+      {state.clues.slice(-5).map((c,i)=><div key={i} className="clue-entry">· {resolveClueName(c)}</div>)}
     </CollapsibleSection>}
     {/* 折叠：封印记录 */}
     {seal&&<CollapsibleSection title="封印记录" defaultOpen={false} summary={seal?.name||''}>
@@ -2629,7 +2871,7 @@ const RightPanel=memo(function RightPanel({state,dispatch}){
       {(state.humanityScore!==undefined&&state.humanityScore!==50)&&<><div className="panel-title" style={{color:state.humanityScore>=60?'var(--accent2)':state.humanityScore>=30?'var(--gold)':'var(--danger2)'}}>人性</div><div style={{fontSize:'0.7rem',color:state.humanityScore>=60?'var(--accent2)':state.humanityScore>=30?'var(--gold)':'var(--danger2)',padding:'0.15rem 0'}}>{state.humanityScore>=60?'尚存人性':state.humanityScore>=30?'人性脆弱':'人性迷失'} ({state.humanityScore})</div></>}
     </div>}
     {tab==='clues'&&<div className="tab-content">
-      {state.clues.length>0&&<><div className="panel-title">线索 ({state.clues.length})</div><div className="clues-section">{state.clues.map((c,i)=><div key={i} className="clue-entry">• {c}</div>)}</div></>}
+      {state.clues.length>0&&<><div className="panel-title">线索 ({state.clues.length})</div><div className="clues-section">{state.clues.map((c,i)=><div key={i} className="clue-entry">• {resolveClueName(c)}</div>)}</div></>}
       {state.completedChains&&state.completedChains.length>0&&<><div className="panel-title">事件链 ({state.completedChains.length})</div><div className="clues-section">{state.completedChains.map((cid,i)=><div key={i} style={{fontSize:'0.7rem',color:'var(--san-high)',padding:'0.15rem 0'}}>✓ {cid}</div>)}</div></>}
       {state.discoveredConclusions&&state.discoveredConclusions.length>0&&<><div className="panel-title" style={{color:'var(--gold)'}}>结论</div><div className="clues-section">{state.discoveredConclusions.map((cid,i)=>{
         const conc=(GD.systems?.clue_conclusion?.conclusions||[]).find(c=>c.id===cid);
@@ -2934,6 +3176,9 @@ function App(){
     <SettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>setAchOpen(true)}/>
     <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={null} onLoad={handleLoadSlot} mode="load" onSaved={notifySave}/>
     <AchievementGallery open={achOpen} onClose={()=>setAchOpen(false)}/>
+  </>;
+  if(state.screen==='prologue')return <>
+    <PrologueScreen state={state} dispatch={dispatch}/>
   </>;
   if(state.screen==='creation')return <CharCreation state={state} onRoll={()=>dispatch({type:'ROLL_STATS'})} onStart={()=>dispatch({type:'BEGIN_ADVENTURE'})} onSetDifficulty={(d)=>dispatch({type:'SET_DIFFICULTY',difficulty:d})} onSetArchetype={(id)=>dispatch({type:'SET_ARCHETYPE',archetypeId:id})}/>;
   if(state.ending)return <EndingScreen ending={state.ending} state={state} dispatch={dispatch}/>;
