@@ -4,6 +4,8 @@
 
 <div align="center">
 
+<img src="docs/dossier.png" alt="沃切斯特档案" style="max-width:860px; border:1px solid #333; box-shadow: 0 4px 24px rgba(0,0,0,0.5);">
+
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Size](https://img.shields.io/badge/Build%20Output-2.4MB-green)
 [在线游玩](https://baliujunan.github.io/abyssal-whispers/) &middot; [如何开始](#快速开始) &middot; [游戏特色](#游戏特色) &middot; [技术架构](#技术架构)
