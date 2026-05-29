@@ -2809,7 +2809,7 @@ function SettingsModal({open,onClose,settings,onChange,onAchOpen}){
   </Modal>;
 }
 
-function SaveLoadModal({open,onClose,state,onLoad,mode}){
+function SaveLoadModal({open,onClose,state,onLoad,mode,onSaved}){
   const slots=getAllSlots();
   const autoSlots=slots.filter(s=>s.slotId.startsWith('auto'));
   const manualSlots=slots.filter(s=>s.slotId.startsWith('manual'));
@@ -2817,13 +2817,13 @@ function SaveLoadModal({open,onClose,state,onLoad,mode}){
   const renderSlot=(slot)=>{
     const isManual=slot.slotId.startsWith('manual');
     const label=isManual?'手动 '+slot.slotId.split('_')[1]:slot.slotId==='auto_1'?'最近自动':'自动 '+slot.slotId.split('_')[1];
-    if(!slot.exists)return <div key={slot.slotId} className="save-slot empty" onClick={()=>{if(mode==='save'&&isManual){manualSave(slot.slotId,state);onClose();}}}>
+    if(!slot.exists)return <div key={slot.slotId} className="save-slot empty" onClick={()=>{if(mode==='save'&&isManual){manualSave(slot.slotId,state);onClose();onSaved&&onSaved('存档成功');}}}>
       <div className="save-slot-label">{label}</div>
       <div className="save-slot-meta">空</div>
     </div>;
     const m=slot.meta||{};
     return <div key={slot.slotId} className={'save-slot'+(isManual?' manual':' auto')} onClick={()=>{
-      if(mode==='save'&&isManual){if(confirm('覆盖此存档？')){manualSave(slot.slotId,state);onClose();}}
+      if(mode==='save'&&isManual){if(confirm('覆盖此存档？')){manualSave(slot.slotId,state);onClose();onSaved&&onSaved('存档成功');}}
       else if(mode==='load'){const loaded=loadSlot(slot.slotId);if(loaded&&!loaded.incompatible){onLoad(loaded);onClose();}else if(loaded?.incompatible){alert('存档版本不兼容');}}
     }}>
       <div className="save-slot-label">{label}</div>
@@ -2833,26 +2833,30 @@ function SaveLoadModal({open,onClose,state,onLoad,mode}){
   };
   return <Modal open={open} onClose={onClose} title={mode==='save'?'写入调查记录':'读取调查记录'} width="440px">
     {mode==='save'&&<div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.6rem'}}>手动存档槽位（点击覆盖）：</div>}
-    <div className="save-slots-grid">{manualSlots.map(renderSlot)}</div>
+    {mode==='save'&&<div className="save-slots-grid">{manualSlots.map(renderSlot)}</div>}
     {mode==='load'&&<>
+      {manualSlots.some(s=>s.exists)&&<><div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.4rem'}}>手动存档：</div><div className="save-slots-grid">{manualSlots.map(renderSlot)}</div></>}
       <div style={{fontSize:'0.7rem',color:'var(--text-dim)',margin:'0.8rem 0 0.4rem',borderTop:'1px solid var(--border)',paddingTop:'0.5rem'}}>自动存档：</div>
       <div className="save-slots-grid">{autoSlots.map(renderSlot)}</div>
     </>}
     <div className="save-io-bar">
       <button className="btn btn-sm save-io-btn" onClick={()=>{exportSave();}}>导出存档</button>
-      <label className="btn btn-sm save-io-btn">导入存档<input type="file" accept=".json" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const res=importSave(r.result);if(res.ok){alert('导入成功');onClose();}else{alert(res.error);}};r.readAsText(f);e.target.value='';}}/></label>
+      <label className="btn btn-sm save-io-btn">导入存档<input type="file" accept=".json" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const res=importSave(r.result);if(res.ok){onSaved&&onSaved('导入成功');onClose();}else{alert(res.error);}};r.readAsText(f);e.target.value='';}}/></label>
     </div>
   </Modal>;
 }
 
-function AchievementToast({achievement,onDismiss}){
-  useEffect(()=>{audioManager.playEffect('clue_found');const t=setTimeout(onDismiss,5000);return()=>clearTimeout(t);},[onDismiss]);
-  return <div className="achievement-toast" onClick={onDismiss}>
-    <div className="achievement-toast-icon">🏆</div>
-    <div className="achievement-toast-text">
-      <div className="achievement-toast-label">成就解锁</div>
-      <div className="achievement-toast-name">{achievement.icon} {achievement.name}</div>
-      {achievement.desc&&<div className="achievement-toast-desc">{achievement.desc}</div>}
+function AppToast({toast,onDismiss}){
+  const isAch=!!toast.def?.icon&&toast.type!=='save'&&toast.type!=='load';
+  useEffect(()=>{if(isAch)audioManager.playEffect('clue_found');const t=setTimeout(onDismiss,isAch?5000:2500);return()=>clearTimeout(t);},[onDismiss]);
+  const icon=toast.def?.icon||'💾';
+  const label=toast.type==='save'?'已存档':toast.type==='load'?'读取成功':'成就解锁';
+  return <div className={'app-toast'+(toast.type==='save'||toast.type==='load'?' toast-save':'')} onClick={onDismiss}>
+    <div className="app-toast-icon">{icon}</div>
+    <div className="app-toast-text">
+      <div className="app-toast-label">{label}</div>
+      <div className="app-toast-name">{toast.def?.name||''}</div>
+      {toast.def?.desc&&<div className="app-toast-desc">{toast.def?.desc}</div>}
     </div>
   </div>;
 }
@@ -2884,7 +2888,9 @@ function App(){
   const [saveLoadMode,setSaveLoadMode]=useState('save');
   const [achOpen,setAchOpen]=useState(false);
   const [toasts,setToasts]=useState([]);
-  const savedExists = hasSave();
+  const [saveTick,setSaveTick]=useState(0);
+  const savedExists = useMemo(()=>hasSave(),[saveTick]);
+  const notifySave=(msg,type)=>{setSaveTick(t=>t+1);setToasts(prev=>[...prev,{id:'save_'+Date.now(),type:type||'save',def:{icon:type==='load'?'📖':'💾',name:msg||'已存档',desc:''},key:Date.now()}]);};
 
   // Achievement checking
   useEffect(()=>{
@@ -2915,7 +2921,7 @@ function App(){
   const handleSettingsChange=(s)=>{saveSettings(s);setSettings(s);};
   const fontSizeClass='narrative-size-'+settings.narrativeFontSize;
 
-  const handleLoadSlot=(loaded)=>{dispatch({type:'CONTINUE_GAME', savedState: loaded});};
+  const handleLoadSlot=(loaded)=>{dispatch({type:'CONTINUE_GAME', savedState: loaded});notifySave('从存档中醒来','load');};
 
   if(state.screen==='title')return <>
     <TitleScreen
@@ -2926,7 +2932,7 @@ function App(){
       onAchOpen={()=>setAchOpen(true)}
     />
     <SettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>setAchOpen(true)}/>
-    <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={null} onLoad={handleLoadSlot} mode="load"/>
+    <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={null} onLoad={handleLoadSlot} mode="load" onSaved={notifySave}/>
     <AchievementGallery open={achOpen} onClose={()=>setAchOpen(false)}/>
   </>;
   if(state.screen==='creation')return <CharCreation state={state} onRoll={()=>dispatch({type:'ROLL_STATS'})} onStart={()=>dispatch({type:'BEGIN_ADVENTURE'})} onSetDifficulty={(d)=>dispatch({type:'SET_DIFFICULTY',difficulty:d})} onSetArchetype={(id)=>dispatch({type:'SET_ARCHETYPE',archetypeId:id})}/>;
@@ -2944,10 +2950,10 @@ function App(){
       <RightPanel state={state} dispatch={dispatch}/>
     </div>
     <SettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>setAchOpen(true)}/>
-    <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={state} onLoad={handleLoadSlot} mode={saveLoadMode}/>
+    <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={state} onLoad={handleLoadSlot} mode={saveLoadMode} onSaved={notifySave}/>
     <AchievementGallery open={achOpen} onClose={()=>setAchOpen(false)}/>
     {toasts.length>0&&<div className="achievement-toast-container">
-      {toasts.map(t=><AchievementToast key={t.key} achievement={t.def} onDismiss={()=>setToasts(prev=>prev.filter(x=>x.key!==t.key))}/>)}
+      {toasts.map(t=><AppToast key={t.key} toast={t} onDismiss={()=>setToasts(prev=>prev.filter(x=>x.key!==t.key))}/>)}
     </div>}
   </>;
 }
