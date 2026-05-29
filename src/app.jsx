@@ -2448,6 +2448,7 @@ const MAP_EDGES=[
 ];
 
 function CitySketchMap({areas,state,dispatch,conn}){
+  const [fullscreen,setFullscreen]=useState(false);
   const areaById=useMemo(()=>{
     const map={};
     areas.forEach(a=>{map[a.id]=a;});
@@ -2513,8 +2514,9 @@ function CitySketchMap({areas,state,dispatch,conn}){
     const visited=state.visitedAreas.includes(a.id);
     return visited?getAreaDisplayName(a,state):a.early_game_alias||'???';
   }).filter(Boolean);
-  return <div className="sketch-map-wrapper">
-    <div className="sketch-map">
+  // 地图内容渲染函数（复用于普通和全屏模式）
+  const renderMapContent=()=>(
+    <>
       {/* SVG 路径连线 — 按状态分三层渲染 */}
       <svg className="sketch-map-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
         {MAP_EDGES.map(([from,to])=>{
@@ -2530,14 +2532,12 @@ function CitySketchMap({areas,state,dispatch,conn}){
       </svg>
       <div className="sketch-map-coastline"/>
       <div className="sketch-map-fog"/>
-      {/* 区域分区标签 */}
       {MAP_ZONES.map(z=>{
         const hasVisible=z.areas.some(id=>canShowNode(areaById[id]));
         if(!hasVisible)return null;
         return <div key={z.label} className="sketch-map-zone-label" style={{left:z.x+'%',top:z.y+'%'}}>{z.label}</div>;
       })}
       {Object.keys(MAP_LAYOUT).map(renderNode)}
-      {/* 图例 */}
       <div className="sketch-map-legend">
         <span className="legend-item legend-current">● 当前</span>
         <span className="legend-item legend-reachable">● 可前往</span>
@@ -2546,6 +2546,25 @@ function CitySketchMap({areas,state,dispatch,conn}){
         <span className="legend-item legend-rumor">◌ 传闻</span>
         <span className="legend-item legend-locked">○ 锁定</span>
       </div>
+    </>
+  );
+
+  // 全屏模式
+  if(fullscreen) return <div className="map-fullscreen-overlay" onClick={(e)=>{if(e.target===e.currentTarget)setFullscreen(false);}}>
+    <button className="map-fullscreen-close" onClick={()=>setFullscreen(false)} title="关闭全屏">✕ 关闭全屏</button>
+    <div>
+      <div className="sketch-map">{renderMapContent()}</div>
+      <div className="sketch-map-info">
+        <div className="sketch-map-info-row"><span className="sketch-map-info-label">当前位置</span><span className="sketch-map-info-value">{currentName}</span></div>
+        {reachableNames.length>0&&<div className="sketch-map-info-row"><span className="sketch-map-info-label">可前往</span><span className="sketch-map-info-value">{reachableNames.join(' / ')}</span></div>}
+      </div>
+    </div>
+  </div>;
+
+  return <div className="sketch-map-wrapper">
+    <div className="sketch-map">
+      <button className="map-fullscreen-btn" onClick={()=>setFullscreen(true)} title="全屏查看地图">⛶ 全屏</button>
+      {renderMapContent()}
     </div>
     {/* 地图下方辅助信息 */}
     <div className="sketch-map-info">

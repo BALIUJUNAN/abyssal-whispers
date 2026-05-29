@@ -60,13 +60,14 @@ body::before{
 /* ==========================================================
    Buttons (保留用于标题/角色创建/结局)
    ========================================================== */
-.btn{background:linear-gradient(180deg,var(--bg4) 0%,var(--bg3) 100%);color:var(--text);border:1px solid var(--border2);border-radius:4px;padding:0.6rem 1.8rem;cursor:pointer;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:0.85rem;transition:all 0.25s;letter-spacing:0.08em;box-shadow:0 1px 4px rgba(0,0,0,0.3);position:relative;overflow:hidden}
-.btn::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.03) 0%,transparent 100%);pointer-events:none;border-radius:3px 3px 0 0}
-.btn:hover{border-color:var(--accent);color:var(--text-bright);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
-.btn:active{box-shadow:inset 0 1px 3px rgba(0,0,0,0.3)}
-.btn-primary{background:linear-gradient(180deg,var(--accent2) 0%,var(--accent) 100%);border-color:var(--accent2);color:var(--text-bright)}
-.btn-primary:hover{box-shadow:0 2px 12px rgba(95,120,104,0.3)}
-.btn-danger{background:linear-gradient(180deg,var(--danger2) 0%,var(--danger) 100%);border-color:var(--danger2)}
+.btn{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:0.6rem 1.8rem;cursor:pointer;font-family:'Noto Sans SC','Microsoft YaHei',sans-serif;font-size:0.85rem;transition:all 0.25s ease;letter-spacing:0.08em;box-shadow:0 2px 8px rgba(0,0,0,0.35);position:relative;overflow:hidden;backdrop-filter:blur(4px)}
+.btn::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,0.04) 0%,transparent 100%);pointer-events:none;border-radius:3px 3px 0 0}
+.btn:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.28);color:var(--text-bright);box-shadow:0 3px 12px rgba(0,0,0,0.4);transform:translateY(-1px)}
+.btn:active{box-shadow:inset 0 1px 3px rgba(0,0,0,0.3);transform:translateY(0)}
+.btn-primary{background:rgba(95,120,104,0.2);border-color:rgba(95,120,104,0.4);color:var(--accent2)}
+.btn-primary:hover{background:rgba(95,120,104,0.32);border-color:rgba(95,120,104,0.55);color:var(--text-bright);box-shadow:0 3px 14px rgba(95,120,104,0.2),0 0 20px rgba(95,120,104,0.08)}
+.btn-danger{background:rgba(116,52,52,0.15);border-color:rgba(116,52,52,0.4);color:var(--danger2)}
+.btn-danger:hover{background:rgba(116,52,52,0.28);border-color:rgba(116,52,52,0.55);color:var(--danger2)}
 .btn-sm{padding:0.35rem 0.8rem;font-size:0.75rem;border-radius:3px}
 .btn:disabled{opacity:0.3;cursor:not-allowed;transform:none!important;box-shadow:none!important}
 
@@ -89,7 +90,7 @@ body::before{
 /* ==========================================================
    Layout
    ========================================================== */
-.game-layout{display:grid;grid-template-columns:240px 1fr 260px;grid-template-rows:auto 1fr;height:100vh;overflow:hidden}
+.game-layout{display:grid;grid-template-columns:220px 1fr 300px;grid-template-rows:auto 1fr;height:100vh;overflow:hidden}
 
 /* ==========================================================
    Header — 档案页眉
@@ -320,7 +321,7 @@ body::before{
 .sketch-map-wrapper{margin-bottom:0.6rem}
 
 /* 地图主容器 — 纸张/海雾底纹 */
-.sketch-map{position:relative;height:340px;border:1px solid rgba(184,150,58,.15);background:radial-gradient(circle at 28% 18%,rgba(184,150,58,.07),transparent 28%),radial-gradient(circle at 72% 78%,rgba(95,120,104,.09),transparent 32%),radial-gradient(circle at 50% 50%,rgba(40,50,60,.06),transparent 50%),linear-gradient(135deg,rgba(16,16,24,.6),rgba(10,10,15,.78));overflow:hidden}
+.sketch-map{position:relative;height:440px;border:1px solid rgba(184,150,58,.15);background:radial-gradient(circle at 28% 18%,rgba(184,150,58,.07),transparent 28%),radial-gradient(circle at 72% 78%,rgba(95,120,104,.09),transparent 32%),radial-gradient(circle at 50% 50%,rgba(40,50,60,.06),transparent 50%),linear-gradient(135deg,rgba(16,16,24,.6),rgba(10,10,15,.78));overflow:hidden}
 /* 纸张纹理横线 */
 .sketch-map::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0px,rgba(255,255,255,.015) 1px,transparent 1px,transparent 4px),repeating-linear-gradient(90deg,rgba(255,255,255,.008) 0px,rgba(255,255,255,.008) 1px,transparent 1px,transparent 6px);opacity:.5;pointer-events:none}
 /* 纸张噪点感 */
@@ -395,6 +396,18 @@ body::before{
 .sketch-map-info-row{display:flex;align-items:baseline;gap:.4rem;line-height:1.6}
 .sketch-map-info-label{color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.08em;flex-shrink:0;min-width:3.2rem}
 .sketch-map-info-value{color:var(--text);font-family:'Noto Serif SC',serif}
+
+/* 地图全屏按钮 */
+.map-fullscreen-btn{position:absolute;top:6px;right:8px;z-index:5;background:rgba(0,0,0,0.4);border:1px solid rgba(184,150,58,.18);color:var(--text-dim);font-size:.62rem;padding:.2rem .45rem;cursor:pointer;border-radius:2px;transition:all .2s ease;backdrop-filter:blur(2px);font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+.map-fullscreen-btn:hover{background:rgba(0,0,0,0.6);color:var(--gold);border-color:rgba(184,150,58,.4)}
+
+/* 地图全屏覆盖层 */
+.map-fullscreen-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:mapFsIn .3s ease-out}
+@keyframes mapFsIn{from{opacity:0}to{opacity:1}}
+.map-fullscreen-overlay .sketch-map{width:min(92vw,1200px);height:min(80vh,800px);border-radius:4px;box-shadow:0 0 40px rgba(0,0,0,0.5),0 0 80px rgba(184,150,58,.06)}
+.map-fullscreen-overlay .sketch-map-info{width:min(92vw,1200px)}
+.map-fullscreen-close{position:absolute;top:1.2rem;right:1.5rem;z-index:1000;background:rgba(0,0,0,0.5);border:1px solid rgba(184,150,58,.2);color:var(--text-dim);font-size:1.1rem;padding:.4rem .6rem;cursor:pointer;border-radius:3px;transition:all .2s}
+.map-fullscreen-close:hover{color:var(--gold);border-color:var(--gold);background:rgba(0,0,0,0.7)}
 
 .area-node{padding:0.2rem 0.3rem;border:1px solid transparent;border-radius:1px;cursor:pointer;transition:all 0.15s;position:relative;min-width:0}
 .area-node:hover{border-color:var(--border2);background:rgba(255,255,255,0.01)}
@@ -617,9 +630,10 @@ body::before{
    Responsive
    ========================================================== */
 @media(max-width:1199px) and (min-width:769px){
-  .game-layout{grid-template-columns:210px 1fr 230px}
+  .game-layout{grid-template-columns:200px 1fr 270px}
   .left-panel,.right-panel{font-size:0.72rem;padding:0.5rem}
   .narrative-area{padding:1rem 1.2rem}
+  .sketch-map{height:380px}
 }
 
 @media(max-width:768px){
@@ -646,6 +660,7 @@ body::before{
   .confessional,.death-recap{margin:1rem auto;padding:0.7rem}
   .save-load-bar{flex-wrap:wrap;justify-content:center}
   .narrative-area{padding:1rem}
+  .sketch-map{height:320px}
 }
 
 @media(max-width:480px){
