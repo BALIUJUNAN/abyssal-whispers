@@ -117,3 +117,35 @@ export function migrateOldSave() {
     }
   } catch (e) {}
 }
+
+// 导出全部存档为 JSON 文件
+export function exportSave() {
+  try {
+    const slots = {};
+    [...AUTO_SLOTS, ...MANUAL_SLOTS].forEach(sid => {
+      const raw = localStorage.getItem(SAVE_PREFIX + sid);
+      if (raw) slots[sid] = JSON.parse(raw);
+    });
+    const exportData = { version: SAVE_VERSION, save_time: new Date().toISOString(), slots };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'savegame.json'; a.click();
+    URL.revokeObjectURL(url);
+    return true;
+  } catch (e) { console.error('Export save failed:', e); return false; }
+}
+
+// 导入存档 JSON 文件
+export function importSave(jsonString) {
+  try {
+    const data = JSON.parse(jsonString);
+    if (!data.version || !data.slots) return { ok: false, error: '存档格式不兼容' };
+    Object.entries(data.slots).forEach(([sid, slotData]) => {
+      if ([...AUTO_SLOTS, ...MANUAL_SLOTS].includes(sid) && slotData && slotData.state) {
+        localStorage.setItem(SAVE_PREFIX + sid, JSON.stringify(slotData));
+      }
+    });
+    return { ok: true };
+  } catch (e) { return { ok: false, error: '存档格式不兼容' }; }
+}

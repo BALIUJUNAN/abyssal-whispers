@@ -5,6 +5,9 @@ const SETTINGS_VERSION = '1.0.0';
 
 const DEFAULT_SETTINGS = {
   volume: 80,
+  ambientVolume: 80,
+  effectVolume: 80,
+  uiVolume: 80,
   narrativeFontSize: 'medium',
   visualDistortion: true,
   suddenSounds: true,

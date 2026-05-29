@@ -8,7 +8,7 @@ import { checkTrigger, selectEvent, doSkillCheck, getGambleOptions, processNorma
 import { applyEffects, applyLegacyEffects } from './reducers/effectReducer.js';
 import { getItemDef, useItemByDef } from './reducers/itemReducer.js';
 import { genObjectives, checkObjCompletion } from './reducers/objectiveReducer.js';
-import { saveGame, loadGame, clearSave, hasSave, getAllSlots, autoSave, manualSave, loadSlot, deleteSlotById, migrateOldSave } from './reducers/saveReducer.js';
+import { saveGame, loadGame, clearSave, hasSave, getAllSlots, autoSave, manualSave, loadSlot, deleteSlotById, migrateOldSave, exportSave, importSave } from './reducers/saveReducer.js';
 import { loadSettings, saveSettings } from './reducers/settingsReducer.js';
 import { loadAchievements, saveAchievements, checkAchievements, getAchievementDef, getAllAchievements, incrementStat, resetRunStats } from './reducers/achievementReducer.js';
 import { getPollutionText } from './reducers/loopReducer.js';
@@ -115,55 +115,56 @@ const SUDDEN_EFFECTS=['san_loss','san_loss_minor','san_loss_medium','san_loss_ma
 
 const audioManager={
   muted:false,suddenMuted:false,ambientEl:null,_volumeScale:1,
-  _play(src,loop=false){
+  _ambientScale:1,_effectScale:1,_uiScale:1,
+  _play(src,loop=false,category='effect'){
     try{
       if(this.muted)return null;
-      const el=new Audio(src);el.loop=loop;el.volume=0.5*(this._volumeScale||1);el.play().catch(()=>{});return el;
+      const catScale=category==='ambient'?this._ambientScale:category==='ui'?this._uiScale:this._effectScale;
+      const el=new Audio(src);el.loop=loop;el.volume=0.5*(this._volumeScale||1)*catScale;el.play().catch(()=>{});return el;
     }catch(e){return null;}
   },
   playAreaAmbient(areaId,phase){
     try{
       this.stopAmbient();
       const base=AREA_AMBIENT_MAP[areaId];
-      if(!base){this.ambientEl=this._play(phase==='night'||phase==='midnight'?AUDIO_PATHS.ambient_night:AUDIO_PATHS.ambient_day,true);return;}
-      // Town/Harbor have day/night variants
+      if(!base){this.ambientEl=this._play(phase==='night'||phase==='midnight'?AUDIO_PATHS.ambient_night:AUDIO_PATHS.ambient_day,true,'ambient');return;}
       const dayNightMap={amb_town:'amb_town',amb_harbor:'amb_harbor'};
       if(dayNightMap[base]){
         const suffix=(phase==='night'||phase==='midnight')?'_night':'_day';
         const key=base+suffix;
-        this.ambientEl=this._play(AUDIO_PATHS[key],true);
+        this.ambientEl=this._play(AUDIO_PATHS[key],true,'ambient');
       }else{
-        this.ambientEl=this._play(AUDIO_PATHS[base],true);
+        this.ambientEl=this._play(AUDIO_PATHS[base],true,'ambient');
       }
     }catch(e){}
   },
-  playAmbientDay(){try{this.stopAmbient();this.ambientEl=this._play(AUDIO_PATHS.ambient_day,true);}catch(e){}},
-  playAmbientNight(){try{this.stopAmbient();this.ambientEl=this._play(AUDIO_PATHS.ambient_night,true);}catch(e){}},
+  playAmbientDay(){try{this.stopAmbient();this.ambientEl=this._play(AUDIO_PATHS.ambient_day,true,'ambient');}catch(e){}},
+  playAmbientNight(){try{this.stopAmbient();this.ambientEl=this._play(AUDIO_PATHS.ambient_night,true,'ambient');}catch(e){}},
   playEffect(type){
     try{
       if(this.suddenMuted&&SUDDEN_EFFECTS.includes(type))return;
-      const src=AUDIO_PATHS[type];if(src)this._play(src);
+      const src=AUDIO_PATHS[type];if(src)this._play(src,false,'effect');
     }catch(e){}
   },
   playSanLoss(dmg){
     try{
       if(this.suddenMuted)return;
-      if(dmg>=7){this._play(AUDIO_PATHS.san_loss_major);this._play(AUDIO_PATHS.san_critical_breath);}
-      else if(dmg>=5)this._play(AUDIO_PATHS.san_loss_major);
-      else if(dmg>=3)this._play(AUDIO_PATHS.san_loss_medium);
-      else if(dmg>=1)this._play(AUDIO_PATHS.san_loss_minor);
+      if(dmg>=7){this._play(AUDIO_PATHS.san_loss_major,false,'effect');this._play(AUDIO_PATHS.san_critical_breath,false,'effect');}
+      else if(dmg>=5)this._play(AUDIO_PATHS.san_loss_major,false,'effect');
+      else if(dmg>=3)this._play(AUDIO_PATHS.san_loss_medium,false,'effect');
+      else if(dmg>=1)this._play(AUDIO_PATHS.san_loss_minor,false,'effect');
     }catch(e){}
   },
   playSkillEffect(result){
     try{
-      if(result==='critical_fail')this._play(AUDIO_PATHS.skill_critical_fail);
-      else if(result==='fail')this._play(AUDIO_PATHS.skill_fail);
-      else if(result==='success')this._play(AUDIO_PATHS.skill_success);
-      else this._play(AUDIO_PATHS.skill_roll);
+      if(result==='critical_fail')this._play(AUDIO_PATHS.skill_critical_fail,false,'effect');
+      else if(result==='fail')this._play(AUDIO_PATHS.skill_fail,false,'effect');
+      else if(result==='success')this._play(AUDIO_PATHS.skill_success,false,'effect');
+      else this._play(AUDIO_PATHS.skill_roll,false,'effect');
     }catch(e){}
   },
   playUI(type){
-    try{const src=AUDIO_PATHS['ui_'+type]||AUDIO_PATHS.ui_click;if(src)this._play(src);}catch(e){}
+    try{const src=AUDIO_PATHS['ui_'+type]||AUDIO_PATHS.ui_click;if(src)this._play(src,false,'ui');}catch(e){}
   },
   stopAmbient(){try{if(this.ambientEl){this.ambientEl.pause();this.ambientEl.currentTime=0;this.ambientEl=null;}}catch(e){}},
   setMuted(m){this.muted=m;if(m)this.stopAmbient();}
@@ -1466,6 +1467,7 @@ function gameReducer(state,action){
     const chTransition=checkChapterTransition(oldDay,s.day,ctx);
     if(chTransition){
       s.currentChapter=getChapterForDay(s.day,ctx).key;
+      s.transition='chapter';
       narr('system',chTransition.event_text,{isSpecial:true});
       if(chTransition.san_cost)s.san=clamp(s.san+chTransition.san_cost,0,s.maxSan);
       if(chTransition.mythos_gain)s.mythosLevel=(s.mythosLevel||0)+chTransition.mythos_gain;
@@ -2087,6 +2089,15 @@ function CollapsibleSection({title,count,defaultOpen,summary,children}){
 const LeftPanel=memo(function LeftPanel({state}){
   const seal=useMemo(()=>(GD.world?.seal_state_machine||[]).find(s=>s.id===state.sealState)||(GD.module8_time_schedule?.seal_state_machine?.states||[]).find(s=>s.id===state.sealState),[state.sealState]);
   const shStage=useMemo(()=>getSafehouseStage(state.safehouseCorruption,ctx),[state.safehouseCorruption]);
+  // 快捷键 I：滚动到随身物件
+  useEffect(()=>{
+    const handler=()=>{
+      const el=document.querySelector('[data-section="inventory"]');
+      if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    };
+    window.addEventListener('kbd:showInventory',handler);
+    return()=>window.removeEventListener('kbd:showInventory',handler);
+  },[]);
   const altSanRestore=useMemo(()=>{
     if(state.currentSafehouse==='main')return 0;
     return (GD.systems?.safehouse?.relocation_rules?.alternative_safehouses||[]).find(a=>a.name===state.currentSafehouse)?.functions?.san_restore||0;
@@ -2112,9 +2123,9 @@ const LeftPanel=memo(function LeftPanel({state}){
       {Object.entries(state.skills).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,v])=><div key={k} className="skill-item"><span className="name">{k}</span><span className="val">{v}%</span></div>)}
     </CollapsibleSection>;})()}
     {/* 折叠：随身物件 */}
-    <CollapsibleSection title="随身物件" count={state.inventory.length} defaultOpen={true}>
+    <div data-section="inventory"><CollapsibleSection title="随身物件" count={state.inventory.length} defaultOpen={true}>
       {state.inventory.map((item,i)=><div key={i} className="item-entry"><span className="name">{item.name}</span>{item.uses>0&&<span className="uses"> ×{item.uses}</span>}{item.uses===-1&&<span className="uses"> ∞</span>}</div>)}
-    </CollapsibleSection>
+    </CollapsibleSection></div>
     {/* 折叠：已知线索 */}
     {state.clues.length>0&&<CollapsibleSection title="已知线索" count={state.clues.length} defaultOpen={true} summary={state.clues[state.clues.length-1]?.slice(0,12)||''}>
       {state.clues.slice(-5).map((c,i)=><div key={i} className="clue-entry">· {c}</div>)}
@@ -2151,8 +2162,10 @@ const NarrativeBlock=memo(function NarrativeBlock({block}){
 
 function NPCDialog({npc,trust,layer,dispatch,state}){
   const [show,setShow]=useState(false);
-  const [dangerOpen,setDangerOpen]=useState(false);
   const [confirmAction,setConfirmAction]=useState(null);
+  // 对话分组折叠状态：交谈/帮助 默认展开，特殊 默认折叠
+  const [collapsedGroups,setCollapsedGroups]=useState({talk:false,help:false,special:true});
+  const toggleGroup=(g)=>setCollapsedGroups(prev=>({...prev,[g]:!prev[g]}));
   const ns=state?.npcStates?.[npc.name]||{};
   const npcImage=getNpcImage(npc.name,state?.npcStates);
   const postKill=state?.pendingNpc?.postKill;
@@ -2167,6 +2180,9 @@ function NPCDialog({npc,trust,layer,dispatch,state}){
       </div>
     </div></div>;
   }
+  // 检查是否有任何特殊选项可显示
+  const hasSpecial=trust>=3||trust>=2||ns.corrupted&&trust>=2;
+  const doResponse=(choice)=>{dispatch({type:'NPC_RESPONSE',choice});setShow(false)};
   return <div className="narrative-block npc-dialogue"><div className="skill-check">
     {npcImage&&<img className="npc-portrait" src={npcImage} alt={npc.name+'立绘'} onError={e=>{e.currentTarget.style.display='none';}}/>}
     <div style={{color:'var(--cyan)',fontSize:'0.9rem',marginBottom:'0.3rem'}}>与 {npc.name} 交谈</div>
@@ -2178,39 +2194,52 @@ function NPCDialog({npc,trust,layer,dispatch,state}){
     {layer?.hint&&!ns.corrupted&&<div style={{fontSize:'0.7rem',color:'var(--gold)',fontStyle:'italic',marginBottom:'0.5rem'}}>{layer.hint}</div>}
     {!show?<button className="btn btn-sm" onClick={()=>setShow(true)}>回应</button>
     :<div>
-      {/* 安全选项 */}
-      <div className="npc-response-group">
-        <div style={{display:'flex',flexDirection:'column',gap:'0.25rem'}}>
-          {trust<5&&(()=>{const already=state?._dailyTrustGains?.[npc.name];const gate=checkTrustGate(trust+1,state,npc.name);if(already)return <div style={{fontSize:'0.7rem',color:'var(--text-dim)',padding:'0.2rem 0'}}>⏳ 今日已提升信赖（{already==='talk'?'对话':'食物'}）</div>;if(gate)return <div style={{fontSize:'0.7rem',color:'var(--text-dim)',padding:'0.2rem 0',lineHeight:'1.6'}}>🔒 {trust<2?'尝试建立信任':'加深了解'}（1 AP 信任+1）<br/><span style={{fontSize:'0.62rem',color:'var(--gold)'}}>{gate}</span></div>;return <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'trust_up'});setShow(false)}}>{trust<2?'尝试建立信任':'加深了解'}<span className="cost">1 AP 信任+1</span></button>;})()}
-          {trust>=1&&npc.secrets&&trust<=npc.secrets.length&&<button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'get_item'});setShow(false)}}>询问更多信息</button>}
-          {(()=>{const already=state?._dailyTrustGains?.[npc.name];const curTrust=state?.npcTrust?.[npc.name]||0;const gate=trust<5?checkTrustGate(curTrust+1,state,npc.name):'max';if(already)return null;if(trust>=5)return null;return <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'share_food'});setShow(false)}} disabled={(state?.food||0)<1||(state?.ap||0)<1||!!gate} title={gate||''}>分享食物{gate?<span className="cost">🔒 {gate.slice(0,15)}…</span>:<span className="cost">1 AP 食物-1 信任+1</span>}</button>;})()}
-          {ns.corrupted&&trust>=4&&<button className="btn btn-sm" style={{color:'var(--gold)'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'redeem'});setShow(false)}}>尝试救赎</button>}
-          <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'silence'});setShow(false)}}>保持沉默</button>
-          <button className="btn btn-sm" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'leave'});setShow(false)}}>告别</button>
+      {/* 确认操作（攻击/背叛） */}
+      {confirmAction&&<div className="npc-confirm">
+        <div style={{color:'var(--danger2)',fontSize:'0.8rem',marginBottom:'0.4rem'}}>⚠ 确定要{confirmAction==='attack'?'攻击':'背叛'}吗？此操作不可撤销。</div>
+        <div style={{display:'flex',gap:'0.4rem'}}>
+          <button className="btn btn-sm btn-danger" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:confirmAction});setShow(false);setConfirmAction(null);}}>确认</button>
+          <button className="btn btn-sm" onClick={()=>setConfirmAction(null)}>取消</button>
         </div>
-      </div>
-      {/* 危险选项：默认隐藏 */}
-      <div className="npc-danger-section" style={{marginTop:'0.3rem'}}>
-        {!dangerOpen?<button className="npc-more-btn" onClick={()=>setDangerOpen(true)}>更多选择 ›</button>
-        :<div>
-          {confirmAction?<div className="npc-confirm">
-            <div style={{color:'var(--danger2)',fontSize:'0.8rem',marginBottom:'0.4rem'}}>⚠ 确定要{confirmAction==='attack'?'攻击':'背叛'}吗？此操作不可撤销。</div>
-            <div style={{display:'flex',gap:'0.4rem'}}>
-              <button className="btn btn-sm btn-danger" onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:confirmAction});setShow(false);setConfirmAction(null);}}>确认</button>
-              <button className="btn btn-sm" onClick={()=>setConfirmAction(null)}>取消</button>
-            </div>
-          </div>:<div>
-            <div className="group-label">⚠ 危险行为</div>
-            <div style={{display:'flex',flexDirection:'column',gap:'0.2rem',marginTop:'0.15rem'}}>
-              {trust>=3&&<button className="btn btn-sm" style={{color:'var(--text-dim)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'preach'});setShow(false)}}>⚠ 传教（2 AP 神秘学检定）</button>}
-              {trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'incite'});setShow(false)}}>⚠ 陷害（2 AP 话术检定）</button>}
-              {trust>=2&&<button className="btn btn-sm" style={{color:'var(--text-dim)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'exploit_npc'});setShow(false)}}>⚠ 利用（1 AP 信任-2）</button>}
-              {trust>=3&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>setConfirmAction('betray_npc')}>⚠ 背叛（1 AP 信任清零）</button>}
-              {ns.corrupted&&trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>{dispatch({type:'NPC_RESPONSE',choice:'intimacy'});setShow(false)}}>⚠ 靠近（2 AP SAN-）</button>}
-              <button className="btn btn-sm btn-danger" style={{fontSize:'0.72rem'}} onClick={()=>setConfirmAction('attack')}>⚠ 攻击（2 AP 格斗检定）</button>
-            </div>
-          </div>}
+      </div>}
+      {/* 交谈组 */}
+      <div className="npc-dialog-group">
+        <div className="npc-dialog-group-title" onClick={()=>toggleGroup('talk')}>
+          <span className={'chevron'+(collapsedGroups.talk?'':' open')}>▶</span> 交谈
+        </div>
+        {!collapsedGroups.talk&&<div className="npc-dialog-group-body">
+          {trust<5&&(()=>{const already=state?._dailyTrustGains?.[npc.name];const gate=checkTrustGate(trust+1,state,npc.name);if(already)return <div style={{fontSize:'0.7rem',color:'var(--text-dim)',padding:'0.2rem 0'}}>⏳ 今日已提升信赖（{already==='talk'?'对话':'食物'}）</div>;if(gate)return <div style={{fontSize:'0.7rem',color:'var(--text-dim)',padding:'0.2rem 0',lineHeight:'1.6'}}>🔒 {trust<2?'尝试建立信任':'加深了解'}（1 AP 信任+1）<br/><span style={{fontSize:'0.62rem',color:'var(--gold)'}}>{gate}</span></div>;return <button className="btn btn-sm" onClick={()=>doResponse('trust_up')}>{trust<2?'尝试建立信任':'加深了解'}<span className="cost">1 AP 信任+1</span></button>;})()}
+          <button className="btn btn-sm" onClick={()=>doResponse('silence')}>保持沉默</button>
         </div>}
+      </div>
+      {/* 帮助组 */}
+      <div className="npc-dialog-group">
+        <div className="npc-dialog-group-title" onClick={()=>toggleGroup('help')}>
+          <span className={'chevron'+(collapsedGroups.help?'':' open')}>▶</span> 帮助
+        </div>
+        {!collapsedGroups.help&&<div className="npc-dialog-group-body">
+          {trust>=1&&npc.secrets&&trust<=npc.secrets.length&&<button className="btn btn-sm" onClick={()=>doResponse('get_item')}>询问更多信息</button>}
+          {(()=>{const already=state?._dailyTrustGains?.[npc.name];const curTrust=state?.npcTrust?.[npc.name]||0;const gate=trust<5?checkTrustGate(curTrust+1,state,npc.name):'max';if(already)return null;if(trust>=5)return null;return <button className="btn btn-sm" onClick={()=>doResponse('share_food')} disabled={(state?.food||0)<1||(state?.ap||0)<1||!!gate} title={gate||''}>分享食物{gate?<span className="cost">🔒 {gate.slice(0,15)}…</span>:<span className="cost">1 AP 食物-1 信任+1</span>}</button>;})()}
+          {ns.corrupted&&trust>=4&&<button className="btn btn-sm" style={{color:'var(--gold)'}} onClick={()=>doResponse('redeem')}>尝试救赎</button>}
+        </div>}
+      </div>
+      {/* 特殊组（默认折叠） */}
+      {hasSpecial&&<div className="npc-dialog-group npc-dialog-group--danger">
+        <div className="npc-dialog-group-title" onClick={()=>toggleGroup('special')}>
+          <span className={'chevron'+(collapsedGroups.special?'':' open')}>▶</span> 特殊
+        </div>
+        {!collapsedGroups.special&&<div className="npc-dialog-group-body">
+          {trust>=3&&<button className="btn btn-sm" style={{color:'var(--text-dim)',fontSize:'0.72rem'}} onClick={()=>doResponse('preach')}>⚠ 传教（2 AP 神秘学检定）</button>}
+          {trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>doResponse('incite')}>⚠ 陷害（2 AP 话术检定）</button>}
+          {trust>=2&&<button className="btn btn-sm" style={{color:'var(--text-dim)',fontSize:'0.72rem'}} onClick={()=>doResponse('exploit_npc')}>⚠ 利用（1 AP 信任-2）</button>}
+          {trust>=3&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>setConfirmAction('betray_npc')}>⚠ 背叛（1 AP 信任清零）</button>}
+          {ns.corrupted&&trust>=2&&<button className="btn btn-sm" style={{color:'var(--danger2)',fontSize:'0.72rem'}} onClick={()=>doResponse('intimacy')}>⚠ 靠近（2 AP SAN-）</button>}
+          <button className="btn btn-sm btn-danger" style={{fontSize:'0.72rem'}} onClick={()=>setConfirmAction('attack')}>⚠ 攻击（2 AP 格斗检定）</button>
+        </div>}
+      </div>}
+      {/* 离开（始终可见） */}
+      <div style={{marginTop:'0.35rem',borderTop:'1px solid rgba(42,42,48,0.2)',paddingTop:'0.3rem'}}>
+        <button className="btn btn-sm" onClick={()=>doResponse('leave')}>告别</button>
       </div>
     </div>}
   </div></div>;
@@ -2221,18 +2250,36 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
   const transitionTimer=useRef(null);
   const [forbiddenOpen,setForbiddenOpen]=useState(false);
   const [logOpen,setLogOpen]=useState(false);
+  // 操作分组折叠状态
+  const [collapsedGroups,setCollapsedGroups]=useState({});
+  const toggleActionGroup=(g)=>setCollapsedGroups(prev=>({...prev,[g]:!prev[g]}));
   useEffect(()=>{if(ref.current)ref.current.scrollTop=ref.current.scrollHeight},[state.narrative.length]);
-  // Keyboard shortcuts: 1-9 for action buttons
+  // Keyboard shortcuts: 1-9, Space, Enter, M, I, J
   useEffect(()=>{
     const isPending=state.pendingEvent?.rolled||state.pendingNpc||state.pendingGamble||state.pendingChoice||state.ending;
-    if(isPending)return;
     const handler=(e)=>{
       if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
       const key=e.key;
-      if(key<'1'||key>'9')return;
-      const idx=parseInt(key)-1;
-      const btns=document.querySelectorAll('.action-area .action-btn:not(:disabled)');
-      if(btns[idx]){btns[idx].click();e.preventDefault();}
+      // 1-9: select action button (always active)
+      if(key>='1'&&key<='9'){
+        const idx=parseInt(key)-1;
+        const btns=document.querySelectorAll('.action-area .action-btn:not(:disabled)');
+        if(btns[idx]){btns[idx].click();e.preventDefault();}
+        return;
+      }
+      if(isPending)return;
+      // Space/Enter: click first enabled action
+      if(key===' '||key==='Enter'){
+        const btn=document.querySelector('.action-area .action-btn:not(:disabled)');
+        if(btn){btn.click();e.preventDefault();}
+        return;
+      }
+      // M: toggle map tab
+      if(key==='m'||key==='M'){window.dispatchEvent(new Event('kbd:toggleMap'));return;}
+      // I: scroll to inventory in left panel
+      if(key==='i'||key==='I'){window.dispatchEvent(new Event('kbd:showInventory'));return;}
+      // J: switch to clues tab
+      if(key==='j'||key==='J'){window.dispatchEvent(new Event('kbd:showClues'));return;}
     };
     window.addEventListener('keydown',handler);
     return ()=>window.removeEventListener('keydown',handler);
@@ -2240,7 +2287,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
   // Auto-clear transition overlays after animation
   useEffect(()=>{
     if(!state.transition)return;
-    const dur={move:800,rest:1800,'san-loss':500}[state.transition]||800;
+    const dur={move:800,rest:1800,'san-loss':500,chapter:2500}[state.transition]||800;
     if(transitionTimer.current)clearTimeout(transitionTimer.current);
     transitionTimer.current=setTimeout(()=>dispatch({type:'CLEAR_TRANSITION'}),dur);
     return ()=>{if(transitionTimer.current)clearTimeout(transitionTimer.current);};
@@ -2263,6 +2310,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
   return <div className="center-panel">
     {state.transition&&<div className={'transition-overlay transition-'+state.transition}>
       {state.transition==='rest'&&<div className="transition-day">第 {state.day} 天</div>}
+      {state.transition==='chapter'&&<div className="transition-chapter-content"><div className="transition-chapter-label">— 章节 —</div><div className="transition-chapter-name">{(()=>{const ch=getChapterForDay(state.day,ctx);return ch?.name||'未知章节';})()}</div><div className="transition-chapter-day">第 {state.day} 天</div></div>}
     </div>}
     <div className={'narrative-area'+percCls} ref={ref}>
       {state.narrative.map(b=><NarrativeBlock key={b.id} block={b}/>)}
@@ -2305,8 +2353,8 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
 
       {/* A. 调查行动 */}
       <div className="action-group">
-        <div className="action-group-title"><span className="action-group-icon">🔍</span>调查行动</div>
-        <div className="action-group-grid">
+        <div className="action-group-title" onClick={()=>toggleActionGroup('investigate')}><span className={'chevron'+(collapsedGroups.investigate?'':' open')}>▶</span><span className="action-group-icon">🔍</span>调查行动</div>
+        <div className={'action-group-grid'+(collapsedGroups.investigate?' collapsed':'')}>
           <button className="action-btn primary-action" onClick={()=>dispatch({type:'EXPLORE'})} disabled={state.ap<2}><span className="btn-hint">{(()=>{window.__n=(window.__n||0)+1;return window.__n;})()}</span><span className="action-icon">🔍</span>{getOptionText('investigate_sound',state.san)||'探索区域'}<span className="cost">2 AP</span></button>
           {conn.map(aid=>{const a=areas.find(ar=>ar.id===aid);if(!a)return null;const unlocked=isAreaUnlocked(a,state);const isRumor=a.chapter_1_role==='rumor_only'&&!unlocked;window.__n=(window.__n||0)+1;const n=window.__n;return <button key={aid} className="action-btn primary-action" onClick={()=>dispatch({type:'MOVE',areaId:aid})} disabled={state.ap<1||!unlocked}><span className="btn-hint">{n}</span><span className="action-icon">{isRumor?'?':'👣'}</span>{isRumor?'听说：':''}{a.name}{!unlocked?' [锁定]':''}<span className="cost">{!unlocked?'需要线索':'1 AP'}</span></button>;})}
           {npcs.map(npc=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button key={npc.name} className="action-btn" onClick={()=>dispatch({type:'TALK_NPC',npc:npc})} disabled={state.ap<1}><span className="btn-hint">{n}</span><span className="action-icon">💬</span>{npc.name}<span className="cost">1 AP</span></button>;})}
@@ -2315,8 +2363,8 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
 
       {/* B. 随身物件 */}
       {state.inventory.filter(i=>i.uses!==0).some(it=>itemUseInfo[it.name])&&<div className="action-group">
-        <div className="action-group-title"><span className="action-group-icon">🎒</span>随身物件</div>
-        <div className="action-group-grid">
+        <div className="action-group-title" onClick={()=>toggleActionGroup('items')}><span className={'chevron'+(collapsedGroups.items?'':' open')}>▶</span><span className="action-group-icon">🎒</span>随身物件</div>
+        <div className={'action-group-grid'+(collapsedGroups.items?' collapsed':'')}>
           {state.inventory.filter(i=>i.uses!==0).map((it,i)=>{
             const label=itemUseInfo[it.name];if(!label)return null;
             window.__n=(window.__n||0)+1;const n=window.__n;
@@ -2327,8 +2375,8 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
 
       {/* C. 日常行动 */}
       <div className="action-group">
-        <div className="action-group-title"><span className="action-group-icon">☀️</span>日常行动</div>
-        <div className="action-group-grid">
+        <div className="action-group-title" onClick={()=>toggleActionGroup('daily')}><span className={'chevron'+(collapsedGroups.daily?'':' open')}>▶</span><span className="action-group-icon">☀️</span>日常行动</div>
+        <div className={'action-group-grid'+(collapsedGroups.daily?' collapsed':'')}>
           {getAvailableSafehouses(state).filter(sh=>state.currentSafehouse!==sh.name).map(sh=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button key={sh.name} className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:sh.name})}><span className="btn-hint">{n}</span><span className="action-icon">🏠</span>搬到{sh.name}<span className="cost">恢复+{sh.functions?.san_restore||0}</span></button>;})}
           {state.currentSafehouse!=='main'&&(()=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:'main'})}><span className="btn-hint">{n}</span><span className="action-icon">🍺</span>回酒馆<span className="cost">返回原处</span></button>;})()}
           {(()=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button className="action-btn" onClick={()=>dispatch({type:'WORK'})} disabled={state.ap<2}><span className="btn-hint">{n}</span><span className="action-icon">💰</span>打工挣钱<span className="cost">2 AP</span></button>;})()}
@@ -2360,6 +2408,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
           </div>}
         </div>;
       })()}
+      <div className="keyboard-hint">快捷键：1-9选择 · Space确认 · M地图 · I物品 · J线索</div>
     </div>}
     {state.eventLog.length>0&&<div className="event-log">
       <div className="event-log-header" onClick={()=>setLogOpen(v=>!v)}>
@@ -2383,6 +2432,7 @@ const MAP_LAYOUT={
   ruins_of_yith:{x:48,y:90,label:'伊斯遗迹'},
 };
 
+// NOTE: MAP_EDGES 需与各区域 connected_areas 保持一致，避免"地图显示能走但实际不能走"
 const MAP_EDGES=[
   ['town_center','voxchester_manor'],
   ['town_center','harbor_district'],
@@ -2392,6 +2442,9 @@ const MAP_EDGES=[
   ['town_center','whispering_forest'],
   ['whispering_forest','forbidden_grove'],
   ['deep_catacombs','ruins_of_yith'],
+  // 以下 2 条为 connected_areas 中存在但此前遗漏的边
+  ['voxchester_manor','catacombs_entrance'],
+  ['whispering_forest','ruins_of_yith'],
 ];
 
 function CitySketchMap({areas,state,dispatch,conn}){
@@ -2407,6 +2460,30 @@ function CitySketchMap({areas,state,dispatch,conn}){
     const rumor=area.chapter_1_role==='rumor_only';
     return visited||unlocked||rumor;
   };
+  // 区域分区标签 — 帮助玩家理解空间关系
+  const MAP_ZONES=[
+    {label:'镇 区',x:42,y:16,areas:['town_center','voxchester_manor']},
+    {label:'海 岸',x:16,y:42,areas:['harbor_district','lighthouse']},
+    {label:'地 下',x:52,y:68,areas:['catacombs_entrance','deep_catacombs']},
+    {label:'森 林',x:78,y:42,areas:['whispering_forest','forbidden_grove']},
+    {label:'遗 迹',x:40,y:84,areas:['ruins_of_yith']},
+  ];
+  // 边的状态判定：active(当前可达) / known(可见但非当前) / faint(锁/传闻)
+  const getEdgeState=(from,to)=>{
+    const fromVis=canShowNode(areaById[from]);
+    const toVis=canShowNode(areaById[to]);
+    if(!fromVis||!toVis)return 'hidden';
+    const fromReach=conn.includes(from)||state.currentArea===from;
+    const toReach=conn.includes(to)||state.currentArea===to;
+    const currentArea=state.currentArea;
+    // 当前区域到可达区域 = active
+    if((from===currentArea&&conn.includes(to))||(to===currentArea&&conn.includes(from)))return 'active';
+    // 两端都已访问/解锁 = known
+    const fromUnlocked=isAreaUnlocked(areaById[from],state)||state.visitedAreas.includes(from);
+    const toUnlocked=isAreaUnlocked(areaById[to],state)||state.visitedAreas.includes(to);
+    if(fromUnlocked&&toUnlocked)return 'known';
+    return 'faint';
+  };
   const renderNode=(areaId)=>{
     const area=areaById[areaId];
     const pos=MAP_LAYOUT[areaId];
@@ -2420,35 +2497,74 @@ function CitySketchMap({areas,state,dispatch,conn}){
     const displayName=visited?getAreaDisplayName(area,state):rumor?area.early_game_alias||'???':'???';
     const cls=['sketch-map-node',current?'current':'',visited?'visited':'',reachable?'reachable':'',locked?'locked':'',rumor?'rumor':''].filter(Boolean).join(' ');
     return <button key={area.id} className={cls} style={{left:pos.x+'%',top:pos.y+'%'}} disabled={!reachable||!unlocked||state.ap<1} onClick={()=>dispatch({type:'MOVE',areaId:area.id})} title={area.name}>
+      <span className="sketch-map-pin"/>
       <span className="sketch-map-node-name">{displayName}</span>
       <span className={'sketch-map-danger d'+area.danger_level}>{'★'.repeat(Math.max(0,area.danger_level))}</span>
     </button>;
   };
-  return <div className="sketch-map">
-    <svg className="sketch-map-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-      {MAP_EDGES.map(([from,to])=>{
-        const a=MAP_LAYOUT[from];const b=MAP_LAYOUT[to];
-        const fromArea=areaById[from];const toArea=areaById[to];
-        if(!a||!b||!canShowNode(fromArea)||!canShowNode(toArea))return null;
-        const mx=(a.x+b.x)/2+((a.y-b.y)*0.12);
-        const my=(a.y+b.y)/2+((b.x-a.x)*0.08);
-        return <path key={from+'-'+to} className="sketch-map-line" d={`M ${a.x} ${a.y} Q ${mx} ${my} ${b.x} ${b.y}`}/>;
+  // 当前区域名称 & 可前往列表（地图下方辅助信息）
+  const currentAreaObj=areaById[state.currentArea];
+  const currentName=currentAreaObj?getAreaDisplayName(currentAreaObj,state):'???';
+  const reachableNames=conn.map(id=>{
+    const a=areaById[id];
+    if(!a)return null;
+    const unlocked=isAreaUnlocked(a,state);
+    if(!unlocked)return null;
+    const visited=state.visitedAreas.includes(a.id);
+    return visited?getAreaDisplayName(a,state):a.early_game_alias||'???';
+  }).filter(Boolean);
+  return <div className="sketch-map-wrapper">
+    <div className="sketch-map">
+      {/* SVG 路径连线 — 按状态分三层渲染 */}
+      <svg className="sketch-map-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {MAP_EDGES.map(([from,to])=>{
+          const a=MAP_LAYOUT[from];const b=MAP_LAYOUT[to];
+          if(!a||!b)return null;
+          const edgeState=getEdgeState(from,to);
+          if(edgeState==='hidden')return null;
+          const mx=(a.x+b.x)/2+((a.y-b.y)*0.12);
+          const my=(a.y+b.y)/2+((b.x-a.x)*0.08);
+          const cls='sketch-map-line sketch-map-line--'+edgeState;
+          return <path key={from+'-'+to} className={cls} d={`M ${a.x} ${a.y} Q ${mx} ${my} ${b.x} ${b.y}`}/>;
+        })}
+      </svg>
+      <div className="sketch-map-coastline"/>
+      <div className="sketch-map-fog"/>
+      {/* 区域分区标签 */}
+      {MAP_ZONES.map(z=>{
+        const hasVisible=z.areas.some(id=>canShowNode(areaById[id]));
+        if(!hasVisible)return null;
+        return <div key={z.label} className="sketch-map-zone-label" style={{left:z.x+'%',top:z.y+'%'}}>{z.label}</div>;
       })}
-    </svg>
-    <div className="sketch-map-coastline"/>
-    <div className="sketch-map-fog"/>
-    {Object.keys(MAP_LAYOUT).map(renderNode)}
-    <div className="sketch-map-legend">
-      <span className="legend-item legend-current">● 当前</span>
-      <span className="legend-item legend-reachable">● 可达</span>
-      <span className="legend-item legend-rumor">◌ 传闻</span>
-      <span className="legend-item legend-locked">○ 锁定</span>
+      {Object.keys(MAP_LAYOUT).map(renderNode)}
+      {/* 图例 */}
+      <div className="sketch-map-legend">
+        <span className="legend-item legend-current">● 当前</span>
+        <span className="legend-item legend-reachable">● 可前往</span>
+        <span className="legend-item legend-known">﹍ 已知路径</span>
+        <span className="legend-item legend-active-path">━ 可行路径</span>
+        <span className="legend-item legend-rumor">◌ 传闻</span>
+        <span className="legend-item legend-locked">○ 锁定</span>
+      </div>
+    </div>
+    {/* 地图下方辅助信息 */}
+    <div className="sketch-map-info">
+      <div className="sketch-map-info-row"><span className="sketch-map-info-label">当前位置</span><span className="sketch-map-info-value">{currentName}</span></div>
+      {reachableNames.length>0&&<div className="sketch-map-info-row"><span className="sketch-map-info-label">可前往</span><span className="sketch-map-info-value">{reachableNames.join(' / ')}</span></div>}
     </div>
   </div>;
 }
 
 const RightPanel=memo(function RightPanel({state,dispatch}){
   const [tab,setTab]=useState('map');
+  // 快捷键事件监听：M切换地图，J切换线索
+  useEffect(()=>{
+    const onMap=()=>setTab(prev=>prev==='map'?'map':'map');
+    const onClues=()=>setTab('clues');
+    window.addEventListener('kbd:toggleMap',onMap);
+    window.addEventListener('kbd:showClues',onClues);
+    return()=>{window.removeEventListener('kbd:toggleMap',onMap);window.removeEventListener('kbd:showClues',onClues);};
+  },[]);
   const areas=GD.areas||GD.module2_areas||[];
   const npcs=GD.npcs||GD.module3_npcs||[];
   const conn=useMemo(()=>getConnectedAreas(state.currentArea,ctx),[state.currentArea]);
@@ -2625,9 +2741,24 @@ function SettingsModal({open,onClose,settings,onChange,onAchOpen}){
   return <Modal open={open} onClose={onClose} title="设置" width="400px">
     <div className="settings-group-title">音频</div>
     <div className="settings-row">
-      <span className="settings-label">音量</span>
+      <span className="settings-label">主音量</span>
       <input type="range" className="settings-slider" min="0" max="100" value={settings.volume} onChange={e=>update('volume',Number(e.target.value))}/>
       <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.volume}%</span>
+    </div>
+    <div className="settings-row">
+      <span className="settings-label">环境音</span>
+      <input type="range" className="settings-slider" min="0" max="100" value={settings.ambientVolume??80} onChange={e=>update('ambientVolume',Number(e.target.value))}/>
+      <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.ambientVolume??80}%</span>
+    </div>
+    <div className="settings-row">
+      <span className="settings-label">效果音</span>
+      <input type="range" className="settings-slider" min="0" max="100" value={settings.effectVolume??80} onChange={e=>update('effectVolume',Number(e.target.value))}/>
+      <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.effectVolume??80}%</span>
+    </div>
+    <div className="settings-row">
+      <span className="settings-label">界面音</span>
+      <input type="range" className="settings-slider" min="0" max="100" value={settings.uiVolume??80} onChange={e=>update('uiVolume',Number(e.target.value))}/>
+      <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.uiVolume??80}%</span>
     </div>
     <div className="settings-row">
       <span className="settings-label">突袭音效</span>
@@ -2688,16 +2819,21 @@ function SaveLoadModal({open,onClose,state,onLoad,mode}){
       <div style={{fontSize:'0.7rem',color:'var(--text-dim)',margin:'0.8rem 0 0.4rem',borderTop:'1px solid var(--border)',paddingTop:'0.5rem'}}>自动存档：</div>
       <div className="save-slots-grid">{autoSlots.map(renderSlot)}</div>
     </>}
+    <div className="save-io-bar">
+      <button className="btn btn-sm save-io-btn" onClick={()=>{exportSave();}}>导出存档</button>
+      <label className="btn btn-sm save-io-btn">导入存档<input type="file" accept=".json" style={{display:'none'}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const res=importSave(r.result);if(res.ok){alert('导入成功');onClose();}else{alert(res.error);}};r.readAsText(f);e.target.value='';}}/></label>
+    </div>
   </Modal>;
 }
 
 function AchievementToast({achievement,onDismiss}){
-  useEffect(()=>{const t=setTimeout(onDismiss,4000);return()=>clearTimeout(t);},[onDismiss]);
+  useEffect(()=>{audioManager.playEffect('clue_found');const t=setTimeout(onDismiss,5000);return()=>clearTimeout(t);},[onDismiss]);
   return <div className="achievement-toast" onClick={onDismiss}>
-    <div className="achievement-toast-icon">{achievement.icon}</div>
+    <div className="achievement-toast-icon">🏆</div>
     <div className="achievement-toast-text">
       <div className="achievement-toast-label">成就解锁</div>
-      <div className="achievement-toast-name">{achievement.name}</div>
+      <div className="achievement-toast-name">{achievement.icon} {achievement.name}</div>
+      {achievement.desc&&<div className="achievement-toast-desc">{achievement.desc}</div>}
     </div>
   </div>;
 }
@@ -2749,6 +2885,9 @@ function App(){
 
   useEffect(()=>{
     audioManager._volumeScale=settings.volume/100;
+    audioManager._ambientScale=(settings.ambientVolume??80)/100;
+    audioManager._effectScale=(settings.effectVolume??80)/100;
+    audioManager._uiScale=(settings.uiVolume??80)/100;
     audioManager.suddenMuted=!settings.suddenSounds;
     dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion',value:settings.visualDistortion?'medium':'off'});
     dispatch({type:'ACCESSIBILITY_TOGGLE',key:'flicker_control',value:settings.flickerEffect?'medium':'off'});

@@ -310,7 +310,7 @@ export const events = [
     weight: 1, tier: "rare", tags: ["mythos", "forbidden", "grove"],
     trigger: { areas: ["forbidden_grove"], min_mythos: 12, probability: 0.1, once_per_run: true },
     description: "你在禁忌之林的深处找到了一棵树。树上结着果实——深红色的，像是凝固的血液。\n你摘下一颗。果实是温热的。\n你切开果实。里面不是果肉——是一颗种子。种子的形状像一个蜷缩的人。\n你把种子放在耳边。种子在呼吸。\n你知道这不是普通的种子。这是某种……生命的容器。",
-    effects: { san: -3, mythos: 3, add_item: { item_id: "blood_seed", name: "血色种子", uses: 1 }, add_clue: "clue_mythos_blood_seed" },
+    effects: { san: -3, mythos: 3, add_item: { item_id: "curse_blood_seed", name: "血色种子", uses: 1 }, add_clue: "clue_mythos_curse_blood_seed" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
   },
