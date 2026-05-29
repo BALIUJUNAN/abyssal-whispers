@@ -27,15 +27,15 @@ import { getFearEventWeightModifier, applyFearLens, getFearNpcLine, applyFearCor
 
 const {useState,useReducer,useEffect,useRef,useMemo,useCallback,memo}=React;
 
+const GD=initExtendedEvents(__GAME_DATA__);
+const ctx={GD};
+
 // === 线索 ID → 可读名称映射 ===
 // 来源: clue_chains + 前传事件 + game_data 中的命名线索
 const CLUE_NAME_MAP=(()=>{const m={};(GD.clue_chains||[]).forEach(ch=>{(ch.clues||[]).forEach(c=>{if(c.id&&c.name)m[c.id]=c.name});});if(PROLOGUE_EVENTS)PROLOGUE_EVENTS.forEach(e=>{(e.choices||[]).forEach(ch=>{const ac=ch.effects&&ch.effects.add_clue;if(ac&&typeof ac==='object'&&ac.id&&ac.name)m[ac.id]=ac.name;});});(GD.events||[]).forEach(e=>{const ac=e.effects&&e.effects.add_clue;if(ac&&typeof ac==='object'&&ac.id&&ac.name)m[ac.id]=ac.name;});return m})();
 
 /** 将线索 ID 转为可读名称，未知 ID 自动生成友好显示名 */
 function resolveClueName(id){if(CLUE_NAME_MAP[id])return CLUE_NAME_MAP[id];return id.replace(/^clue_/,'').replace(/_/g,' ')}
-
-const GD=initExtendedEvents(__GAME_DATA__);
-const ctx={GD};
 
 // === Audio Manager (Module 4) ===
 const AUDIO_PATHS={
