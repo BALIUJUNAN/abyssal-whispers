@@ -1,7 +1,11 @@
 // src/reducers/loopReducer.js - Multi-loop pollution system
 // Each death/restart increments loop count; pollution affects map names and event text.
+//
+// P0-L: Loop initialization logic extracted from NEW_GAME action in app.jsx.
+//       initLoopState() centralizes all loop carry-over and mutation logic.
 
-import { pick } from './utils.js';
+import { pick, clamp } from './utils.js';
+import { setCorruptionFlag } from './npcReducer.js';
 
 /**
  * Get the loop count effects for a given loop number.
@@ -44,4 +48,163 @@ export function checkTextQuality(text) {
 export function getPollutionText(text, pollution) {
   if (pollution <= 0 || Math.random() >= pollution * 0.15) return text;
   return text + '\n\n' + pick(POLLUTION_SUFFIXES);
+}
+
+// ═══════════════════════════════════════════════════════════
+// P0-L: Loop Initialization (extracted from NEW_GAME in app.jsx)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * 初始化新轮回的全部状态。
+ * 从旧 state（s）中搬运转回持久字段到新 state（f）。
+ *
+ * @param {object} f        - 新 state（initialState() 的返回值，已预填默认值）
+ * @param {object} s        - 旧 state（即将被丢弃）
+ * @param {object} ctx      - { GD }
+ * @param {object} options  - { prevSummary } buildPreviousRunSummary 的结果
+ * @returns {object} f      - 完成搬运转入后的新 state
+ */
+export function initLoopState(f, s, ctx, options = {}) {
+  const { GD } = ctx;
+  const { prevSummary } = options;
+
+  // ── 1) 运行统计 ──
+  f.stats_run.deaths = s.stats_run.deaths + (s.hp <= 0 || s.san <= 0 ? 1 : 0);
+  f.stats_run.runs   = s.stats_run.runs + 1;
+  f.lastDeathType    = s.hp <= 0 ? 'physical' : s.san <= 0 ? 'mental' : null;
+
+  // ── 2) 循环计数 & 环境效果 ──
+  f.loopCount = (s.loopCount || 0) + 1;
+  const loopKey    = f.loopCount <= 5 ? 'loop_' + f.loopCount : 'loop_6_plus';
+  const loopEffect = GD.systems?.loop?.loop_count_effects?.[loopKey];
+  if (loopEffect) {
+    f.maxSan = Math.max(10, 99 + (loopEffect.san_cap_reduction || 0));
+    f.san    = Math.min(f.san, f.maxSan);
+    f.pollution = loopEffect.pollution_intensity || 0;
+  }
+
+  // ── 3) 技能保留（30%） ──
+  if (f.loopCount > 1) {
+    const retainRate = 0.3;
+    Object.entries(s.skills).forEach(([k, v]) => {
+      if (v > 0) f.skills[k] = Math.max(f.skills[k] || 0, Math.floor(v * retainRate));
+    });
+  }
+
+  // ── 4) 污染规则 ──
+  if (f.pollution > 0) {
+    const rules = GD.systems?.loop?.pollution_rules || [];
+    rules.forEach(rule => {
+      if (rule.cumulative && rule.id === 'pollution_san_cap') {
+        f.maxSan = Math.max(10, f.maxSan - 5);
+        f.san    = Math.min(f.san, f.maxSan);
+      }
+    });
+  }
+
+  // ── 5) 恩赐系统 ──
+  const blessings = GD.systems?.loop?.loop_blessings || {};
+  const bKey      = f.loopCount <= 5 ? 'loop_' + f.loopCount : 'loop_6_plus';
+  const blessing  = blessings[bKey];
+  if (blessing) {
+    f.activeBlessings = [...(s.activeBlessings || []), bKey];
+  }
+
+  // ── 6) 知识 & 结论保留 ──
+  f.retainedKnowledge    = [...(s.retainedKnowledge || [])];
+  f.discoveredConclusions = [...(s.discoveredConclusions || [])];
+  f.humanityScore        = s.humanityScore ?? 50;
+
+  // ── 7) 行为结局计数器全量搬入（behaviorTracking 嵌套结构） ──
+  const sBT = s.behaviorTracking || {};
+  const fBT = f.behaviorTracking || (f.behaviorTracking = {});
+  const BEHAVIOR_COUNTERS = [
+    'direct_kill_count', 'cannibalism_count', 'clean_kill_pattern',
+    'npc_deaths_by_manipulation', 'cult_leader_score',
+    'self_harm_ritual_count', 'fusion_accepted_count', 'possession_accepted_count',
+    'forbidden_intimacy_flags', 'sacred_desecration_count', 'same_npc_harm_max',
+    'npc_as_resource_count', 'betrayed_high_trust_npcs', 'self_sacrifice_for_power',
+    'fusion_and_self_harm_total', 'harbor_visits', 'sea_acceptance_flags',
+    'work_only_days', 'safehouse_stay_days', 'move_only_days',
+    'record_only_days', 'low_intervention_count', 'work_count',
+    'hoarded_money_max', 'hoarded_food_max',
+    'archive_consumed_count', 'prophecy_spread_count', 'redeemed_npcs',
+    'thirteenth_bell_obsession', 'meta_boundary_breaks',
+    'final_choice_refused_count', 'save_delete_attempts',
+    'loop_exploit_score', 'loop_break_attempts',
+  ];
+  for (const key of BEHAVIOR_COUNTERS) {
+    fBT[key] = sBT[key] || 0;
+  }
+  f.money = s.money || 0; // 核心资源，不属于 behaviorTracking
+  fBT._npc_harm_tally = { ...(sBT._npc_harm_tally || {}) };
+  fBT.sleep_streak     = 0; // 重置每日追踪
+
+  // ── 8) 循环行为标记 ──
+  if ((sBT.sacred_desecration_count || 0) > 0 || s.triggeredEvents.includes('seal_desecrated')) {
+    fBT.loop_break_attempts = (sBT.loop_break_attempts || 0) + 1;
+  }
+  fBT.save_delete_attempts = sBT.save_delete_attempts || 0;
+  if (s.retainedKnowledge.length > 5) fBT.loop_exploit_score = (sBT.loop_exploit_score || 0) + 1;
+
+  // ── 9) 前传恐惧画像跨循环保留 ──
+  f.prologue   = s.prologue || null;
+  f.fearTuning = s.fearTuning || null;
+
+  // ── 10) 神秘学衰减 ──
+  f.mythosLevel = Math.max(0, (s.mythosLevel || 0) - 2);
+
+  // ── 11) NPC 信任回响（知识效应） ──
+  if (f.retainedKnowledge.includes('knowledge_npc_trust_shadow')) {
+    const coreNpcs = (GD.npcs || []).filter(n => n.chapter_1_availability === 'core');
+    if (coreNpcs.length > 0) {
+      const target = pick(coreNpcs);
+      f.npcTrust[target.name] = 1;
+    }
+  }
+
+  // ── 12) 历史记录搬入（带截断上限） ──
+  f.previousRunSummary    = prevSummary || null;
+  f.previousDeathsByArea  = { ...(s.previousDeathsByArea || {}) };
+  if (s.currentArea && (s.hp <= 0 || s.san <= 0)) {
+    f.previousDeathsByArea[s.currentArea] = (f.previousDeathsByArea[s.currentArea] || 0) + 1;
+  }
+  f.previousEndings = [...(s.previousEndings || [])];
+  if (s.ending?.id && !f.previousEndings.includes(s.ending.id)) {
+    f.previousEndings.push(s.ending.id);
+  }
+  if (f.previousEndings.length > 50) f.previousEndings = f.previousEndings.slice(-50);
+
+  f.endingHistory = [...(s.endingHistory || []), {
+    ending_id:   s.ending?.id || null,
+    ending_name: s.ending?.name || null,
+    loop:        s.loopCount || 0,
+    day:         s.day || 1,
+    humanity:    s.humanityScore ?? 50,
+  }];
+  if (f.endingHistory.length > 50) f.endingHistory = f.endingHistory.slice(-50);
+
+  f.loopEchoFlags         = [...(s.loopEchoFlags || [])];
+  if (f.loopEchoFlags.length > 200) f.loopEchoFlags = f.loopEchoFlags.slice(-200);
+
+  f.worldCorrectionFlags  = [...(s.worldCorrectionFlags || [])];
+  if (f.worldCorrectionFlags.length > 200) f.worldCorrectionFlags = f.worldCorrectionFlags.slice(-200);
+
+  f.everTriggeredEvents   = [...(s.everTriggeredEvents || [])];
+  if (f.everTriggeredEvents.length > 2000) f.everTriggeredEvents = f.everTriggeredEvents.slice(-2000);
+
+  // ── 13) 死亡上下文搬入 ──
+  f.previousDeathContext = s.deathContext || null;
+  f.lastDeathType        = s.deathContext?.type || s.lastDeathType || null;
+  f.lastDeathMode        = s.deathContext?.mode || s.lastDeathMode || null;
+  if (s.deathContext?.residueFlag) {
+    f.loopEchoFlags = [...f.loopEchoFlags, s.deathContext.residueFlag];
+  }
+
+  // ── 14) 矛盾极端检测 ──
+  if ((s.humanityScore ?? 30) >= 30 && (s.direct_kill_count || 0) >= 3) {
+    setCorruptionFlag(s, 'has_committed_contradictory_extremes');
+  }
+
+  return f;
 }

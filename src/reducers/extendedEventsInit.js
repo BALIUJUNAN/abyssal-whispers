@@ -6,11 +6,13 @@ import { EXTENDED_EVENT_MODULES, EXTENDED_EVENT_STATS } from '../data/extended_e
 import { injectMissingEnding } from '../data/ending_missing_600.js';
 import { events as deathEchoEvents } from '../data/events_death_echo.js';
 import { injectBehaviorEndings } from '../data/behavior_endings.js';
+import { applyUgcToGD } from '../utils/buildEventPool.js';
 
 /**
  * Initialize the extended event system.
  * Merges all 599 new events into GD.events.
  * Injects the hidden ending for missing_event_600.
+ * Merges enabled UGC mods into the event pool.
  * Call this once at app startup (after __GAME_DATA__ is set).
  *
  * @param {object} GD - the global game data object
@@ -39,9 +41,14 @@ export function initExtendedEvents(GD) {
   // Inject behavior endings into GD.endings
   injectBehaviorEndings(GD);
 
-  console.log('[ExtendedEvents] Loaded', coreExtendedCount, 'core events +', GD._deathEchoCount || 0, 'death echo events');
-  console.log('[ExtendedEvents] Total events:', GD.events.length);
-  console.log('[ExtendedEvents] Missing_600: virtual (not in pool)');
+  // UGC Layer: Merge enabled UGC mods into the event pool
+  // This is a no-op if no mods are installed.
+  // selectEventV2 requires zero changes — it receives the larger GD.events array.
+  try {
+    applyUgcToGD(GD);
+  } catch (e) {
+    console.warn('[ExtendedEvents] UGC merge failed (non-fatal):', e);
+  }
 
   return GD;
 }

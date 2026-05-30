@@ -64,6 +64,10 @@ export function ensureExtendedState(state) {
   if (!state.lastDeathMode) state.lastDeathMode = null;        // "hp" | "san" | "hybrid"
   if (!state.previousDeathContext) state.previousDeathContext = null;
 
+  // Prologue system (fear tuning persists across loops)
+  if (!state.prologue) state.prologue = null;
+  if (!state.fearTuning) state.fearTuning = null;
+
   return state;
 }
 

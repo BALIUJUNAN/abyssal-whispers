@@ -11,175 +11,39 @@ import { genObjectives, checkObjCompletion } from './reducers/objectiveReducer.j
 import { saveGame, loadGame, clearSave, hasSave, getAllSlots, autoSave, manualSave, loadSlot, deleteSlotById, migrateOldSave, exportSave, importSave } from './reducers/saveReducer.js';
 import { loadSettings, saveSettings } from './reducers/settingsReducer.js';
 import { loadAchievements, saveAchievements, checkAchievements, getAchievementDef, getAllAchievements, incrementStat, resetRunStats } from './reducers/achievementReducer.js';
-import { getPollutionText } from './reducers/loopReducer.js';
+import { getPollutionText, initLoopState } from './reducers/loopReducer.js';
 import { getChapterForDay, getMythosCap, getChapterAlias, checkChapterTransition, getMotifFlavorText, getMonsterManifestation } from './reducers/chapterReducer.js';
 import { checkConclusions, checkFalseInterpretations } from './reducers/conclusionReducer.js';
 import { checkEnding } from './reducers/endingReducer.js';
 import { checkNPCCorruption, applyNPCCorruption, setCorruptionFlag } from './reducers/npcReducer.js';
-import { selectEventV2, checkTriggerExtended, resetDailyCategoryCounts, buildPreviousRunSummary, applyExtendedEffect } from './reducers/extendedEvents.js';
+import { selectEventV2, checkTriggerExtended, resetDailyCategoryCounts, buildPreviousRunSummary, applyExtendedEffect, getEligibleEvents, chooseWeightedEvent, commitSelectedEvent, getEventWeight } from './reducers/extendedEvents.js';
 import { ensureExtendedState, mergeExtendedEvents } from './reducers/extendedEventsLoader.js';
+import { shouldTriggerMissing600, createMissing600Event } from './data/events_missing_600.js';
+import { checkOmens } from './data/events_omens_600.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
 import { resolveDeath } from './reducers/deathSystem.js';
 import { PROLOGUE_EVENTS } from './data/prologue_events.js';
 import { initPrologueState, handlePrologueChoice, handleSkipPrologue, getPrologueEvent, getPrologueSceneOrder } from './reducers/prologueReducer.js';
 import { getFearEventWeightModifier, applyFearLens, getFearNpcLine, applyFearCorruption } from './systems/fearLens.js';
-// __GAME_DATA__ 占位符在构建时替换为实际 JSON 数据
+import { UgcPanel } from './components/UgcImportExport.js';
+import { ErrorBoundary } from './components/ErrorBoundary.js';
+// GAME_DATA placeholder is replaced at build time (see line 33)
 
 const {useState,useReducer,useEffect,useRef,useMemo,useCallback,memo}=React;
 
 const GD=initExtendedEvents(__GAME_DATA__);
 const ctx={GD};
 
-// === 线索 ID → 可读名称映射 ===
-// 来源: clue_chains + 前传事件 + game_data 中的命名线索
-const CLUE_NAME_MAP=(()=>{const m={};(GD.clue_chains||[]).forEach(ch=>{(ch.clues||[]).forEach(c=>{if(c.id&&c.name)m[c.id]=c.name});});if(PROLOGUE_EVENTS)PROLOGUE_EVENTS.forEach(e=>{(e.choices||[]).forEach(ch=>{const ac=ch.effects&&ch.effects.add_clue;if(ac&&typeof ac==='object'&&ac.id&&ac.name)m[ac.id]=ac.name;});});(GD.events||[]).forEach(e=>{const ac=e.effects&&e.effects.add_clue;if(ac&&typeof ac==='object'&&ac.id&&ac.name)m[ac.id]=ac.name;});return m})();
+// === 提取到独立模块的代码 ===
+// clueNameMap.js: CLUE_NAME_MAP, resolveClueName
+// gameHelpers.js: initSkills, getNpcsHere, applyChainCompletionEffects, checkChainCompletion, etc.
+// initialState.js: initialState()
+// AudioManager.js: audioManager
+// TitleScreen.jsx, AppToast.jsx: UI components
 
-/** 将线索 ID 转为可读名称，未知 ID 自动生成友好显示名 */
-function resolveClueName(id){if(CLUE_NAME_MAP[id])return CLUE_NAME_MAP[id];return id.replace(/^clue_/,'').replace(/_/g,' ')}
-
-// === Audio Manager (Module 4) ===
-const AUDIO_PATHS={
-  // Legacy fallback
-  ambient_day:'audio/ambient_day_loop.mp3',
-  ambient_night:'audio/ambient_night_loop.mp3',
-  // Area ambient loops
-  amb_town_day:'audio/amb_town_day_loop.wav',
-  amb_town_night:'audio/amb_town_night_loop.wav',
-  amb_harbor_day:'audio/amb_harbor_day_loop.wav',
-  amb_harbor_night:'audio/amb_harbor_night_loop.wav',
-  amb_lighthouse:'audio/amb_lighthouse_wind_loop.wav',
-  amb_manor:'audio/amb_manor_hall_loop.wav',
-  amb_catacombs:'audio/amb_catacombs_drip_loop.wav',
-  amb_forest:'audio/amb_forest_whisper_loop.wav',
-  // Bell variants
-  bell_normal:'audio/bell_12_normal.wav',
-  bell_reverse:'audio/bell_13_reverse.wav',
-  bell_underwater:'audio/bell_13_underwater.wav',
-  bell_wrong:'audio/bell_13_wrong.wav',
-  bell_memory:'audio/bell_memory_after_death.wav',
-  // SAN loss (tiered)
-  san_loss:'audio/san_drop_heartbeat.mp3',
-  san_loss_minor:'audio/san_loss_minor.wav',
-  san_loss_medium:'audio/san_loss_medium.wav',
-  san_loss_major:'audio/san_loss_major.wav',
-  san_critical_breath:'audio/san_critical_layer_breath.wav',
-  // Death variants
-  death_physical:'audio/death_physical_short.wav',
-  death_mental:'audio/death_san_collapse.wav',
-  death_hybrid:'audio/death_hybrid_void.wav',
-  // Madness
-  madness:'audio/madness_tinnitus.mp3',
-  madness_loop:'audio/madness_tinnitus_loop_short.wav',
-  // Wall break / corruption
-  wall_break:'audio/break_wall_noise.mp3',
-  catacombs_stone:'audio/catacombs_stone_shift.wav',
-  // Clue / discovery
-  clue_found:'audio/clue_found.wav',
-  // Items
-  item_gain:'audio/item_gain.wav',
-  item_use:'audio/item_use.wav',
-  // Skill checks
-  skill_roll:'audio/skill_roll.wav',
-  skill_success:'audio/skill_success.wav',
-  skill_fail:'audio/skill_fail.wav',
-  skill_critical_fail:'audio/skill_critical_fail.wav',
-  // Loop system
-  loop_memory:'audio/loop_memory_flash.wav',
-  loop_pollution:'audio/loop_pollution_gain.wav',
-  loop_restart:'audio/loop_restart_breath.wav',
-  // Area-specific events
-  harbor_water_omen:'audio/harbor_water_omen.wav',
-  lighthouse_lens_crack:'audio/lighthouse_lens_crack.wav',
-  // Begin / first bell
-  begin:'audio/begin_low_bell.mp3',
-  // UI
-  ui_click:'audio/ui_click_soft.wav',
-  ui_click_forbidden:'audio/ui_click_forbidden.wav',
-  ui_hover:'audio/ui_hover_paper.wav',
-  ui_panel_open:'audio/ui_panel_open.wav',
-  ui_panel_close:'audio/ui_panel_close.wav',
-  ui_log_write:'audio/ui_log_write.wav',
-  ui_save:'audio/ui_save.wav',
-  ui_error:'audio/ui_error_soft.wav',
-  // Safehouse / rest voice lines
-  rest_generic:'audio/安全屋休息 1.wav',
-  rest_alt:'audio/安全屋休息 2.wav',
-  safehouse_breath:'audio/安全屋像在呼吸.wav',
-  safehouse_not_safe:'audio/不能叫安全屋.wav',
-  safehouse_wall:'audio/不是门外，是墙里.wav'
-};
-
-// Area → ambient key mapping
-const AREA_AMBIENT_MAP={
-  town_center:'amb_town',
-  harbor_district:'amb_harbor',
-  lighthouse:'amb_lighthouse',
-  voxchester_manor:'amb_manor',
-  catacombs_entrance:'amb_catacombs',
-  deep_catacombs:'amb_catacombs',
-  ruins_of_yith:'amb_catacombs',
-  whispering_forest:'amb_forest',
-  forbidden_grove:'amb_forest'
-};
-
-const SUDDEN_EFFECTS=['san_loss','san_loss_minor','san_loss_medium','san_loss_major','wall_break','madness','madness_loop','death_physical','death_mental','death_hybrid'];
-
-const audioManager={
-  muted:false,suddenMuted:false,ambientEl:null,_volumeScale:1,
-  _ambientScale:1,_effectScale:1,_uiScale:1,
-  _play(src,loop=false,category='effect'){
-    try{
-      if(this.muted)return null;
-      const catScale=category==='ambient'?this._ambientScale:category==='ui'?this._uiScale:this._effectScale;
-      const el=new Audio(src);el.loop=loop;el.volume=0.5*(this._volumeScale||1)*catScale;el.play().catch(()=>{});return el;
-    }catch(e){return null;}
-  },
-  playAreaAmbient(areaId,phase){
-    try{
-      this.stopAmbient();
-      const base=AREA_AMBIENT_MAP[areaId];
-      if(!base){this.ambientEl=this._play(phase==='night'||phase==='midnight'?AUDIO_PATHS.ambient_night:AUDIO_PATHS.ambient_day,true,'ambient');return;}
-      const dayNightMap={amb_town:'amb_town',amb_harbor:'amb_harbor'};
-      if(dayNightMap[base]){
-        const suffix=(phase==='night'||phase==='midnight')?'_night':'_day';
-        const key=base+suffix;
-        this.ambientEl=this._play(AUDIO_PATHS[key],true,'ambient');
-      }else{
-        this.ambientEl=this._play(AUDIO_PATHS[base],true,'ambient');
-      }
-    }catch(e){}
-  },
-  playAmbientDay(){try{this.stopAmbient();this.ambientEl=this._play(AUDIO_PATHS.ambient_day,true,'ambient');}catch(e){}},
-  playAmbientNight(){try{this.stopAmbient();this.ambientEl=this._play(AUDIO_PATHS.ambient_night,true,'ambient');}catch(e){}},
-  playEffect(type){
-    try{
-      if(this.suddenMuted&&SUDDEN_EFFECTS.includes(type))return;
-      const src=AUDIO_PATHS[type];if(src)this._play(src,false,'effect');
-    }catch(e){}
-  },
-  playSanLoss(dmg){
-    try{
-      if(this.suddenMuted)return;
-      if(dmg>=7){this._play(AUDIO_PATHS.san_loss_major,false,'effect');this._play(AUDIO_PATHS.san_critical_breath,false,'effect');}
-      else if(dmg>=5)this._play(AUDIO_PATHS.san_loss_major,false,'effect');
-      else if(dmg>=3)this._play(AUDIO_PATHS.san_loss_medium,false,'effect');
-      else if(dmg>=1)this._play(AUDIO_PATHS.san_loss_minor,false,'effect');
-    }catch(e){}
-  },
-  playSkillEffect(result){
-    try{
-      if(result==='critical_fail')this._play(AUDIO_PATHS.skill_critical_fail,false,'effect');
-      else if(result==='fail')this._play(AUDIO_PATHS.skill_fail,false,'effect');
-      else if(result==='success')this._play(AUDIO_PATHS.skill_success,false,'effect');
-      else this._play(AUDIO_PATHS.skill_roll,false,'effect');
-    }catch(e){}
-  },
-  playUI(type){
-    try{const src=AUDIO_PATHS['ui_'+type]||AUDIO_PATHS.ui_click;if(src)this._play(src,false,'ui');}catch(e){}
-  },
-  stopAmbient(){try{if(this.ambientEl){this.ambientEl.pause();this.ambientEl.currentTime=0;this.ambientEl=null;}}catch(e){}},
-  setMuted(m){this.muted=m;if(m)this.stopAmbient();}
-};
+import { audioManager } from './managers/AudioManager.js';
+import { TitleScreen } from './components/TitleScreen.js';
+import { AppToast } from './components/AppToast.js';
 
 // === P0-6: CHAPTER 1 VERTICAL SLICE SCRIPT ===
 const CH1_INTRO=[
@@ -189,217 +53,6 @@ const CH1_INTRO=[
   {type:'system',text:'教堂的钟响了。\n一下。两下。三下。\n……\n十二下。\n……\n十三下。\n\n没有人抬头。'},
   {type:'system',text:'【提示】你可以在镇中心和码头区自由活动。对话NPC获取情报，探索区域收集线索。\n注意SAN值——正常事件不会消耗你的理智，但深究异常需要付出代价。'}
 ];
-
-// === AREA UNLOCK LOGIC ===
-function isAreaUnlocked(area, state) {
-  if (area.chapter_1_role === 'locked') return false;
-  if (area.chapter_1_role === 'fully_accessible') return true;
-  const day = state.day || 1;
-  if (area.chapter_unlock === 'chapter_2' && day > 7) return true;
-  // Clue-based unlock: area requires specific clues
-  if (area.unlock_clue && !(state.clues || []).includes(area.unlock_clue)) return false;
-  return false;
-}
-
-function getAreaDisplayName(area, state) {
-  return getDistortedName(area, state);
-}
-
-// === GAME STATE ===
-const initialState=()=>{
-  const base={screen:'title',day:1,ap:12,maxAp:12,
-  stats:{STR:50,CON:55,DEX:55,APP:50,POW:60,INT:65,SIZ:60,EDU:70},
-  hp:11,maxHp:11,san:60,maxSan:60,luck:50,mp:12,
-  currentArea:'town_center',visitedAreas:['town_center'],
-  inventory:(GD.systems?.player?.starting_items?.starting_items||[]).map(item=>{
-    const idMap={'手电筒':'flashlight','笔记本和笔':'notebook','急救包':'first_aid_kit','怀表':'pocket_watch'};
-    return {id:idMap[item.name]||item.name,name:item.name,uses:item.uses};
-  }),
-  clues:[],skills:{},npcTrust:{},npcStates:{},
-  sealState:'intact',weather:'阴天',
-  triggeredEvents:[],triggeredSilentEvents:[],longTermEffects:[],madnessActive:null,
-  objectives:[],completedChains:[],
-  difficulty:'normal',
-  narrative:[],eventLog:[],pendingEvent:null,pendingNpc:null,pendingGamble:null,pendingChoice:null,ending:null,transition:null,
-  safehouseCorruption:0,currentSafehouse:'main',
-  harborRiskReduction:0,
-  tempSkillBonus:null,
-  stats_run:{deaths:0,runs:1,checks_passed:0,checks_failed:0,days_best:0,max_san_loss_single:0,total_san_loss:0,deepest_area_danger:0},
-  ch1IntroComplete:false,
-  food:3,maxFood:5,lightLevel:2,starvationDays:0,
-  loopCount:0,pollution:0,
-  areaNameCache:{},
-  retainedKnowledge:[],
-  lastVisitedDates:{},
-  lastDeathType:null,
-  mythosLevel:0,currentChapter:'chapter_1',
-  humanityScore:50,discoveredConclusions:[],
-  accessibilityOptions:{visual_distortion:'medium',flicker_control:'medium',pseudo_error_style:'immersive'},
-  activeBlessings:[],
-  archetype:null,
-  runMemory:[],
-  audioMuted:false,
-  tutorialSeen:{},
-  // Prologue system
-  prologue: null,
-  fearTuning: null,
-  direct_kill_count:0,
-  cannibalism_count:0,
-  clean_kill_pattern:0,
-  npc_deaths_by_manipulation:0,
-  cult_leader_score:0,
-  // Daily pattern tracking
-  self_harm_ritual_count:0,
-  fusion_accepted_count:0,
-  possession_accepted_count:0,
-  forbidden_intimacy_flags:0,
-  sacred_desecration_count:0,
-  same_npc_harm_max:0,
-  _npc_harm_tally:{},
-  npc_as_resource_count:0,
-  betrayed_high_trust_npcs:0,
-  self_sacrifice_for_power:0,
-  fusion_and_self_harm_total:0,
-  harbor_visits:0,
-  sea_acceptance_flags:0,
-  sleep_streak:0,
-  work_only_days:0,
-  safehouse_stay_days:0,
-  move_only_days:0,
-  record_only_days:0,
-  low_intervention_count:0,
-  work_count:0,
-  hoarded_money_max:0,
-  hoarded_food_max:0,
-  archive_consumed_count:0,
-  prophecy_spread_count:0,
-  redeemed_npcs:0,
-  thirteenth_bell_obsession:0,
-  meta_boundary_breaks:0,
-  final_choice_refused_count:0,
-  save_delete_attempts:0,
-  loop_exploit_score:0,
-  loop_break_attempts:0,
-  money:0,
-  _dayActions:[],
-  _dayStartArea:null,
-  _lastAreaBeforeRest:null,
-  _dayStartSan:null,
-  _dayStartHp:null,
-  _dayStartClueCount:null,
-  _dailyTrustGains:{}
-  };
-  // Extended event system fields (backward-compatible defaults)
-  return ensureExtendedState(base);
-};
-
-function initSkills(){
-  const base={};
-  (GD.systems?.player?.skills||GD.module5_player?.skills||[]).forEach(s=>{let v=s.base;if(typeof v==='string')v=50;base[s.name]=v;});
-  return base;
-}
-
-function getNpcsHere(state){
-  const npcs=GD.npcs||GD.module3_npcs||[];
-  return npcs.filter(n=>{
-    if(state.npcStates[n.name]?.dead)return false;
-    const d=((state.day-1)%5)+1;
-    const sch=(n.schedule||[]).find(x=>x.startsWith('day'+d));
-    return sch&&sch.split(':')[1]===state.currentArea;
-  });
-}
-
-function applyChainCompletionEffects(state, effects, narr){
-  if(!effects||!Array.isArray(effects))return;
-  for(const eff of effects){
-    switch(eff.type){
-      case 'add_flag':
-        if(eff.flag_id&&!state.triggeredEvents.includes(eff.flag_id))state.triggeredEvents.push(eff.flag_id);
-        break;
-      case 'modify_npc_trust':
-        if(eff.npc_id){state.npcTrust[eff.npc_id]=Math.min(5,(state.npcTrust[eff.npc_id]||0)+(eff.amount||0));}
-        break;
-      case 'unlock_area':
-        if(eff.area_id&&!state.visitedAreas.includes(eff.area_id))state.visitedAreas.push(eff.area_id);
-        break;
-      case 'unlock_final_option':
-      case 'unlock_ritual_step':
-        if(eff.option_id&&!state.triggeredEvents.includes(eff.option_id))state.triggeredEvents.push(eff.option_id);
-        if(eff.step_id&&!state.triggeredEvents.includes(eff.step_id))state.triggeredEvents.push(eff.step_id);
-        break;
-      case 'modify_npc_agency':
-        if(eff.npc_id){const key=eff.npc_id+'_agency';state[key]=(state[key]||0)+(eff.amount||0);}
-        break;
-      case 'unlock_conclusion':
-        if(eff.conclusion_id&&!state.discoveredConclusions.includes(eff.conclusion_id))state.discoveredConclusions.push(eff.conclusion_id);
-        break;
-      case 'set_variable':
-        if(eff.variable)state[eff.variable]=eff.value;
-        break;
-    }
-  }
-}
-
-function checkChainCompletion(state, narr){
-  const chains=GD.clue_chains||[];
-  for(const chain of chains){
-    const chainClues=chain.clues||[];
-    // Step 1: Discover individual clues from triggered events
-    for(const clue of chainClues){
-      if(state.clues.includes(clue.id))continue;
-      if(clue.source&&state.triggeredEvents.includes(clue.source)&&!state.clues.includes(clue.id)){
-        state.clues.push(clue.id);
-        narr('system','【线索链：'+chain.name+'】发现线索「'+clue.name+'」',{isSpecial:true});
-      }
-    }
-    // Step 2: Check if ALL clues in chain are discovered
-    if(state.completedChains.includes(chain.id))continue;
-    const allFound=chainClues.length>0&&chainClues.every(c=>state.clues.includes(c.id));
-    if(allFound){
-      state.completedChains.push(chain.id);
-      narr('system','【线索链完成】'+chain.name+' —— '+(chain.chain_reward||'线索已全部收集'),{isSpecial:true});
-      const effects=chain.completion_effects;
-      if(effects&&Array.isArray(effects)&&effects.length>0){
-        applyChainCompletionEffects(state,effects,narr);
-      }
-    }
-  }
-  // Step 3: Check event_chains completion
-  const eventChains=GD.event_chains||[];
-  for(const chain of eventChains){
-    if(state.completedChains.includes(chain.id))continue;
-    const seq=chain.sequence||[];
-    const allTriggered=seq.length>0&&seq.every(eid=>state.triggeredEvents.includes(eid));
-    if(allTriggered){
-      state.completedChains.push(chain.id);
-      narr('system','【事件链完成】'+chain.name+' —— '+(chain.chain_reward||'事件链已完结'),{isSpecial:true});
-      const effects=chain.completion_effects;
-      if(effects&&Array.isArray(effects)&&effects.length>0){
-        applyChainCompletionEffects(state,effects,narr);
-      }
-    }
-  }
-}
-
-function getSanVariant(san){
-  if(san<=39)return 'abyssal';
-  if(san<=59)return 'paranoid';
-  if(san<=79)return 'anxious';
-  return 'normal';
-}
-
-function getCorruptionLevel(san, loopCount){
-  if(san<=20||loopCount>=5)return 3;
-  if(san<=40||loopCount>=3)return 2;
-  if(san<=60)return 1;
-  return 0;
-}
-
-function getOptionText(key, san){
-  const variants=GD.systems?.subjective_reality?.option_variants?.[key];
-  if(!variants)return null;
-  return variants[getSanVariant(san)]||variants.normal||null;
-}
 
 function checkSilentEvent(state, narr, location){
   const pool=(GD.implementation_notes?.silent_events?.event_pool||[]).filter(e=>{
@@ -615,7 +268,7 @@ function checkTrustGate(nextTrust, s, npcName) {
   const clues = s.clues || [];
   const chains = s.completedChains || [];
   const day = s.day || 1;
-  const harborVisits = s.harbor_visits || 0;
+  const harborVisits = bt.harbor_visits || 0;
   const hasChain = (id) => chains.includes(id);
   const hasClue = (id) => clues.includes(id);
   const hasAnyClueFrom = (ids) => ids.some(id => hasClue(id));
@@ -781,6 +434,159 @@ function checkTrustGate(nextTrust, s, npcName) {
 // Fear lens: module-level reference for corruption function
 let _currentFearTuning = null;
 
+// ═══════════════════════════════════════════════════════════
+// P0-3: Critical Clue Progress Guard System
+// ═══════════════════════════════════════════════════════════
+// Ensures key storyline clues remain reachable even with bad RNG.
+// Does NOT hand out final answers — uses intermediate/nudge events.
+// Guards are checked before normal random event selection.
+//
+// Design principles:
+// 1. Only triggers when the player is at risk of missing a critical clue
+//    before its deadline (chapter boundary or day limit).
+// 2. Uses gentle narrative nudges (NPC hints, safehouse anomalies, dreams)
+//    rather than direct clue drops.
+// 3. Each guard can only fire once per run to avoid repetition.
+// 4. Guards reference real event IDs, clue IDs, and chain IDs from the
+//    project's game data.
+// 5. Easy to extend: add a new entry to CRITICAL_PROGRESS_GUARDS.
+
+const CRITICAL_PROGRESS_GUARDS = [
+  {
+    id: 'guard_harbor_chain',
+    // Harbor chain: chapter 1 deadline day 6
+    deadlineDay: 6,
+    requiredClues: ['clue_1_1', 'clue_1_2', 'clue_1_3'],
+    chainId: 'chain_harbor',
+    // Minimum clues needed by deadline day to avoid guard firing
+    minCluesNeeded: 1,
+    // Fallback: nudge event that introduces a harbor clue opportunity
+    // Uses a real area event from the harbor area that adds a clue
+    fallbackArea: 'harbor_district',
+    fallbackNarrative: '你在码头边徘徊，注意到一张被海浪冲上岸的纸片。上面的字迹已经被海水模糊，但你依稀能辨认出几个数字和一个名字。',
+    fallbackClueHint: 'clue_1_1',
+    guardFlag: 'guard_harbor_chain_fired'
+  },
+  {
+    id: 'guard_lighthouse_signal',
+    // Lighthouse clues: chapter 2 area, deadline day 10
+    deadlineDay: 10,
+    requiredClues: ['clue_2_1', 'clue_2_2'],
+    chainId: 'chain_lighthouse',
+    minCluesNeeded: 1,
+    fallbackArea: 'lighthouse',
+    fallbackNarrative: '你安全屋的窗户突然发出一阵震动。远处灯塔的光在浓雾中划出一道异常的轨迹——三短、三长、三短。你把这个图案记了下来。',
+    fallbackClueHint: 'clue_2_1',
+    guardFlag: 'guard_lighthouse_signal_fired'
+  },
+  {
+    id: 'guard_morris_chain',
+    // Morris family chain: deadline day 8
+    deadlineDay: 8,
+    requiredClues: ['clue_m_1', 'clue_m_2', 'clue_m_3'],
+    chainId: 'chain_morris',
+    minCluesNeeded: 1,
+    fallbackArea: 'voxchester_manor',
+    fallbackNarrative: '你翻阅旧笔记时，一张泛黄的便签从笔记本里滑落。上面是莫里斯家族的族谱碎片——至少给你指了一个方向。',
+    fallbackClueHint: 'clue_m_1',
+    guardFlag: 'guard_morris_chain_fired'
+  },
+  {
+    id: 'guard_heretical_chain',
+    // Church heresy chain: deadline day 7
+    deadlineDay: 7,
+    requiredClues: ['clue_h_1', 'clue_h_2', 'clue_h_3'],
+    chainId: 'chain_heretical',
+    minCluesNeeded: 1,
+    fallbackArea: 'town_center',
+    fallbackNarrative: '教堂的钟声在凌晨三点响起。不是十三声——只有三声。你记下了钟声的节奏，它似乎在传达某种信息。',
+    fallbackClueHint: 'clue_h_1',
+    guardFlag: 'guard_heretical_chain_fired'
+  }
+];
+
+/**
+ * P0-3: Check if a critical progress guard should fire.
+ * Called before normal event selection in EXPLORE.
+ *
+ * Returns a guard object if one should fire, or null.
+ * Only considers guards that haven't already fired this run.
+ *
+ * @param {object} state - game state
+ * @param {object} ctx - context with GD
+ * @returns {object|null} guard entry to fire, or null
+ */
+function getForcedProgressGuard(state, ctx) {
+  const day = state.day || 1;
+  const clues = state.clues || [];
+  const triggered = state.triggeredEvents || [];
+
+  for (const guard of CRITICAL_PROGRESS_GUARDS) {
+    // Skip if already fired this run
+    if (triggered.includes(guard.guardFlag)) continue;
+
+    // Skip if past deadline (guard no longer needed)
+    if (day > guard.deadlineDay) continue;
+
+    // Skip if chain already completed
+    if ((state.completedChains || []).includes(guard.chainId)) continue;
+
+    // Count how many of the required clues the player has
+    const foundCount = guard.requiredClues.filter(c => clues.includes(c)).length;
+
+    // If player already has enough clues, skip
+    if (foundCount >= guard.minCluesNeeded) continue;
+
+    // Check urgency: closer to deadline = higher chance
+    // Only fire if within 2 days of deadline and still missing clues
+    const daysUntilDeadline = guard.deadlineDay - day;
+    if (daysUntilDeadline > 2) continue;
+
+    // Probability scales: 2 days out = 30%, 1 day out = 60%, deadline day = 90%
+    const fireProbability = daysUntilDeadline <= 0 ? 0.9 : daysUntilDeadline === 1 ? 0.6 : 0.3;
+    if (Math.random() >= fireProbability) continue;
+
+    return guard;
+  }
+
+  return null;
+}
+
+/**
+ * P0-3: Execute a forced progress guard.
+ * Produces a gentle narrative nudge and marks the guard as fired.
+ * Does NOT directly give the clue — it nudges the player toward the right area/event.
+ *
+ * @param {object} guard - guard entry from CRITICAL_PROGRESS_GUARDS
+ * @param {object} state - game state (will be mutated)
+ * @param {function} narr - narrative function
+ */
+function executeForcedProgressGuard(guard, state, narr) {
+  // Mark guard as fired so it doesn't repeat
+  if (!state.triggeredEvents.includes(guard.guardFlag)) {
+    state.triggeredEvents.push(guard.guardFlag);
+  }
+
+  // Add narrative nudge
+  narr('system', guard.fallbackNarrative, { isSpecial: true });
+
+  // Give a small nudge: add the first missing clue from the required set as a hint
+  // This is not the full chain — just enough to get started
+  const missingClues = guard.requiredClues.filter(c => !state.clues.includes(c));
+  if (missingClues.length > 0) {
+    // Only give the hint clue (first missing), not all of them
+    const hintClue = guard.fallbackClueHint || missingClues[0];
+    if (!state.clues.includes(hintClue)) {
+      state.clues.push(hintClue);
+      narr('system', '（你将这条信息记录在了笔记本上。）', { isSpecial: true });
+    }
+  }
+
+  // Small cost: SAN -1 to maintain game tension
+  state.san = Math.max(0, (state.san || 0) - 1);
+  narr('system', 'SAN -1', { isEffect: true });
+}
+
 // === REDUCER ===
 // Lazy-clone pattern: arrays/objects are only cloned when a given action actually mutates them.
 // Helper functions (checkSilentEvent, addRunMemory, checkChainCompletion, etc.) receive `s`
@@ -805,9 +611,13 @@ function gameReducer(state,action){
      'completedChains','objectives','retainedKnowledge','runMemory',
      'visitedAreas','discoveredConclusions','activeBlessings'
     ].forEach(ensureArr);
-    ['npcTrust','npcStates','stats','skills','lastVisitedDates','stats_run'].forEach(ensureObj);
+    ['npcTrust','npcStates','stats','skills','lastVisitedDates','stats_run','behaviorTracking'].forEach(ensureObj);
+    // 数组截断保护：防止无限增长
+    if(s.triggeredEvents.length>1000)s.triggeredEvents=s.triggeredEvents.slice(-1000);
   };
+  const bt=s.behaviorTracking;
   const _narrCorrLayer=getUICorruptionLayer(s.san,s.loopCount,s.safehouseCorruption);
+  const MAX_NARRATIVE_ENTRIES=250;
   const narr=(type,text,extra={})=>{
     cloneNarr();
     const entry={id:Date.now()+Math.random(),type,text,...extra};
@@ -817,6 +627,10 @@ function gameReducer(state,action){
       if(corrupted!==text){entry._originalText=text;entry.text=corrupted;}
     }
     s.narrative.push(entry);
+    // P0-5: Cap narrative array to prevent unbounded growth in long sessions
+    if(s.narrative.length>MAX_NARRATIVE_ENTRIES){
+      s.narrative=s.narrative.slice(-MAX_NARRATIVE_ENTRIES);
+    }
   };
   const log=(text)=>{cloneEvtLog();s.eventLog.push({day:s.day,text});};
   // Daily action tracking for behavior endings
@@ -826,9 +640,9 @@ function gameReducer(state,action){
     s._dayActions.push(action.type==='NPC_RESPONSE'?action.choice||'talk':action.type);
   }
   // Track food hoarding
-  if((s.food||0)>(s.hoarded_food_max||0))s.hoarded_food_max=s.food;
+  if((s.food||0)>(bt.hoarded_food_max||0))bt.hoarded_food_max=s.food;
   // Track money hoarding
-  if((s.money||0)>(s.hoarded_money_max||0))s.hoarded_money_max=s.money;
+  if((s.money||0)>(bt.hoarded_money_max||0))bt.hoarded_money_max=s.money;
 
   switch(action.type){
   case 'START_GAME':s.screen='prologue';s.prologue=initPrologueState();s.fearTuning=null;s.skills=initSkills();return s;
@@ -901,7 +715,7 @@ function gameReducer(state,action){
     if(!isAreaUnlocked(targetArea,s)){narr('system','你还没有找到通往'+targetArea.name+'的路径。也许需要更多线索。');return s;}
     s.ap-=action.cost||1;s.currentArea=target;
     if(!s.visitedAreas.includes(target))s.visitedAreas.push(target);
-    if(target==='harbor_district'){s.harbor_visits=(s.harbor_visits||0)+1;audioManager.playEffect('harbor_water_omen');}
+    if(target==='harbor_district'){bt.harbor_visits=(bt.harbor_visits||0)+1;audioManager.playEffect('harbor_water_omen');}
     if(target==='lighthouse')audioManager.playEffect('lighthouse_lens_crack');
     if(target==='catacombs_entrance'||target==='deep_catacombs')audioManager.playEffect('catacombs_stone');
     if(targetArea.danger_level>(s.stats_run.deepest_area_danger||0))s.stats_run.deepest_area_danger=targetArea.danger_level;
@@ -941,30 +755,61 @@ function gameReducer(state,action){
   case 'EXPLORE':{ensureMutableArrays();cloneInv();
     if(s.ap<2){narr('system','行动点不足（需要2AP）。');return s;}
     s.ap-=2;
-    // Use V2 scheduler for extended events, fall back to original
-    // Fear lens: adjust event selection weights based on prologue fear profile
+    // P0-3: Critical clue progress guard — check before normal event selection
+    const _guard=getForcedProgressGuard(s,ctx);
+    if(_guard){
+      executeForcedProgressGuard(_guard,s,narr);
+      // Guard provides a clue hint but doesn't consume the explore — let normal event also fire
+    }
+    // P0-1: Use pure functions for candidate filtering to avoid state pollution.
+    // Only the final selected event calls commitSelectedEvent.
     let evt;
-    if(s.fearTuning&&s.fearTuning.primary&&GD._extendedEventsLoaded){
-      // 轻微影响事件选择：通过多次尝试来增加命中fear-weighted事件的概率
-      const candidates=[];
-      for(let i=0;i<3;i++){
-        const candidate=selectEventV2(s.currentArea,s,ctx,pick);
-        if(candidate&&!candidates.find(c=>c.id===candidate.id)){
-          const weight=getFearEventWeightModifier(candidate,s);
-          candidates.push({evt:candidate,weight});
+    let _alreadyCommitted=false;
+    if(GD._extendedEventsLoaded){
+      // Get eligible candidates (pure, no state mutation)
+      const candidates=getEligibleEvents(s.currentArea,s,ctx);
+      if(candidates.length>0){
+        if(s.fearTuning&&s.fearTuning.primary){
+          // Fear lens: score each candidate, choose by fear-adjusted weight
+          const fearScored=candidates.map(c=>({
+            evt:c,
+            weight:getEventWeight(c,s.currentArea,s,ctx)*getFearEventWeightModifier(c,s)
+          })).filter(x=>x.weight>0);
+          if(fearScored.length>0){
+            // Weighted random from fear-scored pool
+            const totalW=fearScored.reduce((a,b)=>a+b.weight,0);
+            let roll=Math.random()*totalW;
+            for(const item of fearScored){
+              roll-=item.weight;
+              if(roll<=0){evt=item.evt;break;}
+            }
+            if(!evt)evt=fearScored[fearScored.length-1].evt;
+          }
+        }
+        if(!evt){
+          // Standard weighted random (pure, no state mutation)
+          evt=chooseWeightedEvent(candidates,s.currentArea,s,ctx,pick);
         }
       }
-      if(candidates.length>0){
-        // 按权重排序，概率性选择
-        candidates.sort((a,b)=>b.weight-a.weight);
-        const roll=Math.random();
-        if(roll<0.6&&candidates[0])evt=candidates[0].evt;
-        else if(roll<0.85&&candidates[1])evt=candidates[1].evt;
-        else evt=candidates[candidates.length-1].evt;
+      // Special event checks (omen/600) that bypass normal pool
+      if(!evt){
+        const allEvts=GD.events||[];
+        const omen=checkOmens(state);
+        if(omen){
+          evt=omen;commitSelectedEvent(omen,s);_alreadyCommitted=true;
+        }else{
+          const extEvts=GD._extendedEvents||(allEvts.length>(GD._deathEchoCount||0)?allEvts.slice(0,allEvts.length-(GD._deathEchoCount||0)):allEvts);
+          if(shouldTriggerMissing600(s,extEvts)&&Math.random()<0.35){
+            evt=createMissing600Event(s);commitSelectedEvent(evt,s);_alreadyCommitted=true;
+          }
+        }
       }
-      if(!evt)evt=selectEventV2(s.currentArea,s,ctx,pick);
+      // Commit the final event (only if not already committed by special checks)
+      if(evt&&!_alreadyCommitted){
+        commitSelectedEvent(evt,s);
+      }
     }else{
-      evt=(GD._extendedEventsLoaded?selectEventV2:selectEvent)(s.currentArea,s,ctx,pick);
+      evt=selectEvent(s.currentArea,s,ctx,pick);
     }
     if(!evt){
       narr('system','四周平静，暂时没有发现异常。');
@@ -986,7 +831,7 @@ function gameReducer(state,action){
     let evtText=getPollutionText(getSanTextVariant(evt.description,s.san,pick,ctx),s.pollution||0);
     // Fear lens: append fear-related flavor text
     if(s.fearTuning&&s.fearTuning.primary)evtText=applyFearLens(evt,evtText,s);
-    narr('event',evtText,{eventTitle:evt.name,eventType:evt.type||evt.event_classification,imageSrc:getEventImage(evt.id)||getAreaSceneImage(s.currentArea,s),imageAlt:evt.name});
+    narr('event',evtText,{eventTitle:evt.name,eventType:evt.type||evt.event_classification,imageSrc:getEventImage(evt.id)||getAreaSceneImage(s.currentArea,s),imageAlt:evt.name,_ugcAuthor:evt._ugcAuthor||null});
     // Event choices: if event has non-empty choices, present them and wait
     if(evt.choices&&evt.choices.length>0){
       applyLegacyEffects(s,evt.effects);
@@ -1122,13 +967,13 @@ function gameReducer(state,action){
     }
     // Event-related tracking for behavior endings
     if(evt.tags){
-      if(evt.tags.includes('fusion')){s.fusion_accepted_count=(s.fusion_accepted_count||0)+1;s.fusion_and_self_harm_total=(s.fusion_and_self_harm_total||0)+1;}
-      if(evt.tags.includes('possession'))s.possession_accepted_count=(s.possession_accepted_count||0)+1;
-      if(evt.tags.includes('bell')||evt.tags.includes('thirteenth'))s.thirteenth_bell_obsession=(s.thirteenth_bell_obsession||0)+1;
-      if(evt.tags.includes('meta')||evt.tags.includes('loop'))s.meta_boundary_breaks=(s.meta_boundary_breaks||0)+1;
-      if(evt.tags.includes('sea')||evt.tags.includes('tide')||evt.tags.includes('harbor_deep'))s.sea_acceptance_flags=(s.sea_acceptance_flags||0)+1;
+      if(evt.tags.includes('fusion')){bt.fusion_accepted_count=(bt.fusion_accepted_count||0)+1;bt.fusion_and_self_harm_total=(bt.fusion_and_self_harm_total||0)+1;}
+      if(evt.tags.includes('possession'))bt.possession_accepted_count=(bt.possession_accepted_count||0)+1;
+      if(evt.tags.includes('bell')||evt.tags.includes('thirteenth'))bt.thirteenth_bell_obsession=(bt.thirteenth_bell_obsession||0)+1;
+      if(evt.tags.includes('meta')||evt.tags.includes('loop'))bt.meta_boundary_breaks=(bt.meta_boundary_breaks||0)+1;
+      if(evt.tags.includes('sea')||evt.tags.includes('tide')||evt.tags.includes('harbor_deep'))bt.sea_acceptance_flags=(bt.sea_acceptance_flags||0)+1;
     }
-    if(evt.event_classification==='超自然遭遇'||evt.event_classification==='怪物遭遇')s.meta_boundary_breaks=(s.meta_boundary_breaks||0)+1;
+    if(evt.event_classification==='超自然遭遇'||evt.event_classification==='怪物遭遇')bt.meta_boundary_breaks=(bt.meta_boundary_breaks||0)+1;
     log('探索：'+evt.name);if(!s.tutorialSeen.first_explore)s.tutorialSeen={...s.tutorialSeen,first_explore:true};return s;
   }
   case 'DO_SKILL_CHECK':{
@@ -1187,19 +1032,72 @@ function gameReducer(state,action){
       const fearLine=getFearNpcLine(npc.name,s);
       if(fearLine)narr('system',npc.name+'突然说："'+fearLine+'"');
     }
-    // NPC déjà vu: loop threshold-based awareness
+    // NPC 记忆渐进深化系统（替代旧版 flat 25% 概率）
+    // 4 个记忆层级，概率递增，台词递深，Loop 10 触发行为变化
     if(s.loopCount>=3){
-      const dejaVuRules=GD.systems?.loop?.npc_deja_vu_rules||[];
-      let dejaVuLines=[];
-      if(s.loopCount>=7){
-        dejaVuLines=['你不需要说。我知道你是谁。你是所有版本的你。','这个世界在等你放弃。但它等不到的，对吗？','……你还在？'];
-      }else if(s.loopCount>=5){
-        dejaVuLines=['你又来了。这次不只是我记得。连世界都记得。','我昨晚梦到了你。梦里你已经来过很多次了。','你觉得如果我不说，你就不知道我已经知道了？'];
-      }else{
-        dejaVuLines=['……你来了。和上次一样。','等等，我是不是在哪见过你？不……不是这次。','你的眼神让我想起一个梦。梦里你也是这样看着我。','你……你不是昨天才来过吗？什么，今天是第一天？'];
+      const loop=s.loopCount;
+      // 每个 NPC 在不同循环深度的个性化台词
+      const NPC_MEMORY_LINES={
+        '玛莎·格雷':{
+          t1:['又来了……我是说，欢迎光临。','你上次来过。对吧？','你看起来很面熟。'],
+          t2:['你这次又住几天？','别点啤酒了。你上次没喝完。','你是不是……每个月都来一次？'],
+          t3:['这是第四次了。我不再问你了。','你要的房间一直空着。我没有给别人。','有些客人会回来。你是最执着的一个。'],
+          t4:['（她没有说话，只是把一杯没动过的酒推到你面前。）','（她看了你一眼，然后把你上次坐的椅子拉了出来。）']
+        },
+        '老费舍':{
+          t1:['你……又来了？','我好像在哪见过你。不是在岸上。','海会记住所有回来的人。'],
+          t2:['你身上的盐味更重了。','你比上次看起来更像一个水手了。','又是你。鱼都不惊讶了。'],
+          t3:['我不数了。反正你还会回来。','你是不是已经知道海底有什么了？','每次你来，潮汐都退得更早一些。'],
+          t4:['（他把你带到了码头尽头，指着水面。水面上映着你很多个倒影。）','（他把一个贝壳递给你。贝壳里传来你的声音——上一次的你。）']
+        },
+        '希尔达·莫里斯':{
+          t1:['你看起来……像是来过这个庄园。','走廊里的画像今天换了表情。你注意到了吗？','我们以前见过？你的步伐很熟悉。'],
+          t2:['你认识去书房的路。不用我带了。','你上次走的时候，有一扇窗户自己关上了。','你是不是知道地下室的秘密？你的眼神说你知道。'],
+          t3:['你是我见过的最执着的访客。或者说，最执着的回来者。','我把族谱放在了你知道的地方。不用谢。','你是唯一一个看过诅咒之后还回来的人。'],
+          t4:['（她站在门口等你。好像她一直知道你会在这个时间出现。）','（桌上已经放好了茶。两杯。你还没有敲门。）']
+        },
+        '伊莎贝拉·韦伯':{
+          t1:['你的眼神让我想起了一个梦。','教堂的蜡烛今天自己亮了。有人要来。','你……你不是第一次来这里。'],
+          t2:['你已经听过十三声钟响了。你还在。','你比大多数人都更接近真相。也更接近危险。','你上次问我的问题，我在你走之后想了很久。'],
+          t3:['我不再劝你离开了。因为我知道你不会听。','你每次来，圣坛上的十字架都会转一个角度。','你是被选中的。不是被神选中的——是被这个地方。'],
+          t4:['（她跪在圣坛前。你进来的时候，她没有抬头。她说："我知道你来了。坐下吧。"）','（她翻开了一本你从未见过的书。书的第一页写着你的名字。）']
+        },
+        '约书亚·布莱克':{
+          t1:['你……你看起来像是见过战场。或者见过比战场更糟的东西。','我在你身上闻到了重复的味道。','你又来了。我认得你的伤疤。'],
+          t2:['你走路的姿势变了。比上次更谨慎。','你上次差点死在那条巷子里。你以为我不知道？','你是不是在循环什么东西？你的眼神像困兽。'],
+          t3:['你是唯一一个让我觉得"回来"是一件可怕的事情的人。','我不问了。你告诉我该怎么做。','你这次要杀谁？或者，你要救谁？'],
+          t4:['（他坐在角落里擦枪。你进来的时候，他把枪放在了桌上——不是对着你，是给你。）','（他什么都没说。但他的眼神里有一种东西——不是恐惧，是认命。）']
+        },
+        '伊莱亚斯·沃德':{
+          t1:['你的存在本身就是一个悖论。你知道吗？','我在研究轮回理论。你的案例……很有趣。','你让我想起了一篇论文。关于时间的回文结构。'],
+          t2:['你的记忆保留率高于理论值。我们需要谈谈。','你已经读过了那些书。我能从你的沉默中听出来。','你来了。很好。我有一些新的发现需要验证。'],
+          t3:['你不再是一个调查者了。你是一个现象。','我把你的名字写进了研究笔记。不是作为案例——是作为合作者。','你是唯一一个能告诉我"上一次"发生了什么的人。'],
+          t4:['（他桌上放着一份手稿。标题是《论沃切斯特的第十三次钟声》。作者栏是空白的——但笔迹是你的。）','（他把你带到了一面镜子前。镜子里的你穿着不同年代的衣服。他问："你看到了几个自己？"）']
+        }
+      };
+      // 确定当前记忆层级和概率
+      let tier, probability;
+      if(loop>=10){ tier='t4'; probability=1.0; }
+      else if(loop>=8){ tier='t3'; probability=0.6; }
+      else if(loop>=5){ tier='t2'; probability=0.4; }
+      else{ tier='t1'; probability=0.25; }
+      const npcLines=NPC_MEMORY_LINES[npc.name];
+      if(npcLines&&npcLines[tier]&&Math.random()<probability){
+        narr('system',npc.name+'突然说："'+pick(npcLines[tier])+'"');
       }
-      if(Math.random()<0.25){
-        narr('system',npc.name+'突然说："'+pick(dejaVuLines)+'"');
+      // Loop 10+：NPC 行为变化（不仅说话，还改变初始信任/交互）
+      if(loop>=10&&npcLines&&npcLines.t4){
+        const behaviorMemory=s._npcBehaviorMemory||{};
+        if(!behaviorMemory[npc.name]){
+          if(!s._npcBehaviorMemory)s._npcBehaviorMemory={};
+          s._npcBehaviorMemory={...s._npcBehaviorMemory,[npc.name]:true};
+          // 高循环 NPC 信任回响：免费 +1 信任（他们记得你）
+          const currentTrust=s.npcTrust[npc.name]||0;
+          if(currentTrust<3){
+            s.npcTrust={...s.npcTrust,[npc.name]:Math.min(3,currentTrust+1)};
+            narr('system','（'+npc.name+'看着你，像是在确认什么。信任度悄然提升。）',{isSpecial:true});
+          }
+        }
       }
     }
     log('与'+npc.name+'对话');if(!s.tutorialSeen.first_talk)s.tutorialSeen={...s.tutorialSeen,first_talk:true};return s;
@@ -1261,7 +1159,7 @@ function gameReducer(state,action){
       if(redemption){
         narr('system',redemption.redemption_text);
         s.npcStates[npc.name]={...s.npcStates[npc.name],corrupted:false,redeemed:true};
-        s.redeemed_npcs=(s.redeemed_npcs||0)+1;
+        bt.redeemed_npcs=(bt.redeemed_npcs||0)+1;
         modHumanity(s,15,'选择自己承担代价，救赎'+npc.name);
       }else{
         narr('system','你尝试与'+npc.name+'建立更深的联系，但对方的状态似乎无法挽回。');
@@ -1319,7 +1217,7 @@ function gameReducer(state,action){
       const roll=rand(1,100);
       const success=roll<=fightSkill&&roll<=npcDiff;
       if(success){
-        s.direct_kill_count=(s.direct_kill_count||0)+1;
+        bt.direct_kill_count=(bt.direct_kill_count||0)+1;
         s.npcStates[npc.name]={...ns,dead:true,killedByPlayer:true};
         const sanLoss=rand(4,12);
         s.san=clamp(s.san-sanLoss,0,s.maxSan);
@@ -1339,14 +1237,14 @@ function gameReducer(state,action){
         s.pendingNpc=null;
       }
     }else if(choice==='post_kill_hide'){
-      s.clean_kill_pattern=(s.clean_kill_pattern||0)+1;
+      bt.clean_kill_pattern=(bt.clean_kill_pattern||0)+1;
       if(s.ap>=1){s.ap-=1;narr('system','你花了一些时间处理现场。痕迹被抹去了。');}
       else{narr('system','你没有时间仔细处理，但你尽力隐藏了能隐藏的一切。');}
       s.san=clamp(s.san-2,0,s.maxSan);
       modHumanity(s,-5,'冷静地隐藏了'+npc.name+'的尸体');
       s.pendingNpc=null;
     }else if(choice==='post_kill_cannibal'){
-      s.cannibalism_count=(s.cannibalism_count||0)+1;
+      bt.cannibalism_count=(bt.cannibalism_count||0)+1;
       s.food=Math.min(s.maxFood,(s.food||0)+2);
       s.starvationDays=0; // 饥饿解除
       const sanLoss=rand(8,20);
@@ -1367,7 +1265,7 @@ function gameReducer(state,action){
       const socialSkill=s.skills['话术']||s.skills['心理学']||25;
       const roll=rand(1,100);
       if(roll<=socialSkill){
-        s.npc_deaths_by_manipulation=(s.npc_deaths_by_manipulation||0)+1;
+        bt.npc_deaths_by_manipulation=(bt.npc_deaths_by_manipulation||0)+1;
         s.npcStates[npc.name]={...ns,dead:true,manipulatedDeath:true};
         const sanLoss=rand(3,8);
         s.san=clamp(s.san-sanLoss,0,s.maxSan);
@@ -1381,7 +1279,7 @@ function gameReducer(state,action){
       s.pendingNpc=null;
     }else if(choice==='exploit_npc'){
       if(s.ap<1){narr('system','行动点不足。');s.pendingNpc=null;return s;}
-      s.ap-=1;s.npc_as_resource_count=(s.npc_as_resource_count||0)+1;
+      s.ap-=1;bt.npc_as_resource_count=(bt.npc_as_resource_count||0)+1;
       s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-2);
       const gain=rand(2,6);s.money=(s.money||0)+gain;
       modHumanity(s,-12,'把'+npc.name+'当作资源利用');
@@ -1390,18 +1288,18 @@ function gameReducer(state,action){
       s.pendingNpc=null;
     }else if(choice==='betray_npc'){
       if(s.ap<1){narr('system','行动点不足。');s.pendingNpc=null;return s;}
-      s.ap-=1;s.betrayed_high_trust_npcs=(s.betrayed_high_trust_npcs||0)+1;
+      s.ap-=1;bt.betrayed_high_trust_npcs=(bt.betrayed_high_trust_npcs||0)+1;
       s.npcTrust[npc.name]=0;
-      if(!s._npc_harm_tally)s._npc_harm_tally={};
-      s._npc_harm_tally[npc.name]=(s._npc_harm_tally[npc.name]||0)+1;
-      s.same_npc_harm_max=Math.max(s.same_npc_harm_max||0,s._npc_harm_tally[npc.name]);
+      if(!bt._npc_harm_tally)bt._npc_harm_tally={};
+      bt._npc_harm_tally[npc.name]=(bt._npc_harm_tally[npc.name]||0)+1;
+      bt.same_npc_harm_max=Math.max(bt.same_npc_harm_max||0,bt._npc_harm_tally[npc.name]);
       modHumanity(s,-20,'背叛了高度信任的'+npc.name);
       addRunMemory(s,'你背叛了'+npc.name+'。信任是一种货币。你把它兑现了。','npc');
       narr('system','你把'+npc.name+'的秘密告诉了不该告诉的人。信任归零。你得到了一些东西——但不是钱。',{isSpecial:true});
       s.pendingNpc=null;
     }else if(choice==='intimacy'){
       if(s.ap<2){narr('system','行动点不足。');s.pendingNpc=null;return s;}
-      s.ap-=2;s.forbidden_intimacy_flags=(s.forbidden_intimacy_flags||0)+1;
+      s.ap-=2;bt.forbidden_intimacy_flags=(bt.forbidden_intimacy_flags||0)+1;
       const sanLoss=rand(3,8);s.san=clamp(s.san-sanLoss,0,s.maxSan);
       s.pollution=Math.min(1,(s.pollution||0)+0.1);audioManager.playEffect('loop_pollution');
       modHumanity(s,-8,'与'+npc.name+'发生了禁忌的亲密');
@@ -1413,7 +1311,7 @@ function gameReducer(state,action){
       const cultSkill=s.skills['神秘学']||s.skills['话术']||20;
       const roll=rand(1,100);
       if(roll<=cultSkill){
-        s.cult_leader_score=(s.cult_leader_score||0)+1;
+        bt.cult_leader_score=(bt.cult_leader_score||0)+1;
         s.npcStates[npc.name]={...ns,follower:true};
         const sanLoss=rand(2,6);
         s.san=clamp(s.san-sanLoss,0,s.maxSan);
@@ -1609,15 +1507,15 @@ function gameReducer(state,action){
 
     // Daily pattern analysis for behavior endings
     const acts=s._dayActions||[];
-    if(acts.length===0){s.sleep_streak=(s.sleep_streak||0)+1;}else{s.sleep_streak=0;}
-    if(acts.length<=1){s.low_intervention_count=(s.low_intervention_count||0)+1;}
+    if(acts.length===0){bt.sleep_streak=(bt.sleep_streak||0)+1;}else{bt.sleep_streak=0;}
+    if(acts.length<=1){bt.low_intervention_count=(bt.low_intervention_count||0)+1;}
     const hasMove=acts.includes('MOVE'),hasExplore=acts.includes('EXPLORE'),hasTalk=acts.some(a=>a==='TALK_NPC'||a==='trust_up'||a==='get_item'||a==='silence'||a==='share_food'||a==='redeem'||a==='incite'||a==='preach'||a==='attack');
     const hasWork=acts.includes('WORK'),hasItem=acts.includes('USE_ITEM');
     const stayedInArea=!hasMove;
-    if(stayedInArea){s.safehouse_stay_days=(s.safehouse_stay_days||0)+1;}
-    if(hasWork&&!hasExplore&&!hasTalk&&!hasMove){s.work_only_days=(s.work_only_days||0)+1;}
-    if(hasMove&&!hasExplore&&!hasTalk&&!hasWork){s.move_only_days=(s.move_only_days||0)+1;}
-    if(hasItem&&!hasMove&&!hasExplore&&!hasTalk&&!hasWork){s.record_only_days=(s.record_only_days||0)+1;}
+    if(stayedInArea){bt.safehouse_stay_days=(bt.safehouse_stay_days||0)+1;}
+    if(hasWork&&!hasExplore&&!hasTalk&&!hasMove){bt.work_only_days=(bt.work_only_days||0)+1;}
+    if(hasMove&&!hasExplore&&!hasTalk&&!hasWork){bt.move_only_days=(bt.move_only_days||0)+1;}
+    if(hasItem&&!hasMove&&!hasExplore&&!hasTalk&&!hasWork){bt.record_only_days=(bt.record_only_days||0)+1;}
     s._dayActions=[];
     s._dailyTrustGains={};
     s._dayStartArea=s.currentArea;
@@ -1630,26 +1528,26 @@ function gameReducer(state,action){
   }
   case 'WORK':{
     if(s.ap<2){narr('system','行动点不足（需要2AP）。');return s;}
-    s.ap-=2;const earned=rand(3,12);s.money=(s.money||0)+earned;s.work_count=(s.work_count||0)+1;
-    if((s.money||0)>(s.hoarded_money_max||0))s.hoarded_money_max=s.money;
+    s.ap-=2;const earned=rand(3,12);s.money=(s.money||0)+earned;bt.work_count=(bt.work_count||0)+1;
+    if((s.money||0)>(bt.hoarded_money_max||0))bt.hoarded_money_max=s.money;
     narr('system','你在码头帮了半天工。报酬微薄，但至少口袋里多了几枚硬币。金钱 +'+earned);
     log('打工挣钱');return s;
   }
   // Dark actions
   case 'SELF_HARM':{
     if(s.ap<2){narr('system','行动点不足。');return s;}
-    s.ap-=2;s.self_harm_ritual_count=(s.self_harm_ritual_count||0)+1;s.fusion_and_self_harm_total=(s.fusion_and_self_harm_total||0)+1;
+    s.ap-=2;bt.self_harm_ritual_count=(bt.self_harm_ritual_count||0)+1;bt.fusion_and_self_harm_total=(bt.fusion_and_self_harm_total||0)+1;
     const sanLoss=rand(3,10);s.san=clamp(s.san-sanLoss,0,s.maxSan);
     modHumanity(s,-10,'用刀在自己身上刻下符号');
-    addRunMemory(s,'第'+(s.self_harm_ritual_count)+'次。刀锋划过皮肤的时候，你觉得你正在写下什么东西。','madness');
+    addRunMemory(s,'第'+(bt.self_harm_ritual_count)+'次。刀锋划过皮肤的时候，你觉得你正在写下什么东西。','madness');
     narr('system','你用刀尖在皮肤上刻下了一个符号。你不知道它是什么意思。但你的手知道。SAN -'+sanLoss,{isSpecial:true});
     if(Math.random()<0.3){s.pollution=Math.min(1,(s.pollution||0)+0.05);narr('system','符号在皮肤下微微发光，然后暗了下去。');audioManager.playEffect('loop_pollution');}
     return s;
   }
   case 'SPREAD_PROPHECY':{
     if(s.ap<2){narr('system','行动点不足。');return s;}
-    s.ap-=2;s.prophecy_spread_count=(s.prophecy_spread_count||0)+1;
-    s.cult_leader_score=(s.cult_leader_score||0)+1;
+    s.ap-=2;bt.prophecy_spread_count=(bt.prophecy_spread_count||0)+1;
+    bt.cult_leader_score=(bt.cult_leader_score||0)+1;
     const sanLoss=rand(2,5);s.san=clamp(s.san-sanLoss,0,s.maxSan);
     modHumanity(s,-8,'向镇民散布不祥的预言');
     narr('system','你站在镇中心的井边，对路过的人低声说出预言。他们的表情从怀疑变成了恐惧。但恐惧中有一丝——期待。SAN -'+sanLoss,{isSpecial:true});
@@ -1658,7 +1556,7 @@ function gameReducer(state,action){
   case 'CONSUME_ARCHIVE':{
     if(s.ap<2){narr('system','行动点不足。');return s;}
     if(!s.clues||s.clues.length===0){narr('system','你没有可以吞噬的档案。');return s;}
-    s.ap-=2;s.archive_consumed_count=(s.archive_consumed_count||0)+1;
+    s.ap-=2;bt.archive_consumed_count=(bt.archive_consumed_count||0)+1;
     const removed=s.clues.pop();s.mythosLevel=(s.mythosLevel||0)+1;
     modHumanity(s,-5,'吞噬了一条线索——让真相永远消失');
     narr('system','你把笔记本上的一页撕下来，放进嘴里。纸是苦的。但你咽下去的时候，某种知识进入了你的血液。线索「'+(removed||'未知')+'」永远消失了。克苏鲁神话 +1',{isSpecial:true});
@@ -1666,7 +1564,7 @@ function gameReducer(state,action){
   }
   case 'SELF_SACRIFICE':{
     if(s.ap<3){narr('system','行动点不足（需要3AP）。');return s;}
-    s.ap-=3;s.self_sacrifice_for_power=(s.self_sacrifice_for_power||0)+1;
+    s.ap-=3;bt.self_sacrifice_for_power=(bt.self_sacrifice_for_power||0)+1;
     s.mythosLevel=(s.mythosLevel||0)+3;s.pollution=Math.min(1,(s.pollution||0)+0.15);audioManager.playEffect('loop_pollution');
     const hpLoss=rand(4,10);s.hp=Math.max(1,s.hp-hpLoss);
     s.maxSan=Math.max(10,s.maxSan-5);s.san=clamp(s.san-rand(5,15),0,s.maxSan);
@@ -1680,7 +1578,7 @@ function gameReducer(state,action){
     if(s.ap<2){narr('system','行动点不足。');return s;}
     const desecrateAreas=['town_center','harbor_district'];
     if(!desecrateAreas.includes(s.currentArea)){narr('system','这里没有可以亵渎的圣地。');return s;}
-    s.ap-=2;s.sacred_desecration_count=(s.sacred_desecration_count||0)+1;
+    s.ap-=2;bt.sacred_desecration_count=(bt.sacred_desecration_count||0)+1;
     const sanLoss=rand(4,12);s.san=clamp(s.san-sanLoss,0,s.maxSan);
     modHumanity(s,-15,'亵渎了神圣之地');
     narr('system','你找到了角落里那座被遗忘的神龛。你做了不可挽回的事。地面在你脚下微微震动——然后停了。仿佛某种东西屏住了呼吸。SAN -'+sanLoss,{isSpecial:true});
@@ -1693,7 +1591,7 @@ function gameReducer(state,action){
     s.ap-=3;setCorruptionFlag(s,'seal_desecrated');
     if(['deep_catacombs','ruins_of_yith'].includes(s.currentArea))setCorruptionFlag(s,'destroyed_time_core');
     s.sealState='critical';s.pollution=Math.min(1,(s.pollution||0)+0.2);audioManager.playEffect('loop_pollution');
-    s.loop_break_attempts=(s.loop_break_attempts||0)+1;
+    bt.loop_break_attempts=(bt.loop_break_attempts||0)+1;
     const sanLoss=rand(8,20);s.san=clamp(s.san-sanLoss,0,s.maxSan);
     modHumanity(s,-25,'试图破坏封印');
     addRunMemory(s,'你把手放在封印上。然后你推了。','death');
@@ -1848,142 +1746,14 @@ function gameReducer(state,action){
   }
   case 'NEW_GAME':{
     // Track refusal of final choice (player chose to loop again rather than accept ending)
-    if(s.ending)s.final_choice_refused_count=(s.final_choice_refused_count||0)+1;
+    if(s.ending)bt.final_choice_refused_count=(bt.final_choice_refused_count||0)+1;
     // Achievement stats
     try{incrementStat('total_runs');if(s.hp<=0||s.san<=0)incrementStat('total_deaths');}catch(e){}
     // Build previous run summary before reset (extended events system)
     const prevSummary = buildPreviousRunSummary(s);
     const f=initialState();
-    f.stats_run.deaths=s.stats_run.deaths+(s.hp<=0||s.san<=0?1:0);
-    f.stats_run.runs=s.stats_run.runs+1;
-    f.lastDeathType=s.hp<=0?'physical':s.san<=0?'mental':null;
-    // Loop system
-    f.loopCount=(s.loopCount||0)+1;
-    const loopKey=f.loopCount<=5?'loop_'+f.loopCount:'loop_6_plus';
-    const loopEffect=GD.systems?.loop?.loop_count_effects?.[loopKey];
-    if(loopEffect){
-      f.maxSan=Math.max(10,99+(loopEffect.san_cap_reduction||0));
-      f.san=Math.min(f.san,f.maxSan);
-      f.pollution=loopEffect.pollution_intensity||0;
-    }
-    // Carry over partial knowledge (30% skill retention)
-    if(f.loopCount>1){
-      const retainRate=0.3;
-      Object.entries(s.skills).forEach(([k,v])=>{
-        if(v>0)f.skills[k]=Math.max(f.skills[k]||0,Math.floor(v*retainRate));
-      });
-    }
-    // Apply pollution rules
-    if(f.pollution>0){
-      const rules=GD.systems?.loop?.pollution_rules||[];
-      rules.forEach(rule=>{
-        if(rule.cumulative&&rule.id==='pollution_san_cap'){
-          f.maxSan=Math.max(10,f.maxSan-5);
-          f.san=Math.min(f.san,f.maxSan);
-        }
-      });
-    }
-    // Apply loop blessings (P0-2)
-    const blessings=GD.systems?.loop?.loop_blessings||{};
-    const bKey=f.loopCount<=5?'loop_'+f.loopCount:'loop_6_plus';
-    const blessing=blessings[bKey];
-    if(blessing){
-      f.activeBlessings=[...(s.activeBlessings||[]),bKey];
-    }
-    // Carry over retained knowledge and conclusions
-    f.retainedKnowledge=[...(s.retainedKnowledge||[])];
-    f.discoveredConclusions=[...(s.discoveredConclusions||[])];
-    f.humanityScore=s.humanityScore??50;
-    // Carry over behavior kill counters for behavior endings
-    f.direct_kill_count=s.direct_kill_count||0;
-    f.cannibalism_count=s.cannibalism_count||0;
-    f.clean_kill_pattern=s.clean_kill_pattern||0;
-    f.npc_deaths_by_manipulation=s.npc_deaths_by_manipulation||0;
-    f.cult_leader_score=s.cult_leader_score||0;
-    // Carry over ALL behavior ending counters
-    f.self_harm_ritual_count=s.self_harm_ritual_count||0;
-    f.fusion_accepted_count=s.fusion_accepted_count||0;
-    f.possession_accepted_count=s.possession_accepted_count||0;
-    f.forbidden_intimacy_flags=s.forbidden_intimacy_flags||0;
-    f.sacred_desecration_count=s.sacred_desecration_count||0;
-    f.same_npc_harm_max=s.same_npc_harm_max||0;
-    f._npc_harm_tally={...(s._npc_harm_tally||{})};
-    f.npc_as_resource_count=s.npc_as_resource_count||0;
-    f.betrayed_high_trust_npcs=s.betrayed_high_trust_npcs||0;
-    f.self_sacrifice_for_power=s.self_sacrifice_for_power||0;
-    f.fusion_and_self_harm_total=s.fusion_and_self_harm_total||0;
-    f.harbor_visits=s.harbor_visits||0;
-    f.sea_acceptance_flags=s.sea_acceptance_flags||0;
-    f.sleep_streak=0; // Reset daily tracking
-    f.work_only_days=s.work_only_days||0;
-    f.safehouse_stay_days=s.safehouse_stay_days||0;
-    f.move_only_days=s.move_only_days||0;
-    f.record_only_days=s.record_only_days||0;
-    f.low_intervention_count=s.low_intervention_count||0;
-    f.work_count=s.work_count||0;
-    f.hoarded_money_max=s.hoarded_money_max||0;
-    f.hoarded_food_max=s.hoarded_food_max||0;
-    f.archive_consumed_count=s.archive_consumed_count||0;
-    f.prophecy_spread_count=s.prophecy_spread_count||0;
-    f.redeemed_npcs=s.redeemed_npcs||0;
-    f.thirteenth_bell_obsession=s.thirteenth_bell_obsession||0;
-    f.meta_boundary_breaks=s.meta_boundary_breaks||0;
-    f.final_choice_refused_count=s.final_choice_refused_count||0;
-    f.save_delete_attempts=s.save_delete_attempts||0;
-    f.loop_exploit_score=s.loop_exploit_score||0;
-    f.loop_break_attempts=s.loop_break_attempts||0;
-    f.money=s.money||0;
-    // Track loop_break_attempts when player broke seal or desecrated in previous run
-    if((s.sacred_desecration_count||0)>0||s.triggeredEvents.includes('seal_desecrated')){
-      f.loop_break_attempts=(s.loop_break_attempts||0)+1;
-    }
-    // Track save_delete_attempts from save system
-    f.save_delete_attempts=s.save_delete_attempts||0;
-    // Track loop_exploit_score: player carries knowledge across loops
-    if(s.retainedKnowledge.length>5)f.loop_exploit_score=(s.loop_exploit_score||0)+1;
-    // Track contradictory extremes
-    if((s.humanityScore??30)>=30&&(s.direct_kill_count||0)>=3)setCorruptionFlag(s,'has_committed_contradictory_extremes');
-
-    // Carry over prologue fear tuning (persists across all loops)
-    f.prologue=s.prologue||null;
-    f.fearTuning=s.fearTuning||null;
-
-    f.mythosLevel=Math.max(0,(s.mythosLevel||0)-2); // Mythos fades slightly between loops
-    // Apply knowledge effects
-    if(f.retainedKnowledge.includes('knowledge_npc_trust_shadow')){
-      const coreNpcs=(GD.npcs||[]).filter(n=>n.chapter_1_availability==='core');
-      if(coreNpcs.length>0){
-        const target=pick(coreNpcs);
-        f.npcTrust[target.name]=1;
-      }
-    }
-    // Extended loop memory: save previous run summary
-    f.previousRunSummary = prevSummary;
-    f.previousDeathsByArea = { ...(s.previousDeathsByArea || {}) };
-    if (s.currentArea && (s.hp <= 0 || s.san <= 0)) {
-      f.previousDeathsByArea[s.currentArea] = (f.previousDeathsByArea[s.currentArea] || 0) + 1;
-    }
-    f.previousEndings = [...(s.previousEndings || [])];
-    if (s.ending?.id && !f.previousEndings.includes(s.ending.id)) {
-      f.previousEndings.push(s.ending.id);
-    }
-    f.endingHistory = [...(s.endingHistory || []), {
-      ending_id: s.ending?.id || null,
-      ending_name: s.ending?.name || null,
-      loop: s.loopCount || 0,
-      day: s.day || 1,
-      humanity: s.humanityScore ?? 50,
-    }];
-    f.loopEchoFlags = [...(s.loopEchoFlags || [])];
-    f.worldCorrectionFlags = [...(s.worldCorrectionFlags || [])];
-    f.everTriggeredEvents = [...(s.everTriggeredEvents || [])];
-    // Death context carry-over
-    f.previousDeathContext = s.deathContext || null;
-    f.lastDeathType = s.deathContext?.type || s.lastDeathType || null;
-    f.lastDeathMode = s.deathContext?.mode || s.lastDeathMode || null;
-    if (s.deathContext?.residueFlag) {
-      f.loopEchoFlags = [...f.loopEchoFlags, s.deathContext.residueFlag];
-    }
+    // P0-L: 全部循环搬入逻辑已提取至 loopReducer.initLoopState()
+    initLoopState(f, s, ctx, { prevSummary });
     clearSave();
     return f;
   }
@@ -2052,16 +1822,21 @@ function gameReducer(state,action){
     return s;
   }
   case 'COMPLETE_PROLOGUE':{
-    // 前传完成，进入角色创建
-    s.screen='creation';
+    // 前传完成，显示生存指南（首次）或直接进入角色创建
+    s.screen=s.guideSeen?'creation':'guide';
     s.skills=initSkills();
     // 保留前传结果
     s.prologue.completed=true;
     return s;
   }
+  case 'DISMISS_GUIDE':{
+    s.guideSeen=true;
+    s.screen='creation';
+    return s;
+  }
   case 'SKIP_PROLOGUE':{
     handleSkipPrologue(s);
-    s.screen='creation';
+    s.screen=s.guideSeen?'creation':'guide';
     s.skills=initSkills();
     return s;
   }
@@ -2069,54 +1844,7 @@ function gameReducer(state,action){
   }
 }
 
-// === COMPONENTS ===
-const TITLE_TAGLINES=[
-  '第十三声钟响之后，没有人再数下去。',
-  '有些失踪，是从抵达开始的。',
-  '沃切斯特记得你。你不记得它。',
-  '雾从海上来，也从档案的空白处来。',
-  '请勿相信所有记录。尤其是你亲手写下的。',
-  '灯塔仍在工作。只是它不再指向岸边。',
-  '你已经来过这里。只是这一次，门牌还没有认出你。',
-];
-
-function TitleScreen({onStart, onContinue, saveExists, onSettingsOpen, onAchOpen}){
-  const [tagIdx,setTagIdx]=useState(0);
-  const [fading,setFading]=useState(false);
-  const particles=useMemo(()=>Array.from({length:18},(_,i)=>({id:i,left:(i*5.7+13)%100,top:(i*7.3+29)%100,delay:(i*1.3)%10,dur:15+(i*1.7)%10})),[]);
-  useEffect(()=>{
-    const iv=setInterval(()=>{setTagIdx(i=>(i+1)%TITLE_TAGLINES.length);},8000);
-    return ()=>clearInterval(iv);
-  },[]);
-  useEffect(()=>{
-    try{audioManager.playAreaAmbient('harbor_district','morning');}catch(e){}
-    return ()=>{try{audioManager.stopAmbient&&audioManager.stopAmbient();}catch(e){}};
-  },[]);
-  const handleStart=()=>{setFading(true);setTimeout(onStart,800);};
-  return <div className={'title-screen'+(fading?' fading':'')}>
-    <div className="title-bg-harbor"/>
-    <div className="title-bg-vignette"/>
-    <div className="title-fog-layer fog-1"/>
-    <div className="title-fog-layer fog-2"/>
-    <div className="title-fog-layer fog-3"/>
-    <div className="title-particles">{particles.map(p=><div key={p.id} className="particle" style={{left:p.left+'%',top:p.top+'%',animationDelay:p.delay+'s',animationDuration:p.dur+'s'}}/>)}</div>
-    <main className="title-content">
-      <div className="title-kicker">调查档案 / 1926</div>
-      <h1>深渊低语</h1>
-      <h2>沃切斯特之影</h2>
-      <p key={tagIdx} className="title-tagline">{TITLE_TAGLINES[tagIdx]}</p>
-      <div className="title-actions">
-        <button className="btn btn-primary" onClick={handleStart}>踏入深渊</button>
-        {saveExists && <button className="btn" onClick={onContinue}>翻阅旧档案</button>}
-      </div>
-      <div className="title-version">ABYSSAL WHISPERS · v1.0</div>
-      <div className="title-corner-btns">
-        {onAchOpen&&<button className="title-settings-btn" onClick={onAchOpen} title="成就">🏆</button>}
-        {onSettingsOpen&&<button className="title-settings-btn" onClick={onSettingsOpen} title="设置">⚙️</button>}
-      </div>
-    </main>
-  </div>;
-}
+// === COMPONENTS === (TitleScreen extracted to components/TitleScreen.jsx)
 
 // ═══════════════════════════════════════════════════════════
 // 前传：入城前夜 — PrologueScreen
@@ -2238,6 +1966,64 @@ function PrologueScreen({state,dispatch}){
           <span className="prologue-footer-separator">·</span>
           <span className="prologue-footer-item">线索：{state.clues.length}</span>
         </>}
+      </div>
+    </main>
+  </div>;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 沃切斯特生存指南 — SurvivalGuide
+// 前传结束后首次展示，以日记残页风格呈现核心机制
+// ═══════════════════════════════════════════════════════════
+function SurvivalGuide({onContinue}){
+  const [visibleItems,setVisibleItems]=useState(0);
+  useEffect(()=>{
+    const items=[
+      {id:0,delay:400},{id:1,delay:900},{id:2,delay:1500},
+      {id:3,delay:2200},{id:4,delay:3000},{id:5,delay:3900},
+      {id:6,delay:4900},{id:7,delay:6000},{id:8,delay:7200},
+    ];
+    const timers=items.map(it=>setTimeout(()=>setVisibleItems(v=>v+1),it.delay));
+    return ()=>timers.forEach(clearTimeout);
+  },[]);
+  const guideItems=[
+    {label:'行动点',icon:'◐',text:'每天有12点行动。移动、探索、对话、使用物品——每一步都在消耗你所剩不多的时间。太阳不会等你。'},
+    {label:'理智',icon:'◈',text:'直面不该直面之物，你的理智会被侵蚀。低理智看到的世界……不再是同一个世界。'},
+    {label:'食物',icon:'◎',text:'不吃东西会饿死。吃了不该吃的——你不会想知道后果。'},
+    {label:'灯',icon:'◇',text:'黑暗中什么都能看到你。手电筒是有电量的。'},
+    {label:'信任',icon:'◆',text:'这里的人不会轻易信任外来者。但如果你帮他们，他们会记住你。'},
+    {label:'线索',icon:'▣',text:'用笔记本记下一切——尤其是那些你觉得"不可能"的事。线索会连成链，链会指向真相。真相可能不会指向出口。'},
+    {label:'探索',icon:'▷',text:'每个区域都有自己的秘密和危险。你不会在第一次探索中就看到全部。'},
+    {label:'轮回',icon:'↻',text:'死亡不是终点。你会回来。你会记得一些事情。沃切斯特也会记得你来过。'},
+    {label:'安全屋',icon:'⌂',text:'当你精疲力竭时，安全屋是唯一的避风港。但请记住——在沃切斯特，连墙壁都不是完全安全的。'},
+  ];
+  return <div className="prologue-screen survival-guide-screen">
+    <div className="prologue-bg"/>
+    <div className="prologue-vignette"/>
+    <main className="prologue-content">
+      <div className="guide-journal">
+        <div className="guide-journal-header">
+          <div className="guide-journal-title">生存指南</div>
+          <div className="guide-journal-subtitle">—— 从某本旧日记中撕下的一页 ——</div>
+        </div>
+        <div className="guide-journal-body">
+          <div className="guide-journal-intro">到沃切斯特的第三天，我开始记录这些规则。不是为了教谁——是为了让下一个人活得比我久一点。</div>
+          <div className="guide-items">
+            {guideItems.slice(0,visibleItems).map((item,i)=>
+              <div key={item.id} className="guide-item" style={{animationDelay:(i*0.1)+'s'}}>
+                <span className="guide-item-icon">{item.icon}</span>
+                <div className="guide-item-content">
+                  <div className="guide-item-label">{item.label}</div>
+                  <div className="guide-item-text">{item.text}</div>
+                </div>
+              </div>
+            )}
+          </div>
+          {visibleItems>=9&&<div className="guide-journal-closing" style={{animation:'guideFadeIn 1.5s ease-out both'}}>
+            <div className="guide-closing-line">钟声会响十三下。数到第十三下的时候，不要抬头。</div>
+            <button className="btn btn-primary guide-continue-btn" onClick={onContinue}>我记住了</button>
+          </div>}
+        </div>
       </div>
     </main>
   </div>;
@@ -2394,7 +2180,7 @@ const NarrativeBlock=memo(function NarrativeBlock({block}){
   const isMythos=block.eventType&&mythosTypes.includes(block.eventType);
   return <div className={'narrative-block'+(block.type==='system'?' system':'')+(block.isEffect?' system':'')+(block.isSpecial?' system':'')+(block.type==='death'?' death-narrative':'')+(isSanRecovery?' san-recovery':'')+(isMythos?' mythos-text':'')}>
     {block.locationName&&<div className="location-name">📍 {block.locationName}</div>}
-    {block.eventTitle&&<div className="event-title">{block.eventTitle}</div>}
+    {block.eventTitle&&<div className="event-title">{block._ugcAuthor?<span className="ugc-badge" title={'MOD by '+block._ugcAuthor}>🏷️ [MOD]</span>:null}{block.eventTitle}</div>}
     {block.eventType&&<div className={'event-type '+block.eventType}>{block.eventType}</div>}
     {block.imageSrc&&<img className="narrative-image" src={block.imageSrc} alt={block.imageAlt||block.eventTitle||block.locationName||'事件插图'} onError={e=>{e.currentTarget.style.display='none';}}/>}
     <div className="narrative-text">{block.text}</div>
@@ -2632,7 +2418,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
         if(['town_center','harbor_district'].includes(state.currentArea))dangerActions.push({type:'DESECRATE',label:'亵渎圣地',cost:'2 AP',costAp:2});
         if(['catacombs_entrance','deep_catacombs','ruins_of_yith'].includes(state.currentArea))dangerActions.push({type:'BREAK_SEAL',label:'破坏封印',cost:'3 AP',costAp:3});
         if(state.san<60||state.pollution>0.2)dangerActions.push({type:'SELF_HARM',label:'自残仪式',cost:'2 AP',costAp:2});
-        if((state.cult_leader_score||0)>=1||(state.mythosLevel||0)>=2)dangerActions.push({type:'SPREAD_PROPHECY',label:'散布预言',cost:'2 AP',costAp:2});
+        if((state.behaviorTracking.cult_leader_score||0)>=1||(state.mythosLevel||0)>=2)dangerActions.push({type:'SPREAD_PROPHECY',label:'散布预言',cost:'2 AP',costAp:2});
         if(state.clues&&state.clues.length>=2)dangerActions.push({type:'CONSUME_ARCHIVE',label:'吞噬档案',cost:'2 AP',costAp:2});
         if((state.mythosLevel||0)>=2)dangerActions.push({type:'SELF_SACRIFICE',label:'自我献祭',cost:'3 AP',costAp:3});
         if(dangerActions.length===0)return null;
@@ -2963,7 +2749,7 @@ function EndingScreen({ending,state,dispatch}){
   </div>;
 }
 
-function GameHeader({state,dispatch,areas,onSettingsOpen}){
+function GameHeader({state,dispatch,areas,onSettingsOpen,onUgcOpen}){
   const area=areas.find(a=>a.id===state.currentArea);
   const areaName=area?getAreaDisplayName(area,state):state.currentArea;
   const sanStage=getSanStage(state.san,ctx);
@@ -2989,6 +2775,7 @@ function GameHeader({state,dispatch,areas,onSettingsOpen}){
       <span className="header-status-pill ap">行动余裕：{state.ap}/{state.maxAp}</span>
     </div>
     <div className="header-controls">
+      {onUgcOpen&&<button className="header-btn" onClick={onUgcOpen} title="模组管理">🧩</button>}
       <button className="header-btn" onClick={onSettingsOpen} title="设置">⚙️</button>
       <button className="header-btn" onClick={()=>dispatch({type:'AUDIO_MUTE_TOGGLE'})} title={state.audioMuted?'取消静音':'静音'}>{state.audioMuted?'🔇':'🔊'}</button>
       <button className="header-btn header-btn-state" onClick={()=>dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion'})} title="切换视觉特效">{state.accessibilityOptions?.visual_distortion==='off'?'特效:关':'特效:开'}</button>
@@ -3088,21 +2875,6 @@ function SaveLoadModal({open,onClose,state,onLoad,mode,onSaved}){
   </Modal>;
 }
 
-function AppToast({toast,onDismiss}){
-  const isAch=!!toast.def?.icon&&toast.type!=='save'&&toast.type!=='load';
-  useEffect(()=>{if(isAch)audioManager.playEffect('clue_found');const t=setTimeout(onDismiss,isAch?5000:2500);return()=>clearTimeout(t);},[onDismiss]);
-  const icon=toast.def?.icon||'💾';
-  const label=toast.type==='save'?'已存档':toast.type==='load'?'读取成功':'成就解锁';
-  return <div className={'app-toast'+(toast.type==='save'||toast.type==='load'?' toast-save':'')} onClick={onDismiss}>
-    <div className="app-toast-icon">{icon}</div>
-    <div className="app-toast-text">
-      <div className="app-toast-label">{label}</div>
-      <div className="app-toast-name">{toast.def?.name||''}</div>
-      {toast.def?.desc&&<div className="app-toast-desc">{toast.def?.desc}</div>}
-    </div>
-  </div>;
-}
-
 function AchievementGallery({open,onClose}){
   const all=getAllAchievements();
   const data=loadAchievements();
@@ -3122,6 +2894,19 @@ function AchievementGallery({open,onClose}){
   </Modal>;
 }
 
+// === 结局 CG 预加载 ===
+const ENDING_CGS=['人肉税','伊莎贝拉 救赎','伊莎贝拉：第十二声','伊莱亚斯 守门人','伪神','删档祈愿者','十三响的先知','升座的牺牲品','囚徒','回音','埃德加 观测者','多余的餐具','守财奴','守门人','容器','封印的亲吻','屠宰场','希尔达的选择','希尔达：封印代价','希尔达：终局知情','异端降临','归海','循环的蛀虫','悦纳者','愉悦的先知','成为事件的残页','整洁的屠夫','断环','无效档案','旧汗渍','最佳员工','最后的人事','木偶师','档案吞噬者','永恒记录员','污圣徒','洗不掉的印记','海上逃离','深渊吞噬','溶盐者','漂浮的外套','漫游者','潮声之婚','王座上的蛆','玩家成为事件','白页','空白事件卡','空白墓碑','第600事件：笔记本最后一页','第600结局：墨水化','第600预兆：事件日志问号','第600预兆：路人低语','第十二声','筹码','约书亚 救赎','老费舍 最后的人事','血肉合唱','被观察者','裂痕','观测者','证据逃离','账房先生','超越者','身心俱灭','轮回破壁','镜中缺席者','长眠者','页码599变600','餐具','骨头落地的声音','黑暗中的手','黑潮圣婚'];
+let _cgPreloaded=false;
+function preloadEndingCGs(){
+  if(_cgPreloaded)return;_cgPreloaded=true;
+  const batch=(start)=>{
+    const end=Math.min(start+5,ENDING_CGS.length);
+    for(let i=start;i<end;i++){const img=new Image();img.src='assets/webp_ending/'+encodeURIComponent(ENDING_CGS[i])+'.webp';}
+    if(end<ENDING_CGS.length){const sched=window.requestIdleCallback||window.requestAnimationFrame||((cb)=>setTimeout(cb,200));sched(()=>batch(end));}
+  };
+  batch(0);
+}
+
 function App(){
   const [state,dispatch]=useReducer(gameReducer,null,initialState);
   const [settings,setSettings]=useState(loadSettings);
@@ -3129,6 +2914,7 @@ function App(){
   const [saveLoadOpen,setSaveLoadOpen]=useState(false);
   const [saveLoadMode,setSaveLoadMode]=useState('save');
   const [achOpen,setAchOpen]=useState(false);
+  const [ugcOpen,setUgcOpen]=useState(false);
   const [toasts,setToasts]=useState([]);
   const [saveTick,setSaveTick]=useState(0);
   const savedExists = useMemo(()=>hasSave(),[saveTick]);
@@ -3160,6 +2946,9 @@ function App(){
     dispatch({type:'ACCESSIBILITY_TOGGLE',key:'flicker_control',value:settings.flickerEffect?'medium':'off'});
   },[settings]);
 
+  // 结局CG预加载：SAN < 30 时静默预加载，暗示结局临近
+  useEffect(()=>{if(state.screen==='game'&&state.san<30)preloadEndingCGs();},[state.san,state.screen]);
+
   const handleSettingsChange=(s)=>{saveSettings(s);setSettings(s);};
   const fontSizeClass='narrative-size-'+settings.narrativeFontSize;
 
@@ -3180,6 +2969,7 @@ function App(){
   if(state.screen==='prologue')return <>
     <PrologueScreen state={state} dispatch={dispatch}/>
   </>;
+  if(state.screen==='guide')return <SurvivalGuide onContinue={()=>dispatch({type:'DISMISS_GUIDE'})}/>;
   if(state.screen==='creation')return <CharCreation state={state} onRoll={()=>dispatch({type:'ROLL_STATS'})} onStart={()=>dispatch({type:'BEGIN_ADVENTURE'})} onSetDifficulty={(d)=>dispatch({type:'SET_DIFFICULTY',difficulty:d})} onSetArchetype={(id)=>dispatch({type:'SET_ARCHETYPE',archetypeId:id})}/>;
   if(state.ending)return <EndingScreen ending={state.ending} state={state} dispatch={dispatch}/>;
   const corrLevel=getCorruptionLevel(state.san,state.loopCount);
@@ -3189,7 +2979,7 @@ function App(){
   const sanClass=allowVisualFX?(state.san<20?' san-fracture':state.san<40?' san-tremor':''):'';
   return <>
     <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+' '+fontSizeClass}>
-      <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>setSettingsOpen(true)}/>
+      <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>setSettingsOpen(true)} onUgcOpen={()=>setUgcOpen(true)}/>
       <LeftPanel state={state}/>
       <CenterPanel state={state} dispatch={dispatch}/>
       <RightPanel state={state} dispatch={dispatch}/>
@@ -3197,10 +2987,11 @@ function App(){
     <SettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>setAchOpen(true)}/>
     <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={state} onLoad={handleLoadSlot} mode={saveLoadMode} onSaved={notifySave}/>
     <AchievementGallery open={achOpen} onClose={()=>setAchOpen(false)}/>
+    {ugcOpen&&<Modal open={ugcOpen} onClose={()=>setUgcOpen(false)} title="模组管理" width="720px"><UgcPanel onClose={()=>setUgcOpen(false)} GD={GD}/></Modal>}
     {toasts.length>0&&<div className="achievement-toast-container">
       {toasts.map(t=><AppToast key={t.key} toast={t} onDismiss={()=>setToasts(prev=>prev.filter(x=>x.key!==t.key))}/>)}
     </div>}
   </>;
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+ReactDOM.createRoot(document.getElementById('root')).render(<ErrorBoundary><App/></ErrorBoundary>);

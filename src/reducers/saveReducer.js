@@ -1,14 +1,20 @@
 // src/reducers/saveReducer.js - 多槽位存档系统
+//
+// P0-4: Migration mechanism for version-incompatible saves (no more auto-delete)
+// P0-5: toPersistedState filters runtime UI fields before saving
 
-const SAVE_VERSION = '1.1.0';
+import { SAVE_VERSION, migrateSaveData, toPersistedState } from './saveMigration.js';
+
 const SAVE_PREFIX = 'coc_save_';
 const AUTO_SLOTS = ['auto_1', 'auto_2', 'auto_3'];
 const MANUAL_SLOTS = ['manual_1', 'manual_2', 'manual_3'];
 
-function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
-
+/**
+ * Save state to a slot. Uses toPersistedState to strip runtime fields (P0-5).
+ */
 function saveToSlot(slotId, state) {
   try {
+    const persistedState = toPersistedState(state);
     const saveData = {
       version: SAVE_VERSION,
       timestamp: Date.now(),
@@ -20,7 +26,7 @@ function saveToSlot(slotId, state) {
         san: state.san || 0,
         hp: state.hp || 0
       },
-      state: deepClone(state)
+      state: persistedState
     };
     localStorage.setItem(SAVE_PREFIX + slotId, JSON.stringify(saveData));
     return true;
@@ -30,18 +36,37 @@ function saveToSlot(slotId, state) {
   }
 }
 
+/**
+ * Load from slot. P0-4: attempts migration instead of deleting on version mismatch.
+ */
 function loadFromSlot(slotId) {
   try {
     const raw = localStorage.getItem(SAVE_PREFIX + slotId);
     if (!raw) return null;
     const data = JSON.parse(raw);
-    if (data.version !== SAVE_VERSION) {
-      localStorage.removeItem(SAVE_PREFIX + slotId);
-      return { incompatible: true };
+
+    // Version matches — return as-is
+    if (data.version === SAVE_VERSION) {
+      return data;
     }
-    return data;
+
+    // P0-4: Version mismatch — attempt migration instead of deleting
+    console.info('[Save] Slot ' + slotId + ' version mismatch (got ' + data.version + ', expected ' + SAVE_VERSION + '). Attempting migration...');
+    const migrated = migrateSaveData(data, slotId);
+    if (migrated) {
+      // Persist the migrated save back to localStorage
+      localStorage.setItem(SAVE_PREFIX + slotId, JSON.stringify(migrated));
+      console.info('[Save] Slot ' + slotId + ' migrated successfully.');
+      return migrated;
+    }
+
+    // Migration failed — only now do we consider it incompatible
+    // But we DON'T delete it — keep it for potential future recovery
+    console.warn('[Save] Slot ' + slotId + ' could not be migrated. Data preserved for recovery.');
+    return { incompatible: true };
   } catch (e) {
     console.error('Load from slot ' + slotId + ' failed:', e);
+    // Only remove genuinely corrupt data (JSON parse failure)
     localStorage.removeItem(SAVE_PREFIX + slotId);
     return null;
   }
@@ -104,14 +129,19 @@ export function hasSave() {
   return [...AUTO_SLOTS, ...MANUAL_SLOTS].some(sid => getSlotMeta(sid).exists);
 }
 
-// Migrate old single-slot save
+/**
+ * Migrate old single-slot save. P0-4: attempts migration for any version.
+ */
 export function migrateOldSave() {
   try {
     const old = localStorage.getItem('coc_game_save');
     if (old) {
       const data = JSON.parse(old);
-      if (data.version === SAVE_VERSION && data.state) {
-        saveToSlot('auto_1', data.state);
+      // P0-4: Accept any version, attempt migration
+      const migrated = migrateSaveData(data, 'auto_1');
+      if (migrated && migrated.state) {
+        saveToSlot('auto_1', migrated.state);
+        console.info('[Save] Old single-slot save migrated successfully.');
       }
       localStorage.removeItem('coc_game_save');
     }
@@ -136,14 +166,23 @@ export function exportSave() {
   } catch (e) { console.error('Export save failed:', e); return false; }
 }
 
-// 导入存档 JSON 文件
+/**
+ * 导入存档 JSON 文件. P0-4: attempts migration for each slot.
+ */
 export function importSave(jsonString) {
   try {
     const data = JSON.parse(jsonString);
     if (!data.version || !data.slots) return { ok: false, error: '存档格式不兼容' };
     Object.entries(data.slots).forEach(([sid, slotData]) => {
-      if ([...AUTO_SLOTS, ...MANUAL_SLOTS].includes(sid) && slotData && slotData.state) {
-        localStorage.setItem(SAVE_PREFIX + sid, JSON.stringify(slotData));
+      if ([...AUTO_SLOTS, ...MANUAL_SLOTS].includes(sid) && slotData) {
+        // P0-4: Attempt migration on import too
+        const migrated = migrateSaveData(slotData, sid);
+        if (migrated && migrated.state) {
+          localStorage.setItem(SAVE_PREFIX + sid, JSON.stringify(migrated));
+        } else if (slotData.state) {
+          // Fallback: save as-is if migration module not available
+          localStorage.setItem(SAVE_PREFIX + sid, JSON.stringify(slotData));
+        }
       }
     });
     return { ok: true };

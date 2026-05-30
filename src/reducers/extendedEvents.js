@@ -1,5 +1,11 @@
 // src/reducers/extendedEvents.js - Extended event system for 800+ event pool
 // Handles: trigger checking, event scheduling, budget control, cooldowns
+//
+// P0-1: Event scheduling refactored into pure/commit split:
+//   getEligibleEvents  — read-only candidate filtering
+//   chooseWeightedEvent — read-only weighted random selection
+//   commitSelectedEvent — writes cooldown/count/tracking state (only for final pick)
+// P0-2: trigger.probability moved from checkTriggerExtended hard filter to weight modifier
 
 import { getPhase } from './worldReducer.js';
 import { clamp } from './utils.js';
@@ -192,17 +198,27 @@ export function checkTriggerExtended(evt, state, ctx) {
     if ((catCounts[cat] || 0) >= t.max_per_day_category) return false;
   }
 
-  // Probability (final check)
-  if (t.probability != null && t.probability < 1) {
-    if (Math.random() > t.probability) return false;
-  }
+  // P0-2: Probability check REMOVED from trigger filtering.
+  // trigger.probability is now a weight modifier applied in getEventWeight().
+  // This makes checkTriggerExtended deterministic for a given (event, state) pair,
+  // enabling stable candidate pools for fearTuning, caching, and debug replay.
 
   return true;
 }
 
 // =============================================
-// SECTION 2: Event Scheduler (selectEventV2)
+// SECTION 2: Event Scheduler (pure/commit split)
 // =============================================
+//
+// P0-1 Architecture:
+//   getEligibleEvents(areaId, state, ctx)       → read-only candidate array
+//   getEventWeight(event, areaId, state, ctx)    → read-only weight number
+//   chooseWeightedEvent(candidates, areaId, state, ctx, pick) → read-only event pick
+//   commitSelectedEvent(evt, state)              → writes cooldown/count/tracking
+//   selectEventV2(areaId, state, ctx, pick)      → legacy wrapper, calls all three
+//
+// The fearTuning loop in app.jsx should call getEligibleEvents + chooseWeightedEvent
+// for candidate peeking, then call commitSelectedEvent only on the final pick.
 
 // Category budget configuration
 const EVENT_BUDGET = {
@@ -231,161 +247,159 @@ const ANCHOR_TYPES = new Set([
 ]);
 
 /**
- * Select an event using the V2 scheduler with budget and streak control.
- * @param {string} areaId - current area
- * @param {object} state - game state
- * @param {object} ctx - context with GD
- * @param {function} pick - random picker from array
- * @returns {object|null} selected event
+ * PURE: Get all eligible events for the current area and state.
+ * Does NOT modify state. Safe to call multiple times for candidate peeking.
+ *
+ * P0-1: This is the read-only candidate filter.
+ * P0-2: trigger.probability is no longer a hard filter here.
+ *
+ * @param {string} areaId
+ * @param {object} state
+ * @param {object} ctx
+ * @returns {object[]} eligible events (may be empty)
  */
-export function selectEventV2(areaId, state, ctx, pick) {
+export function getEligibleEvents(areaId, state, ctx) {
   const { GD } = ctx;
   const allEvents = GD.events || [];
-  const areas = GD.areas || [];
-  const area = areas.find(a => a.id === areaId);
-  const loop = state.loopCount || 0;
 
-  // Initialize tracking fields if missing
-  if (!state.categoryCountsToday) state.categoryCountsToday = {};
-  if (!state.categoryCountsRun) state.categoryCountsRun = {};
-  if (!state.abnormalStreak) state.abnormalStreak = 0;
-  if (!state.eventCooldowns) state.eventCooldowns = {};
-
-  // Step 0: Omen check — light foreshadowing before event 600
-  const omen = checkOmens(state);
-  if (omen) {
-    trackEvent(omen, state);
-    return omen;
-  }
-
-  // Step 1: Virtual 600th event check (before all normal filtering)
-  // shouldTriggerMissing600 guards on length===599 internally.
-  const extendedEvents = GD._extendedEvents
-    || (allEvents.length > (GD._deathEchoCount || 0)
-      ? allEvents.slice(0, allEvents.length - (GD._deathEchoCount || 0))
-      : allEvents);
-  if (shouldTriggerMissing600(state, extendedEvents) && Math.random() < 0.35) {
-    // Don't set missing_event_600_seen here — it's set by the player's choice effects
-    const missing = createMissing600Event(state);
-    trackEvent(missing, state);
-    return missing;
-  }
-
-  // Step 2: Force anchor if abnormal streak >= 3
-  if (state.abnormalStreak >= 3) {
-    const anchorEvents = allEvents.filter(e => {
-      const isAnchor = ANCHOR_TYPES.has(e.type) || e.normalcy_anchor;
-      return isAnchor && checkTriggerExtended(e, state, ctx);
-    });
-    if (anchorEvents.length > 0) {
-      const selected = pick(anchorEvents);
-      trackEvent(selected, state);
-      return selected;
-    }
-  }
-
-  // Step 3: Get all eligible events for this area
+  // Step 1: Area + trigger check (deterministic — no Math.random)
   const eligible = allEvents.filter(e => {
     if (!e.trigger || !e.trigger.areas) return false;
     if (!e.trigger.areas.includes(areaId)) return false;
     return checkTriggerExtended(e, state, ctx);
   });
 
-  if (eligible.length === 0) return null;
+  if (eligible.length === 0) return [];
 
-  // Step 4: Apply budget filtering
-  const budgetFiltered = eligible.filter(e => {
+  // Step 2: Budget filtering (read-only against state)
+  return eligible.filter(e => {
     const cat = e.type || 'unknown';
     const budget = EVENT_BUDGET[cat];
-    if (!budget) return true; // Unknown types pass through
+    if (!budget) return true;
 
-    // Daily budget check
     if (budget.maxPerDay != null) {
-      const todayCount = state.categoryCountsToday[cat] || 0;
+      const todayCount = (state.categoryCountsToday || {})[cat] || 0;
       if (todayCount >= budget.maxPerDay) return false;
     }
 
-    // Run budget for meta events (hard cap)
     if (cat === 'meta') {
-      const runCount = state.categoryCountsRun['meta'] || 0;
+      const runCount = (state.categoryCountsRun || {})['meta'] || 0;
       if (runCount >= (budget.maxPerRun || 2)) return false;
     }
 
     return true;
   });
+}
 
-  if (budgetFiltered.length === 0) {
-    // Fallback: try original selectEvent logic
-    return null;
+/**
+ * PURE: Calculate the selection weight for a single event.
+ * Incorporates trigger.probability as a weight multiplier (P0-2).
+ *
+ * @param {object} evt - event object
+ * @param {string} areaId - current area
+ * @param {object} state - game state
+ * @param {object} ctx - context with GD
+ * @returns {number} weight >= 0
+ */
+export function getEventWeight(evt, areaId, state, ctx) {
+  const { GD } = ctx;
+  const cat = evt.type || 'unknown';
+  const budget = EVENT_BUDGET[cat] || {};
+  const areas = GD.areas || [];
+  const area = areas.find(a => a.id === areaId);
+  const loop = state.loopCount || 0;
+
+  let weight = evt.weight || budget.weight || 1.0;
+
+  // P0-2: trigger.probability as weight modifier (was hard filter, now soft)
+  if (evt.trigger?.probability != null && evt.trigger.probability < 1) {
+    weight *= evt.trigger.probability;
   }
 
-  // Step 5: Weight calculation
+  // Light level penalty
+  const lightDiff = (area?.resource_pressure?.required_light_level || 0) - (state.lightLevel || 0);
+  const lightPenalty = lightDiff > 0 ? Math.max(0.2, 1 - lightDiff * 0.3) : 1;
+  weight *= lightPenalty;
+
+  // Loop scaling
+  if (evt.trigger?.min_loop && loop >= evt.trigger.min_loop) {
+    const overshoot = loop - evt.trigger.min_loop;
+    weight *= Math.max(0.5, 1 - overshoot * 0.05);
+  }
+
+  // Resource pressure boost
+  if (cat === 'resource_pressure') {
+    const isLowFood = (state.food || 0) <= 2;
+    const isLowLight = (state.lightLevel || 0) <= 1;
+    const isLowHP = state.hp / (state.maxHp || 1) <= 0.3;
+    if (isLowFood || isLowLight || isLowHP) weight *= 1.5;
+    else weight *= 0.3;
+  }
+
+  // Ending omen boost
+  if (cat === 'ending_omen') {
+    const endings = GD.endings || [];
+    const closeToEnding = endings.some(ed => {
+      if (!ed.conditions) return false;
+      const met = ed.conditions.filter(c => checkEndingConditionQuick(state, c)).length;
+      return met / ed.conditions.length >= 0.6;
+    });
+    if (closeToEnding) weight *= 2.0;
+    else weight *= 0.2;
+  }
+
+  // Tier multiplier
+  if (evt.tier === 'rare') weight *= 0.7;
+  else if (evt.tier === 'signature') weight *= 0.5;
+  else if (evt.tier === 'meta') weight *= 0.3;
+  else if (evt.tier === 'ending') weight *= 0.8;
+
+  // Untriggered bonus
+  if (!(state.triggeredEvents || []).includes(evt.id)) weight *= 1.5;
+
+  return Math.max(0, weight);
+}
+
+/**
+ * PURE: Choose a weighted-random event from candidates.
+ * Does NOT modify state. Safe for fearTuning peek loops.
+ *
+ * @param {object[]} candidates - pre-filtered eligible events
+ * @param {string} areaId
+ * @param {object} state
+ * @param {object} ctx
+ * @param {function} pick - random picker
+ * @returns {object|null} selected event
+ */
+export function chooseWeightedEvent(candidates, areaId, state, ctx, pick) {
+  if (!candidates || candidates.length === 0) return null;
+
   const weighted = [];
-  budgetFiltered.forEach(e => {
-    const cat = e.type || 'unknown';
-    const budget = EVENT_BUDGET[cat] || {};
-    let weight = e.weight || budget.weight || 1.0;
-
-    // Light level penalty
-    const lightDiff = (area?.resource_pressure?.required_light_level || 0) - (state.lightLevel || 0);
-    const lightPenalty = lightDiff > 0 ? Math.max(0.2, 1 - lightDiff * 0.3) : 1;
-    weight *= lightPenalty;
-
-    // Loop scaling: events closer to their min_loop get slightly higher weight
-    if (e.trigger?.min_loop && loop >= e.trigger.min_loop) {
-      const overshoot = loop - e.trigger.min_loop;
-      weight *= Math.max(0.5, 1 - overshoot * 0.05);
-    }
-
-    // Resource pressure boost when resources are actually low
-    if (cat === 'resource_pressure') {
-      const isLowFood = (state.food || 0) <= 2;
-      const isLowLight = (state.lightLevel || 0) <= 1;
-      const isLowHP = state.hp / (state.maxHp || 1) <= 0.3;
-      if (isLowFood || isLowLight || isLowHP) weight *= 1.5;
-      else weight *= 0.3; // Reduce when resources are fine
-    }
-
-    // Ending omen boost when close to ending conditions
-    if (cat === 'ending_omen') {
-      const endings = GD.endings || [];
-      const closeToEnding = endings.some(ed => {
-        if (!ed.conditions) return false;
-        const met = ed.conditions.filter(c => checkEndingConditionQuick(state, c)).length;
-        return met / ed.conditions.length >= 0.6;
-      });
-      if (closeToEnding) weight *= 2.0;
-      else weight *= 0.2;
-    }
-
-    // Tier multiplier
-    if (e.tier === 'rare') weight *= 0.7;
-    else if (e.tier === 'signature') weight *= 0.5;
-    else if (e.tier === 'meta') weight *= 0.3;
-    else if (e.tier === 'ending') weight *= 0.8;
-
-    // Untriggered bonus
-    if (!state.triggeredEvents.includes(e.id)) weight *= 1.5;
-
-    // Push weighted copies
-    const count = Math.max(1, Math.round(weight * 10));
+  candidates.forEach(e => {
+    const w = getEventWeight(e, areaId, state, ctx);
+    const count = Math.max(1, Math.round(w * 10));
     for (let i = 0; i < count; i++) weighted.push(e);
   });
 
   if (weighted.length === 0) return null;
-
-  const selected = pick(weighted);
-  trackEvent(selected, state);
-  return selected;
+  return pick(weighted);
 }
 
 /**
- * Track event execution for budget/streak management
+ * COMMIT: Record event execution for budget/streak/cooldown management.
+ * Call this ONLY when an event is actually triggered (not for candidate peeking).
+ *
+ * P0-1: Extracted from old trackEvent. Only called after final event selection.
+ *
+ * @param {object} evt - the triggered event
+ * @param {object} state - game state (will be mutated)
  */
-function trackEvent(evt, state) {
+export function commitSelectedEvent(evt, state) {
   const cat = evt.type || 'unknown';
 
   // Update category counts
+  if (!state.categoryCountsToday) state.categoryCountsToday = {};
+  if (!state.categoryCountsRun) state.categoryCountsRun = {};
   state.categoryCountsToday[cat] = (state.categoryCountsToday[cat] || 0) + 1;
   state.categoryCountsRun[cat] = (state.categoryCountsRun[cat] || 0) + 1;
 
@@ -398,6 +412,7 @@ function trackEvent(evt, state) {
 
   // Set cooldown
   if (evt.trigger?.cooldown_days && evt.trigger.cooldown_days > 0) {
+    if (!state.eventCooldowns) state.eventCooldowns = {};
     state.eventCooldowns[evt.id] = state.day;
   }
 
@@ -414,6 +429,68 @@ function trackEvent(evt, state) {
       state.everTriggeredEvents.push(evt.id);
     }
   }
+}
+
+/**
+ * COMPOSITE: Full event selection pipeline (legacy-compatible wrapper).
+ * Calls getEligibleEvents → chooseWeightedEvent → commitSelectedEvent.
+ *
+ * @param {string} areaId
+ * @param {object} state
+ * @param {object} ctx
+ * @param {function} pick
+ * @returns {object|null} selected event (state is mutated via commitSelectedEvent)
+ */
+export function selectEventV2(areaId, state, ctx, pick) {
+  const { GD } = ctx;
+  const allEvents = GD.events || [];
+
+  // Ensure tracking fields exist
+  if (!state.categoryCountsToday) state.categoryCountsToday = {};
+  if (!state.categoryCountsRun) state.categoryCountsRun = {};
+  if (!state.abnormalStreak) state.abnormalStreak = 0;
+  if (!state.eventCooldowns) state.eventCooldowns = {};
+
+  // Step 0: Omen check — light foreshadowing before event 600
+  const omen = checkOmens(state);
+  if (omen) {
+    commitSelectedEvent(omen, state);
+    return omen;
+  }
+
+  // Step 1: Virtual 600th event check (before all normal filtering)
+  const extendedEvents = GD._extendedEvents
+    || (allEvents.length > (GD._deathEchoCount || 0)
+      ? allEvents.slice(0, allEvents.length - (GD._deathEchoCount || 0))
+      : allEvents);
+  if (shouldTriggerMissing600(state, extendedEvents) && Math.random() < 0.35) {
+    const missing = createMissing600Event(state);
+    commitSelectedEvent(missing, state);
+    return missing;
+  }
+
+  // Step 2: Force anchor if abnormal streak >= 3
+  if (state.abnormalStreak >= 3) {
+    const anchorEvents = allEvents.filter(e => {
+      const isAnchor = ANCHOR_TYPES.has(e.type) || e.normalcy_anchor;
+      return isAnchor && checkTriggerExtended(e, state, ctx);
+    });
+    if (anchorEvents.length > 0) {
+      const selected = pick(anchorEvents);
+      commitSelectedEvent(selected, state);
+      return selected;
+    }
+  }
+
+  // Step 3: Pure eligible + weighted selection
+  const candidates = getEligibleEvents(areaId, state, ctx);
+  if (candidates.length === 0) return null;
+
+  const selected = chooseWeightedEvent(candidates, areaId, state, ctx, pick);
+  if (!selected) return null;
+
+  commitSelectedEvent(selected, state);
+  return selected;
 }
 
 /**

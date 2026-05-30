@@ -1,3 +1,4 @@
+import { DESC } from './descriptionTemplates.js';
 // 资源压力与生存抉择事件 - 55 events
 // Directions: 食物抉择(15), 光源衰竭(12), 药品短缺(10), 安全屋入侵(10), 极端环境(8)
 export const events = [
@@ -478,7 +479,7 @@ export const events = [
     id: "resource_safehouse_008", name: "墙壁的变化", type: "resource_pressure", subtype: "safehouse_invasion",
     weight: 1, tier: "normal", tags: ["resource", "safehouse", "wall"],
     trigger: { areas: ["town_center"], safehouse_corruption_gte: 70, probability: 0.15, once_per_run: true },
-    description: "你回到安全屋。墙壁变了。\n不是颜色变了——是形状变了。墙壁变得不平整了，像是有什么东西从里面往外推。\n你用手摸了摸。墙壁是软的。像皮肤。\n你把手移开。墙壁恢复了硬度。但你能感觉到——墙壁下面有东西在动。",
+    description: "你回到安全屋。墙壁变了。\n不是颜色变了——是形状变了。墙壁变得不平整了，像是有什么东西从里面往外推。\n你用手摸了摸。墙壁是软的。像皮肤。\n"+DESC.WALL_HAND_REMOVE+"",
     effects: { san: -3, safehouseCorruption: 5 },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []

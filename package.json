@@ -1,11 +1,17 @@
 {
   "type": "module",
   "scripts": {
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
     "test:missing600": "node src/data/test_missing_600.js",
     "lint:events": "node src/data/lint_extended_events.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
     "@babel/preset-react": "^7.28.5"
+  },
+  "dependencies": {
+    "@tauri-apps/cli": "^2.11.2"
   }
 }
