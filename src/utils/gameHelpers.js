@@ -55,14 +55,14 @@ function checkChainCompletion(state, narr){
   for(const chain of chains){
     const chainClues=chain.clues||[];
     for(const clue of chainClues){
-      if(state.clues.includes(clue.id))continue;
-      if(clue.source&&state.triggeredEvents.includes(clue.source)&&!state.clues.includes(clue.id)){
+      if(state.clues.some(c=>(typeof c==='string'?c:c.id)===clue.id))continue;
+      if(clue.source&&state.triggeredEvents.includes(clue.source)&&!state.clues.some(c=>(typeof c==='string'?c:c.id)===clue.id)){
         state.clues.push(clue.id);
         narr('system','【线索链：'+chain.name+'】发现线索「'+clue.name+'」',{isSpecial:true});
       }
     }
     if(state.completedChains.includes(chain.id))continue;
-    const allFound=chainClues.length>0&&chainClues.every(c=>state.clues.includes(c.id));
+    const allFound=chainClues.length>0&&chainClues.every(c=>state.clues.some(cc=>(typeof cc==='string'?cc:cc.id)===c.id));
     if(allFound){
       state.completedChains.push(chain.id);
       narr('system','【线索链完成】'+chain.name+' —— '+(chain.chain_reward||'线索已全部收集'),{isSpecial:true});

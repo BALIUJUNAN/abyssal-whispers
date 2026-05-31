@@ -93,6 +93,7 @@ REDUCER_FILES = [
     # Game utilities (must precede app.jsx)
     'utils/clueNameMap.js',
     'utils/gameHelpers.js',
+    'utils/errorTracker.js',  # Error tracker for player operation logging & bug reports
     'state/initialState.js',
     # UI components
     'components/TitleScreen.jsx',

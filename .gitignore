@@ -25,3 +25,10 @@ __pycache__/
 # Temporary files
 check_result*
 extra_files*
+
+# Build output
+dist/
+
+# Operations log (local only, never commit)
+.ops-log.json
+OPS_LOG.md

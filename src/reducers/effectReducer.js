@@ -61,7 +61,12 @@ export function applyEffects(state, effects, context) {
         break;
       }
       case 'add_clue': {
-        if (!state.clues.includes(eff.clue_id)) { state.clues.push(eff.clue_id); try{if(typeof audioManager!=='undefined')audioManager.playEffect('clue_found');}catch(e){} }
+        const _clueExists = state.clues.some(c => (typeof c === 'string' ? c : c.id) === eff.clue_id);
+        if (!_clueExists) {
+          const _resolved = typeof resolveClueName === 'function' ? resolveClueName(eff.clue_id) : null;
+          state.clues.push(_resolved && _resolved !== eff.clue_id ? { id: eff.clue_id, name: _resolved } : eff.clue_id);
+          try{if(typeof audioManager!=='undefined')audioManager.playEffect('clue_found');}catch(e){}
+        }
         break;
       }
       case 'add_flag': {
@@ -126,7 +131,14 @@ export function applyLegacyEffects(state, eff) {
   if (eff.add_clue) {
     const clues = Array.isArray(eff.add_clue) ? eff.add_clue : [eff.add_clue];
     for (const cid of clues) {
-      if (!state.clues.includes(cid)) state.clues.push(cid);
+      if (typeof cid === 'string') {
+        if (!state.clues.some(c => (typeof c === 'string' ? c : c.id) === cid)) {
+          const resolved = typeof resolveClueName === 'function' ? resolveClueName(cid) : cid;
+          state.clues.push(resolved && resolved !== cid ? { id: cid, name: resolved } : cid);
+        }
+      } else if (cid && cid.id) {
+        if (!state.clues.some(c => (typeof c === 'string' ? c : c.id) === cid.id)) state.clues.push(cid);
+      }
     }
   }
   // Items

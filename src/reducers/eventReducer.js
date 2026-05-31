@@ -21,14 +21,14 @@ export function checkTrigger(evt, state) {
       } else if (req.startsWith('san_above_')) {
         const threshold = parseInt(req.replace('san_above_', ''));
         if (state.san < threshold) return false;
-      } else if (!state.clues.includes(req) && !state.triggeredEvents.includes(req)) {
+      } else if (!hasClueId(state.clues, req) && !state.triggeredEvents.includes(req)) {
         return false;
       }
     }
   }
   if (t.forbidden_flags && t.forbidden_flags.length > 0) {
     for (const ff of t.forbidden_flags) {
-      if (state.clues.includes(ff) || state.triggeredEvents.includes(ff)) return false;
+      if (hasClueId(state.clues, ff) || state.triggeredEvents.includes(ff)) return false;
     }
   }
   return true;

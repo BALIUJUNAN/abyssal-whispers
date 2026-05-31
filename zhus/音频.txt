@@ -1,0 +1,439 @@
+
+5. 墓穴入口
+amb_catacombs_drip_loop.mp3
+Seamless catacombs entrance ambience. 
+Water drops in stone tunnels, low air pressure, distant stone echo, occasional gravel shift. 
+Claustrophobic but quiet, no monster, no music. 60 seconds loop.
+catacombs_stone_shift.mp3
+Short stone shift sound in underground catacombs. 
+Heavy stone moves a few millimeters, dust falls, echo travels too far. 
+Grounded, ominous, 3 seconds.
+6. 低语森林
+amb_forest_whisper_loop.mp3
+Seamless whispering forest ambience. 
+Wet leaves, wind through branches, distant wingbeats, very faint nonverbal whispers blended into foliage. 
+No clear words, no scream, natural first, supernatural second. 60 seconds loop.
+forest_eye_lights_out.mp3
+Short forest event sound. 
+Several tiny organic clicks fading one by one, like distant eyes closing in the dark, leaves stop moving for one second. 
+Subtle, not loud, 4 seconds.
+7. 伊斯遗迹
+amb_ruins_resonance_loop.mp3
+Seamless alien ruins ambience. 
+Ancient stone chamber, low geometric resonance, distant dust falling upward, faint crystalline hum. 
+Non-human architecture, intellectual dread, no melody, 60 seconds loop.
+ruins_time_slip.mp3
+Short time slip sound in ancient ruins. 
+Clock tick stretches, stone echo reverses, low harmonic pulse folds back into silence. 
+Elegant, strange, 4 seconds.
+8. 禁忌之林
+amb_grove_insectless_loop.mp3
+Seamless forbidden grove ambience. 
+Forest with no insects, thick still air, occasional branch crack far away, low pressure under silence. 
+The absence of sound is the main feature. No music, no voices. 60 seconds loop.
+grove_silence_drop.mp3
+One-second absolute silence transition followed by a tiny dry twig crack. 
+Forbidden grove narrative beat, minimal, unsettling, no jump scare. 2 seconds.
+9. 深渊墓穴
+amb_deep_catacombs_rumble_loop.mp3
+Seamless deep catacombs ambience. 
+Very low heart-like stone pulse, walls contracting almost imperceptibly, directionless damp air, distant sub-bass movement. 
+Deep underground cosmic dread, no monster roar, 60 seconds loop.
+deep_catacombs_name_response.mp3
+Deep catacombs responding to the player's name without using a voice. 
+Stone resonance forms a near-syllable, water drops stop, low pulse answers once. 
+Subtle, uncanny, no intelligible speech, 5 seconds.
+四、安全屋环境循环
+
+这些配合前面的休息 one-shot。安全屋阶段越高，越不能靠大声吓人，而是“正常房间变得不可靠”。
+
+amb_safehouse_stage1_loop.mp3
+Seamless safehouse ambience, stage 1. 
+Warm tavern below, soft rain, wooden room, distant cup clink, human normalcy anchor. 
+Safe, tired, grounded, 60 seconds loop.
+amb_safehouse_stage2_loop.mp3
+Seamless safehouse ambience, stage 2 watched. 
+Same warm tavern below, but slightly emptier, damp hallway, occasional footstep outside that may be old wood. 
+Mostly safe, subtle unease, 60 seconds loop.
+amb_safehouse_stage3_loop.mp3
+Seamless safehouse ambience, stage 3 unreliable. 
+Rain, wet wood, faint knocking in pipes or walls, tavern below now distant and muffled. 
+A safe room becoming questionable, no jump scare, 60 seconds loop.
+amb_safehouse_stage4_loop.mp3
+Seamless corrupted safehouse ambience, stage 4. 
+Room tone breathes slowly, plaster damp, harbor foghorn impossibly close, tiny water drops inside the walls. 
+Restrained supernatural dread, 60 seconds loop.
+amb_safehouse_stage5_loop.mp3
+Seamless failed safehouse ambience, stage 5. 
+Seawater behind walls, floorboards tapping from below, distant gold-eyed presence outside the window, almost no warmth left. 
+Cold, unsafe, but not loud. 60 seconds loop.
+五、封印、章节、倒计时音频
+
+游戏有 28 天倒计时和封印状态：完整、松动、危急、濒临崩溃、破碎。这个很适合做“渐进式音频语言”。
+
+seal_intact_hum.mp3
+Subtle seal intact sound. 
+Very low stable stone hum, almost inaudible, like an old structure holding pressure. 
+Calm, ancient, 8 seconds.
+seal_weakening_crack.mp3
+Seal weakening sound. 
+Hairline crack through ancient stone, low pressure release, distant water moving behind the wall. 
+Restrained, 5 seconds.
+seal_critical_pressure.mp3
+Seal critical pressure sound. 
+Ancient stone under impossible stress, low sub-bass pulse, tiny grains falling, distant underwater bell harmonic. 
+No explosion, no trailer hit, 7 seconds.
+seal_collapsing_subbass.mp3
+Seal collapsing warning. 
+Deep sub-bass pressure, stone breathing, distant chorus-like wind with no human voices, one slow crack spreading. 
+Large but restrained, 10 seconds.
+seal_broken_silence_then_boom.mp3
+Seal broken stinger. 
+One second of absolute unnatural silence, then a deep stone pressure wave, distant harbor water rushing inward, bell resonance swallowed by fog. 
+No cinematic trailer boom, no scream, 8 seconds.
+chapter_transition_1_to_2.mp3
+Chapter transition sound: the town becomes less normal. 
+Distant bell, fog rolling through a street, paper page turns, low water tone appears underneath. 
+Subtle narrative transition, 6 seconds.
+chapter_transition_3_mythos.mp3
+Chapter transition sound: hidden structure revealed. 
+Old paper, geometric stone resonance, low impossible harmonic, clock tick becomes irregular. 
+Intellectual cosmic dread, 7 seconds.
+chapter_transition_final.mp3
+Final chapter transition. 
+Fog, low bell memory, deep underground pulse, room tone narrowing as if the whole town is listening. 
+Restrained but heavy, 10 seconds.
+六、剧情 stinger 与恐怖节点
+1. 破壁 / Meta
+
+你已有 break_wall_noise，但可以拓展成 meta 分支。
+
+meta_glitch_short.mp3
+Meta glitch sound for an in-world journal UI. 
+Paper rustle briefly becomes digital noise, then returns to old room tone. 
+Subtle fourth-wall fracture, no harsh glitch, 2 seconds.
+meta_ui_touched.mp3
+A character touching the UI from inside the story. 
+Mouse click heard very far away, paper surface flexes, room tone stops for half a second. 
+Uncanny, minimal, no comedy, 3 seconds.
+meta_save_not_real.mp3
+Fake save message sound inside a haunted game. 
+Soft save chime made from paper stamp and wrong clock tick, then a distant breath behind the interface. 
+Not like an operating system, clearly in-world, 3 seconds.
+2. 水、雾、低语
+fog_roll_in.mp3
+Fog rolling into a 1920s coastal street. 
+Air thickens, distant sounds become muffled, wet stone absorbs footsteps, low wind without clear direction. 
+Narrative transition, 8 seconds.
+water_inside_wall.mp3
+Water heard inside a wall. 
+Slow dripping behind plaster, one soft pressure knock, damp wood expanding. 
+Close, intimate, unsettling, 4 seconds.
+whisper_no_words_01.mp3
+Nonverbal whisper texture. 
+Breath-like air shaped almost like speech, no intelligible words, blended with room tone. 
+Very quiet, 5 seconds.
+whisper_no_words_02.mp3
+Distant nonverbal whisper from a foggy harbor. 
+Wind and breath merge, no clear language, soft stereo movement, restrained. 
+6 seconds.
+七、NPC 与人性系统音频
+
+不要给 NPC 做完整配音，成本高且破坏文字想象。建议每个主要 NPC 一个“微主题音色”。
+
+npc_martha_anchor.mp3
+Martha safehouse motif. 
+A cup placed on a wooden counter, soft tavern room tone, warm but tired low note. 
+Human anchor, not horror, 4 seconds.
+npc_martha_corrupted.mp3
+Martha corrupted motif. 
+Same cup sound, but wet, hollow, with distant seawater behind the tavern wall. 
+Sad, restrained, no monster, 5 seconds.
+npc_trust_gain.mp3
+NPC trust gain sound. 
+Soft human warmth: paper note accepted, small wooden table touch, faint warm room tone. 
+No cheerful fanfare, 1.5 seconds.
+npc_trust_loss.mp3
+NPC trust loss sound. 
+Chair leg scrapes softly, conversation dies, room tone becomes colder. 
+Subtle social failure, 2 seconds.
+npc_corruption_trigger.mp3
+NPC corruption trigger sound. 
+A familiar human room tone detunes, faint wet breath behind the listener, one low pulse. 
+Tragic, not monstrous, 4 seconds.
+humanity_gain.mp3
+Humanity gain sound. 
+Small act of kindness in a dark room: cloth blanket, cup of water, gentle wooden resonance. 
+Warm but restrained, 2 seconds.
+humanity_loss.mp3
+Humanity loss sound. 
+Paper fibers tearing slowly, low cold tone, distant chair creak, no gore, no shock. 
+Moral consequence, 3 seconds.
+八、资源与生存反馈
+
+这些会让游戏更像完整商业作品。
+
+resource_food_gain.mp3
+Food acquired sound. 
+Tin can placed into canvas bag, dry bread paper wrap, practical survival inventory. 
+1920s grounded sound, 1 second.
+resource_food_low.mp3
+Food low warning. 
+Empty tin can lightly rolls on wood, stomach-like low room tone, restrained survival pressure. 
+No comedy, 2 seconds.
+resource_light_low.mp3
+Light source low warning. 
+Oil lamp sputters, small flame flickers, darkness room tone rises slightly. 
+Subtle, tense, 2 seconds.
+hp_damage.mp3
+HP damage sound. 
+Muffled body impact, breath catches, cloth movement, no gore. 
+Grounded physical pain, 1 second.
+hp_heal.mp3
+Healing item sound. 
+Bandage cloth, small glass bottle, controlled breath, practical and quiet. 
+No magical sparkle, 2 seconds.
+ap_spend.mp3
+Action point spent sound. 
+Small clock tick and pencil mark on paper, indicating time passing. 
+Short UI gameplay feedback, 0.5 seconds.
+money_gain.mp3
+Money gained sound. 
+A few old coins placed on wood, muted, 1920s, not arcade-like. 
+0.8 seconds.
+九、结局音频提示词
+
+结局不要只做“胜利/失败”，要表达“代价”。
+
+ending_bad_ritual.mp3
+Bad ritual ending stinger. 
+Ancient seal breaks, low water rush, distant bell swallowed by fog, human room tone disappears. 
+Tragic cosmic failure, restrained, 12 seconds.
+ending_neutral_survive.mp3
+Neutral survival ending. 
+Morning fog over a coastal town, distant normal bell, tired breath, pages closing. 
+Survived but unresolved, melancholic, 10 seconds.
+ending_good_seal.mp3
+Good seal ending. 
+Ancient pressure stabilizes, distant sea calms, soft church bell returns to twelve normal strikes implied by one clean bell tone. 
+Hopeful but not triumphant, restrained, 12 seconds.
+ending_true_humanity.mp3
+True humanity ending. 
+Small human sounds in a damaged world: cup of water, blanket, soft footsteps, distant dawn wind, low warm harmonic. 
+Quiet dignity, no grand orchestra, 14 seconds.
+ending_missing_600_void.mp3
+Hidden ending: the player becomes the six hundredth event. 
+Paper pages turn by themselves, ink becomes breath, identity dissolves into a low tape-like room tone, distant wrong bell almost inaudible. 
+Minimal, meta, empty, no music, 15 seconds.
+credits_ambient_loop.mp3
+Credits ambience for a completed Lovecraftian investigation roguelite. 
+Foggy harbor at dawn, distant normal town life returning, low memory of the thirteenth bell hidden under wind. 
+Melancholic, restrained, seamless 90 seconds loop.
+十、批量生成时的命名与参数建议
+
+建议你让 AI 每条生成 3 个变体，命名：
+
+amb_harbor_night_loop_v01.mp3
+amb_harbor_night_loop_v02.mp3
+amb_harbor_night_loop_v03.mp3
+
+选中后再改成正式名：
+
+amb_harbor_night_loop.mp3
+
+推荐规格：
+
+类型	时长	格式	音量感觉
+UI	0.2–1.5 秒	wav/mp3	很轻，不抢文本
+Stinger	3–10 秒	wav/mp3	有记忆点，但不炸
+环境循环	45–90 秒	wav/ogg/mp3	可长时间听
+低 SAN 层	20–60 秒	wav/ogg	低音量叠加
+结局	10–20 秒	wav/mp3	情绪明确
+
+建议最终游戏内使用：
+
+audio/
+  ui/
+  amb/
+  stinger/
+  san/
+  death/
+  ending/
+  npc/
+  resource/
+十一、给 AI 的“总控提示词”
+
+你每次生成前可以先贴这段，统一风格：
+
+You are creating original audio assets for a Chinese Lovecraftian text roguelite called "Whispers of the Abyss: Shadow of Voxchester". 
+The game is set in a foggy 1920s coastal town with sanity loss, looping death, human choices, safehouse corruption, and a thirteenth bell motif.
+
+Audio direction:
+- restrained psychological horror
+- concrete physical details instead of obvious horror clichés
+- old wood, wet stone, fog, paper, ink, brass, distant bells, harbor water
+- silence is important
+- no cheap jump scares
+- no clear vocals or lyrics
+- no copyrighted references
+- no modern EDM, no heroic orchestra
+- game-ready, clean, no clipping
+
+Generate the requested asset as original, royalty-free game audio.
+十二、我建议你的实际制作顺序
+
+先别一口气做 120 个。按这个顺序最稳：
+
+第一批，20 个：
+安全屋 5 个、UI 8 个、检定 4 个、死亡/轮回 3 个。
+
+第二批，25 个：
+区域环境循环 12 个、区域短音 8 个、低 SAN 层 5 个。
+
+第三批，25 个：
+封印、章节、第十三声钟、meta 破壁、NPC 腐化。
+
+第四批，20–30 个：
+结局、资源、生存、隐藏事件、第 600 事件。
+
+达到豪华标准时，目标不是“音频数量多”，而是玩家能听出来：
+镇中心是正常的，码头是潮湿的，安全屋是会坏掉的，低 SAN 是身体在背叛你，轮回是世界记住了你。
+
+上面的120个提示词是完整的吗
+已思考 21s
+
+不完整。严格说，上一条不是“完整 120 条逐条提示词”，而是豪华版音频方向 + 大约 90 多条具名素材提示词。我当时说的 100–140 / 约 120 个 是目标规模，不是已经逐条列满了 120 个。
+
+按“完整 120 个素材位”来补，上一版还缺一批系统反馈、天气、NPC 对话、怪物临近、行为结局、特殊死亡音频。下面补齐 26 条，和上一条合起来就可以按 120 个音频素材包 来执行。
+
+复制生成时，每条都建议附加这个负面提示词：
+
+No vocals, no lyrics, no jump scare scream, no modern EDM, no heroic orchestra, no trailer boom, no comedy, no copyrighted melody, no famous film or game soundtrack style, no harsh clipping, no painful high frequency.
+补齐 26 条提示词
+95. ui_toggle_mute.mp3
+Mute toggle UI sound for a 1920s haunted journal interface.
+A tiny brass switch, soft paper rustle, old mechanical click.
+Very short, elegant, not digital, not modern. 0.4 seconds.
+96. ui_inventory_open.mp3
+Inventory opening sound for a survival investigation game.
+Canvas satchel opens, small metal objects shift, paper labels brush together.
+Grounded 1920s tactile sound, clean UI feedback. 0.8 seconds.
+97. ui_map_open.mp3
+Old town map opening sound.
+Folded paper unfolding on a wooden desk, pencil sliding slightly, quiet room tone.
+Subtle, investigative, no music. 1 second.
+98. ui_map_move.mp3
+Map travel confirmation sound.
+Pencil marks a route on old paper, a small clock tick, distant foggy street ambience underneath.
+Short, practical, atmospheric. 1 second.
+99. objective_new.mp3
+New objective sound for a dark investigation journal.
+Fountain pen begins a new line, paper shifts, one faint distant bell harmonic.
+Subtle motivation, no bright success chime. 1.3 seconds.
+100. objective_done.mp3
+Objective completed sound.
+Pencil check mark on rough paper, soft page tap, warm but restrained wooden resonance.
+Quiet satisfaction, no fanfare. 1.2 seconds.
+时间、天气、昼夜
+101. new_day_start.mp3
+New day begins in a foggy 1920s coastal town.
+Distant gulls, one soft church bell, wet street ambience fading in, old clock resumes ticking.
+Melancholic, restrained, 5 seconds.
+102. night_fall.mp3
+Nightfall transition in a coastal horror investigation game.
+Street ambience empties, wind grows colder, shutters move, distant harbor foghorn fades in.
+No jump scare, slow atmospheric transition. 6 seconds.
+103. time_warning_midnight.mp3
+Midnight warning sound.
+Old clock ticks become too loud, then skip one beat, distant bell resonance appears under silence.
+Tense but restrained, no loud sting. 4 seconds.
+104. weather_rain_shift.mp3
+Weather shift into rain.
+First drops on old glass, wet cobblestone, gutters beginning to run, muffled town ambience.
+Natural, immersive, loop transition, 8 seconds.
+105. weather_blood_moon.mp3
+Blood moon weather transition.
+The town ambience becomes thin and still, distant dogs stop barking, a low red-tinted pressure tone rises.
+Supernatural but subtle, no monster, no scream. 8 seconds.
+NPC 对话与社交反馈
+106. npc_dialogue_open.mp3
+NPC dialogue opening sound.
+Chair creak, soft tavern room tone, a cup placed on wood, paper notebook opening.
+Human, grounded, intimate. 1.5 seconds.
+107. npc_dialogue_close.mp3
+NPC dialogue closing sound.
+Conversation fades into room tone, chair shifts back, notebook closes softly.
+Quiet, natural, no UI beep. 1.2 seconds.
+108. npc_secret_revealed.mp3
+NPC reveals a secret.
+Voice-like room tone without actual words, paper note sliding across a wooden table, distant rain.
+Intimate, suspicious, restrained. 3 seconds.
+109. npc_death_news.mp3
+News of an NPC death.
+A chair remains empty, cup lightly rattles, room tone drops colder, distant bell almost inaudible.
+Sad, restrained, no gore, no scream. 5 seconds.
+禁忌知识、仪式、怪物临近
+110. forbidden_book_open.mp3
+Forbidden book opening sound.
+Old leather cover, brittle pages, dust falling, faint low harmonic from between the pages.
+Ancient knowledge, intellectual dread, no magical sparkle. 3 seconds.
+111. ritual_circle_light.mp3
+Ritual circle activating.
+Chalk scraping stone, low pressure hum, tiny grains vibrating, candle flame bending without wind.
+Restrained occult sound, no chanting, no explosion. 5 seconds.
+112. cult_chant_distant_no_words.mp3
+Distant cult presence without clear vocals.
+Muffled human-like rhythm behind walls, breath and room tone blended so no words are intelligible.
+Subtle, ritualistic, not musical. 8 seconds.
+113. monster_near_without_roar.mp3
+A monster is nearby, but never roars.
+Wet floorboard pressure, breathing-like low air movement, small objects trembling on a table.
+The threat is implied, not shown. 5 seconds.
+114. chase_short_panic.mp3
+Short escape panic sound.
+Fast breath, hurried footsteps on wet stone, coat fabric, distant door slam softened by fog.
+Tense but not action-movie, 4 seconds.
+推理、结论、调查链
+115. investigation_chain_progress.mp3
+Investigation chain progress sound.
+Several paper notes aligned on a desk, pencil connects two clues, clock tick becomes steady for a moment.
+Thoughtful, satisfying, restrained. 2 seconds.
+116. conclusion_unlocked.mp3
+Conclusion unlocked sound.
+Ink circles a final word, old paper settles, distant bell harmonic resolves almost normally.
+A moment of understanding, not victory music. 3 seconds.
+117. false_interpretation.mp3
+False interpretation sound.
+Pencil line snaps, paper note is crossed out, clock tick becomes slightly wrong.
+Subtle realization of a mistaken theory. 2.5 seconds.
+行为结局专属
+118. ending_behavior_self_ritual.mp3
+Behavior ending stinger: self-destructive ritual.
+Close paper and skin-like texture, low breath, ink spreading, distant bell heard through a closed door.
+Disturbing but non-graphic, restrained, 12 seconds.
+119. ending_behavior_cult_leader.mp3
+Behavior ending stinger: the investigator becomes a cult leader.
+Distant crowd presence without words, old church room tone, low confident bell resonance, paper doctrine pages turning.
+Dark, ceremonial, restrained, no choir. 14 seconds.
+120. ending_behavior_dissolution.mp3
+Behavior ending stinger: dissolution into sea and fog.
+Body boundary dissolves into harbor water, breath becomes mist, distant bell underwater, soft final silence.
+Melancholic cosmic transformation, no scream, 15 seconds.
+额外建议：死亡变体可替换上面任意低优先级项
+
+如果你更想强化死亡系统，可以把其中 3 个 UI/社交音效替换成这些：
+
+death_drowning.mp3
+Drowning death stinger.
+Harbor water closes over the listener, muffled bell above the surface, breath bubbles fade into low pressure.
+No scream, tragic and cold, 7 seconds.
+death_starvation.mp3
+Starvation death stinger.
+Empty room, stomach-like low silence, dry tin can rolling once, clock ticking too slowly.
+Weak, lonely, restrained, 7 seconds.
+death_darkness_taken.mp3
+Darkness-taken death stinger.
+Oil lamp sputters out, room tone expands into black space, something waits without moving.
+No monster roar, no jump scare, 8 seconds.
+
+所以结论是：上一条不是完整 120 条；加上这 26 条后，才算形成完整的 120 个豪华素材位。

@@ -142,7 +142,7 @@ function checkSingleCondition(state, cond) {
     case 'day_lte': return state.day <= cond.value;
     case 'in_area': return state.currentArea === cond.area_id;
     case 'has_item': return state.inventory.some(i => i.id === cond.item_id || i.name === cond.item_id);
-    case 'has_clue': return state.clues.includes(cond.clue_id);
+    case 'has_clue': return hasClueId(state.clues, cond.clue_id);
     case 'has_flag': return !!(state.triggeredEvents&&state.triggeredEvents.includes(cond.flag_id));
     case 'not_flag': return !(state.triggeredEvents&&state.triggeredEvents.includes(cond.flag_id));
     case 'npc_trust_gte': return (state.npcTrust[cond.npc_id] || 0) >= cond.value;

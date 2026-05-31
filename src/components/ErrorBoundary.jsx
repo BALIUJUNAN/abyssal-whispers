@@ -1,9 +1,9 @@
-// src/components/ErrorBoundary.jsx - React ErrorBoundary for fatal render errors
+// src/components/ErrorBoundary.jsx - React ErrorBoundary with error tracker integration
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorInfo: null, reportText: '' };
   }
 
   static getDerivedStateFromError(error) {
@@ -12,10 +12,48 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] 游戏渲染错误:', error, errorInfo);
+    
+    // 尝试从全局 errorTracker 获取报告
+    try {
+      if (typeof window.errorTracker !== 'undefined' && window.errorTracker) {
+        const report = window.errorTracker.exportReport(error, errorInfo);
+        const text = window.errorTracker.renderText(report);
+        this.setState({ errorInfo, reportText: text });
+      } else {
+        this.setState({ errorInfo, reportText: '' });
+      }
+    } catch (e) {
+      this.setState({ errorInfo, reportText: '' });
+    }
   }
 
   handleReload = () => {
     window.location.reload();
+  };
+
+  handleCopyReport = () => {
+    if (this.state.reportText) {
+      // 尝试复制到剪贴板
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(this.state.reportText).then(() => {
+          this.setState({ copied: true });
+          setTimeout(() => this.setState({ copied: false }), 2000);
+        }).catch(() => this.fallbackCopy());
+      } else {
+        this.fallbackCopy();
+      }
+    }
+  };
+
+  fallbackCopy = () => {
+    const ta = document.createElement('textarea');
+    ta.value = this.state.reportText;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 2000); } catch(e) {}
+    document.body.removeChild(ta);
   };
 
   render() {
@@ -25,7 +63,6 @@ class ErrorBoundary extends React.Component {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
           minHeight: '100vh',
           background: '#0a0a0f',
           color: '#c8b89a',
@@ -37,7 +74,8 @@ class ErrorBoundary extends React.Component {
             border: '2px solid #8b0000',
             borderRadius: '4px',
             padding: '2.5rem 3rem',
-            maxWidth: '480px',
+            maxWidth: '640px',
+            width: '100%',
             background: 'rgba(139, 0, 0, 0.08)',
             boxShadow: '0 0 40px rgba(139, 0, 0, 0.15)'
           }}>
@@ -56,7 +94,7 @@ class ErrorBoundary extends React.Component {
               游戏遇到错误
             </h2>
             <p style={{
-              margin: '0 0 1.5rem',
+              margin: '0 0 1rem',
               fontSize: '0.9rem',
               color: '#8a7a6a',
               lineHeight: 1.6
@@ -64,30 +102,114 @@ class ErrorBoundary extends React.Component {
               深渊的低语扰乱了叙事层……<br/>
               某个不可名状的错误发生了。
             </p>
-            <button
-              onClick={this.handleReload}
-              style={{
-                background: 'transparent',
-                color: '#d4a574',
-                border: '1px solid #8b0000',
+            
+            {this.state.error && (
+              <div style={{
+                background: 'rgba(0,0,0,0.3)',
                 borderRadius: '3px',
-                padding: '0.6rem 2rem',
-                fontSize: '0.95rem',
-                cursor: 'pointer',
-                letterSpacing: '0.08em',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={e => {
-                e.target.style.background = 'rgba(139, 0, 0, 0.2)';
-                e.target.style.borderColor = '#d4a574';
-              }}
-              onMouseLeave={e => {
-                e.target.style.background = 'transparent';
-                e.target.style.borderColor = '#8b0000';
-              }}
-            >
-              点击此处重新加载
-            </button>
+                padding: '0.7rem 1rem',
+                marginBottom: '1rem',
+                fontSize: '0.82rem',
+                color: '#cc8888',
+                textAlign: 'left',
+                fontFamily: 'monospace',
+                maxHeight: '80px',
+                overflow: 'auto',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all'
+              }}>
+                {this.state.error.name}: {this.state.error.message}
+              </div>
+            )}
+
+            {/* 错误报告操作区 */}
+            <div style={{
+              display: 'flex',
+              gap: '0.5rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              marginBottom: '1rem'
+            }}>
+              <button
+                onClick={this.handleReload}
+                style={{
+                  background: 'transparent',
+                  color: '#d4a574',
+                  border: '1px solid #8b0000',
+                  borderRadius: '3px',
+                  padding: '0.55rem 1.5rem',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  letterSpacing: '0.06em',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => {
+                  e.target.style.background = 'rgba(139, 0, 0, 0.2)';
+                  e.target.style.borderColor = '#d4a574';
+                }}
+                onMouseLeave={e => {
+                  e.target.style.background = 'transparent';
+                  e.target.style.borderColor = '#8b0000';
+                }}
+              >
+                🔄 重新加载
+              </button>
+
+              {this.state.reportText && (
+                <button
+                  onClick={this.handleCopyReport}
+                  style={{
+                    background: 'transparent',
+                    color: this.state.copied ? '#4a8' : '#d4a574',
+                    border: '1px solid #444',
+                    borderRadius: '3px',
+                    padding: '0.55rem 1.5rem',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    letterSpacing: '0.06em',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={e => { e.target.style.background = 'rgba(255,255,255,0.05)'; }}
+                  onMouseLeave={e => { e.target.style.background = 'transparent'; }}
+                >
+                  {this.state.copied ? '✅ 已复制' : '📋 复制错误报告'}
+                </button>
+              )}
+            </div>
+
+            {/* 报告预览（可折叠） */}
+            {this.state.reportText && (
+              <details style={{
+                width: '100%',
+                textAlign: 'left'
+              }}>
+                <summary style={{
+                  cursor: 'pointer',
+                  fontSize: '0.82rem',
+                  color: '#887',
+                  marginTop: '0.5rem',
+                  userSelect: 'none'
+                }}>
+                  🔍 展开查看完整错误报告
+                </summary>
+                <pre style={{
+                  background: 'rgba(0,0,0,0.4)',
+                  borderRadius: '3px',
+                  padding: '0.8rem',
+                  marginTop: '0.5rem',
+                  fontSize: '0.72rem',
+                  color: '#998',
+                  lineHeight: 1.5,
+                  maxHeight: '300px',
+                  overflow: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-all',
+                  margin: '0'
+                }}>
+                  {this.state.reportText}
+                </pre>
+              </details>
+            )}
           </div>
         </div>
       );

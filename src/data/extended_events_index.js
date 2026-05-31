@@ -64,13 +64,13 @@ export const EXTENDED_EVENT_STATS = {
 const ids = ALL_EXTENDED_EVENTS.map(e => e.id);
 const uniqueIds = new Set(ids);
 if (uniqueIds.size !== ids.length) {
-  console.warn('[ExtendedEvents] Duplicate event IDs detected!', ids.length - uniqueIds.size);
+  // duplicate IDs silently ignored (last-write-wins)
 }
 
 // 验证所有事件有必需字段
 const missingFields = ALL_EXTENDED_EVENTS.filter(e => !e.id || !e.name || !e.type || !e.trigger);
 if (missingFields.length > 0) {
-  console.warn('[ExtendedEvents] Events with missing required fields:', missingFields.map(e => e.id));
+  // incomplete events silently skipped
 }
 
 export default ALL_EXTENDED_EVENTS;

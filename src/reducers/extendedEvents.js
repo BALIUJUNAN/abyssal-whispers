@@ -47,7 +47,7 @@ export function checkTriggerExtended(evt, state, ctx) {
       } else if (req.startsWith('san_above_')) {
         const threshold = parseInt(req.replace('san_above_', ''));
         if (state.san < threshold) return false;
-      } else if (!state.clues.includes(req) && !state.triggeredEvents.includes(req)) {
+      } else if (!hasClueId(state.clues, req) && !state.triggeredEvents.includes(req)) {
         return false;
       }
     }
@@ -55,7 +55,7 @@ export function checkTriggerExtended(evt, state, ctx) {
 
   if (t.forbidden_flags && t.forbidden_flags.length > 0) {
     for (const ff of t.forbidden_flags) {
-      if (state.clues.includes(ff) || state.triggeredEvents.includes(ff)) return false;
+      if (hasClueId(state.clues, ff) || state.triggeredEvents.includes(ff)) return false;
     }
   }
 
@@ -114,7 +114,7 @@ export function checkTriggerExtended(evt, state, ctx) {
   // Required clues (explicit)
   if (t.requires_clues && t.requires_clues.length > 0) {
     for (const clue of t.requires_clues) {
-      if (!state.clues.includes(clue)) return false;
+      if (!hasClueId(state.clues, clue)) return false;
     }
   }
 
@@ -128,7 +128,7 @@ export function checkTriggerExtended(evt, state, ctx) {
   // Required flags (explicit)
   if (t.requires_flags && t.requires_flags.length > 0) {
     for (const flag of t.requires_flags) {
-      if (!state.triggeredEvents.includes(flag) && !state.clues.includes(flag)) return false;
+      if (!state.triggeredEvents.includes(flag) && !hasClueId(state.clues, flag)) return false;
     }
   }
 
@@ -506,7 +506,7 @@ function checkEndingConditionQuick(state, cond) {
     case 'day_gte': return state.day >= cond.value;
     case 'in_area': return state.currentArea === cond.area_id;
     case 'has_item': return state.inventory.some(i => i.id === cond.item_id || i.name === cond.item_id);
-    case 'has_clue': return state.clues.includes(cond.clue_id);
+    case 'has_clue': return hasClueId(state.clues, cond.clue_id);
     case 'has_flag': return state.triggeredEvents.includes(cond.flag_id);
     case 'npc_trust_gte': return (state.npcTrust[cond.npc_id] || 0) >= cond.value;
     default: return false;

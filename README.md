@@ -9,7 +9,7 @@
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-2.00MB-green)
-![Version](https://img.shields.io/badge/version-0.1.0-orange)
+![Version](https://img.shields.io/badge/version-0.1.1-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版下载) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -194,7 +194,8 @@ SAN 是你与现实之间的契约强度。数值下降时，**游戏本身开�
 | **轮回继承** | 知识碎片 / 世界污染 / NPC 跨轮记忆 / 技能保留(30%) / 行为计数器搬入 |
 | **无障碍支持** | 可关闭视觉扭曲 / 字号放大 / prefers-reduced-motion |
 | **UGC 模组** | 支持导入自定义事件 JSON（Schema 校验） |
-| **ErrorBoundary** | 渲染崩溃时显示友好错误页面，一键重新加载 |
+| **ErrorBoundary** | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载 |
+| **Error Tracker** | 测试期玩家操作追踪模块（可插拔，一行删除即可移除） |
 
 ---
 
@@ -244,6 +245,7 @@ COC/
 ├── check_build.cjs         # 构建产物自动验证（10 项检查，PASS/FAIL）
 ├── dev-server.cjs          # 开发服务器（含 SPA fallback）
 ├── build-web.cjs           # Tauri 打包前端资源复制
+├── ops-log.cjs             # 开发操作日志工具（record/list/search/export）
 ├── package.json            # Node.js 依赖 (@babel/cli, @babel/preset-react)
 │
 ├── assets/webp/            # 210 张 WebP 图片素材（138 场景 + 72 结局 CG）
@@ -256,7 +258,7 @@ COC/
 │   ├── portraitMap.js      # 立绘/场景/结局CG 图片路径映射
 │   │
 │   ├── components/         # 提取出的 UI 组件
-│   │   ├── ErrorBoundary.jsx     # React 错误边界（防白屏崩溃）
+│   │   ├── ErrorBoundary.jsx     # React 错误边界（含错误报告+一键复制）
 │   │   ├── TitleScreen.jsx        # 标题画面
 │   │   ├── AppToast.jsx           # 成就/通知吐司
 │   │   └── UgcImportExport.jsx    # UGC 模组管理面板
@@ -270,7 +272,8 @@ COC/
 │   ├── utils/
 │   │   ├── clueNameMap.js        # 线索 ID → 中文名映射（惰性求值）
 │   │   ├── gameHelpers.js        # 游戏工具函数集
-│   │   └── buildEventPool.js     # 事件池构建
+│   │   ├── buildEventPool.js     # 事件池构建
+│   │   └── errorTracker.js       # 玩家操作追踪 & 错误报告（测试期模块）
 │   │
 │   ├── data/
 │   │   ├── descriptionTemplates.js  # DRY 描述模板常量
@@ -304,7 +307,8 @@ COC/
 │   └── src/                # Tauri 后端 (Rust)
 │
 └── docs/
-    └── dossier.png         # README 头图
+    ├── dossier.png         # README 头图
+    └── ERROR_TRACKER_REMOVAL.md  # Error Tracker 移除指南
 ```
 
 ### 核心模块一览
@@ -412,6 +416,7 @@ $ node check_build.cjs --dist   # 额外检查 dist/ 目录结构
 
 | 版本 | 日期 | 主要更新 |
 |------|------|---------|
+| **0.1.1** | 2026-05-31 | Error Tracker 玩家操作追踪模块（可插拔设计，一行删除移除）；ErrorBoundary 升级（错误报告含最近30步操作回放+一键复制）；ops-log.cjs 开发日志工具；清理48个调试临时文件 |
 | **0.1.0** | 2026-05 | Tauri 桌面版打包；模块化重构(app.jsx 4600→2997行)；CLUE_NAME_MAP惰性修复；DESC时序修复；ErrorBoundary；循环数组截断；SkipPrologue保护；dev-server SPA fallback；DRY描述模板；构建自检脚本 |
 | **v1.2** | 2026-05 | 线索中文名解析；存档多槽位+版本迁移；UGC模组系统；成就系统21个；Meta叙事事件 |
 | **v1.1** | 2026-04 | V2事件调度器扩展；死亡四段叙事；轮回污染系统；前传恐惧画像；中文语音台词 |

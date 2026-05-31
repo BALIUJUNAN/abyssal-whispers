@@ -27,15 +27,21 @@ import { initPrologueState, handlePrologueChoice, handleSkipPrologue, getPrologu
 import { getFearEventWeightModifier, applyFearLens, getFearNpcLine, applyFearCorruption } from './systems/fearLens.js';
 import { UgcPanel } from './components/UgcImportExport.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
+/* [TRACKER-IMPORT] 测试期错误追踪模块 — 正式版删除此行即可移除 */
+import { createErrorTracker } from './utils/errorTracker.js';
+
 // GAME_DATA placeholder is replaced at build time (see line 33)
 
 const {useState,useReducer,useEffect,useRef,useMemo,useCallback,memo}=React;
 
 const GD=initExtendedEvents(__GAME_DATA__);
 const ctx={GD};
+/* [TRACKER-INIT] 初始化 — GD 之后，dispatch 之前 */
+const errorTracker = createErrorTracker();
+if (typeof window !== 'undefined') { window.errorTracker = errorTracker; }
 
 // === 提取到独立模块的代码 ===
-// clueNameMap.js: CLUE_NAME_MAP, resolveClueName
+// clueNameMap.js: CLUE_NAME_MAP, resolveClueName, hasClueId
 // gameHelpers.js: initSkills, getNpcsHere, applyChainCompletionEffects, checkChainCompletion, etc.
 // initialState.js: initialState()
 // AudioManager.js: audioManager
@@ -107,7 +113,7 @@ function checkWrongInference(state, narr){
   if(state.triggeredEvents.includes('wrong_inference_checked'))return;
   const wi=GD.systems?.wrong_inference?.consequences||[];
   for(const inf of wi){
-    if(inf.id==='wrong_lighthouse_destroy'&&state.visitedAreas.includes('lighthouse')&&state.triggeredEvents.includes('evt_lighthouse_light')&&!state.clues.includes('clue_2_2')){
+    if(inf.id==='wrong_lighthouse_destroy'&&state.visitedAreas.includes('lighthouse')&&state.triggeredEvents.includes('evt_lighthouse_light')&&!hasClueId(state.clues,'clue_2_2')){
       state.triggeredEvents.push('wrong_inference_checked');
       narr('system','【错误推断】你开始怀疑灯塔是邪恶的源头。也许破坏它能解决问题……',{isSpecial:true});
       break;
@@ -187,7 +193,7 @@ function buildDeathRecap(state, deathContext=null){
   const deathEntry=mem.filter(m=>m.type==='death').slice(-1)[0];
   const causeEvent=deathEntry?deathEntry.text.replace(/^第 \d+ 天：/,''):(state.day>28?'封印崩溃，时间耗尽。':'你倒在了沃切斯特的黑暗中。');
   const timeline=mem.length>0?mem.slice(-8).map(m=>({day:m.day,type:m.type,text:typeof m==='string'?m:m.text})):[{day:state.day,type:'death',text:'第 '+state.day+' 天：你走到了记录无法继续的地方。'}];
-  const keyDiscoveries=(state.clues||[]).slice(-5).map(c=>typeof c==='object'?c.text:c);
+  const keyDiscoveries=(state.clues||[]).slice(-5).map(c=>typeof c==='object'?c.name:c);
   const conclusionsUnlocked=(state.discoveredConclusions||[]);
   const npcEntries=Object.entries(state.npcTrust||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3);
   const pollutionGained=state.pollution||0;
@@ -268,9 +274,9 @@ function checkTrustGate(nextTrust, s, npcName) {
   const clues = s.clues || [];
   const chains = s.completedChains || [];
   const day = s.day || 1;
-  const harborVisits = bt.harbor_visits || 0;
+  const harborVisits = (s.behaviorTracking?.harbor_visits) || 0;
   const hasChain = (id) => chains.includes(id);
-  const hasClue = (id) => clues.includes(id);
+  const hasClue = (id) => hasClueId(clues, id);
   const hasAnyClueFrom = (ids) => ids.some(id => hasClue(id));
   const harborClues = ['clue_1_1', 'clue_1_2', 'clue_1_3'];
   const morrisClues = ['clue_m_1', 'clue_m_2', 'clue_m_3'];
@@ -532,7 +538,7 @@ function getForcedProgressGuard(state, ctx) {
     if ((state.completedChains || []).includes(guard.chainId)) continue;
 
     // Count how many of the required clues the player has
-    const foundCount = guard.requiredClues.filter(c => clues.includes(c)).length;
+    const foundCount = guard.requiredClues.filter(c => hasClueId(clues, c)).length;
 
     // If player already has enough clues, skip
     if (foundCount >= guard.minCluesNeeded) continue;
@@ -572,11 +578,11 @@ function executeForcedProgressGuard(guard, state, narr) {
 
   // Give a small nudge: add the first missing clue from the required set as a hint
   // This is not the full chain — just enough to get started
-  const missingClues = guard.requiredClues.filter(c => !state.clues.includes(c));
+  const missingClues = guard.requiredClues.filter(c => !hasClueId(state.clues, c));
   if (missingClues.length > 0) {
     // Only give the hint clue (first missing), not all of them
     const hintClue = guard.fallbackClueHint || missingClues[0];
-    if (!state.clues.includes(hintClue)) {
+    if (!hasClueId(state.clues, hintClue)) {
       state.clues.push(hintClue);
       narr('system', '（你将这条信息记录在了笔记本上。）', { isSpecial: true });
     }
@@ -634,7 +640,7 @@ function gameReducer(state,action){
   };
   const log=(text)=>{cloneEvtLog();s.eventLog.push({day:s.day,text});};
   // Daily action tracking for behavior endings
-  const trackableTypes=['MOVE','EXPLORE','TALK_NPC','USE_ITEM','SWITCH_SAFEHOUSE','REST','GAMBLE_CHOICE','DO_SKILL_CHECK','NPC_RESPONSE','WORK','PREACH','ATTACK'];
+  const trackableTypes=['MOVE','EXPLORE','TALK_NPC','USE_ITEM','SWITCH_SAFEHOUSE','REST','GAMBLE_CHOICE','DO_SKILL_CHECK','NPC_RESPONSE','WORK','PREACH','ATTACK','BUY_FOOD'];
   if(trackableTypes.includes(action.type)&&action.type!=='REST'){
     if(!s._dayActions)s._dayActions=[];
     s._dayActions.push(action.type==='NPC_RESPONSE'?action.choice||'talk':action.type);
@@ -697,7 +703,7 @@ function gameReducer(state,action){
       s.triggeredEvents.push('evt_day1_opening_cut');
       const cutText='公告栏最下面有一张新的失踪告示。\n纸面干燥，边缘还没有卷起。\n\n照片里的人低着头，外套领口沾着海盐。\n\n你认出那件外套。\n\n你低头看了一眼自己。\n同一颗纽扣，缺了一半。\n\n告示下方写着：\n失踪时间：今天傍晚。';
       narr('event',cutText,{eventTitle:'第一张告示',eventType:'opening_cut',isSpecial:true,imageSrc:getAreaSceneImage(s.currentArea,s),imageAlt:'第一张告示'});
-      if(!s.clues.includes('clue_missing_notice_self'))s.clues.push('clue_missing_notice_self');
+      if(!hasClueId(s.clues,'clue_missing_notice_self'))s.clues.push({id:'clue_missing_notice_self',name:'你的失踪告示'});
       addRunMemory(s,'你在公告栏上看见了自己的失踪告示。','opening_cut');
     }
     s.ch1IntroComplete=true;
@@ -949,7 +955,7 @@ function gameReducer(state,action){
       audioManager.playEffect('clue_found');
       conc.evidence.forEach(e=>narr('system','  · '+e));
       // Add unlocks as clues
-      conc.unlocks.forEach(u=>{if(!s.clues.includes(u))s.clues.push(u)});
+      conc.unlocks.forEach(u=>{if(!hasClueId(s.clues,u)){const _rn=resolveClueName(u);s.clues.push(_rn&&_rn!==u?{id:u,name:_rn}:u);}});
     }
     // False interpretation warnings
     const falseInts=checkFalseInterpretations(s,ctx);
@@ -1130,7 +1136,7 @@ function gameReducer(state,action){
           s._dailyTrustGains[npc.name]='talk';
           for(let lv=trust+1;lv<=newTrust;lv++){
             const layer=npc.trust_layers?npc.trust_layers.find(l=>l.level===lv):null;
-            if(layer?.unlocks)layer.unlocks.forEach(u=>{if(!s.clues.includes(u))s.clues.push(u)});
+            if(layer?.unlocks)layer.unlocks.forEach(u=>{if(!hasClueId(s.clues,u)){const _rn=resolveClueName(u);s.clues.push(_rn&&_rn!==u?{id:u,name:_rn}:u);}});
           }
           narr('system',npc.name+'对你的信任度提升了。（信任等级：'+newTrust+'）');
           modHumanity(s,3,'与'+npc.name+'建立真诚的联系');
@@ -1144,7 +1150,7 @@ function gameReducer(state,action){
       if(npc.secrets&&npc.secrets.length>trust){
         const secret=npc.secrets[Math.min(trust,npc.secrets.length-1)];
         narr('system',npc.name+'低声告诉你："'+secret+'"');
-        if(!s.clues.includes(secret))s.clues.push(secret);
+        if(!hasClueId(s.clues,secret)){const _rn=resolveClueName(secret);s.clues.push(_rn&&_rn!==secret?{id:secret,name:_rn}:secret);}
         // Corruption triggers: asking NPC for info sets flags
         if(npc.name==='玛莎·格雷'&&trust>=2)setCorruptionFlag(s,'player_asked_harbor_watch');
         if(npc.name==='老费舍'&&trust>=2)setCorruptionFlag(s,'player_insisted_fisher_explain_tide');
@@ -1361,18 +1367,12 @@ function gameReducer(state,action){
         narr('system','你腹中空空。胃部的抽搐让你难以集中注意力。',{isSpecial:true});
       }else if(sd===2){
         // Day 2: HP -1, skill check -5
-        s.hp=Math.max(1,s.hp-1);
+        s.hp=Math.max(0,s.hp-1);
         narr('system','饥饿在啃噬你的意志。你的手脚开始发软，动作变得迟缓。',{isSpecial:true});
       }else{
         // Day 3+: HP -2, skill check -10, death chance
-        s.hp=Math.max(1,s.hp-2);
+        s.hp=Math.max(0,s.hp-2);
         narr('system','你的身体已经开始消耗自身。视线模糊，每一个动作都是折磨。',{isSpecial:true});
-        // Death chance scales with starvation days (10% base + 5% per extra day)
-        if(Math.random()<(0.10+(sd-3)*0.05)){
-          narr('system','你的身体再也无法支撑……饥饿夺走了最后一点意识。',{isDeath:true,isSpecial:true});
-          s.pendingDeath={type:'starvation',reason:'连续'+sd+'天未进食，饿死在沃切斯特'};
-          return s;
-        }
       }
       // Starvation: NPC trust decay chance
       const npcs=GD.npcs||GD.module3_npcs||[];
@@ -1384,6 +1384,21 @@ function gameReducer(state,action){
     }else{
       // Food recovered — reset starvation counter
       s.starvationDays=0;
+    }
+    // Death check after starvation damage (before recovery would heal the dead)
+    if(s.hp<=0||s.san<=0){
+      const deathType=s.hp<=0?'starvation':'madness';
+      const deathMode=s.hp<=0?'hp':'san';
+      const deathText=s.hp<=0?'饥饿耗尽了你最后的体力。你倒在了沃切斯特的街道上，再也没有站起来。':'你的精神再也无法承受。意识在低语中碎裂，你再也分不清现实与幻觉。';
+      s.deathContext={mode:deathMode,type:deathType,area:s.currentArea,day:s.day,loop:s.loopCount,sourceEventId:null,sourceEventName:'饥饿致死',finalText:deathText,residueFlag:'death_echo_starvation'};
+      s.lastDeathType=deathType;s.lastDeathMode=deathMode;
+      if(deathMode==='hp')audioManager.playEffect('death_physical');else audioManager.playEffect('death_mental');
+      narr('death',deathText,{isSpecial:true});
+      const failDef=deathMode==='hp'?GD.implementation_notes?.failure_states?.failure_types?.physical_death:GD.implementation_notes?.failure_states?.failure_types?.mental_death;
+      s.ending={name:failDef?.name||deathType,type:'bad',description:deathText,recap:buildDeathRecap(s,s.deathContext)};
+      addRunMemory(s,deathText.split('\n')[0],'death');
+      if(!s.tutorialSeen.first_death)s.tutorialSeen={...s.tutorialSeen,first_death:true};
+      return s;
     }
     // Safehouse degradation
     s.safehouseCorruption=processSafehouseNight(s,ctx);
@@ -1400,9 +1415,13 @@ function gameReducer(state,action){
       const curAlt=alts.find(a=>a.name===s.currentSafehouse);
       if(curAlt?.functions?.san_restore) sanRec+=curAlt.functions.san_restore;
     }
-    if(sanRec>0)s.san=clamp(s.san+sanRec,0,s.maxSan);
-    if(sanRec<0)s.san=clamp(s.san+sanRec,0,s.maxSan);
-    s.hp=clamp(s.hp+1,0,s.maxHp);
+    if((s.food||0)>0){
+      if(sanRec>0)s.san=clamp(s.san+sanRec,0,s.maxSan);
+      if(sanRec<0)s.san=clamp(s.san+sanRec,0,s.maxSan);
+      s.hp=clamp(s.hp+1,0,s.maxHp);
+    }else{
+      narr('system','没有食物，你无法从休息中恢复。',{isSpecial:true});
+    }
     s.longTermEffects.forEach(l=>{if(l.daysRemaining>0)l.daysRemaining--;});
     s.longTermEffects=s.longTermEffects.filter(l=>l.daysRemaining>0);
     if(s.tempSkillBonus){s.tempSkillBonus.days--;if(s.tempSkillBonus.days<=0)s.tempSkillBonus=null;}
@@ -1478,7 +1497,7 @@ function gameReducer(state,action){
       if(acts.length===0)parts.push('整天待在安全屋休息。');
       else{
         const actCounts={};acts.forEach(a=>{actCounts[a]=(actCounts[a]||0)+1;});
-        const actNames={MOVE:'移动',EXPLORE:'探索',TALK_NPC:'交谈',WORK:'打工',USE_ITEM:'使用物品',SWITCH_SAFEHOUSE:'更换安全屋'};
+        const actNames={MOVE:'移动',EXPLORE:'探索',TALK_NPC:'交谈',WORK:'打工',BUY_FOOD:'购买食物',USE_ITEM:'使用物品',SWITCH_SAFEHOUSE:'更换安全屋'};
         const desc=Object.entries(actCounts).map(([k,v])=>(actNames[k]||k)+(v>1?'×'+v:'')).join('、');
         parts.push('行动：'+desc+'。');
       }
@@ -1510,7 +1529,7 @@ function gameReducer(state,action){
     if(acts.length===0){bt.sleep_streak=(bt.sleep_streak||0)+1;}else{bt.sleep_streak=0;}
     if(acts.length<=1){bt.low_intervention_count=(bt.low_intervention_count||0)+1;}
     const hasMove=acts.includes('MOVE'),hasExplore=acts.includes('EXPLORE'),hasTalk=acts.some(a=>a==='TALK_NPC'||a==='trust_up'||a==='get_item'||a==='silence'||a==='share_food'||a==='redeem'||a==='incite'||a==='preach'||a==='attack');
-    const hasWork=acts.includes('WORK'),hasItem=acts.includes('USE_ITEM');
+    const hasWork=acts.includes('WORK')||acts.includes('BUY_FOOD'),hasItem=acts.includes('USE_ITEM');
     const stayedInArea=!hasMove;
     if(stayedInArea){bt.safehouse_stay_days=(bt.safehouse_stay_days||0)+1;}
     if(hasWork&&!hasExplore&&!hasTalk&&!hasMove){bt.work_only_days=(bt.work_only_days||0)+1;}
@@ -1532,6 +1551,15 @@ function gameReducer(state,action){
     if((s.money||0)>(bt.hoarded_money_max||0))bt.hoarded_money_max=s.money;
     narr('system','你在码头帮了半天工。报酬微薄，但至少口袋里多了几枚硬币。金钱 +'+earned);
     log('打工挣钱');return s;
+  }
+  case 'BUY_FOOD':{
+    if(s.ap<1){narr('system','行动点不足（需要1AP）。');return s;}
+    const foodPrice=3;
+    if((s.money||0)<foodPrice){narr('system','你的钱不够。购买食物需要 '+foodPrice+' 金钱。');return s;}
+    if((s.food||0)>=(s.maxFood||5)){narr('system','你的食物已经满了。');return s;}
+    s.ap-=1;s.money-=foodPrice;s.food=Math.min(s.maxFood,(s.food||0)+1);
+    narr('system','你在杂货店买了一些食物。食物 +1，金钱 -'+foodPrice);
+    log('购买食物');return s;
   }
   // Dark actions
   case 'SELF_HARM':{
@@ -1685,10 +1713,10 @@ function gameReducer(state,action){
       const r=Math.random();
       if(r<reward.clue_chance){
         // Clue found — causal feedback
-        const availableClues=(GD.clue_chains||[]).flatMap(c=>c.clues||[]).filter(c=>!s.clues.includes(c.id));
+        const availableClues=(GD.clue_chains||[]).flatMap(c=>c.clues||[]).filter(c=>!hasClueId(s.clues,c.id));
         if(availableClues.length>0){
           const found=pick(availableClues);
-          s.clues.push(found.id);audioManager.playEffect('clue_found');if(!s.tutorialSeen.first_clue&&s.clues.length===1)s.tutorialSeen={...s.tutorialSeen,first_clue:true};
+          s.clues.push({id:found.id,name:found.name||found.id});audioManager.playEffect('clue_found');if(!s.tutorialSeen.first_clue&&s.clues.length===1)s.tutorialSeen={...s.tutorialSeen,first_clue:true};
           narr('system',reward.text_on_success+' 线索：'+(found.name||found.id),{isSpecial:true});
         }else{
           narr('system',reward.text_on_success,{isSpecial:true});
@@ -2155,8 +2183,8 @@ const LeftPanel=memo(function LeftPanel({state}){
       {state.inventory.map((item,i)=><div key={i} className="item-entry"><span className="name">{item.name}</span>{item.uses>0&&<span className="uses"> ×{item.uses}</span>}{item.uses===-1&&<span className="uses"> ∞</span>}</div>)}
     </CollapsibleSection></div>
     {/* 折叠：已知线索 */}
-    {state.clues.length>0&&<CollapsibleSection title="已知线索" count={state.clues.length} defaultOpen={true} summary={resolveClueName(state.clues[state.clues.length-1]||'').slice(0,12)||''}>
-      {state.clues.slice(-5).map((c,i)=><div key={i} className="clue-entry">· {resolveClueName(c)}</div>)}
+    {state.clues.length>0&&<CollapsibleSection title="已知线索" count={state.clues.length} defaultOpen={true} summary={(()=>{const _lc=state.clues[state.clues.length-1];return(typeof _lc==='object'?_lc.name:resolveClueName(_lc||'')).slice(0,12)||'';})()}>
+      {state.clues.slice(-5).map((c,i)=><div key={i} className="clue-entry">· {typeof c==='object'?c.name:resolveClueName(c)}</div>)}
     </CollapsibleSection>}
     {/* 折叠：封印记录 */}
     {seal&&<CollapsibleSection title="封印记录" defaultOpen={false} summary={seal?.name||''}>
@@ -2173,15 +2201,17 @@ const LeftPanel=memo(function LeftPanel({state}){
   </div>;
 })
 
+const EVENT_TYPE_LABELS={opening_cut:'序章',area_event:'区域事件',mythos:'神秘事件',resource:'资源事件',humanity:'人性事件',meta:'隐秘事件',silent:'静默事件',prologue:'前传',area_deep:'深层探索',npc_cross:'NPC交错',loop_locked:'轮回锁定',clue:'线索',ending:'结局',madness_immunity:'疯狂免疫',identify_false_clue:'辨别伪证',mechanism:'机关',horror:'恐怖',investigation:'调查',minor_abnormal:'轻微异常',normal:'普通',bad:'负面',good:'正面',hidden:'隐藏',consumable:'消耗品',key_item:'关键物品',add_clue:'线索获取',add_flag:'标记',modify_event_weight:'事件权重',modify_npc_trust:'信任变动',modify_resource:'资源变动'};
 const NarrativeBlock=memo(function NarrativeBlock({block}){
   if(!block)return null;
   const isSanRecovery=block.type==='san-recovery';
-  const mythosTypes=['超自然遭遇','怪物遭遇','神秘事件'];
+  const mythosTypes=['超自然遭遇','怪物遭遇','神秘事件','mythos'];
   const isMythos=block.eventType&&mythosTypes.includes(block.eventType);
+  const eventTypeLabel=block.eventType?(EVENT_TYPE_LABELS[block.eventType]||block.eventType):null;
   return <div className={'narrative-block'+(block.type==='system'?' system':'')+(block.isEffect?' system':'')+(block.isSpecial?' system':'')+(block.type==='death'?' death-narrative':'')+(isSanRecovery?' san-recovery':'')+(isMythos?' mythos-text':'')}>
     {block.locationName&&<div className="location-name">📍 {block.locationName}</div>}
     {block.eventTitle&&<div className="event-title">{block._ugcAuthor?<span className="ugc-badge" title={'MOD by '+block._ugcAuthor}>🏷️ [MOD]</span>:null}{block.eventTitle}</div>}
-    {block.eventType&&<div className={'event-type '+block.eventType}>{block.eventType}</div>}
+    {block.eventType&&<div className={'event-type '+block.eventType}>{eventTypeLabel}</div>}
     {block.imageSrc&&<img className="narrative-image" src={block.imageSrc} alt={block.imageAlt||block.eventTitle||block.locationName||'事件插图'} onError={e=>{e.currentTarget.style.display='none';}}/>}
     <div className="narrative-text">{block.text}</div>
     {block.madness&&<div className="madness-effect">⚠ {block.madness.name}：{block.madness.description}</div>}
@@ -2408,6 +2438,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
           {getAvailableSafehouses(state).filter(sh=>state.currentSafehouse!==sh.name).map(sh=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button key={sh.name} className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:sh.name})}><span className="btn-hint">{n}</span><span className="action-icon">🏠</span>搬到{sh.name}<span className="cost">恢复+{sh.functions?.san_restore||0}</span></button>;})}
           {state.currentSafehouse!=='main'&&(()=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button className="action-btn" onClick={()=>dispatch({type:'SWITCH_SAFEHOUSE',safehouse:'main'})}><span className="btn-hint">{n}</span><span className="action-icon">🍺</span>回酒馆<span className="cost">返回原处</span></button>;})()}
           {(()=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button className="action-btn" onClick={()=>dispatch({type:'WORK'})} disabled={state.ap<2}><span className="btn-hint">{n}</span><span className="action-icon">💰</span>打工挣钱<span className="cost">2 AP</span></button>;})()}
+          {state.currentArea==='town_center'&&(()=>{window.__n=(window.__n||0)+1;const n=window.__n;const canBuy=state.ap>=1&&(state.money||0)>=3&&(state.food||0)<(state.maxFood||5);return <button className="action-btn" onClick={()=>dispatch({type:'BUY_FOOD'})} disabled={!canBuy}><span className="btn-hint">{n}</span><span className="action-icon">🛒</span>杂货店买食物<span className="cost">1 AP · 3金钱</span></button>;})()}
           {(()=>{window.__n=(window.__n||0)+1;const n=window.__n;return <button className="action-btn" onClick={()=>dispatch({type:'REST'})}><span className="btn-hint">{n}</span><span className="action-icon">🏕️</span>{getOptionText('rest_at_safehouse',state.san)||'结束今日'}<span className="cost">休息恢复</span></button>;})()}
         </div>
       </div>
@@ -2657,7 +2688,7 @@ const RightPanel=memo(function RightPanel({state,dispatch}){
       {(state.humanityScore!==undefined&&state.humanityScore!==50)&&<><div className="panel-title" style={{color:state.humanityScore>=60?'var(--accent2)':state.humanityScore>=30?'var(--gold)':'var(--danger2)'}}>人性</div><div style={{fontSize:'0.7rem',color:state.humanityScore>=60?'var(--accent2)':state.humanityScore>=30?'var(--gold)':'var(--danger2)',padding:'0.15rem 0'}}>{state.humanityScore>=60?'尚存人性':state.humanityScore>=30?'人性脆弱':'人性迷失'} ({state.humanityScore})</div></>}
     </div>}
     {tab==='clues'&&<div className="tab-content">
-      {state.clues.length>0&&<><div className="panel-title">线索 ({state.clues.length})</div><div className="clues-section">{state.clues.map((c,i)=><div key={i} className="clue-entry">• {resolveClueName(c)}</div>)}</div></>}
+      {state.clues.length>0&&<><div className="panel-title">线索 ({state.clues.length})</div><div className="clues-section">{state.clues.map((c,i)=><div key={i} className="clue-entry">• {typeof c==='object'?c.name:resolveClueName(c)}</div>)}</div></>}
       {state.completedChains&&state.completedChains.length>0&&<><div className="panel-title">事件链 ({state.completedChains.length})</div><div className="clues-section">{state.completedChains.map((cid,i)=><div key={i} style={{fontSize:'0.7rem',color:'var(--san-high)',padding:'0.15rem 0'}}>✓ {cid}</div>)}</div></>}
       {state.discoveredConclusions&&state.discoveredConclusions.length>0&&<><div className="panel-title" style={{color:'var(--gold)'}}>结论</div><div className="clues-section">{state.discoveredConclusions.map((cid,i)=>{
         const conc=(GD.systems?.clue_conclusion?.conclusions||[]).find(c=>c.id===cid);
@@ -2749,7 +2780,7 @@ function EndingScreen({ending,state,dispatch}){
   </div>;
 }
 
-function GameHeader({state,dispatch,areas,onSettingsOpen,onUgcOpen}){
+function GameHeader({state,dispatch,areas,onSettingsOpen,onUgcOpen,onSaveOpen}){
   const area=areas.find(a=>a.id===state.currentArea);
   const areaName=area?getAreaDisplayName(area,state):state.currentArea;
   const sanStage=getSanStage(state.san,ctx);
@@ -2779,7 +2810,7 @@ function GameHeader({state,dispatch,areas,onSettingsOpen,onUgcOpen}){
       <button className="header-btn" onClick={onSettingsOpen} title="设置">⚙️</button>
       <button className="header-btn" onClick={()=>dispatch({type:'AUDIO_MUTE_TOGGLE'})} title={state.audioMuted?'取消静音':'静音'}>{state.audioMuted?'🔇':'🔊'}</button>
       <button className="header-btn header-btn-state" onClick={()=>dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion'})} title="切换视觉特效">{state.accessibilityOptions?.visual_distortion==='off'?'特效:关':'特效:开'}</button>
-      <button className="header-btn" onClick={()=>{setSaveLoadMode('save');setSaveLoadOpen(true);audioManager.playUI('panel_open');}} title="写入调查记录">💾</button>
+      <button className="header-btn" onClick={()=>{onSaveOpen&&onSaveOpen();audioManager.playUI('panel_open');}} title="写入调查记录">💾</button>
     </div>
   </header>;
 }
@@ -2908,7 +2939,12 @@ function preloadEndingCGs(){
 }
 
 function App(){
-  const [state,dispatch]=useReducer(gameReducer,null,initialState);
+  const [state,rawDispatch]=useReducer(gameReducer,null,initialState);
+  /* [TRACKER-DISPATCH] 包装 dispatch — 自动记录每步操作 */
+  const dispatch = useCallback((action) => {
+    errorTracker.record(action, state);
+    return rawDispatch(action);
+  }, [state]);
   const [settings,setSettings]=useState(loadSettings);
   const [settingsOpen,setSettingsOpen]=useState(false);
   const [saveLoadOpen,setSaveLoadOpen]=useState(false);
@@ -2979,7 +3015,7 @@ function App(){
   const sanClass=allowVisualFX?(state.san<20?' san-fracture':state.san<40?' san-tremor':''):'';
   return <>
     <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+' '+fontSizeClass}>
-      <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>setSettingsOpen(true)} onUgcOpen={()=>setUgcOpen(true)}/>
+      <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>setSettingsOpen(true)} onUgcOpen={()=>setUgcOpen(true)} onSaveOpen={()=>{setSaveLoadMode('save');setSaveLoadOpen(true);}}/>
       <LeftPanel state={state}/>
       <CenterPanel state={state} dispatch={dispatch}/>
       <RightPanel state={state} dispatch={dispatch}/>

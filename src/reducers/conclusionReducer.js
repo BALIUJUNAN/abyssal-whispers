@@ -14,7 +14,7 @@ function isEvidenceSatisfied(ev, state) {
     return (state.npcTrust[npcName] || 0) >= needed;
   }
   // Clue-based
-  if (ev.source && state.clues.includes(ev.source)) return true;
+  if (ev.source && hasClueId(state.clues, ev.source)) return true;
   return false;
 }
 
