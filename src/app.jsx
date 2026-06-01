@@ -258,14 +258,15 @@ function App(){
   useEffect(()=>{if(state.screen==='game'&&state.san<30)preloadEndingCGs();},[state.san,state.screen]);
 
   // Lazy-load ch2+ game data (web mode only — skipped if already merged at build time)
+  // Chapter-gated: load ch2+ at day 5, meta at day 10 (reduces initial load)
   useEffect(()=>{
     if(state.screen!=='game')return;
-    if(!GD._extendedEventsLoaded)return; // only when extended events are active
+    if(!GD._extendedEventsLoaded)return;
     try{
-      loadChapterData(GD,'ch2plus','game_ch2plus.json');
-      loadChapterData(GD,'meta','game_meta.json');
+      if(state.day>=5)loadChapterData(GD,'ch2plus','game_ch2plus.json');
+      if(state.day>=10)loadChapterData(GD,'meta','game_meta.json');
     }catch(e){/* non-fatal: game continues with existing data */}
-  },[state.screen]);
+  },[state.day,state.screen]);
 
   // SAN visual corruption: now handled by <SanPollutionLayer> component (see render below)
 
