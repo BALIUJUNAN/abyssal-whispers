@@ -202,13 +202,13 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
   const itemUseInfo=useMemo(()=>{const m={};(GD.items||[]).forEach(def=>{if(def.use_hint)m[def.name]=def.use_hint;});return m;},[]);
   // P3: perception levels — respect accessibility
   const percCls=useMemo(()=>{
-    const raw=state.accessibilityOptions?.visual_distortion==='off'?{focus:0,edge:0,audio:0,input:0,text:0}:getPerceptionLevels(state);
+    const raw=state.accessibilityOptions?.visual_distortion===false?{focus:0,edge:0,audio:0,input:0,text:0}:getPerceptionLevels(state);
     return (raw.text>0?' perception-text-'+Math.min(3,raw.text):'')
       +(raw.focus>1?' perception-focus-'+Math.min(3,raw.focus):'')
       +(raw.edge>0?' perception-edge-'+Math.min(3,raw.edge):'');
   },[state.san,state.loopCount,state.safehouseCorruption,state.currentArea,state.accessibilityOptions?.visual_distortion]);
   // audio perception → volume modulation (safe, no side effect on render)
-  const perceptionAudio=state.accessibilityOptions?.visual_distortion==='off'?0:getPerceptionLevels(state).audio;
+  const perceptionAudio=state.accessibilityOptions?.visual_distortion===false?0:getPerceptionLevels(state).audio;
   try{if(perceptionAudio>=2){audioManager._volumeScale=0.6+perceptionAudio*0.15;}else{audioManager._volumeScale=1;}}catch(e){}
 
   return <div className="center-panel">
@@ -620,7 +620,7 @@ function GameHeader({state,dispatch,areas,onSettingsOpen,onUgcOpen,onSaveOpen}){
       {onUgcOpen&&<button className="header-btn" onClick={onUgcOpen} title="模组管理">🧩</button>}
       <button className="header-btn" onClick={onSettingsOpen} title="设置">⚙️</button>
       <button className="header-btn" onClick={()=>dispatch({type:'AUDIO_MUTE_TOGGLE'})} title={state.audioMuted?'取消静音':'静音'}>{state.audioMuted?'🔇':'🔊'}</button>
-      <button className="header-btn header-btn-state" onClick={()=>dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion'})} title="切换视觉特效">{state.accessibilityOptions?.visual_distortion==='off'?'特效:关':'特效:开'}</button>
+      <button className="header-btn header-btn-state" onClick={()=>dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion'})} title="切换视觉特效">{state.accessibilityOptions?.visual_distortion===false?'特效:关':'特效:开'}</button>
       <button className="header-btn" onClick={()=>{onSaveOpen&&onSaveOpen();audioManager.playUI('panel_open');}} title="写入调查记录">💾</button>
     </div>
   </header>;

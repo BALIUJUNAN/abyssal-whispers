@@ -5698,7 +5698,14 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": null
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "水面下的阴影升起来了。不是从水里——是从你的胸腔里。你低头看了一眼，你的胸口是透明的。里面有什么东西在游动。",
+        "san_mid": "水面下的阴影。你看到了它——不，你成为了它。一瞬间，你从水下看到了自己的脸。那张脸在微笑。",
+        "corruption_high": "阴影已经不在水下了。它在你身后。你不需要回头——你能感觉到它的温度。和你的体温一样。",
+        "fear_ocean": "水面上的月光碎了。每一片碎片里都映着一只眼睛。它们都在看你。你数不清有多少只。",
+        "fear_body": "阴影有你的轮廓。它在模仿你的每一个动作。但它的动作比你慢了半拍——或者说，你比它快了半拍。"
+      }
     },
     {
       "id": "evt_fisherman_warning",
@@ -5755,7 +5762,13 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": null
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "老费舍在说话。但他的嘴没有动。声音从他的耳朵里流出来，像水一样。",
+        "san_mid": "渔夫的警告。他说的每个字都在你的笔记本上自行出现了。你没有在写。",
+        "corruption_high": "他看着你的眼睛说：\"你已经听过这段话了。上一次你没有听。\"",
+        "fear_isolation": "他试图警告你。但你听不懂他的话了。不是因为他说的是外语——是因为你已经忘了怎么听。"
+      }
     },
     {
       "id": "evt_warehouse_key",
@@ -5810,7 +5823,13 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": null
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "钥匙在你手里。它在动。不是因为你的手在抖——是钥匙自己在动。",
+        "san_mid": "仓库的异响。你打开门的时候，里面站着一个人。不——是一个你自己的倒影。倒影把钥匙递给你。",
+        "corruption_high": "仓库里没有异响。从来没有。但你的口袋里多了一把钥匙。你不记得它是什么时候出现的。",
+        "fear_control": "钥匙的齿纹在变化。每次你看它，它的形状都不一样。它在适应某个你还没有找到的锁。"
+      }
     },
     {
       "id": "evt_drowned_voice",
@@ -5866,7 +5885,14 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": "第一章仅在深夜主动探索时触发，白天/黄昏不触发"
+      "chapter_1_san_note": "第一章仅在深夜主动探索时触发，白天/黄昏不触发",
+      "distortion_variants": {
+        "san_low": "声音在叫你的名字。不是你现在的名字——是你还没有用过的名字。",
+        "san_mid": "溺亡者在唱歌。歌词是你的日记内容。从明天的日记。",
+        "corruption_high": "你已经听了一整天了。你不确定声音是来自水下还是来自你的头骨内部。",
+        "fear_ocean": "水面上出现了嘴。很多嘴。它们在同步说话。说的是你小时候的事。只有你知道的事。",
+        "fear_knowledge": "声音在告诉你一个真相。一个你已经知道但不愿意承认的真相。你试图忘记，但声音不让你忘。"
+      }
     },
     {
       "id": "evt_strange_clock",
@@ -5922,7 +5948,13 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": null
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "钟声响了十三下。然后第十四下。你数了——但你的手指不够用了。你有十四根手指吗？",
+        "san_mid": "十三声钟响。你发现自己在跟着钟声呼吸。每一次钟响，你的肺就少装一口气。",
+        "corruption_high": "钟声没有停。它在你的血管里响。你的脉搏就是钟声的节奏。",
+        "fear_control": "钟声在控制你。每响一下，你的身体就做出一个动作。不是你选择的动作。"
+      }
     },
     {
       "id": "evt_missing_poster",
@@ -5979,7 +6011,13 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": null
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "告示上的照片换了。现在是你。但你没有失踪——你明明就在这里。对吧？",
+        "san_mid": "失踪者名单。你数了一下。少了一个人。你很确定少了一个人。但你记不起是谁。",
+        "corruption_high": "告示上写着：\"失踪时间：现在。\"你看了看手表。表停了。",
+        "fear_isolation": "名单上的名字你都认识。都是你。不同的你。每一个你都在不同的时间失踪了。"
+      }
     },
     {
       "id": "evt_church_bell",
@@ -6035,7 +6073,13 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": null
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "低语声在说你的名字。不是用声音——是用教堂墙壁的震动。你把耳朵贴在墙上。墙是温的。",
+        "san_mid": "教堂深处的低语。它们在祈祷。祈祷的对象是你。",
+        "corruption_high": "你走进教堂。十字架转了一个角度面向你。蜡烛自己亮了。没有人在这里。但长椅上坐满了人。",
+        "fear_knowledge": "低语声在读一本书。你听出来了——那是你还没有写的书。内容是你在沃切斯特的最后一天。"
+      }
     },
     {
       "id": "evt_beggar_clue",
@@ -6089,7 +6133,12 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": null
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "乞丐在笑。他的牙齿上有字。你凑近看——是你自己的名字。",
+        "san_mid": "疯乞丐的预言。他说的每一句话都成真了。包括最后一句：\"你会忘记这段对话。\"",
+        "corruption_high": "乞丐不是疯了。他只是比你更清醒。他看到了你看不到的东西——你身后的东西。"
+      }
     },
     {
       "id": "evt_vendor_suspicious",
@@ -6143,7 +6192,12 @@
       "choices": [],
       "chapter_1_eligible": true,
       "normalcy_anchor": false,
-      "chapter_1_san_note": null
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "摊贩的货物在动。不是风吹的。它们在呼吸。每一个包裹里都有一个小小的、跳动的心脏。",
+        "san_mid": "可疑的摊贩。他的眼睛不眨。你数了三十秒。一次都没有。",
+        "corruption_high": "他卖的东西你都见过。在你的梦里。每一个物品都对应一个你已经遗忘的记忆。"
+      }
     },
     {
       "id": "evt_ch1_grocery_supply",
@@ -6461,7 +6515,13 @@
       },
       "choices": [],
       "chapter_1_eligible": true,
-      "normalcy_anchor": false
+      "normalcy_anchor": false,
+      "distortion_variants": {
+        "san_low": "月光缺了一块。不是被云挡住了。是被吃掉了。你能看到缺口的边缘在咀嚼。",
+        "san_mid": "水面少了一块月光。你伸手去摸——手指穿过了水面。下面不是水。是空气。是另一个地方。",
+        "corruption_high": "月光回来了。但它照出的不是你的影子。是一个你从未见过的人的影子。那个人正在看着你。",
+        "fear_ocean": "水面下的月光在说话。不是比喻——是真的在说话。它在说：\"回来。\""
+      }
     }
   ],
   "items": [

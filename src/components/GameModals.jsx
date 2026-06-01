@@ -47,6 +47,15 @@ function SettingsModal({open,onClose,settings,onChange,onAchOpen}){
       <span className="settings-label">闪烁效果</span>
       <button className={'settings-toggle'+(settings.flickerEffect?' on':'')} onClick={()=>update('flickerEffect',!settings.flickerEffect)}/>
     </div>
+    <div className="settings-group-title">SAN污染</div>
+    <div className="settings-row">
+      <span className="settings-label">污染强度</span>
+      <input type="range" className="settings-slider" min="0" max="100" value={settings.visualPollution??50} onChange={e=>update('visualPollution',Number(e.target.value))}/>
+      <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.visualPollution??50}%</span>
+    </div>
+    <div style={{fontSize:'0.65rem',color:'var(--text-dim)',marginTop:'0.2rem',lineHeight:1.4}}>
+      控制低SAN时的视觉污染效果：扫描线、噪点、选项文字腐化、深渊提示等。0=完全关闭，100=最大强度。
+    </div>
     {onAchOpen&&<><div className="settings-group-title">其他</div>
     <div className="settings-row">
       <span className="settings-label">成就</span>

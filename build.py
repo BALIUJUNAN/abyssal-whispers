@@ -51,15 +51,23 @@ REDUCER_FILES = [
     'reducers/worldReducer.js',
     'reducers/sanReducer.js',
     # Phase 4: Three-layer event selection (must precede extendedEvents.js)
+    # DEPENDENCY: extendedEvents.js calls getCooldownDecayFactor, getBehaviorWeightMultiplier,
+    #   getFearProfileMultiplier, getSanWeightMultiplier, getAreaCorruptionMultiplier
+    #   via typeof guards — they must be defined before extendedEvents.js is parsed.
     'systems/eventSystemV2.js',
     # Phase 5: World decay and corruption advancement
     'systems/worldDecay.js',
     # Phase 6: Resource-narrative binding + safehouse visual stages
+    # DEPENDENCY: extendedEvents.js calls getResourceEventWeightModifier via typeof guard
+    #   — must precede extendedEvents.js (line 65).
     'systems/resourceNarrative.js',
+    # Meta-layer corruption (false events, false logs, save name pollution)
+    'systems/metaCorruption.js',
     # Phase 7: NPC multi-version dialogue + loop inheritance
     'systems/npcDialogue.js',
     'data/events_missing_600.js',
     'data/events_omens_600.js',
+    # DEPENDENCY: requires eventSystemV2.js + resourceNarrative.js (above) for weight functions
     'reducers/extendedEvents.js',
     'reducers/eventReducer.js',
     'reducers/safehouseReducer.js',
@@ -113,6 +121,13 @@ REDUCER_FILES = [
     'state/initialState.js',
     # Phase 2: App-level helper functions extracted from app.jsx
     'utils/appHelpers.js',
+    # Phase 3: GameReducer slice handlers (extracted from app.jsx)
+    'reducers/slices/coreSlice.js',
+    'reducers/slices/exploreSlice.js',
+    'reducers/slices/npcSlice.js',
+    'reducers/slices/dailySlice.js',
+    'reducers/slices/darkSlice.js',
+    'reducers/slices/uiSlice.js',
     # Phase 2: UI components extracted from app.jsx
     'components/SanPollutionLayer.jsx',  # Unified SAN visual corruption canvas + CorruptibleChoice
     'components/GameCommon.jsx',     # StatBar, Modal, CollapsibleSection, NarrativeBlock

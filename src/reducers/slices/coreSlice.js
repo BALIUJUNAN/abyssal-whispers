@@ -1,0 +1,102 @@
+// src/reducers/slices/coreSlice.js - Extracted from gameReducer
+// START_GAME, SET_DIFFICULTY, SET_ARCHETYPE, ROLL_STATS, BEGIN_ADVENTURE, NEW_GAME, CONTINUE_GAME, SWITCH_SAFEHOUSE
+
+function handleCoreAction(s, action, c) {
+  switch(action.type){
+  case 'START_GAME':s.screen='prologue';s.prologue=initPrologueState();s.fearTuning=null;s.skills=initSkills();return s;
+  case 'SET_DIFFICULTY':s.difficulty=action.difficulty;return s;
+  case 'SET_ARCHETYPE':s.archetype=action.archetypeId;return s;
+  case 'ROLL_STATS':{
+    const d=(GD.systems?.player?.default_template||GD.module5_player?.default_template||{}).base_stats||{};
+    const st={};
+    Object.entries(d).forEach(([k,v])=>{st[k]=typeof v==='object'?rollDice(v.dice)*(v.multiplier??5):50;});
+    // Apply archetype stat modifiers (P1-1)
+    const archDef=(GD.systems?.player?.archetypes||[]).find(a=>a.id===s.archetype);
+    if(archDef?.stat_modifiers){Object.entries(archDef.stat_modifiers).forEach(([k,v])=>{st[k]=(st[k]||50)+v;});}
+    s.stats=st;s.maxHp=Math.floor((st.CON+st.SIZ)/10);s.hp=s.maxHp;
+    s.san=st.POW;s.maxSan=99;s.luck=rollDice('3d6')*5;s.mp=Math.floor(st.POW/5);
+    // Occultist SAN penalty
+    if(archDef?.starting_san_penalty){s.san=Math.max(1,s.san-archDef.starting_san_penalty);s.maxSan=Math.floor(s.maxSan*0.7);}
+    s.skills={...initSkills()};s.skills['闪避']=Math.floor(st.DEX/2);s.skills['意志']=Math.floor(st.POW/2);
+    // Apply archetype skill bonuses (P1-1)
+    if(archDef?.skill_bonuses){Object.entries(archDef.skill_bonuses).forEach(([k,v])=>{s.skills[k]=(s.skills[k]||0)+v;});}
+    return s;
+  }
+  case 'BEGIN_ADVENTURE':{
+    s.screen='game';c.ensureMutableArrays();
+    s.objectives=genObjectives(1,ctx);
+    audioManager.playEffect('begin');audioManager.playAreaAmbient(s.currentArea||'town_center','morning');
+    // SAN visual corruption: now handled by SanPollutionLayer component (no init needed)
+    s.currentChapter=getChapterForDay(s.day,ctx).key||'chapter_1';
+    // Apply archetype NPC trust mods (P1-1)
+    const archDef2=(GD.systems?.player?.archetypes||[]).find(a=>a.id===s.archetype);
+    if(archDef2?.npc_trust_mod){Object.entries(archDef2.npc_trust_mod).forEach(([npc,v])=>{s.npcTrust[npc]=(s.npcTrust[npc]||0)+v;});}
+    if(s.loopCount>0){
+      audioManager.playEffect('loop_restart');audioManager.playEffect('loop_memory');audioManager.playEffect('bell_memory');
+      const drt=GD.implementation_notes?.death_restart_text?.death_types;
+      const restartTexts=s.lastDeathType==='mental'?drt?.mental_death?.restart_text:drt?.physical_death?.restart_text;
+      const loopKey=s.loopCount>=5?'loop_5_plus':s.loopCount>=3&&s.lastDeathType==='mental'?'loop_3_plus':'loop_'+s.loopCount;
+      const restartText=restartTexts?.[loopKey];
+      if(restartText){
+        c.narr('system',restartText,{locationName:'轮回·第'+s.loopCount+'次'});
+      }else{
+        c.narr('system','你再次睁开眼。浓雾、鹅卵石、紧闭的窗帘——一切都似曾相识。',{locationName:'轮回·第'+s.loopCount+'次'});
+      }
+      if(s.pollution>0){
+        c.narr('system','世界似乎比你记忆中的更加……不对劲。污染指数：'+Math.round(s.pollution*100)+'%');
+      }
+      // Apply loop blessings
+      const bKey2=s.loopCount<=5?'loop_'+s.loopCount:'loop_6_plus';
+      const curBlessing=GD.systems?.loop?.loop_blessings?.[bKey2];
+      if(curBlessing)applyBlessing(s,curBlessing,c.narr);
+    }
+    CH1_INTRO.forEach(block=>c.narr(block.type,block.text,{locationName:block.locationName}));
+    // P2: Day 1 unskippable opening cut — "那一刀"
+    if(!s.triggeredEvents.includes('evt_day1_opening_cut')){
+      s.triggeredEvents.push('evt_day1_opening_cut');
+      const cutText='公告栏最下面有一张新的失踪告示。\n纸面干燥，边缘还没有卷起。\n\n照片里的人低着头，外套领口沾着海盐。\n\n你认出那件外套。\n\n你低头看了一眼自己。\n同一颗纽扣，缺了一半。\n\n告示下方写着：\n失踪时间：今天傍晚。';
+      c.narr('event',cutText,{eventTitle:'第一张告示',eventType:'opening_cut',isSpecial:true,imageSrc:getAreaSceneImage(s.currentArea,s),imageAlt:'第一张告示'});
+      if(!hasClueId(s.clues,'clue_missing_notice_self'))s.clues.push({id:'clue_missing_notice_self',name:'你的失踪告示'});
+      addRunMemory(s,'你在公告栏上看见了自己的失踪告示。','opening_cut');
+    }
+    s.ch1IntroComplete=true;
+    addRunMemory(s,s.loopCount>0?'再次踏入沃切斯特':'初次踏入沃切斯特','loop');
+    c.log(s.loopCount>0?'第'+s.loopCount+'次轮回开始':'冒险开始');
+    return s;
+  }
+  case 'NEW_GAME':{
+    // Track refusal of final choice (player chose to loop again rather than accept ending)
+    if(s.ending)c.bt.final_choice_refused_count=(c.bt.final_choice_refused_count||0)+1;
+    // Achievement stats
+    try{incrementStat('total_runs');if(s.hp<=0||s.san<=0)incrementStat('total_deaths');}catch(e){}
+    // Build previous run summary before reset (extended events system)
+    const prevSummary = buildPreviousRunSummary(s);
+    const f=initialState();
+    // P0-L: 全部循环搬入逻辑已提取至 loopReducer.initLoopState()
+    initLoopState(f, s, ctx, { prevSummary });
+    clearSave();
+    return f;
+  }
+  case 'CONTINUE_GAME':{
+    const loaded={ ...action.savedState, screen: 'game', transition: null, narrative: [{id:Date.now(),type:'system',text:'—— 你从存档中醒来。'}] };
+    // Ensure extended state fields exist (backward-compatible migration)
+    return ensureExtendedState(loaded);
+  }
+  case 'SWITCH_SAFEHOUSE':{
+    const shName=action.safehouse;
+    if(shName==='main'){
+      s.currentSafehouse='main';
+      c.narr('system','你决定回到原来的酒馆安全屋。');
+    }else{
+      const alts=GD.systems?.safehouse?.relocation_rules?.alternative_safehouses||[];
+      const sh=alts.find(a=>a.name===shName);
+      if(sh){
+        s.currentSafehouse=sh.name;
+        c.narr('system','你搬到了'+sh.name+'。'+(sh.drawback||''));
+      }
+    }
+    return s;
+  }
+  default:return null;
+  }
+}

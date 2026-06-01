@@ -577,3 +577,40 @@ function preloadEndingCGs(){
   };
   batch(0);
 }
+
+// === Reducer Context Builder ===
+// Builds the shared context object passed to all slice handlers from gameReducer.
+// Each slice receives (s, action, c) where c is this context.
+function buildReducerCtx(s, state, ensureArrFn, ensureObjFn) {
+  const MAX_NARRATIVE_ENTRIES=250;
+  const _narrCorrLayer=getUICorruptionLayer(s.san,s.loopCount,s.safehouseCorruption);
+  const bt=s.behaviorTracking;
+  let _narrCloned=false,_evtLogCloned=false,_invCloned=false;
+  const cloneNarr=()=>{if(!_narrCloned){s.narrative=[...(state.narrative||[])];_narrCloned=true;}};
+  const cloneEvtLog=()=>{if(!_evtLogCloned){s.eventLog=[...(state.eventLog||[])];_evtLogCloned=true;}};
+  const cloneInv=()=>{if(!_invCloned){s.inventory=state.inventory.map(i=>({...i}));_invCloned=true;}};
+  const narr=(type,text,extra={})=>{
+    cloneNarr();
+    const entry={id:Date.now()+Math.random(),type,text,...extra};
+    if(_narrCorrLayer>0&&(type==='system'||type==='event')&&!extra.isSpecial&&!extra.isEffect&&!extra.madness){
+      const corrupted=getCorruptedSystemText(text,_narrCorrLayer);
+      if(corrupted!==text){entry._originalText=text;entry.text=corrupted;}
+    }
+    s.narrative.push(entry);
+    if(s.narrative.length>MAX_NARRATIVE_ENTRIES){s.narrative=s.narrative.slice(-MAX_NARRATIVE_ENTRIES);}
+  };
+  const log=(text)=>{cloneEvtLog();s.eventLog.push({day:s.day,text});};
+  const ensureMutableArrays=()=>{
+    ['triggeredEvents','triggeredSilentEvents','longTermEffects','clues',
+     'completedChains','objectives','retainedKnowledge','runMemory',
+     'visitedAreas','discoveredConclusions','activeBlessings'
+    ].forEach(ensureArrFn);
+    ['npcTrust','npcStates','stats','skills','lastVisitedDates','stats_run','behaviorTracking'].forEach(ensureObjFn);
+    if(s.triggeredEvents.length>1000)s.triggeredEvents=s.triggeredEvents.slice(-1000);
+  };
+  return {
+    narr, log, ensureMutableArrays, bt,
+    ensureArr: ensureArrFn, ensureObj: ensureObjFn,
+    cloneInv, cloneNarr, cloneEvtLog,
+  };
+}

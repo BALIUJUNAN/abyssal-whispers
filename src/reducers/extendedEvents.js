@@ -369,6 +369,26 @@ export function getEventWeight(evt, areaId, state, ctx) {
     weight *= getBehaviorWeightMultiplier(evt, state);
   }
 
+  // Phase 5: fearProfile alignment — events matching player's fear get boosted
+  if (typeof getFearProfileMultiplier === 'function') {
+    weight *= getFearProfileMultiplier(evt, state);
+  }
+
+  // Phase 5: SAN-scaled weight — lower SAN boosts horror, higher SAN boosts buffer
+  if (typeof getSanWeightMultiplier === 'function') {
+    weight *= getSanWeightMultiplier(evt, state);
+  }
+
+  // Phase 5: Area corruption multiplier
+  if (typeof getAreaCorruptionMultiplier === 'function') {
+    weight *= getAreaCorruptionMultiplier(evt, state);
+  }
+
+  // Phase 6: Resource-bound weight modifier (light/infection/fatigue/food)
+  if (typeof getResourceEventWeightModifier === 'function') {
+    weight *= getResourceEventWeightModifier(evt, state);
+  }
+
   return Math.max(0, weight);
 }
 
@@ -395,10 +415,16 @@ export function chooseWeightedEvent(candidates, areaId, state, ctx, pick) {
   if (n === 1) return candidates[0];
 
   // Build cumulative weight array — O(n)
+  // Phase 5: Apply buffer enforcement to adjust weights
   const cumWeights = new Float64Array(n);
   let total = 0;
   for (let i = 0; i < n; i++) {
-    const w = getEventWeight(candidates[i], areaId, state, ctx);
+    let w = getEventWeight(candidates[i], areaId, state, ctx);
+    // Buffer enforcement: if today's event mix is off-target, adjust weight
+    if (typeof applyBufferEnforcement === 'function') {
+      const adjusted = applyBufferEnforcement([{ event: candidates[i], weight: w }], state);
+      if (adjusted.length > 0) w = adjusted[0].weight;
+    }
     total += Math.max(0, w);
     cumWeights[i] = total;
   }
@@ -446,6 +472,15 @@ export function commitSelectedEvent(evt, state) {
     if (!state.eventCooldowns) state.eventCooldowns = {};
     state.eventCooldowns[evt.id] = state.day;
   }
+
+  // Phase 5: Record freshness cooldown for all events (not just those with cooldown_days)
+  if (typeof recordEventCooldown === 'function') {
+    recordEventCooldown(state, evt.id);
+  }
+
+  // Phase 5: Track today's event mix for buffer enforcement
+  if (!state._todayEventTypes) state._todayEventTypes = [];
+  state._todayEventTypes.push({ id: evt.id, isBuffer: !!evt.normalcy_anchor, type: evt.type || '' });
 
   // Track once-per-run
   if (evt.trigger?.once_per_run) {

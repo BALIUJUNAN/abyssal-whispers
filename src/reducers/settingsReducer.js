@@ -11,7 +11,8 @@ const DEFAULT_SETTINGS = {
   narrativeFontSize: 'medium',
   visualDistortion: true,
   suddenSounds: true,
-  flickerEffect: true
+  flickerEffect: true,
+  visualPollution: 50,
 };
 
 export function loadSettings() {

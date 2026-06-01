@@ -29,7 +29,7 @@ const initialState=()=>{
   lastDeathType:null,
   mythosLevel:0,currentChapter:'chapter_1',
   humanityScore:50,discoveredConclusions:[],
-  accessibilityOptions:{visual_distortion:'medium',flicker_control:'medium',pseudo_error_style:'immersive'},
+  accessibilityOptions:{visual_distortion:true,flicker_control:true,pseudo_error_style:'immersive'},
   activeBlessings:[],
   archetype:null,
   runMemory:[],
@@ -59,7 +59,12 @@ const initialState=()=>{
   _dayStartSan:null,
   _dayStartHp:null,
   _dayStartClueCount:null,
-  _dailyTrustGains:{}
+  _dailyTrustGains:{},
+  _visualPollution:50,
+  _actionHistory:[],
+  _todayEventTypes:[],
+  _recentEventIds:[],
+  eventCooldowns:{}
   };
   return ensureExtendedState(base);
 };
