@@ -9,7 +9,8 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
-    "@babel/preset-react": "^7.28.5"
+    "@babel/preset-react": "^7.28.5",
+    "terser": "^5.48.0"
   },
   "dependencies": {
     "@tauri-apps/cli": "^2.11.2"

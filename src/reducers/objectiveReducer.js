@@ -30,3 +30,73 @@ export function checkObjCompletion(objs, s) {
     return o;
   });
 }
+
+// === Critical Progress Guards (extracted from appHelpers.js) ===
+// P0-3: Prevent players from getting permanently stuck on clue chains.
+
+const CRITICAL_PROGRESS_GUARDS = [
+  {
+    id: 'guard_harbor_chain', deadlineDay: 6,
+    requiredClues: ['clue_1_1', 'clue_1_2', 'clue_1_3'], chainId: 'chain_harbor',
+    minCluesNeeded: 1, fallbackArea: 'harbor_district',
+    fallbackNarrative: '你在码头边徘徊，注意到一张被海浪冲上岸的纸片。上面的字迹已经被海水模糊，但你依稀能辨认出几个数字和一个名字。',
+    fallbackClueHint: 'clue_1_1', guardFlag: 'guard_harbor_chain_fired'
+  },
+  {
+    id: 'guard_lighthouse_signal', deadlineDay: 10,
+    requiredClues: ['clue_2_1', 'clue_2_2'], chainId: 'chain_lighthouse',
+    minCluesNeeded: 1, fallbackArea: 'lighthouse',
+    fallbackNarrative: '你安全屋的窗户突然发出一阵震动。远处灯塔的光在浓雾中划出一道异常的轨迹——三短、三长、三短。你把这个图案记了下来。',
+    fallbackClueHint: 'clue_2_1', guardFlag: 'guard_lighthouse_signal_fired'
+  },
+  {
+    id: 'guard_morris_chain', deadlineDay: 8,
+    requiredClues: ['clue_m_1', 'clue_m_2', 'clue_m_3'], chainId: 'chain_morris',
+    minCluesNeeded: 1, fallbackArea: 'voxchester_manor',
+    fallbackNarrative: '你翻阅旧笔记时，一张泛黄的便签从笔记本里滑落。上面是莫里斯家族的族谱碎片——至少给你指了一个方向。',
+    fallbackClueHint: 'clue_m_1', guardFlag: 'guard_morris_chain_fired'
+  },
+  {
+    id: 'guard_heretical_chain', deadlineDay: 7,
+    requiredClues: ['clue_h_1', 'clue_h_2', 'clue_h_3'], chainId: 'chain_heretical',
+    minCluesNeeded: 1, fallbackArea: 'town_center',
+    fallbackNarrative: '教堂的钟声在凌晨三点响起。不是十三声——只有三声。你记下了钟声的节奏，它似乎在传达某种信息。',
+    fallbackClueHint: 'clue_h_1', guardFlag: 'guard_heretical_chain_fired'
+  }
+];
+
+function getForcedProgressGuard(state, ctx) {
+  const day = state.day || 1;
+  const clues = state.clues || [];
+  const triggered = state.triggeredEvents || [];
+  for (const guard of CRITICAL_PROGRESS_GUARDS) {
+    if (triggered.includes(guard.guardFlag)) continue;
+    if (day > guard.deadlineDay) continue;
+    if ((state.completedChains || []).includes(guard.chainId)) continue;
+    const foundCount = guard.requiredClues.filter(c => hasClueId(clues, c)).length;
+    if (foundCount >= guard.minCluesNeeded) continue;
+    const daysUntilDeadline = guard.deadlineDay - day;
+    if (daysUntilDeadline > 2) continue;
+    const fireProbability = daysUntilDeadline <= 0 ? 0.9 : daysUntilDeadline === 1 ? 0.6 : 0.3;
+    if (Math.random() >= fireProbability) continue;
+    return guard;
+  }
+  return null;
+}
+
+function executeForcedProgressGuard(guard, state, narr) {
+  if (!state.triggeredEvents.includes(guard.guardFlag)) {
+    state.triggeredEvents.push(guard.guardFlag);
+  }
+  narr('system', guard.fallbackNarrative, { isSpecial: true });
+  const missingClues = guard.requiredClues.filter(c => !hasClueId(state.clues, c));
+  if (missingClues.length > 0) {
+    const hintClue = guard.fallbackClueHint || missingClues[0];
+    if (!hasClueId(state.clues, hintClue)) {
+      state.clues.push(hintClue);
+      narr('system', '（你将这条信息记录在了笔记本上。）', { isSpecial: true });
+    }
+  }
+  state.san = Math.max(0, (state.san || 0) - 1);
+  narr('system', 'SAN -1', { isEffect: true });
+}

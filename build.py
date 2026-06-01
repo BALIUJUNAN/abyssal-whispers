@@ -117,6 +117,8 @@ REDUCER_FILES = [
     # Game utilities (must precede app.jsx)
     'utils/clueNameMap.js',
     'utils/gameHelpers.js',
+    'utils/trustGates.js',          # NPC trust gate logic (extracted from appHelpers.js)
+    'utils/npcMemory.js',           # NPC loop memory data (extracted from appHelpers.js)
     'utils/errorTracker.js',  # Error tracker for player operation logging & bug reports
     'state/initialState.js',
     # Phase 2: App-level helper functions extracted from app.jsx
@@ -132,7 +134,10 @@ REDUCER_FILES = [
     'components/SanPollutionLayer.jsx',  # Unified SAN visual corruption canvas + CorruptibleChoice
     'components/GameCommon.jsx',     # StatBar, Modal, CollapsibleSection, NarrativeBlock
     'components/GameScreens.jsx',    # PrologueScreen, SurvivalGuide, CharCreation
-    'components/GamePanels.jsx',     # LeftPanel, CenterPanel, NPCDialog, RightPanel, CitySketchMap, EndingScreen, GameHeader
+    'data/mapConstants.js',          # Map layout/edges/zones (extracted from appHelpers.js)
+    'components/NPCDialog.jsx',      # NPC dialog sub-component (extracted from GamePanels.jsx)
+    'components/CitySketchMap.jsx',  # City sketch map sub-component (extracted from GamePanels.jsx)
+    'components/GamePanels.jsx',     # LeftPanel, CenterPanel, RightPanel, EndingScreen, GameHeader
     'components/GameModals.jsx',     # SettingsModal, SaveLoadModal, AchievementGallery
     # UI components (pre-existing)
     'components/TitleScreen.jsx',
@@ -257,6 +262,28 @@ def bundle_reducers():
     return '\n'.join(parts)
 
 
+def minify_css(css):
+    """Minify CSS: strip comments, collapse whitespace, remove unnecessary semicolons."""
+    import re
+    original_len = len(css)
+    css = re.sub(r'/\*.*?\*/', '', css, flags=re.DOTALL)
+    css = re.sub(r'\s*\n\s*', '', css)
+    css = re.sub(r'  +', ' ', css)
+    css = re.sub(r'\s*{\s*', '{', css)
+    css = re.sub(r'\s*}\s*', '}', css)
+    css = re.sub(r'\s*:\s*', ':', css)
+    css = re.sub(r'\s*;\s*', ';', css)
+    css = re.sub(r'\s*,\s*', ',', css)
+    css = re.sub(r'\s*>\s*', '>', css)
+    css = re.sub(r'\s*\+\s*', '+', css)
+    css = re.sub(r'\s*~\s*', '~', css)
+    css = re.sub(r';}', '}', css)
+    css = css.strip()
+    ratio = len(css) / original_len * 100 if original_len > 0 else 100
+    print(f'  Minified CSS: {original_len:,} -> {len(css):,} bytes ({ratio:.1f}%)')
+    return css
+
+
 def minify_js(code):
     """Minify JavaScript using terser (preferred) or basic regex fallback.
 
@@ -374,6 +401,8 @@ def build(use_babel=True):
     # Read source files
     template = read_file(TEMPLATE_PATH)
     css = read_file(CSS_PATH)
+    print('Minifying CSS...')
+    css = minify_css(css)
     react_js = read_file(REACT_PATH)
     reactdom_js = read_file(REACTDOM_PATH)
     babel_js = read_file(BABEL_PATH) if os.path.exists(BABEL_PATH) else ''
@@ -417,7 +446,17 @@ def build(use_babel=True):
         # Production build: precompiled JSX, no Babel standalone
         # Minify JS for smaller output
         print('Minifying JS...')
-        compiled_js = minify_js(compiled_js)
+        # Skip terser for large bundles (inline JSON data causes terser overhead)
+        if len(compiled_js) > 800_000:
+            import re as _re
+            _orig = len(compiled_js)
+            compiled_js = _re.sub(r'(?<!:)//[^\n]*', '', compiled_js)
+            compiled_js = _re.sub(r'/\*.*?\*/', '', compiled_js, flags=_re.DOTALL)
+            compiled_js = _re.sub(r'\n\s*\n', '\n', compiled_js)
+            compiled_js = _re.sub(r'  +', ' ', compiled_js)
+            print(f'  Basic minification: {_orig:,} -> {len(compiled_js):,} bytes ({len(compiled_js)/_orig*100:.1f}%)')
+        else:
+            compiled_js = minify_js(compiled_js)
         html = template.replace('__INLINE_REACT__', react_js)
         html = html.replace('__INLINE_REACTDOM__', reactdom_js)
         html = html.replace('__INLINE_CSS__', css)
