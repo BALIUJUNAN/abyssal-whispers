@@ -1,6 +1,11 @@
 {
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "dev:legacy": "python build.py --no-babel",
+    "build": "python build.py",
+    "build:vite": "vite build",
+    "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
@@ -10,7 +15,9 @@
   "devDependencies": {
     "@babel/cli": "^7.28.6",
     "@babel/preset-react": "^7.28.5",
-    "terser": "^5.48.0"
+    "@vitejs/plugin-react": "^6.0.2",
+    "terser": "^5.48.0",
+    "vite": "^8.0.16"
   },
   "dependencies": {
     "@tauri-apps/cli": "^2.11.2"
