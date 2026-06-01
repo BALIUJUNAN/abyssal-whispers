@@ -218,16 +218,10 @@ function App(){
     errorTracker.record(action, stateRef.current);
     return rawDispatch(action);
   }, []);
-  const [settings,setSettings]=useState(loadSettings);
-  const [settingsOpen,setSettingsOpen]=useState(false);
-  const [saveLoadOpen,setSaveLoadOpen]=useState(false);
-  const [saveLoadMode,setSaveLoadMode]=useState('save');
-  const [achOpen,setAchOpen]=useState(false);
-  const [ugcOpen,setUgcOpen]=useState(false);
-  const [toasts,setToasts]=useState([]);
-  const [saveTick,setSaveTick]=useState(0);
-  const savedExists = useMemo(()=>hasSave(),[saveTick]);
-  const notifySave=(msg,type)=>{setSaveTick(t=>t+1);setToasts(prev=>[...prev,{id:'save_'+Date.now(),type:type||'save',def:{icon:type==='load'?'📖':'💾',name:msg||'已存档',desc:''},key:Date.now()}]);};
+  // UI state from external store (replaces 7 useState calls)
+  const ui = uiStore();
+  const settings = ui.settings || getSettings();
+  const savedExists = useMemo(()=>hasSave(),[ui.saveTick]);
 
   // Achievement checking
   useEffect(()=>{
@@ -253,9 +247,12 @@ function App(){
     audioManager.suddenMuted=!settings.suddenSounds;
     dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion',value:!!settings.visualDistortion});
     dispatch({type:'ACCESSIBILITY_TOGGLE',key:'flicker_control',value:!!settings.flickerEffect});
-    // Store visual pollution intensity in game state for slice access
     dispatch({type:'SET_META_FIELD',field:'_visualPollution',value:settings.visualPollution??50});
   },[settings]);
+
+  const handleSettingsChange=(s)=>updateSettings(s);
+  const fontSizeClass='narrative-size-'+settings.narrativeFontSize;
+  const handleLoadSlot=(loaded)=>{dispatch({type:'CONTINUE_GAME', savedState: loaded});notifySave('从存档中醒来','load');};
 
   // 结局CG预加载：SAN < 30 时静默预加载，暗示结局临近
   useEffect(()=>{if(state.screen==='game'&&state.san<30)preloadEndingCGs();},[state.san,state.screen]);
@@ -272,22 +269,17 @@ function App(){
 
   // SAN visual corruption: now handled by <SanPollutionLayer> component (see render below)
 
-  const handleSettingsChange=(s)=>{saveSettings(s);setSettings(s);};
-  const fontSizeClass='narrative-size-'+settings.narrativeFontSize;
-
-  const handleLoadSlot=(loaded)=>{dispatch({type:'CONTINUE_GAME', savedState: loaded});notifySave('从存档中醒来','load');};
-
   if(state.screen==='title')return <>
     <TitleScreen
       onStart={()=>dispatch({type:'START_GAME'})}
       saveExists={savedExists}
-      onContinue={()=>{setSaveLoadMode('load');setSaveLoadOpen(true);}}
-      onSettingsOpen={()=>setSettingsOpen(true)}
-      onAchOpen={()=>setAchOpen(true)}
+      onContinue={()=>{uiStore.setState({saveLoadMode:'load',saveLoadOpen:true});}}
+      onSettingsOpen={()=>uiStore.setState({settingsOpen:true})}
+      onAchOpen={()=>uiStore.setState({achOpen:true})}
     />
-    <SettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>setAchOpen(true)}/>
-    <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={null} onLoad={handleLoadSlot} mode="load" onSaved={notifySave}/>
-    <AchievementGallery open={achOpen} onClose={()=>setAchOpen(false)}/>
+    <SettingsModal open={ui.settingsOpen} onClose={()=>uiStore.setState({settingsOpen:false})} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>uiStore.setState({achOpen:true})}/>
+    <SaveLoadModal open={ui.saveLoadOpen} onClose={()=>uiStore.setState({saveLoadOpen:false})} state={null} onLoad={handleLoadSlot} mode="load" onSaved={notifySave}/>
+    <AchievementGallery open={ui.achOpen} onClose={()=>uiStore.setState({achOpen:false})}/>
   </>;
   if(state.screen==='prologue')return <>
     <PrologueScreen state={state} dispatch={dispatch}/>
@@ -304,17 +296,17 @@ function App(){
     <SanPollutionLayer san={state.san} loopCount={state.loopCount} corruption={state.safehouseCorruption||0} enabled={state.screen==='game' && allowVisualFX} intensity={settings.visualPollution??50}/>
     <AbyssPopup san={state.san}/>
     <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+' '+fontSizeClass}>
-      <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>setSettingsOpen(true)} onUgcOpen={()=>setUgcOpen(true)} onSaveOpen={()=>{setSaveLoadMode('save');setSaveLoadOpen(true);}}/>
+      <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>uiStore.setState({settingsOpen:true})} onUgcOpen={()=>uiStore.setState({ugcOpen:true})} onSaveOpen={()=>{uiStore.setState({saveLoadMode:'save',saveLoadOpen:true});}}/>
       <LeftPanel state={state}/>
       <CenterPanel state={state} dispatch={dispatch}/>
       <RightPanel state={state} dispatch={dispatch}/>
     </div>
-    <SettingsModal open={settingsOpen} onClose={()=>setSettingsOpen(false)} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>setAchOpen(true)}/>
-    <SaveLoadModal open={saveLoadOpen} onClose={()=>setSaveLoadOpen(false)} state={state} onLoad={handleLoadSlot} mode={saveLoadMode} onSaved={notifySave}/>
-    <AchievementGallery open={achOpen} onClose={()=>setAchOpen(false)}/>
-    {ugcOpen&&<Modal open={ugcOpen} onClose={()=>setUgcOpen(false)} title="模组管理" width="720px"><UgcPanel onClose={()=>setUgcOpen(false)} GD={GD}/></Modal>}
-    {toasts.length>0&&<div className="achievement-toast-container">
-      {toasts.map(t=><AppToast key={t.key} toast={t} onDismiss={()=>setToasts(prev=>prev.filter(x=>x.key!==t.key))}/>)}
+    <SettingsModal open={ui.settingsOpen} onClose={()=>uiStore.setState({settingsOpen:false})} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>uiStore.setState({achOpen:true})}/>
+    <SaveLoadModal open={ui.saveLoadOpen} onClose={()=>uiStore.setState({saveLoadOpen:false})} state={state} onLoad={handleLoadSlot} mode={ui.saveLoadMode} onSaved={notifySave}/>
+    <AchievementGallery open={ui.achOpen} onClose={()=>uiStore.setState({achOpen:false})}/>
+    {ui.ugcOpen&&<Modal open={ui.ugcOpen} onClose={()=>uiStore.setState({ugcOpen:false})} title="模组管理" width="720px"><UgcPanel onClose={()=>uiStore.setState({ugcOpen:false})} GD={GD}/></Modal>}
+    {ui.toasts.length>0&&<div className="achievement-toast-container">
+      {ui.toasts.map(t=><AppToast key={t.key} toast={t} onDismiss={()=>removeUiToast(t.key)}/>)}
     </div>}
   </>;
 }

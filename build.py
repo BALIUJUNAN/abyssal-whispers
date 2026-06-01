@@ -117,6 +117,7 @@ REDUCER_FILES = [
     'utils/gameHelpers.js',
     'utils/trustGates.js',          # NPC trust gate logic (extracted from appHelpers.js)
     'utils/npcMemory.js',           # NPC loop memory data (extracted from appHelpers.js)
+    'utils/uiStore.js',             # External UI store (Zustand-like pattern)
     'utils/errorTracker.js',  # Error tracker for player operation logging & bug reports
     'state/initialState.js',
     # Phase 2: App-level helper functions extracted from app.jsx
