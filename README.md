@@ -415,16 +415,16 @@ $ node check_build.cjs --dist   # 额外检查 dist/ 目录结构
 
 ## 代码质量
 
-> 2026-05-31 四维度全面审查结果（主循环/状态管理、事件系统、子系统集成、构建流程）
+> 2026-05-31 ~ 06-01 四维度全面审查 + 复查结果（主循环/状态管理、事件系统、子系统集成、构建流程）
 
-### 综合评分：**7.5 / 10**
+### 综合评分：**7.8 / 10**（初评 7.5 → 修复后 +0.3）
 
-| 维度 | 评分 | 状态 |
-|------|------|------|
-| **主循环 & Reducer** | 6.5/10 | ⚠️ 有2处未定义引用需确认 |
-| **事件系统** | 7.5/10 | ✅ 620+事件，双层调度器完善 |
-| **子系统** | 7.0/10 | ✅ SAN/死亡/轮回/存档完整 |
-| **构建流程** | 8.0/10 | ✅ 10/10 PASS，产物完整 |
+| 维度 | 初评 | 复评 | 状态 |
+|------|------|------|------|
+| **主循环 & Reducer** | 6.5/10 | **7.8/10** | ✅ loopReducer/dispatch/progressGuard 已修 |
+| **事件系统** | 7.5/10 | **7.8/10** | ✅ getDistortionVariant 确认存在（初评误报） |
+| **子系统** | 7.0/10 | **8.0/10** | ✅ UI阈值对齐/clueNameMap失效/进度守卫 已修 |
+| **构建流程** | 8.0/10 | **8.0/10** | ✅ gitignore 完善（41行） |
 
 ### 架构优势
 
@@ -434,18 +434,29 @@ $ node check_build.cjs --dist   # 额外检查 dist/ 目录结构
 - ✅ **Error Tracker 可插拔** — 测试期模块，`// [TRACKER]` 标记，3 步即可完全移除
 - ✅ **构建验证自动化** — `check_build.cjs` 10 项检查，每次构建自动校验
 - ✅ **TDZ 问题根治** — 惰性求值模式解决 build.py 的依赖排序问题
+- ✅ **三层事件调度** — eventSystemV2.js 实现里程碑/行为权重/冷却衰减
 
-### 已知问题（不影响主线游玩）
+### v0.1.1-post 修复记录
 
-| # | 问题 | 严重度 | 说明 |
+| # | 问题 | 优先级 | 状态 |
 |---|------|--------|------|
-| 1 | loopReducer `setCorruptionFlag(s)` 应为 `(f)` | 🟡 中 | 对旧 state 设 flag 被丢弃，矛盾检测失效 |
-| 2 | UI 腐蚀层阈值与 SAN 阶段不对应 | 🟡 低 | 两套系统独立运行，体验轻微割裂 |
-| 3 | clueNameMap 缓存无失效策略 | 🟡 低 | 动态加载 UGC 后缓存不刷新 |
-| 4 | 旧版 `selectEvent()` 仍在 export | 🟡 低 | 新旧双路径并存，扩展字段可能遗漏 |
-| 5 | .gitignore 缺 `_temp_*` 规则 | 🟢 微 | 临时文件已清理，但规则不完整 |
+| 1 | ~~`getDistortedVariant` 未定义~~ | P0 | **🗑️ 误报删除** — 实际函数名 `getDistortionVariant`（eventSystemV2.js:87），定义+调用+构建产物三者一致 |
+| 2 | ~~`CRITICAL_PROGRESS_GUARDS` 未定义~~ | P0 | ✅ 已定义 3 条守卫规则（码头Day6/庄园Day21/墓穴Day24） |
+| 3 | ~~loopReducer `setCorruptionFlag(s)` 写错对象~~ | P0 | ✅ 一行修复 s→f，矛盾检测恢复工作 |
+| 4 | ~~UI 腐蚀层与 SAN 阶段语义错位~~ | P1 | ✅ 阈值统一为 5/10/30/50 |
+| 5 | ~~旧版 `selectEvent()` 无废弃标记~~ | P1 | ✅ @deprecated + console.error |
+| 6 | ~~clueNameMap 缓存无失效策略~~ | P1 | ✅ 新增 invalidateClueNameCache() |
+| 7 | ~~`.gitignore` 规则不完整~~ | P1 | ✅ 从 5 行扩展至 41 行 |
+| 8 | ~~dispatch 闭包 state 滞后~~ | P2 | ✅ 改用 useRef 模式 |
+| 9 | `const acts` REST case 重复声明 | P2 | ⚠️ 待修（同作用域 SyntaxError 风险） |
 
-> 以上问题均非阻塞性 bug，计划在 v0.2.0 迭代中逐步修复。
+### 剩余已知问题（均非阻塞）
+
+| # | 问题 | 说明 | 计划 |
+|---|------|------|------|
+| A | `const acts` 重复声明 | REST case 内两处同作用域 const，可能触发 SyntaxError | v0.1.2 修复 |
+| B | meta 事件仅在 town_center 触发 | 36 个 meta 事件 areas 全部为 ["town_center"] | 设计决策 or 扩展分配 |
+| C | applyLegacyEffects 静默丢失风险 | 事件简写格式绕过 adapter 则效果消失无提示 | 未来迁移标准格式时处理 |
 
 ---
 
