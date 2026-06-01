@@ -70,7 +70,7 @@ REDUCER_FILES = [
     # DEPENDENCY: requires eventSystemV2.js + resourceNarrative.js (above) for weight functions
     'reducers/extendedEvents.js',
     'reducers/eventReducer.js',
-    'reducers/safehouseReducer.js',
+    'reducers/miscReducer.js',       # Merged: safehouseReducer + itemReducer + settingsReducer
     'data/descriptionTemplates.js',  # MUST be before events_*.js files that import DESC
     'data/events_loop.js',
     'data/events_humanity.js',
@@ -92,12 +92,10 @@ REDUCER_FILES = [
     'utils/buildEventPool.js',
     'reducers/extendedEventsInit.js',
     'reducers/effectReducer.js',
-    'reducers/itemReducer.js',
     'reducers/endingReducer.js',
     'reducers/objectiveReducer.js',
     'reducers/saveMigration.js',
     'reducers/saveReducer.js',
-    'reducers/settingsReducer.js',
     'reducers/achievementReducer.js',
     'reducers/loopReducer.js',
     'reducers/chapterReducer.js',
