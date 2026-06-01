@@ -31,6 +31,11 @@ TEMPLATE_PATH = os.path.join(SRC, 'index.template.html')
 CSS_PATH = os.path.join(SRC, 'styles.css')
 JSX_PATH = os.path.join(SRC, 'app.jsx')
 DATA_PATH = os.path.join(SRC, 'game_data.json')
+# Phase 1: Split JSON sources (merged at build time, served separately for lazy loading)
+DATA_DIR = os.path.join(SRC, 'data')
+DATA_BASE_PATH = os.path.join(DATA_DIR, 'game_base.json')
+DATA_CH2PLUS_PATH = os.path.join(DATA_DIR, 'game_ch2plus.json')
+DATA_META_PATH = os.path.join(DATA_DIR, 'game_meta.json')
 REDUCERS_DIR = os.path.join(SRC, 'reducers')
 VENDOR_DIR = os.path.join(SRC, 'vendor')
 REACT_PATH = os.path.join(VENDOR_DIR, 'react.production.min.js')
@@ -45,6 +50,14 @@ REDUCER_FILES = [
     'reducers/utils.js',
     'reducers/worldReducer.js',
     'reducers/sanReducer.js',
+    # Phase 4: Three-layer event selection (must precede extendedEvents.js)
+    'systems/eventSystemV2.js',
+    # Phase 5: World decay and corruption advancement
+    'systems/worldDecay.js',
+    # Phase 6: Resource-narrative binding + safehouse visual stages
+    'systems/resourceNarrative.js',
+    # Phase 7: NPC multi-version dialogue + loop inheritance
+    'systems/npcDialogue.js',
     'data/events_missing_600.js',
     'data/events_omens_600.js',
     'reducers/extendedEvents.js',
@@ -87,6 +100,9 @@ REDUCER_FILES = [
     'data/prologue_events.js',
     'systems/fearProfile.js',
     'systems/fearLens.js',
+    # Phase 3: SAN visual + logic corruption
+    'systems/sanVisualCorruption.js',
+    'systems/logicCorruption.js',
     'reducers/prologueReducer.js',
     # Audio system
     'managers/AudioManager.js',
@@ -95,7 +111,15 @@ REDUCER_FILES = [
     'utils/gameHelpers.js',
     'utils/errorTracker.js',  # Error tracker for player operation logging & bug reports
     'state/initialState.js',
-    # UI components
+    # Phase 2: App-level helper functions extracted from app.jsx
+    'utils/appHelpers.js',
+    # Phase 2: UI components extracted from app.jsx
+    'components/SanPollutionLayer.jsx',  # Unified SAN visual corruption canvas + CorruptibleChoice
+    'components/GameCommon.jsx',     # StatBar, Modal, CollapsibleSection, NarrativeBlock
+    'components/GameScreens.jsx',    # PrologueScreen, SurvivalGuide, CharCreation
+    'components/GamePanels.jsx',     # LeftPanel, CenterPanel, NPCDialog, RightPanel, CitySketchMap, EndingScreen, GameHeader
+    'components/GameModals.jsx',     # SettingsModal, SaveLoadModal, AchievementGallery
+    # UI components (pre-existing)
     'components/TitleScreen.jsx',
     'components/AppToast.jsx',
     # UGC UI component
@@ -156,8 +180,11 @@ def strip_es_modules(code):
         r"^export\s+default\s+", '', code, flags=re.MULTILINE
     )
     # 7) Remove export keyword from declarations (export const → const)
+    #    Also handles: export async function → async function
+    #                  export default function → function
+    #                  export default async function → async function
     code = re.sub(
-        r"^export\s+(?=const |let |var |function |class )",
+        r"^export\s+(?:default\s+)?(?=async\s+(?:function|class)|const |let |var |function |class )",
         '', code, flags=re.MULTILINE
     )
     # 8) Convert React destructuring to var (avoid duplicate const with app.jsx)
@@ -215,6 +242,44 @@ def bundle_reducers():
     return '\n'.join(parts)
 
 
+def minify_js(code):
+    """Minify JavaScript using terser (preferred) or basic regex fallback.
+
+    Tries npx terser first for proper minification.
+    Falls back to stripping comments and excess whitespace if terser is unavailable.
+    """
+    import shutil
+    npx_cmd = 'npx.cmd' if sys.platform == 'win32' else 'npx'
+
+    # Try terser via npx
+    if shutil.which(npx_cmd):
+        try:
+            result = subprocess.run(
+                [npx_cmd, '--no-install', 'terser', '--compress', 'drop_console=true,passes=2', '--mangle'],
+                input=code, capture_output=True, text=True, timeout=60, encoding='utf-8'
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                ratio = len(result.stdout) / len(code) * 100 if len(code) > 0 else 0
+                print(f'  Minified with terser: {len(code):,} → {len(result.stdout):,} bytes ({ratio:.1f}%)')
+                return result.stdout
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            pass
+
+    # Fallback: basic minification — strip single-line comments, collapse whitespace
+    import re
+    original_len = len(code)
+    # Remove single-line // comments (but not URLs http:// or strings)
+    code = re.sub(r'(?<!:)//[^\n]*', '', code)
+    # Remove /* ... */ block comments
+    code = re.sub(r'/\*.*?\*/', '', code, flags=re.DOTALL)
+    # Collapse multiple newlines/spaces
+    code = re.sub(r'\n\s*\n', '\n', code)
+    code = re.sub(r'  +', ' ', code)
+    ratio = len(code) / original_len * 100 if original_len > 0 else 100
+    print(f'  Basic minification: {original_len:,} -> {len(code):,} bytes ({ratio:.1f}%)')
+    return code
+
+
 def compile_jsx_with_babel(jsx_code):
     """Try to compile JSX using Babel CLI. Returns compiled JS or None on failure."""
     # On Windows, subprocess needs .cmd extension for node tools
@@ -248,18 +313,63 @@ def compile_jsx_with_babel(jsx_code):
                 os.unlink(p)
 
 
+def load_and_merge_split_json():
+    """Load game data from split JSON files (Phase 1) or fall back to monolithic file.
+
+    Split files:
+      game_base.json    — core metadata, ch1 events, areas, npcs, items, shops, chains
+      game_ch2plus.json — ch2-ch5 events, endings, ending_judgement
+      game_meta.json    — implementation_notes, deprecated_endings_archive
+
+    Returns the merged dict.
+    """
+    # Try split files first
+    if (os.path.exists(DATA_BASE_PATH) and
+            os.path.exists(DATA_CH2PLUS_PATH) and
+            os.path.exists(DATA_META_PATH)):
+        base = json.loads(read_file(DATA_BASE_PATH))
+        ch2plus = json.loads(read_file(DATA_CH2PLUS_PATH))
+        meta = json.loads(read_file(DATA_META_PATH))
+
+        # Merge: base has everything except ch2+ events and meta-only keys
+        merged = {**base}
+        # Merge events: base events + ch2+ events
+        merged['events'] = (base.get('events', []) or []) + (ch2plus.get('events', []) or [])
+        # Merge endings and ending_judgement from ch2plus
+        for k in ('endings', 'ending_judgement'):
+            if k in ch2plus:
+                merged[k] = ch2plus[k]
+        # Merge meta keys
+        for k in ('implementation_notes', 'deprecated_endings_archive'):
+            if k in meta:
+                merged[k] = meta[k]
+
+        print(f'  Loaded split JSON: base={os.path.getsize(DATA_BASE_PATH):,} + '
+              f'ch2plus={os.path.getsize(DATA_CH2PLUS_PATH):,} + '
+              f'meta={os.path.getsize(DATA_META_PATH):,} bytes')
+        print(f'  Merged events: {len(merged.get("events", []))} total')
+        return merged
+
+    # Fallback: monolithic file
+    print(f'  Split JSON not found, falling back to {DATA_PATH}')
+    return json.loads(read_file(DATA_PATH))
+
+
 def build(use_babel=True):
     # Read source files
     template = read_file(TEMPLATE_PATH)
     css = read_file(CSS_PATH)
-    game_data_raw = read_file(DATA_PATH)
     react_js = read_file(REACT_PATH)
     reactdom_js = read_file(REACTDOM_PATH)
     babel_js = read_file(BABEL_PATH) if os.path.exists(BABEL_PATH) else ''
 
+    # Load game data (split or monolithic)
+    print('Loading game data...')
+    game_data_dict = load_and_merge_split_json()
+
     # Compact game data
     game_data = json.dumps(
-        json.loads(game_data_raw),
+        game_data_dict,
         ensure_ascii=False,
         separators=(',', ':')
     )
@@ -290,6 +400,9 @@ def build(use_babel=True):
 
     if compiled_js:
         # Production build: precompiled JSX, no Babel standalone
+        # Minify JS for smaller output
+        print('Minifying JS...')
+        compiled_js = minify_js(compiled_js)
         html = template.replace('__INLINE_REACT__', react_js)
         html = html.replace('__INLINE_REACTDOM__', reactdom_js)
         html = html.replace('__INLINE_CSS__', css)
@@ -312,14 +425,38 @@ def build(use_babel=True):
 
     write_file(OUTPUT, html)
 
+    # Phase 1: Copy split JSON files alongside index.html for web lazy loading
+    # These are only used when serving via HTTP (not Tauri single-file mode)
+    output_dir = os.path.dirname(OUTPUT)
+    split_files_copied = 0
+    for src_path, out_name in [
+        (DATA_BASE_PATH, 'game_base.json'),
+        (DATA_CH2PLUS_PATH, 'game_ch2plus.json'),
+        (DATA_META_PATH, 'game_meta.json'),
+    ]:
+        if os.path.exists(src_path):
+            import shutil
+            dest = os.path.join(output_dir, out_name)
+            shutil.copy2(src_path, dest)
+            split_files_copied += 1
+    if split_files_copied > 0:
+        print(f'  Copied {split_files_copied} split JSON files for web lazy loading')
+
     # Report (use byte counts for accurate file sizes with CJK text)
     size = os.path.getsize(OUTPUT)
+    has_babel_standalone = 'babel.min.js' in html or 'text/babel' in html
     print(f'\nBuild complete: {OUTPUT}')
     print(f'  Output size: {size:,} bytes ({size / 1024:.1f} KB)')
     print(f'  Game data:   {len(game_data.encode("utf-8")):,} bytes')
     print(f'  CSS:         {len(css.encode("utf-8")):,} bytes')
     print(f'  JS:          {len((compiled_js or js_with_data).encode("utf-8")):,} bytes')
     print(f'  Babel used:  {"yes" if compiled_js else "no (standalone)"}')
+    if has_babel_standalone:
+        print(f'\n  [!] WARNING: Babel standalone is included in output ({size/1024:.0f} KB).')
+        print(f'    This adds ~800KB. Install @babel/cli for production builds:')
+        print(f'    npm install --save-dev @babel/cli @babel/preset-react')
+    else:
+        print(f'  [OK] Production build: no Babel standalone in output')
 
 
 def test_strip_es_modules():
@@ -376,6 +513,18 @@ def test_strip_es_modules():
             "const B = 1",
             "import"
         ),
+        # Phase 1: export async function
+        (
+            "export async function loadChapterData() { return 1; }\n",
+            "async function loadChapterData",
+            "export"
+        ),
+        # export default async function
+        (
+            "export default async function main() { await 1; }\n",
+            "async function main",
+            "export"
+        ),
     ]
     passed = 0
     for i, (inp, exp_contains, exp_not) in enumerate(tests):
@@ -400,5 +549,22 @@ if __name__ == '__main__':
         print("Running strip_es_modules tests...")
         ok = test_strip_es_modules()
         sys.exit(0 if ok else 1)
+    if '--verify' in sys.argv:
+        # Quick check: does current index.html include Babel standalone?
+        html = read_file(OUTPUT)
+        has_babel = 'babel.min.js' in html or 'text/babel' in html
+        size = os.path.getsize(OUTPUT)
+        print(f'index.html: {size:,} bytes ({size/1024/1024:.1f} MB)')
+        if has_babel:
+            print('[!] Babel standalone detected in output. Run: python build.py')
+        else:
+            print('[OK] No Babel standalone in output (production build)')
+        sys.exit(0)
     use_babel = '--no-babel' not in sys.argv
+    prod_require_compiled = '--prod' in sys.argv
     build(use_babel)
+    if prod_require_compiled:
+        html = read_file(OUTPUT)
+        if 'text/babel' in html or 'babel.min.js' in html:
+            print('\n[FAIL] --prod: Babel standalone found in output. Aborting.', file=sys.stderr)
+            sys.exit(1)

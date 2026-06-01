@@ -1,5 +1,6 @@
 // src/utils/clueNameMap.js — 线索 ID → 可读名称映射（惰性求值版）
 let _cache = null;
+function invalidateClueNameCache() { _cache = null; }
 function getClueNameMap() {
   if (_cache) return _cache;
   const m = {};

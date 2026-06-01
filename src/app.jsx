@@ -17,7 +17,7 @@ import { checkConclusions, checkFalseInterpretations } from './reducers/conclusi
 import { checkEnding } from './reducers/endingReducer.js';
 import { checkNPCCorruption, applyNPCCorruption, setCorruptionFlag } from './reducers/npcReducer.js';
 import { selectEventV2, checkTriggerExtended, resetDailyCategoryCounts, buildPreviousRunSummary, applyExtendedEffect, getEligibleEvents, chooseWeightedEvent, commitSelectedEvent, getEventWeight } from './reducers/extendedEvents.js';
-import { ensureExtendedState, mergeExtendedEvents } from './reducers/extendedEventsLoader.js';
+import { ensureExtendedState, mergeExtendedEvents, loadChapterData } from './reducers/extendedEventsLoader.js';
 import { shouldTriggerMissing600, createMissing600Event } from './data/events_missing_600.js';
 import { checkOmens } from './data/events_omens_600.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
@@ -25,7 +25,7 @@ import { resolveDeath } from './reducers/deathSystem.js';
 import { PROLOGUE_EVENTS } from './data/prologue_events.js';
 import { initPrologueState, handlePrologueChoice, handleSkipPrologue, getPrologueEvent, getPrologueSceneOrder } from './reducers/prologueReducer.js';
 import { getFearEventWeightModifier, applyFearLens, getFearNpcLine, applyFearCorruption } from './systems/fearLens.js';
-import { initSanVisualOverlay, updateSanVisualOverlay, destroySanVisualOverlay } from './systems/sanVisualCorruption.js';
+// sanVisualCorruption.js replaced by SanPollutionLayer.jsx component
 import { applyTextHallucination, maybeGetFakeMessage, getChoiceDelay, maybeInsertFalseMemory, corruptEventWeights } from './systems/logicCorruption.js';
 import { UgcPanel } from './components/UgcImportExport.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
@@ -254,8 +254,7 @@ function gameReducer(state,action){
     s.screen='game';ensureMutableArrays();
     s.objectives=genObjectives(1,ctx);
     audioManager.playEffect('begin');audioManager.playAreaAmbient(s.currentArea||'town_center','morning');
-    // Phase 3: Init SAN visual corruption overlay
-    try{initSanVisualOverlay();}catch(e){}
+    // SAN visual corruption: now handled by SanPollutionLayer component (no init needed)
     s.currentChapter=getChapterForDay(s.day,ctx).key||'chapter_1';
     // Apply archetype NPC trust mods (P1-1)
     const archDef2=(GD.systems?.player?.archetypes||[]).find(a=>a.id===s.archetype);
@@ -499,39 +498,9 @@ function gameReducer(state,action){
       addRunMemory(s,'经历了临时疯狂——'+mad.name,'madness');
       audioManager.playEffect('madness');audioManager.playEffect('madness_loop');
     }
-    // --- Death resolution (unified) ---
-    {
-      const deathCtx = resolveDeath(s, evt, null);
-      if(deathCtx){
-        s.deathContext = deathCtx;
-        s.lastDeathType = deathCtx.type;
-        s.lastDeathMode = deathCtx.mode;
-        // Play death sound based on type
-        const HP_TYPES=['drowning','bleeding','infection','starvation','falling','darkness_taken','physical'];
-        const SAN_TYPES=['madness','possession','identity_erasure','mythos_absorption','loop_collapse','becomes_event','mental'];
-        if(HP_TYPES.includes(deathCtx.type))audioManager.playEffect('death_physical');
-        else if(SAN_TYPES.includes(deathCtx.type))audioManager.playEffect('death_mental');
-        else audioManager.playEffect('death_hybrid');
-        // Write death narrative
-        narr('death', deathCtx.finalText, { isSpecial: true });
-        // Build ending object
-        if(deathCtx.mode === 'hp'){
-          const failPhys=GD.implementation_notes?.failure_states?.failure_types?.physical_death;
-          s.ending={name:failPhys?.name||deathCtx.type,type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};
-        }else if(deathCtx.mode === 'san'){
-          const ending=checkEnding(s,ctx);
-          if(ending){s.ending={...ending,recap:buildDeathRecap(s,deathCtx)};}else{
-            const failMental=GD.implementation_notes?.failure_states?.failure_types?.mental_death;
-            s.ending={name:failMental?.name||deathCtx.type,type:'bad',description:deathCtx.finalText,permanent_pollution:failMental?.permanent_pollution||0,recap:buildDeathRecap(s,deathCtx)};
-          }
-        }else{
-          // hybrid
-          s.ending={name:'身心俱灭',type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};
-        }
-        addRunMemory(s, deathCtx.finalText.split('\n')[0], 'death');
-        if(!s.tutorialSeen.first_death)s.tutorialSeen={...s.tutorialSeen,first_death:true};
-      }
-    }
+    // --- Death resolution (unified via applyDeathResolution) ---
+    {const deathCtx = resolveDeath(s, evt, null);
+    if(deathCtx) applyDeathResolution(s, deathCtx, narr);}
     s.objectives=checkObjCompletion(s.objectives,s);
     // Event chain progress: check if triggered event advances a chain
     const chains=GD.event_chains||[];
@@ -653,74 +622,8 @@ function gameReducer(state,action){
       const fearLine=getFearNpcLine(npc.name,s);
       if(fearLine)narr('system',npc.name+'突然说："'+fearLine+'"');
     }
-    // NPC 记忆渐进深化系统（替代旧版 flat 25% 概率）
-    // 4 个记忆层级，概率递增，台词递深，Loop 10 触发行为变化
-    if(s.loopCount>=3){
-      const loop=s.loopCount;
-      // 每个 NPC 在不同循环深度的个性化台词
-      const NPC_MEMORY_LINES={
-        '玛莎·格雷':{
-          t1:['又来了……我是说，欢迎光临。','你上次来过。对吧？','你看起来很面熟。'],
-          t2:['你这次又住几天？','别点啤酒了。你上次没喝完。','你是不是……每个月都来一次？'],
-          t3:['这是第四次了。我不再问你了。','你要的房间一直空着。我没有给别人。','有些客人会回来。你是最执着的一个。'],
-          t4:['（她没有说话，只是把一杯没动过的酒推到你面前。）','（她看了你一眼，然后把你上次坐的椅子拉了出来。）']
-        },
-        '老费舍':{
-          t1:['你……又来了？','我好像在哪见过你。不是在岸上。','海会记住所有回来的人。'],
-          t2:['你身上的盐味更重了。','你比上次看起来更像一个水手了。','又是你。鱼都不惊讶了。'],
-          t3:['我不数了。反正你还会回来。','你是不是已经知道海底有什么了？','每次你来，潮汐都退得更早一些。'],
-          t4:['（他把你带到了码头尽头，指着水面。水面上映着你很多个倒影。）','（他把一个贝壳递给你。贝壳里传来你的声音——上一次的你。）']
-        },
-        '希尔达·莫里斯':{
-          t1:['你看起来……像是来过这个庄园。','走廊里的画像今天换了表情。你注意到了吗？','我们以前见过？你的步伐很熟悉。'],
-          t2:['你认识去书房的路。不用我带了。','你上次走的时候，有一扇窗户自己关上了。','你是不是知道地下室的秘密？你的眼神说你知道。'],
-          t3:['你是我见过的最执着的访客。或者说，最执着的回来者。','我把族谱放在了你知道的地方。不用谢。','你是唯一一个看过诅咒之后还回来的人。'],
-          t4:['（她站在门口等你。好像她一直知道你会在这个时间出现。）','（桌上已经放好了茶。两杯。你还没有敲门。）']
-        },
-        '伊莎贝拉·韦伯':{
-          t1:['你的眼神让我想起了一个梦。','教堂的蜡烛今天自己亮了。有人要来。','你……你不是第一次来这里。'],
-          t2:['你已经听过十三声钟响了。你还在。','你比大多数人都更接近真相。也更接近危险。','你上次问我的问题，我在你走之后想了很久。'],
-          t3:['我不再劝你离开了。因为我知道你不会听。','你每次来，圣坛上的十字架都会转一个角度。','你是被选中的。不是被神选中的——是被这个地方。'],
-          t4:['（她跪在圣坛前。你进来的时候，她没有抬头。她说："我知道你来了。坐下吧。"）','（她翻开了一本你从未见过的书。书的第一页写着你的名字。）']
-        },
-        '约书亚·布莱克':{
-          t1:['你……你看起来像是见过战场。或者见过比战场更糟的东西。','我在你身上闻到了重复的味道。','你又来了。我认得你的伤疤。'],
-          t2:['你走路的姿势变了。比上次更谨慎。','你上次差点死在那条巷子里。你以为我不知道？','你是不是在循环什么东西？你的眼神像困兽。'],
-          t3:['你是唯一一个让我觉得"回来"是一件可怕的事情的人。','我不问了。你告诉我该怎么做。','你这次要杀谁？或者，你要救谁？'],
-          t4:['（他坐在角落里擦枪。你进来的时候，他把枪放在了桌上——不是对着你，是给你。）','（他什么都没说。但他的眼神里有一种东西——不是恐惧，是认命。）']
-        },
-        '伊莱亚斯·沃德':{
-          t1:['你的存在本身就是一个悖论。你知道吗？','我在研究轮回理论。你的案例……很有趣。','你让我想起了一篇论文。关于时间的回文结构。'],
-          t2:['你的记忆保留率高于理论值。我们需要谈谈。','你已经读过了那些书。我能从你的沉默中听出来。','你来了。很好。我有一些新的发现需要验证。'],
-          t3:['你不再是一个调查者了。你是一个现象。','我把你的名字写进了研究笔记。不是作为案例——是作为合作者。','你是唯一一个能告诉我"上一次"发生了什么的人。'],
-          t4:['（他桌上放着一份手稿。标题是《论沃切斯特的第十三次钟声》。作者栏是空白的——但笔迹是你的。）','（他把你带到了一面镜子前。镜子里的你穿着不同年代的衣服。他问："你看到了几个自己？"）']
-        }
-      };
-      // 确定当前记忆层级和概率
-      let tier, probability;
-      if(loop>=10){ tier='t4'; probability=1.0; }
-      else if(loop>=8){ tier='t3'; probability=0.6; }
-      else if(loop>=5){ tier='t2'; probability=0.4; }
-      else{ tier='t1'; probability=0.25; }
-      const npcLines=NPC_MEMORY_LINES[npc.name];
-      if(npcLines&&npcLines[tier]&&Math.random()<probability){
-        narr('system',npc.name+'突然说："'+pick(npcLines[tier])+'"');
-      }
-      // Loop 10+：NPC 行为变化（不仅说话，还改变初始信任/交互）
-      if(loop>=10&&npcLines&&npcLines.t4){
-        const behaviorMemory=s._npcBehaviorMemory||{};
-        if(!behaviorMemory[npc.name]){
-          if(!s._npcBehaviorMemory)s._npcBehaviorMemory={};
-          s._npcBehaviorMemory={...s._npcBehaviorMemory,[npc.name]:true};
-          // 高循环 NPC 信任回响：免费 +1 信任（他们记得你）
-          const currentTrust=s.npcTrust[npc.name]||0;
-          if(currentTrust<3){
-            s.npcTrust={...s.npcTrust,[npc.name]:Math.min(3,currentTrust+1)};
-            narr('system','（'+npc.name+'看着你，像是在确认什么。信任度悄然提升。）',{isSpecial:true});
-          }
-        }
-      }
-    }
+    // NPC 记忆渐进深化系统（数据在 appHelpers.js 模块级，避免每次 TALK_NPC 重分配）
+    handleNpcMemoryTier(s, npc, narr);
     log('与'+npc.name+'对话');if(!s.tutorialSeen.first_talk)s.tutorialSeen={...s.tutorialSeen,first_talk:true};return s;
   }
   case 'NPC_RESPONSE':{
@@ -1005,14 +908,8 @@ function gameReducer(state,action){
       const deathType=s.hp<=0?'starvation':'madness';
       const deathMode=s.hp<=0?'hp':'san';
       const deathText=s.hp<=0?'饥饿耗尽了你最后的体力。你倒在了沃切斯特的街道上，再也没有站起来。':'你的精神再也无法承受。意识在低语中碎裂，你再也分不清现实与幻觉。';
-      s.deathContext={mode:deathMode,type:deathType,area:s.currentArea,day:s.day,loop:s.loopCount,sourceEventId:null,sourceEventName:'饥饿致死',finalText:deathText,residueFlag:'death_echo_starvation'};
-      s.lastDeathType=deathType;s.lastDeathMode=deathMode;
-      if(deathMode==='hp')audioManager.playEffect('death_physical');else audioManager.playEffect('death_mental');
-      narr('death',deathText,{isSpecial:true});
-      const failDef=deathMode==='hp'?GD.implementation_notes?.failure_states?.failure_types?.physical_death:GD.implementation_notes?.failure_states?.failure_types?.mental_death;
-      s.ending={name:failDef?.name||deathType,type:'bad',description:deathText,recap:buildDeathRecap(s,s.deathContext)};
-      addRunMemory(s,deathText.split('\n')[0],'death');
-      if(!s.tutorialSeen.first_death)s.tutorialSeen={...s.tutorialSeen,first_death:true};
+      const deathCtx={mode:deathMode,type:deathType,area:s.currentArea,day:s.day,loop:s.loopCount,sourceEventId:null,sourceEventName:'饥饿致死',finalText:deathText,residueFlag:'death_echo_starvation'};
+      applyDeathResolution(s, deathCtx, narr);
       return s;
     }
     // Safehouse degradation
@@ -1129,28 +1026,8 @@ function gameReducer(state,action){
     // Phase 3: Logic corruption at low SAN
     {const fakeMsg=maybeGetFakeMessage(s.san,s.loopCount);if(fakeMsg)narr('system',fakeMsg,{isSpecial:true,madness:{name:'幻觉',description:'你看到了不存在的东西。'}});}
     maybeInsertFalseMemory(narr,s.san,s.loopCount,s.day);
-    // Daily summary card (P2-2)
-    {
-      const acts=s._dayActions||[];
-      const areaObj=getAreaInfo(_startArea,ctx);
-      const areaName=areaObj?.name||'沃切斯特';
-      const sanDelta=s.san-_startSan;
-      const hpDelta=s.hp-_startHp;
-      const cluesFound=(s.clues?.length||0)-_startClues;
-      const parts=['今日在'+areaName+'活动。'];
-      if(acts.length===0)parts.push('整天待在安全屋休息。');
-      else{
-        const actCounts={};acts.forEach(a=>{actCounts[a]=(actCounts[a]||0)+1;});
-        const actNames={MOVE:'移动',EXPLORE:'探索',TALK_NPC:'交谈',WORK:'打工',BUY_FOOD:'购买食物',USE_ITEM:'使用物品',SWITCH_SAFEHOUSE:'更换安全屋'};
-        const desc=Object.entries(actCounts).map(([k,v])=>(actNames[k]||k)+(v>1?'×'+v:'')).join('、');
-        parts.push('行动：'+desc+'。');
-      }
-      if(sanDelta!==0)parts.push('精神'+(sanDelta>0?'+':'')+sanDelta);
-      if(hpDelta!==0)parts.push('体力'+(hpDelta>0?'+':'')+hpDelta);
-      if(cluesFound>0)parts.push('发现'+cluesFound+'条线索');
-      if(acts.includes('EXPLORE')&&cluesFound===0)parts.push('探索未发现新线索');
-      narr('system','【今日总结】'+parts.join('，')+'。',{isSpecial:true});
-    }
+    // Daily summary card (P2-2) — extracted to appHelpers.js
+    narrDailySummary(s, narr, _startSan, _startHp, _startClues, _startArea);
     narr('system','\n═══ 第 '+s.day+' 天 ═══ 天气：'+s.weather+' ═══ 封印：'+s.sealState+' ═══');
     const area=getAreaInfo(s.currentArea,ctx);
     if(area)narr('location',area.description,{locationName:getAreaDisplayName(area,s),imageSrc:getAreaSceneImage(s.currentArea,s),imageAlt:getAreaDisplayName(area,s)});
@@ -1168,17 +1045,8 @@ function gameReducer(state,action){
     // Check for new knowledge earned
     checkKnowledgeEarned(s);
 
-    // Daily pattern analysis for behavior endings
-    const acts=s._dayActions||[];
-    if(acts.length===0){bt.sleep_streak=(bt.sleep_streak||0)+1;}else{bt.sleep_streak=0;}
-    if(acts.length<=1){bt.low_intervention_count=(bt.low_intervention_count||0)+1;}
-    const hasMove=acts.includes('MOVE'),hasExplore=acts.includes('EXPLORE'),hasTalk=acts.some(a=>a==='TALK_NPC'||a==='trust_up'||a==='get_item'||a==='silence'||a==='share_food'||a==='redeem'||a==='incite'||a==='preach'||a==='attack');
-    const hasWork=acts.includes('WORK')||acts.includes('BUY_FOOD'),hasItem=acts.includes('USE_ITEM');
-    const stayedInArea=!hasMove;
-    if(stayedInArea){bt.safehouse_stay_days=(bt.safehouse_stay_days||0)+1;}
-    if(hasWork&&!hasExplore&&!hasTalk&&!hasMove){bt.work_only_days=(bt.work_only_days||0)+1;}
-    if(hasMove&&!hasExplore&&!hasTalk&&!hasWork){bt.move_only_days=(bt.move_only_days||0)+1;}
-    if(hasItem&&!hasMove&&!hasExplore&&!hasTalk&&!hasWork){bt.record_only_days=(bt.record_only_days||0)+1;}
+    // Daily pattern analysis for behavior endings — extracted to appHelpers.js
+    trackDailyBehaviorPatterns(s, bt);
     s._dayActions=[];
     s._dailyTrustGains={};
     s._dayStartArea=s.currentArea;
@@ -1278,21 +1146,9 @@ function gameReducer(state,action){
     s.pendingChoice=null;
     narr('system',choice.text,{isSpecial:true});
     applyLegacyEffects(s,choice.effects);
-    // Death check after choice effects
+    // Death check after choice effects (unified via applyDeathResolution)
     {const deathCtx=resolveDeath(s,pc.evt,choice);
-      if(deathCtx){
-        s.deathContext=deathCtx;s.lastDeathType=deathCtx.type;s.lastDeathMode=deathCtx.mode;
-        const HP_T2=['drowning','bleeding','infection','starvation','falling','darkness_taken','physical'];
-        const SAN_T2=['madness','possession','identity_erasure','mythos_absorption','loop_collapse','becomes_event','mental'];
-        if(HP_T2.includes(deathCtx.type))audioManager.playEffect('death_physical');
-        else if(SAN_T2.includes(deathCtx.type))audioManager.playEffect('death_mental');
-        else audioManager.playEffect('death_hybrid');
-        narr('death',deathCtx.finalText,{isSpecial:true});
-        const ending=checkEnding(s,ctx);
-        if(ending)s.ending={...ending,recap:buildDeathRecap(s,deathCtx)};
-        else s.ending={name:deathCtx.type,type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};
-        addRunMemory(s,deathCtx.finalText.split('\n')[0],'death');
-      }}
+      if(deathCtx) applyDeathResolution(s, deathCtx, narr);}
     s.objectives=checkObjCompletion(s.objectives,s);
     log('选择：'+choice.label);
     return s;
@@ -1394,24 +1250,9 @@ function gameReducer(state,action){
     }
     // Apply event effects BEFORE death check
     applyLegacyEffects(s,evt.effects);
-    // Post-gamble: check death (unified)
-    {
-      const deathCtx = resolveDeath(s, evt, null);
-      if(deathCtx){
-        s.deathContext = deathCtx;
-        s.lastDeathType = deathCtx.type;
-        s.lastDeathMode = deathCtx.mode;
-        const HP_T3=['drowning','bleeding','infection','starvation','falling','darkness_taken','physical'];
-        const SAN_T3=['madness','possession','identity_erasure','mythos_absorption','loop_collapse','becomes_event','mental'];
-        if(HP_T3.includes(deathCtx.type))audioManager.playEffect('death_physical');
-        else if(SAN_T3.includes(deathCtx.type))audioManager.playEffect('death_mental');
-        else audioManager.playEffect('death_hybrid');
-        narr('death', deathCtx.finalText, { isSpecial: true });
-        const ending=checkEnding(s,ctx);
-        if(ending)s.ending={...ending,recap:buildDeathRecap(s,deathCtx)};
-        else{s.ending={name:deathCtx.type,type:'bad',description:deathCtx.finalText,recap:buildDeathRecap(s,deathCtx)};}
-      }
-    }
+    // Post-gamble: check death (unified via applyDeathResolution)
+    {const deathCtx = resolveDeath(s, evt, null);
+    if(deathCtx) applyDeathResolution(s, deathCtx, narr);}
     s.objectives=checkObjCompletion(s.objectives,s);
     log('探索(赌博)：'+evt.name);
     return s;
@@ -1565,13 +1406,17 @@ function App(){
   // 结局CG预加载：SAN < 30 时静默预加载，暗示结局临近
   useEffect(()=>{if(state.screen==='game'&&state.san<30)preloadEndingCGs();},[state.san,state.screen]);
 
-  // Phase 3: SAN visual corruption canvas overlay
+  // Lazy-load ch2+ game data (web mode only — skipped if already merged at build time)
   useEffect(()=>{
     if(state.screen!=='game')return;
-    const allowVisualFX=state.accessibilityOptions?.visual_distortion!=='off';
-    if(!allowVisualFX){destroySanVisualOverlay();return;}
-    try{updateSanVisualOverlay(state.san,state.loopCount,state.safehouseCorruption||0);}catch(e){}
-  },[state.san,state.loopCount,state.safehouseCorruption,state.screen,state.accessibilityOptions?.visual_distortion]);
+    if(!GD._extendedEventsLoaded)return; // only when extended events are active
+    try{
+      loadChapterData(GD,'ch2plus','game_ch2plus.json');
+      loadChapterData(GD,'meta','game_meta.json');
+    }catch(e){/* non-fatal: game continues with existing data */}
+  },[state.screen]);
+
+  // SAN visual corruption: now handled by <SanPollutionLayer> component (see render below)
 
   const handleSettingsChange=(s)=>{saveSettings(s);setSettings(s);};
   const fontSizeClass='narrative-size-'+settings.narrativeFontSize;
@@ -1602,6 +1447,7 @@ function App(){
   const allowVisualFX=visualDistortion!=='none'&&visualDistortion!=='off';
   const sanClass=allowVisualFX?(state.san<20?' san-fracture':state.san<40?' san-tremor':''):'';
   return <>
+    <SanPollutionLayer san={state.san} loopCount={state.loopCount} corruption={state.safehouseCorruption||0} enabled={state.screen==='game' && allowVisualFX}/>
     <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+' '+fontSizeClass}>
       <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>setSettingsOpen(true)} onUgcOpen={()=>setUgcOpen(true)} onSaveOpen={()=>{setSaveLoadMode('save');setSaveLoadOpen(true);}}/>
       <LeftPanel state={state}/>

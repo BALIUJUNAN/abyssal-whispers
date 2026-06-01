@@ -587,6 +587,9 @@ body::before{
 @keyframes sanTremor{0%,100%{transform:translateX(0)}25%{transform:translateX(-0.5px)}50%{transform:translateX(0.3px)}75%{transform:translateX(-0.3px)}}
 @keyframes sanFracture{0%,100%{transform:translate(0,0)}20%{transform:translate(-1px,0.5px)}40%{transform:translate(0.5px,-0.3px)}60%{transform:translate(-0.3px,0.5px)}80%{transform:translate(0.5px,-0.5px)}}
 
+/* Phase 3: SAN visual corruption canvas overlay */
+#san-corruption-canvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9997;mix-blend-mode:multiply;transition:opacity 1.5s ease}
+
 /* Perception levels */
 .perception-text-1 .narrative-text{text-shadow:0 0 1px rgba(255,255,255,0.12)}
 .perception-text-2 .narrative-text{letter-spacing:0.01em}

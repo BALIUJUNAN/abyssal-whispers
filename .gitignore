@@ -25,6 +25,21 @@ __pycache__/
 # Temporary files
 check_result*
 extra_files*
+_temp_*
+_find_*
+_fix_*
+_check_*
+debug_*
+parse_*
+apply_*
+bisect_*
+locate_*
+scan_*
+audit_*
+convert_*
+refactor_*
+test_systems*
+_extract*.py
 
 # Build output
 dist/

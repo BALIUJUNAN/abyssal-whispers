@@ -357,6 +357,18 @@ export function getEventWeight(evt, areaId, state, ctx) {
   // Untriggered bonus
   if (!(state.triggeredEvents || []).includes(evt.id)) weight *= 1.5;
 
+  // Phase 4: Cooldown decay — recently triggered events have reduced weight
+  // getCooldownDecayFactor is defined in eventSystemV2.js (bundled before this file)
+  if (typeof getCooldownDecayFactor === 'function') {
+    weight *= getCooldownDecayFactor(evt.id, state);
+  }
+
+  // Phase 4: Behavior profile weight — player archetype affects event selection
+  // getBehaviorWeightMultiplier is defined in eventSystemV2.js
+  if (typeof getBehaviorWeightMultiplier === 'function') {
+    weight *= getBehaviorWeightMultiplier(evt, state);
+  }
+
   return Math.max(0, weight);
 }
 
@@ -364,25 +376,44 @@ export function getEventWeight(evt, areaId, state, ctx) {
  * PURE: Choose a weighted-random event from candidates.
  * Does NOT modify state. Safe for fearTuning peek loops.
  *
+ * Phase 1 optimization: Pre-computed cumulative weights + binary search.
+ *   Old: O(n·w) — built array of w*10 references per event, then pick()
+ *   New: O(n) build + O(log n) pick via cumulative sum + binary search
+ *
  * @param {object[]} candidates - pre-filtered eligible events
  * @param {string} areaId
  * @param {object} state
  * @param {object} ctx
- * @param {function} pick - random picker
+ * @param {function} pick - random picker (unused in optimized path, kept for API compat)
  * @returns {object|null} selected event
  */
 export function chooseWeightedEvent(candidates, areaId, state, ctx, pick) {
   if (!candidates || candidates.length === 0) return null;
+  const n = candidates.length;
 
-  const weighted = [];
-  candidates.forEach(e => {
-    const w = getEventWeight(e, areaId, state, ctx);
-    const count = Math.max(1, Math.round(w * 10));
-    for (let i = 0; i < count; i++) weighted.push(e);
-  });
+  // Edge case: single candidate
+  if (n === 1) return candidates[0];
 
-  if (weighted.length === 0) return null;
-  return pick(weighted);
+  // Build cumulative weight array — O(n)
+  const cumWeights = new Float64Array(n);
+  let total = 0;
+  for (let i = 0; i < n; i++) {
+    const w = getEventWeight(candidates[i], areaId, state, ctx);
+    total += Math.max(0, w);
+    cumWeights[i] = total;
+  }
+
+  if (total <= 0) return null;
+
+  // Roll and binary search — O(log n)
+  const roll = Math.random() * total;
+  let lo = 0, hi = n - 1;
+  while (lo < hi) {
+    const mid = (lo + hi) >>> 1;
+    if (cumWeights[mid] < roll) lo = mid + 1;
+    else hi = mid;
+  }
+  return candidates[lo];
 }
 
 /**

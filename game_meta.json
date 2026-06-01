@@ -1,0 +1,2509 @@
+{
+  "implementation_notes": {
+    "priorities": {
+      "description": "实现优先级分级——不要把所有想法都视为同等优先级",
+      "P0_core": {
+        "name": "核心艺术系统——小项目必须完成",
+        "systems": [
+          {
+            "id": "text_style_guide",
+            "effort": "low",
+            "reason": "写作规范不需要代码实现，只需文档和审核流程"
+          },
+          {
+            "id": "san_text_variants",
+            "effort": "medium",
+            "reason": "12个关键场景的多层文本变体，直接影响玩家体验"
+          },
+          {
+            "id": "horror_density_control",
+            "effort": "low",
+            "reason": "通过简单的比率控制实现，不需要复杂代码"
+          },
+          {
+            "id": "chapter_art_pacing",
+            "effort": "low",
+            "reason": "通过配置文件控制每章允许的异常类型"
+          },
+          {
+            "id": "normal_text_variants",
+            "effort": "low",
+            "reason": "每个污染文本都有正常版本作为对照"
+          },
+          {
+            "id": "death_and_restart_text",
+            "effort": "medium",
+            "reason": "死亡和重开是核心循环，必须有艺术化表现"
+          },
+          {
+            "id": "mythos_name_control",
+            "effort": "low",
+            "reason": "前期禁止神话专名，通过配置控制"
+          },
+          {
+            "id": "accessibility_basic",
+            "effort": "medium",
+            "reason": "关闭视觉/音频污染的基础选项"
+          },
+          {
+            "id": "silent_events",
+            "effort": "low",
+            "reason": "20个无机制文本事件，只需添加到事件池"
+          },
+          {
+            "id": "npc_redemption_art_beats",
+            "effort": "low",
+            "reason": "5个NPC的救赎动作文本"
+          }
+        ]
+      },
+      "P1_enhanced": {
+        "name": "增强体验系统——中型项目应完成",
+        "systems": [
+          {
+            "id": "ui_corruption_layers",
+            "effort": "medium",
+            "reason": "6层UI污染需要文本替换系统"
+          },
+          {
+            "id": "subjective_reality_system",
+            "effort": "medium",
+            "reason": "选项文字改写需要条件判断系统"
+          },
+          {
+            "id": "loop_text_variants",
+            "effort": "medium",
+            "reason": "多周目文本变体需要轮回计数系统"
+          },
+          {
+            "id": "ending_text_rewrite",
+            "effort": "medium",
+            "reason": "10个结局各3种温度的文本"
+          },
+          {
+            "id": "map_surrealism_rules",
+            "effort": "medium",
+            "reason": "地图随机化的审美逻辑"
+          },
+          {
+            "id": "monster_presence_rules",
+            "effort": "low",
+            "reason": "5阶段怪物存在规则"
+          }
+        ]
+      },
+      "P2_advanced": {
+        "name": "高级感官表现——大型项目可选",
+        "systems": [
+          {
+            "id": "perception_corruption_visual",
+            "effort": "high",
+            "reason": "瞳孔对焦机制需要图形渲染支持"
+          },
+          {
+            "id": "perception_corruption_audio",
+            "effort": "high",
+            "reason": "环境音系统需要音频引擎支持"
+          },
+          {
+            "id": "input_resistance",
+            "effort": "high",
+            "reason": "输入阻尼需要底层输入系统支持"
+          },
+          {
+            "id": "memory_decay_map_system",
+            "effort": "high",
+            "reason": "地图模糊化需要动态渲染系统"
+          },
+          {
+            "id": "philosophical_mechanics_timed",
+            "effort": "high",
+            "reason": "限时选择的世界压力呈现需要动态UI"
+          }
+        ]
+      }
+    },
+    "chapters": {
+      "description": "章节推进系统——控制信息释放节奏，确保前期聚焦'十三声钟响'，后期逐步揭示神话真相",
+      "chapter_reveal_rules": "每个章节有明确的mythos_visibility_level上限。NPC、事件、区域描述必须遵守当前章节的揭示上限。超过上限的信息必须使用模糊化称呼或延迟显示。",
+      "mythos_visibility_levels": {
+        "0": {
+          "name": "纯现实解释",
+          "description": "所有异常都有表面合理解释"
+        },
+        "1": {
+          "name": "民间传闻",
+          "description": "居民谈论怪事但归咎于迷信"
+        },
+        "2": {
+          "name": "超自然暗示",
+          "description": "出现无法用常理解释的现象，但未命名"
+        },
+        "3": {
+          "name": "局部神话真相",
+          "description": "特定区域或NPC揭示部分真相"
+        },
+        "4": {
+          "name": "明确神话实体",
+          "description": "可以直接接触或命名神话存在"
+        },
+        "5": {
+          "name": "宇宙级真相",
+          "description": "理解封印本质、古神体系、时空结构"
+        }
+      },
+      "chapters": {
+        "chapter_1": {
+          "id": "ch1_thirteenth_bell",
+          "name": "十三声钟响",
+          "duration_days": [
+            1,
+            3
+          ],
+          "mythos_cap": 1,
+          "core_mystery": "教堂钟声为何响了十三下？失踪者去了哪里？",
+          "available_areas": [
+            "town_center",
+            "harbor_district"
+          ],
+          "locked_areas": [
+            "whispering_forest",
+            "voxchester_manor",
+            "catacombs_entrance",
+            "ruins_of_yith",
+            "lighthouse",
+            "forbidden_grove",
+            "deep_catacombs"
+          ],
+          "area_unlock_conditions": {
+            "whispering_forest": "完成码头区至少2个线索事件",
+            "voxchester_manor": "与伊莱亚斯信任≥2或发现庄园线索",
+            "catacombs_entrance": "Day 3后自动解锁或教堂调查触发",
+            "lighthouse": "码头区调查深入后解锁",
+            "ruins_of_yith": "需要低语森林线索+Day 7后",
+            "forbidden_grove": "低语森林信任足够+Day 10后",
+            "deep_catacombs": "需要封印线索+Day 14后"
+          },
+          "core_events": [
+            "evt_strange_clock",
+            "evt_missing_poster",
+            "evt_fisherman_warning",
+            "evt_beggar_clue",
+            "evt_vendor_suspicious"
+          ],
+          "forbidden_reveals": [
+            "深潜者",
+            "伊斯",
+            "奈亚拉托提普",
+            "修格斯",
+            "尤格-索托斯",
+            "古神真名",
+            "完整神话体系"
+          ],
+          "allowed_aliases": {
+            "deep_ones": "海里的东西",
+            "shoggoth": "黑色淤泥般的生物",
+            "nyarlathotep": "戴面具的神",
+            "cthulhu": "门后的存在",
+            "yog_sothoth": "星辰之外的凝视",
+            "yith": "不属于这个时代的建筑",
+            "elder_gods": "那些沉睡的东西"
+          },
+          "narrative_focus": "玩家刚到达沃切斯特，被钟声和失踪案吸引。一切异常都有表面解释。NPC语焉不详。玩家只能通过观察和对话拼凑模糊图景。",
+          "chapter_end_trigger": "发现教堂地下室入口或码头仓库秘密",
+          "transition_text": "你以为自己只是来调查一起失踪案。但今晚的钟声响了十四下。"
+        },
+        "chapter_2": {
+          "id": "ch2_tide_and_lighthouse",
+          "name": "潮汐与灯塔",
+          "duration_days": [
+            4,
+            7
+          ],
+          "mythos_cap": 2,
+          "core_mystery": "灯塔绿光意味着什么？潮汐与失踪案有何关联？海底有什么在呼唤？",
+          "available_areas": [
+            "town_center",
+            "harbor_district",
+            "lighthouse",
+            "whispering_forest"
+          ],
+          "newly_unlocked": [
+            "lighthouse",
+            "whispering_forest"
+          ],
+          "core_events": [
+            "evt_harbor_shadow",
+            "evt_lighthouse_light",
+            "evt_enoch_diary",
+            "evt_forest_whisper",
+            "evt_nightgaunt_sighting"
+          ],
+          "allowed_aliases": {
+            "deep_ones": "从海里爬上来的灰色身影",
+            "shoggoth": "流动的黑色胶状物",
+            "nightgaunts": "没有面孔的飞行物",
+            "cthulhu": "海底的巨大阴影",
+            "elder_gods": "那些不应该醒来的东西"
+          },
+          "narrative_focus": "灯塔和海洋的异常逐渐超出常理解释。玩家开始接触超自然暗示。NPC开始松口讲述更多。但神话真名仍未出现。",
+          "chapter_end_trigger": "进入灯塔地下室或发现海底神殿入口",
+          "transition_text": "灯塔的光不是给人看的。它在呼唤海底的什么东西。"
+        },
+        "chapter_3": {
+          "id": "ch3_family_and_seal",
+          "name": "家族与封印",
+          "duration_days": [
+            8,
+            14
+          ],
+          "mythos_cap": 3,
+          "core_mystery": "莫里斯家族守护了什么？封印是什么？谁是活体钥匙？",
+          "available_areas": [
+            "town_center",
+            "harbor_district",
+            "lighthouse",
+            "whispering_forest",
+            "voxchester_manor",
+            "catacombs_entrance"
+          ],
+          "newly_unlocked": [
+            "voxchester_manor",
+            "catacombs_entrance"
+          ],
+          "core_events": [
+            "evt_portrait_watch",
+            "evt_basement_depth",
+            "evt_library_secret",
+            "evt_tomb_open",
+            "evt_underground_river",
+            "evt_seal_chamber"
+          ],
+          "allowed_aliases": {
+            "deep_ones": "深潜者",
+            "shoggoth": "修格斯",
+            "nyarlathotep": "奈亚拉托提普",
+            "cthulhu": "克苏鲁",
+            "elder_gods": "古神"
+          },
+          "narrative_focus": "莫里斯家族的秘密揭开，封印的存在被证实。部分神话真名首次出现。庄园和墓穴的真相逐渐浮现。",
+          "chapter_end_trigger": "进入深渊墓穴或完成封印仪式线索收集",
+          "transition_text": "封印维持了三百年。但今晚，它发出了第一道裂隙的声音。"
+        },
+        "chapter_4": {
+          "id": "ch4_gate_below",
+          "name": "地下之门",
+          "duration_days": [
+            15,
+            21
+          ],
+          "mythos_cap": 4,
+          "core_mystery": "深渊之眼下封印着什么？仪式的真正代价是什么？",
+          "available_areas": [
+            "town_center",
+            "harbor_district",
+            "lighthouse",
+            "whispering_forest",
+            "voxchester_manor",
+            "catacombs_entrance",
+            "forbidden_grove",
+            "ruins_of_yith",
+            "deep_catacombs"
+          ],
+          "newly_unlocked": [
+            "forbidden_grove",
+            "ruins_of_yith",
+            "deep_catacombs"
+          ],
+          "core_events": [
+            "evt_shoggoth_encounter",
+            "evt_seal_ritual",
+            "evt_void_whisper",
+            "evt_elder_sign",
+            "evt_dimensional_rift",
+            "evt_grove_guardian",
+            "evt_nyarlathotep_whisper",
+            "evt_yithian_echo",
+            "evt_time_slip"
+          ],
+          "allowed_aliases": {
+            "deep_ones": "深潜者",
+            "shoggoth": "修格斯",
+            "nyarlathotep": "奈亚拉托提普",
+            "cthulhu": "克苏鲁",
+            "yog_sothoth": "尤格-索托斯",
+            "elder_gods": "古神",
+            "great_old_ones": "旧日支配者"
+          },
+          "narrative_focus": "全部区域开放。神话实体可以直接接触。封印的真相和代价浮出水面。终局抉择迫近。",
+          "chapter_end_trigger": "收集全部关键线索或进入第21天",
+          "transition_text": "深渊之眼在你脚下睁开。它已经等了很久。"
+        },
+        "chapter_5": {
+          "id": "ch5_whispers_of_the_abyss",
+          "name": "深渊低语",
+          "duration_days": [
+            22,
+            28
+          ],
+          "mythos_cap": 5,
+          "core_mystery": "封印能否重铸？代价由谁承担？你还是你吗？",
+          "available_areas": "all",
+          "core_events": "all",
+          "allowed_aliases": "无限制，全部神话真相可揭示",
+          "narrative_focus": "终局阶段。所有真相浮出水面。玩家必须做出最终抉择。城市在崩溃。NPC各奔命运。",
+          "chapter_end_trigger": "完成任意结局条件",
+          "transition_text": "你听到了。不是钟声，不是低语。是深渊本身在呼唤你的名字。"
+        }
+      },
+      "chapter_transition_events": [
+        {
+          "id": "ch_transition_1_2",
+          "from": "chapter_1",
+          "to": "chapter_2",
+          "trigger": "chapter_1结束条件满足",
+          "event_text": "今晚的钟声响了十四下。不是十三——十四。你数了三遍。窗外的雾气比以往任何时候都浓，远处的灯塔闪了一下绿光。你知道，有些东西已经改变了。",
+          "san_cost": 0,
+          "mythos_gain": 0
+        },
+        {
+          "id": "ch_transition_2_3",
+          "from": "chapter_2",
+          "to": "chapter_3",
+          "trigger": "chapter_2结束条件满足",
+          "event_text": "庄园的门为你打开了。希尔达站在门廊上，脸色苍白。'你已经看到了灯塔下的东西，'她说，'那么你也有权知道莫里斯家族的秘密。'她的声音在颤抖。",
+          "san_cost": -2,
+          "mythos_gain": 1
+        },
+        {
+          "id": "ch_transition_3_4",
+          "from": "chapter_3",
+          "to": "chapter_4",
+          "trigger": "chapter_3结束条件满足",
+          "event_text": "地下墓穴的石门在你面前缓缓打开。你听到了——从深处传来的心跳声。不是你的心跳。是大地本身在跳动。封印核心的光芒照亮了你的脸，你知道自己已经无法回头了。",
+          "san_cost": -3,
+          "mythos_gain": 2
+        },
+        {
+          "id": "ch_transition_4_5",
+          "from": "chapter_4",
+          "to": "chapter_5",
+          "trigger": "chapter_4结束条件满足或第22天到来",
+          "event_text": "深渊之眼完全睁开了。你站在竖井边缘，看着那无尽的黑暗。黑暗也在看着你。你听到了所有的声音——钟声、低语、心跳、海浪——它们汇聚成了一个词。你的名字。",
+          "san_cost": -5,
+          "mythos_gain": 3
+        }
+      ]
+    },
+    "chapter_art_pacing": {
+      "description": "章节艺术节奏控制——每章允许的感官污染强度、意象密度和异常类型",
+      "chapters": {
+        "chapter_1": {
+          "name": "十三声钟响",
+          "allowed_sensory_level": {
+            "visual_distortion": 0,
+            "audio_intrusion": 1,
+            "input_resistance": 0,
+            "text_unreliability": 1
+          },
+          "allowed_imagery": [
+            "雾",
+            "失踪告示",
+            "钟声",
+            "湿脚印",
+            "空椅子"
+          ],
+          "forbidden_imagery": [
+            "神话实体",
+            "空间崩坏",
+            "UI污染",
+            "伪系统提示",
+            "感官幻觉"
+          ],
+          "focus": "建立雾、失踪、钟声和安全屋。让玩家熟悉正常的城市。",
+          "abnormal_examples": [
+            "教堂钟声响了十三下",
+            "公告栏上多了一张新的失踪告示，日期是今天",
+            "码头边有一双儿童鞋"
+          ],
+          "normal_examples": [
+            "玛莎擦着杯子和你聊天",
+            "杂货店老板在推销商品",
+            "码头渔民在修补渔网",
+            "镇中心有行人在走路"
+          ]
+        },
+        "chapter_2": {
+          "name": "潮汐与灯塔",
+          "allowed_sensory_level": {
+            "visual_distortion": 1,
+            "audio_intrusion": 2,
+            "input_resistance": 0,
+            "text_unreliability": 1
+          },
+          "allowed_imagery": [
+            "潮声",
+            "灯塔绿光",
+            "水面阴影",
+            "湿影",
+            "鱼腥味",
+            "低语声"
+          ],
+          "forbidden_imagery": [
+            "神话真名",
+            "UI伪系统提示",
+            "空间崩坏",
+            "NPC记忆污染"
+          ],
+          "focus": "引入潮声、灯塔和声音污染。海洋的异常开始超出常理解释。",
+          "abnormal_examples": [
+            "灯塔发出了绿光，海面升起雾气",
+            "水面下有巨大的阴影在移动",
+            "森林里传来低语声"
+          ],
+          "normal_examples": [
+            "玛莎的酒馆还在营业",
+            "灯塔白天看起来很正常",
+            "渔民们还在工作，但话变少了"
+          ]
+        },
+        "chapter_3": {
+          "name": "家族与封印",
+          "allowed_sensory_level": {
+            "visual_distortion": 2,
+            "audio_intrusion": 2,
+            "input_resistance": 1,
+            "text_unreliability": 2
+          },
+          "allowed_imagery": [
+            "肖像画",
+            "地下室深度",
+            "封印符文",
+            "石棺",
+            "暗河",
+            "活壁画"
+          ],
+          "forbidden_imagery": [
+            "完整神话实体登场",
+            "UI严重污染",
+            "空间完全崩坏"
+          ],
+          "focus": "庄园、教堂、墓穴暴露封印结构。部分神话真名首次出现。",
+          "abnormal_examples": [
+            "肖像画的眼睛跟随你移动",
+            "地下室的台阶远超应有的深度",
+            "墓穴墙壁上的壁画在你走过时移动"
+          ],
+          "normal_examples": [
+            "希尔达白天在大厅看书",
+            "玛莎还在擦杯子",
+            "教堂白天仍然开放"
+          ]
+        },
+        "chapter_4": {
+          "name": "地下之门",
+          "allowed_sensory_level": {
+            "visual_distortion": 3,
+            "audio_intrusion": 3,
+            "input_resistance": 2,
+            "text_unreliability": 3
+          },
+          "allowed_imagery": [
+            "空间异常",
+            "UI矛盾",
+            "NPC记忆污染",
+            "地图连接改变",
+            "时间回声"
+          ],
+          "forbidden_imagery": [],
+          "focus": "地图、UI和NPC记忆开始不可靠。空间不再伪装成城市。",
+          "abnormal_examples": [
+            "你走过转角时回到了原地",
+            "NPC说出了你上周目才知道的话",
+            "存档名出现了异常"
+          ],
+          "normal_examples": [
+            "玛莎的酒馆还在，但灯光变暗了"
+          ]
+        },
+        "chapter_5": {
+          "name": "深渊低语",
+          "allowed_sensory_level": {
+            "visual_distortion": 4,
+            "audio_intrusion": 4,
+            "input_resistance": 3,
+            "text_unreliability": 4
+          },
+          "allowed_imagery": [
+            "一切"
+          ],
+          "forbidden_imagery": [],
+          "focus": "强烈感官污染、空间崩坏和结局审判。但仍需保留喘息空间。",
+          "abnormal_examples": [
+            "UI被完全污染",
+            "空间崩坏",
+            "NPC完全不可信"
+          ],
+          "normal_examples": [
+            "即使在终局，也应有片刻的安静——例如老费舍坐在码头边看海"
+          ]
+        }
+      },
+      "pacing_rule": "每个章节的异常比例不得超过horror_density_control中定义的上限。异常事件之间必须插入正常或沉默事件。"
+    },
+    "death_restart_text": {
+      "description": "死亡、SAN归零、逃跑失败、NPC死亡和重开的轮回痕迹文本——死亡不是结束，而是城市重新摆放了他",
+      "text_principles": [
+        "死亡文本应带有轮回痕迹，让玩家感到城市在重新排列自己",
+        "不要只显示Game Over，让死亡本身成为叙事的一部分",
+        "不同死因应有不同的死亡文本",
+        "重开文本应反映轮回次数"
+      ],
+      "death_types": {
+        "physical_death": {
+          "name": "肉体死亡",
+          "death_text": {
+            "by_monster": [
+              "你倒在了沃切斯特的某个角落。血从伤口流出，渗入鹅卵石的缝隙。你最后看到的是雾。雾很安静。",
+              "你闭上了眼睛。你听到了潮声。很远。像是从另一个世界传来的。",
+              "你倒在了地上。地面是温的。你不知道是因为太阳，还是因为别的什么。"
+            ],
+            "by_fall": [
+              "你坠落了。风从你身边掠过。你看到了沃切斯特的屋顶。它们很小。像玩具。",
+              "你落地了。没有疼痛。只有安静。你听到了远处的钟声。"
+            ],
+            "by_infection": [
+              "你的身体不再听你的了。你倒在了某个地方。你闻到了海水的味道。你不在海边。",
+              "你的皮肤变成了灰蓝色。你看着自己的手。它已经不是你的了。你闭上了眼睛。"
+            ],
+            "by_exposure": [
+              "你太冷了。你蜷缩在某个角落。你的呼吸越来越慢。你看到了自己的呼吸雾气。然后雾气散了。你也散了。"
+            ]
+          },
+          "restart_text": {
+            "loop_1": "你醒来时，发现自己在沃切斯特的入口。你的头很疼。你不记得自己是怎么到这里的。你的衣服是干的。伤口不见了。",
+            "loop_2": "你醒来时，发现自己在沃切斯特的入口。你的头很疼。你好像来过这里。你的口袋里有一张纸条，上面写着：别去码头。你不记得自己写过这个。",
+            "loop_3": "你醒来时，发现自己在沃切斯特的入口。你没有头疼。你记得一切。这比头疼更糟糕。你的口袋里有三张纸条。你只写过一张。",
+            "loop_4": "你醒来时，发现自己在沃切斯特的入口。门开着。里面有人在等你。你的口袋里有一张纸条，上面是你的笔迹：这次不要相信她。",
+            "loop_5_plus": "你醒来时，发现自己在沃切斯特的入口。你已经不需要纸条了。你记得所有的路。但路变了。"
+          }
+        },
+        "mental_death": {
+          "name": "精神死亡",
+          "death_text": [
+            "你的理智碎裂了。你开始在街道上游荡，向每一个路过的人讲述你在地下看到的景象。他们躲开了你。你的笔记本散落在城市的各个角落。",
+            "你坐在教堂的长椅上。你已经不记得自己为什么在这里了。你开始数蜡烛。数到第十三根时，你停了。你笑了。",
+            "你站在码头边。你听到了歌声。从海底传来的歌声。你向前走了一步。海水没过了你的鞋子。你没有停下来。"
+          ],
+          "restart_text": {
+            "loop_1": "你醒来时，发现自己在沃切斯特的入口。你的笔记本不见了。你口袋里有一支铅笔。铅笔的笔尖是湿的。",
+            "loop_2": "你醒来时，发现自己在沃切斯特的入口。你的笔记本在你手里。你翻开它。最后一页写着一句话，不是你的笔迹：别再写了。",
+            "loop_3_plus": "你醒来时，发现自己在沃切斯特的入口。你的笔记本在你手里。你翻开它。每一页都写着同一句话。你的笔迹。"
+          }
+        },
+        "identity_death": {
+          "name": "身份死亡",
+          "death_text": [
+            "你看着镜子中的自己。那张脸是你的。但眼睛不是。你已经不再是调查员了。你是封印的一部分。",
+            "你醒来时，发现自己无法移动。你的身体不再属于你。你听到了希尔达的声音：对不起。你闭上了眼睛。"
+          ],
+          "restart_text": {
+            "loop_1": "你醒来时，发现自己在沃切斯特的入口。你看了看自己的手。手指之间没有薄膜。你松了一口气。但你不确定自己在担心什么。",
+            "loop_2_plus": "你醒来时，发现自己在沃切斯特的入口。你看了看自己的手。手指之间没有薄膜。但你的手心有一个螺旋形的印记。你不记得它什么时候出现的。"
+          }
+        },
+        "time_death": {
+          "name": "时间死亡",
+          "death_text": [
+            "你被困在了时间的缝隙中。你看到同样的日子一遍又一遍地重复。你知道这一切即将发生，但你无法改变任何事。",
+            "你听到了钟声。十三声。你数了。然后又是十三声。你数了。然后又是十三声。你已经数不清了。"
+          ],
+          "restart_text": {
+            "loop_1": "你醒来时，发现自己在沃切斯特的入口。你看了看怀表。时间不对。你确定你刚才还在别的地方。",
+            "loop_2_plus": "你醒来时，发现自己在沃切斯特的入口。你看了看怀表。时间不对。你已经习惯了。"
+          }
+        },
+        "narrative_death": {
+          "name": "叙事死亡",
+          "death_text": [
+            "你从未来过沃切斯特。调查员名单上没有这个名字。你的存档无法读取，因为此人并不存在。",
+            "你是一个故事。一个被讲述了太多次的故事。一个连讲述者都已经忘记的故事。"
+          ],
+          "restart_text": {
+            "loop_any": "你醒来时，发现自己在沃切斯特的入口。你不确定自己是谁。但你知道你要去哪里。你已经去过很多次了。"
+          }
+        }
+      },
+      "npc_death_texts": {
+        "hilda_morris": {
+          "text": "希尔达倒在了庄园的大厅里。肖像画的眼睛全都闭上了。你走过去时，有一幅画从墙上掉了下来。画框碎了。画布是空白的。",
+          "restart_hint": "下一轮庄园的肖像画数量少了一幅。"
+        },
+        "old_fisher": {
+          "text": "你早上醒来时，码头边只有老费舍的鞋。鞋里是空的。海面很平静。你等了很久。他没有回来。",
+          "restart_hint": "下一轮码头边的鞋还在。但鞋里有水。"
+        },
+        "isabella_weber": {
+          "text": "教堂的钟声响了十三下。你走进去时，伊莎贝拉倒在钟楼下。钟绳还缠在她的手腕上。蜡烛全都灭了。",
+          "restart_hint": "下一轮教堂的蜡烛比上次少了一支。"
+        },
+        "joshua_black": {
+          "text": "你从墓穴出来时，约书亚不在灯塔入口。入口的墙上写满了同一个词：醒了。醒了。醒了。你数了数。一共四十七遍。",
+          "restart_hint": "下一轮灯塔入口的墙上仍然有字。但字迹更新了。"
+        },
+        "martha_grey": {
+          "text": "你早上醒来时，酒馆的门是开的。玛莎不在。角落那张空桌上放着一杯酒，酒还是温的。你等了很久。她没有回来。",
+          "restart_hint": "下一轮酒馆还在。但角落那张空桌上没有酒杯了。"
+        },
+        "tommy_chen": {
+          "text": "你在暗房里找到了汤米。他的相机掉在地上。镜头碎了。他的眼睛睁着，但瞳孔已经扩散了。他最后一张照片还在显影液里。你没有去看那张照片。",
+          "restart_hint": "下一轮汤米的相机还在暗房里。但镜头是完好的。"
+        },
+        "elias_ward": {
+          "text": "教授倒在了他的研究室里。桌上摊开着一本笔记。最后一页只写了一行字：我终于理解了。墨迹还没有干。",
+          "restart_hint": "下一轮教授的笔记还在桌上。但最后一页是空白的。"
+        }
+      },
+      "escape_failure_text": {
+        "text": "你试图逃离沃切斯特。你走到了城市的边缘。雾很浓。你走了很久。当你走出雾时，你发现自己又回到了镇中心。你看了看怀表。时间没有变。",
+        "restart_hint": "下一轮城市的边缘仍然有雾。但雾的形状不同了。"
+      }
+    },
+    "silent_events": {
+      "description": "无奖励、无解释、无功能悲伤事件——不是所有事件都要给道具、线索、战斗、数值或主线推进。有些事件只负责让世界更真实、更冷。",
+      "principle": "沉默事件没有任何数值奖励，不推进主线，不提供线索。它们只是存在。像缺席的人一样存在。",
+      "event_pool": [
+        {
+          "id": "silent_harbor_children_shoes",
+          "name": "码头儿童鞋",
+          "location": "harbor_district",
+          "trigger_condition": "always",
+          "text": "你在码头边看到一双儿童鞋，整齐地摆在水边。鞋里没有水。你站了一会儿。什么也没有发生。",
+          "mechanical_effect": null,
+          "emotional_function": "让玩家感到失踪案不是数字，而是缺席的人",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_safehouse_empty_chair",
+          "name": "酒馆空椅子",
+          "location": "safehouse",
+          "trigger_condition": "always",
+          "text": "玛莎照例给角落那张空桌倒了一杯酒。你看见杯沿有水痕。玛莎没有看那边。",
+          "mechanical_effect": null,
+          "emotional_function": "暗示玛莎的丈夫仍在某种意义上'在场'",
+          "repeat_behavior": "daily"
+        },
+        {
+          "id": "silent_manor_reversed_portrait",
+          "name": "庄园翻反的画",
+          "location": "voxchester_manor",
+          "trigger_condition": "corruption>=30",
+          "text": "你经过大厅时，有一幅肖像被人翻向墙面。希尔达说不是她做的。画框后面很潮。",
+          "mechanical_effect": {
+            "san": -1
+          },
+          "emotional_function": "暗示庄园有自己的意志",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_church_unsent_letter",
+          "name": "教堂未寄出的信",
+          "location": "catacombs_entrance",
+          "trigger_condition": "always",
+          "text": "长椅下有一封没有收件人的信。纸已经软了，只剩一句话还能看清：如果我回来时不像我，请不要开门。",
+          "mechanical_effect": null,
+          "emotional_function": "让玩家思考'被改变的人还是不是同一个人'",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_forest_silent_birds",
+          "name": "森林无声鸟群",
+          "location": "whispering_forest",
+          "trigger_condition": "always",
+          "text": "树上停满了鸟。它们没有叫，也没有飞。你走过时，它们一起闭上眼。",
+          "mechanical_effect": {
+            "san": -1
+          },
+          "emotional_function": "森林在观察玩家，但不干预",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_town_clock_stopped",
+          "name": "镇中心停摆的钟",
+          "location": "town_center",
+          "trigger_condition": "day>=3",
+          "text": "你路过钟表店时，橱窗里所有的钟同时停止了。你看了三秒。它们又开始走了。但时间不对——每只钟显示的都不一样。",
+          "mechanical_effect": null,
+          "emotional_function": "时间在沃切斯特不可靠",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_harbor_wet_cup",
+          "name": "码头湿杯子",
+          "location": "harbor_district",
+          "trigger_condition": "always",
+          "text": "码头边的长椅上放着一个杯子。杯子里有半杯水。你没有碰它。你走过去又走回来时，杯子还在那里。水位高了一点。",
+          "mechanical_effect": null,
+          "emotional_function": "水在不该出现的地方自己增加",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_manor_empty_room",
+          "name": "庄园空房间",
+          "location": "voxchester_manor",
+          "trigger_condition": "always",
+          "text": "你推开一扇门。房间里什么都没有。但床上有人躺过的痕迹。枕头是温的。",
+          "mechanical_effect": {
+            "san": -1
+          },
+          "emotional_function": "有人刚刚离开，但你不知道是谁",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_church_extra_candle",
+          "name": "教堂多出的蜡烛",
+          "location": "town_center",
+          "trigger_condition": "day>=5",
+          "text": "你走进教堂时，烛台上多了一支蜡烛。火焰朝没有风的方向倾斜。伊莎贝拉说她没有点过它。",
+          "mechanical_effect": null,
+          "emotional_function": "有别的什么东西在教堂里祈祷",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_forest_footprints_ahead",
+          "name": "森林前方的脚印",
+          "location": "whispering_forest",
+          "trigger_condition": "always",
+          "text": "你在森林里走着。前方的泥地上有脚印。鞋码和你的一样。但脚印的方向是朝你走来的。你没有遇到任何人。",
+          "mechanical_effect": {
+            "san": -2
+          },
+          "emotional_function": "另一个你正在走你即将走的路",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_lighthouse_wet_handrail",
+          "name": "灯塔湿扶手",
+          "location": "lighthouse",
+          "trigger_condition": "always",
+          "text": "你扶着灯塔楼梯的扶手往上走。扶手是湿的。你看了看手心，没有水。但扶手上留下了你的指印。",
+          "mechanical_effect": null,
+          "emotional_function": "灯塔在回应你的触碰",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_catacombs_breath_wall",
+          "name": "墓穴呼吸的墙",
+          "location": "catacombs_entrance",
+          "trigger_condition": "always",
+          "text": "你把手放在墓穴的墙壁上。墙是温的。你把手移开时，墙壁微微凹陷，像是在挽留你。",
+          "mechanical_effect": {
+            "san": -1
+          },
+          "emotional_function": "墓穴是活的",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_safehouse_cold_tea",
+          "name": "安全屋冷掉的茶",
+          "location": "safehouse",
+          "trigger_condition": "day>=4",
+          "text": "你回到安全屋时，桌上放着一杯茶。茶是冷的。你不记得自己泡过它。玛莎说她也没有。",
+          "mechanical_effect": null,
+          "emotional_function": "有人在你不在时来过",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_town_new_graffiti",
+          "name": "镇中心新涂鸦",
+          "location": "town_center",
+          "trigger_condition": "day>=2",
+          "text": "墙上出现了昨天还没有的螺旋形涂鸦。颜料还是湿的。你问路人，他们说什么都没看到。",
+          "mechanical_effect": null,
+          "emotional_function": "有些东西只有玩家能看到",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_harbor_bell_sound",
+          "name": "码头的钟声",
+          "location": "harbor_district",
+          "trigger_condition": "time==evening",
+          "text": "你站在码头边。远处传来钟声。你数了十二下。然后安静了。你等了很久。第十三声没有来。也许它来过了，只是你没有听到。",
+          "mechanical_effect": null,
+          "emotional_function": "第十三声钟响在玩家不知道的时候可能已经发生过",
+          "repeat_behavior": "daily"
+        },
+        {
+          "id": "silent_manor_mirror",
+          "name": "庄园镜子",
+          "location": "voxchester_manor",
+          "trigger_condition": "always",
+          "text": "你路过一面镜子。镜子里的你比你慢了一步。你停下来。镜子里的你也停了。但它的嘴角还在动。",
+          "mechanical_effect": {
+            "san": -2
+          },
+          "emotional_function": "镜中的你有自己的意志",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_church_prayer_book",
+          "name": "教堂祈祷书",
+          "location": "town_center",
+          "trigger_condition": "always",
+          "text": "你翻开教堂的祈祷书。书页上有人用铅笔写了一行字。字迹很轻，几乎看不清：请不要让我回来。",
+          "mechanical_effect": null,
+          "emotional_function": "有人在你之前也害怕过同样的事",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_forest_broken_branch",
+          "name": "森林折断的树枝",
+          "location": "whispering_forest",
+          "trigger_condition": "always",
+          "text": "一根树枝从高处落下，插在你面前的泥地里。你抬头看，树上什么都没有。树枝的断口是新鲜的，但没有汁液。像是被什么东西咬断的。",
+          "mechanical_effect": null,
+          "emotional_function": "森林里有东西在移动，但你看不到",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_lighthouse_old_photo",
+          "name": "灯塔旧照片",
+          "location": "lighthouse",
+          "trigger_condition": "always",
+          "text": "灯室角落有一张泛黄的照片。照片上是灯塔完好的样子。照片背面写着一行字，墨迹已经模糊，只剩两个字可以辨认：救我。",
+          "mechanical_effect": null,
+          "emotional_function": "以诺·沃特在消失前留下过求助信号",
+          "repeat_behavior": "only_once"
+        },
+        {
+          "id": "silent_catacombs_water_drip",
+          "name": "墓穴温水滴",
+          "location": "catacombs_entrance",
+          "trigger_condition": "always",
+          "text": "天花板滴下一滴水，落在你手上。是温的。你闻了闻，有铁锈的气味。你抬头看，天花板是干的。",
+          "mechanical_effect": {
+            "san": -1
+          },
+          "emotional_function": "水从不存在的地方滴落",
+          "repeat_behavior": "only_once"
+        }
+      ]
+    },
+    "loop_text_variants": {
+      "description": "多周目重复但变化的文本机制——世界逐渐认出玩家",
+      "design_principle": "轮回知识应同时是成长和污染。玩家越理解规律，世界越主动躲避、误导、重组自己。",
+      "npc_variants": {
+        "martha_grey": {
+          "loop_1": "玛莎擦着杯子，抬头看了你一眼：外乡人？这个季节可没人来沃切斯特。",
+          "loop_2": "玛莎擦着杯子，抬头看了你一眼：外乡人？不，我是不是说过这句话？",
+          "loop_3": "玛莎没有抬头。这个季节可没人来沃切斯特。除了你。",
+          "loop_4": "你推门前，已经听见里面有人说：他来了。",
+          "loop_5_plus": "玛莎给你倒了一杯酒。你没有点单。她也没有问。"
+        },
+        "old_fisher": {
+          "loop_1": "老费舍坐在码头边，看着海面。他没有理你。",
+          "loop_2": "老费舍坐在码头边。你走近时，他说：你又来了。海记得你。",
+          "loop_3": "老费舍没有坐在码头边。但他的位置是湿的。",
+          "loop_4": "你到码头时，老费舍已经在等你。他什么也没说，只是看着你的鞋子。",
+          "loop_5_plus": "老费舍脱下了鞋。你已经看过他的脚了。他知道你知道。"
+        },
+        "hilda_morris": {
+          "loop_1": "希尔达站在门口。你来做什么？",
+          "loop_2": "希尔达站在门口。你的眼神你来过这里。",
+          "loop_3": "希尔达没有站在门口。门是开的。你走进去时，听到楼上有人在翻找什么东西。",
+          "loop_4": "你到庄园时，希尔达坐在大厅里。她在等你。她面前放着两杯茶。",
+          "loop_5_plus": "希尔达看着你。这一次，你会让我自己选吗？"
+        },
+        "isabella_weber": {
+          "loop_1": "伊莎贝拉微笑着引导你做祷告。",
+          "loop_2": "伊莎贝拉微笑着引导你做祷告。她的微笑和上次一模一样。完全一模一样。",
+          "loop_3": "伊莎贝拉没有微笑。你来了。她的声音很疲惫。",
+          "loop_4": "你推开教堂门时，伊莎贝拉已经在等你。钟绳在她手中。她看着你，像是在等你说什么。",
+          "loop_5_plus": "伊莎贝拉闭上了眼。你不用说了。我知道你要说什么。"
+        },
+        "joshua_black": {
+          "loop_1": "约书亚蜷缩在码头角落。他看到你时尖叫了一声。",
+          "loop_2": "约书亚看到你时安静了。他的眼睛清醒了一瞬间。你来过。你上次来过。",
+          "loop_3": "约书亚没有尖叫。他看着你，像是在辨认一张模糊的照片。",
+          "loop_4": "约书亚站起来。带我去。他的声音很平静。你知道他要去哪里。",
+          "loop_5_plus": "约书亚已经在灯塔入口等你。这次我看着门。"
+        },
+        "elias_ward": {
+          "loop_1": "教授看着你的眼神充满警惕。",
+          "loop_2": "教授看着你。你的眼神像是在看一个你已经知道结局的故事。",
+          "loop_3": "教授没有看你。他在翻一本笔记。笔记上写着你的名字。你确定那不是你的笔记。",
+          "loop_4": "教授合上笔记。你又来了。这一次，你准备好听我说完了吗？",
+          "loop_5_plus": "教授把笔记递给你。你已经看过了。但这次的内容不一样。"
+        }
+      },
+      "location_variants": {
+        "town_center": {
+          "loop_1": "鹅卵石街道在雨后泛着暗沉的光泽。市政厅前的广场上矗立着一座建城者雕像。",
+          "loop_2": "鹅卵石街道在雨后泛着暗沉的光泽。你走过雕像时，觉得它的姿势和上次不太一样。",
+          "loop_3": "广场上的雕像面向大海。你确定它上次不是这个方向。",
+          "loop_4": "你到达镇中心时，广场上空无一人。雕像不见了。你问路人，他们说这里从来没有雕像。",
+          "loop_5_plus": "镇中心。你不需要描述它了。你已经来过太多次。"
+        },
+        "harbor_district": {
+          "loop_1": "浓重的海雾终年不散。码头的木板在脚下发出腐朽的呻吟。",
+          "loop_2": "码头的木板在脚下发出呻吟。你注意到有几块木板的磨损位置和上次不同。",
+          "loop_3": "码头的栈桥少了一座。你问玛莎，她说一直都是两座。",
+          "loop_4": "码头的雾比以往任何时候都浓。你走进雾里，走出来时发现自己回到了原点。",
+          "loop_5_plus": "码头。你闭上眼也能走。但你睁开眼时，路变了。"
+        },
+        "lighthouse": {
+          "loop_1": "灯塔矗立在海角上。塔内的螺旋楼梯通向顶部的灯室。",
+          "loop_2": "灯塔的螺旋楼梯。你数了台阶。和上次不一样。",
+          "loop_3": "灯塔的楼梯比你记忆中更长了。你走了很久才到灯室。灯室里的透镜碎片和上次排列不同。",
+          "loop_4": "灯塔。你已经不需要楼梯了。你发现自己直接站在灯室里。",
+          "loop_5_plus": "灯塔认出了你。门在你走近之前就开了。"
+        },
+        "voxchester_manor": {
+          "loop_1": "庄园矗立在山丘上。哥特式宅邸在阴沉的天空下如同指向某种不可名状之物的手指。",
+          "loop_2": "庄园的大门。你注意到门上的纹章和上次不同。你确定上次是什么图案吗？",
+          "loop_3": "庄园的大厅。肖像画的位置变了。你不确定是希尔达移动的，还是它们自己移动的。",
+          "loop_4": "你走进庄园时，大厅里所有的肖像画都面向墙壁。你没有翻转它们。希尔达说她也没有。",
+          "loop_5_plus": "庄园已经不需要伪装了。走廊直接通向地下室。你不需要找暗门。"
+        }
+      },
+      "death_restart_text": {
+        "loop_1": "你醒来时，发现自己在沃切斯特的入口。你的头很疼。你不记得自己是怎么到这里的。",
+        "loop_2": "你醒来时，发现自己在沃切斯特的入口。你的头很疼。你好像来过这里。",
+        "loop_3": "你醒来时，发现自己在沃切斯特的入口。你没有头疼。你记得一切。这比头疼更糟糕。",
+        "loop_4": "你醒来时，发现自己在沃切斯特的入口。你口袋里有一张纸条，上面是你的笔迹：别相信灯塔。",
+        "loop_5_plus": "你醒来时，发现自己在沃切斯特的入口。门开着。里面有人在等你。"
+      }
+    },
+    "npc_redemption": {
+      "description": "NPC救赎的动作化表现——通过小动作、沉默、重复行为的改变来表现，不要长篇煽情独白",
+      "principle": "救赎不等于活下来。救赎不等于变好。救赎是NPC在不可逆腐化中，仍然有一次作为人的选择。",
+      "characters": {
+        "hilda_morris": {
+          "normal_behavior": "她在庄园中徘徊，偶尔看向祖先肖像画",
+          "corrupted_behavior": "夜晚用非人类语言低语，在走廊中游荡",
+          "redemption_trigger": "停止寻找替身，以自己的意志面对家族诅咒",
+          "redemption_action": "她把庄园祖先肖像一幅幅翻过去，不再被家族观看",
+          "redemption_text": "希尔达没有祈祷。她只是走过大厅，把每一幅祖先肖像翻向墙面。最后一幅画翻过去时，庄园安静得像一口合上的棺。",
+          "no_monologue": true,
+          "ending_hook": "ending_seal_hilda_choice",
+          "failure_variant": "她在你睡着时把你绑在封印核心。你醒来时，她已经不在了。庄园的肖像画全都面向墙壁。"
+        },
+        "old_fisher": {
+          "normal_behavior": "坐在码头边看着海面，偶尔低声说话",
+          "corrupted_behavior": "深夜走向大海，皮肤大面积变为灰绿色",
+          "redemption_trigger": "在彻底归海前做最后一件属于人的事",
+          "redemption_action": "他终于脱下鞋，让玩家看见已经非人的脚，然后平静地交出钥匙之血",
+          "redemption_text": "老费舍坐在码头边，第一次在人前脱下鞋。脚趾之间的薄膜在月光下轻轻张开。他没有解释，只把刀递给你：趁我还知道疼。",
+          "no_monologue": true,
+          "ending_hook": "ending_seal_old_fisher_blood",
+          "failure_variant": "你早上醒来时，码头边只有他的鞋。鞋里是空的。海面很平静。"
+        },
+        "isabella_weber": {
+          "normal_behavior": "在教堂祈祷，敲响十三声钟",
+          "corrupted_behavior": "用非人类语言祈祷，皮肤下出现蠕动纹路",
+          "redemption_trigger": "亲手否定自己信奉的神谕",
+          "redemption_action": "她敲完第十二声钟后松开钟绳，第一次拒绝回应所谓神明",
+          "redemption_text": "第十二声落下后，整座教堂都在等待。钟绳在伊莎贝拉掌心颤抖。她闭上眼，松开了手。第十三声没有来。",
+          "no_monologue": true,
+          "ending_hook": "ending_isabella_twelfth_bell",
+          "failure_variant": "她敲了第十三声。你站在教堂门口，看着她的背影。她的影子比她高出很多。"
+        },
+        "martha_grey": {
+          "normal_behavior": "擦杯子，给空桌倒酒，和客人聊天",
+          "corrupted_behavior": "在酒中下药，眼睛偶尔闪过金色",
+          "redemption_trigger": "承认归来的东西已不再是丈夫，选择保护活人",
+          "redemption_action": "她烧掉走私通道里的深潜者标记，把酒馆门闩从里面扣死",
+          "redemption_text": "玛莎没有哭。她把丈夫的照片从墙上摘下来，放进抽屉里。然后她走下楼，把走私通道的标记点着了。火光照亮了她的脸。她把门闩从里面扣死了。",
+          "no_monologue": true,
+          "ending_hook": "ending_escape_by_sea",
+          "failure_variant": "你早上醒来时，酒馆的门是开的。玛莎不在。角落那张空桌上放着一杯酒，酒还是温的。"
+        },
+        "joshua_black": {
+          "normal_behavior": "蜷缩在角落，时而清醒时而癫狂",
+          "corrupted_behavior": "癫狂发作，尖叫着扑向看不见的东西",
+          "redemption_trigger": "不再逃离灯塔，重新成为守望者",
+          "redemption_action": "他守住灯塔地下入口，不再喊它醒了，而是对玩家说这次我看着门",
+          "redemption_text": "约书亚站在灯塔入口。他的手在发抖。但他的声音很平静。这次我看着门。你走下去时，听到他在身后轻声说：别怕。我在。",
+          "no_monologue": true,
+          "ending_hook": "ending_seal_player_keeper",
+          "failure_variant": "你从墓穴出来时，约书亚不在灯塔入口。入口的墙上写满了同一个词：醒了。醒了。醒了。"
+        }
+      }
+    },
+    "map_surrealism": {
+      "description": "随机地图的审美逻辑——沃切斯特不是城市，而是一座封印装置。玩家越接近真相，城市越不再伪装成人类能理解的街区。",
+      "progression_phases": {
+        "phase_1_city": {
+          "name": "城市伪装期",
+          "corruption_range": [
+            0,
+            30
+          ],
+          "description": "早期城市应像正常城市",
+          "connections": [
+            "镇中心连接码头、森林、庄园",
+            "酒馆是安全屋",
+            "教堂在镇中心",
+            "灯塔在码头远端"
+          ],
+          "map_randomization": "连接关系随机微调30%，但整体保持城市逻辑",
+          "aesthetic": "潮湿的港口小城，居民区、商业区、宗教区的划分清晰"
+        },
+        "phase_2_seal_structure": {
+          "name": "封印结构显露期",
+          "corruption_range": [
+            31,
+            60
+          ],
+          "description": "中期城市开始露出封印结构",
+          "connections": [
+            "庄园地下室连接墓穴入口",
+            "灯塔地下室连接海底神殿",
+            "教堂地下室连接封印线索",
+            "森林深处连接伊斯遗迹"
+          ],
+          "map_randomization": "连接关系随机微调50%，部分连接违反城市逻辑",
+          "aesthetic": "城市的地下比地上更大。你开始怀疑这座城市是建在什么上面的。"
+        },
+        "phase_3_unmasked": {
+          "name": "不再伪装期",
+          "corruption_range": [
+            61,
+            100
+          ],
+          "description": "后期空间不再伪装成城市",
+          "connections": [
+            "酒馆二楼可能连接地下墓穴",
+            "教堂地下室可能连接灯塔底部",
+            "森林空地可能连接伊斯遗迹",
+            "庄园走廊可能通向深渊墓穴",
+            "玩家离开安全屋后可能回到同一个房间，但杯子位置不同"
+          ],
+          "map_randomization": "连接关系完全随机，城市逻辑崩溃",
+          "aesthetic": "沃切斯特不是城市。它是一座封印装置。你现在在装置内部。"
+        }
+      },
+      "transition_symptoms": [
+        "地图纸边出现水渍",
+        "玩家笔记被改写",
+        "门把手有海盐",
+        "原本干燥的走廊出现湿脚印",
+        "墙上多了一幅昨晚不在的画",
+        "玩家听见自己从另一条路走来的脚步声"
+      ]
+    },
+    "memory_decay": {
+      "description": "已探索区域随时间、SAN、雾、轮回次数逐渐模糊或改写",
+      "decay_parameters": {
+        "map_fade_timer": {
+          "description": "已探索区域经过一定天数后开始模糊",
+          "base_days": 5,
+          "san_modifier": "SAN每低10点，模糊提前1天",
+          "loop_modifier": "每轮回，模糊提前1天"
+        },
+        "explored_room_blur_level": {
+          "0": "完全清晰",
+          "1": "细节模糊，但布局正确",
+          "2": "部分房间名称变为描述性替代",
+          "3": "房间布局可能改变",
+          "4": "已探索区域完全模糊，需要重新探索"
+        },
+        "room_name_corruption": {
+          "examples": {
+            "沉锚酒馆二楼": [
+              "你住的地方",
+              "玛莎的楼上",
+              "你上次醒来的地方",
+              "门还在的房间"
+            ],
+            "码头区": [
+              "你第一次听到歌声的地方",
+              "水边",
+              "它们上岸的地方"
+            ],
+            "庄园大厅": [
+              "肖像在看你的地方",
+              "你第一次死去的地方",
+              "希尔达的棺材"
+            ]
+          }
+        },
+        "connection_instability": {
+          "description": "地图连接关系可能随时间改变",
+          "change_probability_per_day": 0.05,
+          "change_probability_per_loop": 0.1,
+          "symptom_before_change": "玩家笔记中该连接的描述出现水渍或涂改"
+        },
+        "false_landmark_chance": {
+          "description": "地图上可能出现不存在的地标",
+          "base_chance": 0.03,
+          "san_modifier": "SAN每低10点，概率+0.02",
+          "detection": "侦查检定可以识别虚假地标"
+        },
+        "landmark_memory_conflict": {
+          "description": "玩家记忆中的地标与当前地图不一致",
+          "example": "你记得灯塔在码头东端。但地图显示它在西端。你问路人，他们说灯塔一直在西端。"
+        }
+      },
+      "trigger_sources": [
+        {
+          "source": "time_passed",
+          "effect": "每日地图模糊度+0.1"
+        },
+        {
+          "source": "low_san",
+          "effect": "SAN<50时模糊速度翻倍"
+        },
+        {
+          "source": "fog_event",
+          "effect": "雾事件后所有已探索区域模糊度+1"
+        },
+        {
+          "source": "loop_count",
+          "effect": "每轮回初始模糊度+1"
+        },
+        {
+          "source": "city_corruption",
+          "effect": "腐败度每20点，模糊度+1"
+        },
+        {
+          "source": "reality_thin_area",
+          "effect": "在深层区域时模糊速度三倍"
+        }
+      ]
+    },
+    "monster_presence": {
+      "description": "减少怪物直接露面，提高痕迹和影响的比例",
+      "presence_stages": {
+        "absence": {
+          "name": "缺席",
+          "description": "没有出现，但环境不对",
+          "examples": [
+            "空气中弥漫着不属于此地的气味",
+            "温度突然下降",
+            "光源闪烁"
+          ]
+        },
+        "trace": {
+          "name": "痕迹",
+          "description": "留下物理或认知痕迹",
+          "examples": [
+            "湿脚印",
+            "鳞片",
+            "粘液",
+            "刻痕",
+            "被翻动的物品"
+          ]
+        },
+        "influence": {
+          "name": "影响",
+          "description": "影响NPC、地图、声音、文本",
+          "examples": [
+            "NPC行为异常",
+            "地图连接改变",
+            "听到不该听到的声音",
+            "文本被改写"
+          ]
+        },
+        "partial_presence": {
+          "name": "局部存在",
+          "description": "只出现局部——一只手、一只眼睛、一个影子",
+          "examples": [
+            "水下的一只眼睛",
+            "树冠上方的翅膀影子",
+            "门缝中伸出的手指"
+          ]
+        },
+        "full_presence": {
+          "name": "完整登场",
+          "description": "完整登场，极少使用。应作为章节高潮或错误结局节点。",
+          "examples": [
+            "深潜者从海水中走上码头",
+            "修格斯从墓穴通道中涌出"
+          ]
+        }
+      },
+      "creature_rules": {
+        "deep_ones": {
+          "name": "深潜者",
+          "stage_distribution": {
+            "absence": 0.1,
+            "trace": 0.4,
+            "influence": 0.3,
+            "partial_presence": 0.15,
+            "full_presence": 0.05
+          },
+          "preferred_manifestations": [
+            "湿脚印从水边延伸到不该出现的地方",
+            "鱼鳞卡在门缝",
+            "玛莎丈夫的位置永远空着，但杯子是湿的",
+            "老费舍说话时，远处海面同步泛起波纹",
+            "汤米照片里玩家身后有湿影",
+            "潮汐时刻表上的日期被水晕开",
+            "夜里安全屋楼梯上出现海盐"
+          ]
+        },
+        "night_gaunts": {
+          "name": "夜魔",
+          "stage_distribution": {
+            "absence": 0.15,
+            "trace": 0.35,
+            "influence": 0.3,
+            "partial_presence": 0.15,
+            "full_presence": 0.05
+          },
+          "preferred_manifestations": [
+            "树冠上方没有声音的影子",
+            "玩家额头上醒来有冰冷触感",
+            "森林里鸟倒挂着，用人声说一个词",
+            "地图边缘出现翅膀状墨痕"
+          ]
+        },
+        "shoggoth": {
+          "name": "修格斯",
+          "stage_distribution": {
+            "absence": 0.2,
+            "trace": 0.3,
+            "influence": 0.25,
+            "partial_presence": 0.2,
+            "full_presence": 0.05
+          },
+          "preferred_manifestations": [
+            "墓穴墙壁像软组织一样收缩",
+            "道具栏某个物品名称短暂变成眼",
+            "玩家听见自己骨头里有拖拽声",
+            "石棺不是打开，而是松开"
+          ]
+        },
+        "nyarlathotep": {
+          "name": "奈亚拉托提普",
+          "stage_distribution": {
+            "absence": 0.1,
+            "trace": 0.2,
+            "influence": 0.4,
+            "partial_presence": 0.25,
+            "full_presence": 0.05
+          },
+          "preferred_manifestations": [
+            "伊莎贝拉的祷词越来越像系统提示",
+            "教堂蜡烛火焰朝同一方向倾斜",
+            "玩家选项里出现一个没有来源的温柔建议",
+            "NPC说出玩家上周目才知道的话"
+          ]
+        }
+      }
+    },
+    "san_text_variants": {
+      "description": "关键事件、地点、道具、NPC互动在不同SAN状态下呈现不同理解",
+      "text_principles": [
+        "不要每段都写得极端诗化",
+        "用冷静叙述制造异常",
+        "多写触感、气味、动作和空间变化",
+        "少写恐怖、疯狂、不可名状等直白词",
+        "关键句尽量短，留余味"
+      ],
+      "variants": {
+        "thirteenth_bell": {
+          "name": "十三声钟响",
+          "san_high": "教堂钟声响了十三下。第十三声比前十二声更低，更长，像是从地下回应钟楼。",
+          "san_mid": "你数到十二，准备离开。第十三声替你数了下去。你低头看笔记，那里写着十一。",
+          "san_low": "没有钟声。是你在响。",
+          "normal_text": "教堂钟声响了十三下。你数了三遍。是十三下。",
+          "subtle_wrong_text": "教堂钟声响了十三下。你数了三遍。每一遍都是十三下。但你总觉得少数了一声。"
+        },
+        "investigate_bloodstain": {
+          "name": "调查血迹",
+          "san_high": "地板上有暗红色的污渍。已经干了，边缘发黑。像是很久以前留下的。",
+          "san_mid": "地板上有暗红色的污渍。你蹲下来，发现它还是湿的。但空气里没有铁锈味。是别的味道。",
+          "san_low": "地板上有暗红色的污渍。你用手碰了一下。它缩了回去。",
+          "normal_text": "地板上有暗红色的污渍。已经干了。可能是酒，也可能是别的什么。",
+          "subtle_wrong_text": "地板上有暗红色的污渍。已经干了。你蹲下来看了看。边缘有一圈白色的盐渍。"
+        },
+        "harbor_water": {
+          "name": "码头水面异动",
+          "san_high": "水面泛起一圈波纹。可能是鱼。也可能是别的什么。",
+          "san_mid": "水面泛起一圈波纹。波纹的形状像手指。你等了一会儿，它没有再出现。但你确定你看到了。",
+          "san_low": "水面泛起一圈波纹。它在回应你的心跳。",
+          "normal_text": "水面泛起一圈波纹。可能是鱼。",
+          "subtle_wrong_text": "水面泛起一圈波纹。波纹的形状很圆。像是有什么东西从正下方浮上来又沉下去了。"
+        },
+        "safehouse_footsteps": {
+          "name": "安全屋夜间脚步声",
+          "san_high": "门外传来脚步声。你打开门，走廊空无一人。可能是隔壁的房客。",
+          "san_mid": "门外传来脚步声。你打开门，走廊空无一人。但地板上有湿脚印。鞋码和你的一样。",
+          "san_low": "门外传来脚步声。你没有开门。脚步声停在了你的门前。然后，有人轻轻敲了三下。",
+          "normal_text": "门外传来脚步声。你打开门，走廊空无一人。可能是隔壁的房客。",
+          "subtle_wrong_text": "门外传来脚步声。你打开门，走廊空无一人。但地板上有几滴水。"
+        },
+        "hilda_portrait": {
+          "name": "希尔达庄园肖像",
+          "san_high": "大厅里挂着莫里斯家族的肖像画。画中人的眼睛朝向不同方向。",
+          "san_mid": "大厅里挂着莫里斯家族的肖像画。你走过时，所有的眼睛都转向了你。最年轻的那幅画里，男孩在微笑。",
+          "san_low": "大厅里挂着莫里斯家族的肖像画。你认出了最年轻的那幅画里的脸。那是你小时候的脸。",
+          "normal_text": "大厅里挂着莫里斯家族的肖像画。画中人的眼睛朝向不同方向。",
+          "subtle_wrong_text": "大厅里挂着莫里斯家族的肖像画。你走过时，觉得最年轻的那幅画里的人在看你。但你转过头时，他的眼睛朝向别处。"
+        },
+        "fisher_blood": {
+          "name": "老费舍交出钥匙之血",
+          "san_high": "老费舍割开了手腕。血流入封印核心。他的表情很平静。",
+          "san_mid": "老费舍割开了手腕。血流入封印核心。血的颜色不对——不是红色，是灰蓝色。但老费舍的表情很平静。",
+          "san_low": "老费舍割开了手腕。血流入封印核心。你听到血在说话。它说的不是人话。老费舍闭上了眼睛。",
+          "normal_text": "老费舍割开了手腕。血流入封印核心。他的表情很平静。",
+          "subtle_wrong_text": "老费舍割开了手腕。血流入封印核心。血的颜色比正常的暗一些。但老费舍的表情很平静。"
+        },
+        "isabella_bell": {
+          "name": "伊莎贝拉敲钟",
+          "san_high": "伊莎贝拉敲了十二下钟。然后她松开了钟绳。第十三声没有来。",
+          "san_mid": "伊莎贝拉敲了十二下钟。第十三下自己响了。不，等等——没有响。你低头看笔记，上面写着十三。你划掉了，改成十二。",
+          "san_low": "伊莎贝拉敲了十二下钟。你数到十三。伊莎贝拉说她只敲了十一下。你们谁是对的？",
+          "normal_text": "伊莎贝拉敲了十二下钟。然后她松开了钟绳。第十三声没有来。",
+          "subtle_wrong_text": "伊莎贝拉敲了十二下钟。你等了一会儿。第十三声没有来。但你的笔记上写着十三。你划掉了，改成十二。"
+        },
+        "joshua_guard": {
+          "name": "约书亚发疯或守住灯塔",
+          "san_high": "约书亚站在灯塔入口。他的眼神清明。他说：这次我看着门。",
+          "san_mid": "约书亚站在灯塔入口。他的眼神清明。但他身后的墙上写满了同一个词：醒了。醒了。醒了。",
+          "san_low": "约书亚站在灯塔入口。他转过头看你。你不确定那是约书亚。他的眼睛颜色不对。但他说话的声音是约书亚的。",
+          "normal_text": "约书亚站在灯塔入口。他的眼神清明。他说：这次我看着门。",
+          "subtle_wrong_text": "约书亚站在灯塔入口。他的眼神清明。但他身后的墙上有一行字，你以前没见过：它醒了。"
+        },
+        "canned_food": {
+          "name": "普通罐头",
+          "san_high": "罐头：一份可以果腹的食物。",
+          "san_mid": "罐头：标签被水泡烂了。你不记得自己什么时候买过它。",
+          "san_low": "罐头：里面有潮声。",
+          "normal_text": "罐头：一份可以果腹的食物。",
+          "subtle_wrong_text": "罐头：一份可以果腹的食物。标签有些潮，字迹模糊了。"
+        },
+        "tide_timetable": {
+          "name": "潮汐时刻表",
+          "san_high": "潮汐时刻表：记录了每日涨潮退潮时间。",
+          "san_mid": "潮汐时刻表：记录了每日涨潮退潮时间。你注意到有几天的日期被水晕开了。",
+          "san_low": "潮汐时刻表：记录了每日涨潮退潮时间。最后一页写着你的名字。日期是今天。",
+          "normal_text": "潮汐时刻表：记录了每日涨潮退潮时间。",
+          "subtle_wrong_text": "潮汐时刻表：记录了每日涨潮退潮时间。有几天的日期被水晕开了。"
+        },
+        "candle_lamp": {
+          "name": "蜡烛 / 灯油 / 手电",
+          "san_high": "蜡烛：照亮黑暗区域。",
+          "san_mid": "蜡烛：照亮黑暗区域。火焰偶尔朝没有风的方向倾斜。",
+          "san_low": "蜡烛：照亮黑暗区域。火焰朝你倾斜。像是在鞠躬。",
+          "normal_text": "蜡烛：照亮黑暗区域。",
+          "subtle_wrong_text": "蜡烛：照亮黑暗区域。火焰偶尔朝没有风的方向轻微倾斜。"
+        },
+        "catacombs_entrance_text": {
+          "name": "深渊墓穴入口",
+          "san_high": "石门上刻满了符号。门缝中透出冰冷的气流。",
+          "san_mid": "石门上刻满了符号。符号在火把光芒下缓慢蠕动。你眨了眨眼。它们停了。也许它们从来没有动过。",
+          "san_low": "石门上刻满了符号。符号在看着你。你知道它们在看着你，因为你也在看着它们。你们是同类。",
+          "normal_text": "石门上刻满了符号。门缝中透出冰冷的气流。",
+          "subtle_wrong_text": "石门上刻满了符号。你凑近看时，觉得符号在火把光芒下微微蠕动。你眨了眨眼。它们停了。"
+        }
+      }
+    },
+    "philosophical_mechanics": {
+      "description": "将玩法本身做成隐喻——沉默也是选择、不可逆微小选择、资源作为道德压力",
+      "core_principle": "无力感不是玩家什么都没有，而是玩家永远只有一份，却有三个人需要。",
+      "silence_is_choice": {
+        "description": "沉默不会总是立刻导致最坏结果，但会留下痕迹",
+        "options": [
+          "说出真相",
+          "撒谎",
+          "沉默"
+        ],
+        "silence_consequences": [
+          "NPC agency下降",
+          "NPC trust不变但humanity下降",
+          "安全屋士气降低",
+          "某个结局文本变冷",
+          "玩家日志记录：你没有回答。她替你理解了沉默。"
+        ],
+        "key_silence_moments": [
+          {
+            "scene": "希尔达询问玩家是否愿意帮助封印",
+            "silence_effect": "希尔达agency-10，她开始考虑替代方案"
+          },
+          {
+            "scene": "老费舍询问玩家是否理解他的处境",
+            "silence_effect": "老费舍humanity-5，他开始独自计划归海"
+          },
+          {
+            "scene": "伊莎贝拉等待玩家阻止她敲钟",
+            "silence_effect": "第十三声响起，仪式进入不可逆阶段"
+          },
+          {
+            "scene": "约书亚在灯塔前问玩家是否需要他",
+            "silence_effect": "约书亚agency-15，他开始怀疑自己的价值"
+          }
+        ],
+        "silence_journal_entries": [
+          "你没有回答。她替你理解了沉默。",
+          "你转身离开了。他没有叫住你。也许他早就知道你会这样。",
+          "你选择了沉默。沉默也是一种回答。但没有人告诉你沉默的答案是什么。"
+        ]
+      },
+      "timed_choices": {
+        "description": "少数关键节点使用限时选择，但压力来自世界本身，而不是UI惩罚",
+        "avoid": "不要频繁使用硬性的3秒限时选择",
+        "appropriate_scenes": [
+          "NPC即将被拖入海中",
+          "第十三声钟即将响起",
+          "玩家决定最后一盏灯带走还是留给安全屋",
+          "伊莎贝拉等待玩家阻止她敲钟",
+          "老费舍将要归海"
+        ],
+        "presentation_methods": {
+          "description": "不要显示普通倒计时",
+          "methods": [
+            "钟声一下一下接近第十三声",
+            "潮水逐渐漫过台阶",
+            "门外脚步声越来越近",
+            "蜡烛越来越短",
+            "NPC呼吸越来越慢"
+          ]
+        },
+        "consequence_examples": [
+          "你在第十二声之后仍然沉默。所以她替你做了选择。",
+          "潮水漫过了最后一级台阶。你没有伸出手。他沉下去时没有看你。",
+          "蜡烛灭了。你选择了黑暗。黑暗也选择了你。"
+        ]
+      },
+      "resource_as_moral_pressure": {
+        "description": "最后一份食物、最后一盏灯、最后一支镇静剂、最后一根绳索，都不应只是资源，而应成为人性审判",
+        "last_food_choices": [
+          {
+            "target": "self",
+            "effect": "降低明日疲劳",
+            "moral_weight": "neutral"
+          },
+          {
+            "target": "joshua",
+            "effect": "降低癫狂概率",
+            "moral_weight": "compassion",
+            "description": "你把食物给了一个疯子。但他是人。"
+          },
+          {
+            "target": "tommy",
+            "effect": "他愿意冲洗危险照片",
+            "moral_weight": "pragmatic_compassion",
+            "description": "他接过食物时手在发抖。不是因为害怕——是因为很久没人把他当人了。"
+          },
+          {
+            "target": "hilda",
+            "effect": "帮她熬过血脉低语之夜",
+            "moral_weight": "deep_compassion",
+            "description": "她看着你递过来的食物，眼眶红了。三百年了，第一次有人记得她也会饿。"
+          },
+          {
+            "target": "safehouse",
+            "effect": "提高幸存者士气",
+            "moral_weight": "collective"
+          },
+          {
+            "target": "old_fisher",
+            "effect": "他愿意多说一些关于海的事",
+            "moral_weight": "understanding"
+          }
+        ],
+        "last_light_choices": [
+          {
+            "target": "bring_to_catacombs",
+            "effect": "墓穴探索安全",
+            "moral_weight": "self_preservation"
+          },
+          {
+            "target": "leave_at_safehouse",
+            "effect": "安全屋当晚安全",
+            "moral_weight": "collective"
+          },
+          {
+            "target": "give_to_isabella",
+            "effect": "让她完成第十二声后的选择",
+            "moral_weight": "faith_in_other"
+          },
+          {
+            "target": "give_to_joshua",
+            "effect": "他守住灯塔入口",
+            "moral_weight": "trust"
+          }
+        ]
+      }
+    },
+    "ending_text_rewrite": {
+      "description": "十个主结局的艺术化文本方向——结局不能只说明结果，要留下余味",
+      "principles": [
+        "每个结局根据humanity_evaluation分为三种文本温度",
+        "结局最后一句话应留有余味，不要总结性收尾",
+        "使用雾、钟声、水三个母题",
+        "允许玩家通关后仍无法确认真相是否唯一"
+      ],
+      "endings": {
+        "ending_seal_player_keeper": {
+          "core_emotion": "沉重的平静",
+          "final_image": "多年后外乡人来到沃切斯特，听见十二声钟",
+          "motif_usage": [
+            "钟声",
+            "雾"
+          ],
+          "high_humanity_text": "多年后，外乡人来到沃切斯特。他在镇中心听见钟声响了十二下。他松了一口气。只有你知道，第十三声被谁咽了回去。你站在深渊之眼前方。封印的光芒包裹着你。你闭上眼。你听到了远处的潮声。它很平静。像一首摇篮曲。",
+          "fragile_humanity_text": "封印重铸了。代价是你。你不是第一个，也许不是最后一个。你站在深渊之眼前方，听着自己的心跳。它和封印的脉动同步了。你不确定自己是在守护还是在被囚禁。但至少——今晚的钟声只有十二下。",
+          "lost_humanity_text": "封印重铸了。你成为了新的守门人。你已经不记得自己的名字了。但你记得钟声。十三声。你每天都在数。你不确定是在数钟声，还是在数自己还剩多少次。",
+          "last_line": "钟声响了十二下。第十三声没有来。你知道它在哪里。"
+        },
+        "ending_seal_hilda_choice": {
+          "core_emotion": "被允许的告别",
+          "final_image": "庄园安静得像一口合上的棺",
+          "motif_usage": [
+            "雾",
+            "肖像画"
+          ],
+          "high_humanity_text": "希尔达走进了封印核心。她转身看了你最后一眼。三百年了，她说，终于有人让我自己选。你没有阻止她。因为你知道——这是她的选择，不是你的。她把庄园祖先肖像一幅幅翻向墙面。最后一幅画翻过去时，庄园安静得像一口合上的棺。",
+          "fragile_humanity_text": "希尔达走进了封印核心。你不知道她是真的想这么做，还是因为你给了她太多信息让她觉得这是唯一选择。你永远不会知道。庄园的肖像画全都面向墙壁。你走过大厅时，有一幅画的眼睛还在看你。",
+          "lost_humanity_text": "希尔达走进了封印核心。你精心安排了一切——告诉她真相，给她选择的假象，让她以为这是自主决定。但你知道，你从一开始就在引导她走向这里。庄园的肖像画全都面向你。它们在微笑。",
+          "last_line": "庄园安静了。没有钟声。没有潮声。只有风穿过空走廊的声音。"
+        },
+        "ending_seal_old_fisher_blood": {
+          "core_emotion": "最后的温度",
+          "final_image": "码头边只剩一双鞋",
+          "motif_usage": [
+            "水",
+            "月光"
+          ],
+          "high_humanity_text": "老费舍坐在码头边，第一次在人前脱下鞋。脚趾之间的薄膜在月光下轻轻张开。他没有解释，只把刀递给你：趁我还知道疼。血流入封印核心。光芒爆发。老费舍倒下了。但他没有死。他还是人。勉强是。你扶他坐起来。他看着海面，很久没有说话。最后他说：谢谢你让我自己选。",
+          "fragile_humanity_text": "老费舍交出了钥匙之血。你不确定他是自愿的还是被你的期望所迫。他的眼睛里有释然，也有疲惫。封印重铸了。你扶他坐起来。他看着海面。你不知道他在想什么。也许他在想，如果他没有脱下那双鞋，结局会不会不一样。",
+          "lost_humanity_text": "老费舍的血流入了封印核心。你把他带到这里，他知道会发生什么。但你没有给他选择。你只是需要他的血。封印重铸了。你站起来时，码头边只剩一双鞋。鞋里是空的。海面很平静。",
+          "last_line": "码头边的鞋还在。海水没有碰它们。也许是出于尊重。"
+        },
+        "ending_isabella_twelfth_bell": {
+          "core_emotion": "被拒绝的神谕",
+          "final_image": "第十二声之后的沉默",
+          "motif_usage": [
+            "钟声",
+            "蜡烛"
+          ],
+          "high_humanity_text": "伊莎贝拉站在钟楼上。她敲了十二下。第十三下，她松开了手。钟绳在空中轻轻摆动。整座教堂都在等待。但第十三声没有来。伊莎贝拉走下钟楼。她的脸上没有泪水。只有疲惫。她经过你身边时轻声说：谢谢你让我看清了。",
+          "fragile_humanity_text": "伊莎贝拉敲了十二下钟。然后她松开了手。你不知道她是因为真相而悔悟，还是因为你给了她太多证据让她无法自欺。但结果是一样的——第十三声没有来。教堂的蜡烛同时熄灭了。不是风吹的。",
+          "lost_humanity_text": "伊莎贝拉敲了十二下钟。你用真相击溃了她的信仰。她不再相信任何东西了。第十三声没有来。但你知道——你不只是为了阻止仪式。你是为了证明你比她更正确。蜡烛的火焰朝你倾斜。像是在鞠躬。",
+          "last_line": "教堂安静了。钟绳还在轻轻摆动。像是有人刚刚松开手。"
+        },
+        "ending_escape_by_sea": {
+          "core_emotion": "带不走的潮声",
+          "final_image": "船离岸后，雾仍然没有散",
+          "motif_usage": [
+            "雾",
+            "水",
+            "罐头"
+          ],
+          "high_humanity_text": "你在黎明前登上了渔船。海风吹在脸上，那是你很长时间以来第一次感受到真实的风。你自由了。但你知道——沃切斯特还在那里。那些人还在那里。船离岸很远后，雾仍然没有散。玛莎给你的罐头在包里轻轻晃动。你忽然意识到，那不是罐头的声音。是潮水。从里面传来。",
+          "fragile_humanity_text": "你逃离了沃切斯特。你活下来了。但你没有带走所有人。有些人留在了雾里。你告诉自己你已经尽力了。也许这是真的。船离岸后，你回头看了一眼。沃切斯特已经消失在雾中。但你仍然能听到钟声。十二声。然后是沉默。",
+          "lost_humanity_text": "你逃离了沃切斯特。你带出了证据和情报。你活下来了。那些留在城里的人——你甚至没有回头看一眼。船离岸后，你打开罐头。里面不是食物。是海水。你把罐头扔进了海里。它没有沉。",
+          "last_line": "海很平静。但你知道，海的下面不平静。"
+        },
+        "ending_evidence_escape": {
+          "core_emotion": "无人相信的真相",
+          "final_image": "多年后另一个港口响起第十三声钟",
+          "motif_usage": [
+            "钟声",
+            "旧照片"
+          ],
+          "high_humanity_text": "你带着证据离开了沃切斯特。你把它们交给了需要知道的人。他们不相信你。但证据在那里。多年后，你在另一个港口城市听到了钟声。十三声。你知道——一切还没有结束。但至少，真相在你手中。",
+          "fragile_humanity_text": "你带着证据离开了。你把它们交给了需要知道的人。他们不相信你。你开始怀疑自己。也许沃切斯特只是一场梦。但你的口袋里有一张照片。照片上是码头。码头边有一双儿童鞋。鞋里是空的。",
+          "lost_humanity_text": "你带着证据离开了。你把它们卖给了最高出价者。钱到手了。真相？真相只是商品。多年后，你在报纸上看到沃切斯特的旅游业正在蓬勃发展。游客们称赞那里的神秘氛围。你笑了。",
+          "last_line": "报纸上说沃切斯特的钟声很好听。每天十二下。你数了三遍。是十二下。"
+        },
+        "ending_heretical_dawn": {
+          "core_emotion": "被接受的启示",
+          "final_image": "天空裂开，玩家跪下",
+          "motif_usage": [
+            "钟声",
+            "光"
+          ],
+          "high_humanity_text": "你不知道自己是怎么走到这一步的。你本想阻止仪式。但你看到了真相——或者说，你看到了它想让你看到的真相。天空裂开了。你跪下了。不是出于恐惧——是出于敬畏。也许这就是疯狂。也许这就是真相。你永远不会知道了。",
+          "fragile_humanity_text": "仪式完成了。你不确定自己是被欺骗了还是主动选择了。也许两者没有区别。新的时代开始了。你站在教堂门口，看着天空裂开。光从裂缝中涌出。你闭上了眼。你听到了钟声。很多声。你数不清了。",
+          "lost_humanity_text": "你完成了仪式。你从一开始就知道会发生什么。你想要这个结果。你欢迎它们。你张开了双臂。天空裂开了。光涌入了沃切斯特。你微笑了。这是你作为人类的最后一个表情。",
+          "last_line": "钟声响了。不是十三声。是很多声。你已经数不清了。"
+        },
+        "ending_abyss_consumed": {
+          "core_emotion": "平静的坠落",
+          "final_image": "深渊之眼在底部注视",
+          "motif_usage": [
+            "水",
+            "黑暗"
+          ],
+          "high_humanity_text": "你走到了竖井边缘。深渊之眼在底部注视着你。你知道了——人类的存在是多么渺小。但你没有跳下去。你只是坐在边缘，看着那无尽的黑暗。你哭了。不是因为恐惧——是因为你终于理解了。你站起来，离开了墓穴。你还有选择。",
+          "fragile_humanity_text": "你坠入了深渊。你没有挣扎。也许是因为你太累了。也许是因为你已经不在乎了。坠落的过程中，你看到了一切——从宇宙的诞生到终结。你微笑了。这不是恐惧。这是理解。",
+          "lost_humanity_text": "你张开双臂，向竖井迈出了一步。坠落的过程中，你看到了一切。当你落地时，你感到的是平静。永恒的、无尽的平静。然后，你睁开了新的眼睛。不再是人类的眼睛。你开始向上攀爬。",
+          "last_line": "你睁开了眼睛。眼睛的颜色不对。但你已经不在乎了。"
+        },
+        "ending_transcendence": {
+          "core_emotion": "不属于任何地方的清醒",
+          "final_image": "玩家站在时间之外",
+          "motif_usage": [
+            "雾",
+            "星辰"
+          ],
+          "high_humanity_text": "你超越了人类的视角。你看到了时间的全貌。你理解了封印的本质。但你选择了回来——回到人类的视角，用你学到的一切来守护这个世界。你不再是完全的人，但你选择了做人该做的事。你站在沃切斯特的街道上。雾散了。你看到了天空。它和你记忆中的不一样。",
+          "fragile_humanity_text": "你超越了。你看到了一切。你理解了。但你不知道自己还是不是你。你的身体在沃切斯特，但你的心在别处。在时间之外。你看着自己的手。它在发光。你把手放进口袋里。光芒透过了布料。",
+          "lost_humanity_text": "你超越了人类。你看到了宇宙的全貌。人类的恐惧、希望、爱——在你看来都是化学反应。你不再属于这个世界。你也不再关心它。你站在沃切斯特的街道上。雾在你身边散开了。不是因为风——是因为它怕你。",
+          "last_line": "你站在时间之外。你看到了沃切斯特的过去和未来。它们是一样的。"
+        },
+        "ending_loop_truth": {
+          "core_emotion": "清醒的轮回",
+          "final_image": "玩家走进深渊之眼，光芒包裹",
+          "motif_usage": [
+            "钟声",
+            "雾",
+            "水"
+          ],
+          "high_humanity_text": "你终于明白了。轮回本身就是封印。你不是被困在这里——你是封印的一部分。你微笑了。这一次，你选择打破轮回。不是因为你想逃——而是因为你想让沃切斯特的人得到安宁。你走进了深渊之眼。光芒包裹了你。封印重铸了——永恒地。因为你这一次是自愿的。",
+          "fragile_humanity_text": "你明白了轮回的真相。你选择打破它。也许是因为你厌倦了。也许是因为你终于理解了。你走进了深渊之眼。光芒包裹了你。你不知道自己是在拯救还是在逃避。但至少——轮回结束了。也许吧。",
+          "lost_humanity_text": "你明白了。轮回是封印。你是钥匙。你选择继续轮回——不是因为你想守护，而是因为你已经不知道如何做别的事了。你微笑了。这一次和上一次一样。也许下一次也会一样。你已经不在乎了。",
+          "last_line": "钟声响了。十三声。你数了。然后你微笑了。你知道下一次，你还会数的。"
+        }
+      }
+    },
+    "ending_system_v2": {
+      "description": "三层结局判定系统——先判断世界结果，再判断代价承担者，最后判断人性温度",
+      "judgement_layers": {
+        "layer_1_world_outcome": {
+          "name": "第一层：沃切斯特发生了什么",
+          "possible_outcomes": [
+            "seal_restored",
+            "escaped_by_sea",
+            "evidence_escape",
+            "heretical_dawn",
+            "abyss_consumed",
+            "transcendence",
+            "loop_truth"
+          ]
+        },
+        "layer_2_cost_bearer": {
+          "name": "第二层：谁承担了代价",
+          "possible_bearers": [
+            "player",
+            "hilda",
+            "old_fisher",
+            "isabella",
+            "shared",
+            "no_one",
+            "unknown"
+          ]
+        },
+        "layer_3_humanity_evaluation": {
+          "name": "第三层：结局文本温度",
+          "possible_evaluations": [
+            "humanity_high",
+            "humanity_fragile",
+            "humanity_lost"
+          ],
+          "criteria": {
+            "humanity_high": "玩家始终把NPC当人，没有强迫牺牲，没有隐瞒关键真相，没有把人当工具",
+            "humanity_fragile": "玩家在压力下做出妥协，但核心人性仍在",
+            "humanity_lost": "玩家把NPC当工具，隐瞒真相诱导牺牲，或主动参与非人行为"
+          }
+        }
+      },
+      "humanity_tracking": {
+        "npc_redemption_score": {
+          "description": "记录有多少NPC完成了救赎",
+          "calculation": "count of NPCs with redemption_state == redeemed",
+          "affects": "ending text warmth, ending availability"
+        },
+        "humanity_retained_score": {
+          "description": "记录玩家是否仍然把别人当人",
+          "tracking_events": [
+            {
+              "event": "player_forces_npc_sacrifice",
+              "score_change": -10,
+              "description": "诱导NPC牺牲"
+            },
+            {
+              "event": "player_hides_critical_truth",
+              "score_change": -8,
+              "description": "隐瞒关键真相"
+            },
+            {
+              "event": "player_uses_npc_as_tool",
+              "score_change": -5,
+              "description": "把NPC当工具使用"
+            },
+            {
+              "event": "player_gives_last_food_to_npc",
+              "score_change": 5,
+              "description": "把最后一份食物给NPC"
+            },
+            {
+              "event": "player_warns_npc_of_danger",
+              "score_change": 3,
+              "description": "警告NPC危险"
+            },
+            {
+              "event": "player_tells_truth_at_cost",
+              "score_change": 8,
+              "description": "即使代价高昂也说出真相"
+            },
+            {
+              "event": "player_chooses_self_sacrifice",
+              "score_change": 15,
+              "description": "选择自己承担代价"
+            },
+            {
+              "event": "player_treats_hybrid_as_human",
+              "score_change": 5,
+              "description": "把混血者当人对待"
+            },
+            {
+              "event": "player_abandons_npc_in_danger",
+              "score_change": -7,
+              "description": "在危险中抛弃NPC"
+            }
+          ],
+          "thresholds": {
+            "humanity_high": 60,
+            "humanity_fragile": 30,
+            "humanity_lost": 0
+          }
+        }
+      },
+      "tool_usage_tracking": {
+        "description": "记录玩家是否在NPC高信任但低自主性时诱导其牺牲",
+        "tracked_patterns": [
+          {
+            "pattern": "npc_high_trust_low_agency_sacrifice",
+            "description": "NPC信任高但自主性低时被引导牺牲",
+            "humanity_penalty": -15
+          },
+          {
+            "pattern": "player_withholds_ritual_cost",
+            "description": "玩家知道仪式代价但不告诉NPC",
+            "humanity_penalty": -12
+          },
+          {
+            "pattern": "player_uses_npc_as_blood_source",
+            "description": "把NPC当作血液来源",
+            "humanity_penalty": -10
+          },
+          {
+            "pattern": "player_sends_npc_to_die_alone",
+            "description": "派NPC独自面对死亡",
+            "humanity_penalty": -10
+          }
+        ]
+      }
+    },
+    "implementation_examples": {
+      "description": "每个模块的完整JSON对象示例，可直接进入游戏数据",
+      "examples": {
+        "silent_event_example": {
+          "id": "silent_harbor_children_shoes",
+          "name": "码头儿童鞋",
+          "location": "harbor_district",
+          "trigger_condition": "always",
+          "text": "你在码头边看到一双儿童鞋，整齐地摆在水边。鞋里没有水。你站了一会儿。什么也没有发生。",
+          "mechanical_effect": null,
+          "emotional_function": "让玩家感到失踪案不是数字，而是缺席的人",
+          "repeat_behavior": "only_once",
+          "silent_event": true,
+          "motif": "water",
+          "reward_policy": "none",
+          "purpose": "atmosphere"
+        },
+        "san_text_variant_example": {
+          "event_id": "evt_strange_clock",
+          "normal_text": "教堂钟声响了十三下。你数了三遍。是十三下。",
+          "subtle_wrong_text": "教堂钟声响了十三下。你数了三遍。每一遍都是十三下。但你总觉得少数了一声。",
+          "san_mid_text": "你数到十二，准备离开。第十三声替你数了下去。你低头看笔记，那里写着十一。",
+          "san_low_text": "没有钟声。是你在响。",
+          "abyssal_text": "你就是钟声。你一直在响。你只是不知道自己在响。"
+        },
+        "ui_corruption_example": {
+          "layer": 2,
+          "name": "重复",
+          "trigger": "SAN<55 or loop_count>=3",
+          "location_name": "沉锚酒馆二楼 / 沉锚酒馆二楼 / 沉锚酒馆二楼",
+          "item_message": "你获得了：潮汐时刻表。你确认自己刚才没有已经拿过它。",
+          "system_message": "行动点不足。你上次也这么说。",
+          "option_text": "调查钟楼 / 调查钟楼 / 你确定要去吗",
+          "save_name": "Day 2 - 你又回来了"
+        },
+        "npc_redemption_beat_example": {
+          "npc": "old_fisher",
+          "normal_behavior": "坐在码头边看着海面，偶尔低声说话",
+          "corrupted_behavior": "深夜走向大海，皮肤大面积变为灰绿色",
+          "redemption_trigger": "在彻底归海前做最后一件属于人的事",
+          "redemption_action": "他终于脱下鞋，让玩家看见已经非人的脚，然后平静地交出钥匙之血",
+          "redemption_text": "老费舍坐在码头边，第一次在人前脱下鞋。脚趾之间的薄膜在月光下轻轻张开。他没有解释，只把刀递给你：趁我还知道疼。",
+          "no_monologue": true,
+          "failure_variant": "你早上醒来时，码头边只有他的鞋。鞋里是空的。海面很平静。"
+        },
+        "loop_text_variant_example": {
+          "npc": "martha_grey",
+          "loop_1": "玛莎擦着杯子，抬头看了你一眼：外乡人？这个季节可没人来沃切斯特。",
+          "loop_2": "玛莎擦着杯子，抬头看了你一眼：外乡人？不，我是不是说过这句话？",
+          "loop_3": "玛莎没有抬头。这个季节可没人来沃切斯特。除了你。",
+          "loop_4": "你推门前，已经听见里面有人说：他来了。",
+          "loop_5_plus": "玛莎给你倒了一杯酒。你没有点单。她也没有问。"
+        },
+        "death_restart_example": {
+          "death_type": "physical_death",
+          "cause": "by_monster",
+          "death_text": "你倒在了沃切斯特的某个角落。血从伤口流出，渗入鹅卵石的缝隙。你最后看到的是雾。雾很安静。",
+          "restart_text_loop_1": "你醒来时，发现自己在沃切斯特的入口。你的头很疼。你不记得自己是怎么到这里的。你的衣服是干的。伤口不见了。",
+          "restart_text_loop_3": "你醒来时，发现自己在沃切斯特的入口。你没有头疼。你记得一切。这比头疼更糟糕。"
+        }
+      }
+    },
+    "accessibility": {
+      "description": "可访问性与安全选项——所有感官污染必须有强度控制或关闭选项",
+      "core_rules": [
+        "伪报错不得使用真实操作系统弹窗样式",
+        "伪报错不得让玩家误以为游戏真实崩溃、设备故障或存档损坏",
+        "输入阻尼只允许短时出现在强叙事节点，不得影响基础操作",
+        "所有视觉污染必须可关闭或降低强度",
+        "所有音频异化必须可关闭或降低强度",
+        "闪烁效果必须有频率控制"
+      ],
+      "options": {
+        "visual_distortion": {
+          "name": "视觉扰动",
+          "settings": {
+            "off": "关闭所有视觉污染效果",
+            "low": "降低强度50%，仅保留轻微边缘雾化",
+            "medium": "默认强度",
+            "high": "完整视觉污染效果"
+          },
+          "default": "medium"
+        },
+        "audio_distortion": {
+          "name": "音频异化",
+          "settings": {
+            "off": "关闭所有音频污染，仅保留基础环境音",
+            "low": "降低异化音量，移除低频嗡鸣",
+            "medium": "默认强度",
+            "high": "完整音频污染效果"
+          },
+          "default": "medium"
+        },
+        "input_resistance": {
+          "name": "输入阻尼",
+          "settings": {
+            "off": "关闭所有输入阻尼效果",
+            "on": "在强叙事节点启用短暂输入阻尼（每次不超过2秒）"
+          },
+          "default": "on"
+        },
+        "flicker_control": {
+          "name": "闪烁控制",
+          "settings": {
+            "off": "关闭所有闪烁效果",
+            "low": "闪烁频率降低50%",
+            "medium": "默认频率",
+            "high": "完整闪烁效果"
+          },
+          "default": "medium"
+        },
+        "pseudo_error_style": {
+          "name": "伪系统提示样式",
+          "settings": {
+            "safe": "所有伪系统提示使用游戏内对话框样式，明确标注[游戏内文本]",
+            "immersive": "伪系统提示使用游戏内样式，但不标注",
+            "full": "完整伪系统提示效果"
+          },
+          "default": "immersive",
+          "critical_rule": "即使在full模式下，伪报错也绝不能使用操作系统原生弹窗样式、浏览器alert样式、或任何可能被误认为真实系统消息的样式"
+        },
+        "text_speed": {
+          "name": "文本速度",
+          "settings": {
+            "instant": "立即显示全部文本",
+            "fast": "快速逐字显示",
+            "normal": "正常速度",
+            "slow": "慢速显示，适合需要仔细阅读的玩家"
+          },
+          "default": "instant"
+        },
+        "content_warnings": {
+          "name": "内容警告",
+          "settings": {
+            "on": "在可能引起不适的事件前显示内容警告",
+            "off": "不显示内容警告"
+          },
+          "default": "on"
+        }
+      },
+      "pseudo_error_rules": {
+        "allowed_styles": [
+          "游戏内对话框",
+          "游戏内系统消息栏",
+          "游戏内日志文本",
+          "游戏内选项文字"
+        ],
+        "forbidden_styles": [
+          "操作系统原生弹窗（Windows MessageBox、macOS Alert）",
+          "浏览器alert/confirm/prompt",
+          "蓝屏样式",
+          "应用崩溃报告样式",
+          "任何可能被误认为真实系统消息的样式"
+        ],
+        "safety_disclaimer": "所有伪系统提示必须在游戏重新加载或检查设置时可以被识别为游戏内容"
+      }
+    },
+    "chapter_progression_events": [
+      {
+        "day": 3,
+        "id": "evt_day3_fog",
+        "name": "异常浓雾",
+        "description": "一场史无前例的浓雾笼罩全城，所有区域的侦查-20，潜行+20。雾中出现了不应该存在的建筑轮廓",
+        "effect": {
+          "global侦查": -20,
+          "global潜行": 20,
+          "duration_days": 1
+        }
+      },
+      {
+        "day": 7,
+        "id": "evt_day7_seal_crack",
+        "name": "封印第一道裂隙",
+        "description": "午夜钟声响了十四声而非十三声。地下传来一声沉闷的断裂声，全城的狗同时嚎叫",
+        "effect": {
+          "seal_state_change": "weakening",
+          "all_npc_san": -2
+        }
+      },
+      {
+        "day": 10,
+        "id": "evt_day10_missing_wave",
+        "name": "失踪潮",
+        "description": "一夜之间十二人失踪，公告栏被新告示覆盖。失踪者有一个共同点：他们都曾在码头区逗留",
+        "effect": {
+          "missing_count": 12,
+          "harbor_danger_plus": 1
+        }
+      },
+      {
+        "day": 14,
+        "id": "evt_day14_deep_tide",
+        "name": "深潜者大潮",
+        "description": "潮水异常涨高，将深海之物推上街道。灯塔的绿光与月光重合，海面上升起了巨大阴影的轮廓",
+        "effect": {
+          "seal_state_change": "critical",
+          "harbor_monster_chance_x2": true
+        }
+      },
+      {
+        "day": 17,
+        "id": "evt_day17_star_align",
+        "name": "星辰排列",
+        "description": "夜空中的星座呈现出与遗迹地板相同的图案。伊斯遗迹的倒塔尖端发出紫罗兰光芒，持续整夜",
+        "effect": {
+          "ruins_event_chance_x2": true,
+          "evt_yithian_echo_force": true
+        }
+      },
+      {
+        "day": 21,
+        "id": "evt_day21_mad_night",
+        "name": "疯狂之夜",
+        "description": "天空变成暗红色，所有居民同时陷入噩梦。低语森林的声响变为呐喊，墓穴敲击声震耳欲聋",
+        "effect": {
+          "seal_state_change": "collapsing",
+          "all_sanity_loss_plus": 3,
+          "all_npc_random_behavior": true
+        }
+      },
+      {
+        "day": 25,
+        "id": "evt_day25_last_warning",
+        "name": "最后的警告",
+        "description": "所有尚存理智的NPC同时出现在镇中心，试图最后劝说玩家。之后他们将各自走向命运的终点",
+        "effect": {
+          "all_npc_converge_town": true,
+          "npc_survival_check": true
+        }
+      },
+      {
+        "day": 28,
+        "id": "evt_day28_doomsday",
+        "name": "末日钟声",
+        "description": "封印若未重铸，此日自动破碎。深渊之眼完全睁开，沃切斯特的天空裂开",
+        "effect": {
+          "seal_state_change": "broken",
+          "force_ending": "ending_bad_ritual"
+        }
+      }
+    ],
+    "failure_states": {
+      "description": "多样化失败系统——不只是HP归零/SAN归零，还有身份死亡、时间死亡、叙事死亡等克系主题失败",
+      "failure_types": {
+        "physical_death": {
+          "id": "fail_physical",
+          "name": "肉体死亡",
+          "description": "被怪物杀死、坠落、感染恶化、失温",
+          "trigger_conditions": [
+            "HP≤0",
+            "感染=100",
+            "exposure=100"
+          ],
+          "narrative_result": "你的身体倒在了沃切斯特的某个角落。也许有人会发现你的遗体，也许不会。你的调查就此终结。",
+          "loop_carryover": "无特殊继承",
+          "permanent_pollution": 0,
+          "unlocks_new_knowledge": false
+        },
+        "mental_death": {
+          "id": "fail_mental",
+          "name": "精神死亡",
+          "description": "SAN归零，角色疯掉，但身体还活着",
+          "trigger_conditions": [
+            "SAN≤0"
+          ],
+          "narrative_result": "你的理智碎裂了。你开始在街道上游荡，向每一个路过的人讲述你在地下看到的景象。你的笔记本散落在城市的各个角落。也许有一天，有人会捡起它们。",
+          "loop_carryover": "继承额外SAN上限下降",
+          "permanent_pollution": 5,
+          "unlocks_new_knowledge": false,
+          "special_variant": "当SAN≤0且位于deep_catacombs时，触发ending_bad_consumed而非普通精神死亡"
+        },
+        "identity_death": {
+          "id": "fail_identity",
+          "name": "身份死亡",
+          "description": "玩家被替换、被绑定成封印钥匙、被深潜者同化",
+          "trigger_conditions": [
+            "希尔达绑定成功",
+            "深潜者标记完成",
+            "被封印核心吸收"
+          ],
+          "narrative_result": "你还是你吗？你看着镜子中的自己，那张脸是你的，但眼睛不是。你已经不再是调查员了。你是封印的一部分。你是沃切斯特的一部分。你是深渊的一部分。",
+          "loop_carryover": "下一轮NPC初始恐惧值+15",
+          "permanent_pollution": 10,
+          "unlocks_new_knowledge": true,
+          "knowledge_unlocked": "封印本质理解"
+        },
+        "time_death": {
+          "id": "fail_time",
+          "name": "时间死亡",
+          "description": "玩家没有死，但被困在某个重复时间段",
+          "trigger_conditions": [
+            "伊斯遗迹时间机器失控",
+            "深渊墓穴时间异常",
+            "SAN≤10且位于ruins_of_yith"
+          ],
+          "narrative_result": "你被困在了时间的缝隙中。你看到同样的日子一遍又一遍地重复——钟声响了十三下，雾气升起，有人失踪。你知道这一切即将发生，但你无法改变任何事。你成为了沃切斯特永恒循环的一部分。",
+          "loop_carryover": "下一轮初始时出现时间闪回事件",
+          "permanent_pollution": 8,
+          "unlocks_new_knowledge": true,
+          "knowledge_unlocked": "时间循环理解"
+        },
+        "narrative_death": {
+          "id": "fail_narrative",
+          "name": "叙事死亡",
+          "description": "游戏文本否认玩家存在",
+          "trigger_conditions": [
+            "loop_count≥5且SAN≤15",
+            "在deep_catacombs接触虚空低语后SAN=0"
+          ],
+          "narrative_result": "你从未来过沃切斯特。调查员名单上没有这个名字。你的存档无法读取，因为此人并不存在。你只是一个故事。一个被讲述了太多次的故事。一个连讲述者都已经忘记的故事。",
+          "loop_carryover": "下一轮存档可能被随机污染",
+          "permanent_pollution": 15,
+          "unlocks_new_knowledge": true,
+          "knowledge_unlocked": "叙事本质理解",
+          "ui_effects": {
+            "save_file_deleted": true,
+            "save_description": "此存档已损坏。原因：存档人不存在。",
+            "game_over_text": "游戏结束。但你从未开始过。"
+          }
+        }
+      },
+      "failure_hints": {
+        "description": "在失败发生前，给玩家微妙的暗示",
+        "hints": [
+          {
+            "failure": "physical_death",
+            "hint": "你的身体越来越沉重，伤口不再愈合"
+          },
+          {
+            "failure": "mental_death",
+            "hint": "你开始无法区分真实和幻觉"
+          },
+          {
+            "failure": "identity_death",
+            "hint": "你照镜子时，镜中的自己似乎在微笑，但你没有笑"
+          },
+          {
+            "failure": "time_death",
+            "hint": "你开始经历déjà vu，而且越来越频繁"
+          },
+          {
+            "failure": "narrative_death",
+            "hint": "你的笔记本上出现了你不记得写下的内容"
+          }
+        ]
+      }
+    }
+  },
+  "deprecated_endings_archive": {
+    "description": "旧版module7_endings，不再参与正式判定。保留供参考。",
+    "note": "以ending_definitions中的10个结局为准。",
+    "old_endings": [
+      {
+        "id": "ending_good_seal_restored",
+        "type": "good",
+        "name": "封印重铸",
+        "description": "你站在深渊之眼前方，手中握着从各处收集而来的线索和道具。封印的核心就在竖井底部，发出微弱但稳定的光芒。你知道如何完成仪式——莫里斯家族的记录、《扎尔之卷》的残页、古树的种子，所有碎片都在你手中拼合。你开始了仪式。低语声从四面八方涌来，试图阻止你，拉扯你的意识。但你挺住了。光芒从封印核心爆发出来，沿着竖井壁向上攀升，照亮了整个穹顶空间。那些低语声变成了尖叫，然后渐渐安静下来。当你走出墓穴时，沃切斯特变了。阳光——真实的、温暖的阳光——照在街道上。码头区的雾散了，你能看到远处的海平线。人们从家中走出来，脸上带着困惑但释然的表情。你做到了。封印重铸了。但你知道这只是暂时的——封印终将再次松动，到那时，需要另一个人来完成同样的事。但那不是今天的事了。",
+        "conditions": "SAN>30，收集所有7个关键线索道具，希尔达·莫里斯存活，完成封印仪式技能检定（神秘学≥60）",
+        "rewards": [
+          "永久解锁：封印守护者称号",
+          "永久解锁：下轮起始SAN+10",
+          "成就：深渊守望者"
+        ]
+      },
+      {
+        "id": "ending_good_escape",
+        "type": "good",
+        "name": "逃离沃切斯特",
+        "description": "你意识到封印无法由你来修复——你不是莫里斯家族的人，你没有那种血脉。但你收集到了足够的情报，知道沃切斯特的危险。你选择了另一条路：离开。在老费舍的帮助下，你在黎明前登上了一艘小型渔船。当船驶离港口时，你回头看了一眼沃切斯特——灯塔的绿光正在闪烁，海面上的雾气越来越浓，你能听到从城市深处传来的隆隆声。但你已经走远了。海风吹在脸上，那是你很长时间以来第一次感受到真实的、不带恐惧的风。你活下来了。你带着真相离开了。也许有一天，你会把这些告诉需要知道的人。也许有一天，你会回来。但现在——你自由了。",
+        "conditions": "SAN>20，与老费舍信任≥3，拥有潮汐时刻表，未进入深渊墓穴",
+        "rewards": [
+          "永久解锁：逃生路线记忆",
+          "永久解锁：下轮起始道具（渔船钥匙）",
+          "成就：生还者"
+        ]
+      },
+      {
+        "id": "ending_bad_consumed",
+        "type": "bad",
+        "name": "被深渊吞噬",
+        "description": "你走到了竖井的边缘，向下望去。深渊之眼在底部注视着你。它的瞳孔中映射出你无法理解的景象——无数的世界、无数的时间线、无数种可能性。你知道了。你终于知道了。人类的存在是多么渺小，人类的恐惧是多么可笑。封印不需要修复，封印从一开始就是一种傲慢。那些沉睡的存在不应该被封印，它们应该被迎接。你张开双臂，向竖井迈出了一步。坠落的过程中，你看到了一切——从宇宙的诞生到终结，从第一个细胞到最后一个黑洞。当你终于落地时，你没有感到疼痛。你感到的是平静。永恒的、无尽的平静。然后，你睁开了新的眼睛——不再是人类的眼睛——开始向上攀爬。",
+        "conditions": "SAN≤0，位于深渊墓穴",
+        "rewards": [
+          "成就：深渊的居民",
+          "永久解锁：下轮可选择'堕落者'起始（特殊角色）"
+        ]
+      },
+      {
+        "id": "ending_bad_ritual",
+        "type": "bad",
+        "name": "异端的胜利",
+        "description": "你在与伊莎贝拉的对抗中失败了——或者，你选择了加入她。无论哪种方式，仪式完成了。第十三声钟响与潮汐大潮同时发生，封印核心碎裂成无数光点，向天空飞去。沃切斯特的天空裂开了——不是比喻，是字面意义上的裂开了。裂缝中涌出了一种不属于这个维度的光，照亮了整座城市。然后，声音来了。不是从某个方向传来的声音，而是从每个方向、每个维度、每个可能的现实中同时传来的声音。那是古神苏醒的宣告。海面沸腾了，城市中的每一个人同时跪倒在地，不是出于恐惧——是出于敬畏。新的时代开始了。人类的时代结束了。",
+        "conditions": "帮助伊莎贝拉完成仪式，或SAN<10时无法阻止仪式",
+        "rewards": [
+          "成就：末日的使者",
+          "永久解锁：下轮NPC初始恐惧值+20"
+        ]
+      },
+      {
+        "id": "ending_neutral_madness",
+        "type": "no",
+        "name": "永恒的疯狂",
+        "description": "你没有死，你也没有离开。你就这样留在了沃切斯特，成为了这座城市的一部分。你开始在街道上游荡，向每一个路过的人讲述你在地下看到的景象。人们起初会躲开你，但渐渐地，有些人会停下来听。你的语言混乱而破碎，但其中包含着真相——可怕的、不可名状的真相。你的笔记本散落在城市的各个角落，被不同的人捡到。有些人把它们当作疯言疯语扔掉，有些人开始研究其中的内容。你不知道自己游荡了多久。季节似乎不再变化，白天和黑夜的界限变得模糊。但你知道一件事——你的眼睛看到了别人看不到的东西，而你再也无法关闭它们了。",
+        "conditions": "SAN在1-10之间，未触发任何结局条件",
+        "rewards": [
+          "成就：徘徊者",
+          "永久解锁：下轮起始时获得额外神秘学技能+10"
+        ]
+      },
+      {
+        "id": "ending_hidden_transcendence",
+        "type": "hidden",
+        "name": "超越者",
+        "description": "在伊斯遗迹的核心区域，你发现了那台时间机器的残骸。经历了无数次尝试和失败，你终于让它运转了一瞬间——仅仅一瞬间。但那一瞬间足够了。你的意识被投射到了时间之外，你看到了沃切斯特的过去、现在和未来。你看到了封印的建立——那不是三千年前，而是三百万年前，由一个你从未听说过的名字的种族完成。你看到了封印的每一次松动和重铸。你看到了无数个你，在无数条时间线上，做出了不同的选择。然后你回来了。你的身体没有变化，但你的眼睛——你的眼睛里现在装着宇宙的一部分。你不再完全属于这个世界，但你也不属于深渊。你是中间的存在，超越了恐惧，超越了疯狂。封印在你面前安静了下来，仿佛认出了你。",
+        "conditions": "克苏鲁神话技能≥20，SAN>40，拥有时间碎片，在伊斯遗迹完成时间机器修复检定（数学≥70且神秘学≥60）",
+        "rewards": [
+          "永久解锁：超越者称号",
+          "永久解锁：下轮起始全属性+5",
+          "永久解锁：所有区域隐藏特性自动可见",
+          "成就：时间之外的存在"
+        ]
+      },
+      {
+        "id": "ending_hidden_sacrifice",
+        "type": "hidden",
+        "name": "最后的守护者",
+        "description": "希尔达告诉你真相的时候，你已经隐约猜到了。封印需要一个活体钥匙——一个自愿将自己与封印核心绑定的人。希尔达已经为此准备了一生，但她的血脉已经稀薄到无法独自完成仪式。需要另一个人类的意志来补充。你知道这意味着什么——永恒的守望，永恒的孤独，永远无法离开沃切斯特。但你也看到了如果不这样做会发生什么。你同意了。仪式在深渊之眼完成，你和希尔达面对面站立，手牵着手，封印核心的光芒包裹了你们。当你再次睁开眼睛时，你感觉到了城市的一切——每一条街道、每一个居民、每一片海浪。你就是封印。你就是沃切斯特。你闭上了眼睛，开始了漫长的、无尽的守望。",
+        "conditions": "希尔达·莫里斯信任=5，SAN>50，拥有古树种子和扎尔之卷碎片，在深渊墓穴选择牺牲选项",
+        "rewards": [
+          "永久解锁：最后的守护者称号",
+          "永久解锁：下轮起始全技能+5",
+          "永久解锁：希尔达·莫里斯在下轮初始信任+5",
+          "成就：永恒的守望"
+        ]
+      }
+    ],
+    "old_extensions": {
+      "ending_condition_table": [
+        {
+          "ending_id": "ending_good_seal_restored",
+          "conditions": {
+            "all": [
+              {
+                "stat": "SAN",
+                "op": ">",
+                "value": 30
+              },
+              {
+                "stat": "key_items_collected",
+                "op": "==",
+                "value": 7
+              },
+              {
+                "stat": "npc_希尔达莫里斯",
+                "field": "alive",
+                "op": "==",
+                "value": true
+              },
+              {
+                "skill_check": {
+                  "skill": "神秘学",
+                  "threshold": 60
+                }
+              }
+            ]
+          },
+          "priority": 1
+        },
+        {
+          "ending_id": "ending_good_escape",
+          "conditions": {
+            "all": [
+              {
+                "stat": "SAN",
+                "op": ">",
+                "value": 20
+              },
+              {
+                "npc_trust": {
+                  "npc": "老费舍",
+                  "min_trust": 3
+                }
+              },
+              {
+                "has_item": "潮汐时刻表"
+              },
+              {
+                "stat": "deepest_area_danger",
+                "op": "<",
+                "value": 5
+              }
+            ]
+          },
+          "priority": 2
+        },
+        {
+          "ending_id": "ending_hidden_transcendence",
+          "conditions": {
+            "all": [
+              {
+                "stat": "克苏鲁神话",
+                "op": ">=",
+                "value": 20
+              },
+              {
+                "stat": "SAN",
+                "op": ">",
+                "value": 40
+              },
+              {
+                "has_item": "时间碎片"
+              },
+              {
+                "skill_check": {
+                  "skill": "数学",
+                  "threshold": 70
+                }
+              },
+              {
+                "skill_check": {
+                  "skill": "神秘学",
+                  "threshold": 60
+                }
+              }
+            ]
+          },
+          "priority": 3
+        },
+        {
+          "ending_id": "ending_hidden_sacrifice",
+          "conditions": {
+            "all": [
+              {
+                "npc_trust": {
+                  "npc": "希尔达·莫里斯",
+                  "min_trust": 5
+                }
+              },
+              {
+                "stat": "SAN",
+                "op": ">",
+                "value": 50
+              },
+              {
+                "has_item": "古树种子"
+              },
+              {
+                "has_item": "扎尔之卷碎片"
+              },
+              {
+                "player_choice": "sacrifice"
+              }
+            ]
+          },
+          "priority": 3
+        },
+        {
+          "ending_id": "ending_bad_consumed",
+          "conditions": {
+            "all": [
+              {
+                "stat": "SAN",
+                "op": "<=",
+                "value": 0
+              },
+              {
+                "area": "deep_catacombs"
+              }
+            ]
+          },
+          "priority": 0
+        },
+        {
+          "ending_id": "ending_bad_ritual",
+          "conditions": {
+            "any": [
+              {
+                "all": [
+                  {
+                    "npc_trust": {
+                      "npc": "伊莎贝拉·韦伯",
+                      "min_trust": 5
+                    }
+                  },
+                  {
+                    "player_choice": "join_ritual"
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "stat": "SAN",
+                    "op": "<",
+                    "value": 10
+                  },
+                  {
+                    "event_triggered": "evt_day28_doomsday"
+                  }
+                ]
+              }
+            ]
+          },
+          "priority": 0
+        },
+        {
+          "ending_id": "ending_neutral_madness",
+          "conditions": {
+            "all": [
+              {
+                "stat": "SAN",
+                "op": ">",
+                "value": 0
+              },
+              {
+                "stat": "SAN",
+                "op": "<=",
+                "value": 10
+              },
+              {
+                "none_triggered": [
+                  "ending_good_seal_restored",
+                  "ending_good_escape",
+                  "ending_hidden_transcendence",
+                  "ending_hidden_sacrifice"
+                ]
+              }
+            ]
+          },
+          "priority": 4
+        }
+      ],
+      "hidden_text_variants": [
+        {
+          "ending_id": "ending_good_seal_restored",
+          "variants": [
+            "阳光穿透了沃切斯特的浓雾，你看到了三年来第一缕真实的光明。",
+            "封印核心的光芒如同晨曦，驱散了盘踞在这座城市上空的阴影。",
+            "你听到了最后一声低语——不是诅咒，而是告别。"
+          ]
+        },
+        {
+          "ending_id": "ending_good_escape",
+          "variants": [
+            "海风吹散了你记忆中的恐惧，但你知道——有些东西一旦见过就永远无法忘记。",
+            "渔船驶向地平线，身后的沃切斯特渐渐被雾气吞没，如同一个从未存在的噩梦。",
+            "你自由了，但偶尔在深夜，你仍然会听到从远方传来的低语。"
+          ]
+        },
+        {
+          "ending_id": "ending_bad_consumed",
+          "variants": [
+            "你不再恐惧，因为恐惧需要一个自我——而你已经没有了。",
+            "深渊不是黑暗，深渊是最纯粹的光明——亮到足以灼瞎一切认知。",
+            "你笑了。这是你作为人类的最后一个表情。"
+          ]
+        },
+        {
+          "ending_id": "ending_hidden_sacrifice",
+          "variants": [
+            "你不再是调查员，你是沃切斯特的心跳，是每一条街道的呼吸。",
+            "希尔达在你身边安静了下来——三百年的孤独终于有人分担。",
+            "封印的光芒包裹了你们，城市地下传来了满足的叹息。"
+          ]
+        }
+      ],
+      "dynamic_modifiers": [
+        {
+          "condition": "未探索区域数 >= 3",
+          "effect": "结局描述增加'你还有很多未曾涉足的角落，真相可能比你所知的更加深邃'",
+          "applies_to": [
+            "ending_good_seal_restored",
+            "ending_good_escape"
+          ]
+        },
+        {
+          "condition": "未触发事件数 >= 10",
+          "effect": "结局描述增加'城市的秘密远未被完全揭开，黑暗中仍有你不知道的真相在沉睡'",
+          "applies_to": "all"
+        },
+        {
+          "condition": "NPC死亡数 >= 3",
+          "effect": "结局描述增加'你活下来了，但代价是那些未能同行的人——他们的名字刻在了你的记忆中'",
+          "applies_to": [
+            "ending_good_seal_restored",
+            "ending_good_escape",
+            "ending_hidden_transcendence"
+          ]
+        },
+        {
+          "condition": "累计SAN损失 >= 50",
+          "effect": "结局描述增加'你的眼睛再也无法像从前那样看世界了——现实和幻象的边界在你眼中已经模糊'",
+          "applies_to": [
+            "ending_good_seal_restored",
+            "ending_hidden_sacrifice"
+          ]
+        },
+        {
+          "condition": "达成ending_good_escape且老费舍信任<5",
+          "effect": "结局描述增加'你离开了，但老费舍仍然留在码头边——你不知道他的命运，也不想知道'",
+          "applies_to": [
+            "ending_good_escape"
+          ]
+        },
+        {
+          "condition": "克苏鲁神话 >= 10",
+          "effect": "结局描述增加'你知道的太多了。即使离开了沃切斯特，那些知识也会在你的梦境中继续生长'",
+          "applies_to": [
+            "ending_good_escape",
+            "ending_neutral_madness"
+          ]
+        }
+      ]
+    }
+  }
+}

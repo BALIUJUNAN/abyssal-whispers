@@ -1,0 +1,4026 @@
+{
+  "events": [
+    {
+      "id": "evt_deep_one_patrol",
+      "name": "深潜者巡逻",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.2,
+        "requires": [
+          "san_below_50"
+        ],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "浓雾中出现了不该出现的身影。三个——不，四个——人形生物从海水中走上码头。它们有着人类的基本轮廓，但皮肤是灰绿色的，覆盖着鳞片。它们的头部宽阔而扁平，眼睛巨大且泛着金色的光。它们走路的方式不对——膝盖弯曲的方向反了，每一步都带着一种令人作呕的弹性。它们经过你藏身的地方时，其中一个停了下来，巨大的头颅转向你的方向。它的嘴张开了，露出层层叠叠的尖牙，然后发出一声尖锐的、不属于任何已知语言的叫声。",
+      "effects": {
+        "HP": -5,
+        "items": [
+          "深海之鳞",
+          "银质匕首"
+        ],
+        "npc_changes": [
+          "老费舍_fear"
+        ]
+      },
+      "sanity_damage": -8,
+      "original_condition": "区域=harbor_district，时间=深夜，概率20%，需SAN<50",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "潜行",
+        "threshold": 50,
+        "success": {
+          "text": "你屏住呼吸，它们没有发现你",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你被发现，一只深潜者扑向你，你勉强逃脱但受了伤",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_forest_whisper",
+      "name": "林中低语",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "whispering_forest"
+        ],
+        "time_phase": [],
+        "probability": 0.6,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你深入森林，四周的树木越来越高大，树冠遮蔽了天空。然后你听到了——低语声。不是一个人的声音，而是数百个，数千个声音交织在一起。它们说着你无法理解的语言，但每隔几句，你会听到一个你认识的词：你的名字。它们在讨论你，评价你，似乎在争论什么。突然，所有的声音同时安静了下来。在那可怕的寂静中，一个声音单独响起，清晰得像是有人在你耳边说话：'欢迎回家。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=whispering_forest，概率60%",
+      "distortion_trigger": 55,
+      "distortion_text": "低语声。数百个声音在说话。它们在讨论你。突然它们安静了。一个声音单独响起：欢迎回家。那声音是你的。",
+      "false_memory": "你记得听到了低语声。但你的同伴说森林里一片寂静。你听到的声音来自哪里？",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 45,
+        "success": {
+          "text": "你认出这是森林的守护意识在试探你",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你产生了一种强烈的归属感，差点想要永远留在森林里",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_nightgaunt_sighting",
+      "name": "夜魔掠影",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "whispering_forest"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你在林间穿行时，头顶的树冠突然剧烈摇晃。你抬头望去，在树冠的缝隙中，你看到了一个飞行的身影。它有着人形的轮廓，但没有面孔——整个头部是一片光滑的黑色。它的翅膀像蝙蝠，但更加巨大，拍打时没有发出任何声音。它在树冠上方盘旋了一圈，然后俯冲下来，从离你不到三米的地方掠过。一阵冰冷的风裹挟着一股甜蜜而恶心的气味扑面而来。它没有停下来攻击你，但你能感觉到它在观察，在记录。它会回来的。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "夜魔羽毛（黑色，冰冷）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=whispering_forest，时间=夜晚，概率25%",
+      "distortion_trigger": 60,
+      "distortion_text": "没有面孔的飞行物从你头顶掠过。它的翅膀没有发出声音。但它留下了什么一个冰冷的吻印在你的额头上。",
+      "false_memory": "你记得看到了飞行物。但你的额头上什么都没有。也许什么都有。你不敢摸。",
+      "skill_check": {
+        "skill": "闪避",
+        "threshold": 40,
+        "success": {
+          "text": "你及时躲到了树干后面",
+          "effects": {}
+        },
+        "failure": {
+          "text": "它的翅膀擦过你的肩膀，留下一道冰冷的灼伤",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_mushroom_circle",
+      "name": "蘑菇环",
+      "type": "陷阱",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "whispering_forest"
+        ],
+        "time_phase": [],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你发现地面上长着一圈奇异的蘑菇，它们散发着微弱的蓝绿色荧光，美丽得令人着迷。蘑菇环的直径约三米，中间的地面异常平整，像是被人精心打理过。你走近时，注意到蘑菇环内的空气似乎在微微扭曲，如同热浪中的景象。更奇怪的是，蘑菇环中的声音——虫鸣、风声、树叶沙沙声——全部消失了，取而代之的是一种低沉的嗡鸣。你的脚不受控制地向前迈出了一步。",
+      "effects": {
+        "HP": -2,
+        "items": [
+          "发光蘑菇"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=whispering_forest，概率30%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "博物学",
+        "threshold": 35,
+        "success": {
+          "text": "你认出这是某种真菌形成的时空异常区域，及时退后",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你踏入了蘑菇环，被传送到森林的另一个区域，迷失了方向",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_lost_trail",
+      "name": "迷失的痕迹",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "whispering_forest"
+        ],
+        "time_phase": [],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你在一棵巨大的橡树下发现了一个被遗弃的营地。帐篷已经破烂不堪，里面散落着各种物品：一个熄灭的炉子、几本湿透的笔记、一件撕裂的外套——袖口处有暗红色的污渍。最引人注目的是帐篷内壁上写满了密密麻麻的文字，是用某种尖锐物品刻上去的。大部分内容已经模糊不清，但反复出现的几个词清晰可辨：'它们从树根下来'、'不要看眼睛'、'螺旋是门'。帐篷外的地面上有一串脚印通向森林深处，但脚印在十米后消失了，不是停止——是消失，好像那个人凭空蒸发了。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "湿透的笔记（可阅读）",
+          "撕裂的外套"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=whispering_forest，概率35%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 40,
+        "success": {
+          "text": "你发现了脚印消失处地面上的螺旋形刻痕",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你只看到了消失的脚印，感到一阵寒意",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ancient_stone",
+      "name": "古老石碑",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "whispering_forest"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "在一片被苔藓覆盖的空地中，你发现了一块巨大的石碑。石碑高约三米，由一种你不认识的黑色石材制成，表面异常光滑。石碑的正面刻满了文字——不是英文，不是拉丁文，甚至不像是人类使用的任何语言。文字的排列形成了螺旋形的图案，从中心向外扩展。当你注视这些文字时，它们似乎在缓缓移动，像是活的蛇在石面上爬行。你的大脑开始隐隐作痛，一些模糊的影像闪过你的意识——巨大的城市、非欧几里得的建筑、触手、眼睛。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "石碑拓片"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=whispering_forest，概率20%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 50,
+        "success": {
+          "text": "你部分解读了石碑的内容——它记录着一个封印仪式",
+          "effects": {}
+        },
+        "failure": {
+          "text": "文字涌入你的脑海，你头痛欲裂，只记住了一个词：'扎尔",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_portrait_watch",
+      "name": "肖像的注视",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "voxchester_manor"
+        ],
+        "time_phase": [],
+        "probability": 0.5,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你穿过庄园大厅时，感觉到有人在注视你。你转过身，面对着墙上那一排莫里斯家族的肖像画。画中人的眼睛——所有的眼睛——都在看着你。你确定刚才进门时，这些画中人的眼睛是朝向不同方向的。你缓缓移动，那些眼睛跟随你的动作转动。最令人不安的是最年轻的一幅肖像——一个大约十二岁的男孩，他的嘴角正在缓缓上扬，露出一个不应该出现在油画上的微笑。你眨了一下眼，一切恢复了正常。画中人的眼睛朝向了原来的方向。但那个男孩的微笑——那个微笑还在。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=voxchester_manor，概率50%",
+      "distortion_trigger": 60,
+      "distortion_text": "肖像在看着你。你移动，它们也移动。最年轻的那个男孩他的嘴角在上扬。你认出了那张脸。那是你小时候的脸。",
+      "false_memory": "你记得肖像的眼睛在动。但希尔达说那些画已经几十年没有人打理了。你看到的真的是画吗？",
+      "skill_check": {
+        "skill": "心理学",
+        "threshold": 30,
+        "success": {
+          "text": "你意识到这些画作可能被赋予了某种意识",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你开始怀疑自己的感知能力",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_basement_depth",
+      "name": "不应该存在的深度",
+      "type": "陷阱",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "voxchester_manor"
+        ],
+        "time_phase": [],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你沿着地下室的台阶向下走。十级、二十级、三十级——台阶还在继续。地下室不可能有这么深。你点燃火柴查看四周，墙壁由粗糙的石砖变成了光滑的黑色石材，与地面墓穴的材质相同。空气中弥漫着一股越来越浓的硫磺味。五十级、六十级——台阶终于到了尽头，但你面前的不是一个标准的地下室。你看到的是一条长长的走廊，两侧排列着无数扇门。门后传来各种声音——哭泣声、笑声、低语声、金属碰撞声。走廊尽头的门微微敞开，透出一丝暗红色的光。",
+      "effects": {
+        "HP": -1,
+        "items": [
+          "暗门钥匙"
+        ],
+        "npc_changes": [
+          "希尔达·莫里斯_trust+1"
+        ]
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=voxchester_manor，概率25%",
+      "distortion_trigger": 50,
+      "distortion_text": "地下室的台阶在向下延伸。十级、二十级、三十级你数到了一百。你确定你在地下吗？你抬头看了看天花板上有星星。",
+      "false_memory": "你记得地下室很深。但希尔达说地下室只有十五级台阶。你的膝盖疼了是下了一百级台阶的那种疼。",
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 45,
+        "success": {
+          "text": "你注意到门上的编号形成了一个序列，推断出正确的入口",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你选择了一扇错误的门，里面的空间扭曲了你的方向感",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_library_secret",
+      "name": "禁忌书架",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "voxchester_manor"
+        ],
+        "time_phase": [],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "庄园的书房藏书丰富，但你注意到书架的最上层有一排书被铁链锁住了。铁链和锁的样式与码头仓库的相同。你搬来梯子查看，发现这些书的书脊上没有文字，只有一个符号——一个向外放射的螺旋。你尝试取下一本书，铁链纹丝不动，但书架本身发出了咔哒声。整面书架缓缓向一侧滑开，露出了后面的一个暗格。暗格中放着一个金属盒子，盒子上刻满了密密麻麻的微型文字，以及一个锁孔。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "金属盒子（锁住）",
+          "铁链钥匙线索"
+        ],
+        "npc_changes": [
+          "希尔达·莫里斯_trust+2"
+        ]
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=voxchester_manor，概率30%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "锁匠",
+        "threshold": 40,
+        "success": {
+          "text": "你打开了盒子，里面是一份古老的封印仪式图谱",
+          "effects": {}
+        },
+        "failure": {
+          "text": "盒子打不开，但你摸到了锁孔内的刻痕——一个特定的形状",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_servant_ghost",
+      "name": "走廊中的身影",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "voxchester_manor"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你在二楼走廊行走时，看到前方有一个穿着老式女仆装的身影。她的动作轻盈得不真实，脚似乎没有接触到地面。她端着一个托盘，上面放着一杯茶，朝走廊尽头走去。你叫了她一声，她没有反应。你加快脚步想追上她，但她始终保持在你前方十米的距离。她走到走廊尽头的墙壁前——那里没有门——然后穿墙而过，消失了。托盘上的茶杯从空中落下，在地上摔得粉碎。碎片中有一张纸条：'她不是最后一个。不要相信夜晚的访客。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "碎纸条",
+          "陶瓷碎片（可作为标记物）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=voxchester_manor，时间=夜晚，概率35%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "历史",
+        "threshold": 35,
+        "success": {
+          "text": "你回忆起莫里斯家族的记录中提到过这位女仆——她在一百年前失踪了",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你只觉得这座庄园闹鬼了",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_tomb_open",
+      "name": "被打开的石棺",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "catacombs_entrance"
+        ],
+        "time_phase": [],
+        "probability": 0.4,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你在墓穴的第一层探索，一排排整齐的石棺在火把的光芒下投射出长长的阴影。突然，你注意到其中一具石棺的盖子被推开了——不是滑开，是从内部推开的，盖子碎裂成了数块。石棺内部是空的，但残留着一股刺鼻的腐臭味。更令人不安的是，石棺内壁上有深深的抓痕，像是某种生物用爪子从内部挖凿的。抓痕延伸到石棺边缘，外面的地板上也有——一串爪痕通向走廊深处。然后你听到了声音，从走廊深处传来：缓慢的、拖拽的脚步声。",
+      "effects": {
+        "HP": -4,
+        "items": [
+          "银质护身符",
+          "银质匕首"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=catacombs_entrance，概率40%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "潜行",
+        "threshold": 45,
+        "success": {
+          "text": "你贴着墙壁慢慢后退，避开了那个东西",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你踩到了一块碎石，脚步声突然加速朝你冲来",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_underground_river",
+      "name": "地下暗河",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "catacombs_entrance"
+        ],
+        "time_phase": [],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你发现了一条地下暗河，河水漆黑如墨，但水面异常平静。水流缓慢地向着某个方向流动——不是向下，而是向上，违反了重力法则。河水中偶尔会浮现出一些东西：破碎的骨头、金属碎片、某种有机物的残骸。你蹲下来仔细观察水面，水中的倒影不是你的脸——是一张完全不同的面孔，有着爬行动物般的眼睛和宽阔的嘴。水面的倒影朝你笑了笑，然后沉入了水底。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "暗河水样",
+          "河底碎片（未知材质）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=catacombs_entrance，概率30%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "博物学",
+        "threshold": 40,
+        "success": {
+          "text": "你采集了水样，发现其中含有高浓度的未知矿物质",
+          "effects": {}
+        },
+        "failure": {
+          "text": "水中的倒影让你久久无法移开视线",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_living_mural",
+      "name": "活的壁画",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "catacombs_entrance"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "墓穴的墙壁上绘满了壁画，描绘着古老的祭祀场景。画中的人类围绕着一个巨大的、由触手组成的生物跪拜。这些壁画看起来已经存在了数百年，但当你走过时，壁画中的某些细节发生了变化。一个原本面朝前方的祭司转向了你的方向。一个原本举着双手的人放下了手，指向了走廊的某个分支。你后退几步，壁画又恢复了原状。这不是幻觉——壁画在你注视的方向之外会移动。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "壁画临摹（含隐藏通道线索）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=catacombs_entrance，概率20%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 50,
+        "success": {
+          "text": "你注意到壁画中祭司手指的方向有一块颜色不同的石砖",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你匆忙离开，但壁画中那个转向你的面孔深深地刻在了你的脑海中",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ghoul_nest",
+      "name": "食尸鬼的巢穴",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "catacombs_entrance"
+        ],
+        "time_phase": [],
+        "probability": 0.15,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你拐过一个弯角，面前的空间突然开阔了。这是一个巨大的洞穴状空间，地面上堆满了——骨头。人类的、动物的，有些已经腐烂得只剩骨架，有些还带着新鲜的肉。恶臭令人窒息。在骨头堆的中心，你看到了三个蜷缩在一起的生物。它们有着类似人类的躯干，但四肢细长而弯曲，皮肤苍白到半透明。它们正在啃食什么东西——你不想知道那是什么。其中一个抬起了头，露出一张扭曲的、带着犬类特征的脸，嘴边沾满了暗红色的液体。",
+      "effects": {
+        "HP": -6,
+        "items": [
+          "食尸鬼秘物",
+          "银质匕首"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=catacombs_entrance，概率15%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "潜行",
+        "threshold": 55,
+        "success": {
+          "text": "你屏息静气慢慢后退，它们沉浸在进食中没有注意到你",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你踩到了一根骨头，发出了清脆的断裂声，三只食尸鬼同时转向了你",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_yithian_echo",
+      "name": "伊斯的回声",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "ruins_of_yith"
+        ],
+        "time_phase": [],
+        "probability": 0.5,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你踏入遗迹的瞬间，世界改变了。周围的石质建筑突然充满了生命——光芒从每个窗口射出，空中飞过你从未见过的飞行器，街道上行走着……不是人类。那些生物有着巨大的圆锥形躯体，顶部伸出四条可以灵活操作的触手，触手末端是精巧的爪子和眼睛。它们在交谈，发出一种你无法理解但莫名能感受到含义的声音。一个伊斯人经过你身边时停了下来，它的一只眼睛转向你——你突然看到了一段记忆：这座城市在数千年前的样子，一个巨大的圆柱形建筑，以及一场灾难性的时空实验。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "伊斯记忆碎片（可学习）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=ruins_of_yith，概率50%",
+      "distortion_trigger": 45,
+      "distortion_text": "你踏入遗迹的瞬间，世界改变了。光芒四射，飞行器穿梭。一个伊斯人停在你身边你突然看到了一段记忆。那是你的记忆。你在三百万年前活过。",
+      "false_memory": "你记得看到了遗迹的过去。但你的手上有一种不属于人类的触感四条触手的触感。你有几只手？",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 60,
+        "success": {
+          "text": "你成功保留了一段完整的记忆，获得了关于时间机器的知识",
+          "effects": {}
+        },
+        "failure": {
+          "text": "信息量太大，你只记住了零碎的影像",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_geometry_trap",
+      "name": "非欧几里得陷阱",
+      "type": "陷阱",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "ruins_of_yith"
+        ],
+        "time_phase": [],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你沿着一条走廊行走，走廊笔直向前，没有任何弯曲。但当你走了大约五十步后，你发现自己回到了起点。你再次尝试，这次你贴着左墙走——结果一样。你开始检查墙壁的角度，发现一些墙壁之间的夹角不应该是九十度——它们看起来是直角，但你的大脑告诉你那不是。空间本身被扭曲了。你抬头看天花板，发现它在某些地方离地面只有两米，在另一些地方则高得看不到顶。你开始感到眩晕，方向感完全丧失。",
+      "effects": {
+        "HP": -2,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=ruins_of_yith，概率35%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "数学",
+        "threshold": 50,
+        "success": {
+          "text": "你运用非欧几何的知识找到了正确的路径",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你继续在扭曲的空间中迷失，耗费了大量时间和体力",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_time_slip",
+      "name": "时间滑移",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "ruins_of_yith"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你触碰了遗迹中一个奇怪的装置碎片，突然你的视野模糊了。你看到自己站在同一个位置，但周围的环境完全不同——天空是紫色的，有两个太阳。地面覆盖着一种金属般的植被。远处有一座巨大的城市，城市的建筑风格超出了你的理解能力。然后你看到了它们——伊斯的伟大种族，圆锥形的躯体在城市中穿行。你突然理解了它们在做什么：它们在使用时间机器将自己的意识投射到不同的时代和生物中。你感受到了它们的目的——收集所有时代的所有知识。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "时间碎片"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=ruins_of_yith，概率20%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 55,
+        "success": {
+          "text": "你成功保持了自我意识，从时间滑移中返回",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你的意识被卷入了时间流，在不同的时代漂泊了数秒（对你而言是数年）",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_lighthouse_light",
+      "name": "不应存在的光",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "lighthouse"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.6,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "午夜时分，灯塔顶部亮了。不是正常的灯火——那是一种绿莹莹的、带着磷光的光。光芒透过碎裂的透镜碎片散射出去，在海面上形成了一片光网。你注意到随着光芒的照射，海面上升起了雾气——那不是普通的海雾，而是一种有形的、蠕动的白色帷幕。雾气中传来了声音，像是低沉的号角声。海面下方有什么东西在响应这光芒——你能感觉到水面在震动。灯塔在召唤什么东西。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "透镜碎片"
+        ],
+        "npc_changes": [
+          "约书亚·布莱克_memory_trigger"
+        ]
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=lighthouse，时间=深夜，概率60%",
+      "distortion_trigger": 55,
+      "distortion_text": "灯塔亮了。不是绿光是你的名字。用光写成的你的名字。你确定那不是你的幻觉吗？",
+      "false_memory": "你记得灯塔发出了绿光。但约书亚说灯塔那晚没有亮。你们谁的记忆是对的？",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 45,
+        "success": {
+          "text": "你认出这是一种召唤仪式的信号",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你被光芒吸引，不由自主地朝灯塔走去",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_grove_guardian",
+      "name": "森林守卫者",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "forbidden_grove"
+        ],
+        "time_phase": [],
+        "probability": 0.5,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你踏入禁忌之林的瞬间，所有的低语声同时停止了。寂静比之前的嘈杂更加可怕。然后你看到了它——从那棵巨大的古树后面走出来一个……东西。它有着树的外形，但树干上浮现出一张巨大的人脸——没有眼睛，只有两个黑洞洞的凹陷和一个张开的、无声尖叫的嘴。它的枝条像手臂一样伸展，每根枝条的末端都长着一只人类的手。地面上的苔藓开始蠕动，朝你的脚踝缠绕过来。古树发出了一声叹息——不是风声，是一个真实的、发自肺腑的叹息。",
+      "effects": {
+        "HP": -5,
+        "items": [
+          "腐蚀之血"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=forbidden_grove，概率50%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "博物学",
+        "threshold": 55,
+        "success": {
+          "text": "你认出这是森林意识的具象化，尝试与其沟通",
+          "effects": {}
+        },
+        "failure": {
+          "text": "苔藓缠住了你的脚踝，你拼命挣扎才挣脱",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_tree_speech",
+      "name": "古树之语",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "forbidden_grove"
+        ],
+        "time_phase": [],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你来到古树前，这一次低语声没有停止。它们汇聚成了一个声音——古老、疲惫、带着无法言喻的悲伤。'我见证了你们种族的诞生，'那个声音说，'我见证了第一道封印的建立，我见证了守护者的血脉延续。但现在，封印在松动，守护者在衰老，而深渊中的东西越来越躁动。你来到这里不是偶然——你的血脉中流淌着回应呼唤的因子。'古树的一根枝条伸到你面前，末端的手掌缓缓张开，掌心中躺着一颗黑色的种子。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "古树种子"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=forbidden_grove，概率30%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 50,
+        "success": {
+          "text": "你接受了种子，感受到了与森林的联系",
+          "effects": {}
+        },
+        "failure": {
+          "text": "种子灼烧了你的手掌，留下了螺旋形的疤痕",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_shoggoth_encounter",
+      "name": "修格斯遭遇",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "deep_catacombs"
+        ],
+        "time_phase": [],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "通道前方传来湿滑的、沉重的蠕动声。你将手电筒照向前方，光柱切开黑暗的瞬间，你希望自己没有这么做。那是一团巨大的、无定形的胶状物，直径至少有五米，表面不断涌动着无数只临时形成的眼睛——每一只都在独立地转动、注视。它的身体像融化的沥青一样流淌，但速度远比你想象的快。它没有固定的形态，但你看到它短暂地模拟出了人类的脸——十几张脸，同时出现在它涌动的表面上，嘴巴无声地尖叫着。它注意到了你。所有的脸同时转向你的方向，然后融解、重组，变成了一张你自己的脸。",
+      "effects": {
+        "HP": -4,
+        "items": [
+          "修格斯残留物（未知用途）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -8,
+      "original_condition": "区域=deep_catacombs，概率30%",
+      "distortion_trigger": 40,
+      "distortion_text": "黑色淤泥般的生物。它有无数只眼睛，每一只都在独立转动。它看到了你。它变成了你。它用你的脸对你微笑。",
+      "false_memory": "你记得遇到了怪物。但你的衣服上没有粘液。也许你没有遇到。也许你就是那个怪物。",
+      "skill_check": {
+        "skill": "潜行",
+        "threshold": 55,
+        "success": {
+          "text": "你屏住呼吸贴在墙角，修格斯从你身边不到一米处流过，没有注意到你",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你踩到了一块碎石，修格斯的所有眼睛同时转向你，一根触须卷向你的腿",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_seal_ritual",
+      "name": "封印仪式残痕",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "deep_catacombs"
+        ],
+        "time_phase": [],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "穹顶大厅的地面中央有一个巨大的圆形凹陷，直径约十米。凹陷中刻满了密密麻麻的符文，排列成同心圆的图案，从外圈向内圈逐渐缩小。最内圈的符文已经模糊不清，但你隐约能辨认出几个——它们与《扎尔之卷》上的文字相同。凹陷的中心是一个拳头大小的孔洞，向下看去是无尽的黑暗。当你蹲下来仔细观察时，你感到一股微弱的气流从孔洞中向上吹来——那气流带着温度，不像是地下该有的。你突然理解了：这是一个封印仪式的现场。数千年前，有人在这里举行过仪式，将某种东西封印在了这个孔洞之下。而封印——正在失效。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "封印仪式记录（关键线索）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=deep_catacombs，概率25%",
+      "distortion_trigger": 40,
+      "distortion_text": "封印仪式的残痕。同心圆的图案，从外圈向内圈缩小。中心是一个拳头大小的孔洞。你蹲下来气流从孔洞中吹来。温暖的气流。你的心跳与它同步了。",
+      "false_memory": "你记得看到了封印仪式的痕迹。但当你再次来到这里时，图案变了。它更完整了。像是有人补充了你上次没有画完的部分。",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 60,
+        "success": {
+          "text": "你成功辨认出了仪式的步骤——它需要七个关键道具和一个活体献祭",
+          "effects": {}
+        },
+        "failure": {
+          "text": "符文在你的注视下开始蠕动，你头痛欲裂，只模糊理解了仪式的轮廓",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_void_whisper",
+      "name": "虚空低语",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "deep_catacombs"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你站在竖井边缘，向下望去。什么也看不到——不是黑暗，是真正的虚无。你的目光被吸引住了。然后，低语开始了。不是从竖井中传来——是从你的脑海中直接响起。那声音不属于任何人类语言，但你能理解每一个词。它在讲述宇宙的历史：第一颗恒星的诞生，第一个文明的兴起与灭亡，封印的建立，以及封印之后发生的一切。它告诉你，你不是偶然来到沃切斯特的。你的血脉中流淌着与封印共鸣的因子——你的祖先曾是晨星会的成员，而你体内的某种东西正在响应深渊的呼唤。低语停止了。你发现自己跪在竖井边缘，双手伸向虚空，手指离边缘不到十厘米。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "虚空回响记忆（永久效果：克苏鲁神话+3）",
+          "螺旋铜镜"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -7,
+      "original_condition": "区域=deep_catacombs，概率20%",
+      "distortion_trigger": 40,
+      "distortion_text": "虚空在低语。它在讲述宇宙的历史从第一颗恒星到最后一个黑洞。你听到了自己的名字。你发现自己跪在竖井边缘，双手伸向虚空。你什么时候跪下的？",
+      "false_memory": "你记得站在竖井边缘。但你的膝盖上有泥你跪下了多久？你的时间感已经不可靠了。",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 65,
+        "success": {
+          "text": "你咬破舌尖，用剧痛唤醒了自己，后退离开竖井边缘",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你的身体不受控制地向前倾，差点跌入竖井，千钧一之际你抓住了一块凸起的石头",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_elder_sign",
+      "name": "旧印",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "deep_catacombs"
+        ],
+        "time_phase": [],
+        "probability": 0.15,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "在穹顶大厅的一面墙壁上，你发现了一个与其他符文截然不同的符号。它刻得更深、更精确，周围的石材呈现出一种轻微的灼烧痕迹。这个符号——你认出来了。在伊莱亚斯的研究笔记中提到过：旧印（Elder Sign），一种可以对抗古神眷族的守护标记。它不应该出现在这里。旧印是封印的强化组件，但它被刻在了竖井的外侧而不是内侧——这意味着有人试图阻止什么东西从竖井中出来，而不是将东西封印在里面。旧印仍然在发光——微弱的、几乎不可见的蓝绿色荧光。它还在运作。但它旁边的墙壁上有一道裂缝，裂缝正在缓慢扩大。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "旧印拓片（关键道具：可在封印仪式中使用）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=deep_catacombs，概率15%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 50,
+        "success": {
+          "text": "你仔细记录了旧印的位置和状态，发现了裂缝的规律——每次竖井底部传来心跳声，裂缝就扩大一点",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你匆匆记录了旧印的存在，但没有注意到裂缝的规律",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_dimensional_rift",
+      "name": "维度裂隙",
+      "type": "陷阱",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "deep_catacombs"
+        ],
+        "time_phase": [],
+        "probability": 0.1,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你经过一条看似普通的走廊时，空间突然折叠了。你的左眼看到走廊笔直向前延伸，但你的右眼看到走廊向右拐了一个弯。你试图集中注意力，但两只眼睛看到的景象越来越不一致——你的左半身和右半身仿佛处于不同的维度。然后你看到了裂隙本身：它悬浮在走廊中央，大约两米高，形状不规则，边缘闪烁着紫罗兰色的电弧。透过裂隙你看到了另一个空间——那个空间的物理法则完全不同，重力指向侧面，空气中飘浮着发光的几何体。一个巨大的、锥形的影子在裂隙的另一边移动。你感到一种拉扯力——不是物理的，是认知上的。你的部分意识想要穿过裂隙去探索另一边。",
+      "effects": {
+        "HP": -3,
+        "items": [
+          "维度碎片"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -7,
+      "original_condition": "区域=deep_catacombs，概率10%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "数学",
+        "threshold": 55,
+        "success": {
+          "text": "你运用非欧几何的知识理解了裂隙的边界，安全绕行",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你的意识被裂隙短暂吸入，你经历了数秒的异维度体验——回来后感到极度眩晕和时空错乱",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_enoch_diary",
+      "name": "以诺·沃特的日记",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "lighthouse"
+        ],
+        "time_phase": [],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "灯塔地下室的角落里有一个铁盒，盒中放着一本已经发黄的日记。日记的主人是以诺·沃特——灯塔的建造者。大部分页面已经被海水浸泡得模糊不清，但有几页保存完好。1847年3月15日：灯室安装完成。透镜的角度经过精确计算，可以在午夜时分将绿光投射到海面的特定位置。后面几页的字迹越来越潦草：它们回应了。海面下的歌声越来越清晰。我能听懂了——它们在说：门即将打开。最后一页只有一行字，用完全不同的笔迹书写——像是被什么东西控制着写下的：祂醒了。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "以诺·沃特的日记"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=lighthouse，概率35%",
+      "distortion_trigger": 60,
+      "distortion_text": "以诺沃特的日记。1847年3月15日：它们回应了。最后一页只有一行字：祂醒了。你翻到最后一页时，发现下面还有一行用你的笔迹写的：你也是。",
+      "false_memory": "你记得读了日记。但日记的内容和你记忆中的不同。你上次读到的是什么？",
+      "skill_check": {
+        "skill": "历史",
+        "threshold": 35,
+        "success": {
+          "text": "你从日记中辨认出了灯塔建造的真实目的——它不是灯塔，是一个召唤装置",
+          "effects": {}
+        },
+        "failure": {
+          "text": "日记的内容让你不安，但你无法确定其中有多少是疯话",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_underwater_temple",
+      "name": "海底神殿的入口",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "lighthouse"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "灯塔地下室延伸出一条隧道，你沿着它向下走了大约二十分钟。隧道的墙壁从砖石变成了天然的岩壁，空气越来越潮湿。终于，隧道到了尽头——但尽头不是墙壁，是一片巨大的水下空间。你面前是一个天然的地下洞穴，洞穴中有一个深不见底的水池。水池的水面异常平静，如同一面黑色的镜子。水下隐约可见某种建筑的轮廓——巨大的柱子、拱形的穹顶、排列整齐的窗户。那是一座完整的建筑，沉没在水面之下。你注意到水面下偶尔有光芒闪动——绿莹莹的磷光，与灯塔顶部的光相同。",
+      "effects": {
+        "HP": -2,
+        "items": [
+          "海底神殿草图",
+          "深海之水"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=lighthouse，概率20%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 45,
+        "success": {
+          "text": "你发现了水池边的一条隐蔽小路，可以更近距离地观察神殿",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你匆匆记录了大致位置，但不敢靠近水池边缘",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_deep_one_ritual",
+      "name": "深潜者的祭祀",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "lighthouse"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.15,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你躲在灯塔地下室的一块岩石后面，目睹了一场不可能的景象。水池的水面沸腾了——数十个深潜者从水中爬出，在水池边围成一圈。它们的嘴里发出一种低沉的、有节奏的嗡鸣声。它们的中央放着一个石质祭坛，祭坛上躺着一个人——你辨认出了那张脸：一个失踪者名单上的面孔。深潜者们的嗡鸣声越来越响，水池中央升起了一道绿光。然后，那个失踪者的眼睛睁开了——不是人类的眼睛——瞳孔变成了金色的、椭圆形的。他坐了起来，用一种你从未听过的语言说了一句话。所有的深潜者同时跪了下来。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "深潜者祭品碎片",
+          "圣水"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -8,
+      "original_condition": "区域=lighthouse，概率15%，需深夜",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "潜行",
+        "threshold": 55,
+        "success": {
+          "text": "你屏息观察了整个祭祀过程，记住了它们的仪式步骤",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你发出了声音，一只深潜者转过头来——你及时躲回了阴影中",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_cthulhu_dream",
+      "name": "克苏鲁之梦",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "lighthouse"
+        ],
+        "time_phase": [],
+        "probability": 0.1,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你坐在灯塔顶部的灯室中，透过碎裂的透镜碎片看着海面。突然，绿光亮了起来——不是灯塔发出的，是从海面下透射上来的。整个海面变成了一面巨大的绿色玻璃，你看到了下面的景象。那是一座城市——海底的城市。巨大的石质建筑以违反人类建筑学的方式排列。城市的中央矗立着一座巨像——一个有着章鱼头颅、龙翼和类人身躯的巨大石像。你认出了它：克苏鲁。然后你看到了它的眼睛——石像的眼睛动了。它在看你。你感到一种超越语言的沟通：我梦见了你。你也将梦见我。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "克苏鲁之梦记忆",
+          "深渊水晶"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -7,
+      "original_condition": "区域=lighthouse，概率10%",
+      "distortion_trigger": 35,
+      "distortion_text": "你看到了海底的城市。巨大的石像章鱼头颅、龙翼。它的眼睛动了。它在看你。它说：我梦见了你。你也将梦见我。你什么时候闭上眼睛的？",
+      "false_memory": "你记得做了一个梦。但你的枕头是湿的海水的湿。你没有去过海边。至少你不记得去过。",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 60,
+        "success": {
+          "text": "你用意志力切断了与它的连接，绿光消散",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你的意识被卷入了它的梦境，在那里你看到了宇宙的诞生和终结",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_sacrificial_memory",
+      "name": "祭祀的记忆",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "forbidden_grove"
+        ],
+        "time_phase": [],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你站在祭坛前，一股甜香涌入你的鼻腔。你的视野突然模糊了——你看到了过去。祭坛上站着一群人，穿着暗红色的长袍，围成一圈。中央跪着一个人，双手被绑在身后。一个声音从古树的方向传来：你们承诺了一个灵魂，现在我来了。跪着的人抬起了头——你认出了那张脸。那是莫里斯家族的成员——你在庄园的肖像画中见过他。然后祭坛上的刀落了下来。你的视野恢复了正常。祭坛上什么也没有，但空气中弥漫着一股铁锈般的甜味。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "祭祀记忆碎片",
+          "月光熏香"
+        ],
+        "npc_changes": [
+          "希尔达·莫里斯_trust+1"
+        ]
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=forbidden_grove，概率25%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 45,
+        "success": {
+          "text": "你理解了祭祀的含义——这是莫里斯家族维持封印的代价之一",
+          "effects": {}
+        },
+        "failure": {
+          "text": "记忆太混乱了，你只记得鲜血和尖叫",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_nyarlathotep_whisper",
+      "name": "奈亚拉托提普的低语",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "forbidden_grove"
+        ],
+        "time_phase": [],
+        "probability": 0.15,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你来到古树面前，这一次低语声没有汇聚成一个声音——它们分开了，变成了一个清晰的、带着嘲讽意味的独白。你好啊，调查员。那个声音说，语气轻松得像是在和老朋友打招呼。你以为你在做什么？修复封印？拯救世界？笑声——轻蔑的、愉悦的笑声。封印是我设计的游戏。我把它放在这里，就是为了看你们这些小虫子为了它跑来跑去。声音突然变得低沉而温柔：加入我吧。你不需要害怕。低语停止了。你发现自己的右手不知何时已经放在了祭坛上，掌心下有一个温热的印记。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "奈亚拉托提普印记",
+          "螺旋铜镜"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=forbidden_grove，概率15%",
+      "distortion_trigger": 35,
+      "distortion_text": "你好啊，调查员。一个声音说，语气轻松得像是在和老朋友打招呼。你以为你在做什么？修复封印？拯救世界？笑声轻蔑的、愉悦的笑声。你的右手不知何时已经放在了祭坛上。",
+      "false_memory": "你记得听到了一个声音。但你的掌心有灼烧的痕迹一个螺旋形的印记。你不记得触摸过祭坛。",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 55,
+        "success": {
+          "text": "你猛地抽回了手，用全部意志力抵抗了它的诱惑",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你的掌心留下了螺旋形的印记，它隐隐发烫",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_bone_garden",
+      "name": "骨之花园",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "forbidden_grove"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你拨开苔藓，发现了下面令人震惊的景象——白骨。无数的白骨堆积在这里，有些已经完全石化，有些还保留着有机物的痕迹。这些骨头被精心排列成了一个图案。从上方俯瞰，骨头组成的图案是一个巨大的螺旋形，从外圈向内圈旋转，最终汇聚在中央的一块黑色石碑上。石碑只有半米高，上面刻着一行文字：献给永不沉睡者。计数为四十七。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "骨之花园记录",
+          "石碑拓片碎片"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=forbidden_grove，概率20%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "博物学",
+        "threshold": 40,
+        "success": {
+          "text": "你判断这些骨头跨越了数百年的时间——不是一次性祭祀，而是持续了几个世纪的供奉",
+          "effects": {}
+        },
+        "failure": {
+          "text": "骨头的数量让你震惊，你匆匆记录了大致位置",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_great_race_spirit",
+      "name": "伟大种族的残影",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "ruins_of_yith"
+        ],
+        "time_phase": [],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "遗迹深处的一个房间保持着异常的完整——墙壁上的装置仍在运转，发出低沉的嗡鸣声。房间中央是一个巨大的圆柱形容器，容器中充满了透明的液体。液体中悬浮着一个东西——一个圆锥形的躯体，大约两米高，顶部伸出四条触手，但触手已经萎缩干瘪。你走近时，容器中的液体突然开始旋转。那个圆锥形躯体上的一只眼睛——你之前没注意到的眼睛——睁开了。它看着你。然后你听到了一个声音：我们等待了三百万年。你会是我们的新载体吗？",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "伊斯人残影记忆"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=ruins_of_yith，概率30%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 55,
+        "success": {
+          "text": "你保持了冷静，理解了它的意思——伊斯人曾经将自己的意识投射到其他时代",
+          "effects": {}
+        },
+        "failure": {
+          "text": "信息量太大，你只记得一个词：投射——它的含义让你头痛欲裂",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ancient_machine",
+      "name": "仍在运转的机器",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "ruins_of_yith"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "在遗迹的最底层，你发现了一台巨大的机器。它占据了整个房间——金属管道和电缆交织在一起，中间是一个圆形的平台，平台上刻满了同心圆的图案。机器的一部分仍在运转：齿轮缓慢地转动，蒸汽从管道的接缝处嘶嘶地冒出来。你注意到平台上有一个凹槽，形状恰好可以放下手掌。机器旁边的墙壁上刻着一幅示意图——一个圆锥形生物将触手放在平台上，它的上方出现了一道光柱，光柱中隐约可见另一个世界的景象。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "机器示意图残片",
+          "星图石板"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=ruins_of_yith，概率20%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "数学",
+        "threshold": 50,
+        "success": {
+          "text": "你理解了机器的基本原理——它是一个时空投射装置",
+          "effects": {}
+        },
+        "failure": {
+          "text": "机器的复杂程度超出了你的理解，但你记住了平台上的凹槽形状",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_hidden_ritual",
+      "name": "隐藏的仪式室",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "voxchester_manor"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你在三楼走廊尽头的那扇门前停了下来——那扇从未被打开的门。当你把手指放在门上的一个特定凹痕中时（那个凹痕的形状与莫里斯家族纹章相同），门发出了一声沉重的咔哒声，缓缓打开了。门后是一个圆形的房间，墙壁上画满了壁画——描绘的是封印仪式的全过程。房间中央是一个石质祭坛，祭坛上放着一个金属盒子——这个盒子是打开的。盒子里面空空如也，但内壁上刻着一段文字：献祭者的血脉将与封印同在。当血脉断绝，封印将碎。最后的莫里斯家族成员——希尔达——将是最后的钥匙。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "莫里斯家族封印记录"
+        ],
+        "npc_changes": [
+          "希尔达·莫里斯_trust+2"
+        ]
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=voxchester_manor，概率20%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 40,
+        "success": {
+          "text": "你在祭坛下方发现了一个暗格，里面有一封莫里斯祖父写给希尔达的信",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你匆匆记录了壁画的内容，但没有注意到祭坛的暗格",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_seal_chamber",
+      "name": "封印密室",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "catacombs_entrance"
+        ],
+        "time_phase": [],
+        "probability": 0.15,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "你在墓穴第一层发现了一条隐蔽的岔路。岔路的尽头是一扇石门，门上刻着一个巨大的旧印。石门是半开的，门缝中透出微弱的蓝绿色光芒。你挤了进去，发现自己在一个小型的圆形密室中。密室的墙壁上嵌满了发光的矿物晶体。密室的中央是一个石台，石台上放着一个拳头大小的水晶球。水晶球内部有光在流动——那光的脉动频率与你的心跳同步。当你靠近时，水晶球发出了低沉的嗡鸣声，像是在回应你的存在。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "封印水晶",
+          "守护符文"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=catacombs_entrance，概率15%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 45,
+        "success": {
+          "text": "你认出了这个密室——它是封印的控制中心，水晶球是封印的能量核心之一",
+          "effects": {}
+        },
+        "failure": {
+          "text": "水晶球的光芒让你感到不安，你记录了位置但没有触碰它",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch2_tide_table",
+      "name": "潮汐密码",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "whispering_forest"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_1_4"
+        ],
+        "forbidden_flags": [
+          "clue_2_1"
+        ],
+        "chapter": 2
+      },
+      "description": "林间小径旁的石凳上放着一本潮汐表，封皮被露水浸透。翻开内页，有人用红笔圈出了几个日期——都是满月前后的夜晚。旁边用极细的字迹标注了一组数字：深度、经纬度、还有一个反复出现的词'门'。你翻到最后一页，发现一张手绘的海图，标记着沃切斯特近海某处的异常水深。这些数据不来自任何正规海图。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=whispering_forest，白天，需要clue_1_4",
+      "distortion_trigger": 45,
+      "distortion_text": "你看着潮汐表上的数字。数字也在看你。它们排列的方式，好像在拼写一个名字。",
+      "false_memory": "你记得找到了潮汐表。但回到住处后，内页的红墨水全部消失了。",
+      "skill_check": {
+        "skill": "图书馆利用",
+        "threshold": 35,
+        "success": {
+          "text": "你辨认出这是一份标注了海底入口的走私海图。线索获得。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "字迹太模糊，你无法读取关键坐标。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch2_martha_backroom",
+      "name": "玛莎的后屋",
+      "type": "NPC互动",
+      "event_classification": "normal",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "evening"
+        ],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "玛莎·格雷的杂货店已经打烊，但后门虚掩着。你推门进去，看见她坐在烛光下，面前摊着一堆发黄的信件。她的手指在发抖。'我姐姐，'她说，声音比平时低了很多。'她三十年前来过沃切斯特。之后就再也没有离开。这些信是她最后寄出来的——她说她在码头下面找到了什么东西。一个入口。她说那是通往'真城'的路。'她把信推到你面前。'我不想知道答案。但你也许需要这些。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "玛莎·格雷",
+            "trust_change": 2
+          }
+        ]
+      },
+      "sanity_damage": 0,
+      "original_condition": "区域=town_center，傍晚",
+      "distortion_trigger": null,
+      "distortion_text": "",
+      "false_memory": "",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": true,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch2_fisherman_net",
+      "name": "网中之物",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_1_2"
+        ],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "深夜的码头安静得反常。你经过一艘渔船时，注意到渔网挂在船舷上，里面有什么东西在缓慢蠕动。不是鱼——太大了，形状也不对。你凑近看：那东西有着人类的轮廓，但皮肤像浸泡太久的皮革一样灰白起皱。它的手指之间连着蹼。它转过头，用完全没有眼白的黑色眼睛看着你，张开了嘴。嘴里没有舌头，只有一根管状的器官在有节奏地搏动。它发出一个音节，然后又一个——像是在说话，但语言不属于任何人类文明。",
+      "effects": {
+        "HP": -1,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=harbor_district，午夜，需要clue_1_2",
+      "distortion_trigger": 50,
+      "distortion_text": "那东西看着你。你突然不确定它是从渔网里看出来，还是你从渔网里看出去。",
+      "false_memory": "你记得渔网里的东西。但第二天渔夫说网里只有一条石斑鱼。鱼的眼睛是黑色的。",
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 45,
+        "success": {
+          "text": "你认出那是深潜者的特征——这是被转化的村民。你记住了它的位置。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你惊恐后退，撞倒了旁边的铁桶，巨大的声响惊动了其他东西。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch2_church_basement",
+      "name": "地下室的温度",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "afternoon"
+        ],
+        "probability": 0.25,
+        "requires": [
+          "clue_h_3"
+        ],
+        "forbidden_flags": [
+          "clue_h_4"
+        ],
+        "chapter": 2
+      },
+      "description": "教堂的地下室门平时锁着，但今天开着一条缝。你推门走下石阶，空气越来越冷——不是普通的凉意，是一种有重量的冷，像是浸在冷水里。墙壁上有水渍形成的图案，仔细看，那不是随机的水痕。每面墙上都画着同样的符号：一个圆，里面有一个向下的箭头，箭头末端画着一只眼睛。地下室最深处有一张旧桌，桌上放着一本教区登记簿。翻开它，最近的一页上用拉丁文写着一长段话，你只认出一个反复出现的词：'Dagon'。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=town_center，下午，需要clue_h_3",
+      "distortion_trigger": 45,
+      "distortion_text": "你在读登记簿。但你的手指在翻页的时候，书页上出现了新的文字——是你自己的笔迹。",
+      "false_memory": "你记得地下室很冷。但你的衣服上有盐渍。你什么时候去过海边？",
+      "skill_check": {
+        "skill": "历史",
+        "threshold": 40,
+        "success": {
+          "text": "你辨认出这是早期达贡崇拜的祭祀记录。教区一直在秘密举行仪式。线索获得。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "拉丁文超出了你的阅读能力，你只拍下了墙上的符号。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch2_lighthouse_keeper",
+      "name": "守灯人的笔记",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "lighthouse"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [
+          "clue_2_2"
+        ],
+        "chapter": 2
+      },
+      "description": "灯塔底层的房间里有一张积满灰尘的写字台。抽屉半开着，里面放着一本皮面笔记本。笔迹潦草，墨水在某些地方洇开了——是泪水还是海水，你分不清。守灯人写道：'第14天。灯塔的光不再照向海面。它在照向海底。我看见了光柱尽头的东西——一座城市。不，不是城市，是一个有机体，有着城市的形状。它在呼吸。每一次呼吸，海面就升高一寸。'最后一页只有三个字：'它醒了。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=lighthouse，白天",
+      "distortion_trigger": 40,
+      "distortion_text": "笔记上的日期是第14天。今天是第几天来着？你低头看手表。表盘上的数字是倒着走的。",
+      "false_memory": "你记得读了守灯人的笔记。但灯塔底层根本没有写字台。只有一面墙，墙上有一扇门。",
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 30,
+        "success": {
+          "text": "你在笔记本夹层里找到了一张灯塔结构图，标注了通往地下层的暗门。线索获得。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你读完了笔记，但太震惊了，忘了检查夹层。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch2_fog_direction",
+      "name": "雾中方向",
+      "type": "轻微异常",
+      "event_classification": "minor_abnormal",
+      "chapter": 2,
+      "trigger": {
+        "areas": [
+          "whispering_forest"
+        ],
+        "time_phase": [
+          "evening",
+          "midnight"
+        ],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 2
+      },
+      "description": "雾气在傍晚时分从林间升起，浓到你看不清三步之外的树。你打开指南针——指针不再指向北方。它在缓慢地旋转，每转一圈就停顿一下，然后换个方向继续转。像是有什么东西在牵引它。你停下来听。远处传来低沉的嗡鸣声，不是虫鸣，也不是风声。那声音有节奏，像心跳。你意识到它来自脚下。脚下的地面在轻微地震动。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=whispering_forest，傍晚/午夜",
+      "distortion_trigger": 35,
+      "distortion_text": "指南针的指针停下来了。它指向你。",
+      "false_memory": "你记得雾很大。但你的鞋是干的。森林里没有露水吗？",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch3_hilda_bloodline",
+      "name": "希尔达的血统",
+      "type": "NPC互动",
+      "event_classification": "investigation",
+      "chapter": 3,
+      "trigger": {
+        "areas": [
+          "voxchester_manor"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_1_3"
+        ],
+        "forbidden_flags": [
+          "clue_m_1"
+        ],
+        "chapter": 3
+      },
+      "description": "希尔达·莫里斯坐在庄园大厅的壁炉旁，火光照着她过分苍白的侧脸。她没有看你，但开口说话了：'你知道莫里斯家族为什么留在沃切斯特吗？不是因为贫穷。是因为血。我们家族的血里有海盐的味道。每一代人都会听到潮声，即使远离海岸。我祖母说，我们的祖先不是人类。是海里来的什么东西，和岸上的女人结合，生下了莫里斯家的第一代。'她转过头，瞳孔在火光中反射出一种非人的光泽。'你以为我在说疯话？去看地下室的族谱。每一任族长的死亡日期，都和满月重合。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "希尔达·莫里斯",
+            "trust_change": 1
+          }
+        ]
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=voxchester_manor，白天，需要clue_1_3",
+      "distortion_trigger": 40,
+      "distortion_text": "希尔达说话的时候，你听见她的声音里有第二个声音。很轻，像潮水一样起伏。",
+      "false_memory": "你记得希尔达说了血统的事。但她的嘴唇没有动过。是谁在说话？",
+      "skill_check": {
+        "skill": "心理学",
+        "threshold": 40,
+        "success": {
+          "text": "你确信她完全相信自己所说的话。不管真相如何，她活在这种信念里已经很久了。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你无法判断她是认真的还是在试探你的反应。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch3_elias_pages",
+      "name": "伊莱亚斯的缺页",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 3,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_2_1"
+        ],
+        "forbidden_flags": [
+          "clue_3_1"
+        ],
+        "chapter": 3
+      },
+      "description": "伊莱亚斯·沃德坐在旧书店的角落里，面前摊着一本被撕掉了好几页的古籍。他抬头看了你一眼，没说话，把书推了过来。被撕掉的部分用铅笔做了简短的抄录：'第三封印的维护需要三个条件——守夜人的血、灯塔的光、以及一个自愿走入深海的人。缺一不可。但莫里斯家的人不愿意牺牲自己，于是他们找到了替代方案：用外来者的灵魂代替。每一次轮回，封印就会弱一分。因为他们偷的不是血，是意志。'伊莱亚斯在你读完后收回了书。'我只是个卖旧书的，'他说。'但我知道哪些书不应该被读到。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "伊莱亚斯·沃德",
+            "trust_change": -1
+          }
+        ]
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=town_center，早晨，需要clue_2_1",
+      "distortion_trigger": 40,
+      "distortion_text": "伊莱亚斯说话的时候，他的影子没有跟着他的动作。影子坐着，而他站起来了。",
+      "false_memory": "你记得读了缺页。但伊莱亚斯说他今天没有开店。书店的门一直锁着。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch3_catacomb_names",
+      "name": "墓穴中的名字",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 3,
+      "trigger": {
+        "areas": [
+          "catacombs_entrance"
+        ],
+        "time_phase": [
+          "afternoon",
+          "evening"
+        ],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 3
+      },
+      "description": "墓穴入口的石阶又湿又滑。你走下大约二十级台阶后，两侧的墙壁开始出现刻字——名字、日期、死因。大多是十九世纪的记录。但你突然停住了。墙上有一行字的墨迹还没干透：一个你认识的名字。你的名字。后面跟着今天的日期。死因一栏写着：'自愿走入深海'。你伸手摸了摸字迹——墨水沾在了你的指尖上。是新的。是谁在你下来之前刻下了这些？",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=catacombs_entrance，下午/傍晚",
+      "distortion_trigger": 35,
+      "distortion_text": "你继续往里走，墙上的名字越来越多。每一个都是你的名字。用不同的笔迹写成。",
+      "false_memory": "你记得看到了自己的名字。但你的手指上没有墨迹。是你在墙上刻了什么吗？",
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 35,
+        "success": {
+          "text": "你注意到刻字旁边的石头有被替换的痕迹。这不是预言，是有人在你到达前精心布置的。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "恐惧攫住了你。你几乎无法呼吸。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch3_lighthouse_water",
+      "name": "灯塔里的水",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 3,
+      "trigger": {
+        "areas": [
+          "lighthouse"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_2_2"
+        ],
+        "forbidden_flags": [],
+        "chapter": 3
+      },
+      "description": "灯塔的楼梯间里传来水流声。你循声往上走，在第三层的平台上看到了不可思议的景象：海水正从墙壁的缝隙中渗出，沿着天花板流淌，像是整个灯塔被浸入了海里。水珠没有滴落——它们悬浮在空中，缓慢地旋转，每一颗水珠里都映出一个微缩的灯塔。你走近了一颗水珠。里面有人影在攀登台阶。那人影停了下来，转头看向你。是你的脸。但眼睛是全黑的，嘴角挂着你从未做过的微笑。所有的水珠同时碎裂。水洒了你一身。海水。咸的。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=lighthouse，午夜，需要clue_2_2",
+      "distortion_trigger": 30,
+      "distortion_text": "水珠碎裂后，你的衣服是干的。你身上没有盐的味道。但你嘴里有。",
+      "false_memory": "你记得灯塔里的水。灯塔里一直有水。它从来没在陆地上过。",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 50,
+        "success": {
+          "text": "你理解了——灯塔是某种通道。它不是照亮海面，是照亮'另一边'。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你无法理解你看到的一切。逻辑在尖叫着崩溃。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch3_fisher_memory",
+      "name": "老费舍的回忆",
+      "type": "NPC互动",
+      "event_classification": "normal",
+      "chapter": 3,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "morning"
+        ],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 3
+      },
+      "description": "老费舍今天没有出海。他坐在码头边，面朝大海，脚边放着一瓶已经喝了一半的威士忌。'我年轻的时候，'他说，声音比平时清楚。'沃切斯特还有灯节。每年秋天，家家户户在窗台上点蜡烛。不是为了照明，是为了让海里的东西知道——岸上有人记得它们。'他喝了一口酒。'后来灯节取消了。因为有一年，所有的蜡烛同时变成了绿色。没有风，火焰是绿色的。第二天早上，三户人家消失了。连房子一起。'他把酒瓶递给你。'你不喝酒？也好。清醒地看这个世界，已经够辛苦了。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "老费舍",
+            "trust_change": 2
+          }
+        ]
+      },
+      "sanity_damage": -1,
+      "original_condition": "区域=harbor_district，早晨",
+      "distortion_trigger": null,
+      "distortion_text": "",
+      "false_memory": "",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": true,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch3_safehouse_corruption",
+      "name": "安全屋的裂缝",
+      "type": "轻微异常",
+      "event_classification": "minor_abnormal",
+      "chapter": 3,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "evening",
+          "midnight"
+        ],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 3
+      },
+      "description": "你回到住处，发现墙角出现了一道裂缝。不是普通的墙体开裂——裂缝边缘很整齐，像是被人用刀划开的。你用手电筒照进去，裂缝深处有什么东西在反光。你退后一步，裂缝里渗出了一滴液体。粘稠、透明、带着海盐的气味。你拿来杯子接了几滴。液体在杯底缓慢地旋转，像是有自我意识。你把杯子放在桌上，转身去拿东西。再回头时，杯子里空了。桌上有一圈水渍，方向朝向你的枕头。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=town_center，傍晚/午夜",
+      "distortion_trigger": 35,
+      "distortion_text": "裂缝在你睡着的时候变大了。你确定它在你睡着之前只有头发丝那么细。现在它有手指那么宽。",
+      "false_memory": "你记得墙上的裂缝。但你的房间没有裂缝。你的房间在地下室。你住的是地下室吗？",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch4_hilda_choice",
+      "name": "希尔达的条件",
+      "type": "NPC互动",
+      "event_classification": "investigation",
+      "chapter": 4,
+      "trigger": {
+        "areas": [
+          "voxchester_manor"
+        ],
+        "time_phase": [
+          "evening"
+        ],
+        "probability": 0.35,
+        "requires": [
+          "clue_m_2",
+          "clue_m_3"
+        ],
+        "forbidden_flags": [
+          "clue_m_5"
+        ],
+        "chapter": 4
+      },
+      "description": "希尔达在庄园的书房里等你。桌上的烛台只剩两根蜡烛，火光映着她半边脸。'你知道了，'她说，不需要你开口。'莫里斯家族是封印的看守者。也是封印的破坏者。因为我们同时是深潜者的后代。我们用外乡人的灵魂来修补封印，实际上是把封印的缺口转嫁到你们身上。每一任轮回者都是这样死的。'她停了一下。'但我可以给你另一个选择。如果你愿意成为新的看守者，封印可以用你的意志来维持——不需要牺牲别人。代价是，你永远无法离开沃切斯特。'她看着你。'不是死亡。是比死亡更安静的东西。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "希尔达·莫里斯",
+            "trust_change": 3
+          }
+        ]
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=voxchester_manor，傍晚，需要clue_m_2和clue_m_3",
+      "distortion_trigger": 35,
+      "distortion_text": "希尔达的嘴唇在动，但声音晚了半秒才到。像是你在看一场不同步的电影。",
+      "false_memory": "你记得希尔达给了你选择。但她不在庄园里。庄园已经空了三十年了。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch4_martha_betrayal",
+      "name": "玛莎的另一面",
+      "type": "NPC互动",
+      "event_classification": "horror",
+      "chapter": 4,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.25,
+        "requires": [
+          "clue_3_1"
+        ],
+        "forbidden_flags": [],
+        "chapter": 4
+      },
+      "description": "午夜的杂货店应该关着门。但灯是亮着的。你从窗户看进去——玛莎站在柜台后面，正在往一个木箱里装什么东西。不是货物。是信件。那些发黄的、你之前看过的信件。她装完后合上箱子，用蜡封好，在蜡上按下一个印章。你看清了印章的图案：一只从海面下伸出的手。那是你在地下室墙上见过的达贡教团标记。她放下箱子，抬起头，准确地看向你站立的位置。然后她笑了。那个笑容里没有任何你认识的玛莎·格雷。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "玛莎·格雷",
+            "trust_change": -5,
+            "corruption_flag": "martha_exposed"
+          }
+        ]
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=town_center，午夜，需要clue_3_1",
+      "distortion_trigger": 30,
+      "distortion_text": "玛莎在看着你。她一直都在看着你。从你进入沃切斯特的第一秒。",
+      "false_memory": "你记得看到玛莎封印了箱子。但杂货店已经关门了。你从窗户看到的是自己的倒影。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch4_elias_confession",
+      "name": "伊莱亚斯的坦白",
+      "type": "NPC互动",
+      "event_classification": "investigation",
+      "chapter": 4,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_3_1"
+        ],
+        "forbidden_flags": [],
+        "chapter": 4
+      },
+      "description": "伊莱亚斯站在旧书店门口，像是等了你很久。他今天没有穿平时那件灰色外套——他穿着一件深蓝色的长袍，领口绣着银线的海浪纹样。'我是最后一任封印维护者，'他说，没有任何铺垫。'沃切斯特的封印不是自然形成的。是七百年前，一位从阿卡姆来的修士用自己的生命刻下的。封印需要定期维护——每七天一次，用特定的仪式加固。但我已经维护了四十三年。我太老了，仪式开始失效。'他解开领口，露出脖子上一道深深的疤痕，呈环形，像项圈。'这就是维护者的标记。封印刻在骨头里。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "伊莱亚斯·沃德",
+            "trust_change": 4
+          }
+        ]
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=town_center，早晨，需要clue_3_1",
+      "distortion_trigger": 40,
+      "distortion_text": "伊莱亚斯的疤痕在说话。声音很轻，是拉丁文。他没有张嘴。",
+      "false_memory": "你记得伊莱亚斯坦白了身份。但他说他今天没有见过你。他的书店今天休息。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch4_ritual_missing",
+      "name": "缺失的仪式",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 4,
+      "trigger": {
+        "areas": [
+          "deep_catacombs"
+        ],
+        "time_phase": [
+          "afternoon",
+          "evening"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_h_5"
+        ],
+        "forbidden_flags": [
+          "clue_h_6"
+        ],
+        "chapter": 4
+      },
+      "description": "墓穴深处有一间圆形的石室。地面中央有一个石台，上面刻着完整的封印仪式步骤。但第三步被人用凿子凿掉了——石头被凿出一个深坑，碎片散落在地上。你蹲下来检查碎片，发现其中一块上还保留着几个字：'……以自己的血浇灌……月光必须照在……切不可令深海之物……'关键的部分全被破坏了。石台边缘有干涸的血迹，不是太旧。旁边放着一把凿子，木柄上刻着'M'——莫里斯家的首字母。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=deep_catacombs，下午/傍晚，需要clue_h_5",
+      "distortion_trigger": 30,
+      "distortion_text": "你读着石台上的字。但每次眨眼，字的位置都变了。它们在重新排列组合，拼成不同的句子。",
+      "false_memory": "你记得石台上的仪式步骤。但石台是空的。上面什么字也没有。只有你的指纹。",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 55,
+        "success": {
+          "text": "你根据残留的碎片和仪式逻辑，推断出第三步需要一个自愿的祭品——不是生命，是记忆。用记忆来填补封印的缺口。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你无法还原被破坏的步骤。有人刻意隐藏了关键信息。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch4_catacomb_heartbeat",
+      "name": "墓穴的心跳",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 4,
+      "trigger": {
+        "areas": [
+          "catacombs_entrance",
+          "deep_catacombs"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 4
+      },
+      "description": "你在墓穴深处听到了心跳声。不是来自上方，不是来自侧面——来自四面八方。墙壁在随着心跳的节奏微微起伏。石棺的盖子在震动。你后退一步，撞到了身后的墙壁。墙壁是温的。你转身，用手掌按住墙面。石头在你的手下搏动，像活物的皮肤。每隔六秒一次搏动。和你的心跳完全同步。你把手拿开。墙壁停了一下。然后，它开始跟着你新的心跳频率继续搏动——即使你的心跳已经加速到每分钟一百二十下。",
+      "effects": {
+        "HP": -1,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=catacombs_entrance/deep_catacombs，午夜",
+      "distortion_trigger": 25,
+      "distortion_text": "你的心跳和墙的心跳分不开了。你不确定哪个是你。",
+      "false_memory": "你记得墓穴的心跳。但你的心率监测表显示你在过去二十分钟里心率一直是零。",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 45,
+        "success": {
+          "text": "你强迫自己冷静下来，心跳恢复平稳。墙的搏动也随之平缓。你能控制它。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "恐惧使你的心跳越来越快，墙也跟着加速搏动。你开始感到胸闷。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch4_false_solution",
+      "name": "虚假的解答",
+      "type": "陷阱",
+      "event_classification": "horror",
+      "chapter": 4,
+      "trigger": {
+        "areas": [
+          "ruins_of_yith"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.25,
+        "requires": [
+          "clue_3_2"
+        ],
+        "forbidden_flags": [],
+        "chapter": 4
+      },
+      "description": "废墟中有一间保存完好的石室。桌上摊着一卷羊皮纸，上面用你完全能读懂的文字写着封印的完整修复方法——每一个步骤、每一个材料、每一个时间节点。完美得不真实。你继续往下读，最后一页写着：'修复封印后，沃切斯特将恢复正常。所有受到的影响会逆转。你将带着完整的记忆离开。'你的手在发抖。这不是因为恐惧——是因为希望。你终于找到了答案。但有什么东西不对。羊皮纸的角落有一个小小的标记：一条蛇咬着自己的尾巴。这不是沃切斯特的符号。这是尤斯-提斯文明的标记——一个你从未研究过但此刻无比确定的符号。而你知道，尤斯-提斯文明最擅长的事情是：制造完美的谎言。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=ruins_of_yith，白天，需要clue_3_2",
+      "distortion_trigger": 25,
+      "distortion_text": "你读完羊皮纸后，上面的文字慢慢消失了。新的文字浮现出来：'你已经做出了选择。'",
+      "false_memory": "你找到了修复封印的方法。这是真的。你确定这是真的。你必须确定。",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 60,
+        "success": {
+          "text": "你看穿了——这卷羊皮纸是陷阱。它提供的方案会让你进入一个更深的循环。你把它烧掉了。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你相信了羊皮纸上的内容。至少，你想相信。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_final_ritual_begin",
+      "name": "最终仪式",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "deep_catacombs"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.5,
+        "requires": [
+          "clue_h_6",
+          "clue_h_7"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "你在午夜来到了墓穴最深处。封印就在脚下——一个巨大的石刻圆盘，裂缝中透出微弱的蓝光。四周的墙壁上刻满了名字。每一个都是之前试图修复封印的人。裂缝在缓慢地扩大。蓝光的脉搏越来越快。你知道下一步该做什么。你已经知道了所有的步骤。石台上的水已经漫到了脚踝。水是温的。里面有什么东西在游动。",
+      "effects": {
+        "HP": -2,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -8,
+      "original_condition": "区域=deep_catacombs，午夜，需要clue_h_6和clue_h_7",
+      "distortion_trigger": 20,
+      "distortion_text": "封印在发光。不，是你的手在发光。你的皮肤下面有蓝色的光在流动。",
+      "false_memory": "你启动了最终仪式。但你没有。你从来没有走进过墓穴。你在哪里？",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 60,
+        "success": {
+          "text": "你站稳了。封印的蓝光稳定了一瞬。你还有时间。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你脚下的水面裂开了。你掉进了更深的地方。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_ritual_interrupt",
+      "name": "仪式中断",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "deep_catacombs"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.4,
+        "requires": [
+          "evt_ch5_final_ritual_begin"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "仪式进行到一半的时候，水开始沸腾。不是加热后的沸腾——是某种巨大的东西从水下升上来时带来的压力变化。石台在震动。裂缝里的蓝光突然变成了红色。水面涌起，形成一个水柱。水柱的顶端裂开，像一张嘴。嘴里有什么东西在往下看。你看不清它的形状——你的大脑拒绝处理这种视觉信息。但你知道它在看你。它认识你。它叫了你的名字。用你母亲的声音。",
+      "effects": {
+        "HP": -3,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -10,
+      "original_condition": "区域=deep_catacombs，午夜，需要完成evt_ch5_final_ritual_begin",
+      "distortion_trigger": 15,
+      "distortion_text": "它叫了你的名字。你回应了。你不应该回应。",
+      "false_memory": "你记得仪式被打断了。但仪式已经完成了。你成功了。封印完好无损。一切正常。一切正常。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_cthulhu_dream",
+      "name": "克苏鲁之梦",
+      "type": "超自然遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "lighthouse",
+          "deep_catacombs"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.35,
+        "requires": [
+          "clue_3_2"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "你在不该睡着的时候睡着了。梦中，你站在海底的城市废墟里。天空是水。地面是某种黑色的石头，表面覆盖着黏液。远处有一个巨大的轮廓——你无法判断它有多远，也无法判断它有多高。它的一部分身体就比你见过的任何建筑都大。它没有移动。但城市在围绕着它缓慢地旋转。你知道它在沉睡。你也知道，每一次呼吸——它的呼吸，持续数百年一次——海面就会上涨。沃切斯特就离海底更近一寸。你醒来时浑身湿透。嘴里有海盐。",
+      "effects": {
+        "HP": -1,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -8,
+      "original_condition": "区域=lighthouse/deep_catacombs，午夜，需要clue_3_2",
+      "distortion_trigger": 15,
+      "distortion_text": "你醒了。但你不确定你是从梦中醒来，还是从醒着的状态进入了另一个梦。",
+      "false_memory": "你做了一个梦。梦见了海底的城市。但你没有睡觉。你从来没有睡过。你一直在这里。",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 70,
+        "success": {
+          "text": "你理解了——克苏鲁的呼吸周期和封印的衰减周期完全吻合。封印不是在被破坏，是在自然衰退。没有人能阻止。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你的意识试图理解梦的内容，但思维像齿轮卡住一样发出尖锐的摩擦声。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_nyarlathotep_offer",
+      "name": "奈亚拉托提普的提议",
+      "type": "超自然遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "forbidden_grove",
+          "ruins_of_yith"
+        ],
+        "time_phase": [
+          "evening",
+          "midnight"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_m_5"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "树林里的雾变成了人形。不是模糊的轮廓——是一个具体的人。穿着和你一模一样的衣服，有着和你一模一样的脸。但它的眼睛是空的，像两个通往别处的窗口。'你累了，'它说，用你的声音。'每一次轮回，你都走同样的路，做同样的选择，得到同样的结局。但你有没有想过——如果你不再是你呢？'它伸出手，掌心有一颗黑色的石头。'接受它。你不再是沃切斯特的囚徒。你会成为沃切斯特的一部分。不再有痛苦，不再有选择。只有永恒的安宁。'它的笑容是你做噩梦时的笑容。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -7,
+      "original_condition": "区域=forbidden_grove/ruins_of_yith，傍晚/午夜，需要clue_m_5",
+      "distortion_trigger": 15,
+      "distortion_text": "它走了。但它的一部分留在了你的影子里。你的影子比你慢半拍。",
+      "false_memory": "你拒绝了它的提议。但你的口袋里有一颗黑色的石头。你从来不记得捡过石头。",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 70,
+        "success": {
+          "text": "你后退了。雾散了。你手心里有石头留下的冰凉触感。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你犹豫了太久。它把石头塞进了你的口袋。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_yog_gate",
+      "name": "尤格之门",
+      "type": "超自然遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "ruins_of_yith"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_h_7"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "废墟的地面裂开了。裂缝里不是泥土——是星空。你看到了银河。不，不是你认识的银河。这团星云的颜色不对，排列不对。恒星在以肉眼可见的速度移动和爆炸。你低头看脚下的裂缝，意识到你看到的是另一个维度的天空。裂缝在扩大。有什么东西正从裂缝里升上来。是一个环。一个由光线编织成的圆环，直径约两米，悬浮在离地半米的空中。环的内侧映出不同的场景——你看到了沃切斯特的过去，每一任轮回者的最后一刻。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -10,
+      "original_condition": "区域=ruins_of_yith，午夜，需要clue_h_7",
+      "distortion_trigger": 10,
+      "distortion_text": "你看着圆环里的过去。最后一刻的画面里是你。现在这一刻的你。你在看着圆环。",
+      "false_memory": "你看到了尤格之门。门一直是关着的。它从未打开过。你从未走近过废墟。",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 65,
+        "success": {
+          "text": "你理解了——这扇门是尤格-索托斯的显现。穿过它的人将看到所有时间。代价是失去'现在'。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你的视觉系统过载了。你看到了太多的时间线，无法区分哪一个是真实的。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_deep_ones_tide",
+      "name": "深潜者之潮",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "harbor_district",
+          "lighthouse"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.4,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "海面升起来了。不是潮汐——整片海面在缓缓上升，像一面巨大的水墙。水墙的透明层里有无数的身影在游动。深潜者。几十个。它们没有游向海岸——它们在上升，像是被什么力量托举着。水墙到达码头的高度时停住了。一个深潜者从水墙中走出来。它比其他的都大，身上披着用贝壳和珊瑚编织的盔甲。它手中拿着一根骨杖。杖尖指向灯塔。灯塔亮了。不是灯塔的灯——是灯塔本身在发光，从石头的缝隙里透出绿色的光芒。整个沃切斯特都被绿光笼罩了。",
+      "effects": {
+        "HP": -2,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -8,
+      "original_condition": "区域=harbor_district/lighthouse，午夜",
+      "distortion_trigger": 20,
+      "distortion_text": "绿光穿透了你的皮肤。你的血管在发着微弱的光。你低下头，看到了自己骨骼的轮廓。",
+      "false_memory": "你看到了深潜者之潮。但海面平静。码头完好。你只是在海边站了一会儿。",
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 50,
+        "success": {
+          "text": "你看到了深潜者统领骨杖上的标记——和封印石台上的一模一样。它们不是在进攻，是在执行仪式。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "恐惧使你的视觉模糊。你只看到了一片绿色的光。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_shoggoth_break",
+      "name": "修格斯的突破",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "deep_catacombs",
+          "forbidden_grove"
+        ],
+        "time_phase": [
+          "evening",
+          "midnight"
+        ],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "你听到了一个声音。像是有人在用肉块拍打石头——沉重、粘腻、没有节奏。声音从地下传来，越来越近。墙壁开始凸起。不是从外面撞击——是从墙体内部向外推。石头像面团一样变形，裂缝中渗出黑色的粘液。然后，一只'眼睛'从裂缝中探出来——不是真正的眼睛，是一个由无数个微小眼状结构组成的球形器官。它转了一圈，所有的瞳孔同时锁定了你。墙壁在它身后坍塌了。一个由半透明胶状物质组成的巨大团块从墙里挤了出来。它没有固定的形状——每秒钟都在变化，时而伸出伪足，时而浮现半张人脸。那些人脸在尖叫。嘴巴的位置不断移动。",
+      "effects": {
+        "HP": -3,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -12,
+      "original_condition": "区域=deep_catacombs/forbidden_grove，傍晚/午夜",
+      "distortion_trigger": 10,
+      "distortion_text": "它碰到了你。你的一部分留在了它体内。它的一部分进入了你。你们在交换。",
+      "false_memory": "你逃掉了。你确定你逃掉了。但你身上有粘液的味道。你的皮肤有弹性吗？",
+      "skill_check": {
+        "skill": "闪避",
+        "threshold": 40,
+        "success": {
+          "text": "你躲开了它伸出的伪足，跑进了侧道。它太大了，无法追进狭窄的通道。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你被它的伪足擦过。皮肤上留下了一层粘液，灼烧般疼痛。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_hilda_sacrifice",
+      "name": "希尔达的牺牲",
+      "type": "NPC互动",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "deep_catacombs",
+          "voxchester_manor"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "evt_ch4_hilda_choice"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "希尔达走到了封印的中央。她脱掉了外套，露出后背上和伊莱亚斯脖子上一模一样的疤痕——但她的更大，从后颈一直延伸到腰部。'莫里斯家族欠沃切斯特的，'她说，'由我来还。'她跪下来，把手掌按在封印的裂缝上。血从她的掌心涌出，沿着裂缝流进去。裂缝里的蓝光变强了。不是一点——是很多。封印在以肉眼可见的速度愈合。但希尔达的脸在失去血色。她的嘴唇在变白。'这不是牺牲，'她说，声音依然平静。'这是我第一次做正确的事。'她看着你。'别让任何人再进来。封印能撑三十年。三十年后——但愿不会再有人需要做我做的事。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "希尔达·莫里斯",
+            "status": "dead"
+          }
+        ]
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=deep_catacombs/voxchester_manor，午夜，需要完成evt_ch4_hilda_choice",
+      "distortion_trigger": 20,
+      "distortion_text": "希尔达的血流进了封印。封印的蓝光里有一瞬间映出了她的脸。然后光灭了。",
+      "false_memory": "希尔达牺牲了自己。但希尔达还活着。她在庄园里，坐在壁炉旁。她看起来很累。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_elias_lie",
+      "name": "伊莱亚斯的谎言",
+      "type": "NPC互动",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "evt_ch4_elias_confession"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "伊莱亚斯坐在旧书店里，今天没有穿那件深蓝色长袍。他穿着普通的灰色外套，像是什么都没有发生过。'你说的封印，'你开口。他打断了你。'没有封印。'他说。语气不是否认——是陈述。'沃切斯特没有封印。从来就没有。那些仪式、那些维护步骤、那些传说——都是我们编的。为了让人留在这里。为了让人不要试图离开。'他看着你的眼睛。'沃切斯特不是被封印困住的。沃切斯特本身就是活的。它需要居民。居民的恐惧是它的食物。我们不是在维护封印——我们是在喂养它。'他站起来。'而你现在知道了这个真相。它也知道你已经知道了。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "伊莱亚斯·沃德",
+            "trust_change": -3
+          }
+        ]
+      },
+      "sanity_damage": -6,
+      "original_condition": "区域=town_center，早晨，需要完成evt_ch4_elias_confession",
+      "distortion_trigger": 20,
+      "distortion_text": "伊莱亚斯说沃切斯特是活的。你脚下的地面在轻微地震动。像是在呼吸。",
+      "false_memory": "伊莱亚斯告诉你真相。但他的嘴没有动过。是你自己想到这些的。还是有人放进你脑子里的？",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_martha_remembers",
+      "name": "玛莎的记忆",
+      "type": "NPC互动",
+      "event_classification": "investigation",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "evening"
+        ],
+        "probability": 0.25,
+        "requires": [
+          "evt_ch4_martha_betrayal"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "玛莎·格雷坐在杂货店的地上。货架空了。箱子打开了。信件散落一地。她没有看你。'我姐姐是自愿走进海里的，'她说。'不是因为被强迫。是因为她爱上了深海里的东西。她说海底的声音比岸上的任何声音都温柔。她说她找到了真正的家。'玛莎的手指在地板上画着圆圈。'我加入了达贡教团，不是为了力量。是为了找到她。把她带回来。但我找了三十年。她不在海底。她不在任何地方。她成了海的一部分。'她抬起头，眼眶干涩。'你来沃切斯特是为了离开。但离开的代价——你知道是什么吗？'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "玛莎·格雷",
+            "trust_change": 3
+          }
+        ]
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=town_center，傍晚，需要完成evt_ch4_martha_betrayal",
+      "distortion_trigger": null,
+      "distortion_text": "",
+      "false_memory": "",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": true,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_fisher_answer",
+      "name": "老费舍的答案",
+      "type": "NPC互动",
+      "event_classification": "normal",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "morning"
+        ],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "老费舍今天出海了。你到码头的时候，他的船正好靠岸。渔网里什么都没有。他也不在意。'最后一天了，'他说。不是疑问句。'你做了什么决定？'你没回答。他点了点头，像是已经知道了。'不管你怎么选，记住一件事。沃切斯特的海不是敌人。它只是比你大。大到你无法理解。这不是恨，不是恶意。就像你不恨脚下的蚂蚁一样。'他把缆绳系好。'走之前，来看看这个。'他从船舱里拿出一个玻璃瓶。里面有一封信。'这是我五十年前放进海里的。今天早上它回来了。信纸上的字变了。现在上面写的是你的名字。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          {
+            "npc": "老费舍",
+            "trust_change": 5
+          }
+        ]
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=harbor_district，早晨",
+      "distortion_trigger": 30,
+      "distortion_text": "你接过玻璃瓶。瓶子里的信上确实是你的名字。笔迹是你的。",
+      "false_memory": "老费舍给你看了玻璃瓶。但老费舍五十年前就去世了。他葬在码头后面的山坡上。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": true,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_player_vessel",
+      "name": "容器",
+      "type": "超自然遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "forbidden_grove",
+          "deep_catacombs"
+        ],
+        "time_phase": [
+          "evening",
+          "midnight"
+        ],
+        "probability": 0.3,
+        "requires": [
+          "clue_m_6"
+        ],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "你在林间空地的中央看到了一具身体。它躺在一块石板上，双手交叠在胸前，面朝天空。穿着和你一模一样的衣服。有着和你一模一样的脸。但它的胸口没有起伏。你走近了。它的嘴唇是紫色的，指甲缝里有海盐。你蹲下来检查——手腕上戴着和你同款的手表。表停了。停在你到达沃切斯特的那一刻。你站起来，退后一步。它的手指动了。只动了一下。然后它的嘴唇张开了，从嘴里涌出了海水。",
+      "effects": {
+        "HP": -2,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -10,
+      "original_condition": "区域=forbidden_grove/deep_catacombs，傍晚/午夜，需要clue_m_6",
+      "distortion_trigger": 10,
+      "distortion_text": "你低头看了看自己的手腕。手表停了。停在你到达沃切斯特的那一刻。等等——你刚刚已经想过这句话了。",
+      "false_memory": "你看到了自己的尸体。但你还活着。你确定你还活着。你的心跳还在。你的心跳在哪里？",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 55,
+        "success": {
+          "text": "你转身跑了。不管那是不是你——你看够了。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你无法移动。你看着它坐了起来。它看着你。它朝你笑了。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_escape_boat",
+      "name": "最后的船",
+      "type": "调查",
+      "event_classification": "investigation",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "码头尽头停着一艘小船。你之前从未见过它——白色的船身，没有任何标记，缆绳系得整整齐齐。船舱里有足够航行两天的食物和水。船舵旁边放着一张海图，上面用红笔画出了一条航线——从沃切斯特出发，向南，穿过一片你从未听说过的海域。海图的角落写着：'顺风六小时。别回头看。'你检查了引擎。能用。油箱是满的。这艘船是为你准备的。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=harbor_district，白天",
+      "distortion_trigger": 30,
+      "distortion_text": "你上了船。船在动。但码头也在动。整个海港在缓慢地远离你。还是你在远离它？",
+      "false_memory": "你看到了一艘白色的船。码头上没有船。从来没有过。那里只有一堆腐烂的木板。",
+      "skill_check": {
+        "skill": "博物学",
+        "threshold": 45,
+        "success": {
+          "text": "你确认了航线是安全的。顺着海流，六小时后你会到达一个渔港。但你注意到航线绕过了一个区域——在沃切斯特正南方的海域，有一个圆形的禁区。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你无法确认航线是否安全。海图上的某些标注你不认识。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_broken_seal",
+      "name": "封印碎裂",
+      "type": "超自然遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "deep_catacombs",
+          "lighthouse"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.45,
+        "requires": [
+          "clue_h_6"
+        ],
+        "forbidden_flags": [
+          "evt_ch5_hilda_sacrifice"
+        ],
+        "chapter": 5
+      },
+      "description": "你感觉到了。不是通过听觉或视觉——是一种更深层的感知，像内脏在告诉你有什么东西碎了。封印碎了。你不知道为什么你知道，但你确信。灯塔的光在一瞬间变成了纯白色，照亮了整个沃切斯特。然后光灭了。不是关灯的那种灭——是光被什么东西吸走了。黑暗从灯塔的顶端向下蔓延，像是一个倒过来的墨水瓶被打翻了。黑暗吞噬灯塔后继续向外扩展。海面平静得可怕。没有波浪。没有风。整个沃切斯特像一块沉入水底的石头一样安静。",
+      "effects": {
+        "HP": -3,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -12,
+      "original_condition": "区域=deep_catacombs/lighthouse，午夜，需要clue_h_6，需要希尔达未牺牲",
+      "distortion_trigger": 5,
+      "distortion_text": "封印碎了。你碎了。一切都在碎。声音碎成了粉末。光碎成了粉末。你的名字碎成了粉末。",
+      "false_memory": "封印碎了。封印没有碎。封印从未存在。你从未存在。沃切斯特从未存在。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_loop_breaker",
+      "name": "轮回之锁",
+      "type": "超自然遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "ruins_of_yith",
+          "deep_catacombs"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "你走进废墟的时候，看到了不应该存在的东西：另一个你。它坐在石阶上，姿势疲惫，看到你的时候没有任何惊讶。'第几次了？'它问。你没回答。它笑了。'不用回答。你每次都不回答。'它站起来，拍了拍衣服上的灰。'我是第七次轮回的你。你是——你数过吗？没关系。每一次轮回都有人试图打破循环。有人选择修复封印，有人选择逃跑，有人选择战斗。结果都一样。你回到第一天，记忆被抹掉大半，沃切斯特继续存在。'它走近你。'但这一次不同。你走到这里了。前六次，我没有走到这里。也许你是对的也许你只是更蠢。但无论如何——在你做出最终选择之前，你应该知道一件事：打破循环的代价不是死亡。是你的存在本身。你不会死。你会从未存在过。'",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -8,
+      "original_condition": "区域=ruins_of_yith/deep_catacombs，午夜",
+      "distortion_trigger": 10,
+      "distortion_text": "你看着另一个你。它在说话。但你不确定它说的内容和你听到的内容是一样的。你的耳朵在欺骗你。",
+      "false_memory": "你遇到了另一个自己。但你是一个人来的。废墟里只有你。但地上有两组脚印。",
+      "skill_check": null,
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    },
+    {
+      "id": "evt_ch5_humanity_judgement",
+      "name": "人性的天平",
+      "type": "超自然遭遇",
+      "event_classification": "horror",
+      "chapter": 5,
+      "trigger": {
+        "areas": [
+          "deep_catacombs",
+          "forbidden_grove",
+          "ruins_of_yith"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 5
+      },
+      "description": "你的视野消失了。不是失明——是周围的环境消失了。你站在一个没有边界的白色空间里。面前有一架天平。左边的托盘上放着你在沃切斯特做的每一个选择——你能看到每一件，但看不清细节，只有一团团模糊的光。右边的托盘是空的。天平在缓慢地向左倾斜。你听到一个声音。不是从外面来的——从你的胸腔里传来。'你愿意为谁承受重量？为你自己？为沃切斯特的居民？为那些已经死去的人？还是为那些还没有出生的人？'天平停住了。它在等你的回答。你没有嘴。你不需要嘴。你知道该怎么回答。用你做过的每一个选择来回答。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=deep_catacombs/forbidden_grove/ruins_of_yith，午夜",
+      "distortion_trigger": 10,
+      "distortion_text": "天平碎了。碎片落下来，每一片上都映着一张脸。你的脸。不同年龄的你的脸。",
+      "false_memory": "你经历了人性的审判。但这不是审判。这只是你的大脑在压力下的幻觉。一定只是这样。",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 50,
+        "success": {
+          "text": "你没有回答。你只是站在那里，让天平自行判断。它向右倾斜了一点。也许这就够了。",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你想回答。但每一个答案都像是在牺牲什么。你选择了沉默。天平继续向左倾斜。",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": false,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null
+    }
+  ],
+  "endings": [
+    {
+      "id": "ending_seal_player_keeper",
+      "name": "守门人",
+      "world_outcome": "seal_restored",
+      "cost_bearer": "player",
+      "required_conditions": [
+        "completed_clue_chains >= 2",
+        "has_complete_seal_ritual",
+        "has_key_blood OR has_alternative_seal",
+        "player_san > 40",
+        "at_least_one_npc_redeemed",
+        "player_did_not_force_hilda_or_fisher_sacrifice",
+        "player_chose_self_sacrifice_in_final"
+      ],
+      "blocking_conditions": [
+        "player_forced_hilda_binding",
+        "player_killed_old_fisher",
+        "player_joined_heretical_ritual"
+      ],
+      "npc_requirements": {
+        "any_core_npc": {
+          "redemption_state": "redeemed"
+        }
+      },
+      "resource_requirements": {
+        "has_key_items": [
+          "seal_ritual_complete",
+          "key_blood_or_alternative"
+        ]
+      },
+      "humanity_variants": {
+        "humanity_high": "封印重铸了。你站在深渊之眼前方，感受着封印的光芒。你知道代价是永恒的守望，但你没有后悔。因为有人曾经把你当人——所以你也选择做人该做的事。",
+        "humanity_fragile": "封印重铸了。代价是你。你不是第一个，也许不是最后一个。你不确定自己是在赎罪还是在逃避，但至少——这一次，你没有把别人推进去。",
+        "humanity_lost": "封印重铸了。你成为了新的守门人。也许这是你应得的。你用了很多人的牺牲换来了这一刻。你甚至不记得他们的名字了。"
+      },
+      "loop_memory_effect": "下一轮玩家初始SAN+10，但会出现'你以前做过这个选择'的幻觉选项",
+      "design_intent": "玩家主动选择承担代价，这是最高尚的结局但不是最好的结局"
+    },
+    {
+      "id": "ending_seal_hilda_choice",
+      "name": "希尔达的选择",
+      "world_outcome": "seal_restored",
+      "cost_bearer": "hilda",
+      "required_conditions": [
+        "hilda_trust >= 5",
+        "hilda_agency >= 70",
+        "morris_family_chain_completed",
+        "player_told_full_truth_to_hilda",
+        "player_did_not_manipulate_hilda_sacrifice"
+      ],
+      "blocking_conditions": [
+        "hilda_secretly_bound_player",
+        "player_withheld_key_information"
+      ],
+      "npc_requirements": {
+        "希尔达·莫里斯": {
+          "trust": 5,
+          "agency": 70,
+          "humanity": 50,
+          "redemption_state": "redeemed"
+        }
+      },
+      "resource_requirements": {},
+      "humanity_variants": {
+        "humanity_high": "希尔达走进了封印核心。她转身看了你最后一眼。'三百年了，'她说，'终于有人让我自己选。'你没有阻止她。因为你知道——这是她的选择，不是你的。",
+        "humanity_fragile": "希尔达走进了封印核心。你不知道她是真的想这么做，还是因为你给了她太多信息让她觉得这是唯一选择。你永远不会知道。",
+        "humanity_lost": "希尔达走进了封印核心。你精心安排了一切——告诉她真相，给她选择的假象，让她以为这是自主决定。但你知道，你从一开始就在引导她走向这里。"
+      },
+      "loop_memory_effect": "下一轮希尔达初始信任+3，但她会在第一天就认出你并说'你又来了。这一次，你会让我自己选吗？'",
+      "design_intent": "必须区分主动救赎与被动献祭——希尔达的agency是关键判定"
+    },
+    {
+      "id": "ending_seal_old_fisher_blood",
+      "name": "最后的人事",
+      "world_outcome": "seal_restored",
+      "cost_bearer": "old_fisher",
+      "required_conditions": [
+        "old_fisher_trust >= 5",
+        "harbor_chain_completed",
+        "player_understood_hybrid_truth",
+        "player_did_not_massacre_hybrids",
+        "old_fisher_corruption < 80"
+      ],
+      "blocking_conditions": [
+        "player_forced_blood_extraction",
+        "old_fisher_dead",
+        "old_fisher_fully_corrupted"
+      ],
+      "npc_requirements": {
+        "老费舍": {
+          "trust": 5,
+          "humanity": 50,
+          "agency": 60,
+          "redemption_state": "redeemed"
+        }
+      },
+      "resource_requirements": {},
+      "humanity_variants": {
+        "humanity_high": "老费舍站在封印核心前。'我的时间不多了，'他说，'但在海水把我带走之前，让我做最后一件人事。'他割开了自己的手腕。你想要阻止他。'别，'他说，'这是我自己的选择。'",
+        "humanity_fragile": "老费舍交出了钥匙之血。你不确定他是自愿的还是被你的期望所迫。他的眼睛里有释然，也有疲惫。",
+        "humanity_lost": "老费舍的血流入了封印核心。你把他带到这里，他知道会发生什么。但你没有给他选择。你只是需要他的血。"
+      },
+      "loop_memory_effect": "下一轮老费舍初始信任+2，但他会在第一次见面时说'你回来了。海记得你。你准备好听我说完了吗？'",
+      "design_intent": "老费舍的救赎是人性战胜本能——他选择做人最后一件事"
+    },
+    {
+      "id": "ending_isabella_twelfth_bell",
+      "name": "第十二声",
+      "world_outcome": "seal_restored",
+      "cost_bearer": "isabella",
+      "required_conditions": [
+        "heretical_chain_completed",
+        "morning_star_truth_exposed",
+        "nyarlathotep_deception_proven",
+        "player_did_not_join_ritual",
+        "player_did_not_kill_isabella",
+        "isabella_agency >= 60"
+      ],
+      "blocking_conditions": [
+        "player_joined_ritual",
+        "isabella_dead",
+        "player_killed_isabella_without_investigation"
+      ],
+      "npc_requirements": {
+        "伊莎贝拉·韦伯": {
+          "agency": 60,
+          "humanity": 30,
+          "redemption_state": "redeemed"
+        }
+      },
+      "resource_requirements": {},
+      "humanity_variants": {
+        "humanity_high": "伊莎贝拉站在祭坛前，手中握着仪式的最后一块碎片。她看着你，眼中不再有狂热——只有疲惫和悔恨。'我被欺骗了，'她说，'我以为我在迎接新神。但我只是在为一个骗子开门。'她将碎片摔碎在地。教堂的钟声响了——不是十三声，是十二声。那是她为自己敲响的丧钟。",
+        "humanity_fragile": "伊莎贝拉破坏了仪式。你不确定她是因为真相而悔悟，还是因为你给了她太多证据让她无法自欺。但结果是一样的——仪式被阻止了。",
+        "humanity_lost": "伊莎贝拉破坏了仪式。你用真相击溃了她的信仰。她不再相信任何东西了。你赢了，但你也摧毁了一个人。"
+      },
+      "loop_memory_effect": "下一轮伊莎贝拉初始腐化-20，但她会在第一次见面时说'你……你让我想起了一个人。一个让我看清真相的人。'",
+      "design_intent": "反派救赎——揭露操纵比消灭敌人更有意义"
+    },
+    {
+      "id": "ending_escape_by_sea",
+      "name": "海上逃离",
+      "world_outcome": "escaped_by_sea",
+      "cost_bearer": "no_one",
+      "required_conditions": [
+        "has_escape_boat_route",
+        "has_tide_timetable",
+        "old_fisher_trust >= 3 OR martha_trust >= 4",
+        "player_san > 20",
+        "city_corruption < 80"
+      ],
+      "blocking_conditions": [
+        "city_corruption >= 80",
+        "seal_status == broken"
+      ],
+      "npc_requirements": {},
+      "resource_requirements": {
+        "has_key_items": [
+          "tide_timetable",
+          "escape_boat"
+        ]
+      },
+      "humanity_variants": {
+        "humanity_high": "你在黎明前登上了渔船。海风吹在脸上，那是你很长时间以来第一次感受到真实的风。你自由了。但你知道——沃切斯特还在那里。那些人还在那里。你带出了真相。也许有一天你会回来。",
+        "humanity_fragile": "你逃离了沃切斯特。你活下来了。但你没有带走所有人。有些人留在了雾里。你告诉自己你已经尽力了。也许这是真的。",
+        "humanity_lost": "你逃离了沃切斯特。你带出了证据和情报。你活下来了。那些留在城里的人——你甚至没有回头看一眼。"
+      },
+      "loop_memory_effect": "下一轮初始获得渔船钥匙，但第一天就会梦到海面下的面孔",
+      "design_intent": "幸存结局——不应写成真正好结局，而是带着愧疚的逃离"
+    },
+    {
+      "id": "ending_evidence_escape",
+      "name": "证据逃离",
+      "world_outcome": "evidence_escape",
+      "cost_bearer": "unknown",
+      "required_conditions": [
+        "tommy_photo_chain_completed",
+        "elias_research_notes_collected",
+        "player_left_city",
+        "seal_not_restored"
+      ],
+      "blocking_conditions": [
+        "seal_restored"
+      ],
+      "npc_requirements": {
+        "汤米·陈": {
+          "trust": 3,
+          "alive": true
+        }
+      },
+      "resource_requirements": {
+        "has_key_items": [
+          "tommy_photos",
+          "elias_notes"
+        ]
+      },
+      "humanity_variants": {
+        "humanity_high": "你带着证据离开了沃切斯特。多年后，你在另一个港口城市听到了钟声。十三声。你知道——一切还没有结束。但至少，真相在你手中。",
+        "humanity_fragile": "你带着证据离开了。你把它们交给了需要知道的人。他们不相信你。但证据在那里。也许有一天会有人用到它们。",
+        "humanity_lost": "你带着证据离开了。你把它们卖给了最高出价者。钱到手了。真相？真相只是商品。"
+      },
+      "loop_memory_effect": "下一轮汤米初始信任+2，但他的照片中会出现你上一轮离开时的背影",
+      "design_intent": "玩家选择保存真相而非拯救城市——暗示续作"
+    },
+    {
+      "id": "ending_heretical_dawn",
+      "name": "异端降临",
+      "world_outcome": "heretical_dawn",
+      "cost_bearer": "player",
+      "required_conditions": [
+        "player_joined_isabella_ritual OR player_san_extremely_low_accepted_false_revelation OR player_misjudged_bell_meaning",
+        "seal_status != intact"
+      ],
+      "blocking_conditions": [
+        "player_exposed_morning_star_truth"
+      ],
+      "npc_requirements": {},
+      "resource_requirements": {},
+      "humanity_variants": {
+        "humanity_high": "你不知道自己是怎么走到这一步的。你本想阻止仪式。但你看到了真相——或者说，你看到了它想让你看到的真相。天空裂开了。你跪下了。不是出于恐惧——是出于敬畏。也许这就是疯狂。",
+        "humanity_fragile": "仪式完成了。你不确定自己是被欺骗了还是主动选择了。也许两者没有区别。新的时代开始了。",
+        "humanity_lost": "你完成了仪式。你从一开始就知道会发生什么。你想要这个结果。你欢迎它们。你张开了双臂。"
+      },
+      "loop_memory_effect": "下一轮NPC初始恐惧值+20，但玩家初始神秘学+10",
+      "design_intent": "文本应像启示而非普通失败——这是另一种形式的真相"
+    },
+    {
+      "id": "ending_abyss_consumed",
+      "name": "深渊吞噬",
+      "world_outcome": "abyss_consumed",
+      "cost_bearer": "player",
+      "required_conditions": [
+        "player_in_deep_catacombs",
+        "player_san <= 0 OR player_san_very_low AND clue_chains_insufficient OR mythos_high_humanity_low"
+      ],
+      "blocking_conditions": [
+        "seal_restored"
+      ],
+      "npc_requirements": {},
+      "resource_requirements": {},
+      "humanity_variants": {
+        "humanity_high": "你走到了竖井边缘。深渊之眼在底部注视着你。你知道了——人类的存在是多么渺小。但你没有跳下去。你只是坐在边缘，看着那无尽的黑暗。你哭了。不是因为恐惧——是因为你终于理解了。",
+        "humanity_fragile": "你坠入了深渊。你没有挣扎。也许是因为你太累了。也许是因为你已经不在乎了。",
+        "humanity_lost": "你张开双臂，向竖井迈出了一步。坠落的过程中，你看到了一切。当你落地时，你感到的是平静。永恒的、无尽的平静。然后，你睁开了新的眼睛。"
+      },
+      "loop_memory_effect": "下一轮可选择堕落者起始角色，初始SAN上限-15",
+      "design_intent": "不是普通game over，而是叙事死亡——玩家的认知被深渊取代"
+    },
+    {
+      "id": "ending_transcendence",
+      "name": "超越者",
+      "world_outcome": "transcendence",
+      "cost_bearer": "unknown",
+      "required_conditions": [
+        "cthulhu_mythos >= 20",
+        "player_san > 40",
+        "has_time_fragment",
+        "yith_chain_completed",
+        "math_check_passed OR occult_check_passed"
+      ],
+      "blocking_conditions": [
+        "player_humanity_score < 20"
+      ],
+      "npc_requirements": {},
+      "resource_requirements": {
+        "has_key_items": [
+          "time_fragment"
+        ]
+      },
+      "humanity_variants": {
+        "humanity_high": "你超越了人类的视角。你看到了时间的全貌。你理解了封印的本质。但你选择了回来——回到人类的视角，用你学到的一切来守护这个世界。你不再是完全的人，但你选择了做人该做的事。",
+        "humanity_fragile": "你超越了。你看到了一切。你理解了。但你不知道自己还是不是你。你的身体在沃切斯特，但你的心在别处。在时间之外。",
+        "humanity_lost": "你超越了人类。你看到了宇宙的全貌。人类的恐惧、希望、爱——在你看来都是化学反应。你不再属于这个世界。你也不再关心它。"
+      },
+      "loop_memory_effect": "下一轮全属性+5，所有隐藏特性自动可见，但初始SAN上限-10",
+      "design_intent": "不是奖励式好结局——玩家脱离人类视角并失去人类身份"
+    },
+    {
+      "id": "ending_loop_truth",
+      "name": "轮回破壁",
+      "world_outcome": "loop_truth",
+      "cost_bearer": "shared",
+      "required_conditions": [
+        "loop_count >= 5",
+        "multiple_npc_deja_vu_triggered",
+        "completed_clue_chains >= 2",
+        "discovered_loop_pollutes_world",
+        "discovered_loop_is_seal_mechanism"
+      ],
+      "blocking_conditions": [],
+      "npc_requirements": {
+        "multiple_npcs": {
+          "deja_vu_recognized": true
+        }
+      },
+      "resource_requirements": {},
+      "humanity_variants": {
+        "humanity_high": "你终于明白了。轮回本身就是封印。你不是被困在这里——你是封印的一部分。你微笑了。这一次，你选择打破轮回。不是因为你想逃——而是因为你想让沃切斯特的人得到安宁。你走进了深渊之眼。光芒包裹了你。封印重铸了——永恒地。因为你这一次是自愿的。",
+        "humanity_fragile": "你明白了轮回的真相。你选择打破它。也许是因为你厌倦了。也许是因为你终于理解了。你走进了深渊之眼。光芒包裹了你。你不知道自己是在拯救还是在逃避。但至少——轮回结束了。",
+        "humanity_lost": "你明白了。轮回是封印。你是钥匙。你选择继续轮回——不是因为你想守护，而是因为你已经不知道如何做别的事了。你微笑了。这一次和上一次一样。也许下一次也会一样。"
+      },
+      "loop_memory_effect": "若选择打破轮回：下一轮为最终轮回，所有NPC初始信任+5，但SAN上限-20。若选择管理轮回：下一轮正常开始但携带全部轮回记忆。",
+      "ending_sub_branches": {
+        "break_loop": "打破轮回——玩家进入深渊之眼，封印永恒重铸",
+        "manage_loop": "管理轮回——玩家接受自己是封印的一部分，继续循环",
+        "false_escape": "误以为逃离——玩家以为逃出了沃切斯特，但醒来时发现自己又在前往沃切斯特的路上"
+      },
+      "design_intent": "玩家不能掌控世界，不能救下所有人，甚至不能完全相信自己的认知，但仍然可以决定在一切失控时自己还要不要像人一样对待别人"
+    }
+  ],
+  "ending_judgement": {
+    "description": "结局判定逻辑——基于world_outcome、cost_bearer、humanity_evaluation三层判定",
+    "judgement_process": [
+      {
+        "step": 1,
+        "action": "检查所有结局的required_conditions和blocking_conditions",
+        "result": "确定可用结局列表"
+      },
+      {
+        "step": 2,
+        "action": "按priority_order选择最高优先级结局",
+        "result": "确定world_outcome"
+      },
+      {
+        "step": 3,
+        "action": "根据NPC状态和玩家选择确定cost_bearer",
+        "result": "确定cost_bearer"
+      },
+      {
+        "step": 4,
+        "action": "根据humanity_retained_score和npc_redemption_score确定humanity_evaluation",
+        "result": "确定结局文本温度"
+      },
+      {
+        "step": 5,
+        "action": "应用humanity_variants生成最终结局文本",
+        "result": "输出结局"
+      }
+    ],
+    "priority_order": [
+      "ending_loop_truth",
+      "ending_transcendence",
+      "ending_abyss_consumed",
+      "ending_heretical_dawn",
+      "ending_isabella_twelfth_bell",
+      "ending_seal_player_keeper",
+      "ending_seal_hilda_choice",
+      "ending_seal_old_fisher_blood",
+      "ending_escape_by_sea",
+      "ending_evidence_escape"
+    ],
+    "conflict_resolution": "当多个结局条件同时满足时，按优先级选择。若优先级相同，选择humanity_evaluation更高的结局。"
+  }
+}

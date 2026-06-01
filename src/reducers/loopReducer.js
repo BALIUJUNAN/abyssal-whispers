@@ -83,6 +83,25 @@ export function initLoopState(f, s, ctx, options = {}) {
     f.pollution = loopEffect.pollution_intensity || 0;
   }
 
+  // Phase 7: Loop inheritance costs — knowledge comes with a price
+  // SAN max permanent decrease: -2 per loop after loop 5
+  if (f.loopCount >= 5) {
+    var sanCapCost = Math.min(20, (f.loopCount - 4) * 2);
+    f.maxSan = Math.max(20, f.maxSan - sanCapCost);
+    f.san = Math.min(f.san, f.maxSan);
+  }
+  // Pollution increases with each loop
+  f.pollution = Math.min(1, (f.pollution || 0) + 0.05 * f.loopCount);
+  // NPC trust decay: NPCs become wary of returning players
+  if (f.loopCount >= 3) {
+    var trustDecay = Math.min(2, Math.floor(f.loopCount / 3));
+    var npcNames = Object.keys(f.npcTrust || {});
+    for (var _ni = 0; _ni < npcNames.length; _ni++) {
+      var _cur = f.npcTrust[npcNames[_ni]] || 0;
+      if (_cur > 0) f.npcTrust[npcNames[_ni]] = Math.max(0, _cur - trustDecay);
+    }
+  }
+
   // ── 3) 技能保留（30%） ──
   if (f.loopCount > 1) {
     const retainRate = 0.3;
@@ -203,7 +222,7 @@ export function initLoopState(f, s, ctx, options = {}) {
 
   // ── 14) 矛盾极端检测 ──
   if ((s.humanityScore ?? 30) >= 30 && (s.direct_kill_count || 0) >= 3) {
-    setCorruptionFlag(s, 'has_committed_contradictory_extremes');
+    setCorruptionFlag(f, 'has_committed_contradictory_extremes');
   }
 
   return f;

@@ -21,6 +21,7 @@ const initialState=()=>{
   stats_run:{deaths:0,runs:1,checks_passed:0,checks_failed:0,days_best:0,max_san_loss_single:0,total_san_loss:0,deepest_area_danger:0},
   ch1IntroComplete:false,
   food:3,maxFood:5,lightLevel:2,starvationDays:0,
+  infection:0,maxInfection:10,fatigue:0,maxFatigue:10,
   loopCount:0,pollution:0,
   areaNameCache:{},
   retainedKnowledge:[],
