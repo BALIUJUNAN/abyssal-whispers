@@ -289,9 +289,20 @@ COC/
 │   │   ├── prologueReducer.js      # 前传（含 SkipPrologue 保护）
 │   │   ├── deathSystem.js          # 死亡系统（16 种 × 四段叙事）
 │   │   ├── endingReducer.js        # 结局判定引擎（AND/OR/NOT 解析器）
-│   │   └── extendedEvents*.js      # V2 扩展事件调度系统
+│   │   ├── extendedEvents*.js      # V2 扩展事件调度系统
+│   │   └── slices/                 # gameReducer 拆分后的独立 slice
+│   │       ├── coreSlice.js        # 移动/背包/物品/设置等基础操作
+│   │       ├── dailySlice.js       # REST/WORK/BUY_FOOD 日常行动
+│   │       ├── exploreSlice.js     # MOVE/EXPLORE/DO_SKILL_CHECK 探索行动
+│   │       ├── npcSlice.js         # NPC 对话/交互
+│   │       ├── darkSlice.js        # 暗面选择/禁忌行为
+│   │       └── uiSlice.js          # UI 交互（选项/存档/无障碍切换）
 │   │
 │   ├── systems/
+│   │   ├── eventSystemV2.js      # 三层事件选择（冷却衰减/行为权重/恐惧滤镜）
+│   │   ├── resourceNarrative.js  # 资源-叙事绑定 + 安全屋5阶段降级
+│   │   ├── worldDecay.js         # 世界腐化推进 + 区域侵蚀
+│   │   ├── metaCorruption.js     # Meta层腐化（伪事件/伪日志/存档名污染）
 │   │   ├── fearProfile.js         # 恐惧画像生成（6维 × 7风格）
 │   │   └── fearLens.js            # 恐惧滤镜（影响文本变体）
 │   │
@@ -417,14 +428,14 @@ $ node check_build.cjs --dist   # 额外检查 dist/ 目录结构
 
 > 2026-05-31 ~ 06-01 四维度全面审查 + 复查结果（主循环/状态管理、事件系统、子系统集成、构建流程）
 
-### 综合评分：**7.8 / 10**（初评 7.5 → 修复后 +0.3）
+### 综合评分：**8.2 / 10**（初评 7.5 → 修复后 +0.7）
 
 | 维度 | 初评 | 复评 | 状态 |
 |------|------|------|------|
-| **主循环 & Reducer** | 6.5/10 | **7.8/10** | ✅ loopReducer/dispatch/progressGuard 已修 |
-| **事件系统** | 7.5/10 | **7.8/10** | ✅ getDistortionVariant 确认存在（初评误报） |
-| **子系统** | 7.0/10 | **8.0/10** | ✅ UI阈值对齐/clueNameMap失效/进度守卫 已修 |
-| **构建流程** | 8.0/10 | **8.0/10** | ✅ gitignore 完善（41行） |
+| **主循环 & Reducer** | 6.5/10 | **8.2/10** | ✅ loopReducer/dispatch/progressGuard 已修；slice 参数 state→s 修复 |
+| **事件系统** | 7.5/10 | **8.0/10** | ✅ getDistortionVariant 确认存在（初评误报）；死代码 computeEventWeight 已清理 |
+| **子系统** | 7.0/10 | **8.2/10** | ✅ UI阈值对齐/clueNameMap失效/进度守卫/饥饿追踪 var 提升 已修 |
+| **构建流程** | 8.0/10 | **8.3/10** | ✅ gitignore 完善；eventSystemV2→extendedEvents 构建依赖已标注 |
 
 ### 架构优势
 
@@ -449,6 +460,12 @@ $ node check_build.cjs --dist   # 额外检查 dist/ 目录结构
 | 7 | ~~`.gitignore` 规则不完整~~ | P1 | ✅ 从 5 行扩展至 41 行 |
 | 8 | ~~dispatch 闭包 state 滞后~~ | P2 | ✅ 改用 useRef 模式 |
 | 9 | `const acts` REST case 重复声明 | P2 | ⚠️ 待修（同作用域 SyntaxError 风险） |
+| 10 | ~~dailySlice.js REST 中 `state` 未定义~~ | P0 | ✅ `state.san/hp/clues/_dayStartArea` → `s.san/s.hp/s.clues/s._dayStartArea` |
+| 11 | ~~exploreSlice.js `checkOmens(state)` 崩溃~~ | P0 | ✅ `state` → `s`（参数名） |
+| 12 | ~~饥饿追踪 var 提升导致失效~~ | P0 | ✅ `var food` 声明移到 `if (food === 0)` 判断之前 |
+| 13 | ~~computeEventWeight 死代码~~ | P2 | ✅ 删除 computeEventWeight + enhanceEventCandidates（从未被调用） |
+| 14 | ~~visualDistortion 类型不一致~~ | P2 | ✅ 6 处统一为 boolean（initialState/uiSlice/app.jsx/GamePanels） |
+| 15 | eventSystemV2→extendedEvents 构建隐性依赖 | P3 | ✅ build.py 添加 DEPENDENCY 注释标注函数级依赖 |
 
 ### 剩余已知问题（均非阻塞）
 
@@ -457,6 +474,7 @@ $ node check_build.cjs --dist   # 额外检查 dist/ 目录结构
 | A | `const acts` 重复声明 | REST case 内两处同作用域 const，可能触发 SyntaxError | v0.1.2 修复 |
 | B | meta 事件仅在 town_center 触发 | 36 个 meta 事件 areas 全部为 ["town_center"] | 设计决策 or 扩展分配 |
 | C | applyLegacyEffects 静默丢失风险 | 事件简写格式绕过 adapter 则效果消失无提示 | 未来迁移标准格式时处理 |
+| D | `flicker_control` 仅写不读 | accessibilityOptions 中存储但无消费逻辑 | 如不需要可清理 |
 
 ---
 
