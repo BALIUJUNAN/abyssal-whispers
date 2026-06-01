@@ -110,6 +110,17 @@ export function applyEffects(state, effects, context) {
  */
 export function applyLegacyEffects(state, eff) {
   if (!eff) return;
+  // 检测未识别的 legacy key（防止静默丢失效果）
+  const KNOWN_LEGACY_KEYS = new Set([
+    'HP','hp','san','food','mythos','humanity',
+    'add_flag','add_clue','add_item','npc_trust',
+    'safehouseCorruption','add_run_memory',
+    'unlock_ending_condition','death_hint'
+  ]);
+  const unknownKeys = Object.keys(eff).filter(k => !KNOWN_LEGACY_KEYS.has(k));
+  if (unknownKeys.length > 0 && !eff.type) {
+    console.warn('[applyLegacyEffects] 未识别字段将被忽略: ' + unknownKeys.join(', '), eff);
+  }
   // HP / SAN (both casings)
   if (eff.HP) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.HP }]);
   if (eff.hp) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.hp }]);
