@@ -306,16 +306,14 @@ function App(){
   const areas=GD.areas||GD.module2_areas||[];
   const visualDistortion=state.accessibilityOptions?.visual_distortion;
   const allowVisualFX=visualDistortion!==false;
-  // SSOT: CSS classes aligned with san_stages
-  //   san-tremor: explanation_loss [25,39] — text shakes
-  //   san-fracture: reality_dissolution [10,24] — extreme distortion
-  //   san-death: narrative_death [1,9] — maximum visual corruption
+  // SSOT: stage class for CSS-driven effects (matches san_stages levels)
+  const sanStageClass=allowVisualFX?(state.san<=9?' san-stage-5':state.san<=24?' san-stage-4':state.san<=39?' san-stage-3':state.san<=54?' san-stage-2':state.san<=74?' san-stage-1':''):'';
   const sanClass=allowVisualFX?(state.san<10?' san-fracture san-death':state.san<25?' san-fracture':state.san<40?' san-tremor':''):'';
   return <>
     <DevPanel state={state} dispatch={dispatch}/>
     <SanPollutionLayer san={state.san} loopCount={state.loopCount} corruption={state.safehouseCorruption||0} enabled={state.screen==='game' && allowVisualFX} intensity={settings.visualPollution??50} interactionPollution={settings.interactionPollution??50} metaPollution={settings.metaPollution??50}/>
     <AbyssPopup san={state.san}/>
-    <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+' '+fontSizeClass}>
+    <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+sanStageClass+' '+fontSizeClass}>
       <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>uiStore.setState({settingsOpen:true})} onUgcOpen={()=>uiStore.setState({ugcOpen:true})} onSaveOpen={()=>{uiStore.setState({saveLoadMode:'save',saveLoadOpen:true});}}/>
       <LeftPanel state={state}/>
       <CenterPanel state={state} dispatch={dispatch}/>
