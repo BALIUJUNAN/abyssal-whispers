@@ -49,12 +49,35 @@ function SettingsModal({open,onClose,settings,onChange,onAchOpen}){
     </div>
     <div className="settings-group-title">SAN污染</div>
     <div className="settings-row">
-      <span className="settings-label">污染强度</span>
+      <span className="settings-label">视觉污染</span>
       <input type="range" className="settings-slider" min="0" max="100" value={settings.visualPollution??50} onChange={e=>update('visualPollution',Number(e.target.value))}/>
       <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.visualPollution??50}%</span>
     </div>
     <div style={{fontSize:'0.65rem',color:'var(--text-dim)',marginTop:'0.2rem',lineHeight:1.4}}>
-      控制低SAN时的视觉污染效果：扫描线、噪点、选项文字腐化、深渊提示等。0=完全关闭，100=最大强度。
+      扫描线、噪点、色差、barrel distortion、vignette。0=完全关闭。
+    </div>
+    <div className="settings-row">
+      <span className="settings-label">交互污染</span>
+      <input type="range" className="settings-slider" min="0" max="100" value={settings.interactionPollution??50} onChange={e=>update('interactionPollution',Number(e.target.value))}/>
+      <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.interactionPollution??50}%</span>
+    </div>
+    <div style={{fontSize:'0.65rem',color:'var(--text-dim)',marginTop:'0.2rem',lineHeight:1.4}}>
+      选项文字自改写、Hover扭曲、按钮延迟、虚假选项。0=完全关闭。
+    </div>
+    <div className="settings-row">
+      <span className="settings-label">Meta污染</span>
+      <input type="range" className="settings-slider" min="0" max="100" value={settings.metaPollution??50} onChange={e=>update('metaPollution',Number(e.target.value))}/>
+      <span style={{fontSize:'0.7rem',color:'var(--text-dim)',width:'2.5rem',textAlign:'right'}}>{settings.metaPollution??50}%</span>
+    </div>
+    <div style={{fontSize:'0.65rem',color:'var(--text-dim)',marginTop:'0.2rem',lineHeight:1.4}}>
+      伪造系统通知、存档名污染、第四面墙破裂、Meta文本。0=完全关闭。
+    </div>
+    <div className="settings-row">
+      <span className="settings-label">轻度污染模式</span>
+      <button className={'settings-toggle'+(settings.lightPollutionMode?' on':'')} onClick={()=>update('lightPollutionMode',!settings.lightPollutionMode)}/>
+    </div>
+    <div style={{fontSize:'0.65rem',color:'var(--text-dim)',marginTop:'0.2rem',lineHeight:1.4}}>
+      无障碍选项：大幅降低视觉+交互效果，仅保留核心文字污染。
     </div>
     {onAchOpen&&<><div className="settings-group-title">其他</div>
     <div className="settings-row">

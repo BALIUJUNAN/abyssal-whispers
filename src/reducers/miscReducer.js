@@ -74,7 +74,7 @@ function useItemByDef(state, item, narr, ctx) {
 // src/reducers/settingsReducer.js - 持久化设置管理
 
 const SETTINGS_KEY = 'coc_game_settings';
-const SETTINGS_VERSION = '1.0.0';
+const SETTINGS_VERSION = '1.1.0';
 
 const DEFAULT_SETTINGS = {
   volume: 80,
@@ -86,6 +86,9 @@ const DEFAULT_SETTINGS = {
   suddenSounds: true,
   flickerEffect: true,
   visualPollution: 50,
+  interactionPollution: 50,
+  metaPollution: 50,
+  lightPollutionMode: false,
 };
 
 function loadSettings() {

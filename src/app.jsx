@@ -251,7 +251,16 @@ function App(){
     audioManager.suddenMuted=!settings.suddenSounds;
     dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion',value:!!settings.visualDistortion});
     dispatch({type:'ACCESSIBILITY_TOGGLE',key:'flicker_control',value:!!settings.flickerEffect});
+    // SSOT: three independent pollution sliders
     dispatch({type:'SET_META_FIELD',field:'_visualPollution',value:settings.visualPollution??50});
+    dispatch({type:'SET_META_FIELD',field:'_interactionPollution',value:settings.interactionPollution??50});
+    dispatch({type:'SET_META_FIELD',field:'_metaPollution',value:settings.metaPollution??50});
+    // Light pollution mode: override all sliders to minimum
+    if(settings.lightPollutionMode){
+      dispatch({type:'SET_META_FIELD',field:'_visualPollution',value:10});
+      dispatch({type:'SET_META_FIELD',field:'_interactionPollution',value:5});
+      dispatch({type:'SET_META_FIELD',field:'_metaPollution',value:25});
+    }
   },[settings]);
 
   const handleSettingsChange=(s)=>updateSettings(s);
@@ -304,7 +313,7 @@ function App(){
   const sanClass=allowVisualFX?(state.san<10?' san-fracture san-death':state.san<25?' san-fracture':state.san<40?' san-tremor':''):'';
   return <>
     <DevPanel state={state} dispatch={dispatch}/>
-    <SanPollutionLayer san={state.san} loopCount={state.loopCount} corruption={state.safehouseCorruption||0} enabled={state.screen==='game' && allowVisualFX} intensity={settings.visualPollution??50}/>
+    <SanPollutionLayer san={state.san} loopCount={state.loopCount} corruption={state.safehouseCorruption||0} enabled={state.screen==='game' && allowVisualFX} intensity={settings.visualPollution??50} interactionPollution={settings.interactionPollution??50} metaPollution={settings.metaPollution??50}/>
     <AbyssPopup san={state.san}/>
     <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+' '+fontSizeClass}>
       <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>uiStore.setState({settingsOpen:true})} onUgcOpen={()=>uiStore.setState({ugcOpen:true})} onSaveOpen={()=>{uiStore.setState({saveLoadMode:'save',saveLoadOpen:true});}}/>

@@ -1,17 +1,71 @@
-// src/components/SanPollutionLayer.jsx - Unified SAN visual corruption layer
-// SSOT: tiers aligned with 6 san_stages from game_base.json
-//   stable [75,100]=clean | mild [55,74]=fogged | perception [40,54]=flickering
-//   explanation [25,39]=hostile | reality [10,24]=extreme | narrative [1,9]=extreme
+// src/components/SanPollutionLayer.jsx - SAN visual corruption layer (SSOT)
+// All visual parameters come from game_base.json san_stages[].visual config.
+// Smooth interpolation between stages — no hardcoded thresholds.
 
 const { useEffect, useRef, useCallback, useState, memo } = React;
 
-// SSOT: tier boundaries match san_stages ranges
-const TIER = { LOW_MAX: 75, MID_MAX: 40, EXT_MAX: 10 };
 const FPS_CAP = 15;
 const FRAME_MS = 1000 / FPS_CAP;
 const LERP = 0.06;
 
 function lerp(a, b, t) { return a + (b - a) * t; }
+
+// Default clean stage visual (used when stages config is unavailable)
+var _CLEAN_VIS = {saturation:0,vignette:0,scanline:0,noise:0,barrel_distortion:0,
+  chromatic_aberration:0,rotation:0,text_shadow:false,text_tremble:false,glow:false};
+
+/**
+ * Get interpolated visual config for a given SAN value.
+ * Smoothly blends between current and next stage at stage boundaries.
+ * @param {number} san
+ * @returns {{ sat, vig, scan, noise, barrel, chroma, rot, shadow, tremble, glow, level }}
+ */
+function getVisualForSan(san) {
+  // Access stages from global GD (set by initExtendedEvents)
+  var GD = (typeof __GAME_DATA__ !== 'undefined') ? __GAME_DATA__ : (typeof window !== 'undefined' && window.__GAME_DATA__) || {};
+  var stages = (GD.systems && GD.systems.sanity && GD.systems.sanity.san_stages) || [];
+  if (stages.length === 0) return {sat:0,vig:0,scan:0,noise:0,barrel:0,chroma:0,rot:0,shadow:false,tremble:false,glow:false,level:0};
+
+  // Find current stage
+  var curIdx = 0;
+  for (var i = 0; i < stages.length; i++) {
+    if (san >= stages[i].range[0] && san <= stages[i].range[1]) { curIdx = i; break; }
+    if (san < stages[i].range[0] && (i === stages.length - 1 || san >= stages[i+1].range[0])) { curIdx = i; break; }
+  }
+  if (san < stages[stages.length-1].range[0]) curIdx = stages.length - 1;
+
+  var cur = stages[curIdx];
+  var curVis = cur.visual || _CLEAN_VIS;
+
+  // If at last stage or SAN is high, just return current stage values
+  if (curIdx >= stages.length - 1 || san >= 75) {
+    return {sat:curVis.saturation||0,vig:curVis.vignette||0,scan:curVis.scanline||0,
+      noise:curVis.noise||0,barrel:curVis.barrel_distortion||0,chroma:curVis.chromatic_aberration||0,
+      rot:curVis.rotation||0,shadow:!!curVis.text_shadow,tremble:!!curVis.text_tremble,
+      glow:!!curVis.glow,level:cur.level||0};
+  }
+
+  // Blend factor: 0 at top of current range, 1 at bottom (approaching next stage)
+  var rangeSize = cur.range[1] - cur.range[0];
+  var blend = rangeSize > 0 ? Math.max(0, Math.min(1, (cur.range[1] - san) / rangeSize)) : 0;
+
+  var next = stages[curIdx + 1];
+  var nextVis = next.visual || _CLEAN_VIS;
+
+  return {
+    sat:    lerp(curVis.saturation||0, nextVis.saturation||0, blend),
+    vig:    lerp(curVis.vignette||0, nextVis.vignette||0, blend),
+    scan:   lerp(curVis.scanline||0, nextVis.scanline||0, blend),
+    noise:  lerp(curVis.noise||0, nextVis.noise||0, blend),
+    barrel: lerp(curVis.barrel_distortion||0, nextVis.barrel_distortion||0, blend),
+    chroma: lerp(curVis.chromatic_aberration||0, nextVis.chromatic_aberration||0, blend),
+    rot:    lerp(curVis.rotation||0, nextVis.rotation||0, blend),
+    shadow: curVis.text_shadow || (blend > 0.5 && nextVis.text_shadow),
+    tremble:curVis.text_tremble || (blend > 0.3 && nextVis.text_tremble),
+    glow:   curVis.glow || (blend > 0.5 && nextVis.glow),
+    level:  cur.level || 0
+  };
+}
 
 let _noise = null;
 function getNoise(w, h) {
@@ -29,10 +83,10 @@ function getNoise(w, h) {
   return _noise;
 }
 
-const SanPollutionLayer = memo(function SanPollutionLayer({ san, loopCount, corruption, enabled, intensity }) {
+const SanPollutionLayer = memo(function SanPollutionLayer({ san, loopCount, corruption, enabled, intensity, interactionPollution, metaPollution }) {
   const canvasRef = useRef(null);
-  const st = useRef({cR:0,cG:0,cB:0,cA:0,scanA:0,tearP:0,noiseA:0,vigA:0,chromaA:0,barrelS:0,lastT:0,raf:0});
-  // intensity: 0-100, default 50. Scales all effects.
+  const st = useRef({cR:0,cG:0,cB:0,cA:0,scanA:0,tearP:0,noiseA:0,vigA:0,chromaA:0,barrelS:0,rotA:0,lastT:0,raf:0});
+  // intensity: 0-100, default 50. Scales visual effects.
   const I = Math.max(0, Math.min(100, intensity != null ? intensity : 50)) / 100;
 
   const resize = useCallback(() => {
@@ -55,109 +109,125 @@ const SanPollutionLayer = memo(function SanPollutionLayer({ san, loopCount, corr
     const ctx = canvas.getContext('2d');
     const s = st.current;
     let alive = true;
+
     function frame(now) {
       if (!alive) return;
       s.raf = requestAnimationFrame(frame);
       if (now - s.lastT < FRAME_MS) return;
       s.lastT = now;
+
       const w = window.innerWidth, h = window.innerHeight;
       ctx.clearRect(0, 0, w, h);
-      if (san >= TIER.LOW_MAX && corruption < 20) {
+
+      // SSOT: get interpolated visual config from san_stages
+      var V = getVisualForSan(san);
+      var corF = Math.min(1, (corruption || 0) / 80) * I;
+
+      // If all visual values are near zero, fade out
+      var totalIntensity = Math.abs(V.sat) + V.vig + V.scan + V.noise + V.barrel + V.chroma + V.rot;
+      if (totalIntensity < 0.5 && corF < 0.01) {
         if (canvas.style.opacity !== '0') canvas.style.opacity = '0';
         canvas.style.filter = 'none';
         return;
       }
       if (canvas.style.opacity !== '1') canvas.style.opacity = '1';
-      const sanF = Math.max(0, (TIER.LOW_MAX - san) / TIER.LOW_MAX) * I;
-      const corF = Math.min(1, corruption / 80) * I;
 
-      // TIER 1: color shift + noise (SAN < 60)
-      if (san < TIER.LOW_MAX || corruption >= 20) {
-        s.cR = lerp(s.cR, 28 + sanF * 45 + corF * 12, LERP);
-        s.cG = lerp(s.cG, sanF * 3, LERP);
-        s.cB = lerp(s.cB, 12 + sanF * 22, LERP);
-        s.cA = lerp(s.cA, sanF * 0.09 + corF * 0.03, LERP);
-        if (s.cA > 0.003) {
-          ctx.fillStyle = 'rgba('+(s.cR|0)+','+(s.cG|0)+','+(s.cB|0)+','+s.cA.toFixed(3)+')';
-          ctx.fillRect(0, 0, w, h);
-        }
-        s.noiseA = lerp(s.noiseA, sanF * 0.035 + corF * 0.015, LERP);
-        if (s.noiseA > 0.002) {
-          ctx.globalAlpha = s.noiseA;
-          ctx.drawImage(getNoise(w|0, h|0), 0, 0, w, h);
-          ctx.globalAlpha = 1;
-        }
+      // === SATURATION: CSS filter on the canvas ===
+      var satVal = V.sat * I;
+      var filterStr = '';
+      if (satVal < -1) {
+        filterStr = 'saturate(' + Math.max(0, 1 + satVal / 100).toFixed(2) + ') ';
       }
 
-      // TIER 2: scan lines + vignette + chromatic aberration (SAN < 40)
-      if (san < TIER.MID_MAX || corruption >= 40) {
-        // Enhanced scanlines: thicker, more visible, moving
-        s.scanA = lerp(s.scanA, Math.min(0.12 * I, (TIER.MID_MAX - san) / TIER.MID_MAX * 0.08 * I + corF * 0.03), LERP);
-        if (s.scanA > 0.003) {
-          ctx.strokeStyle = 'rgba(0,0,0,'+s.scanA.toFixed(4)+')';
-          ctx.lineWidth = 0.8;
-          const off = (now * 0.015) % 4;
-          for (let y = off; y < h; y += 2.5) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-        }
-        // Enhanced noise: pulsing intensity
-        const noisePulse = 1 + 0.4 * Math.sin(now * 0.002);
-        s.noiseA = lerp(s.noiseA, (sanF * 0.06 + corF * 0.025) * noisePulse, LERP);
-        if (s.noiseA > 0.003) {
-          ctx.globalAlpha = s.noiseA;
-          ctx.drawImage(getNoise(w|0, h|0), 0, 0, w, h);
-          ctx.globalAlpha = 1;
-        }
-        // Heavier vignette
-        s.vigA = lerp(s.vigA, (0.06 + sanF * 0.14 + corF * 0.06) * I, LERP);
-        if (s.vigA > 0.01) {
-          const g = ctx.createRadialGradient(w/2,h/2,w*0.25, w/2,h/2,w*0.68);
-          g.addColorStop(0, 'rgba(0,0,0,0)');
-          g.addColorStop(1, 'rgba(12,0,8,'+s.vigA.toFixed(3)+')');
-          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-        }
-        s.chromaA = lerp(s.chromaA, Math.min(0.07 * I, (TIER.MID_MAX - san) / TIER.MID_MAX * 0.05 * I), LERP);
-        if (s.chromaA > 0.005) {
-          const cr = ctx.createLinearGradient(0, 0, w * 0.14, 0);
-          cr.addColorStop(0, 'rgba(180,20,30,'+s.chromaA.toFixed(3)+')');
-          cr.addColorStop(1, 'rgba(180,20,30,0)');
-          ctx.fillStyle = cr; ctx.fillRect(0, 0, w * 0.14, h);
-          const cb = ctx.createLinearGradient(w * 0.86, 0, w, 0);
-          cb.addColorStop(0, 'rgba(30,40,180,0)');
-          cb.addColorStop(1, 'rgba(30,40,180,'+s.chromaA.toFixed(3)+')');
-          ctx.fillStyle = cb; ctx.fillRect(w * 0.86, 0, w * 0.14, h);
-        }
+      // === COLOR SHIFT: dark red/blue overlay ===
+      var colorIntensity = Math.max(0, -V.sat / 60) * I;
+      s.cR = lerp(s.cR, 20 + colorIntensity * 50, LERP);
+      s.cG = lerp(s.cG, colorIntensity * 2, LERP);
+      s.cB = lerp(s.cB, 8 + colorIntensity * 25, LERP);
+      s.cA = lerp(s.cA, colorIntensity * 0.08 + corF * 0.03, LERP);
+      if (s.cA > 0.003) {
+        ctx.fillStyle = 'rgba('+(s.cR|0)+','+(s.cG|0)+','+(s.cB|0)+','+s.cA.toFixed(3)+')';
+        ctx.fillRect(0, 0, w, h);
       }
 
-      // TIER 3: screen tears + distortion + aggressive vignette (SAN < 20)
-      if (san < TIER.EXT_MAX) {
-        const ext = (TIER.EXT_MAX - san) / TIER.EXT_MAX * I;
-        // More frequent screen tears
-        s.tearP = lerp(s.tearP, ext * 0.18, LERP);
+      // === NOISE ===
+      var targetNoise = (V.noise * I + corF * 0.02) * (1 + 0.3 * Math.sin(now * 0.002));
+      s.noiseA = lerp(s.noiseA, targetNoise, LERP);
+      if (s.noiseA > 0.003) {
+        ctx.globalAlpha = s.noiseA;
+        ctx.drawImage(getNoise(w|0, h|0), 0, 0, w, h);
+        ctx.globalAlpha = 1;
+      }
+
+      // === SCANLINES ===
+      var targetScan = V.scan * 0.12 * I;
+      s.scanA = lerp(s.scanA, targetScan, LERP);
+      if (s.scanA > 0.003) {
+        ctx.strokeStyle = 'rgba(0,0,0,'+s.scanA.toFixed(4)+')';
+        ctx.lineWidth = 0.8;
+        var off = (now * 0.015) % 4;
+        for (var y = off; y < h; y += 2.5) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      }
+
+      // === VIGNETTE ===
+      var targetVig = V.vig * I * (1 + 0.3 * Math.sin(now * 0.001));
+      s.vigA = lerp(s.vigA, targetVig + corF * 0.05, LERP);
+      if (s.vigA > 0.01) {
+        var vigRadius = V.level >= 4 ? 0.10 : 0.25;
+        var g = ctx.createRadialGradient(w/2, h/2, w * vigRadius, w/2, h/2, w * 0.68);
+        g.addColorStop(0, 'rgba(0,0,0,0)');
+        g.addColorStop(1, 'rgba(12,0,8,'+s.vigA.toFixed(3)+')');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // === CHROMATIC ABERRATION ===
+      var targetChroma = V.chroma * 0.015 * I;
+      s.chromaA = lerp(s.chromaA, targetChroma, LERP);
+      if (s.chromaA > 0.005) {
+        var edgeW = Math.min(0.20, 0.08 + V.chroma * 0.02) * w;
+        var cr = ctx.createLinearGradient(0, 0, edgeW, 0);
+        cr.addColorStop(0, 'rgba(180,20,30,'+s.chromaA.toFixed(3)+')');
+        cr.addColorStop(1, 'rgba(180,20,30,0)');
+        ctx.fillStyle = cr; ctx.fillRect(0, 0, edgeW, h);
+        var cb = ctx.createLinearGradient(w - edgeW, 0, w, 0);
+        cb.addColorStop(0, 'rgba(30,40,180,0)');
+        cb.addColorStop(1, 'rgba(30,40,180,'+s.chromaA.toFixed(3)+')');
+        ctx.fillStyle = cb; ctx.fillRect(w - edgeW, 0, edgeW, h);
+      }
+
+      // === BARREL DISTORTION + ROTATION (CSS transform) ===
+      var targetBarrel = V.barrel * I;
+      s.barrelS = lerp(s.barrelS, targetBarrel, LERP);
+      var targetRot = V.rot * I;
+      s.rotA = lerp(s.rotA, targetRot, LERP);
+
+      var breathPulse = 1 + 0.004 * Math.sin(now * 0.0008) * (V.level >= 3 ? 1 : 0);
+      var blurAmt = s.barrelS > 0.02 ? s.barrelS * 8 : 0;
+      var rotDeg = s.rotA * Math.sin(now * 0.0003) * 0.5;
+      filterStr += (blurAmt > 0.02 ? 'blur('+blurAmt.toFixed(1)+'px) ' : '');
+      canvas.style.filter = filterStr || 'none';
+      canvas.style.transform = 'scale('+breathPulse.toFixed(4)+') rotate('+rotDeg.toFixed(2)+'deg)';
+
+      // === SCREEN TEARS (level >= 4) ===
+      if (V.level >= 4) {
+        var tearProb = (V.level >= 5 ? 0.18 : 0.06) * I;
+        s.tearP = lerp(s.tearP, tearProb, LERP);
         if (Math.random() < s.tearP) {
-          const sy = Math.random() * h, sh = 1 + Math.random() * 8;
-          const sx = (Math.random() - 0.5) * 24 * ext;
-          try { const id = ctx.getImageData(0, sy|0, w|0, sh|0); ctx.putImageData(id, sx|0, sy|0); } catch(e) {}
+          var sy = Math.random() * h, sh = 1 + Math.random() * 8;
+          var sx = (Math.random() - 0.5) * 20 * I;
+          try { var id = ctx.getImageData(0, sy|0, w|0, sh|0); ctx.putImageData(id, sx|0, sy|0); } catch(e) {}
         }
-        // CSS breathing distortion: subtle scale pulse
-        s.barrelS = lerp(s.barrelS, ext * 0.6, LERP);
-        const breathPulse = 1 + 0.004 * Math.sin(now * 0.0008) * ext;
-        const blurAmt = s.barrelS > 0.05 ? s.barrelS : 0;
-        canvas.style.filter = (blurAmt > 0.05 ? 'blur('+blurAmt.toFixed(1)+'px) ' : '') + 'scale('+breathPulse.toFixed(4)+')';
-        // Aggressive pulsing vignette
-        const pulse = 0.5 + 0.5 * Math.sin(now * 0.0012);
-        const pv = (0.12 + pulse * 0.18) * I;
-        const pg = ctx.createRadialGradient(w/2,h/2,w*0.10, w/2,h/2,w*0.58);
-        pg.addColorStop(0, 'rgba(0,0,0,0)');
-        pg.addColorStop(1, 'rgba(22,0,10,'+pv.toFixed(3)+')');
-        ctx.fillStyle = pg; ctx.fillRect(0, 0, w, h);
       }
     }
+
     s.raf = requestAnimationFrame(frame);
     return () => { alive = false; cancelAnimationFrame(s.raf); };
   }, [san, loopCount, corruption, enabled, I]);
 
   if (!enabled) return null;
-  const tier = san < TIER.EXT_MAX ? 'spl-extreme' : san < TIER.MID_MAX ? 'spl-mid' : san < TIER.LOW_MAX ? 'spl-low' : '';
+  var V = getVisualForSan(san);
+  var tier = V.level >= 4 ? 'spl-extreme' : V.level >= 3 ? 'spl-hostile' : V.level >= 2 ? 'spl-mid' : V.level >= 1 ? 'spl-low' : '';
   return <canvas ref={canvasRef} className={"san-pollution-layer "+tier} aria-hidden="true" />;
 });
 
@@ -283,9 +353,12 @@ if (typeof document !== 'undefined' && !document.getElementById('spl-css')) {
   const _css = document.createElement('style');
   _css.id = 'spl-css';
   _css.textContent = [
-    // Canvas layer
-    '.san-pollution-layer{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9997;mix-blend-mode:multiply;opacity:0;transition:opacity 1.5s ease;transform-origin:center center}',
-    '.san-pollution-layer.spl-low,.san-pollution-layer.spl-mid,.san-pollution-layer.spl-extreme{opacity:1}',
+    // Canvas layer — smooth transitions between all tiers
+    '.san-pollution-layer{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9997;mix-blend-mode:multiply;opacity:0;transition:opacity 2s ease,filter 1.5s ease,transform 1.5s ease;transform-origin:center center}',
+    '.san-pollution-layer.spl-low{opacity:0.6}',
+    '.san-pollution-layer.spl-mid{opacity:0.8}',
+    '.san-pollution-layer.spl-hostile{opacity:0.9}',
+    '.san-pollution-layer.spl-extreme{opacity:1}',
     // CorruptibleChoice stages
     '.cc-hovering{opacity:0.92!important;transition:opacity 0.3s}',
     '.cc-early{color:var(--text)!important;opacity:0.88!important;text-shadow:0 0 4px rgba(180,30,30,0.3)}',
