@@ -132,27 +132,33 @@ npm run tauri build
 
 ### 理智值 (SAN) 系统
 
-SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩家与现实之间逐渐崩裂的桥梁。随着 SAN 降低，界面、文本、世界、甚至游戏本身都会开始"背叛"玩家。
+SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩家与现实之间逐渐崩裂的桥梁。随着 SAN 降低，界面、文本、世界、甚至游戏本身都会开始"背叛"玩家，最终让玩家怀疑自己是否还在操控游戏。
 
-**单一数据源 (SSOT)**：所有 SAN 阈值从 `game_base.json` 的 `san_stages` 统一读取，通过 `getCurrentSanStage()` 全局查询，消除硬编码。
+**单一数据源 (SSOT)**：所有 SAN 阈值从 `game_base.json` 的 `san_stages` 统一读取，通过 `getCurrentSanStage()` 全局查询，消除硬编码。每个阶段定义 visual / interaction / logic / meta 四维度参数。
 
-| 阶段 | SAN | 视觉 | 交互 | 逻辑 | Meta |
-|------|-----|------|------|------|------|
-| **认知稳定** | 75-100 | 无 | 无 | 无 | 无 |
-| **轻度侵蚀** | 55-74 | 阴影+色偏+呼吸效果 | 按钮 30ms 延迟 | 零星异常词汇 | 无 |
-| **感知偏移** | 40-54 | 扫描线+暗角+色差 | 80ms 延迟 | 文本幻觉+恐怖权重↑ | 无 |
-| **解释权动摇** | 25-39 | barrel distortion+噪点 | 600ms Hover扭曲+**选项自改写** | 虚假记忆+权重腐蚀 | 存档名污染 |
-| **现实侵蚀** | 10-24 | 强烈扭曲+旋转+脉冲暗角 | 800ms 腐化+UI对抗 | 虚假消息+日志注入 | 存档名深度污染 |
-| **现实崩解** | 1-9 | 极端扭曲+随机字符替换 | **虚假选项**+鼠标污染 | 全部激活 | **伪造通知+第四面墙破裂** |
+| 阶段 | SAN | 视觉（CSS + Canvas） | 交互 | 逻辑 | Meta |
+|------|-----|---------------------|------|------|------|
+| **认知稳定** | 75-100 | 无效果 | 完全正常 | 无 | 无 |
+| **轻度侵蚀** | 55-74 | `hue-rotate(-8°)` `saturate(0.95)` 文字阴影(10s周期) 背景呼吸缩放(30s) | 按钮 30ms 延迟 | 零星异常词汇 | 无 |
+| **感知偏移** | 40-54 | 文字颤抖(0.15s) 标题泛光(3s) 扫描线+暗角+色差(Canvas) | 80ms 延迟 | 文本幻觉 + 恐怖权重↑15% | 无 |
+| **解释权动摇** | 25-39 | barrel distortion + 噪点增强 + 强颤抖(0.12s) | **Hover 600ms 后选项扭曲** **选项文字缓慢自改写** | 虚假记忆 + 权重腐蚀↑30% | 存档名轻度污染 |
+| **现实侵蚀** | 10-24 | 强 barrel + 脉冲暗角 + 旋转 + 屏幕撕裂 + 按钮随机闪烁 | **Hover 800ms 后文字逐渐腐化** UI 大幅对抗(闪烁/错位) | 虚假消息 + 日志注入上一周目记忆 | 存档名深度污染 |
+| **现实崩解** | 1-9 | 极端扭曲 + 随机字符替换 + 撕裂风暴 + 强旋转 + 十字准星光标 | **虚假选项**(点击消失扣SAN) 按钮抵抗抖动 | 全部逻辑污染激活 | **伪造系统通知 + Meta文本直接对玩家说话** |
 
-**污染平滑过渡**：所有视觉与交互效果平滑渐变，玩家能清晰感觉到自己在"慢慢沉下去"。
+**污染平滑过渡**：所有视觉与交互效果通过 `getVisualForSan(san)` 自动插值相邻阶段，2s CSS transition 平滑渐变。玩家能清晰感觉到自己在"慢慢沉下去"。
+
+**实现方式**：
+- **CSS 动画**驱动轻量效果：文字颤抖(`splTremble`)、色偏(`hue-rotate`)、呼吸缩放(`splBreath`)、按钮闪烁(`splFlicker`)
+- **Canvas** 驱动重效果：噪点、扫描线、vignette 暗角、色差、barrel distortion、旋转、屏幕撕裂
+- **CorruptibleChoice** 组件：Hover 延迟随阶段递增(1200→600→800→400ms)，渐进文字腐化(正常→红色→深渊符号)
+- **AbyssPopup** 组件：SAN<40 时每 60-120 秒弹出 meta 消息，SAN≤9 缩短至 30-60 秒并混入伪造通知
 
 **三个独立滑块**（设置面板）：
 - 🎨 视觉污染强度 — 扫描线、噪点、色差、barrel distortion、vignette
 - 🖱️ 交互污染强度 — 选项文字自改写、Hover扭曲、按钮延迟、虚假选项
 - 👁️ Meta 污染强度 — 伪造系统通知、存档名污染、第四面墙破裂
 
-**无障碍保护**：提供"轻度污染模式"，大幅降低视觉+交互效果，仅保留核心文字污染。
+**无障碍保护**：提供"轻度污染模式"，大幅降低视觉+交互效果(视觉10%/交互5%/Meta25%)，仅保留核心文字污染。
 
 ### 前传系统（恐惧画像）
 
@@ -287,7 +293,7 @@ COC/
 │   ├── components/         # 11 个 UI 组件（2,087 行）
 │   │   ├── ui/DevPanel.jsx       # 开发者调试面板（F12，4标签页）
 │   │   ├── GamePanels.jsx        # 主面板（Left/Center/Right/Header/Ending）
-│   │   ├── SanPollutionLayer.jsx # SAN Canvas 腐化层（SSOT阶段驱动）
+│   │   ├── SanPollutionLayer.jsx # SAN 6阶段腐化层（194行，CSS+Canvas+CorruptibleChoice+AbyssPopup）
 │   │   ├── GameModals.jsx        # 设置/存档/成就弹窗（含三滑块SAN控制）
 │   │   └── ... (NPCDialog/CitySketchMap/GameScreens/ErrorBoundary 等)
 │   │
@@ -337,6 +343,7 @@ COC/
 | **WorldTimeSystem** | 世界状态/封印/天气 | 5阶段封印状态机/区域名称扭曲/安全屋退化 |
 | **SaveManager** | 存档系统+版本迁移 | 6槽位/字段过滤/旧格式兼容/JSON导入导出 |
 | **SAN SSOT** | 统一SAN阶段配置 | `getCurrentSanStage()` 全局查询，6阶段×4维度，零硬编码 |
+| **SanPollutionLayer** | 6阶段渐进腐化 | CSS动画+Canvas渲染+CorruptibleChoice+AbyssPopup，194行 |
 | **useGameStore** | 游戏状态桥接 | useSan/useDay/useHp/usePollution 等选择器钩子 |
 | **useUiStore** | UI状态管理 | 模态框/Toast/设置/临时UI状态 |
 | **DevPanel** | 开发者调试面板 | F12打开，4标签页：状态/工具/权重/性能 |
@@ -357,12 +364,16 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
        │
        ├── sanReducer.js       → getSanStage() 用 stage.level 判断文本变体
        ├── PollutionManager.js → 文本幻觉/虚假消息/虚假记忆/权重腐蚀
-       ├── EventEngine.js      → getSanWeightMultiplier
-       ├── SanPollutionLayer.jsx → getVisualForSan() 平滑插值Canvas渲染
-       └── app.jsx             → CSS类 + 破壁事件 + CG预加载
+       ├── EventEngine.js      → getSanWeightMultiplier（6阶段阈值）
+       ├── SanPollutionLayer.jsx
+       │     ├── getVisualForSan(san) → 阶段插值 → Canvas 渲染
+       │     ├── san-stage-N CSS类    → hue-rotate/tremble/glow/flicker 动画
+       │     ├── CorruptibleChoice    → 阶段感知 Hover 延迟 + 渐进文字腐化
+       │     └── AbyssPopup           → Meta 消息弹出（60-120s / 30-60s）
+       └── app.jsx             → san-stage-N CSS类注入 + 破壁事件 + CG预加载
 ```
 
-修改 JSON 中的 `san_stages` 范围或效果参数，所有系统自动跟随。
+修改 JSON 中的 `san_stages` 范围或效果参数，所有系统自动跟随。无硬编码阈值。
 
 ### 数据驱动设计
 
@@ -445,7 +456,7 @@ npm run tauri build
 |------|------|------|
 | **主循环 & Reducer** | **9.0/10** | ✅ 6 slice handler + 引擎层独立 + 双Store架构 |
 | **事件系统** | **9.0/10** | ✅ EventEngine 三层加权选择，pure/commit 分离 |
-| **SAN 系统** | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码阈值，平滑过渡 |
+| **SAN 系统** | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现 |
 | **子系统** | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立 |
 | **构建流程** | **9.0/10** | ✅ --analyze/--dev/--prod 模式；CSS/JS minify |
 | **开发体验** | **9.5/10** | ✅ DevPanel(F12) + 双Store选择器 + 三滑块SAN控制 |
@@ -468,7 +479,7 @@ npm run tauri build
 
 | 版本 | 日期 | 主要更新 |
 |------|------|---------|
-| **0.2.0** | 2026-06-02 | **SAN系统满分实现** — 6阶段×4维度详细污染定义(visual/interaction/logic/meta)；SSOT单一数据源(`getCurrentSanStage()`零硬编码)；SanPollutionLayer完全重写(基于阶段配置的平滑Canvas渲染)；三滑块SAN控制(视觉/交互/Meta独立可调)；轻度污染模式(无障碍)；引擎层独立(4模块758行)；双Store架构；DevPanel调试面板(F12)；build --analyze/--dev/--prod |
+| **0.2.0** | 2026-06-02 | **SAN系统满分实现** — 6阶段×4维度详细污染定义；SSOT单一数据源(`getCurrentSanStage()`零硬编码)；SanPollutionLayer完全重写(194行，CSS动画+Canvas渲染+CorruptibleChoice+AbyssPopup)；6阶段渐进效果(色偏/颤抖/泛光/扫描线/暗角/barrel/撕裂/虚假选项/伪造通知)；三滑块SAN控制；轻度污染模式(无障碍)；引擎层独立(4模块758行)；双Store架构；DevPanel(F12)；build --analyze/--dev/--prod |
 | **0.1.2** | 2026-06-01 | appHelpers拆分(-60%)；dailySlice REST 7子函数；GamePanels组件拆分；miscReducer合并(3→1)；Zustand外部UI Store；章节懒加载(day5/day10)；Vite开发环境(HMR) |
 | **0.1.1** | 2026-05-31 | Error Tracker操作追踪；ErrorBoundary升级(30步回放)；四维度代码审查(7.5/10) |
 | **0.1.0** | 2026-05 | Tauri桌面版；模块化重构(app.jsx 4600→2997行)；ErrorBoundary；循环数组截断 |
