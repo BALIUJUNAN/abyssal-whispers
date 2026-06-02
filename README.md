@@ -8,8 +8,8 @@
 
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
-![Build](https://img.shields.io/badge/build-1.14MB-green)
-![Version](https://img.shields.io/badge/version-0.1.1-orange)
+![Build](https://img.shields.io/badge/build-5.1MB_(with_Babel)-green)
+![Version](https://img.shields.io/badge/version-0.1.3-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版下载) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -65,19 +65,20 @@ npm run tauri build
 
 | 维度 | 数据 |
 |------|------|
-| **独立事件** | 400+ 个 — 探索 / 人性 / 超自然 / NPC / 区域深层 / Meta / 资源 |
+| **独立事件** | 700+ 个（632 扩展事件 + 90 JSON 事件）— 探索 / 人性 / 超自然 / NPC / 区域深层 / Meta / 资源 |
 | **行为结局** | **36 条** — 由你的选择模式触发，非预设分支 |
-| **主线 + 隐藏结局** | 11+ 条 — 含打破第四面墙的 Meta 结局 |
+| **主线 + 隐藏结局** | **10 条**（封印守护者 / 希尔达抉择 / 老费舍血脉 / 第十二声钟 / 海上逃离 / 证据逃离 / 异端黎明 / 深渊吞噬 / 超越 / 循环真相） |
 | **死亡类型** | 16 种 — 7 种物理死亡 + 8 种精神死亡 + 1 种混合 |
-| **NPC** | 7 位核心 × 5 级信任 × 4 层跨轮记忆 |
+| **NPC** | **8 位** × 5 级信任 × 4 层跨轮记忆 |
 | **可探索区域** | 9 个 — 从镇中心到深渊墓穴，危险度递进 |
 | **物品** | 79 种 — 全部有效果，含 2 家可购买商店 |
-| **事件链 / 线索链** | 多条 — 顺序推进的多阶段调查链 |
+| **事件链** | 7 条 — 码头暗流 / 森林深处 / 庄园迷踪 / 墓穴惊魂 / 伊斯之谜 / 灯塔真相 / 城市暗流 |
 | **音频素材** | 53 段 (WAV + MP3) — 覆盖环境音乐 / 音效 / 中文语音 |
 | **成就** | 21 个 — 进程 / 结局 / 挑战 / 隐藏四大类 |
 | **存档槽位** | 6 个 — 3 自动轮转 + 3 手动管理，JSON 导入导出 |
 | **图片素材** | 210 张 WebP — 含 72 张独立结局 CG |
 | **前传系统** | 7 场景线性叙事 — 构建你的恐惧画像 |
+| **代码规模** | 18,333 行 JS/JSX — 85 个源文件 |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -102,6 +103,7 @@ npm run tauri build
 | 伊莱亚斯·沃德 | 退休教授 | 能读不该读的文字，代价是理智以可测量速度流失 |
 | 约书亚·布莱克 | 流浪汉 | 前海军陆战队员，身上的螺旋疤痕不是战场上留下的 |
 | 汤米·陈 | 杂货店主/摄影师 | 冲洗的照片里总有些不该存在的影子 |
+| 埃德加·洛夫克拉夫特 | 神秘学者 | 知道太多不该知道的事，选择用沉默保护自己 |
 
 每位 NPC 有 **5 级信任体系** + **4 层跨轮回记忆渐进** —— 沉默也是一种选择。
 
@@ -163,19 +165,19 @@ SAN 是你与现实之间的契约强度。数值下降时，**游戏本身开�
 
 ### 封印倒计时（28 天）
 
-| 时间节点 | 事件 |
-|----------|------|
-| Day 1 | 钟声开始异常 |
-| Day 7 | 核心 NPC 出现腐化征兆 |
-| Day 14 | 深潜者大潮登陆 |
-| Day 21 | 全城疯狂之夜 |
-| Day 28 | **封印破碎 —— 最终决战** |
+| 时间节点 | 封印状态 | 事件 |
+|----------|----------|------|
+| Day 1 | 封印完整 | 钟声开始异常 |
+| Day 7 | 封印松动 | 核心 NPC 出现腐化征兆 |
+| Day 14 | 封印危急 | 深潜者大潮登陆 |
+| Day 21 | 封印濒临崩溃 | 全城疯狂之夜 |
+| Day 28 | **封印破碎** | **最终决战** |
 
-每次轮回更难：SAN 上限削减 3 点，世界污染加深，NPC 逐步识别你是重复访客。
+每次轮回更难：SAN 上限削减（loop5+ 每周 -2），世界污染加深，NPC 逐步识别你是重复访客。
 
-### 7 种起始职业
+### 6 种起始职业
 
-记者 / 渔夫 / 学者 / 军医 / 侦探 / 牧师 / 流亡者
+记者 / 私家侦探 / 学者 / 医生 / 退伍军人 / 通灵者
 
 ---
 
@@ -196,6 +198,7 @@ SAN 是你与现实之间的契约强度。数值下降时，**游戏本身开�
 | **UGC 模组** | 支持导入自定义事件 JSON（Schema 校验） |
 | **ErrorBoundary** | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载 |
 | **Error Tracker** | 测试期玩家操作追踪模块（可插拔，一行删除即可移除） |
+| **DevPanel** | 开发者调试面板（F12 / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控 |
 
 ---
 
@@ -228,12 +231,13 @@ Copyright © 2024-2026 BALIUJUNAN. All Rights Reserved.
 ### 整体架构
 
 ```
-React 18 + useReducer 全状态驱动 + 外部 UI Store (Zustand-like)
+React 18 + useReducer 全状态驱动 + 双 Store 架构 (useGameStore + useUiStore)
+  → 引擎层 (src/engine/) — 事件引擎 / 污染管理 / 世界时间 / 存档系统
   → 模块化 Reducer 体系（22 个领域 reducer，6 个 slice handler）
   → {GD} Context 单例（游戏数据全局访问）
   → JSON 配置驱动（事件/结局/效果/NPC/商店 全部数据化）
   → 章节懒加载（ch2+ 在 day5 加载，meta 在 day10 加载）
-  → Babel JSX 编译 + CSS minify → 单文件构建产物 index.html (~1.1MB, 完全离线)
+  → Babel JSX 编译 + CSS/JS minify → 单文件构建产物 index.html (~5MB 含 Babel)
   → Vite 开发环境（HMR + 热更新 + 路径别名）
   → Tauri v2 打包 → 原生桌面应用 (~10MB)
 ```
@@ -242,22 +246,39 @@ React 18 + useReducer 全状态驱动 + 外部 UI Store (Zustand-like)
 
 ```
 COC/
-├── index.html              # 构建产物（~1.1MB，可直接运行）
+├── index.html              # 构建产物（含 Babel ~5MB，生产 ~4.3MB，可直接运行）
 ├── build.py                # Python 构建脚本（Babel JSX 编译 + CSS/JS minify）
 ├── vite.config.js          # Vite 开发环境配置（HMR + 路径别名）
 ├── dev.html                # Vite 开发入口
-├── package.json            # npm scripts: dev / build / build:vite
+├── package.json            # npm scripts: dev / build / build:vite / tauri
 │
 ├── assets/webp/            # 210 张 WebP 图片素材（138 场景 + 72 结局 CG）
 ├── audio/                  # 53 个音频文件 (47 WAV + 6 MP3)
 │
-├── src/
-│   ├── app.jsx             # 主入口（322 行 — 游戏路由 + Provider）
+├── src/                    # 18,333 行 JS/JSX，85 个源文件
+│   ├── app.jsx             # 主入口（319 行 — 游戏路由 + 双 Store 桥接 + DevPanel）
 │   ├── main.jsx            # Vite ES 模块入口（渐进迁移起点）
-│   ├── styles.css          # 完整样式表（77KB minified，档案纸张美学）
+│   ├── styles.css          # 完整样式表（84KB，档案纸张美学）
 │   ├── portraitMap.js      # 立绘/场景/结局CG 图片路径映射
 │   │
+│   ├── engine/             # 4 个引擎模块（805 行）— 核心逻辑独立层
+│   │   ├── EventEngine.js        # 统一三层加权事件选择引擎（367 行）
+│   │   │                          #   行为画像 / 冷却衰减 / 缓冲执行 / 恐惧权重
+│   │   ├── PollutionManager.js   # SAN + 逻辑 + 视觉污染管理（151 行）
+│   │   │                          #   文本幻觉 / 虚假消息 / 虚假记忆 / 权重腐蚀
+│   │   ├── WorldTimeSystem.js    # 世界状态 / 封印 / 天气 / 安全屋退化（97 行）
+│   │   └── SaveManager.js        # 存档系统 + 版本迁移 + 持久化过滤（190 行）
+│   │
+│   ├── state/              # 3 个状态模块（245 行）— 双 Store 架构
+│   │   ├── gameStore.js          # useGameStore — 游戏状态桥接 + 选择器钩子
+│   │   │                          #   useSan / useDay / useHp / useAp / usePollution 等
+│   │   ├── uiStore.js            # useUiStore — 模态框 / Toast / 设置 / 临时 UI 状态
+│   │   └── initialState.js       # 游戏初始状态定义（70 行）
+│   │
 │   ├── components/         # 11 个 UI 组件（2,087 行）
+│   │   ├── ui/
+│   │   │   └── DevPanel.jsx      # 开发者调试面板（79 行，F12 / Ctrl+Shift+D）
+│   │   │                          #   STATE/TOOLS/WEIGHTS/PERF 四标签页
 │   │   ├── GamePanels.jsx        # LeftPanel/CenterPanel/RightPanel/GameHeader/EndingScreen
 │   │   ├── NPCDialog.jsx         # NPC 对话组件（从 GamePanels 提取）
 │   │   ├── CitySketchMap.jsx     # 城市地图组件（从 GamePanels 提取）
@@ -266,9 +287,9 @@ COC/
 │   │   ├── GameModals.jsx        # SettingsModal/SaveLoadModal/AchievementGallery
 │   │   ├── GameCommon.jsx        # StatBar/Modal/CollapsibleSection/NarrativeBlock
 │   │   ├── ErrorBoundary.jsx     # React 错误边界（含错误报告+一键复制）
-│   │   ├── TitleScreen.jsx / AppToast.jsx / UgcImportExport.jsx
+│   │   └── TitleScreen.jsx / AppToast.jsx / UgcImportExport.jsx
 │   │
-│   ├── reducers/           # 22 个状态管理模块（4,882 行）
+│   ├── reducers/           # 22 个状态管理模块（4,887 行）
 │   │   ├── slices/                 # gameReducer 拆分后的 6 个 slice handler
 │   │   │   ├── coreSlice.js       # START_GAME/NEW_GAME/CONTINUE_GAME/SWITCH_SAFEHOUSE
 │   │   │   ├── exploreSlice.js    # MOVE/EXPLORE/DO_SKILL_CHECK
@@ -276,7 +297,7 @@ COC/
 │   │   │   ├── dailySlice.js      # REST/WORK/BUY_FOOD（7 个命名子函数）
 │   │   │   ├── darkSlice.js       # SELF_HARM/SPREAD_PROPHECY/DESECRATE/BREAK_SEAL
 │   │   │   └── uiSlice.js         # CHOICE_SELECT/GAMBLE_CHOICE/PROLOGUE/ACCESSIBILITY
-│   │   ├── miscReducer.js         # 合并: safehouse + item + settings (112行)
+│   │   ├── miscReducer.js         # 合并: safehouse + item + settings (112 行)
 │   │   ├── extendedEvents.js      # V2 事件调度（触发/权重/抽取/提交 分离）
 │   │   ├── deathSystem.js         # 16 种死亡 × 四段叙事
 │   │   ├── endingReducer.js       # 结局判定引擎（AND/OR/NOT 解析器）
@@ -286,27 +307,31 @@ COC/
 │   ├── systems/            # 9 个游戏系统（1,764 行）
 │   │   ├── eventSystemV2.js      # 三层事件选择（冷却衰减/行为权重/恐惧滤镜）
 │   │   ├── fearLens.js           # 恐惧滤镜（影响文本变体 + NPC 对话）
+│   │   ├── fearProfile.js        # 恐惧画像计算（6 维度）
 │   │   ├── resourceNarrative.js  # 资源-叙事绑定 + 安全屋 5 阶段降级
 │   │   ├── worldDecay.js         # 世界腐化推进 + 区域侵蚀
 │   │   ├── metaCorruption.js     # Meta 层腐化（伪事件/伪日志/存档名污染）
-│   │   └── logicCorruption.js    # 逻辑腐化（文本幻觉/虚假记忆/选择延迟）
+│   │   ├── logicCorruption.js    # 逻辑腐化（文本幻觉/虚假记忆/选择延迟）
+│   │   ├── npcDialogue.js        # NPC 多版本对话 + 循环继承
+│   │   └── sanVisualCorruption.js # SAN Canvas 视觉腐化层
 │   │
-│   ├── utils/              # 7 个工具模块（1,130 行）
-│   │   ├── uiStore.js            # 外部 UI store（Zustand-like 模式）
+│   ├── utils/              # 8 个工具模块（1,130 行）
+│   │   ├── uiStore.js            # 外部 UI store（Zustand-like 模式，已迁移至 state/）
 │   │   ├── trustGates.js         # NPC 信任门条件检查
 │   │   ├── npcMemory.js          # NPC 轮回记忆对话数据
 │   │   ├── appHelpers.js         # 游戏核心辅助函数（248 行）
 │   │   ├── gameHelpers.js        # 游戏工具函数集
+│   │   ├── clueNameMap.js        # 线索中文名解析
+│   │   ├── buildEventPool.js     # 事件池构建工具
 │   │   └── errorTracker.js       # 玩家操作追踪 & 错误报告（测试期模块）
 │   │
-│   ├── data/               # 事件数据 + 常量
-│   │   ├── events_*.js           # 12 个事件数据模块（400+ 事件）
+│   ├── data/               # 24 个数据文件 — 700+ 事件
+│   │   ├── events_*.js           # 12 个事件数据模块（632 扩展事件）
 │   │   ├── behavior_endings.js   # 36 种行为结局
 │   │   ├── mapConstants.js       # 地图布局/连线/分区常量
 │   │   ├── prologue_events.js    # 前传 7 场景事件
 │   │   └── game_base/ch2plus/meta.json  # 分离的 JSON 数据（支持懒加载）
 │   │
-│   ├── state/initialState.js     # 初始状态定义
 │   ├── managers/AudioManager.js  # 音频系统（53 段音频管理）
 │   └── vendor/                   # React/ReactDOM/Babel 生产版本
 │
@@ -318,17 +343,24 @@ COC/
 
 | 模块 | 职责 | 关键特性 |
 |------|------|---------|
+| **EventEngine** | 统一三层加权事件选择 | 行为画像/冷却衰减/缓冲执行/恐惧权重/累积权重二分查找 |
+| **PollutionManager** | SAN + 逻辑 + 视觉污染 | 文本幻觉/虚假消息/虚假记忆/权重腐蚀 |
+| **WorldTimeSystem** | 世界状态 / 封印 / 天气 | 5 阶段封印状态机/区域名称扭曲/安全屋退化 |
+| **SaveManager** | 存档系统 + 版本迁移 | 6 槽位/字段过滤/旧格式兼容/JSON 导入导出 |
+| **useGameStore** | 游戏状态桥接 | useSan/useDay/useHp/usePollution 等选择器钩子 |
+| **useUiStore** | UI 状态管理 | 模态框/Toast/设置/临时 UI 状态 |
 | **V2 事件调度器** | 30+ 触发条件筛选 | min_loop/max_loop/once_per_run/权重/probability |
 | **死亡系统** | 16 种死亡 × 四段叙事 | 标题→临终→世界处理→残留提示 |
 | **SAN 系统** | 5 阶段认知崩溃 | 文字变异/UI对抗/第四面墙破裂 |
 | **轮回系统** | 跨周目状态传递 | 污染累积/SAN上限削减/技能继承30%/NPC记忆渐进 |
 | **前传系统** | 7 场景恐惧画像 | 6维度心理profile/跳过保护(多周目兼容) |
-| **结局引擎** | AND/OR/ 条件解析 | 36行为结局+主线+隐藏+Meta打破 |
-| **NPC 系统** | 7人×5级信任×4层记忆 | 信任门控/腐蚀/救赎路线 |
+| **结局引擎** | AND/OR 条件解析 | 36行为结局+10主线+隐藏+Meta打破 |
+| **NPC 系统** | 8人×5级信任×4层记忆 | 信任门控/腐蚀/救赎路线 |
 | **存档系统** | 6槽位+版本迁移 | P0-P5字段过滤/旧格式兼容 |
 | **UGC 系统** | 自定义事件导入 | Schema校验/IndexedDB存储 |
 | **AudioManager** | 53段音频管理 | 区域环境音(昼夜)/技能检定分级/SAN损失分层 |
 | **ErrorTracker** | 玩家操作追踪 | 自动记录每步 dispatch + state 快照 + 错误报告生成 |
+| **DevPanel** | 开发者调试面板 | F12/Ctrl+Shift+D 打开，4标签页，一键改状态/强制事件/性能监控 |
 
 ### UI 视觉设计
 
@@ -386,10 +418,19 @@ npm run dev
 
 # 生产构建 — 单文件 HTML（浏览器版 / Tauri 通用）
 npm run build
-# 输出：index.html (~1.1MB，完全离线可玩)
+# 输出：index.html（含 Babel ~5MB，安装 @babel/cli 后 ~4.3MB）
 
-# 验证构建产物
-node check_build.cjs
+# 生产构建（要求 Babel 编译成功，否则失败）
+python build.py --prod
+
+# 快速开发构建（跳过 Babel 编译）
+python build.py --dev
+
+# 包体积分析（按目录分类展示）
+python build.py --analyze
+
+# 验证当前 index.html
+python build.py --verify
 
 # Vite 构建（实验性）
 npm run build:vite
@@ -399,51 +440,34 @@ npm run build:vite
 npm run tauri build
 ```
 
-### 构建验证
-
-`check_build.cjs` 自动检查 10 项关键指标：
-
-```
-$ node check_build.cjs
-  ✅ index.html 大小 — 2.00 MB
-  ✅ const GD= — 出现 1 次
-  ✅ ErrorBoundary — 出现 6 次
-  ✅ getClueNameMap — 出现 2 次
-  ✅ audioManager — 出现 74 次
-  ✅ initialState — 出现 9 次
-  ✅ gameReducer — 出现 2 次
-  ✅ import 残留 — 未发现
-  ✅ export 残留 — 未发现
-  PASS: 10   FAIL: 0
-
-$ node check_build.cjs --dist   # 额外检查 dist/ 目录结构
-```
-
 ---
 
 ## 代码质量
 
-> 2026-05-31 ~ 06-01 四维度全面审查 + 复查结果（主循环/状态管理、事件系统、子系统集成、构建流程）
+> 2026-05-31 ~ 06-02 五维度全面审查 + 重构结果
 
-### 综合评分：**8.7 / 10**（初评 7.5 → 重构后 +1.2）
+### 综合评分：**9.0 / 10**（初评 7.5 → 重构后 +1.5）
 
 | 维度 | 初评 | 复评 | 重构后 | 状态 |
 |------|------|------|--------|------|
-| **主循环 & Reducer** | 6.5/10 | 8.2/10 | **8.8/10** | ✅ dailySlice REST 7 子函数；miscReducer 合并；6 slice handler |
-| **事件系统** | 7.5/10 | 8.0/10 | **8.5/10** | ✅ 章节懒加载；事件引擎完全独立 |
-| **子系统** | 7.0/10 | 8.2/10 | **8.5/10** | ✅ appHelpers 拆分(-60%)；NPC 信任门/记忆独立模块 |
-| **构建流程** | 8.0/10 | 8.3/10 | **9.0/10** | ✅ Vite HMR；CSS minify；terser；输出 1.14MB |
+| **主循环 & Reducer** | 6.5/10 | 8.2/10 | **9.0/10** | ✅ 6 slice handler + 引擎层独立 + 双 Store 架构 |
+| **事件系统** | 7.5/10 | 8.0/10 | **9.0/10** | ✅ EventEngine 统一三层加权选择，pure/commit 分离 |
+| **子系统** | 7.0/10 | 8.2/10 | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立 |
+| **构建流程** | 8.0/10 | 8.3/10 | **9.0/10** | ✅ --analyze/--dev/--prod 模式；CSS/JS minify |
+| **开发体验** | — | — | **9.0/10** | ✅ DevPanel(F12) + 双 Store 选择器钩子 + 性能监控 |
 
 ### 架构优势
 
-- ✅ **模块化彻底** — app.jsx 从 4600 行降至 322 行（-93%），提取 20+ 个独立模块
+- ✅ **引擎层独立** — `src/engine/` 4 个引擎模块（805 行），核心逻辑与 UI 完全解耦
+- ✅ **双 Store 架构** — `useGameStore`（游戏状态选择器）+ `useUiStore`（UI 状态），减少 prop drilling
+- ✅ **模块化彻底** — app.jsx 从 4600 行降至 319 行（-93%），提取 20+ 个独立模块
 - ✅ **Reducer 分层清晰** — 6 个 slice handler + 16 个领域 reducer，通过 `ctx` 共享 GD
-- ✅ **外部 UI Store** — Zustand-like 模式管理 UI 状态，减少 7 个 useState → 1 个 store
+- ✅ **三层事件调度** — EventEngine 实现里程碑/行为权重/冷却衰减/累积权重二分查找
 - ✅ **章节懒加载** — ch2+ 数据在 day5 加载，meta 在 day10 加载，减少初始负载
-- ✅ **CSS/JS minify** — 构建产物 1.14MB（从 2.00MB 优化 -43%）
-- ✅ **Vite 开发环境** — HMR 热更新 + 路径别名(@components 等)
+- ✅ **CSS/JS minify** — 构建产物支持 terser 压缩 + CSS minify
+- ✅ **Vite 开发环境** — HMR 热更新 + 路径别名(@engine/@state/@components 等)
 - ✅ **数据驱动设计** — 新增事件无需改 reducer 代码，只需添加 JSON 条目
-- ✅ **三层事件调度** — eventSystemV2.js 实现里程碑/行为权重/冷却衰减
+- ✅ **DevPanel 调试** — F12 一键打开，实时查看/修改游戏状态、事件权重、性能指标
 
 ### v0.1.1-post 修复记录
 
@@ -480,6 +504,7 @@ $ node check_build.cjs --dist   # 额外检查 dist/ 目录结构
 
 | 版本 | 日期 | 主要更新 |
 |------|------|---------|
+| **0.1.3** | 2026-06-02 | **状态管理极致拆分 + 引擎层独立** — `src/engine/` 4 个引擎模块（EventEngine/PollutionManager/WorldTimeSystem/SaveManager，805 行）；双 Store 架构（useGameStore + useUiStore）；DevPanel 开发者调试面板（F12/Ctrl+Shift+D，4 标签页）；build.py --analyze/--dev/--prod 模式；vite @engine 别名；app.jsx 319 行 |
 | **0.1.2** | 2026-06-01 | **大规模架构重构** — appHelpers.js 拆分(-60%)；dailySlice REST 7 子函数；GamePanels 组件拆分(NPCDialog/CitySketchMap)；miscReducer 合并(3→1)；Zustand-like 外部 UI Store；章节懒加载(day5/day10)；CSS minify(-6.8%)；Vite 开发环境(HMR+路径别名)；index.html 2.00→1.14MB(-43%) |
 | **0.1.1** | 2026-05-31 | Error Tracker 玩家操作追踪模块（可插拔设计，一行删除移除）；ErrorBoundary 升级（错误报告含最近30步操作回放+一键复制）；ops-log.cjs 开发日志工具；清理48个调试临时文件；四维度全面代码审查（7.5/10） |
 | **0.1.0** | 2026-05 | Tauri 桌面版打包；模块化重构(app.jsx 4600→2997行)；CLUE_NAME_MAP惰性修复；DESC时序修复；ErrorBoundary；循环数组截断；SkipPrologue保护；dev-server SPA fallback；DRY描述模板；构建自检脚本 |
