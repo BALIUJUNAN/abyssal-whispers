@@ -1,10 +1,12 @@
 // src/components/SanPollutionLayer.jsx - Unified SAN visual corruption layer
-// Three tiers: low(60-40), mid(39-20), extreme(<20)
-// Enhanced with intensity parameter (0-100) from settings
+// SSOT: tiers aligned with 6 san_stages from game_base.json
+//   stable [75,100]=clean | mild [55,74]=fogged | perception [40,54]=flickering
+//   explanation [25,39]=hostile | reality [10,24]=extreme | narrative [1,9]=extreme
 
 const { useEffect, useRef, useCallback, useState, memo } = React;
 
-const TIER = { LOW_MAX: 60, MID_MAX: 40, EXT_MAX: 20 };
+// SSOT: tier boundaries match san_stages ranges
+const TIER = { LOW_MAX: 75, MID_MAX: 40, EXT_MAX: 10 };
 const FPS_CAP = 15;
 const FRAME_MS = 1000 / FPS_CAP;
 const LERP = 0.06;
@@ -175,7 +177,8 @@ function CorruptibleChoice({ children, san, onClick, className, disabled }) {
   const hoverRef = useRef(false);
   const tickRef = useRef(null);
   const decayRef = useRef(null);
-  const active = san < 50 && !disabled;
+  // SSOT: activate below stable stage (mild_erosion and lower)
+  const active = san < 75 && !disabled;
 
   const startCorruption = useCallback(() => {
     if (!active) return;
@@ -254,7 +257,8 @@ function AbyssPopup({ san, onDismiss }) {
   const timerRef = useRef(null);
 
   useEffect(() => {
-    if (san >= 35 || !visible) { setVisible(false); return; }
+    // SSOT: abyss popup only at explanation_loss and below (level >= 3, SAN <= 39)
+    if (san >= 40 || !visible) { setVisible(false); return; }
     // Random interval: 60-120 seconds
     const schedule = () => {
       const delay = 60000 + Math.random() * 60000;
@@ -266,7 +270,7 @@ function AbyssPopup({ san, onDismiss }) {
     };
     schedule();
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [san < 35]);
+  }, [san < 40]); // SSOT: matches explanation_loss threshold
 
   if (!visible || !msg) return null;
   return <div className="abyss-popup" role="alert">

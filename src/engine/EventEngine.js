@@ -215,20 +215,26 @@ function getFearProfileMultiplier(evt, state) {
 
 /**
  * SAN-scaled weight: lower SAN boosts horror, higher SAN boosts buffer.
+ * SSOT: thresholds aligned with 6 san_stages from game_base.json.
+ *   stable [75,100] / mild [55,74] / perception [40,54] / explanation [25,39] / reality [10,24] / narrative [1,9]
  */
 function getSanWeightMultiplier(evt, state) {
   var san = state.san || 60;
   var isBuffer = evt.normalcy_anchor || false;
   if (isBuffer) {
-    if (san <= 25) return 0.6;
-    if (san <= 40) return 0.8;
-    if (san >= 60) return 1.3;
-    return 1.0;
+    if (san <= 9) return 0.4;      // narrative_death
+    if (san <= 24) return 0.6;     // reality_dissolution
+    if (san <= 39) return 0.7;     // explanation_loss
+    if (san <= 54) return 0.8;     // perception_shift
+    if (san >= 75) return 1.3;     // stable
+    return 1.0;                     // mild_erosion
   } else {
-    if (san <= 25) return 1.3;
-    if (san <= 40) return 1.15;
-    if (san >= 60) return 0.8;
-    return 1.0;
+    if (san <= 9) return 1.8;      // narrative_death
+    if (san <= 24) return 1.3;     // reality_dissolution
+    if (san <= 39) return 1.3;     // explanation_loss
+    if (san <= 54) return 1.15;    // perception_shift
+    if (san >= 75) return 0.8;     // stable
+    return 1.0;                     // mild_erosion
   }
 }
 

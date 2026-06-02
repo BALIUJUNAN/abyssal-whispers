@@ -122,7 +122,8 @@ function getCorruptedSystemText(baseText, layer){
 
 // === SAN破壁事件 (P1-3) ===
 function checkBreakWallEvent(state, narr){
-  if(state.san>=30)return;
+  // SSOT: only fires at reality_dissolution and below (level >= 4, SAN <= 24)
+  if(state.san>24)return;
   if(Math.random()>=0.10)return;
   const r=Math.random();
   audioManager.playEffect('wall_break');audioManager.playEffect('safehouse_wall');audioManager.playEffect('bell_wrong');
@@ -258,7 +259,8 @@ function App(){
   const handleLoadSlot=(loaded)=>{dispatch({type:'CONTINUE_GAME', savedState: loaded});notifySave('从存档中醒来','load');};
 
   // 结局CG预加载：SAN < 30 时静默预加载，暗示结局临近
-  useEffect(()=>{if(state.screen==='game'&&state.san<30)preloadEndingCGs();},[state.san,state.screen]);
+  // SSOT: preload ending CGs at explanation_loss and below (level >= 3, SAN <= 39)
+  useEffect(()=>{if(state.screen==='game'&&state.san<40)preloadEndingCGs();},[state.san,state.screen]);
 
   // Lazy-load ch2+ game data (web mode only — skipped if already merged at build time)
   // Chapter-gated: load ch2+ at day 5, meta at day 10 (reduces initial load)
@@ -295,7 +297,11 @@ function App(){
   const areas=GD.areas||GD.module2_areas||[];
   const visualDistortion=state.accessibilityOptions?.visual_distortion;
   const allowVisualFX=visualDistortion!==false;
-  const sanClass=allowVisualFX?(state.san<20?' san-fracture':state.san<40?' san-tremor':''):'';
+  // SSOT: CSS classes aligned with san_stages
+  //   san-tremor: explanation_loss [25,39] — text shakes
+  //   san-fracture: reality_dissolution [10,24] — extreme distortion
+  //   san-death: narrative_death [1,9] — maximum visual corruption
+  const sanClass=allowVisualFX?(state.san<10?' san-fracture san-death':state.san<25?' san-fracture':state.san<40?' san-tremor':''):'';
   return <>
     <DevPanel state={state} dispatch={dispatch}/>
     <SanPollutionLayer san={state.san} loopCount={state.loopCount} corruption={state.safehouseCorruption||0} enabled={state.screen==='game' && allowVisualFX} intensity={settings.visualPollution??50}/>

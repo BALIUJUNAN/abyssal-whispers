@@ -1,40 +1,55 @@
 // src/reducers/sanReducer.js - SAN loss processing, stages, madness
+// SSOT: All SAN stage thresholds come from GD.systems.sanity.san_stages (game_base.json).
+// Use getCurrentSanStage(san, ctx) to get the current stage for any SAN value.
 
 import { pick } from './utils.js';
 import { getSealState } from './worldReducer.js';
 
+// getCurrentSanStage() is defined in utils.js (SSOT) — loaded before this file.
+
 export function getSanStage(san, ctx) {
-  const { GD } = ctx;
-  const stageEffects = GD.systems?.sanity?.stage_effects || [];
-  // Text modifiers and colors per stage (preserved from original for UI display)
-  const stageMeta = {
-    '完全疯狂': { color: 'var(--danger2)', textMod: '你的视野在融化，墙壁在呼吸。一切都不是你认识的样子。' },
-    '濒临疯狂': { color: 'var(--danger)', textMod: '你的手在发抖。你不确定脚下是地面还是深渊。有人在你耳边低语——不，是很多人的声音，重叠在一起。' },
-    '动摇':    { color: 'var(--danger2)', textMod: '你的注意力难以集中。某些声音听起来像在叫你的名字。角落里的阴影似乎在移动。' },
-    '不安':    { color: 'var(--san-mid)', textMod: '你感到一阵轻微的不安。远处传来什么东西倒塌的声音，但你不确定是不是真的。' },
-    '理智':    { color: 'var(--san-high)', textMod: '' },
+  const stage = getCurrentSanStage(san, ctx);
+  // Backward-compatible UI colors
+  const colorMap = {
+    stable: 'var(--san-high)', mild_erosion: 'var(--san-high)',
+    perception_shift: 'var(--san-mid)', explanation_loss: 'var(--danger2)',
+    reality_dissolution: 'var(--danger)', narrative_death: 'var(--danger2)',
+    death: 'var(--danger2)'
   };
-  // Default fallback
-  let matched = { name: '理智', ap_modifier: 0, special_effects: [], description: '' };
-  for (const stage of stageEffects) {
-    if (san >= stage.range[0] && san <= stage.range[1]) { matched = stage; break; }
-  }
-  const meta = stageMeta[matched.name] || stageMeta['理智'];
-  return { id: matched.name, name: matched.name, color: meta.color, apMod: matched.ap_modifier, textMod: meta.textMod, desc: matched.description, special_effects: matched.special_effects || [] };
+  const textModMap = {
+    stable: '', mild_erosion: '',
+    perception_shift: '你感到一阵轻微的不安。远处传来什么东西倒塌的声音。',
+    explanation_loss: '你的注意力难以集中。某些声音听起来像在叫你的名字。角落里的阴影似乎在移动。',
+    reality_dissolution: '你的手在发抖。你不确定脚下是地面还是深渊。有人在你耳边低语——不，是很多人的声音，重叠在一起。',
+    narrative_death: '你的视野在融化，墙壁在呼吸。一切都不是你认识的样子。',
+    death: ''
+  };
+  return {
+    id: stage.id, name: stage.name,
+    color: colorMap[stage.id] || 'var(--san-high)',
+    apMod: stage.ap_modifier || 0,
+    textMod: textModMap[stage.id] || '',
+    desc: stage.description || '',
+    special_effects: stage.pollution_effects || [],
+    level: stage.level || 0,
+    visual_tier: stage.visual_tier || 'clean',
+    event_weight: stage.event_weight || { buffer_boost: 1.0, horror_penalty: 1.0 }
+  };
 }
 
 export function getSanTextVariant(baseText, san, pickFn, ctx) {
   const stage = getSanStage(san, ctx || { GD: {} });
   if (!stage.textMod) return baseText;
-  if (stage.id === '完全疯狂') {
+  // Use stage.level instead of hardcoded name checks
+  if (stage.level >= 5) { // narrative_death
     const words = baseText.split('');
     const corrupted = words.map((c, i) => Math.random() < 0.03 ? (pickFn || pick)(['▓', '█', '■', '?', '...', '　']) : c).join('');
     return corrupted + '\n\n—— ' + stage.textMod;
   }
-  if (stage.id === '濒临疯狂') {
+  if (stage.level >= 4) { // reality_dissolution
     return baseText + (Math.random() < 0.4 ? '\n\n' + stage.textMod : '');
   }
-  if (stage.id === '动摇') {
+  if (stage.level >= 3) { // explanation_loss
     return baseText + (Math.random() < 0.2 ? '\n\n—— 你眨了眨眼。' + stage.textMod : '');
   }
   return baseText;
@@ -44,9 +59,11 @@ export function getSanSceneVariant(sceneKey, san, ctx) {
   const { GD } = ctx;
   const variants = GD.implementation_notes?.san_text_variants?.variants?.[sceneKey];
   if (!variants) return null;
-  if (san <= 30) return variants.san_low || variants.normal_text;
-  if (san <= 50) return variants.san_mid || variants.normal_text;
-  if (san <= 70) return variants.subtle_wrong_text || variants.normal_text;
+  // Use stage level for variant selection
+  const stage = getCurrentSanStage(san, ctx);
+  if (stage.level >= 4) return variants.san_low || variants.normal_text;   // reality_dissolution
+  if (stage.level >= 3) return variants.san_mid || variants.normal_text;   // explanation_loss
+  if (stage.level >= 2) return variants.subtle_wrong_text || variants.normal_text; // perception_shift
   return variants.san_high || variants.normal_text;
 }
 
