@@ -36,6 +36,7 @@ export default defineConfig({
       '@data': resolve(__dirname, 'src/data'),
       '@managers': resolve(__dirname, 'src/managers'),
       '@state': resolve(__dirname, 'src/state'),
+      '@engine': resolve(__dirname, 'src/engine'),
     },
   },
   define: {

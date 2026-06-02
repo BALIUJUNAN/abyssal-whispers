@@ -48,19 +48,18 @@ REDUCER_FILES = [
     'portraitMap.js',
     'components/ErrorBoundary.jsx',
     'reducers/utils.js',
-    'reducers/worldReducer.js',
+    # ── Engine Layer (consolidated core systems) ──
+    # engine/WorldTimeSystem.js replaces reducers/worldReducer.js
+    'engine/WorldTimeSystem.js',
     'reducers/sanReducer.js',
-    # Phase 4: Three-layer event selection (must precede extendedEvents.js)
-    # DEPENDENCY: extendedEvents.js calls getCooldownDecayFactor, getBehaviorWeightMultiplier,
-    #   getFearProfileMultiplier, getSanWeightMultiplier, getAreaCorruptionMultiplier
-    #   via typeof guards — they must be defined before extendedEvents.js is parsed.
-    'systems/eventSystemV2.js',
+    # engine/EventEngine.js replaces systems/eventSystemV2.js (3-layer weighted selection)
+    'engine/EventEngine.js',
     # Phase 5: World decay and corruption advancement
     'systems/worldDecay.js',
     # Phase 6: Resource-narrative binding + safehouse visual stages
-    # DEPENDENCY: extendedEvents.js calls getResourceEventWeightModifier via typeof guard
-    #   — must precede extendedEvents.js (line 65).
     'systems/resourceNarrative.js',
+    # engine/PollutionManager.js replaces systems/logicCorruption.js (SAN + logic corruption)
+    'engine/PollutionManager.js',
     # Meta-layer corruption (false events, false logs, save name pollution)
     'systems/metaCorruption.js',
     # Phase 7: NPC multi-version dialogue + loop inheritance
@@ -95,7 +94,8 @@ REDUCER_FILES = [
     'reducers/endingReducer.js',
     'reducers/objectiveReducer.js',
     'reducers/saveMigration.js',
-    'reducers/saveReducer.js',
+    # engine/SaveManager.js replaces reducers/saveReducer.js (save system)
+    'engine/SaveManager.js',
     'reducers/achievementReducer.js',
     'reducers/loopReducer.js',
     'reducers/chapterReducer.js',
@@ -108,7 +108,7 @@ REDUCER_FILES = [
     'systems/fearLens.js',
     # Phase 3: SAN visual + logic corruption
     'systems/sanVisualCorruption.js',
-    'systems/logicCorruption.js',
+    # logicCorruption.js moved to engine/PollutionManager.js (loaded earlier)
     'reducers/prologueReducer.js',
     # Audio system
     'managers/AudioManager.js',
@@ -120,6 +120,9 @@ REDUCER_FILES = [
     'utils/uiStore.js',             # External UI store (Zustand-like pattern)
     'utils/errorTracker.js',  # Error tracker for player operation logging & bug reports
     'state/initialState.js',
+    # ── Dual Store Architecture ──
+    'state/uiStore.js',             # useUiStore — migrated from utils/uiStore.js (re-export)
+    'state/gameStore.js',           # useGameStore — game state bridge (selector hooks)
     # Phase 2: App-level helper functions extracted from app.jsx
     'utils/appHelpers.js',
     # Phase 3: GameReducer slice handlers (extracted from app.jsx)
@@ -143,6 +146,8 @@ REDUCER_FILES = [
     'components/AppToast.jsx',
     # UGC UI component
     'components/UgcImportExport.jsx',
+    # ── Dev Panel (debug tools) ──
+    'components/ui/DevPanel.jsx',    # F12 / Ctrl+Shift+D debug panel
 ]
 
 
@@ -603,7 +608,6 @@ if __name__ == '__main__':
         ok = test_strip_es_modules()
         sys.exit(0 if ok else 1)
     if '--verify' in sys.argv:
-        # Quick check: does current index.html include Babel standalone?
         html = read_file(OUTPUT)
         has_babel = 'babel.min.js' in html or 'text/babel' in html
         size = os.path.getsize(OUTPUT)
@@ -613,7 +617,30 @@ if __name__ == '__main__':
         else:
             print('[OK] No Babel standalone in output (production build)')
         sys.exit(0)
-    use_babel = '--no-babel' not in sys.argv
+    if '--analyze' in sys.argv:
+        # Bundle analysis: show file sizes by category
+        print("=== Bundle Analysis ===")
+        categories = {}
+        for fname in REDUCER_FILES:
+            path = os.path.join(SRC, fname)
+            if os.path.exists(path):
+                size = os.path.getsize(path)
+                cat = fname.split('/')[0] if '/' in fname else 'root'
+                if cat not in categories: categories[cat] = []
+                categories[cat].append((fname, size))
+        for cat in sorted(categories):
+            total = sum(s for _, s in categories[cat])
+            print(f"\n  [{cat}] {total:,} bytes ({total/1024:.1f} KB)")
+            for fname, size in sorted(categories[cat], key=lambda x: -x[1]):
+                print(f"    {fname:50s} {size:>8,} bytes")
+        # app.jsx
+        jsx_size = os.path.getsize(JSX_PATH)
+        css_size = os.path.getsize(CSS_PATH)
+        print(f"\n  [main] app.jsx: {jsx_size:,} bytes | styles.css: {css_size:,} bytes")
+        print(f"\n  Total source: {sum(sum(s for _,s in v) for v in categories.values())+jsx_size+css_size:,} bytes")
+        sys.exit(0)
+    # --dev: skip minification, keep Babel standalone for faster builds
+    use_babel = '--no-babel' not in sys.argv and '--dev' not in sys.argv
     prod_require_compiled = '--prod' in sys.argv
     build(use_babel)
     if prod_require_compiled:

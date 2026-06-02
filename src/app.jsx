@@ -218,6 +218,9 @@ function App(){
     errorTracker.record(action, stateRef.current);
     return rawDispatch(action);
   }, []);
+  // Dual store: initialize game store bridge for useGameStore/useSan/useDay selectors
+  useEffect(function() { initGameStore(state, dispatch); }, []);
+  updateGameStore(state);
   // UI state from external store (replaces 7 useState calls)
   const ui = uiStore();
   const settings = ui.settings || getSettings();
@@ -294,6 +297,7 @@ function App(){
   const allowVisualFX=visualDistortion!==false;
   const sanClass=allowVisualFX?(state.san<20?' san-fracture':state.san<40?' san-tremor':''):'';
   return <>
+    <DevPanel state={state} dispatch={dispatch}/>
     <SanPollutionLayer san={state.san} loopCount={state.loopCount} corruption={state.safehouseCorruption||0} enabled={state.screen==='game' && allowVisualFX} intensity={settings.visualPollution??50}/>
     <AbyssPopup san={state.san}/>
     <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+' '+fontSizeClass}>
