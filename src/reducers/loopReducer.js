@@ -84,14 +84,25 @@ export function initLoopState(f, s, ctx, options = {}) {
   }
 
   // Phase 7: Loop inheritance costs — knowledge comes with a price
-  // SAN max permanent decrease: -2 per loop after loop 5
-  if (f.loopCount >= 5) {
-    var sanCapCost = Math.min(20, (f.loopCount - 4) * 2);
-    f.maxSan = Math.max(20, f.maxSan - sanCapCost);
-    f.san = Math.min(f.san, f.maxSan);
+  // §2.2 rebalance: SAN floor = 60 for loops 4-5, fixed 50 at loop 10+
+  // Loops 2-3: -5/loop (same as before)
+  // Loops 4-5: -3/loop, floor 60
+  // Loops 6-9: no further SAN reduction, pollution replaces penalty
+  // Loop 10+: SAN cap fixed at 50
+  if (f.loopCount >= 10) {
+    f.maxSan = Math.max(50, f.maxSan);
+    f.maxSan = Math.min(f.maxSan, 50); // pin to 50
+  } else if (f.loopCount >= 6) {
+    // No additional SAN cap reduction — pollution takes over
+    f.maxSan = Math.max(60, f.maxSan);
+  } else if (f.loopCount >= 4) {
+    // Floor at 60
+    f.maxSan = Math.max(60, f.maxSan);
   }
-  // Pollution increases with each loop
-  f.pollution = Math.min(1, (f.pollution || 0) + 0.05 * f.loopCount);
+  f.san = Math.min(f.san, f.maxSan);
+  // Pollution increases with each loop (§2.2: replaces SAN penalty at high loops)
+  var pollutionRate = f.loopCount >= 6 ? 0.08 : 0.05;
+  f.pollution = Math.min(1, (f.pollution || 0) + pollutionRate * f.loopCount);
   // NPC trust decay: NPCs become wary of returning players
   if (f.loopCount >= 3) {
     var trustDecay = Math.min(2, Math.floor(f.loopCount / 3));
@@ -115,7 +126,9 @@ export function initLoopState(f, s, ctx, options = {}) {
     const rules = GD.systems?.loop?.pollution_rules || [];
     rules.forEach(rule => {
       if (rule.cumulative && rule.id === 'pollution_san_cap') {
-        f.maxSan = Math.max(10, f.maxSan - 5);
+        // §2.2: pollution SAN cap respects loop-based floor
+        var sanFloor = f.loopCount >= 10 ? 50 : f.loopCount >= 4 ? 60 : 20;
+        f.maxSan = Math.max(sanFloor, f.maxSan - 5);
         f.san    = Math.min(f.san, f.maxSan);
       }
     });
@@ -133,6 +146,17 @@ export function initLoopState(f, s, ctx, options = {}) {
   f.retainedKnowledge    = [...(s.retainedKnowledge || [])];
   f.discoveredConclusions = [...(s.discoveredConclusions || [])];
   f.humanityScore        = s.humanityScore ?? 50;
+
+  // ── 6b) 结局代币 & 轮回商店（§2.4） ──
+  f.endingCoins = s.endingCoins || 0;
+  // Earn 1 coin per ending reached
+  if (s.ending?.id) {
+    f.endingCoins = (f.endingCoins || 0) + 1;
+  }
+  // Loop shop tier carry-over (unlock at loop 5+)
+  f.loopShopTier = s.loopShopTier || 0;
+  if (f.loopCount >= 5 && f.loopShopTier < 1) f.loopShopTier = 1;
+  if (f.loopCount >= 7 && f.loopShopTier < 2) f.loopShopTier = 2;
 
   // ── 7) 行为结局计数器全量搬入（behaviorTracking 嵌套结构） ──
   const sBT = s.behaviorTracking || {};
@@ -172,6 +196,11 @@ export function initLoopState(f, s, ctx, options = {}) {
 
   // ── 10) 神秘学衰减 ──
   f.mythosLevel = Math.max(0, (s.mythosLevel || 0) - 2);
+
+  // ── 10b) NPC关系网跨循环保留（§1.2） ──
+  f.npcRelations = { ...(s.npcRelations || {}) };
+  // §3.3: NPC trust lock 跨循环保留
+  f._npcTrustLocked = { ...(s._npcTrustLocked || {}) };
 
   // ── 11) NPC 信任回响（知识效应） ──
   if (f.retainedKnowledge.includes('knowledge_npc_trust_shadow')) {

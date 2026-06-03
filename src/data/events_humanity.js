@@ -6,7 +6,7 @@ export const events = [
   // =============================================
   {
     id: "humanity_good_001", name: "渔夫的馈赠", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "harbor", "reward"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "harbor", "reward"],
     trigger: { areas: ["harbor_district"], humanity_min: 70, probability: 0.25, once_per_run: true },
     description: "一个老渔夫看到你，沉默地递过来一个布包。\n里面是两条干鱼和一小瓶灯油。\n「你帮过我孙女，」他说，「这些东西不值钱。但在雾港，不值钱的东西有时候能救命。」\n他没有说更多。转身继续补网。",
     effects: { food: 2, modify_resource: { resource: "light", amount: 1 }, add_run_memory: { text: "渔夫送了你一些补给。" } },
@@ -15,7 +15,7 @@ export const events = [
   },
   {
     id: "humanity_good_002", name: "孩子的消息", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "town", "info"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "town", "info"],
     trigger: { areas: ["town_center"], humanity_min: 70, probability: 0.2, once_per_run: true },
     description: "一个孩子跑过来，塞给你一张纸条就跑了。\n纸条上写着歪歪扭扭的字：「汤米叔叔说你是个好人。仓库后面有暗门。」\n你认出了这是汤米的笔迹。孩子是他派来的。",
     effects: { add_clue: "clue_humanity_child_message" },
@@ -24,7 +24,7 @@ export const events = [
   },
   {
     id: "humanity_good_003", name: "玛莎的热汤", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "harbor", "food"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "harbor", "food"],
     trigger: { areas: ["harbor_district"], humanity_min: 70, probability: 0.2, once_per_run: true, npc_alive: ["玛莎·格雷"] },
     description: "玛莎看到你走进酒吧，没有多问，端了一碗热汤放在你面前。\n「别说话，先喝。」\n汤是热的，有鱼和土豆。你喝下去的时候感到一股暖意从胃里扩散开来。\n「你最近看起来不太好，」她说，「雾港的人不欠谁的。但你例外。」",
     effects: { food: 1, san: 2, add_run_memory: { text: "玛莎给你盛了一碗热汤。" } },
@@ -33,7 +33,7 @@ export const events = [
   },
   {
     id: "humanity_good_004", name: "守夜人的护符", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "town", "item"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "town", "item"],
     trigger: { areas: ["town_center"], humanity_min: 75, probability: 0.15, once_per_run: true },
     description: "一个你不认识的老人拦住了你。他从口袋里掏出一个小小的布袋。\n「你帮过我儿子，」他说，「这是他留下的。」\n布袋里是一枚铜质护符，上面刻着一个你不认识的符号。\n「他说能保平安。我不知道。但你比我更需要它。」\n他走了，没有回头。",
     effects: { add_item: { item_id: "copper_charm", name: "铜质护符", uses: 1 }, add_run_memory: { text: "陌生人送了你一枚护符。" } },
@@ -42,7 +42,7 @@ export const events = [
   },
   {
     id: "humanity_good_005", name: "教堂的庇护", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "church", "san"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "church", "san"],
     trigger: { areas: ["town_center"], humanity_min: 70, probability: 0.2, once_per_run: true },
     description: "你走进教堂。伊莎贝拉看到你，微微点头。\n「你可以在祷告室休息一会儿，」她说，「这里的东西进不来。」\n你在祷告室坐了一会儿。周围很安静。风琴声从远处传来，轻柔得像一首摇篮曲。\n你感到紧绷的神经松了一些。",
     effects: { san: 3, add_run_memory: { text: "在教堂得到了短暂的庇护。" } },
@@ -51,7 +51,7 @@ export const events = [
   },
   {
     id: "humanity_good_006", name: "隐藏的补给", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "safehouse", "food"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "safehouse", "food"],
     trigger: { areas: ["town_center"], humanity_min: 70, probability: 0.2, once_per_run: true },
     description: "你回到安全屋。门口放着一个包裹。\n里面是食物和一小瓶药。没有字条。\n你看了看包裹的布——是码头常用的防水帆布。\n你大概知道是谁放的了。",
     effects: { food: 2, hp: 1, add_run_memory: { text: "有人在安全屋门口留了补给。" } },
@@ -60,7 +60,7 @@ export const events = [
   },
   {
     id: "humanity_good_007", name: "汤米的特殊冲洗", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "town", "photo"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "town", "photo"],
     trigger: { areas: ["town_center"], humanity_min: 75, probability: 0.15, once_per_run: true, npc_alive: ["汤米·陈"] },
     description: "汤米叫住了你。「等等，我有东西给你。」\n他从暗房里取出一张照片。照片上是沃切斯特的全景，但角度很特殊——从高处俯拍。\n「我冲洗的时候发现了这张。不是我拍的。不知道什么时候混进来的。」\n照片的角落里有一个模糊的身影，站在灯塔的顶部。",
     effects: { add_clue: "clue_humanity_tommy_photo", add_run_memory: { text: "汤米给你冲洗了一张意外的照片。" } },
@@ -69,7 +69,7 @@ export const events = [
   },
   {
     id: "humanity_good_008", name: "码头工人的帮助", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "harbor", "info"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "harbor", "info"],
     trigger: { areas: ["harbor_district"], humanity_min: 70, probability: 0.2, once_per_run: true },
     description: "一个码头工人朝你招手。「嘿，你。」\n他压低声音：「最近有个怪事。每天半夜三点，有艘船会靠岸。没有灯。船上的人搬东西到仓库里。」\n他看了看四周。\n「我不知道那是什么。但你如果要查，仓库的侧门没锁。」\n他走了。你注意到他的手在发抖。",
     effects: { add_clue: "clue_humanity_docker_tip" },
@@ -78,7 +78,7 @@ export const events = [
   },
   {
     id: "humanity_good_009", name: "伊莱亚斯的赠书", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "town", "book"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "town", "book"],
     trigger: { areas: ["town_center"], humanity_min: 80, probability: 0.15, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
     description: "伊莱亚斯递给你一本旧书。\n「你让我想起了年轻时的自己，」他说，「这本书也许对你有用。」\n书的封面上写着《沿海城镇民俗志》。你翻了几页，里面有关于沃切斯特的章节。\n「注意第七章，」伊莱亚斯说，「关于灯塔的部分。我当年读的时候觉得是胡说八道。现在不确定了。」",
     effects: { add_item: { item_id: "folklore_book", name: "沿海城镇民俗志", uses: 1 }, add_clue: "clue_humanity_elias_book" },
@@ -87,7 +87,7 @@ export const events = [
   },
   {
     id: "humanity_good_010", name: "陌生人的庇护", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "town", "shelter"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "town", "shelter"],
     trigger: { areas: ["town_center"], humanity_min: 75, probability: 0.15, once_per_run: true },
     description: "天色已晚。你还在街上。\n一个女人从窗户里探出头来。「你，进来吧。外面不安全。」\n她让你在客厅的沙发上过了一夜。没有多问什么。\n第二天早上，桌上放着一杯热咖啡和一块面包。\n「走的时候把门带上，」她的声音从厨房传来，「别让人看到你从这里出去。」",
     effects: { food: 1, san: 2 },
@@ -96,7 +96,7 @@ export const events = [
   },
   {
     id: "humanity_good_011", name: "老费舍的航路", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "harbor", "escape"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "harbor", "escape"],
     trigger: { areas: ["harbor_district"], humanity_min: 80, probability: 0.12, once_per_run: true, npc_alive: ["老费舍"], npc_trust_gte: { "老费舍": 3 } },
     description: "老费舍把你拉到一边。「你帮过我。我告诉你一件事。」\n他指着海面。「每个月的十五号，有一艘船会经过。不在港口停。但如果你在礁石上点灯，它会靠过来。」\n他看着你。\n「费用是——你知道的。那个东西。」\n他指的是封印碎片。你知道。",
     effects: { add_clue: "clue_humanity_fisher_boat", add_run_memory: { text: "老费舍告诉了你一条秘密航路。" } },
@@ -105,7 +105,7 @@ export const events = [
   },
   {
     id: "humanity_good_012", name: "集体的沉默", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "town", "protection"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "town", "protection"],
     trigger: { areas: ["town_center"], humanity_min: 85, probability: 0.1, once_per_run: true },
     description: "你走进杂货店。店主看了你一眼，然后看了看门外。\n他什么也没说，只是把一个包裹推到你面前。\n你打开——是一些食物和药品。\n「别问，」他说，「我们都知道你是来帮我们的。」\n你注意到店里的其他客人也都在看着你。不是警惕的目光——是某种沉默的感激。",
     effects: { food: 2, hp: 2, add_run_memory: { text: "镇民集体为你提供了补给。" } },
@@ -114,7 +114,7 @@ export const events = [
   },
   {
     id: "humanity_good_013", name: "孩子的画", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "town", "art"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "town", "art"],
     trigger: { areas: ["town_center"], humanity_min: 70, probability: 0.15, once_per_run: true },
     description: "一个孩子追上你，递给你一张纸就跑了。\n纸上是一幅蜡笔画。画的是一个人站在雾里，手里拿着一盏灯。\n画的背面写着歪歪扭扭的字：「谢谢你帮妈妈修屋顶。」\n你把画折好放进口袋。它让你想起了你来这里的目的——不全是为了调查。",
     effects: { san: 2, add_run_memory: { text: "收到一幅孩子的画。" } },
@@ -123,7 +123,7 @@ export const events = [
   },
   {
     id: "humanity_good_014", name: "伊莎贝拉的祈福", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "church", "blessing"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "church", "blessing"],
     trigger: { areas: ["town_center"], humanity_min: 80, probability: 0.1, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯"] },
     description: "伊莎贝拉叫住你。「等等。」\n她在你面前念了一段简短的祈祷词。你感到一阵暖意从头顶蔓延到脚底。\n「这是圣克里斯托弗的祝福，」她说，「保护旅行者的。\n」我不知道你经历了什么。但你的眼睛还很清澈。这在沃切斯特很罕见。「",
     effects: { san: 3, add_run_memory: { text: "伊莎贝拉为你祈福。" } },
@@ -132,7 +132,7 @@ export const events = [
   },
   {
     id: "humanity_good_015", name: "希尔达的线索", type: "humanity", subtype: "good_return",
-    weight: 1, tier: "normal", tags: ["humanity", "good", "manor", "clue"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "good", "manor", "clue"],
     trigger: { areas: ["voxchester_manor"], humanity_min: 75, probability: 0.15, once_per_run: true, npc_alive: ["希尔达·莫里斯"] },
     description: "希尔达在庄园门口等你。「你对我很好，」她说，「所以我告诉你一些事。」\n她递给你一把小钥匙。「这是地下室的钥匙。不是主地下室——是侧翼的那个。」\n她停顿了一下。\n「我祖父在那里面藏了东西。关于封印的东西。我不敢去看。但你可以。」\n钥匙很旧，但保养得很好。",
     effects: { add_item: { item_id: "side_basement_key", name: "侧翼地下室钥匙", uses: 1 }, add_clue: "clue_humanity_hilda_key" },
@@ -145,7 +145,7 @@ export const events = [
   // =============================================
   {
     id: "humanity_bad_001", name: "涨价", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "price"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "price"],
     trigger: { areas: ["town_center"], humanity_max: 30, probability: 0.3, once_per_run: true },
     description: "你走进杂货店。店主看到你，脸色变了。\n「东西涨价了，」他说，语气冰冷。\n你问为什么。\n「因为你。你做的那些事，镇上的人都知道。」\n他没有看你。「要么付双倍，要么走。」",
     effects: { food: -1, add_run_memory: { text: "镇民因为你的恶行拒绝正常交易。" } },
@@ -154,7 +154,7 @@ export const events = [
   },
   {
     id: "humanity_bad_002", name: "拒绝入内", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "church", "rejection"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "church", "rejection"],
     trigger: { areas: ["town_center"], humanity_max: 25, probability: 0.25, once_per_run: true },
     description: "你走到教堂门口。门从里面锁上了。\n你敲了敲门。伊莎贝拉的声音从里面传来：\n「你不适合待在这里。走吧。」\n你问为什么。\n「你自己清楚。教堂是给有需要的人的。你已经不是了。」\n你听到脚步声远去了。",
     effects: { san: -1, add_run_memory: { text: "教堂拒绝你进入。" } },
@@ -163,7 +163,7 @@ export const events = [
   },
   {
     id: "humanity_bad_003", name: "儿童投石", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "violence"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "violence"],
     trigger: { areas: ["town_center"], humanity_max: 20, probability: 0.2, once_per_run: true },
     description: "一块石头砸中了你的后脑。\n你转过身。三个孩子站在街角，手里还握着石头。\n「怪物！」他们喊道，「离开我们的城市！」\n又一块石头飞过来，砸中了你的肩膀。\n大人们站在旁边看着。没有人阻止。\n没有人。",
     effects: { hp: -1, san: -1, add_run_memory: { text: "镇上的孩子向你投掷石块。" } },
@@ -172,7 +172,7 @@ export const events = [
   },
   {
     id: "humanity_bad_004", name: "汤米的回避", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "npc"],
     trigger: { areas: ["town_center"], humanity_max: 30, probability: 0.2, once_per_run: true, npc_alive: ["汤米·陈"] },
     description: "你走进汤米的店铺。他看到你时，手指不自觉地握紧了柜台边缘。\n「有什么事？」他问，声音比平时高了一个调。\n你还没开口，他就说：「我今天很忙。改天再来。」\n你注意到他的另一只手在柜台下面——你猜是握着什么东西。",
     effects: { npc_trust: { "汤米·陈": -1 } },
@@ -181,7 +181,7 @@ export const events = [
   },
   {
     id: "humanity_bad_005", name: "玛莎的沉默", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "harbor", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "harbor", "npc"],
     trigger: { areas: ["harbor_district"], humanity_max: 25, probability: 0.2, once_per_run: true, npc_alive: ["玛莎·格雷"] },
     description: "你走进酒吧。玛莎看到你，停止了和客人的交谈。\n酒吧里安静了下来。所有人都在看你。\n玛莎慢慢擦着杯子，没有说话。\n你走到吧台前。她把杯子放下，转身走进了后厨。\n没有人来招呼你。你待了一会儿，走了。",
     effects: { npc_trust: { "玛莎·格雷": -1 }, add_run_memory: { text: "酒吧里的人集体回避你。" } },
@@ -190,7 +190,7 @@ export const events = [
   },
   {
     id: "humanity_bad_006", name: "被跟踪", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "danger"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "danger"],
     trigger: { areas: ["town_center", "harbor_district"], humanity_max: 20, probability: 0.2, once_per_run: true },
     description: "你注意到身后有脚步声。你走快，脚步声也快。你转弯，脚步声也转弯。\n你突然停下来转头。一个男人站在巷口，看到你转身，立刻缩了回去。\n你认出了他——是镇上的一个居民。上次你见到他时，你做了……\n你不想回忆那件事。\n他手里握着什么东西。在月光下闪了一下。是刀。",
     effects: { san: -2, add_run_memory: { text: "有人在跟踪你。手里拿着刀。" } },
@@ -199,7 +199,7 @@ export const events = [
   },
   {
     id: "humanity_bad_007", name: "锁上的门", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "safehouse", "danger"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "safehouse", "danger"],
     trigger: { areas: ["town_center"], humanity_max: 20, probability: 0.2, once_per_run: true },
     description: "你回到安全屋。门被从外面锁上了。\n你用力推了推。推不开。\n门上贴着一张纸条：「我们知道你做了什么。滚出沃切斯特。」\n纸条是用红墨水写的。或者是别的什么。\n你绕到后面。后门也被锁了。你只好翻窗进去。\n屋里的东西被动过了。有人翻过你的物品。",
     effects: { safehouseCorruption: 10, san: -1, add_run_memory: { text: "安全屋被人从外面锁上。" } },
@@ -208,7 +208,7 @@ export const events = [
   },
   {
     id: "humanity_bad_008", name: "伊莱亚斯的警告", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "npc"],
     trigger: { areas: ["town_center"], humanity_max: 25, probability: 0.2, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
     description: "伊莱亚斯拦住了你。他的表情很严肃。\n「我听说了你做的事，」他说，「我不知道全部真相。但你变了。」\n他看着你的眼睛。\n「你来的时候，眼里有光。现在没有了。\n」沃切斯特会改变每一个人。但有些人改变得太多了。我不希望你是其中之一。「\n他走了。你注意到他手里握着一本圣经。他以前从不带这个。",
     effects: { san: -1, add_run_memory: { text: "伊莱亚斯警告你正在堕落。" } },
@@ -217,7 +217,7 @@ export const events = [
   },
   {
     id: "humanity_bad_009", name: "拒绝交易", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "trade"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "trade"],
     trigger: { areas: ["town_center"], humanity_max: 20, probability: 0.25, once_per_run: true },
     description: "你需要买一些补给。你走进商店。\n店主看到你，摇了摇头。\n「不卖。」\n你问为什么。\n「你知道为什么。你的钱在这里不好使。」\n你想争辩，但看到他的眼神。是恐惧。也是厌恶。\n你走了。街上的人给你让出了比平时更宽的距离。",
     effects: { add_run_memory: { text: "商店拒绝卖东西给你。" } },
@@ -226,7 +226,7 @@ export const events = [
   },
   {
     id: "humanity_bad_010", name: "被举报", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "danger"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "danger"],
     trigger: { areas: ["town_center"], humanity_max: 15, probability: 0.15, once_per_run: true },
     description: "你听到远处有脚步声。很多人。\n你转过街角，看到三个男人朝你的方向走来。其中一个手里拿着猎枪。\n你认出了他们——镇上的居民。其中一个你对他做过……\n你转身就跑。身后传来喊声：「他在那里！」\n你跑了很久才甩掉他们。你的手在发抖。",
     effects: { san: -2, add_run_memory: { text: "镇民试图围捕你。" } },
@@ -235,7 +235,7 @@ export const events = [
   },
   {
     id: "humanity_bad_011", name: "恶意的涂鸦", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "vandalism"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "vandalism"],
     trigger: { areas: ["town_center"], humanity_max: 25, probability: 0.2, once_per_run: true },
     description: "你回到安全屋。门上被涂了字。\n红漆写着：「凶手。」\n你试图擦掉。擦不掉。漆已经干了。\n你看了看四周。邻居的窗户里有人在看你。看到你的目光，窗帘立刻拉上了。\n你进了屋。桌上放着一只死鸟。脖子被拧断了。",
     effects: { san: -2, safehouseCorruption: 5, add_run_memory: { text: "安全屋被涂上了侮辱性的文字。" } },
@@ -244,7 +244,7 @@ export const events = [
   },
   {
     id: "humanity_bad_012", name: "被孤立", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "isolation"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "isolation"],
     trigger: { areas: ["town_center"], humanity_max: 20, probability: 0.2, once_per_run: true },
     description: "你走进酒吧。酒吧里有十几个人。\n你走到吧台。玛莎看了你一眼，继续擦杯子。\n你等了一会儿。没有人来招呼你。\n你环顾四周。所有人都在做自己的事——喝酒、聊天、打牌。但没有一个人的目光和你对上。\n你就像一个透明人。\n你坐了十分钟。走了。没有人看你离开。",
     effects: { san: -2, add_run_memory: { text: "你被彻底孤立了。" } },
@@ -253,7 +253,7 @@ export const events = [
   },
   {
     id: "humanity_bad_013", name: "老费舍的沉默", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "harbor", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "harbor", "npc"],
     trigger: { areas: ["harbor_district"], humanity_max: 25, probability: 0.2, once_per_run: true, npc_alive: ["老费舍"] },
     description: "你走到老费舍旁边坐下。他没有看你。\n你叫他的名字。他没有回应。\n你又叫了一次。他慢慢站起来，收起了渔网，走了。\n从头到尾没有看你一眼。\n你坐在码头边，看着海面。海面很平静。但你知道水下面有什么东西在看着你。",
     effects: { npc_trust: { "老费舍": -1 }, add_run_memory: { text: "老费舍完全无视了你。" } },
@@ -262,7 +262,7 @@ export const events = [
   },
   {
     id: "humanity_bad_014", name: "埃德加的质问", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "town", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "town", "npc"],
     trigger: { areas: ["town_center"], humanity_max: 25, probability: 0.15, once_per_run: true, npc_alive: ["埃德加·洛夫克拉夫特"] },
     description: "埃德加站在你面前。他没有拿出笔记本。\n「我本来想把你的故事写成小说，」他说，「但我现在不想了。」\n你问他为什么。\n「因为你变成了一个我写不出来的人物。没有动机，没有挣扎，只有——」\n他停住了。\n「只有本能。那不是故事。那是事故。」\n他走了。你注意到他的手在发抖。",
     effects: { san: -1, add_run_memory: { text: "埃德加说你不再是一个值得书写的人。" } },
@@ -271,7 +271,7 @@ export const events = [
   },
   {
     id: "humanity_bad_015", name: "希尔达的恐惧", type: "humanity", subtype: "bad_consequence",
-    weight: 1, tier: "normal", tags: ["humanity", "bad", "manor", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "bad", "manor", "npc"],
     trigger: { areas: ["voxchester_manor"], humanity_max: 20, probability: 0.15, once_per_run: true, npc_alive: ["希尔达·莫里斯"] },
     description: "你走到庄园门口。门没有开。\n你敲了敲。希尔达的声音从门后传来：\n「你走吧。我不开门。」\n你问为什么。\n「因为你让我想起了……想起了庄园里的某些东西。那些我不愿意面对的东西。」\n她的声音在发抖。\n「你的眼睛。和它们一样。冷的。空的。」\n你听到锁扣上的声音。她又加了一道锁。",
     effects: { npc_trust: { "希尔达·莫里斯": -2 }, add_run_memory: { text: "希尔达因为恐惧拒绝为你开门。" } },
@@ -284,7 +284,7 @@ export const events = [
   // =============================================
   {
     id: "humanity_trial_001", name: "饥饿的孩子", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "food"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "food"],
     trigger: { areas: ["town_center"], humanity_min: 40, humanity_max: 60, probability: 0.2, once_per_run: true, food_lte: 3 },
     description: "一个孩子站在巷口。他的眼睛盯着你手里的食物。\n他很瘦。肋骨的轮廓透过薄衬衫清晰可见。\n你还有最后一点食物。如果你给了他，你今天就要饿着肚子了。\n但如果你不给——他还能撑多久？",
     effects: {},
@@ -297,7 +297,7 @@ export const events = [
   },
   {
     id: "humanity_trial_002", name: "受伤的陌生人", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "heal"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "heal"],
     trigger: { areas: ["harbor_district"], humanity_min: 40, humanity_max: 60, probability: 0.2, once_per_run: true },
     description: "你在码头的角落里发现一个人。他倒在地上，腹部有一道伤口。\n血还在流。他看到你，伸出手。\n「帮我……」\n你的急救包里还有药品。但你自己也可能随时需要用到。\n如果你帮他，他会告诉你一些事情。如果你不帮——他大概撑不到天亮。",
     effects: {},
@@ -310,7 +310,7 @@ export const events = [
   },
   {
     id: "humanity_trial_003", name: "偷窃的机会", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "theft"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "theft"],
     trigger: { areas: ["town_center"], humanity_min: 40, humanity_max: 60, probability: 0.15, once_per_run: true },
     description: "你路过一个无人看管的摊位。上面摆着一些食物和药品。\n摊主大概去上厕所了。四周没有人注意你。\n你只需要伸出手。\n你确实需要这些东西。",
     effects: {},
@@ -323,7 +323,7 @@ export const events = [
   },
   {
     id: "humanity_trial_004", name: "告密者", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "betrayal"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "betrayal"],
     trigger: { areas: ["town_center"], humanity_min: 40, humanity_max: 60, probability: 0.15, once_per_run: true },
     description: "一个人拦住了你。他的眼睛里满是恐惧。\n「我知道你在调查，」他低声说，「我可以告诉你一些事。但你不能告诉任何人是我告诉你的。」\n他告诉你了一个关于灯塔的秘密。\n然后他说：「如果他们知道我说了——他们会来找我的。」\n你收下了他的信息。但你也可以选择把这个信息作为筹码——告诉其他人。",
     effects: { add_clue: "clue_humanity_informant" },
@@ -335,7 +335,7 @@ export const events = [
   },
   {
     id: "humanity_trial_005", name: "求救声", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "rescue"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "rescue"],
     trigger: { areas: ["harbor_district"], humanity_min: 40, humanity_max: 60, probability: 0.15, time_phase: ["evening", "midnight"], once_per_run: true },
     description: "你听到仓库后面有声音。是一个女人的声音，在喊救命。\n你走过去。声音从一扇锁着的门后面传来。\n你用力撞了一下门。门很结实。\n你可以去找人帮忙——但这需要时间。你也可以试着撬锁。\n但你注意到门缝里有光。里面不止一个人。",
     effects: {},
@@ -348,7 +348,7 @@ export const events = [
   },
   {
     id: "humanity_trial_006", name: "秘密的代价", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "secret"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "secret"],
     trigger: { areas: ["town_center"], humanity_min: 40, humanity_max: 60, probability: 0.15, once_per_run: true },
     description: "你发现了一条关于封印的重要线索。但这条线索涉及一个NPC的秘密。\n如果你公开这条线索，所有人都会知道那个秘密。\n如果你保密，你可能无法解开谜题。\n你需要做一个选择。",
     effects: { add_clue: "clue_humanity_secret_cost" },
@@ -360,7 +360,7 @@ export const events = [
   },
   {
     id: "humanity_trial_007", name: "分配药品", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "medicine"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "medicine"],
     trigger: { areas: ["town_center"], humanity_min: 40, humanity_max: 60, probability: 0.15, hp_lte_ratio: 0.5, once_per_run: true },
     description: "你找到了一些药品。但你知道镇上有人比你更需要它们——一个生病的孩子。\n你自己的伤也不轻。药品只够一个人用。\n孩子的母亲看着你。她没有说话。但她的眼神在请求。",
     effects: {},
@@ -373,7 +373,7 @@ export const events = [
   },
   {
     id: "humanity_trial_008", name: "背叛的诱惑", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "betrayal"],
+    weight: 1, tier: "normal", quality_tier: "A", tags: ["humanity", "trial", "choice", "betrayal"],
     trigger: { areas: ["harbor_district"], humanity_min: 40, humanity_max: 60, probability: 0.12, once_per_run: true, npc_trust_gte: { "玛莎·格雷": 2 } },
     description: "玛莎告诉你一个秘密——关于老费舍的秘密。\n「如果你把这个告诉别人，」她说，「你就能获得一些人的信任。但老费舍会——」\n她没有说完。\n你看着她。她在等你的回答。",
     effects: {},
@@ -385,7 +385,7 @@ export const events = [
   },
   {
     id: "humanity_trial_009", name: "沉默的选择", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "silence"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "silence"],
     trigger: { areas: ["town_center"], humanity_min: 40, humanity_max: 60, probability: 0.15, once_per_run: true },
     description: "你看到了一些事情。一些关于沃切斯特真相的事情。\n你可以选择说出来——但说出来可能会导致恐慌。\n你也可以选择沉默——但沉默意味着更多人可能受害。\n你站在广场上，周围是毫不知情的镇民。",
     effects: {},
@@ -398,7 +398,7 @@ export const events = [
   },
   {
     id: "humanity_trial_010", name: "牺牲的抉择", type: "humanity", subtype: "trial",
-    weight: 1, tier: "normal", tags: ["humanity", "trial", "choice", "sacrifice"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["humanity", "trial", "choice", "sacrifice"],
     trigger: { areas: ["town_center"], humanity_min: 40, humanity_max: 60, probability: 0.1, once_per_run: true },
     description: "你面前有两条路。一条是安全的——能让你活着离开沃切斯特。另一条是危险的——但能救更多人。\n你没有太多时间做决定。雾正在变浓。",
     effects: {},
@@ -414,7 +414,7 @@ export const events = [
   // =============================================
   {
     id: "humanity_collective_001", name: "镇民的欢迎", type: "humanity", subtype: "collective",
-    weight: 1, tier: "rare", tags: ["humanity", "collective", "positive"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["humanity", "collective", "positive"],
     trigger: { areas: ["town_center"], humanity_min: 85, probability: 0.15, once_per_run: true },
     description: "你走进镇中心。人们看到你，停下了手里的事。\n一个老人朝你点了点头。一个女人微微笑了一下。一个孩子朝你挥手。\n没有人说话。但你能感觉到——他们认识你。不是因为你做了什么大事，而是因为你一直在。\n在这个被雾笼罩的城市里，你是一个可以信任的人。",
     effects: { san: 3, add_run_memory: { text: "镇民集体向你表示信任。" } },
@@ -423,7 +423,7 @@ export const events = [
   },
   {
     id: "humanity_collective_002", name: "安全屋的改善", type: "humanity", subtype: "collective",
-    weight: 1, tier: "rare", tags: ["humanity", "collective", "positive", "safehouse"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["humanity", "collective", "positive", "safehouse"],
     trigger: { areas: ["town_center"], humanity_min: 85, probability: 0.1, once_per_run: true },
     description: "你回到安全屋。门口放着一些东西——木板、钉子、灯油、食物。\n旁边有一张纸条：「我们知道你在这里。这些是大家凑的。」\n你用了半个小时把安全屋加固了一下。屋顶的漏洞补上了，窗户也钉了新木板。\n晚上睡觉的时候，你感到了久违的安全感。",
     effects: { safehouseCorruption: -10, food: 2, san: 2, add_run_memory: { text: "镇民集体为你的安全屋提供了补给和修缮。" } },
@@ -432,7 +432,7 @@ export const events = [
   },
   {
     id: "humanity_collective_003", name: "集体的庇护", type: "humanity", subtype: "collective",
-    weight: 1, tier: "rare", tags: ["humanity", "collective", "positive", "protection"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["humanity", "collective", "positive", "protection"],
     trigger: { areas: ["town_center"], humanity_min: 90, probability: 0.08, once_per_run: true },
     description: "你听到敲门声。你打开门。\n门口站着五六个镇民。他们手里拿着各种东西——猎枪、灯笼、食物。\n「我们来帮你，」领头的人说，「不管你在做什么，你不是一个人。」\n你看着他们。他们的眼睛里没有恐惧。只有决心。\n在沃切斯特，这比任何武器都珍贵。",
     effects: { san: 5, food: 3, add_run_memory: { text: "镇民主动组队来帮助你。" } },
@@ -441,7 +441,7 @@ export const events = [
   },
   {
     id: "humanity_collective_004", name: "被放逐", type: "humanity", subtype: "collective",
-    weight: 1, tier: "rare", tags: ["humanity", "collective", "negative"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["humanity", "collective", "negative"],
     trigger: { areas: ["town_center"], humanity_max: 15, probability: 0.2, once_per_run: true },
     description: "你走进镇中心。人们看到你，立刻散开了。\n不是回避——是逃跑。\n一个男人挡在你面前。他手里拿着一根木棍。\n「你不能再待在这里了，」他说，「镇上的人投票了。你必须在日落前离开。」\n你看着他的眼睛。里面没有愤怒。只有恐惧。\n「求你了，」他低声说，「别让我们更害怕。」",
     effects: { san: -3, add_run_memory: { text: "镇民投票决定驱逐你。" } },
@@ -450,7 +450,7 @@ export const events = [
   },
   {
     id: "humanity_collective_005", name: "围捕", type: "humanity", subtype: "collective",
-    weight: 1, tier: "rare", tags: ["humanity", "collective", "negative", "danger"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["humanity", "collective", "negative", "danger"],
     trigger: { areas: ["town_center"], humanity_max: 10, probability: 0.15, once_per_run: true },
     description: "你听到远处的喊声。很多人。\n你转过街角。十几个人站在广场上，手里拿着各种武器——猎枪、铁锹、木棍。\n他们看到你。领头的人举起了手。\n「他在这里！」\n你转身就跑。身后传来脚步声和喊声。\n你跑进了一条小巷。他们没有追上来——但他们封锁了巷口。\n你被困住了。",
     effects: { san: -3, hp: -1, add_run_memory: { text: "镇民试图围捕你。你勉强逃脱。" } },
@@ -459,7 +459,7 @@ export const events = [
   },
   {
     id: "humanity_collective_006", name: "集体的感激", type: "humanity", subtype: "collective",
-    weight: 1, tier: "rare", tags: ["humanity", "collective", "positive"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["humanity", "collective", "positive"],
     trigger: { areas: ["town_center"], humanity_min: 80, probability: 0.1, once_per_run: true },
     description: "教堂的钟声响了。不是十三下——是正常的十二下。\n镇民们走出家门，站在街道两旁。他们看着你。\n没有人说话。但你能感觉到他们的目光——不是恐惧，不是警惕，而是某种你在这个城市里从未感受过的东西。\n感激。\n一个孩子跑过来，递给你一束野花。你蹲下来接住了。",
     effects: { san: 5, humanity: 3, add_run_memory: { text: "镇民集体向你表达感激。教堂的钟声恢复正常。" } },
@@ -468,7 +468,7 @@ export const events = [
   },
   {
     id: "humanity_collective_007", name: "集体的恐惧", type: "humanity", subtype: "collective",
-    weight: 1, tier: "rare", tags: ["humanity", "collective", "negative"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["humanity", "collective", "negative"],
     trigger: { areas: ["town_center"], humanity_max: 15, probability: 0.15, once_per_run: true },
     description: "你走在街上。所有人看到你都停下了脚步。\n不是为了打招呼。是为了让你先走。\n他们退到路边，低着头，不敢看你。\n你走过的时候，听到有人在低声祈祷。\n你走了很远，回头看了一眼。他们还站在那里，像一排雕像。",
     effects: { san: -2, add_run_memory: { text: "镇民在你面前集体恐惧退缩。" } },
@@ -477,7 +477,7 @@ export const events = [
   },
   {
     id: "humanity_collective_008", name: "篝火旁的团结", type: "humanity", subtype: "collective",
-    weight: 1, tier: "rare", tags: ["humanity", "collective", "positive"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["humanity", "collective", "positive"],
     trigger: { areas: ["harbor_district"], humanity_min: 80, probability: 0.1, time_phase: ["evening"], once_per_run: true },
     description: "码头边点着一堆篝火。几个渔民围坐在旁边。\n他们看到你，让出了一个位置。\n「过来坐，」一个渔民说，「今晚的鱼多了一条。」\n你坐下来。有人递给你一碗鱼汤。你喝了一口。\n没有人问你在调查什么。没有人问你经历了什么。\n他们只是让你坐在那里。在沃切斯特，这已经是一种奢侈。",
     effects: { food: 1, san: 3, add_run_memory: { text: "和渔民围坐在篝火旁，得到了片刻的温暖。" } },
@@ -490,7 +490,7 @@ export const events = [
   // =============================================
   {
     id: "humanity_trade_001", name: "伊莎贝拉的危险仪式", type: "humanity", subtype: "special_trade",
-    weight: 1, tier: "rare", tags: ["humanity", "trade", "npc", "isabella", "ritual"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["humanity", "trade", "npc", "isabella", "ritual"],
     trigger: { areas: ["town_center"], humanity_max: 30, probability: 0.15, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯"], npc_trust_gte: { "伊莎贝拉·韦伯": 3 } },
     description: "伊莎贝拉把你拉到教堂的地下室。\n「你变了，」她说，「但也许这是必要的。」\n她从祭坛下面拿出一本古老的书。\n「这个仪式可以让你看到封印的真面目。但代价是——」\n她停顿了一下。\n「你的部分人性。永久的。」\n她看着你。「你愿意吗？」",
     effects: {},
@@ -502,7 +502,7 @@ export const events = [
   },
   {
     id: "humanity_trade_002", name: "老费舍的交易", type: "humanity", subtype: "special_trade",
-    weight: 1, tier: "rare", tags: ["humanity", "trade", "npc", "fisher", "blood"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["humanity", "trade", "npc", "fisher", "blood"],
     trigger: { areas: ["harbor_district"], humanity_max: 35, probability: 0.12, once_per_run: true, npc_alive: ["老费舍"], npc_trust_gte: { "老费舍": 4 } },
     description: "老费舍把你拉到码头的角落。他的眼睛在月光下闪着异样的光。\n「你需要的东西，我可以给你，」他低声说，「但你需要给我一些东西。」\n他伸出手臂。袖子下面是一片鳞片。\n「血，」他说，「你的血。混在我的血里。这样我就能告诉你水下的秘密。」\n你知道这不是正常的要求。但他眼里的认真让你无法拒绝。",
     effects: {},
@@ -514,7 +514,7 @@ export const events = [
   },
   {
     id: "humanity_trade_003", name: "希尔达的交换", type: "humanity", subtype: "special_trade",
-    weight: 1, tier: "rare", tags: ["humanity", "trade", "npc", "hilda", "knowledge"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["humanity", "trade", "npc", "hilda", "knowledge"],
     trigger: { areas: ["voxchester_manor"], humanity_min: 70, probability: 0.12, once_per_run: true, npc_alive: ["希尔达·莫里斯"], npc_trust_gte: { "希尔达·莫里斯": 4 } },
     description: "希尔达坐在壁炉旁。火光映在她的脸上，让她看起来比实际年龄更老。\n「我可以告诉你莫里斯家族的秘密，」她说，「但你需要帮我一个忙。」\n她从口袋里掏出一封信。\n「把这封信送到灯塔。不要打开。不要看里面的内容。」\n信封是用蜡封住的。蜡的颜色是深红色——像血。",
     effects: {},
@@ -526,7 +526,7 @@ export const events = [
   },
   {
     id: "humanity_trade_004", name: "汤米的暗房", type: "humanity", subtype: "special_trade",
-    weight: 1, tier: "rare", tags: ["humanity", "trade", "npc", "tommy", "photo"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["humanity", "trade", "npc", "tommy", "photo"],
     trigger: { areas: ["town_center"], humanity_min: 60, probability: 0.12, once_per_run: true, npc_alive: ["汤米·陈"], npc_trust_gte: { "汤米·陈": 3 } },
     description: "汤米把你拉进暗房。红色的灯光下，他给你看了一些照片。\n「这些不是我拍的，」他低声说，「它们自己出现在我的暗房里。」\n照片上是沃切斯特的各种场景。但角度很奇怪——像是从很高的地方俯拍。\n「我可以给你看更多。但你需要帮我一件事——帮我查清楚这些照片是从哪里来的。」\n他的手在发抖。",
     effects: {},
@@ -538,7 +538,7 @@ export const events = [
   },
   {
     id: "humanity_trade_005", name: "约书亚的条件", type: "humanity", subtype: "special_trade",
-    weight: 1, tier: "rare", tags: ["humanity", "trade", "npc", "joshua", "military"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["humanity", "trade", "npc", "joshua", "military"],
     trigger: { areas: ["harbor_district"], humanity_min: 50, humanity_max: 70, probability: 0.12, once_per_run: true, npc_alive: ["约书亚·布莱克"], npc_trust_gte: { "约书亚·布莱克": 3 } },
     description: "约书亚坐在码头边，看着海面。你走过去坐下。\n「我可以告诉你灯塔下面有什么，」他说，「但你需要帮我一件事。」\n他从口袋里掏出一张照片。照片上是一个女人和一个孩子。\n「帮我找到他们。他们应该在波士顿。但我不确定。」\n他的眼神很复杂——期待、恐惧、还有某种你认不出来的东西。",
     effects: {},
@@ -550,7 +550,7 @@ export const events = [
   },
   {
     id: "humanity_trade_006", name: "埃德加的灵感", type: "humanity", subtype: "special_trade",
-    weight: 1, tier: "rare", tags: ["humanity", "trade", "npc", "edgar", "story"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["humanity", "trade", "npc", "edgar", "story"],
     trigger: { areas: ["town_center"], humanity_min: 60, probability: 0.1, once_per_run: true, npc_alive: ["埃德加·洛夫克拉夫特"], npc_trust_gte: { "埃德加·洛夫克拉夫特": 3 } },
     description: "埃德加找到你。他的眼睛里闪着一种狂热的光。\n「我需要你的故事，」他说，「全部。从你来到沃切斯特开始。」\n他拿出笔记本。\n「作为交换，我可以给你看一些我写的东西。关于沃切斯特的真相。我调查了很久。」\n他翻开笔记本。你看到了一些字——是关于封印的。\n「成交？」",
     effects: {},

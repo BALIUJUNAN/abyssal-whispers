@@ -281,3 +281,62 @@ export function checkEndingLegacy(state, ctx) {
 export function checkEnding(state, ctx) {
   return checkEndingDataDriven(state, ctx) || checkEndingLegacy(state, ctx) || null;
 }
+
+// ═══════════════════════════════════════════════════════════
+// §5.3: 结局余韵系统 (Afterglow)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Check if an ending's afterglow condition is met.
+ * @param {object} ending - ending object with afterglow field
+ * @param {object} state - game state
+ * @returns {boolean}
+ */
+export function checkAfterglowUnlock(ending, state) {
+  if (!ending || !ending.afterglow) return false;
+  const cond = ending.afterglow.unlock_condition;
+  if (!cond) return true;
+
+  if (cond.startsWith('has_triggered_event:')) {
+    const eventId = cond.split(':')[1];
+    return (state.everTriggeredEvents || []).includes(eventId) ||
+           (state.triggeredEvents || []).includes(eventId);
+  }
+  if (cond.startsWith('has_item:')) {
+    const itemId = cond.split(':')[1];
+    return (state.inventory || []).some(item => item.id === itemId);
+  }
+  if (cond.startsWith('previous_ending_count:')) {
+    const min = parseInt(cond.split(':')[1], 10);
+    return (state.previousEndings || []).length >= min;
+  }
+  return false;
+}
+
+/**
+ * Get unlocked afterglow texts for a specific ending.
+ * @param {object} ending - ending object
+ * @param {object} state - game state
+ * @returns {string[]} unlocked texts (may be empty)
+ */
+export function getAfterglowTexts(ending, state) {
+  if (!ending || !ending.afterglow) return [];
+  if (!checkAfterglowUnlock(ending, state)) return [];
+  return ending.afterglow.texts || [];
+}
+
+/**
+ * Get all endings with their afterglow status for the "轮回记录" UI.
+ * @param {object[]} allEndings - all ending objects
+ * @param {object} state - game state
+ * @returns {Array<{ending: object, achieved: boolean, afterglowUnlocked: boolean, afterglowTexts: string[]}>}
+ */
+export function getEndingRecord(allEndings, state) {
+  const achieved = new Set(state.previousEndings || []);
+  return (allEndings || []).map(ending => ({
+    ending,
+    achieved: achieved.has(ending.id),
+    afterglowUnlocked: achieved.has(ending.id) && checkAfterglowUnlock(ending, state),
+    afterglowTexts: achieved.has(ending.id) ? getAfterglowTexts(ending, state) : [],
+  }));
+}

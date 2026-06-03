@@ -9,7 +9,7 @@ const initialState=()=>{
     const idMap={'手电筒':'flashlight','笔记本和笔':'notebook','急救包':'first_aid_kit','怀表':'pocket_watch'};
     return {id:idMap[item.name]||item.name,name:item.name,uses:item.uses};
   }),
-  clues:[],skills:{},npcTrust:{},npcStates:{},
+  clues:[],skills:{},npcTrust:{},npcStates:{},npcRelations:{},
   sealState:'intact',weather:'阴天',
   triggeredEvents:[],triggeredSilentEvents:[],longTermEffects:[],madnessActive:null,
   objectives:[],completedChains:[],
@@ -53,6 +53,8 @@ const initialState=()=>{
     loop_exploit_score:0, loop_break_attempts:0,
   },
   money:0,
+  endingCoins:0,
+  loopShopTier:0,
   _dayActions:[],
   _dayStartArea:null,
   _lastAreaBeforeRest:null,

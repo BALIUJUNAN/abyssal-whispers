@@ -1,0 +1,46 @@
+{
+  "id": "example_branch_choice",
+  "name": "示例：分支选择模组",
+  "author": "官方示例",
+  "version": "1.0.0",
+  "description": "展示一个包含3个选项的事件，每个选项有不同的效果（SAN、物品、信任）。",
+  "enabled": false,
+  "events": [
+    {
+      "id": "example_branch_001",
+      "name": "流浪汉的请求",
+      "type": "resource_pressure",
+      "subtype": "example",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "B",
+      "tags": ["example", "town", "beggar", "choice"],
+      "trigger": {
+        "areas": ["town_center"],
+        "probability": 0.15,
+        "once_per_run": true
+      },
+      "description": "你在街角遇到了一个流浪汉。他的衣服很破，但眼睛很亮。\n「先生，」他说，「我已经三天没吃东西了。你能帮我吗？」\n他看着你。你看着他。\n你知道——在沃切斯特，每个人都在挣扎。但他的眼神不像是在撒谎。",
+      "effects": {},
+      "event_classification": "NPC互动",
+      "normalcy_anchor": false,
+      "choices": [
+        {
+          "label": "给他一些食物",
+          "text": "你把口袋里的面包递给了他。他接过来，没有说谢谢，但他的眼睛湿润了。",
+          "effects": { "food": -1, "humanity": 3, "npc_trust": { "流浪汉": 2 } }
+        },
+        {
+          "label": "给他一些钱",
+          "text": "你给了他几枚硬币。他接过来，低声说了一句：「今晚码头有船。」",
+          "effects": { "money": -2, "san": 1, "add_clue": "clue_example_beggar_tip" }
+        },
+        {
+          "label": "走开",
+          "text": "你加快了脚步。背后的目光像针一样扎着你。",
+          "effects": { "humanity": -2 }
+        }
+      ]
+    }
+  ]
+}

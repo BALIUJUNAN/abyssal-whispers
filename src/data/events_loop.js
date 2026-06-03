@@ -1,12 +1,12 @@
-// 轮回专属事件扩展 - 70 events
-// Directions: 轮回低语(20), 记忆碎片(15), 轮回矛盾(12), 墙中之物(10), 世界修正(8), 轮回终点暗示(5)
+// 轮回专属事件扩展 - 74 events (70 + 4 §2补充)
+// Directions: 轮回低语(20), 记忆碎片(15), 轮回矛盾(12), 墙中之物(10), 世界修正(8), 轮回终点暗示(5), 高轮回深度(4)
 export const events = [
   // =============================================
   // 轮回低语 (20) - loop >= 2, random replacement
   // =============================================
   {
     id: "loop_whisper_001", name: "熟悉的声音", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "early"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "early"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.3, once_per_run: true },
     description: "你经过公告栏时，一个声音从你背后传来——音色和你自己的一模一样：「你又选了这条路。」\n你转身。没有人。\n公告栏上多了一张告示，墨迹还没干。上面是你的笔迹。",
     effects: { san: -1, mythos: 1 },
@@ -15,7 +15,7 @@ export const events = [
   },
   {
     id: "loop_whisper_002", name: "重复的脚步", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "harbor"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "harbor"],
     trigger: { areas: ["harbor_district"], min_loop: 2, probability: 0.25, once_per_run: true },
     description: "码头的木板在你脚下嘎吱作响。你停下脚步，但嘎吱声又响了一次。\n不是回声。节奏不对。\n像是有人在你身后，踩着和你完全相同的步伐，但慢了半拍。",
     effects: { san: -1 },
@@ -24,7 +24,7 @@ export const events = [
   },
   {
     id: "loop_whisper_003", name: "未写完的信", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "safehouse"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "safehouse"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.2, once_per_run: true },
     description: "你在安全屋的桌上发现一封信。笔迹是你的。\n开头写着：「如果你又读到这封信——」\n后面的内容被水渍模糊了。你没有写过这封信的记忆。\n纸张的折痕说明它已经被打开过很多次。",
     effects: { san: -1, add_clue: "clue_loop_letter" },
@@ -33,7 +33,7 @@ export const events = [
   },
   {
     id: "loop_whisper_004", name: "钟表的异常", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "time"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "time"],
     trigger: { areas: ["town_center", "harbor_district"], min_loop: 2, probability: 0.25, once_per_run: true },
     description: "怀表停了。你拧了拧表冠，秒针开始倒转。\n你盯着它看了整整一分钟。它确实在倒着走。\n然后它突然恢复正常，仿佛什么都没发生。表盘上多了一道细小的裂纹，上次没有的。",
     effects: { san: -1 },
@@ -42,7 +42,7 @@ export const events = [
   },
   {
     id: "loop_whisper_005", name: "镜中的延迟", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "mirror"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "mirror"],
     trigger: { areas: ["voxchester_manor", "town_center"], min_loop: 3, probability: 0.2, once_per_run: true },
     description: "你在镜子里看到了自己。你抬起右手，镜像也抬起了右手。\n你放下手。镜像没有。\n它又举了两秒，然后缓缓放下。嘴角似乎动了一下。\n你眨了眨眼，一切恢复正常。",
     effects: { san: -2 },
@@ -51,7 +51,7 @@ export const events = [
   },
   {
     id: "loop_whisper_006", name: "旧报纸", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "clue"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "clue"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.3, once_per_run: true },
     description: "你从地上捡起一张报纸。日期是今天的。\n头版标题：《沃切斯特失踪案调查员被发现死于码头》\n配图是一个人的背影。穿着和你现在一样的外套。\n你把报纸翻过来。背面是空白的，除了一个手写的数字——和你当前的周目数一样。",
     effects: { san: -1, add_clue: "clue_loop_newspaper" },
@@ -60,7 +60,7 @@ export const events = [
   },
   {
     id: "loop_whisper_007", name: "汤米的困惑", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "npc"],
     trigger: { areas: ["town_center"], min_loop: 3, probability: 0.2, once_per_run: true, npc_alive: ["汤米·陈"] },
     description: "汤米看到你时愣了一下。\n「你……你昨天不是走了吗？我看到你坐上了去波士顿的长途车。」\n你告诉他你没有离开过。\n他揉了揉眼睛：「也许我记错了。最近总觉得日子过得……重叠。」",
     effects: { san: -1 },
@@ -69,7 +69,7 @@ export const events = [
   },
   {
     id: "loop_whisper_008", name: "玛莎的回避", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "npc"],
     trigger: { areas: ["harbor_district"], min_loop: 3, probability: 0.2, once_per_run: true, npc_alive: ["玛莎·格雷"] },
     description: "你走进酒吧。玛莎看到你时，手指在吧台上敲了三下——一种无意识的节奏。\n「又来了，」她说，然后立刻改口，「我是说，欢迎。」\n她给你倒了一杯酒，手微微发抖。\n「你让我想起一个人。一个总是回来的人。」",
     effects: { san: -1 },
@@ -78,7 +78,7 @@ export const events = [
   },
   {
     id: "loop_whisper_009", name: "重复的梦", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "rest"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "rest"],
     trigger: { areas: ["town_center", "harbor_district"], min_loop: 2, probability: 0.2, time_phase: ["midnight"], once_per_run: true },
     description: "你在半梦半醒间听到一个声音在数数。\n「一。二。三。四。五——」\n每数一个数字，你感到身体轻了一点。\n「六。」\n你猛地睁开眼。安全屋的墙壁上，有人用指甲刮出了六道竖痕。你的指甲缝里有石灰粉。",
     effects: { san: -2 },
@@ -87,7 +87,7 @@ export const events = [
   },
   {
     id: "loop_whisper_010", name: "地图上的标注", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "map"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "map"],
     trigger: { areas: ["town_center"], min_loop: 3, probability: 0.2, once_per_run: true },
     description: "你打开笔记本查看地图。上面多了一些标注——红色的叉号标记着你上次死亡的位置。\n你没有画过这些。\n笔迹确实是你的，但墨水的颜色比你用的更深，像是被什么东西浸染过。",
     effects: { san: -1, add_clue: "clue_loop_map_marks" },
@@ -96,7 +96,7 @@ export const events = [
   },
   {
     id: "loop_whisper_011", name: "渔夫的低语", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "npc"],
     trigger: { areas: ["harbor_district"], min_loop: 3, probability: 0.2, once_per_run: true, npc_alive: ["老费舍"] },
     description: "老费舍坐在码头边补网。你走近时，他没有抬头。\n「第几次了？」他问。\n你问他什么意思。\n「没什么。只是……你身上的雾气比别人重。像是走过很多次同样的路。」\n他继续补网，手指灵活得不像一个老人。",
     effects: { san: -1 },
@@ -105,7 +105,7 @@ export const events = [
   },
   {
     id: "loop_whisper_012", name: "重复的对话", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "npc"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "npc"],
     trigger: { areas: ["town_center"], min_loop: 4, probability: 0.15, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
     description: "伊莱亚斯看到你，话说到一半突然停住。\n「……我刚才说过这些话，对吗？」\n你告诉他没有。\n「奇怪。我记得很清楚。你问了一个关于封印的问题，然后——」他揉了揉太阳穴，「算了。也许是我太累了。最近总是分不清记忆和……别的什么。」",
     effects: { san: -1 },
@@ -114,7 +114,7 @@ export const events = [
   },
   {
     id: "loop_whisper_013", name: "脚印", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "forest"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "forest"],
     trigger: { areas: ["whispering_forest"], min_loop: 2, probability: 0.2, once_per_run: true },
     description: "雨后的泥地上有一串脚印。你蹲下来仔细看。\n鞋底的纹路和你的一模一样。\n脚印从你站的位置开始，向前延伸了十几步，然后突然消失——像是走路的人凭空蒸发了。\n你低头看了看自己的鞋。鞋底是干的。",
     effects: { san: -1 },
@@ -123,7 +123,7 @@ export const events = [
   },
   {
     id: "loop_whisper_014", name: "回声", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "catacombs"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "catacombs"],
     trigger: { areas: ["catacombs_entrance"], min_loop: 3, probability: 0.2, once_per_run: true },
     description: "你在墓穴入口喊了一声。回声传来——但回声说的是不同的话。\n你喊的是「有人吗？」\n回声说的是「又来了。」\n你又喊了一次。这次没有回声。沉默持续了太久，久到你开始怀疑自己刚才是不是真的喊过。",
     effects: { san: -2 },
@@ -132,7 +132,7 @@ export const events = [
   },
   {
     id: "loop_whisper_015", name: "照片的增减", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "photo"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "photo"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.2, once_per_run: true, npc_alive: ["汤米·陈"] },
     description: "汤米给你看了一张照片。是码头的全景。\n「数数船，」他说。\n你数了。六艘。\n「你上次来的时候也是六艘。但我拍的时候只有五艘。」\n他翻出之前的照片给你看。确实是五艘。多出来的那艘船，你认出了它的名字——是你上一周目死前最后看到的那艘。",
     effects: { san: -2, add_clue: "clue_loop_photo_boat" },
@@ -141,7 +141,7 @@ export const events = [
   },
   {
     id: "loop_whisper_016", name: "教堂的钟声", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "church"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "church"],
     trigger: { areas: ["town_center"], min_loop: 2, probability: 0.25, time_phase: ["evening", "midnight"], once_per_run: true },
     description: "教堂的钟响了。\n你数了一下。十三下。\n然后又响了十三下。\n你等了一会儿。没有第三次。\n伊莎贝拉从教堂里走出来，看到你站在原地。\n「你听到了？」她问。\n你点头。\n「只有回来过的人才会听到第二次。」",
     effects: { san: -1, add_clue: "clue_loop_bell" },
@@ -150,7 +150,7 @@ export const events = [
   },
   {
     id: "loop_whisper_017", name: "被覆盖的涂鸦", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "wall"],
+    weight: 1, tier: "normal", quality_tier: "B", tags: ["loop", "whisper", "wall"],
     trigger: { areas: ["harbor_district", "town_center"], min_loop: 3, probability: 0.2, once_per_run: true },
     description: "墙上有一片新刷的白漆。漆面还没完全干。\n你用指甲抠了一下。底下有字。\n是一句话，反复写了十几遍，字迹越来越潦草：\n「不要去灯塔。不要去灯塔。不要去灯塔。不要去灯塔。」\n最后几行变成了另一种笔迹。你的笔迹。",
     effects: { san: -1, add_clue: "clue_loop_wall_writing" },
@@ -159,7 +159,7 @@ export const events = [
   },
   {
     id: "loop_whisper_018", name: "怀表的温度", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "item"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "item"],
     trigger: { areas: ["town_center", "harbor_district", "whispering_forest"], min_loop: 2, probability: 0.2, once_per_run: true },
     description: "怀表突然变得很烫。你把它拿出来，表壳上的温度足以灼伤手指。\n表盘上的数字在融化——不是真的融化，但看起来像是被高温扭曲。\n你闭上眼睛再睁开。怀表是凉的，表盘正常。但你的指尖确实有一小块红肿。",
     effects: { san: -1, hp: -1 },
@@ -168,7 +168,7 @@ export const events = [
   },
   {
     id: "loop_whisper_019", name: "记错的路", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "navigation"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "navigation"],
     trigger: { areas: ["whispering_forest"], min_loop: 4, probability: 0.2, once_per_run: true },
     description: "你确信这条路通往禁忌之林。你走过很多次了。\n但走了二十分钟后，你回到了起点。\n树上有一道你刚才刻下的标记——用来确认方向的那道。\n你没有转弯。你一直走的是直线。\n你又走了一次。这次用了三十分钟回到了起点。距离变长了。",
     effects: { san: -2 },
@@ -177,7 +177,7 @@ export const events = [
   },
   {
     id: "loop_whisper_020", name: "告示栏的增生", type: "loop_locked", subtype: "loop_whisper",
-    weight: 1, tier: "normal", tags: ["loop", "whisper", "notice"],
+    weight: 1, tier: "normal", quality_tier: "C", tags: ["loop", "whisper", "notice"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, once_per_run: true },
     description: "公告栏上的失踪告示变多了。你仔细数了一下——比昨天多了七张。\n每张告示上都是同一个人的名字。你的名字。\n日期各不相同，横跨了三年。\n你伸手去撕。告示粘得很牢，像是长在了木板上。\n旁边路过的人什么也没注意到。",
     effects: { san: -2, add_clue: "clue_loop_missing_posters" },
@@ -190,7 +190,7 @@ export const events = [
   // =============================================
   {
     id: "loop_memory_001", name: "礁石上的名字", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "harbor"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "harbor"],
     trigger: { areas: ["harbor_district"], min_loop: 3, requires_prev_area_death: "harbor_district", probability: 0.4, once_per_run: true },
     description: "你在码头看到一块礁石。上面刻着你的名字和一个日期。\n日期是你上一轮死亡的那天。\n刻痕很旧，像是被海水冲刷了很多年。但你上周目才第一次来这个码头。\n你用手指摸了摸刻痕。石头是温热的。",
     effects: { san: -2, add_clue: "clue_memory_rock" },
@@ -199,7 +199,7 @@ export const events = [
   },
   {
     id: "loop_memory_002", name: "血迹的位置", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "forest"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "forest"],
     trigger: { areas: ["whispering_forest"], min_loop: 3, requires_prev_area_death: "whispering_forest", probability: 0.4, once_per_run: true },
     description: "地面上有一片深色的污渍。你蹲下来闻了闻——是血，已经干涸很久了。\n但你认出了这个位置。上周目你就是在这里倒下的。\n污渍的形状和你记忆中倒下的姿势完全吻合。\n你抬头看了看树。树干上有一道新的抓痕。",
     effects: { san: -2, add_clue: "clue_memory_blood" },
@@ -208,7 +208,7 @@ export const events = [
   },
   {
     id: "loop_memory_003", name: "断裂的武器", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "manor"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "manor"],
     trigger: { areas: ["voxchester_manor"], min_loop: 3, requires_prev_area_death: "voxchester_manor", probability: 0.35, once_per_run: true },
     description: "走廊角落里有一把断裂的刀。刀柄上缠着和你外套相同颜色的布条。\n你摸了摸自己的外套——下摆确实少了一块，切口整齐，像是被利刃割断的。\n你没有这把刀的记忆。但你的手握上刀柄时，姿势异常熟练。",
     effects: { san: -2, add_clue: "clue_memory_blade" },
@@ -217,7 +217,7 @@ export const events = [
   },
   {
     id: "loop_memory_004", name: "地下的蜡烛", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "catacombs"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "catacombs"],
     trigger: { areas: ["catacombs_entrance"], min_loop: 3, requires_prev_area_death: "catacombs_entrance", probability: 0.35, once_per_run: true },
     description: "墓穴墙壁的缝隙里插着一根蜡烛。蜡油已经凝固成层层叠叠的形状。\n你数了一下蜡油的层数——和你的周目数一样。\n最底层的蜡油里封着一张纸条。你小心翼翼地剥开。\n纸条上只有一句话：「这次带够了蜡烛吗？」",
     effects: { san: -2, add_clue: "clue_memory_candle" },
@@ -226,7 +226,7 @@ export const events = [
   },
   {
     id: "loop_memory_005", name: "灯塔的划痕", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "lighthouse"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "lighthouse"],
     trigger: { areas: ["lighthouse"], min_loop: 3, requires_prev_area_death: "lighthouse", probability: 0.35, once_per_run: true },
     description: "灯塔的螺旋楼梯扶手上有一道道划痕。你用手指划过——间距和你的指距完全一致。\n楼梯转角处的墙壁上刻着一个数字。是你上次死在灯塔时的天数。\n你继续往上走。每一层都有一个新的数字，像是倒计时。",
     effects: { san: -2, add_clue: "clue_memory_lighthouse_marks" },
@@ -235,7 +235,7 @@ export const events = [
   },
   {
     id: "loop_memory_006", name: "树洞里的东西", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "forest"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "forest"],
     trigger: { areas: ["whispering_forest"], min_loop: 4, requires_prev_area_death: "whispering_forest", probability: 0.3, once_per_run: true },
     description: "一棵老橡树的树洞里塞着一个布包。你打开它。\n里面是你的笔记本——但不是你手上的这本。封面磨损更严重，内页写满了你的笔迹。\n最后一页写着：「第三次了。每次都在这里停下来。为什么？」\n你翻回第一页。日期是未来的。",
     effects: { san: -3, add_clue: "clue_memory_notebook_copy", mythos: 2 },
@@ -244,7 +244,7 @@ export const events = [
   },
   {
     id: "loop_memory_007", name: "码头的绳结", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "harbor"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "harbor"],
     trigger: { areas: ["harbor_district"], min_loop: 3, requires_prev_area_death: "harbor_district", probability: 0.3, once_per_run: true },
     description: "系缆桩上有一个绳结。你认出了打法——是海军陆战队常用的系泊结。\n你不会打这种结。但你的手在碰到绳子时自动完成了动作。\n绳结里缠着一张照片。照片上是码头，但角度是从水面向上拍的。\n拍照的人在水里。",
     effects: { san: -2, add_clue: "clue_memory_knot_photo" },
@@ -253,7 +253,7 @@ export const events = [
   },
   {
     id: "loop_memory_008", name: "庄园的门牌", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "manor"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "manor"],
     trigger: { areas: ["voxchester_manor"], min_loop: 4, requires_prev_area_death: "voxchester_manor", probability: 0.3, once_per_run: true },
     description: "庄园侧门的门牌翻了过来。你伸手把它翻正。\n背面刻着你的名字。不是写上去的——是用什么工具深深凿进木头里的。\n门牌的正面是正常的房间号码。但你发现这个号码和你上次在庄园死去的房间号一样。",
     effects: { san: -2, add_clue: "clue_memory_door_number" },
@@ -262,7 +262,7 @@ export const events = [
   },
   {
     id: "loop_memory_009", name: "深渊的回音", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "deep"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "memory", "deep"],
     trigger: { areas: ["deep_catacombs"], min_loop: 4, requires_prev_area_death: "deep_catacombs", probability: 0.3, once_per_run: true },
     description: "竖井深处传来声音。不是回声——是有人在说话。\n你听到了自己的声音，说的是一句你完全不记得说过的话：\n「如果这次还不行，我会在第七天去灯塔。」\n声音停了。竖井里吹上来一阵风，带着海水和铁锈的气味。\n你知道自己从未去过灯塔。至少这一周目没有。",
     effects: { san: -3, mythos: 2, add_clue: "clue_memory_abyss_voice" },
@@ -271,7 +271,7 @@ export const events = [
   },
   {
     id: "loop_memory_010", name: "遗迹的投影", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "yith"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "memory", "yith"],
     trigger: { areas: ["ruins_of_yith"], min_loop: 4, requires_prev_area_death: "ruins_of_yith", probability: 0.3, once_per_run: true },
     description: "伊斯机器的表面泛起一层涟漪。你看到了一段影像——\n是你自己，站在同一个位置，但穿着不同的衣服。你在影像里做了一个手势，然后影像消失了。\n你下意识地重复了那个手势。机器亮了一下。\n一道光从机器里射出，在你手心留下了一个发烫的符号。",
     effects: { san: -3, mythos: 3, add_clue: "clue_memory_yith_projection" },
@@ -280,7 +280,7 @@ export const events = [
   },
   {
     id: "loop_memory_011", name: "禁林的记号", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "grove"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "grove"],
     trigger: { areas: ["forbidden_grove"], min_loop: 4, requires_prev_area_death: "forbidden_grove", probability: 0.3, once_per_run: true },
     description: "一棵古树的树皮被剥去了一块。裸露的木质上刻着符号。\n你认出了这些符号——不是因为你学过，而是因为你的手记得刻它们的感觉。\n符号排列成一个圆环，中间有一个空缺。\n你口袋里的某样东西正好能嵌入那个空缺。",
     effects: { san: -2, mythos: 2, add_clue: "clue_memory_grove_symbol" },
@@ -289,7 +289,7 @@ export const events = [
   },
   {
     id: "loop_memory_012", name: "安全屋的记号", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "safehouse"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "safehouse"],
     trigger: { areas: ["town_center"], min_loop: 3, probability: 0.25, once_per_run: true },
     description: "你检查安全屋的门框。上面有一道浅浅的刻痕。\n你用手指量了一下——正好是你食指的长度。\n你确信上周目你在这里做了这个记号。但那是为了什么？\n门框下方还有一行小字，需要蹲下才能看到：「门会换位置。」",
     effects: { san: -1, add_clue: "clue_memory_safehouse_mark" },
@@ -298,7 +298,7 @@ export const events = [
   },
   {
     id: "loop_memory_013", name: "伊莱亚斯的笔记", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "npc"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "npc"],
     trigger: { areas: ["town_center"], min_loop: 3, probability: 0.2, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
     description: "伊莱亚斯递给你一张纸。\n「这个掉在了我的书桌上。不是我写的。」\n纸上是你的笔迹。记录着一个仪式的步骤——你从未学过的仪式。\n但你的身体记得每一个动作。你的舌尖能尝到仪式中使用的草药味道。\n你上周目一定做过这个仪式。",
     effects: { san: -2, add_clue: "clue_memory_ritual_notes", mythos: 1 },
@@ -307,7 +307,7 @@ export const events = [
   },
   {
     id: "loop_memory_014", name: "水中的倒影", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "water"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "water"],
     trigger: { areas: ["harbor_district"], min_loop: 3, probability: 0.25, once_per_run: true, time_phase: ["midnight"] },
     description: "你走到码头边缘，低头看水。\n水面映出了你的脸。但倒影里的你穿着不同的衣服，脸上多了一道伤疤。\n倒影动了——它抬起手，在水面上写了什么。\n你只能看清最后一个字：「逃。」\n然后水面恢复了平静。你的倒影和你一样了。",
     effects: { san: -2, add_clue: "clue_memory_water_reflection" },
@@ -316,7 +316,7 @@ export const events = [
   },
   {
     id: "loop_memory_015", name: "灰尘中的脚印", type: "loop_locked", subtype: "memory_fragment",
-    weight: 1, tier: "rare", tags: ["loop", "memory", "manor"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "memory", "manor"],
     trigger: { areas: ["voxchester_manor"], min_loop: 3, probability: 0.25, once_per_run: true },
     description: "你推开一扇积满灰尘的门。地板上的灰尘里有脚印。\n你低头看了看自己的鞋。纹路完全吻合。\n脚印在房间中央转了一个圈，然后走向窗户。窗户是锁着的。\n你试着打开窗户。窗外是庄园的后花园——但花园里的植物全部枯死了，像是被什么东西吸干了水分。",
     effects: { san: -2, add_clue: "clue_memory_dusty_footprints" },
@@ -329,7 +329,7 @@ export const events = [
   // =============================================
   {
     id: "loop_contradiction_001", name: "玛莎的困惑", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "martha"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "martha"],
     trigger: { areas: ["harbor_district"], min_loop: 4, probability: 0.25, once_per_run: true, npc_alive: ["玛莎·格雷"] },
     description: "玛莎看着你，眉头紧锁。\n「你昨天不是问过了吗？关于灯塔的事。」\n你告诉她这是你第一次问。\n「不可能。我记得很清楚。你坐在那个位置，问了一模一样的问题。我还给了你同样的回答。」\n她停顿了一下。\n「……也许我记错了。最近总觉得时间在打转。」",
     effects: { san: -2, npc_trust: { "玛莎·格雷": -1 } },
@@ -338,7 +338,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_002", name: "伊莱亚斯的预言", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "elias"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "elias"],
     trigger: { areas: ["town_center"], min_loop: 4, probability: 0.2, once_per_run: true, npc_alive: ["伊莱亚斯·沃德"] },
     description: "伊莱亚斯正在翻阅一本古籍。看到你时，他合上了书。\n「你会问我关于封印的事，」他说。\n你还没开口。\n「你还会问我希尔达和莫里斯家族的关系。然后你会去码头。」\n他的眼神很疲惫。\n「我也不知道我是怎么知道的。也许我做了一个梦。一个很长的梦。」",
     effects: { san: -2, add_clue: "clue_contradiction_elias_prophecy" },
@@ -347,7 +347,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_003", name: "汤米的照片墙", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "tommy"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "tommy"],
     trigger: { areas: ["town_center"], min_loop: 4, probability: 0.2, once_per_run: true, npc_alive: ["汤米·陈"] },
     description: "汤米的店铺墙上挂满了照片。你注意到其中有几张拍的是你。\n「这些都是我拍的，」汤米说，「但我不记得什么时候拍的。」\n你仔细看照片。背景是你从未去过的地方——至少你没有去过。\n「还有一张更奇怪的，」汤米指着角落里一张模糊的照片，「这张是在你来之前就挂在那里的。」",
     effects: { san: -2, add_clue: "clue_contradiction_tommy_photos" },
@@ -356,7 +356,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_004", name: "希尔达的等待", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "hilda"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "hilda"],
     trigger: { areas: ["voxchester_manor"], min_loop: 5, probability: 0.2, once_per_run: true, npc_alive: ["希尔达·莫里斯"] },
     description: "希尔达站在庄园门口，像是在等你。\n「你来了，」她说，语气平淡得像在陈述天气。\n你问她怎么知道你会来。\n「我不知道。但我知道你会问这个问题。」\n她转身走进庄园。\n「你还会问我关于地下室的事。然后你会犹豫。然后你会下去。」\n她回头看了你一眼。\n「每次都一样。」",
     effects: { san: -3, add_clue: "clue_contradiction_hilda_wait" },
@@ -365,7 +365,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_005", name: "约书亚的拒绝", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "joshua"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "joshua"],
     trigger: { areas: ["harbor_district"], min_loop: 4, probability: 0.2, once_per_run: true, npc_alive: ["约书亚·布莱克"] },
     description: "你走向约书亚。他看到你时后退了一步。\n「不，」他说，「我不会再告诉你了。」\n你问他告诉过你什么。\n「灯塔下面的事。我上周告诉过你了。」\n你坚持说这是第一次。\n约书亚盯着你看了很久。\n「你的眼睛……和上次不一样。但你确实问过同样的问题。我记得因为那天晚上下了雨。」",
     effects: { san: -2 },
@@ -374,7 +374,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_006", name: "伊莎贝拉的警告", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "isabella"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "isabella"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.2, once_per_run: true, npc_alive: ["伊莎贝拉·韦伯"] },
     description: "伊莎贝拉看到你时，在胸前画了一个十字。\n「你不应该来的，」她低声说。\n你问她为什么。\n「因为你上次来的时候……」她停住了。\n「你上次什么时候来的？今天是……」她看了看日历，困惑地摇了摇头。\n「我记不清了。但我知道你来过。你问过我关于第十二声钟响的事。」\n你没有问过。至少你不记得。",
     effects: { san: -2, add_clue: "clue_contradiction_isabella_warn" },
@@ -383,7 +383,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_007", name: "老费舍的沉默", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "fisher"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "fisher"],
     trigger: { areas: ["harbor_district"], min_loop: 4, probability: 0.2, once_per_run: true, npc_alive: ["老费舍"] },
     description: "老费舍坐在码头边，看着海面。你走过去坐下。\n他没有转头，但开了口：\n「你又来了。」\n你告诉他你今天第一次来。\n「不。你来过。你坐在这里，问了我关于海里的东西。我告诉了你。然后你走了。」\n他终于转头看你。\n「但你的眼睛变了。上次更暗一些。」",
     effects: { san: -2 },
@@ -392,7 +392,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_008", name: "埃德加的书稿", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "edgar"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "edgar"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, once_per_run: true, npc_alive: ["埃德加·洛夫克拉夫特"] },
     description: "埃德加递给你几页手稿。\n「我写了这个故事。但我不记得写过。」\n你读了手稿。故事讲的是一个人来到一座被雾笼罩的城市，调查一系列失踪案。\n故事里的主角死了。然后又回来了。一次又一次。\n「你看，」埃德加指着最后一段，「这里写了主角的反应。和你现在一模一样。」\n你看向最后一段。确实一样。",
     effects: { san: -3, add_clue: "clue_contradiction_edgar_manuscript", mythos: 2 },
@@ -401,7 +401,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_009", name: "重复的日期", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "time"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "contradiction", "time"],
     trigger: { areas: ["town_center", "harbor_district"], min_loop: 5, probability: 0.15, once_per_run: true },
     description: "你问路人今天是几号。\n「三月十五号，」他说。\n你昨天问的也是三月十五号。\n你又问了另一个人。\n「三月十四号，」她回答。\n你看了看教堂的日历。三月十六号。\n三个答案。同一天。",
     effects: { san: -3, add_clue: "clue_contradiction_date" },
@@ -410,7 +410,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_010", name: "NPC的重叠", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "contradiction", "npc"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.15, once_per_run: true },
     description: "你在镇中心同时看到了两个汤米。\n一个在店铺门口整理货架。另一个在街对面拍照。\n你眨了眨眼。街对面的汤米消失了。\n店铺门口的汤米抬头看你。\n「怎么了？」\n你问他刚才有没有看到街对面有人。\n「没有。我一直在这里。」\n但他的相机里确实有一张照片——拍的是街对面的他。",
     effects: { san: -3, add_clue: "clue_contradiction_double" },
@@ -419,7 +419,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_011", name: "未完成的对话", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "npc", "martha"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "npc", "martha"],
     trigger: { areas: ["harbor_district"], min_loop: 5, probability: 0.2, once_per_run: true, npc_alive: ["玛莎·格雷"] },
     description: "你走进酒吧。玛莎看到你，话说到一半：\n「——所以你觉得封印的关键在——」\n她突然停住。\n「等等。我刚才在和谁说话？」\n你告诉她你刚进来。\n「不可能。我刚才明明在……」她看了看吧台。上面有两个杯子。一个在你面前，一个在角落的空位前。\n角落的杯子里还有半杯酒。酒是温的。",
     effects: { san: -2, add_clue: "clue_contradiction_unfinished" },
@@ -428,7 +428,7 @@ export const events = [
   },
   {
     id: "loop_contradiction_012", name: "地图的矛盾", type: "loop_locked", subtype: "loop_contradiction",
-    weight: 1, tier: "rare", tags: ["loop", "contradiction", "map"],
+    weight: 1, tier: "rare", quality_tier: "B", tags: ["loop", "contradiction", "map"],
     trigger: { areas: ["town_center"], min_loop: 4, probability: 0.2, once_per_run: true },
     description: "你打开笔记本上的地图。路线和你记忆中的不一样。\n有一条路你从未画过——从镇中心直接通往一个你从未去过的地方。\n但你认出了那个地方的名字。你梦到过它。\n你问伊莱亚斯那个地方在哪里。\n「那里？那里什么都没有。只有一片空地。」\n你去了。确实什么都没有。但地上的土是新翻过的。",
     effects: { san: -2, add_clue: "clue_contradiction_map" },
@@ -441,7 +441,7 @@ export const events = [
   // =============================================
   {
     id: "loop_wall_001", name: "招手的手指", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "horror"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse", "horror"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, time_phase: ["midnight"], once_per_run: true },
     description: "墙上的裂缝里伸出几根手指。\n手指很细，关节比正常人多一节。它们朝你招了招。\n你眨了眨眼。只剩裂缝。\n但裂缝比昨天宽了一点。",
     effects: { san: -3 },
@@ -450,7 +450,7 @@ export const events = [
   },
   {
     id: "loop_wall_002", name: "墙壁的呼吸", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, time_phase: ["evening", "midnight"], once_per_run: true },
     description: "你靠在墙上休息。墙壁是温热的。\n你把手掌贴紧墙面。有节奏的起伏——很轻，但确实存在。\n像是呼吸。\n你把手移开。墙壁变冷了。\n你重新贴上去。又是温热的。节奏比刚才快了一点。",
     effects: { san: -3 },
@@ -459,7 +459,7 @@ export const events = [
   },
   {
     id: "loop_wall_003", name: "墙后的低语", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "whisper"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse", "whisper"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, time_phase: ["midnight"], once_per_run: true },
     description: "你把耳朵贴在墙上。另一边有声音。\n不是风。是有人在说话。声音很轻，你只能听清几个词：\n「……他还不知道……」\n「……再给他一次机会……」\n「……第七天……」\n你猛地把耳朵移开。墙面上留下了一小片潮湿的印记——像是有人从另一边贴着墙呼出的气。",
     effects: { san: -3, add_clue: "clue_wall_whisper" },
@@ -468,7 +468,7 @@ export const events = [
   },
   {
     id: "loop_wall_004", name: "裂缝中的眼睛", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "eye"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse", "eye"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.1, time_phase: ["midnight"], once_per_run: true },
     description: "裂缝里有什么东西在反光。\n你凑近看。是一只眼睛。\n眼睛没有眼白。整个瞳孔是深灰色的，像是被雾填满了。\n它在看着你。你知道它在看着你，因为当你移动时，它也跟着移动。\n然后它眨了一下。裂缝合上了。\n墙壁上留下了一滴液体。你没有去碰它。",
     effects: { san: -4 },
@@ -477,7 +477,7 @@ export const events = [
   },
   {
     id: "loop_wall_005", name: "墙壁的凹陷", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, once_per_run: true },
     description: "墙上出现了一个凹陷。形状像一个人的轮廓——侧躺着，蜷缩着。\n凹陷不深，但你能看出肩膀、手肘、膝盖的位置。\n你伸手摸了摸。凹陷里是温热的。\n第二天你再看。凹陷更深了一点。姿势也变了——像是翻了个身。",
     effects: { san: -3 },
@@ -486,7 +486,7 @@ export const events = [
   },
   {
     id: "loop_wall_006", name: "墙中的心跳", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "heartbeat"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse", "heartbeat"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, once_per_run: true },
     description: "你把耳朵贴在墙上。能听到心跳声。\n节奏和你的一样。但当你屏住呼吸时，心跳声没有停。\n你的心跳在加速。墙里的心跳也加速了——但比你慢半拍。\n像是什么东西在模仿你。",
     effects: { san: -3 },
@@ -495,7 +495,7 @@ export const events = [
   },
   {
     id: "loop_wall_007", name: "渗出的液体", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "liquid"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse", "liquid"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.15, once_per_run: true },
     description: "墙角渗出了一滩液体。你蹲下来查看。\n液体是黑色的，粘稠，带着铁锈和海水混合的气味。\n你用手指蘸了一点。液体是温热的。\n你把手指放到鼻子下面闻了闻。有一股淡淡的血腥味。\n你用布擦掉了液体。第二天同一位置又渗出了一滩。这次更多。",
     effects: { san: -3, hp: -1 },
@@ -504,7 +504,7 @@ export const events = [
   },
   {
     id: "loop_wall_008", name: "墙壁的文字", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "text"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse", "text"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.1, once_per_run: true },
     description: "你醒来时发现墙上有字。\n字迹是凸起的，像是从墙里长出来的。你摸了摸——触感像骨头。\n字写的是：「你不属于这里。」\n你试图用手刮掉它们。刮不动。字迹像是墙体的一部分。\n到了晚上，字变了：「但你无处可去。」",
     effects: { san: -3, add_clue: "clue_wall_text" },
@@ -513,7 +513,7 @@ export const events = [
   },
   {
     id: "loop_wall_009", name: "地板的脉络", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "floor"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse", "floor"],
     trigger: { areas: ["town_center"], min_loop: 5, probability: 0.12, once_per_run: true },
     description: "地板的缝隙里长出了什么东西。你蹲下来看。\n是细小的、半透明的丝线，像是某种菌丝。它们从墙角的裂缝中蔓延出来，在地板上形成了一个图案。\n图案看起来像一张地图。你认出了沃切斯特的轮廓。\n丝线在缓慢生长。到了第二天，它们覆盖了半个房间的地板。",
     effects: { san: -3, safehouseCorruption: 5 },
@@ -522,7 +522,7 @@ export const events = [
   },
   {
     id: "loop_wall_010", name: "墙后的呼唤", type: "loop_locked", subtype: "wall_entity",
-    weight: 1, tier: "rare", tags: ["loop", "wall", "safehouse", "call"],
+    weight: 1, tier: "rare", quality_tier: "A", tags: ["loop", "wall", "safehouse", "call"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.1, time_phase: ["midnight"], once_per_run: true },
     description: "你听到有人在叫你的名字。\n声音从墙后传来。你认出了那个声音——是你自己的。\n「过来，」它说，「这边有出路。」\n你把手贴在墙上。墙壁是软的。\n你的手指陷了进去。像是按在皮肤上。\n你抽回手。墙上留下了五个指印。指印慢慢消失了。\n声音没有再响起。",
     effects: { san: -4 },
@@ -535,7 +535,7 @@ export const events = [
   // =============================================
   {
     id: "loop_correction_001", name: "被划掉的线索", type: "loop_locked", subtype: "world_correction",
-    weight: 1, tier: "signature", tags: ["loop", "correction", "clue"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "correction", "clue"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.2, once_per_run: true },
     description: "你翻开笔记本。上周目记录的一条关键线索被划掉了。\n不是你划的——笔迹不同，力度更大，像是有人用力地、反复地涂抹。\n你试图辨认被划掉的内容。依稀能看到几个字：「灯塔……地下室……钥匙……」\n系统提示：世界试图隐藏它。",
     effects: { san: -3, add_clue: "clue_correction_redacted", mythos: 2 },
@@ -544,7 +544,7 @@ export const events = [
   },
   {
     id: "loop_correction_002", name: "消失的路径", type: "loop_locked", subtype: "world_correction",
-    weight: 1, tier: "signature", tags: ["loop", "correction", "navigation"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "correction", "navigation"],
     trigger: { areas: ["whispering_forest"], min_loop: 6, probability: 0.2, once_per_run: true },
     description: "你记得这里有一条小路。上周目你走过。\n但小路不见了。灌木丛长得很密，像是从来没有路通过。\n你拨开灌木。底下是泥土——但泥土的纹路不对。像是被什么机器翻整过，然后重新种上了植物。\n你蹲下来仔细看。泥土里有一小截石板路的碎片。路确实存在过。",
     effects: { san: -3, add_clue: "clue_correction_path" },
@@ -553,7 +553,7 @@ export const events = [
   },
   {
     id: "loop_correction_003", name: "修改的记忆", type: "loop_locked", subtype: "world_correction",
-    weight: 1, tier: "signature", tags: ["loop", "correction", "memory"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "correction", "memory"],
     trigger: { areas: ["town_center", "harbor_district"], min_loop: 6, probability: 0.15, once_per_run: true },
     description: "你试图回忆上周目的某个细节。你记得很清楚——某个人告诉了你一个重要的信息。\n但当你去验证时，那个人说他从未说过那些话。\n你翻开笔记本。你确实记下了那段对话。但笔记的字迹变了——变成了你不认识的笔迹。\n只有关键的几个字还是你的：不要相信修正。",
     effects: { san: -3, add_clue: "clue_correction_memory" },
@@ -562,7 +562,7 @@ export const events = [
   },
   {
     id: "loop_correction_004", name: "被替换的物品", type: "loop_locked", subtype: "world_correction",
-    weight: 1, tier: "signature", tags: ["loop", "correction", "item"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "correction", "item"],
     trigger: { areas: ["town_center"], min_loop: 6, probability: 0.15, once_per_run: true },
     description: "你打开抽屉。里面的东西和你记忆中的不一样。\n上周目你放在这里的钥匙碎片不见了。取而代之的是一张照片——拍的是同一把钥匙，但已经碎成了更多块。\n照片背面写着一行字：「它不想被找到。」\n你翻过照片。正面的钥匙碎片在照片里慢慢消失，像是被什么抹去了。",
     effects: { san: -3, add_clue: "clue_correction_replaced" },
@@ -571,7 +571,7 @@ export const events = [
   },
   {
     id: "loop_correction_005", name: "被篡改的日历", type: "loop_locked", subtype: "world_correction",
-    weight: 1, tier: "signature", tags: ["loop", "correction", "time"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "correction", "time"],
     trigger: { areas: ["town_center"], min_loop: 7, probability: 0.15, once_per_run: true },
     description: "你查看教堂的日历。三月十五日被撕掉了。\n不是被人撕掉的——纸张的边缘是光滑的，像是从来没有那一页。\n你问伊莎贝拉。\n「三月十五？今年没有那一天。三月十四直接跳到了三月十六。」\n她看着你的表情，补充道：「一直都是这样。」",
     effects: { san: -3, add_clue: "clue_correction_calendar" },
@@ -580,7 +580,7 @@ export const events = [
   },
   {
     id: "loop_correction_006", name: "被封锁的房间", type: "loop_locked", subtype: "world_correction",
-    weight: 1, tier: "signature", tags: ["loop", "correction", "manor"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "correction", "manor"],
     trigger: { areas: ["voxchester_manor"], min_loop: 6, probability: 0.15, once_per_run: true },
     description: "你走到庄园二楼尽头的房间。上周目你进去过。\n但门不见了。\n墙壁是完整的——没有门框的痕迹，没有被封堵的迹象。墙纸的花纹是连续的，像是从来没有过一扇门。\n你用手敲了敲墙壁。实心的。\n但你清楚地记得房间里有一本日记。",
     effects: { san: -3, add_clue: "clue_correction_room" },
@@ -589,7 +589,7 @@ export const events = [
   },
   {
     id: "loop_correction_007", name: "被修改的墓碑", type: "loop_locked", subtype: "world_correction",
-    weight: 1, tier: "signature", tags: ["loop", "correction", "catacombs"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "correction", "catacombs"],
     trigger: { areas: ["catacombs_entrance"], min_loop: 7, probability: 0.15, once_per_run: true },
     description: "你找到了上周目标记过的那块墓碑。碑文不一样了。\n你记得上面刻的是一个日期和一个名字。现在变成了完全不同的日期和名字。\n你蹲下来仔细看。石面没有任何修改的痕迹——字像是从一开始就刻成这样的。\n但石缝里卡着一小块石屑。你认出了上面的字。是你记忆中的碑文。",
     effects: { san: -3, add_clue: "clue_correction_tombstone" },
@@ -598,7 +598,7 @@ export const events = [
   },
   {
     id: "loop_correction_008", name: "被重写的历史", type: "loop_locked", subtype: "world_correction",
-    weight: 1, tier: "signature", tags: ["loop", "correction", "library"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "correction", "library"],
     trigger: { areas: ["town_center"], min_loop: 7, probability: 0.1, once_per_run: true },
     description: "你在图书馆找到一本关于沃切斯特历史的书。你翻到关于莫里斯家族的章节。\n和你记忆中的不一样。上周目你读到的内容被整段替换了。\n你对比了两个版本。关键的差异只有一个：原版提到了一个封印的位置。新版完全没有。\n书页的边缘有一行极小的铅笔字：「它会修改记录。小心。」\n是你的笔迹。",
     effects: { san: -3, add_clue: "clue_correction_history", mythos: 2 },
@@ -611,7 +611,7 @@ export const events = [
   // =============================================
   {
     id: "loop_endpoint_001", name: "墓碑上的结局", type: "loop_locked", subtype: "loop_endpoint",
-    weight: 1, tier: "signature", tags: ["loop", "endpoint", "ending"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "endpoint", "ending"],
     trigger: { areas: ["catacombs_entrance"], min_loop: 8, probability: 0.1, once_per_run: true },
     description: "你在墓穴深处找到一块墓碑。上面刻着字——不是名字，而是结局。\n你逐行阅读：\n「献祭者。希尔达的选择。古老血脉。第十二声。」\n「逃离海岸。证据逃离。异端黎明。深渊吞噬。」\n「超越者。命运漂流。」\n最后有一行空格。还没填上。\n你伸手去摸那个空格。石头是温热的。",
     effects: { san: -4, mythos: 3, add_clue: "clue_endpoint_tombstone" },
@@ -620,7 +620,7 @@ export const events = [
   },
   {
     id: "loop_endpoint_002", name: "倒计时", type: "loop_locked", subtype: "loop_endpoint",
-    weight: 1, tier: "signature", tags: ["loop", "endpoint", "countdown"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "endpoint", "countdown"],
     trigger: { areas: ["town_center"], min_loop: 8, probability: 0.1, once_per_run: true },
     description: "你打开怀表。表盘上的数字在变化——不是时间，而是数字。\n从十开始倒数。九。八。七。\n你试着合上表盖。合不上。\n六。五。四。\n你把怀表翻过来。背面刻着一行字：「当数字归零，你将不再回来。」\n三。二。一。\n表盘恢复了正常时间。但你注意到——今天是第「数字」天。你记不清具体是第几天了。",
     effects: { san: -4, add_clue: "clue_endpoint_countdown" },
@@ -629,7 +629,7 @@ export const events = [
   },
   {
     id: "loop_endpoint_003", name: "所有周目的你", type: "loop_locked", subtype: "loop_endpoint",
-    weight: 1, tier: "signature", tags: ["loop", "endpoint", "self"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "endpoint", "self"],
     trigger: { areas: ["lighthouse"], min_loop: 9, probability: 0.08, once_per_run: true },
     description: "灯塔的灯室里有一面镜子。镜子里映出了很多个人影。\n你数了一下。数量和你的周目数一样。\n每个人影的姿势都不同——有的在奔跑，有的在战斗，有的蜷缩在地上，有的面朝深渊。\n你走到镜子前。所有的人影同时转头看你。\n它们的嘴同时动了。你读出了唇语：\n「选一个结局。」",
     effects: { san: -5, mythos: 3, add_clue: "clue_endpoint_mirror" },
@@ -638,7 +638,7 @@ export const events = [
   },
   {
     id: "loop_endpoint_004", name: "最后一次机会", type: "loop_locked", subtype: "loop_endpoint",
-    weight: 1, tier: "signature", tags: ["loop", "endpoint", "final"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "endpoint", "final"],
     trigger: { areas: ["deep_catacombs"], min_loop: 9, probability: 0.08, once_per_run: true },
     description: "深渊墓穴的最深处。你看到了一面墙。墙上写满了名字——你认出了几个。\n是其他调查员的名字。有些你见过，在失踪告示上。有些你没见过。\n每个名字旁边都有一个结局：疯狂、死亡、逃离、献祭……\n最后一个名字是你的。旁边的结局栏是空的。\n墙的底部刻着一行字：「这是你的最后一次机会。选择你的结局。」",
     effects: { san: -5, mythos: 3, add_clue: "clue_endpoint_final_wall" },
@@ -647,10 +647,54 @@ export const events = [
   },
   {
     id: "loop_endpoint_005", name: "循环的尽头", type: "loop_locked", subtype: "loop_endpoint",
-    weight: 1, tier: "signature", tags: ["loop", "endpoint", "loop_truth"],
+    weight: 1, tier: "signature", quality_tier: "A", tags: ["loop", "endpoint", "loop_truth"],
     trigger: { areas: ["ruins_of_yith"], min_loop: 10, probability: 0.05, once_per_run: true },
     description: "伊斯机器完全亮了起来。你看到了一段影像——\n是你自己。很多个你。每一个都在做不同的选择。\n有的你重铸了封印。有的你逃离了沃切斯特。有的你沉入了深渊。\n影像的最后，所有的你同时看向你。\n一个声音响起——不是任何人的声音，而是机器本身的声音：\n「你已经看到了所有的可能。现在，做出你的选择。这是最后一次循环。」\n机器的光芒开始消退。",
     effects: { san: -5, mythos: 5, add_clue: "clue_endpoint_yith_final", unlock_ending_condition: "ending_loop_truth_available" },
+    event_classification: "超自然遭遇", normalcy_anchor: false,
+    choices: []
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // §2 补充：高轮回深度事件 (4) — loop >= 8, 极低SAN
+  // ═══════════════════════════════════════════════════════════
+  {
+    id: "loop_deep_001", name: "轮回的计数器", type: "loop_locked", subtype: "loop_deep",
+    weight: 1.5, tier: "signature", quality_tier: "A",
+    tags: ["loop", "deep", "count", "meta"],
+    trigger: { areas: ["town_center"], min_loop: 8, san_lte: 15, probability: 0.1, once_per_run: true },
+    description: "你翻开笔记本。最后一页上有一个数字。\n不是你写的。字迹很小。很整齐。\n数字是：" + "你当前的轮回次数" + "。\n你盯着数字看了很久。数字没有变。但你知道——如果你翻回前一页，会看到上一次的数字。比这个少一。\n你知道——有东西在记录你的轮回。每一轮。每一个数字。从第一次到现在。\n你合上笔记本。封面上多了一道划痕。像是计数器的刻痕。",
+    effects: { san: -3, mythos: 2, add_clue: "clue_deep_loop_counter" },
+    event_classification: "超自然遭遇", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "loop_deep_002", name: "所有结局的回声", type: "loop_locked", subtype: "loop_deep",
+    weight: 1.5, tier: "signature", quality_tier: "A",
+    tags: ["loop", "deep", "endings", "echo"],
+    trigger: { areas: ["deep_catacombs"], min_loop: 8, san_lte: 15, probability: 0.08, once_per_run: true, min_previous_endings_count: 3 },
+    description: "你站在封印前面。封印的符号在发光。\n你看到了——在符号的光芒里，有画面。是你的结局。所有的结局。同时在播放。\n你看到了守门人的结局。你看到了逃离的结局。你看到了疯狂的结局。\n画面在重叠。在融合。在变成一个新的画面——一个你从未见过的结局。\n画面里，你站在沃切斯特的中心。所有的NPC都面朝你。他们的眼睛是空白的。\n画面消失了。封印的光芒恢复了正常。\n你知道——你看到了一个还未发生的结局。但你知道它会发生。",
+    effects: { san: -4, mythos: 3, add_clue: "clue_deep_all_endings_echo" },
+    event_classification: "超自然遭遇", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "loop_deep_003", name: "沃切斯特的记忆", type: "loop_locked", subtype: "loop_deep",
+    weight: 1.5, tier: "signature", quality_tier: "A",
+    tags: ["loop", "deep", "wochester", "memory"],
+    trigger: { areas: ["ruins_of_yith"], min_loop: 8, san_lte: 15, probability: 0.08, once_per_run: true },
+    description: "你走进伊斯遗迹。机器没有亮。但你听到了声音。\n不是机器的声音。是沃切斯特的声音。\n你听到了——海浪。街灯。教堂的钟声。渔民的笑声。孩子的哭声。\n所有的声音同时在播放。像是沃切斯特在回忆自己。\n然后——声音停了。沉默持续了十三秒。\n然后——一个声音响起。不是任何你能辨认的声音。是沃切斯特本身的声音。\n「我在这里很久了，」它说，「比你久。比封印久。比海久。」\n「你是第一个听了这么久的人。」\n声音消失了。遗迹恢复了沉默。",
+    effects: { san: -4, mythos: 3, add_clue: "clue_deep_wochester_memory" },
+    event_classification: "超自然遭遇", normalcy_anchor: false,
+    choices: []
+  },
+  {
+    id: "loop_deep_004", name: "最终循环的预兆", type: "loop_locked", subtype: "loop_deep",
+    weight: 2, tier: "signature", quality_tier: "S",
+    tags: ["loop", "deep", "final", "omen"],
+    trigger: { areas: ["town_center", "harbor_district", "deep_catacombs"], min_loop: 10, san_lte: 10, probability: 0.05, once_ever: true },
+    description: "你醒来。窗外的天空不是蓝色的。也不是灰色的。\n是白色的。纯粹的白色。没有云。没有太阳。没有月亮。只有白色。\n你走出安全屋。街道上没有人。没有声音。没有风。\n你走了几步。脚下的鹅卵石在你踩上去的时候碎了。不是碎裂——是溶解。像砂糖在水里。\n你回头看你走过的地方。鹅卵石消失了。留下了一片白色的虚无。\n你知道——沃切斯特在消失。从你脚下开始。从你走过的每一步开始。\n这是最后一次循环。你知道。不是因为你被告知——是因为你能感觉到。\n你的身体在告诉你：这一次，做出选择。不要再循环了。",
+    effects: { san: -5, mythos: 5, add_clue: "clue_deep_final_loop_omen" },
     event_classification: "超自然遭遇", normalcy_anchor: false,
     choices: []
   }

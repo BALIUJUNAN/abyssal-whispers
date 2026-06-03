@@ -80,6 +80,8 @@ export function applyEffects(state, effects, context) {
       }
       case 'modify_npc_trust': {
         const npcId = eff.npc_id;
+        // §3.3: NPC trust lock check (meta event consequence)
+        if (state._npcTrustLocked && state._npcTrustLocked[npcId]) break;
         state.npcTrust[npcId] = Math.min(5, Math.max(0, (state.npcTrust[npcId] || 0) + (eff.amount || 1)));
         break;
       }
@@ -159,6 +161,8 @@ export function applyLegacyEffects(state, eff) {
   // NPC trust: { "NPC名": amount }
   if (eff.npc_trust) {
     for (const [npcId, amount] of Object.entries(eff.npc_trust)) {
+      // §3.3: NPC trust lock check (meta event consequence)
+      if (state._npcTrustLocked && state._npcTrustLocked[npcId]) continue;
       state.npcTrust[npcId] = Math.min(5, Math.max(0, (state.npcTrust[npcId] || 0) + amount));
     }
   }

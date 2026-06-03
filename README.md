@@ -9,7 +9,7 @@
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-6.5MB_(with_Babel)-green)
-![Version](https://img.shields.io/badge/version-0.2.0-orange)
+![Version](https://img.shields.io/badge/version-0.2.1-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版下载) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -65,11 +65,12 @@ npm run tauri build
 
 | 维度 | 数据 |
 |------|------|
-| **独立事件** | 723+ 个（633 扩展事件 + 90 JSON 事件） |
+| **独立事件** | 750+ 个（575 扩展事件 + 175+ JSON 事件） |
 | **行为结局** | **36 条** — 由你的选择模式触发，非预设分支 |
 | **主线结局** | **10 条** — 封印守护者 / 希尔达抉择 / 老费舍血脉 / 第十二声钟 / 海上逃离 / 证据逃离 / 异端黎明 / 深渊吞噬 / 超越 / 循环真相 |
+| **结局余韵** | 每条结局附带可解锁的 Afterglow 文本（条件触发） |
 | **死亡类型** | 16 种 — 7 种物理死亡 + 8 种精神死亡 + 1 种混合 |
-| **NPC** | **8 位** × 5 级信任 × 4 层跨轮记忆 |
+| **NPC** | **8 位** × 5 级信任 × 4 层跨轮记忆 × 关系网 × 死后遗产 |
 | **可探索区域** | 9 个 — 从镇中心到深渊墓穴，危险度递进 |
 | **物品** | 79 种 — 全部有效果，含 2 家可购买商店 |
 | **事件链** | 7 条 — 码头暗流 / 森林深处 / 庄园迷踪 / 墓穴惊魂 / 伊斯之谜 / 灯塔真相 / 城市暗流 |
@@ -79,7 +80,7 @@ npm run tauri build
 | **图片素材** | 210 张 WebP — 含 72 张独立结局 CG |
 | **前传系统** | 7 场景线性叙事 — 构建你的恐惧画像 |
 | **SAN 系统** | 6 阶段 × 4 维度（视觉/交互/逻辑/Meta）完整污染定义 |
-| **代码规模** | 18,447 行 JS/JSX — 91 个源文件 |
+| **代码规模** | 18,842 行 JS/JSX — 91 个源文件 |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -125,8 +126,9 @@ npm run tauri build
    SAN 归零 = 疯狂（精神崩溃）→ 进入下一周目
         ↓
    保留知识碎片 & 世界污染记录
-   SAN 上限永久削减（loop5+ 每周 -2，最高 -20）
-   NPC 记住你是重复访客
+   SAN 上限阶梯式削减（loop4-5 下限60，loop10+ 固定50）
+   NPC 记住你是重复访客 + 关系网跨循环保留
+   结局代币 +1，轮回商店按周目解锁
    再次踏入沃切斯特
 ```
 
@@ -211,7 +213,12 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 | **多槽位存档** | 3 自动 + 3 手动，版本迁移兼容，JSON 导入/导出 |
 | **快捷键** | `1-9` 选择 / `Space` 确认 / `M` 地图 / `I` 物品 / `J` 线索 |
 | **章节转场** | Day 4/8/15/22 沉浸式过渡动画（3D 透视旋转） |
-| **轮回继承** | 知识碎片 / 世界污染 / NPC 跨轮记忆 / 技能保留(30%) / 行为计数器搬入 |
+| **轮回继承** | 知识碎片 / 世界污染 / NPC 跨轮记忆 / 关系网 / 死后遗产 / 技能保留(30%) / 行为计数器搬入 / 结局代币 |
+| **结局余韵** | 每条结局附带 Afterglow 文本，满足条件后解锁（事件/物品/周目数） |
+| **NPC 关系网** | NPC 间动态关系（ally/enemy/relative），跨循环保留，影响对话与事件 |
+| **NPC 死后遗产** | NPC 死亡后留下物品/知识/任务，玩家可领取继承 |
+| **轮回商店** | 结局代币解锁（loop5+ Tier1 / loop7+ Tier2），提供稀有物资 |
+| **Meta 事件后果** | 存档覆盖 / NPC 信任锁定 / NPC 永久失踪 / 对话分支删除 |
 | **无障碍支持** | 轻度污染模式 / 可关闭视觉扭曲 / 字号放大 / prefers-reduced-motion |
 | **UGC 模组** | 支持导入自定义事件 JSON（Schema 校验） |
 | **ErrorBoundary** | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载 |
@@ -273,7 +280,7 @@ COC/
 ├── assets/webp/            # 210 张 WebP 图片素材
 ├── audio/                  # 53 个音频文件
 │
-├── src/                    # 18,447 行 JS/JSX，91 个源文件
+├── src/                    # 18,842 行 JS/JSX，91 个源文件
 │   ├── app.jsx             # 主入口（334 行 — 路由 + 双Store桥接 + DevPanel）
 │   ├── main.jsx            # Vite ES 模块入口
 │   ├── styles.css          # 样式表（84KB）
@@ -331,6 +338,8 @@ COC/
 │   └── vendor/                   # React/ReactDOM/Babel
 │
 ├── src-tauri/              # Tauri v2 桌面应用配置
+├── tests/                  # 测试（事件系统集成测试 + 单元测试）
+├── mods/                   # UGC 模组示例
 └── docs/                   # 文档与图片
 ```
 
@@ -351,7 +360,8 @@ COC/
 | **轮回系统** | 跨周目状态传递 | 污染累积/SAN上限削减/技能继承30%/NPC记忆渐进 |
 | **前传系统** | 7场景恐惧画像 | 6维度心理profile/跳过保护 |
 | **结局引擎** | AND/OR条件解析 | 36行为结局+10主线+隐藏+Meta打破 |
-| **NPC系统** | 8人×5级信任×4层记忆 | 信任门控/腐蚀/救赎路线 |
+| **NPC系统** | 8人×5级信任×4层记忆×关系网×死后遗产 | 信任门控/腐蚀/救赎路线/NPC间关系/遗产继承 |
+| **结局余韵** | Afterglow 文本系统 | 条件解锁(事件/物品/周目数)/轮回记录UI |
 | **AudioManager** | 53段音频管理 | 区域环境音(昼夜)/技能检定分级/SAN损失分层 |
 
 ### SAN 系统架构（SSOT）
@@ -479,6 +489,7 @@ npm run tauri build
 
 | 版本 | 日期 | 主要更新 |
 |------|------|---------|
+| **0.2.1** | 2026-06-03 | **系统深化 + 构建修复** — ①修复 `utils/uiStore.js` 重复打包导致 `SyntaxError: _useSyncExternalStore` 的致命bug；②NPC 关系网(§1.2)：`setNpcRelation`/`getNpcRelation`/`getNpcConnections` — NPC间动态关系(ally/enemy/relative)，跨循环保留；③NPC 死后遗产(§1.2)：`registerNpcLegacy`/`claimNpcLegacy` — NPC死亡后留下物品/知识/任务；④结局余韵系统(§5.3)：`checkAfterglowUnlock`/`getAfterglowTexts`/`getEndingRecord` — 结局附带可解锁Afterglow文本；⑤轮回平衡重做(§2.2)：SAN阶梯式上限(loop4-5下限60, loop10+固定50)，污染取代SAN惩罚；⑥结局代币+轮回商店(§2.4)：每达成结局+1代币，loop5/7解锁商店层级；⑦Meta事件真实后果(§3.3)：存档覆盖/NPC信任锁定/NPC永久失踪/对话分支删除；⑧质量分层(§3.2)：Tier C事件文本截断+重复触发泛化替换；⑨Meta事件频率门控(§3.4)：`max_meta_per_run`触发条件；⑩数据大幅扩展：game_base.json +8322行，9个事件模块全面更新 |
 | **0.2.0** | 2026-06-02 | **SAN系统满分实现** — 6阶段×4维度详细污染定义；SSOT单一数据源(`getCurrentSanStage()`零硬编码)；SanPollutionLayer完全重写(194行，CSS动画+Canvas渲染+CorruptibleChoice+AbyssPopup)；6阶段渐进效果(色偏/颤抖/泛光/扫描线/暗角/barrel/撕裂/虚假选项/伪造通知)；三滑块SAN控制；轻度污染模式(无障碍)；引擎层独立(4模块758行)；双Store架构；DevPanel(F12)；build --analyze/--dev/--prod |
 | **0.1.2** | 2026-06-01 | appHelpers拆分(-60%)；dailySlice REST 7子函数；GamePanels组件拆分；miscReducer合并(3→1)；Zustand外部UI Store；章节懒加载(day5/day10)；Vite开发环境(HMR) |
 | **0.1.1** | 2026-05-31 | Error Tracker操作追踪；ErrorBoundary升级(30步回放)；四维度代码审查(7.5/10) |

@@ -184,6 +184,13 @@ export function checkTriggerExtended(evt, state, ctx) {
     if (everTriggered.includes(evt.id)) return false;
   }
 
+  // §3.4: Max meta events per run (heavy meta gate)
+  if (t.max_meta_per_run) {
+    const runTriggered = state.runTriggeredExtendedEvents || [];
+    const metaThisRun = runTriggered.filter(id => id.startsWith('meta_'));
+    if (metaThisRun.length >= t.max_meta_per_run) return false;
+  }
+
   // Cooldown days
   if (t.cooldown_days && t.cooldown_days > 0) {
     const cooldowns = state.eventCooldowns || {};

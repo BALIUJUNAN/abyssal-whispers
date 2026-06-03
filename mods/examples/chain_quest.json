@@ -1,0 +1,62 @@
+{
+  "id": "example_chain_quest",
+  "name": "示例：连锁任务模组",
+  "author": "官方示例",
+  "version": "1.0.0",
+  "description": "展示两个事件通过 requires_prev_event 串联，形成任务链。",
+  "enabled": false,
+  "events": [
+    {
+      "id": "example_chain_001",
+      "name": "寻找失踪的猫",
+      "type": "npc_cross",
+      "subtype": "example",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "B",
+      "tags": ["example", "town", "cat", "quest_start"],
+      "trigger": {
+        "areas": ["town_center"],
+        "probability": 0.2,
+        "once_per_run": true
+      },
+      "description": "一个孩子拉住了你的衣角。\n「先生，我的猫不见了。」她说，「它叫小灰。它昨天晚上跑出去了。」\n她的眼睛红红的。\n「你能帮我找找吗？它可能在码头那边。」",
+      "effects": {},
+      "event_classification": "NPC互动",
+      "normalcy_anchor": false,
+      "choices": [
+        {
+          "label": "答应帮忙",
+          "text": "「我会帮你找的。」她的眼睛亮了。",
+          "effects": { "add_flag": "flag_looking_for_cat", "humanity": 2 }
+        },
+        {
+          "label": "拒绝",
+          "text": "「对不起，我有更重要的事。」她低下了头。",
+          "effects": { "humanity": -1 }
+        }
+      ]
+    },
+    {
+      "id": "example_chain_002",
+      "name": "猫的报恩",
+      "type": "area_deep",
+      "subtype": "example",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "A",
+      "tags": ["example", "harbor", "cat", "quest_end"],
+      "trigger": {
+        "areas": ["harbor_district"],
+        "probability": 0.3,
+        "once_per_run": true,
+        "requires_flags": ["flag_looking_for_cat"]
+      },
+      "description": "你在码头的仓库后面找到了小灰。它蜷缩在一个纸箱里。\n你把它抱起来。它发出了呼噜声。\n你把它还给了孩子。孩子笑了。\n「谢谢你！」她说，「小灰说它发现了一个秘密。跟我来。」\n她带你走到了仓库的角落。地上有一个铁环。铁环连着一扇活板门。",
+      "effects": { "add_clue": "clue_example_cat_secret", "san": 1 },
+      "event_classification": "调查",
+      "normalcy_anchor": false,
+      "choices": []
+    }
+  ]
+}

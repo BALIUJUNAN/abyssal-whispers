@@ -1,5 +1,5 @@
 // 扩展事件索引 - 汇总所有新增事件模块
-// 总计 600 个新增事件，分 9 个方向
+// 总计 575 个新增事件，分 9 个方向（§3.2: meta从36精简到12）
 
 import { events as loopEvents } from './events_loop.js';
 import { events as humanityEvents } from './events_humanity.js';

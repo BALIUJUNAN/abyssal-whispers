@@ -1,6 +1,81 @@
 // src/reducers/slices/exploreSlice.js - Extracted from gameReducer
 // MOVE, EXPLORE, DO_SKILL_CHECK
 
+// §3.3: Meta event real consequences
+function applyMetaEffect(effectType, state, evt, c) {
+  if (!effectType) return;
+  switch (effectType) {
+    case 'overwrite_save_slot':
+      // §3.3: "虚假的存档" — 标记存档槽被覆盖
+      state._metaSaveOverwritten = true;
+      c.narr('system', '存档已更新为最新版本。你可能失去了什么。', { isSpecial: true });
+      break;
+    case 'npc_trust_lock_random':
+    case 'npc_trust_lock_and_achievement':
+      // §3.3: NPC信任锁定为0 + 解锁成就
+      var trustNpcs = Object.entries(state.npcTrust || {}).filter(function(kv) { return kv[1] >= 3; });
+      if (trustNpcs.length > 0) {
+        var target = trustNpcs[Math.floor(Math.random() * trustNpcs.length)];
+        state.npcTrust[target[0]] = 0;
+        state._npcTrustLocked = state._npcTrustLocked || {};
+        state._npcTrustLocked[target[0]] = true;
+        c.narr('system', target[0] + '突然说了一串你听不懂的话。然后沉默了。你感到——有什么东西断裂了。', { isSpecial: true });
+      }
+      if (effectType === 'npc_trust_lock_and_achievement') {
+        state._achievements = state._achievements || [];
+        if (!state._achievements.includes('achievement_fourth_wall')) {
+          state._achievements.push('achievement_fourth_wall');
+          c.narr('system', '【成就解锁】打破第四面墙', { isSpecial: true });
+        }
+      }
+      break;
+    case 'npc_permanent_disappear':
+      // §3.3: "作者的提示" — 随机NPC永久失踪
+      var aliveNpcs = Object.entries(state.npcStates || {}).filter(function(kv) { return !kv[1].dead; });
+      if (aliveNpcs.length > 0) {
+        var victim = aliveNpcs[Math.floor(Math.random() * aliveNpcs.length)];
+        state.npcStates[victim[0]] = { ...state.npcStates[victim[0]], dead: true, disappearance: 'meta_vanish' };
+        c.narr('system', victim[0] + '失踪了。没有人记得他/她是什么时候消失的。好像从来没有存在过。', { isSpecial: true });
+      }
+      break;
+    case 'delete_dialogue_branch':
+      // §3.3: "选择的消失" — 删除一个未选择的对话分支
+      state._deletedBranches = state._deletedBranches || [];
+      state._deletedBranches.push({ day: state.day, source: evt.id });
+      c.narr('system', '你感到——某种可能性消失了。一条你没有走过的路，现在永远走不了了。', { isSpecial: true });
+      break;
+  }
+}
+
+// P1: Quality tier dynamic truncation
+// Tier S: full display (no change)
+// Tier A: full display (no change)
+// Tier B: normal display
+// Tier C: first trigger = truncate to 2 sentences; subsequent = generic replacement
+var _QT_GENERIC_REPLACEMENT = '你又有一种熟悉的感觉，但你想不起细节了。沃切斯特的日常就是这样。';
+function applyQualityTier(text, evt, state) {
+  var qt = evt.quality_tier;
+  if (!qt || qt === 'S' || qt === 'A' || qt === 'B') return text;
+  // Tier C: check trigger count
+  if (qt === 'C') {
+    var triggered = state.triggeredEvents || [];
+    var count = 0;
+    for (var i = 0; i < triggered.length; i++) {
+      if (triggered[i] === evt.id) count++;
+    }
+    if (count >= 2) return _QT_GENERIC_REPLACEMENT;
+    // First trigger: truncate to first 2 sentences
+    var sentences = text.split(/[。\n]/);
+    var result = [];
+    for (var j = 0; j < sentences.length && result.length < 2; j++) {
+      var s = sentences[j].trim();
+      if (s.length > 0) result.push(s);
+    }
+    return result.join('。') + '。';
+  }
+  return text;
+}
+
 function handleExploreAction(s, action, c) {
   switch(action.type){
   case 'MOVE':{c.ensureMutableArrays();
@@ -135,7 +210,8 @@ function handleExploreAction(s, action, c) {
           if(fe&&!s.triggeredEvents.includes(eid)&&checkTrigger(fe,s)){
             c.narr('system','【保底推进】你注意到一些之前忽略的细节。',{isSpecial:true});
             s.triggeredEvents.push(eid);
-            c.narr('event',fe.description,{eventTitle:fe.name,eventType:fe.type||fe.event_classification,imageSrc:getEventImage(fe.id)||getAreaSceneImage(s.currentArea,s),imageAlt:fe.name});
+            var feText=applyQualityTier(fe.description,fe,s);
+            c.narr('event',feText,{eventTitle:fe.name,eventType:fe.type||fe.event_classification,imageSrc:getEventImage(fe.id)||getAreaSceneImage(s.currentArea,s),imageAlt:fe.name});
             return s;
           }
         }
@@ -145,6 +221,8 @@ function handleExploreAction(s, action, c) {
     s.triggeredEvents.push(evt.id);
     // Phase 4: Check for distortion variant (alternative text based on SAN/loop)
     let evtText=getDistortionVariant(evt,s)||evt.description;
+    // Phase 4b: Quality tier dynamic truncation (P1)
+    evtText=applyQualityTier(evtText,evt,s);
     evtText=getPollutionText(getSanTextVariant(evtText,s.san,pick,ctx),s.pollution||0);
     // Fear lens: append fear-related flavor text
     if(s.fearTuning&&s.fearTuning.primary)evtText=applyFearLens(evt,evtText,s);
@@ -153,6 +231,10 @@ function handleExploreAction(s, action, c) {
     // Phase 6: Resource-based text corruption
     evtText=applyResourceTextCorruption(evtText,s);
     c.narr('event',evtText,{eventTitle:evt.name,eventType:evt.type||evt.event_classification,imageSrc:getEventImage(evt.id)||getAreaSceneImage(s.currentArea,s),imageAlt:evt.name,_ugcAuthor:evt._ugcAuthor||null});
+    // §3.3: Meta event real consequences
+    if(evt.effects&&evt.effects._meta_effect){
+      applyMetaEffect(evt.effects._meta_effect,s,evt,c);
+    }
     // Event choices: if event has non-empty choices, present them and wait
     if(evt.choices&&evt.choices.length>0){
       applyLegacyEffects(s,evt.effects);
