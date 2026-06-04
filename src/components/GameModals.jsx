@@ -1,8 +1,9 @@
 // src/components/GameModals.jsx - Modal components extracted from app.jsx
 // SettingsModal, SaveLoadModal, AchievementGallery
 
-function SettingsModal({open,onClose,settings,onChange,onAchOpen}){
+function SettingsModal({open,onClose,settings,onChange,onAchOpen,dispatch}){
   const update=(key,val)=>onChange({...settings,[key]:val});
+  const toggleA11y=(key)=>{const val=!settings[key];update(key,val);if(dispatch)dispatch({type:'ACCESSIBILITY_TOGGLE',key:key==='visualDistortion'?'visual_distortion':key==='flickerEffect'?'flicker_control':key,value:val});};
   return <Modal open={open} onClose={onClose} title="设置" width="400px">
     <div className="settings-group-title">音频</div>
     <div className="settings-row">
@@ -41,11 +42,11 @@ function SettingsModal({open,onClose,settings,onChange,onAchOpen}){
     <div className="settings-group-title">效果</div>
     <div className="settings-row">
       <span className="settings-label">视觉抖动</span>
-      <button className={'settings-toggle'+(settings.visualDistortion?' on':'')} onClick={()=>update('visualDistortion',!settings.visualDistortion)}/>
+      <button className={'settings-toggle'+(settings.visualDistortion?' on':'')} onClick={()=>toggleA11y('visualDistortion')}/>
     </div>
     <div className="settings-row">
       <span className="settings-label">闪烁效果</span>
-      <button className={'settings-toggle'+(settings.flickerEffect?' on':'')} onClick={()=>update('flickerEffect',!settings.flickerEffect)}/>
+      <button className={'settings-toggle'+(settings.flickerEffect?' on':'')} onClick={()=>toggleA11y('flickerEffect')}/>
     </div>
     <div className="settings-group-title">SAN污染</div>
     <div className="settings-row">

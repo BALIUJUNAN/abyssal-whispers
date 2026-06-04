@@ -3,7 +3,7 @@
 
 function handleUiAction(s, action, c) {
   switch(action.type){
-  case 'CHOICE_SELECT':{c.ensureMutableArrays();c.cloneInv();
+  case 'CHOICE_SELECT':{
     const pc=s.pendingChoice;if(!pc)return s;
     const choiceIdx=action.choiceIdx;
     const choice=pc.choices[choiceIdx];
@@ -18,9 +18,9 @@ function handleUiAction(s, action, c) {
     c.log('选择：'+choice.label);
     return s;
   }
-  case 'DISMISS_PENDING':s.pendingEvent=null;s.pendingNpc=null;s.pendingGamble=null;s.pendingChoice=null;c.ensureArr('objectives');s.objectives=checkObjCompletion(s.objectives,s);return s;
+  case 'DISMISS_PENDING':s.pendingEvent=null;s.pendingNpc=null;s.pendingGamble=null;s.pendingChoice=null;s.objectives=checkObjCompletion(s.objectives,s);return s;
   case 'CLEAR_TRANSITION':s.transition=null;return s;
-  case 'AUDIO_MUTE_TOGGLE':s.audioMuted=!s.audioMuted;audioManager.setMuted(s.audioMuted);return s;
+  case 'AUDIO_MUTE_TOGGLE':s.audioMuted=!s.audioMuted;c.effects.push({type:'AUDIO_SET_MUTED',muted:s.audioMuted});return s;
   case 'ACCESSIBILITY_TOGGLE':{
     const key=action.key;
     if(!s.accessibilityOptions)s.accessibilityOptions={};
@@ -38,7 +38,7 @@ function handleUiAction(s, action, c) {
     }else if(key==='sudden_sounds'){
       const cur=s.accessibilityOptions.sudden_sounds;
       s.accessibilityOptions={...s.accessibilityOptions,sudden_sounds:cur==='off'?'on':'off'};
-      audioManager.suddenMuted=s.accessibilityOptions.sudden_sounds==='off';
+      c.effects.push({type:'AUDIO_SUDDEN_MUTED',value:s.accessibilityOptions.sudden_sounds==='off'});
     }
     return s;
   }
@@ -57,16 +57,16 @@ function handleUiAction(s, action, c) {
         sanDmg=processSanLoss(sanDmg,s.inventory.map(i=>i.name),s.weather,s.day,s.difficulty,ctx);
         if(sanDmg>0){
           if(evt.skill_check){
-            audioManager.playSkillEffect('roll');
+            c.effects.push({type:'AUDIO_SKILL',id:'roll'});
             const check=doSkillCheck(evt.skill_check.skill,evt.skill_check.threshold||50,s,s.difficulty,ctx);
-            if(check.success){audioManager.playSkillEffect('success');sanDmg=Math.max(1,Math.round(sanDmg*0.5));c.narr('system','【技能检定：'+check.skillName+'】成功！SAN损失减半。');s.stats_run.checks_passed++;}
-            else{audioManager.playSkillEffect(check.isCritFail?'critical_fail':'fail');c.narr('system','【技能检定：'+check.skillName+'】失败！');s.stats_run.checks_failed++;}
+            if(check.success){c.effects.push({type:'AUDIO_SKILL',id:'success'});sanDmg=Math.max(1,Math.round(sanDmg*0.5));c.narr('system','【技能检定：'+check.skillName+'】成功！SAN损失减半。');s.stats_run.checks_passed++;}
+            else{c.effects.push({type:'AUDIO_SKILL',id:check.isCritFail?'critical_fail':'fail'});c.narr('system','【技能检定：'+check.skillName+'】失败！');s.stats_run.checks_failed++;}
           }
           s.san=clamp(s.san-sanDmg,0,s.maxSan);
           c.narr('system','SAN -'+sanDmg,{isEffect:true});
           s.stats_run.max_san_loss_single=Math.max(s.stats_run.max_san_loss_single||0,sanDmg);
           s.stats_run.total_san_loss=(s.stats_run.total_san_loss||0)+sanDmg;
-          if(sanDmg>=1){audioManager.playSanLoss(sanDmg);s.transition='san-loss';}
+          if(sanDmg>=1){c.effects.push({type:'AUDIO_SAN_LOSS',amount:sanDmg});s.transition='san-loss';}
         }
       }
     }else if(choiceId==='deep_investigate'){
@@ -77,7 +77,7 @@ function handleUiAction(s, action, c) {
       c.narr('system','SAN -'+sanRoll,{isEffect:true});
       s.stats_run.max_san_loss_single=Math.max(s.stats_run.max_san_loss_single||0,sanRoll);
       s.stats_run.total_san_loss=(s.stats_run.total_san_loss||0)+sanRoll;
-      if(sanRoll>=1){audioManager.playSanLoss(sanRoll);s.transition='san-loss';}
+      if(sanRoll>=1){c.effects.push({type:'AUDIO_SAN_LOSS',amount:sanRoll});s.transition='san-loss';}
       // Independent reward check
       const reward=opt.reward||{};
       const r=Math.random();
@@ -86,7 +86,7 @@ function handleUiAction(s, action, c) {
         const availableClues=(GD.clue_chains||[]).flatMap(x=>c.clues||[]).filter(x=>!hasClueId(s.clues,c.id));
         if(availableClues.length>0){
           const found=pick(availableClues);
-          s.clues.push({id:found.id,name:found.name||found.id});audioManager.playEffect('clue_found');if(!s.tutorialSeen.first_clue&&s.clues.length===1)s.tutorialSeen={...s.tutorialSeen,first_clue:true};
+          s.clues.push({id:found.id,name:found.name||found.id});c.effects.push({type:'AUDIO_PLAY',id:'clue_found'});if(!s.tutorialSeen.first_clue&&s.clues.length===1)s.tutorialSeen={...s.tutorialSeen,first_clue:true};
           c.narr('system',reward.text_on_success+' 线索：'+(found.name||found.id),{isSpecial:true});
         }else{
           c.narr('system',reward.text_on_success,{isSpecial:true});
@@ -106,7 +106,7 @@ function handleUiAction(s, action, c) {
         c.narr('system',reward.text_on_madness,{isSpecial:true});
         c.narr('system','被某种东西记住了。',{isSpecial:true});
         addRunMemory(s,'深入探究时被某种东西记住了——'+mad.name,'madness');
-        audioManager.playEffect('madness');audioManager.playEffect('madness_loop');
+        c.effects.push({type:'AUDIO_PLAY',id:'madness'},{type:'AUDIO_PLAY',id:'madness_loop'});
       }else{
         // No special outcome — default causal feedback
         c.narr('system','它只学会了你的呼吸频率。',{isSpecial:true});
@@ -115,7 +115,7 @@ function handleUiAction(s, action, c) {
       let baseSanDmg=Math.abs(evt.sanity_damage||0);
       if(baseSanDmg>0){
         baseSanDmg=processSanLoss(baseSanDmg,s.inventory.map(i=>i.name),s.weather,s.day,s.difficulty,ctx);
-        if(baseSanDmg>0){s.san=clamp(s.san-baseSanDmg,0,s.maxSan);c.narr('system','SAN -'+baseSanDmg,{isEffect:true});audioManager.playSanLoss(baseSanDmg);}
+        if(baseSanDmg>0){s.san=clamp(s.san-baseSanDmg,0,s.maxSan);c.narr('system','SAN -'+baseSanDmg,{isEffect:true});c.effects.push({type:'AUDIO_SAN_LOSS',amount:baseSanDmg});}
       }
     }
     // Apply event effects BEFORE death check
@@ -189,6 +189,10 @@ function handleUiAction(s, action, c) {
   }
   case 'SET_META_FIELD':{
     s[action.field]=action.value;
+    return s;
+  }
+  case 'DELAYED_NARRATE':{
+    c.narr(action.narrType||'system',action.text,action.extra||{});
     return s;
   }
   default:return null;

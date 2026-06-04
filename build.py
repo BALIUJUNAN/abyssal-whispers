@@ -45,9 +45,12 @@ BABEL_PATH = os.path.join(VENDOR_DIR, 'babel.min.js')
 # Order matters: utils first, then dependencies
 # Includes both reducer modules and data files with function exports
 REDUCER_FILES = [
+    'vendor/immer.production.js',
     'portraitMap.js',
     'components/ErrorBoundary.jsx',
     'reducers/utils.js',
+    # ── Balance constants (must precede all slice files) ──
+    'state/gameConstants.js',
     # ── Engine Layer (consolidated core systems) ──
     # engine/WorldTimeSystem.js replaces reducers/worldReducer.js
     'engine/WorldTimeSystem.js',
@@ -93,6 +96,11 @@ REDUCER_FILES = [
     'reducers/effectReducer.js',
     'reducers/endingReducer.js',
     'reducers/objectiveReducer.js',
+    'state/transientKeys.js',
+    'data/registry/registryUtils.js',
+    'data/registry/npcRegistry.js',
+    'data/registry/areaRegistry.js',
+    'data/registry/itemRegistry.js',
     'reducers/saveMigration.js',
     # engine/SaveManager.js replaces reducers/saveReducer.js (save system)
     'engine/SaveManager.js',
@@ -123,6 +131,8 @@ REDUCER_FILES = [
     # ── Dual Store Architecture ──
     'state/uiStore.js',             # useUiStore — migrated from utils/uiStore.js (re-export)
     'state/gameStore.js',           # useGameStore — game state bridge (selector hooks)
+    # ── Runtime: post-reducer effect execution ──
+    'runtime/effectExecutor.js',
     # Phase 2: App-level helper functions extracted from app.jsx
     'utils/appHelpers.js',
     # Phase 3: GameReducer slice handlers (extracted from app.jsx)
@@ -463,13 +473,18 @@ def _strip_comments_safe(code):
                 if end < 0:
                     break  # unclosed comment
                 i = end + 2  # skip past */
-                # Insert space if comment was between two word characters
-                # e.g. "return/*PURE__*/React" must not become "returnReact"
+                # Insert space if removing the comment would merge two non-ws tokens.
+                # e.g. "return/*PURE__*/React" → "return React" (NOT "returnReact")
+                #      ");/*PURE__*/React" → "); React" (NOT ");React")
                 next_char = code[i] if i < n else ''
                 if prev_char and next_char:
-                    if (prev_char.isalnum() or prev_char in '_$') and \
-                       (next_char.isalnum() or next_char in '_$'):
-                        out.append(' ')
+                    prev_is_ws = prev_char in ' \t\n\r'
+                    next_is_ws = next_char in ' \t\n\r'
+                    if not prev_is_ws and not next_is_ws:
+                        # Always insert space between two non-whitespace tokens
+                        # unless prev is '(' '[' '{' (no space needed before content)
+                        if prev_char not in '([{':
+                            out.append(' ')
                 continue
 
         out.append(c)
@@ -538,6 +553,11 @@ def build(use_babel=True):
             # CRITICAL: After comment stripping, ensure tokens don't collide.
             # Babel outputs "return/*#__PURE__*/React" and after removing the comment,
             # we need "return React", NOT "returnReact".
+            # Only insert space after punctuation that Babel outputs before PURE annotations:
+            #   ) → )React, } → }function, : → :React, = → =React, ! → !function, ~ → ~function
+            # Do NOT use broad [^\s] — that would break identifiers like "var" → "v a r".
+            # Do NOT include + - ; (breaks ++a, --b, valid ;keyword patterns).
+            compiled_js = _re.sub(r'([)}:=!~])(?=[A-Za-z_$])', r'\1 ', compiled_js)
             compiled_js = _re.sub(r'(\w)\n(\w)', r'\1 \2', compiled_js)
             compiled_js = _re.sub(r'\n\s*\n', '\n', compiled_js)
             compiled_js = _re.sub(r'  +', ' ', compiled_js)
@@ -685,21 +705,68 @@ def test_strip_es_modules():
     return passed == len(tests)
 
 
+def run_verify():
+    """Run all tests and validators. Returns True if all pass."""
+    tests_dir = os.path.join(BASE, 'tests')
+    all_pass = True
+    test_files = [
+        'test_effect_protocol.cjs',
+        'test_game_data_protocol.cjs',
+        'test_event_system.cjs',
+        'test_smoke_flows.cjs',
+    ]
+    for tf in test_files:
+        tp = os.path.join(tests_dir, tf)
+        if not os.path.exists(tp):
+            print(f'  [SKIP] {tf} (not found)')
+            continue
+        result = subprocess.run(['node', tp], capture_output=True, text=True, cwd=BASE)
+        passed = result.returncode == 0
+        # Count pass/fail from output
+        lines = (result.stdout + result.stderr).strip().split('\n')
+        summary = [l for l in lines if 'passed' in l.lower() or 'fail' in l.lower()]
+        status = 'PASS' if passed else 'FAIL'
+        print(f'  [{status}] {tf}' + (f'  ({summary[-1].strip()})' if summary else ''))
+        if not passed:
+            all_pass = False
+            # Show last few lines of failure
+            for l in lines[-5:]:
+                if l.strip(): print(f'         {l}')
+    # Output size check + budgets
+    if os.path.exists(OUTPUT):
+        size = os.path.getsize(OUTPUT)
+        html = read_file(OUTPUT)
+        has_babel = 'babel.min.js' in html or 'text/babel' in html
+        # Extract JS size from build output comment or estimate
+        js_match = re.search(r'JS:\s+([\d,]+)\s+bytes', html + '\n' + str(size))
+        print(f'  [INFO] index.html: {size:,} bytes ({size/1024/1024:.1f} MB)')
+        if has_babel:
+            print(f'  [WARN] Babel standalone in output (+{4700}KB overhead)')
+            all_pass = False
+        else:
+            print(f'  [OK] No Babel standalone (production build)')
+        # Size budgets
+        SIZE_BUDGETS = [
+            (3 * 1024 * 1024, 6 * 1024 * 1024, 'index.html', size),
+        ]
+        for warn_threshold, fail_threshold, label, actual in SIZE_BUDGETS:
+            if actual > fail_threshold:
+                print(f'  [FAIL] {label}: {actual/1024/1024:.1f} MB > {fail_threshold/1024/1024:.0f} MB budget')
+                all_pass = False
+            elif actual > warn_threshold:
+                print(f'  [WARN] {label}: {actual/1024/1024:.1f} MB > {warn_threshold/1024/1024:.0f} MB budget')
+    return all_pass
+
+
 if __name__ == '__main__':
     if '--test' in sys.argv:
         print("Running strip_es_modules tests...")
         ok = test_strip_es_modules()
         sys.exit(0 if ok else 1)
     if '--verify' in sys.argv:
-        html = read_file(OUTPUT)
-        has_babel = 'babel.min.js' in html or 'text/babel' in html
-        size = os.path.getsize(OUTPUT)
-        print(f'index.html: {size:,} bytes ({size/1024/1024:.1f} MB)')
-        if has_babel:
-            print('[!] Babel standalone detected in output. Run: python build.py')
-        else:
-            print('[OK] No Babel standalone in output (production build)')
-        sys.exit(0)
+        print("=== Verify ===")
+        ok = run_verify()
+        sys.exit(0 if ok else 1)
     if '--analyze' in sys.argv:
         # Bundle analysis: show file sizes by category
         print("=== Bundle Analysis ===")
@@ -725,9 +792,17 @@ if __name__ == '__main__':
     # --dev: skip minification, keep Babel standalone for faster builds
     use_babel = '--no-babel' not in sys.argv and '--dev' not in sys.argv
     prod_require_compiled = '--prod' in sys.argv
+    # --prod: run verify before building
+    if prod_require_compiled:
+        print("=== Pre-build Verify (--prod) ===")
+        if not run_verify():
+            print('\n[FAIL] --prod: Verify failed. Fix issues before building.', file=sys.stderr)
+            sys.exit(1)
+        print()
     build(use_babel)
     if prod_require_compiled:
         html = read_file(OUTPUT)
         if 'text/babel' in html or 'babel.min.js' in html:
             print('\n[FAIL] --prod: Babel standalone found in output. Aborting.', file=sys.stderr)
             sys.exit(1)
+        print('[OK] --prod: Production build verified.')

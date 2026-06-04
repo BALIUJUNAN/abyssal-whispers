@@ -1,11 +1,12 @@
 // src/reducers/slices/dailySlice.js - Extracted from gameReducer
 // REST, WORK, BUY_FOOD
 // Phase 1 Refactor: REST case decomposed into sub-functions for readability.
+// NOTE: Sub-functions receive ctx (bundle-scope context with GD) as 3rd param.
 
 // ── REST sub-functions ──────────────────────────────────────────────
 
 /** Process food consumption, starvation damage, and NPC trust decay. Returns true if player died. */
-function _processFoodAndStarvation(s, c) {
+function _processFoodAndStarvation(s, c, ctx) {
   const restArea=getAreaInfo(s.currentArea,ctx);
   const foodMod=restArea?.resource_pressure?.food_consumption_modifier||1.0;
   const foodConsume=Math.ceil(1*foodMod);
@@ -17,7 +18,7 @@ function _processFoodAndStarvation(s, c) {
     else if(sd===2){s.hp=Math.max(0,s.hp-1);c.narr('system','饥饿在啃噬你的意志。你的手脚开始发软，动作变得迟缓。',{isSpecial:true});}
     else{s.hp=Math.max(0,s.hp-2);c.narr('system','你的身体已经开始消耗自身。视线模糊，每一个动作都是折磨。',{isSpecial:true});}
     const npcs=GD.npcs||GD.module3_npcs||[];
-    npcs.forEach(npc=>{if(s.npcTrust[npc.name]>0&&Math.random()<0.3)s.npcTrust[npc.name]=Math.max(0,s.npcTrust[npc.name]-1);});
+    npcs.forEach(npc=>{if(getNpcTrust(s,npc.name)>0&&Math.random()<GAME_BALANCE.NPC_TRUST_DECAY_CHANCE)setNpcTrust(s,npc.name,Math.max(0,getNpcTrust(s,npc.name)-1));});
   }else{s.starvationDays=0;}
   if(s.hp<=0||s.san<=0){
     const deathType=s.hp<=0?'starvation':'madness';
@@ -29,7 +30,7 @@ function _processFoodAndStarvation(s, c) {
 }
 
 /** Process safehouse degradation, world decay, area corruption, and safehouse visual stage. */
-function _processSafehouseAndWorldDecay(s, c) {
+function _processSafehouseAndWorldDecay(s, c, ctx) {
   s.safehouseCorruption=processSafehouseNight(s,ctx);
   {const dailyCorr=calculateDailyCorruption(s,ctx);
   s.safehouseCorruption=Math.min(100,(s.safehouseCorruption||0)+dailyCorr);
@@ -37,7 +38,7 @@ function _processSafehouseAndWorldDecay(s, c) {
   if(typeof updateAreaCorruption==='function')updateAreaCorruption(s,ctx);
   const visStage=getSafehouseVisualStage(s.safehouseCorruption||0);
   const shStage=getSafehouseStage(s.safehouseCorruption,ctx);
-  audioManager.playEffect(visStage.sound);
+  c.effects.push({type:'AUDIO_PLAY',id:visStage.sound});
   if(visStage.atmosphere&&Math.random()<0.5)c.narr('system',visStage.atmosphere,{isSpecial:true});
   {const pollutionEvt=getSafehousePollutionEvent(visStage.stage);
   if(pollutionEvt){
@@ -51,7 +52,7 @@ function _processSafehouseAndWorldDecay(s, c) {
 }
 
 /** Process safehouse recovery, long-term effects, and AP reset for new day. */
-function _processRestRecovery(s, c, shStage) {
+function _processRestRecovery(s, c, shStage, ctx) {
   let sanRec=shStage.available_functions?.san_recovery||0;
   if(s.currentSafehouse!=='main'){
     const alts=GD.systems?.safehouse?.relocation_rules?.alternative_safehouses||[];
@@ -69,19 +70,19 @@ function _processRestRecovery(s, c, shStage) {
 }
 
 /** Advance day counter, weather, seal, chapter. Play audio. Returns oldDay. */
-function _advanceDayClock(s) {
+function _advanceDayClock(s, c, ctx) {
   const oldDay=s.day;
   s.day++;s.ap=s.maxAp;s.weather=getWeather(pick).name;s.sealState=getSealStateId(s.day,ctx);
-  try{incrementStat('night_survived');if(s.san<=10)incrementStat('low_san_days');}catch(e){}
-  audioManager.playEffect('rest_generic');
-  try{const phase=getPhase(s.ap,s.maxAp);audioManager.playAreaAmbient(s.currentArea,phase);}catch(e){audioManager.playAreaAmbient('town_center','morning');}
+  c.effects.push({type:'INCREMENT_STAT',key:'night_survived'});if(s.san<=GAME_BALANCE.LOW_SAN_STAT_THRESHOLD)c.effects.push({type:'INCREMENT_STAT',key:'low_san_days'});
+  c.effects.push({type:'AUDIO_PLAY',id:'rest_generic'});
+  try{const phase=getPhase(s.ap,s.maxAp);c.effects.push({type:'AUDIO_AMBIENT',area:s.currentArea,phase:phase});}catch(e){c.effects.push({type:'AUDIO_AMBIENT',area:'town_center',phase:'morning'});}
   s.areaNameCache={};
   resetDailyCategoryCounts(s);
   return oldDay;
 }
 
 /** Process chapter transitions, motif flavor, SAN stage AP mod. */
-function _processChapterAndMotif(s, c, oldDay) {
+function _processChapterAndMotif(s, c, oldDay, ctx) {
   const chTransition=checkChapterTransition(oldDay,s.day,ctx);
   if(chTransition){
     s.currentChapter=getChapterForDay(s.day,ctx).key;
@@ -90,23 +91,23 @@ function _processChapterAndMotif(s, c, oldDay) {
     if(chTransition.san_cost)s.san=clamp(s.san+chTransition.san_cost,0,s.maxSan);
     if(chTransition.mythos_gain)s.mythosLevel=(s.mythosLevel||0)+chTransition.mythos_gain;
   }
-  if(Math.random()<0.2){
+  if(Math.random()<GAME_BALANCE.MOTIF_TEXT_CHANCE){
     const motifText=getMotifFlavorText(pick(['fog','bell','water']),s.safehouseCorruption||0,ctx);
     if(motifText)c.narr('system',motifText);
   }
   const stage=getSanStage(s.san,ctx);
   if(stage.apMod!==0){s.ap=clamp(s.ap+stage.apMod,0,s.maxAp);c.narr('system','【'+stage.name+'】'+stage.desc+' AP修正：'+stage.apMod);}
-  if(s.day===8)c.narr('system','浓雾稍微散去。你注意到之前忽略的小径——低语森林和灯塔的方向似乎不再那么遥不可及。',{isSpecial:true});
+  if(s.day===GAME_BALANCE.FOG_CLEAR_DAY)c.narr('system','浓雾稍微散去。你注意到之前忽略的小径——低语森林和灯塔的方向似乎不再那么遥不可及。',{isSpecial:true});
   const progEvents=GD.implementation_notes?.chapter_progression_events||[];
   const todayEvent=progEvents.find(e=>e.day===s.day);
   if(todayEvent){
     c.narr('system','【事件】'+todayEvent.name+'——'+todayEvent.description,{isSpecial:true});
-    if(todayEvent.effect?.all_npc_san)(GD.npcs||[]).forEach(npc=>{if(!s.npcStates[npc.name]?.dead)s.san=clamp(s.san+todayEvent.effect.all_npc_san,0,s.maxSan);});
+    if(todayEvent.effect?.all_npc_san)(GD.npcs||[]).forEach(npc=>{if(!getNpcState(s,npc.name).dead)s.san=clamp(s.san+todayEvent.effect.all_npc_san,0,s.maxSan);});
   }
 }
 
 /** Process day-specific critical events and world decay atmosphere. */
-function _processDayCriticalAndDecay(s, c) {
+function _processDayCriticalAndDecay(s, c, ctx) {
   {const dayCrit=getDayCriticalEvent(s.day);
   if(dayCrit&&!s.triggeredEvents.includes('day_crit_'+s.day)){
     s.triggeredEvents.push('day_crit_'+s.day);
@@ -115,14 +116,14 @@ function _processDayCriticalAndDecay(s, c) {
     if(dayCrit.corruptionGain>0)s.safehouseCorruption=Math.min(100,(s.safehouseCorruption||0)+dayCrit.corruptionGain);
     addRunMemory(s,dayCrit.text.split('\\n')[0],'world_decay');
   }}
-  if(Math.random()<0.3){
+  if(Math.random()<GAME_BALANCE.WORLD_DECAY_CHANCE){
     const decayText=getWorldDecayNarrative(s.day,s.safehouseCorruption||0,s);
     if(decayText)c.narr('system',decayText);
   }
 }
 
 /** Process NPC corruption triggers and seal-state accelerated corruption. */
-function _processNpcCorruption(s, c) {
+function _processNpcCorruption(s, c, ctx) {
   const corruptionTriggers=checkNPCCorruption(s,ctx);
   for(const {npc,trigger} of corruptionTriggers){
     applyNPCCorruption(s,npc,trigger,c.narr);
@@ -131,15 +132,15 @@ function _processNpcCorruption(s, c) {
   const sm=getSealState(s.day,ctx).global_modifier;
   const sealRate=(sm?.npc_corruption_rate||0.05)*0.3;
   (GD.npcs||GD.module3_npcs||[]).forEach(npc=>{
-    if(s.npcStates[npc.name]?.dead||s.npcStates[npc.name]?.corrupted)return;
-    if(Math.random()<sealRate)s.npcStates[npc.name]={...s.npcStates[npc.name],corrupted:true,corruptionSource:'seal_decay'};
+    if(getNpcState(s,npc.name).dead||getNpcState(s,npc.name).corrupted)return;
+    if(Math.random()<sealRate)setNpcState(s,npc.name,{...getNpcState(s,npc.name),corrupted:true,corruptionSource:"seal_decay"});
   });
 }
 
 /** Process safehouse silent events, SAN break-wall, daily resources, corruption effects. */
-function _processNightEffects(s, c) {
+function _processNightEffects(s, c, ctx) {
   checkSilentEvent(s,c.narr,'safehouse');
-  checkBreakWallEvent(s,c.narr);
+  {const bwfx=checkBreakWallEvent(s,c.narr);if(bwfx)c.effects.push(...bwfx);}
   processDailyResources(s);
   {const resNarr=getResourceNarrative(s);if(resNarr)c.narr('system',resNarr,{isSpecial:true});}
   {const fakeMsg=maybeGetFakeMessage(s.san,s.loopCount);if(fakeMsg)c.narr('system',fakeMsg,{isSpecial:true,madness:{name:'幻觉',description:'你看到了不存在的东西。'}});}
@@ -148,11 +149,11 @@ function _processNightEffects(s, c) {
 }
 
 /** Narrate new day header, area description, forced hooks, check endings and time limit. */
-function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea) {
+function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea, ctx) {
   narrDailySummary(s, c.narr, _startSan, _startHp, _startClues, _startArea);
   c.narr('system','\n═══ 第 '+s.day+' 天 ═══ 天气：'+s.weather+' ═══ 封印：'+s.sealState+' ═══');
   const area=getAreaInfo(s.currentArea,ctx);
-  if(area)c.narr('location',area.description,{locationName:getAreaDisplayName(area,s),imageSrc:getAreaSceneImage(s.currentArea,s),imageAlt:getAreaDisplayName(area,s)});
+  if(area)c.narr('location',area.description,{locationName:getAreaDisplayName(area,s),imageSrc:getAreaSceneImage(s.currentArea,{...c.view,visits:(s.visitedAreas||[]).filter(a=>a===s.currentArea).length}),imageAlt:getAreaDisplayName(area,s)});
   {const hook=checkForcedNarrativeHook(s);
   if(hook){s.triggeredEvents.push(hook.id);c.narr('system',hook.text,{isSpecial:true});
   if(hook.sanCost)s.san=clamp(s.san-hook.sanCost,0,s.maxSan);}}
@@ -160,41 +161,40 @@ function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _star
   if(s.day>28){
     s.deathContext={mode:'hp',type:'physical',area:s.currentArea,day:s.day,loop:s.loopCount,sourceEventId:null,sourceEventName:'时间耗尽',finalText:'封印崩溃，沃切斯特沉入深渊。',residueFlag:'death_echo_time'};
     s.lastDeathType='physical';s.lastDeathMode='hp';
-    audioManager.playEffect('death_physical');
+    c.effects.push({type:'AUDIO_PLAY',id:'death_physical'});
     s.ending={name:'时间耗尽',type:'bad',description:'封印崩溃，沃切斯特沉入深渊。',recap:buildDeathRecap(s)};
   }
 }
 
 /** Final bookkeeping: objectives, stats, knowledge, daily patterns, auto-save. */
-function _processRestBookkeeping(s, c) {
+function _processRestBookkeeping(s, c, ctx) {
   s.objectives=genObjectives(s.day,ctx);
   s.stats_run.days_best=Math.max(s.stats_run.days_best,s.day);
   c.log('第'+s.day+'天开始');
   checkKnowledgeEarned(s);
   trackDailyBehaviorPatterns(s, c.bt);
   s._dayActions=[];s._dailyTrustGains={};s._todayEventTypes=[];s._dayStartArea=s.currentArea;
-  saveGame(s);audioManager.playUI('save');
+  saveGame(s);c.effects.push({type:'AUDIO_UI',id:'save'});
   s.transition='rest';
   if(!s.tutorialSeen.first_rest)s.tutorialSeen={...s.tutorialSeen,first_rest:true};
 }
 
 // ── Main handler ────────────────────────────────────────────────────
 
-function handleDailyAction(s, action, c) {
+function handleDailyAction(s, action, c, ctx) {
   switch(action.type){
   case 'REST':{
-    c.ensureMutableArrays();
     const _startSan=s.san,_startHp=s.hp,_startClues=(s.clues||[]).length,_startArea=s._dayStartArea||s.currentArea;
-    if(_processFoodAndStarvation(s,c)) return s; // player died
-    const shStage=_processSafehouseAndWorldDecay(s,c);
-    _processRestRecovery(s,c,shStage);
-    const oldDay=_advanceDayClock(s);
-    _processChapterAndMotif(s,c,oldDay);
-    _processDayCriticalAndDecay(s,c);
-    _processNpcCorruption(s,c);
-    _processNightEffects(s,c);
-    _processDayOpenAndEndings(s,c,_startSan,_startHp,_startClues,_startArea);
-    _processRestBookkeeping(s,c);
+    if(_processFoodAndStarvation(s,c,ctx)) return s; // player died
+    const shStage=_processSafehouseAndWorldDecay(s,c,ctx);
+    _processRestRecovery(s,c,shStage,ctx);
+    const oldDay=_advanceDayClock(s,c,ctx);
+    _processChapterAndMotif(s,c,oldDay,ctx);
+    _processDayCriticalAndDecay(s,c,ctx);
+    _processNpcCorruption(s,c,ctx);
+    _processNightEffects(s,c,ctx);
+    _processDayOpenAndEndings(s,c,_startSan,_startHp,_startClues,_startArea,ctx);
+    _processRestBookkeeping(s,c,ctx);
     return s;
   }
   case 'WORK':{

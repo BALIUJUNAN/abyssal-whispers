@@ -80,7 +80,7 @@ function applyBlessing(state, blessing, narr){
   }
   if(eff.type==='npc_trust_bonus'){
     const coreNpcs=(GD.npcs||[]).filter(n=>n.chapter_1_availability==='core');
-    if(coreNpcs.length>0){const t=pick(coreNpcs);state.npcTrust[t.name]=(state.npcTrust[t.name]||0)+(eff.amount||1);}
+    if(coreNpcs.length>0){const t=pick(coreNpcs);setNpcTrust(state,t.name,getNpcTrust(state,t.name)+(eff.amount||1));}
   }
   if(eff.type==='skip_intro'){state.ch1IntroComplete=true;}
   if(blessing.bonus_skill_points){
@@ -94,7 +94,7 @@ function getAvailableSafehouses(state){
   return alts.filter(sh=>{
     const npcName=sh.unlock_condition.includes('伊莱亚斯')?'伊莱亚斯·沃德':sh.unlock_condition.includes('希尔达')?'希尔达·莫里斯':null;
     const trustNeeded=parseInt(sh.unlock_condition.match(/\d+/)?.[0]||'99');
-    return npcName&&(state.npcTrust[npcName]||0)>=trustNeeded;
+    return npcName&&getNpcTrust(state,npcName)>=trustNeeded;
   });
 }
 
@@ -210,19 +210,14 @@ function preloadEndingCGs(){
   batch(0);
 }
 
-// === Reducer Context Builder ===
+// === Reducer Context Builder (Immer) ===
 // Builds the shared context object passed to all slice handlers from gameReducer.
-// Each slice receives (s, action, c) where c is this context.
-function buildReducerCtx(s, state, ensureArrFn, ensureObjFn) {
+// `s` is an Immer draft — all direct mutations are safe.
+function buildReducerCtx(s) {
   const MAX_NARRATIVE_ENTRIES=250;
   const _narrCorrLayer=getUICorruptionLayer(s.san,s.loopCount,s.safehouseCorruption);
-  const bt=s.behaviorTracking;
-  let _narrCloned=false,_evtLogCloned=false,_invCloned=false;
-  const cloneNarr=()=>{if(!_narrCloned){s.narrative=[...(state.narrative||[])];_narrCloned=true;}};
-  const cloneEvtLog=()=>{if(!_evtLogCloned){s.eventLog=[...(state.eventLog||[])];_evtLogCloned=true;}};
-  const cloneInv=()=>{if(!_invCloned){s.inventory=state.inventory.map(i=>({...i}));_invCloned=true;}};
+  const effects=[];
   const narr=(type,text,extra={})=>{
-    cloneNarr();
     const entry={id:Date.now()+Math.random(),type,text,...extra};
     if(_narrCorrLayer>0&&(type==='system'||type==='event')&&!extra.isSpecial&&!extra.isEffect&&!extra.madness){
       const corrupted=getCorruptedSystemText(text,_narrCorrLayer);
@@ -231,18 +226,49 @@ function buildReducerCtx(s, state, ensureArrFn, ensureObjFn) {
     s.narrative.push(entry);
     if(s.narrative.length>MAX_NARRATIVE_ENTRIES){s.narrative=s.narrative.slice(-MAX_NARRATIVE_ENTRIES);}
   };
-  const log=(text)=>{cloneEvtLog();s.eventLog.push({day:s.day,text});};
-  const ensureMutableArrays=()=>{
-    ['triggeredEvents','triggeredSilentEvents','longTermEffects','clues',
-     'completedChains','objectives','retainedKnowledge','runMemory',
-     'visitedAreas','discoveredConclusions','activeBlessings'
-    ].forEach(ensureArrFn);
-    ['npcTrust','npcStates','stats','skills','lastVisitedDates','stats_run','behaviorTracking'].forEach(ensureObjFn);
-    if(s.triggeredEvents.length>1000)s.triggeredEvents=s.triggeredEvents.slice(-1000);
+  const log=(text)=>{s.eventLog.push({day:s.day,text});};
+  // View object for portraitMap functions — extracts display-relevant fields only
+  const view={
+    phase:getPhase(s.ap,s.maxAp),
+    visits:0, // computed per-area by caller
+    pollution:s.pollution||0,
+    san:s.san, hp:s.hp, maxHp:s.maxHp,
+    loopCount:s.loopCount||0, madnessActive:!!s.madnessActive,
   };
   return {
-    narr, log, ensureMutableArrays, bt,
-    ensureArr: ensureArrFn, ensureObj: ensureObjFn,
-    cloneInv, cloneNarr, cloneEvtLog,
+    narr, log, effects,
+    bt: s.behaviorTracking,
+    view,
   };
 }
+
+// === NPC Trust Compat Helpers ===
+// Resolve npcTrust key: tries direct key first, then resolveNpcId fallback.
+// Works with both Chinese name keys (old) and stable id keys (new).
+function getNpcTrust(s, name) {
+  if (s.npcTrust[name] !== undefined) return s.npcTrust[name];
+  if (typeof resolveNpcId === 'function') {
+    var id = resolveNpcId(name);
+    if (id !== name && s.npcTrust[id] !== undefined) return s.npcTrust[id];
+  }
+  return 0;
+}
+function setNpcTrust(s, name, value) {
+  // Always write to resolved id — state naturally converges to id keys
+  var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
+  s.npcTrust[id] = value;
+}
+function getNpcState(s, name) {
+  if (s.npcStates[name]) return s.npcStates[name];
+  if (typeof resolveNpcId === 'function') {
+    var id = resolveNpcId(name);
+    if (id !== name && s.npcStates[id]) return s.npcStates[id];
+  }
+  return {};
+}
+function setNpcState(s, name, value) {
+  var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
+  s.npcStates[id] = value;
+}
+
+// runPostReducerEffects moved to src/runtime/effectExecutor.js

@@ -6,7 +6,7 @@ function handleNpcAction(s, action, c) {
   case 'TALK_NPC':{
     if(s.ap<1){c.narr('system','行动点不足。');return s;}
     s.ap-=1;
-    try{incrementStat('run_npc_talks');}catch(e){}c.ensureMutableArrays();const npc=action.npc;const trust=s.npcTrust[npc.name]||0;const ns=s.npcStates[npc.name]||{};
+    c.effects.push({type:'INCREMENT_STAT',key:'run_npc_talks'});const npc=action.npc;const trust=getNpcTrust(s,npc.name);const ns=getNpcState(s,npc.name);
     const layer=npc.trust_layers?npc.trust_layers.find(l=>l.level===trust)||npc.trust_layers[0]:null;
     s.pendingNpc={npc,trust,layer};
     // Loop text variants: NPC dialogue changes with loop count
@@ -15,7 +15,7 @@ function handleNpcAction(s, action, c) {
       const variantKey=npcVariantMap[npc.name];
       const variants=variantKey?GD.implementation_notes?.loop_text_variants?.npc_variants?.[variantKey]:null;
       if(variants){
-        const loopKey=s.loopCount>=5?'loop_5_plus':'loop_'+s.loopCount;
+        const loopKey=s.loopCount>=GAME_BALANCE.LOOP_TEXT_VARIANT_5?'loop_5_plus':'loop_'+s.loopCount;
         const variantText=variants[loopKey];
         if(variantText)c.narr('system',variantText);
       }
@@ -33,7 +33,7 @@ function handleNpcAction(s, action, c) {
     {const fatigue=getNpcFatigueEffect(npc.name,s.loopCount,s);
     if(fatigue&&Math.random()<0.3){
       c.narr('system',fatigue.text,{isSpecial:true});
-      if(fatigue.trustModifier!==0)s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)+fatigue.trustModifier);
+      if(fatigue.trustModifier!==0)setNpcTrust(s,npc.name,Math.max(0,getNpcTrust(s,npc.name)+fatigue.trustModifier));
     }}
     if(ns.corrupted){
       const corrLoss=processSanLoss(2,s.inventory.map(i=>i.name),s.weather,s.day,s.difficulty,ctx);
@@ -58,7 +58,7 @@ function handleNpcAction(s, action, c) {
     c.log('与'+npc.name+'对话');if(!s.tutorialSeen.first_talk)s.tutorialSeen={...s.tutorialSeen,first_talk:true};return s;
   }
   case 'NPC_RESPONSE':{
-    const npc=s.pendingNpc.npc;const trust=s.npcTrust[npc.name]||0;const choice=action.choice;const ns=s.npcStates[npc.name]||{};
+    const npc=s.pendingNpc.npc;const trust=getNpcTrust(s,npc.name);const choice=action.choice;const ns=getNpcState(s,npc.name);
     if(choice==='trust_up'){
       // Daily limit: each NPC can only gain trust once per day
       if(s._dailyTrustGains&&s._dailyTrustGains[npc.name]){
@@ -80,7 +80,7 @@ function handleNpcAction(s, action, c) {
         }else{
           s.ap-=1;
           const newTrust=Math.min(5,nextTrust);
-          s.npcTrust[npc.name]=newTrust;
+          setNpcTrust(s,npc.name,newTrust);
           if(!s._dailyTrustGains)s._dailyTrustGains={};
           s._dailyTrustGains[npc.name]='talk';
           for(let lv=trust+1;lv<=newTrust;lv++){
@@ -113,7 +113,7 @@ function handleNpcAction(s, action, c) {
       const redemption=GD.implementation_notes?.npc_redemption?.characters?.[rKey];
       if(redemption){
         c.narr('system',redemption.redemption_text);
-        s.npcStates[npc.name]={...s.npcStates[npc.name],corrupted:false,redeemed:true};
+        setNpcState(s,npc.name,{...getNpcState(s,npc.name),corrupted:false,redeemed:true});
         c.bt.redeemed_npcs=(c.bt.redeemed_npcs||0)+1;
         modHumanity(s,15,'选择自己承担代价，救赎'+npc.name);
       }else{
@@ -134,7 +134,7 @@ function handleNpcAction(s, action, c) {
         c.narr('system','你没有食物可以分享了。');
       }else{
         // Check trust gate before consuming resources
-        const curTrust=s.npcTrust[npc.name]||0;
+        const curTrust=getNpcTrust(s,npc.name);
         const gate=checkTrustGate(curTrust+1,s,npc.name);
         if(gate){
           c.narr('system',npc.name+'看着你递来的食物，摇了摇头。'+gate);
@@ -153,7 +153,7 @@ function handleNpcAction(s, action, c) {
             modHumanity(s,2,'把食物分给'+npc.name);
           }
           const newTrust=Math.min(5,curTrust+1);
-          s.npcTrust[npc.name]=newTrust;
+          setNpcTrust(s,npc.name,newTrust);
           if(!s._dailyTrustGains)s._dailyTrustGains={};
           s._dailyTrustGains[npc.name]='food';
           addRunMemory(s,'你把食物分给了'+npc.name+'。','npc');
@@ -166,14 +166,14 @@ function handleNpcAction(s, action, c) {
     else if(choice==='attack'){
       if(s.ap<2){c.narr('system','行动点不足（需要2AP）。');s.pendingNpc=null;return s;}
       s.ap-=2;
-      try{incrementStat('run_combat');}catch(e){}
+      c.effects.push({type:'INCREMENT_STAT',key:'run_combat'});
       const fightSkill=s.skills['格斗']||s.skills['潜行']||20;
       const npcDiff=npc.chapter_1_role==='core'?55:40;
       const roll=rand(1,100);
       const success=roll<=fightSkill&&roll<=npcDiff;
       if(success){
         c.bt.direct_kill_count=(c.bt.direct_kill_count||0)+1;
-        s.npcStates[npc.name]={...ns,dead:true,killedByPlayer:true};
+        setNpcState(s,npc.name,{...ns,dead:true,killedByPlayer:true});
         const sanLoss=rand(4,12);
         s.san=clamp(s.san-sanLoss,0,s.maxSan);
         modHumanity(s,-20,'亲手杀害了'+npc.name);
@@ -183,10 +183,10 @@ function handleNpcAction(s, action, c) {
       }else{
         const dmg=rand(2,8);
         s.hp=Math.max(0,s.hp-dmg);
-        s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-2);
+        setNpcTrust(s,npc.name,Math.max(0,getNpcTrust(s,npc.name)-2));
         c.narr('system','【攻击】掷骰 '+roll+' / 格斗'+fightSkill+' —— 失败！'+npc.name+'激烈反抗。HP -'+dmg);
         if(Math.random()<0.5){
-          s.npcStates[npc.name]={...ns,fled:true};
+          setNpcState(s,npc.name,{...ns,fled:true});
           c.narr('system',npc.name+'惊恐地逃走了。你可能再也找不到他了。');
         }
         s.pendingNpc=null;
@@ -221,7 +221,7 @@ function handleNpcAction(s, action, c) {
       const roll=rand(1,100);
       if(roll<=socialSkill){
         c.bt.npc_deaths_by_manipulation=(c.bt.npc_deaths_by_manipulation||0)+1;
-        s.npcStates[npc.name]={...ns,dead:true,manipulatedDeath:true};
+        setNpcState(s,npc.name,{...ns,dead:true,manipulatedDeath:true});
         const sanLoss=rand(3,8);
         s.san=clamp(s.san-sanLoss,0,s.maxSan);
         modHumanity(s,-15,'操纵导致'+npc.name+'的死亡');
@@ -229,13 +229,13 @@ function handleNpcAction(s, action, c) {
         c.narr('system','【陷害】掷骰 '+roll+' / 话术'+socialSkill+' —— 成功。'+npc.name+'对你深信不疑，走向了你指出的"线索"。几天后，人们在码头发现了尸体。SAN -'+sanLoss,{isSpecial:true});
       }else{
         c.narr('system','【陷害】掷骰 '+roll+' / 话术'+socialSkill+' —— 失败。'+npc.name+'看穿了你的意图。');
-        s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-1);
+        setNpcTrust(s,npc.name,Math.max(0,getNpcTrust(s,npc.name)-1));
       }
       s.pendingNpc=null;
     }else if(choice==='exploit_npc'){
       if(s.ap<1){c.narr('system','行动点不足。');s.pendingNpc=null;return s;}
       s.ap-=1;c.bt.npc_as_resource_count=(c.bt.npc_as_resource_count||0)+1;
-      s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-2);
+      setNpcTrust(s,npc.name,Math.max(0,getNpcTrust(s,npc.name)-2));
       const gain=rand(2,6);s.money=(s.money||0)+gain;
       modHumanity(s,-12,'把'+npc.name+'当作资源利用');
       addRunMemory(s,'你利用了'+npc.name+'。效率很高。','npc');
@@ -244,7 +244,7 @@ function handleNpcAction(s, action, c) {
     }else if(choice==='betray_npc'){
       if(s.ap<1){c.narr('system','行动点不足。');s.pendingNpc=null;return s;}
       s.ap-=1;c.bt.betrayed_high_trust_npcs=(c.bt.betrayed_high_trust_npcs||0)+1;
-      s.npcTrust[npc.name]=0;
+      setNpcTrust(s,npc.name,0);
       if(!c.bt._npc_harm_tally)c.bt._npc_harm_tally={};
       c.bt._npc_harm_tally[npc.name]=(c.bt._npc_harm_tally[npc.name]||0)+1;
       c.bt.same_npc_harm_max=Math.max(c.bt.same_npc_harm_max||0,c.bt._npc_harm_tally[npc.name]);
@@ -256,7 +256,7 @@ function handleNpcAction(s, action, c) {
       if(s.ap<2){c.narr('system','行动点不足。');s.pendingNpc=null;return s;}
       s.ap-=2;c.bt.forbidden_intimacy_flags=(c.bt.forbidden_intimacy_flags||0)+1;
       const sanLoss=rand(3,8);s.san=clamp(s.san-sanLoss,0,s.maxSan);
-      s.pollution=Math.min(1,(s.pollution||0)+0.1);audioManager.playEffect('loop_pollution');
+      s.pollution=Math.min(1,(s.pollution||0)+0.1);c.effects.push({type:'AUDIO_PLAY',id:'loop_pollution'});
       modHumanity(s,-8,'与'+npc.name+'发生了禁忌的亲密');
       c.narr('system','你靠近了'+npc.name+'。你没有问这是否正确。对方没有回答——但也没有退开。SAN -'+sanLoss,{isSpecial:true});
       s.pendingNpc=null;
@@ -267,16 +267,16 @@ function handleNpcAction(s, action, c) {
       const roll=rand(1,100);
       if(roll<=cultSkill){
         c.bt.cult_leader_score=(c.bt.cult_leader_score||0)+1;
-        s.npcStates[npc.name]={...ns,follower:true};
+        setNpcState(s,npc.name,{...ns,follower:true});
         const sanLoss=rand(2,6);
         s.san=clamp(s.san-sanLoss,0,s.maxSan);
         modHumanity(s,-10,'将'+npc.name+'引入歧途，建立邪教追随');
         addRunMemory(s,npc.name+'开始追随你。不是信任——是信仰。','npc');
         c.narr('system','【传教】掷骰 '+roll+' / 神秘学'+cultSkill+' —— 成功。'+npc.name+'眼中不再有疑问。你所说的每一个字，都被当作了真理。SAN -'+sanLoss,{isSpecial:true});
-        s.npcTrust[npc.name]=Math.min(5,(s.npcTrust[npc.name]||0)+1);
+        setNpcTrust(s,npc.name,Math.min(5,getNpcTrust(s,npc.name)+1));
       }else{
         c.narr('system','【传教】掷骰 '+roll+' / 神秘学'+cultSkill+' —— 失败。'+npc.name+'后退了一步，表情变得警惕。');
-        s.npcTrust[npc.name]=Math.max(0,(s.npcTrust[npc.name]||0)-1);
+        setNpcTrust(s,npc.name,Math.max(0,getNpcTrust(s,npc.name)-1));
       }
       s.pendingNpc=null;
     }

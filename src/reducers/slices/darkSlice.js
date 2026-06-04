@@ -10,7 +10,7 @@ function handleDarkAction(s, action, c) {
     modHumanity(s,-10,'用刀在自己身上刻下符号');
     addRunMemory(s,'第'+(c.bt.self_harm_ritual_count)+'次。刀锋划过皮肤的时候，你觉得你正在写下什么东西。','madness');
     c.narr('system','你用刀尖在皮肤上刻下了一个符号。你不知道它是什么意思。但你的手知道。SAN -'+sanLoss,{isSpecial:true});
-    if(Math.random()<0.3){s.pollution=Math.min(1,(s.pollution||0)+0.05);c.narr('system','符号在皮肤下微微发光，然后暗了下去。');audioManager.playEffect('loop_pollution');}
+    if(Math.random()<0.3){s.pollution=Math.min(1,(s.pollution||0)+0.05);c.narr('system','符号在皮肤下微微发光，然后暗了下去。');c.effects.push({type:'AUDIO_PLAY',id:'loop_pollution'});}
     return s;
   }
   case 'SPREAD_PROPHECY':{
@@ -34,7 +34,7 @@ function handleDarkAction(s, action, c) {
   case 'SELF_SACRIFICE':{
     if(s.ap<3){c.narr('system','行动点不足（需要3AP）。');return s;}
     s.ap-=3;c.bt.self_sacrifice_for_power=(c.bt.self_sacrifice_for_power||0)+1;
-    s.mythosLevel=(s.mythosLevel||0)+3;s.pollution=Math.min(1,(s.pollution||0)+0.15);audioManager.playEffect('loop_pollution');
+    s.mythosLevel=(s.mythosLevel||0)+3;s.pollution=Math.min(1,(s.pollution||0)+0.15);c.effects.push({type:'AUDIO_PLAY',id:'loop_pollution'});
     const hpLoss=rand(4,10);s.hp=Math.max(1,s.hp-hpLoss);
     s.maxSan=Math.max(10,s.maxSan-5);s.san=clamp(s.san-rand(5,15),0,s.maxSan);
     modHumanity(s,-25,'为了力量献祭了自己的一部分');
@@ -58,7 +58,7 @@ function handleDarkAction(s, action, c) {
     if(!['catacombs_entrance','deep_catacombs','ruins_of_yith'].includes(s.currentArea)){c.narr('system','这里没有封印可以破坏。');return s;}
     s.ap-=3;setCorruptionFlag(s,'seal_desecrated');
     if(['deep_catacombs','ruins_of_yith'].includes(s.currentArea))setCorruptionFlag(s,'destroyed_time_core');
-    s.sealState='critical';s.pollution=Math.min(1,(s.pollution||0)+0.2);audioManager.playEffect('loop_pollution');
+    s.sealState='critical';s.pollution=Math.min(1,(s.pollution||0)+0.2);c.effects.push({type:'AUDIO_PLAY',id:'loop_pollution'});
     c.bt.loop_break_attempts=(c.bt.loop_break_attempts||0)+1;
     const sanLoss=rand(8,20);s.san=clamp(s.san-sanLoss,0,s.maxSan);
     modHumanity(s,-25,'试图破坏封印');

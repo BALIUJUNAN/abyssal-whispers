@@ -2,6 +2,10 @@
 // Each resource directly affects narrative text, event availability, and event pool weights.
 // Low light → descriptions become unreliable. High infection → corruption events weighted up.
 // High fatigue → truncated/fragmented text. No food → desperation events.
+//
+// BUNDLE-SCOPE DEPENDENCY (build.py REDUCER_FILES):
+//   Uses GD (global from app.jsx) and getAreaInfo (from worldReducer.js, loaded before this file).
+//   processDailyResources reads area.infection_risk from GD.areas at runtime.
 
 // =============================================
 // SECTION 1: Resource Text Corruption
@@ -156,6 +160,8 @@ function getResourceEventWeightModifier(evt, state) {
 // =============================================
 
 function processDailyResources(state) {
+  // Declare food BEFORE use to avoid var-hoisting shadowing the starvation check
+  var food = state.food || 0;
   var actions = state._dayActions || [];
   state.fatigue = Math.min(state.maxFatigue || 10, (state.fatigue || 0) + actions.length);
   var corr = state.safehouseCorruption || 0;
@@ -165,19 +171,22 @@ function processDailyResources(state) {
   if (corruptedNpcs > 0 && Math.random() < 0.15 * corruptedNpcs) {
     state.infection = Math.min(state.maxInfection || 10, (state.infection || 0) + 1);
   }
-  var dangerousAreas = ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove'];
-  if (dangerousAreas.indexOf(state.currentArea) >= 0) {
+  // Dangerous area infection: driven by area.infection_risk flag (from game data),
+  // falls back to danger_level >= 5 for backward compatibility.
+  // NOTE: lighthouse (level 5) has infection_risk=false in game data — narrative exclusion.
+  var areaData = typeof getAreaInfo === 'function' ? getAreaInfo(state.currentArea, { GD: GD }) : null;
+  var isInfectious = areaData ? !!areaData.infection_risk : ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove'].indexOf(state.currentArea) >= 0;
+  if (isInfectious) {
     state.infection = Math.min(state.maxInfection || 10, (state.infection || 0) + 1);
   }
   // Light degradation: flashlight uses consumed over time
   var flashlight = (state.inventory || []).find(function(i) { return i.name === '手电筒' || i.id === 'flashlight'; });
   if (flashlight) state.lightLevel = flashlight.uses > 0 ? 2 : 0;
-  // Low food for multiple days: starvation tracking
-  var food = state.food || 0;
+  // Starvation tracking: uses same `starvationDays` key as _processFoodAndStarvation
   if (food === 0) {
-    state._starvingDays = (state._starvingDays || 0) + 1;
+    state.starvationDays = (state.starvationDays || 0) + 1;
   } else {
-    state._starvingDays = 0;
+    state.starvationDays = 0;
   }
 }
 

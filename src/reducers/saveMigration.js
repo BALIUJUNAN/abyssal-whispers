@@ -111,6 +111,42 @@ export function migrateSaveData(data, slotId) {
     state.behaviorTracking = bt;
   }
 
+  // Migrate NPC keys from Chinese name to stable id (v1.3.0)
+  // npcTrust, npcStates, npcRelations are keyed by NPC identifier.
+  // Old saves use Chinese names; new system uses stable ids (e.g. martha_grey).
+  if (typeof resolveNpcId === 'function') {
+    const NPC_KEYED_FIELDS = ['npcTrust', 'npcStates', 'npcRelations', '_npcTrustLocked', '_npcHarmTally'];
+    for (const field of NPC_KEYED_FIELDS) {
+      const obj = state[field];
+      if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+        const migrated = {};
+        let changed = false;
+        for (const [key, val] of Object.entries(obj)) {
+          const newKey = resolveNpcId(key);
+          if (newKey !== key) changed = true;
+          migrated[newKey] = val;
+        }
+        if (changed) state[field] = migrated;
+      }
+    }
+    // Also migrate npc data inside behaviorTracking
+    if (state.behaviorTracking && typeof state.behaviorTracking === 'object') {
+      const bt = state.behaviorTracking;
+      if (bt._npc_harm_tally && typeof bt._npc_harm_tally === 'object') {
+        const migrated = {};
+        for (const [key, val] of Object.entries(bt._npc_harm_tally)) {
+          migrated[resolveNpcId(key)] = val;
+        }
+        bt._npc_harm_tally = migrated;
+      }
+    }
+  }
+
+  // Migrate inventory items from Chinese name to stable id (v1.3.0)
+  if (typeof migrateInventory === 'function' && Array.isArray(state.inventory)) {
+    state.inventory = migrateInventory(state.inventory);
+  }
+
   // Build the migrated save object
   return {
     version: SAVE_VERSION,
@@ -131,18 +167,18 @@ export function migrateSaveData(data, slotId) {
  * @returns {object} filtered state safe for persistence
  */
 export function toPersistedState(state) {
-  const {
-    narrative,
-    transition,
-    pendingNpc,
-    pendingChoice,
-    pendingGamble,
-    pendingEvent,
-    pendingDeath,
-    ...persisted
-  } = state;
+  // UI states (not persisted — rebuilt on load)
+  const UI_KEYS = ['narrative', 'transition', 'pendingNpc', 'pendingChoice', 'pendingGamble', 'pendingEvent', 'pendingDeath'];
+  // Runtime keys (from transientKeys.js) — never persisted
+  const RUNTIME_KEYS = typeof TRANSIENT_STATE_KEYS !== 'undefined' ? TRANSIENT_STATE_KEYS : ['_effects', '_lastAction', '_runtime', '_debug', '_actionHistory'];
+  const excludeSet = new Set([...UI_KEYS, ...RUNTIME_KEYS]);
 
-  // Cap eventLog too (same rationale as narrative)
+  const persisted = {};
+  for (const [k, v] of Object.entries(state)) {
+    if (!excludeSet.has(k)) persisted[k] = v;
+  }
+
+  // Cap eventLog (same rationale as narrative)
   if (persisted.eventLog && persisted.eventLog.length > 200) {
     persisted.eventLog = persisted.eventLog.slice(-200);
   }

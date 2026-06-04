@@ -4840,7 +4840,8 @@
           "深渊"
         ]
       },
-      "chapter_1_role": "locked"
+      "chapter_1_role": "locked",
+      "infection_risk": true
     },
     {
       "id": "lighthouse",
@@ -4986,7 +4987,8 @@
           "甜腻气味"
         ]
       },
-      "chapter_1_role": "rumor_only"
+      "chapter_1_role": "rumor_only",
+      "infection_risk": false
     },
     {
       "id": "forbidden_grove",
@@ -5132,7 +5134,8 @@
           "甜腻气味"
         ]
       },
-      "chapter_1_role": "locked"
+      "chapter_1_role": "locked",
+      "infection_risk": true
     },
     {
       "id": "deep_catacombs",
@@ -5285,7 +5288,8 @@
           "花香"
         ]
       },
-      "chapter_1_role": "locked"
+      "chapter_1_role": "locked",
+      "infection_risk": true
     }
   ],
   "npcs": [

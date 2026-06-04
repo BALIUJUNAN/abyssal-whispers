@@ -8,8 +8,8 @@
 
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
-![Build](https://img.shields.io/badge/build-6.5MB_(with_Babel)-green)
-![Version](https://img.shields.io/badge/version-0.2.1-orange)
+![Build](https://img.shields.io/badge/build-1.7MB_production-green)
+![Version](https://img.shields.io/badge/version-0.2.2-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版下载) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -271,7 +271,7 @@ React 18 + useReducer 全状态驱动 + 双 Store 架构 (useGameStore + useUiSt
 
 ```
 COC/
-├── index.html              # 构建产物（含 Babel ~6.5MB，生产 ~5.7MB）
+├── index.html              # 构建产物（含 Babel ~6.5MB，生产 ~1.7MB）
 ├── build.py                # Python 构建脚本 --dev/--prod/--analyze/--verify
 ├── vite.config.js          # Vite 开发环境配置（HMR + @engine/@state 别名）
 ├── dev.html                # Vite 开发入口
@@ -292,10 +292,12 @@ COC/
 │   │   ├── WorldTimeSystem.js    # 世界状态/封印/天气/安全屋（97 行）
 │   │   └── SaveManager.js        # 存档系统+版本迁移（190 行）
 │   │
-│   ├── state/              # 3 个状态模块（245 行）— 双 Store 架构
+│   ├── state/              # 5 个状态模块 — 双 Store 架构 + 平衡常量
 │   │   ├── gameStore.js          # useGameStore + 选择器钩子
 │   │   ├── uiStore.js            # useUiStore（模态/Toast/设置）
-│   │   └── initialState.js       # 游戏初始状态定义
+│   │   ├── initialState.js       # 游戏初始状态定义
+│   │   ├── gameConstants.js      # GAME_BALANCE 集中化平衡常量（18项阈值/概率）
+│   │   └── transientKeys.js      # 临时状态键定义
 │   │
 │   ├── components/         # 11 个 UI 组件（2,087 行）
 │   │   ├── ui/DevPanel.jsx       # 开发者调试面板（F12，4标签页）
@@ -305,21 +307,21 @@ COC/
 │   │   └── ... (NPCDialog/CitySketchMap/GameScreens/ErrorBoundary 等)
 │   │
 │   ├── reducers/           # 22 个状态管理模块（4,887 行）
-│   │   ├── slices/               # 6 个 slice handler
+│   │   ├── slices/               # 6 个 slice handler（ctx 显式传参）
 │   │   │   ├── coreSlice.js      # START_GAME/NEW_GAME/CONTINUE_GAME
-│   │   │   ├── exploreSlice.js   # MOVE/EXPLORE/DO_SKILL_CHECK
+│   │   │   ├── exploreSlice.js   # MOVE/EXPLORE/DO_SKILL_CHECK（EXPLORE 分解为 3 子阶段）
 │   │   │   ├── npcSlice.js       # TALK_NPC/NPC_RESPONSE
-│   │   │   ├── dailySlice.js     # REST/WORK/BUY_FOOD（7 子函数）
+│   │   │   ├── dailySlice.js     # REST/WORK/BUY_FOOD（9 子函数，ctx 显式传参）
 │   │   │   ├── darkSlice.js      # SELF_HARM/DESECRATE/BREAK_SEAL
 │   │   │   └── uiSlice.js        # CHOICE_SELECT/GAMBLE_CHOICE/PROLOGUE
-│   │   ├── extendedEvents.js     # V2 事件调度（pure/commit 分离）
+│   │   ├── extendedEvents.js     # V2 事件调度（pure/commit 分离，SSOT triggeredEvents）
 │   │   ├── deathSystem.js        # 16 种死亡 × 四段叙事
 │   │   └── ... (miscReducer/loopReducer/saveReducer 等)
 │   │
 │   ├── systems/            # 9 个游戏系统（1,764 行）
 │   │   ├── eventSystemV2.js      # 三层事件选择
 │   │   ├── fearLens.js           # 恐惧滤镜（文本+NPC对话）
-│   │   ├── resourceNarrative.js  # 资源-叙事绑定
+│   │   ├── resourceNarrative.js  # 资源-叙事绑定（数据驱动 infection_risk）
 │   │   ├── worldDecay.js         # 世界腐化推进
 │   │   ├── metaCorruption.js     # Meta层腐化
 │   │   └── ... (fearProfile/npcDialogue/sanVisualCorruption 等)
@@ -424,7 +426,7 @@ npm run dev
 
 # 生产构建 — 单文件 HTML
 npm run build
-# 输出：index.html（含 Babel ~6.5MB，安装 @babel/cli 后更小）
+# 输出：index.html（生产 ~1.7MB，开发含 Babel ~6.5MB）
 
 # 生产构建（要求 Babel 编译成功，否则失败）
 python build.py --prod
@@ -460,16 +462,16 @@ npm run tauri build
 
 ## 代码质量
 
-### 综合评分：**9.2 / 10**
+### 综合评分：**9.4 / 10**
 
 | 维度 | 评分 | 状态 |
 |------|------|------|
-| **主循环 & Reducer** | **9.0/10** | ✅ 6 slice handler + 引擎层独立 + 双Store架构 |
-| **事件系统** | **9.0/10** | ✅ EventEngine 三层加权选择，pure/commit 分离 |
+| **主循环 & Reducer** | **9.5/10** | ✅ 6 slice handler + ctx 显式传参 + 引擎层独立 + 双Store架构 |
+| **事件系统** | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents |
 | **SAN 系统** | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现 |
-| **子系统** | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立 |
-| **构建流程** | **9.0/10** | ✅ --analyze/--dev/--prod 模式；CSS/JS minify |
-| **开发体验** | **9.5/10** | ✅ DevPanel(F12) + 双Store选择器 + 三滑块SAN控制 |
+| **子系统** | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk |
+| **构建流程** | **9.0/10** | ✅ --analyze/--dev/--prod 模式；注释安全删除 + token 边界保护 |
+| **开发体验** | **9.5/10** | ✅ DevPanel(F12) + 双Store选择器 + 三滑块SAN控制 + GAME_BALANCE 常量 |
 
 ### 架构优势
 
@@ -480,8 +482,11 @@ npm run tauri build
 - ✅ **三层事件调度** — EventEngine 实现里程碑/行为权重/冷却衰减/累积权重二分查找
 - ✅ **污染平滑过渡** — SanPollutionLayer 基于阶段配置自动插值，2s ease 平滑过渡
 - ✅ **三滑块SAN控制** — 视觉/交互/Meta 独立可调，轻度污染模式无障碍保护
-- ✅ **数据驱动设计** — 新增事件无需改reducer代码，只需添加JSON条目
+- ✅ **数据驱动设计** — 新增事件无需改reducer代码，只需添加JSON条目；危险区域用 `infection_risk` 标志
 - ✅ **DevPanel调试** — F12一键打开，实时查看/修改游戏状态、事件权重、性能指标
+- ✅ **ctx 显式传参** — slice handler 通过参数接收上下文，可独立单元测试，无隐式全局依赖
+- ✅ **GAME_BALANCE 常量** — `src/state/gameConstants.js` 集中管理 18 项阈值/概率/时长，零散魔法数字已消除
+- ✅ **EXPLORE 分阶段** — 事件选择(`_selectExploreEvent`) + 效果应用(inline) + 后处理(`_postExploreProcessing`) 三阶段清晰分离
 
 ---
 
@@ -489,6 +494,7 @@ npm run tauri build
 
 | 版本 | 日期 | 主要更新 |
 |------|------|---------|
+| **0.2.2** | 2026-06-04 | **运行时稳定性 + 构建安全 + 工程规范化** — ①修复 dailySlice/exploreSlice 的 `ctx` 未传递导致 REST/EXPLORE 必然 TypeError 的 P0 崩溃（所有 slice handler 显式接收 ctx 参数）；②修复 resourceNarrative.js 的 var 提升导致饥饿系统完全失效的 P0 bug（`var food` 移至函数顶部 + `_starvingDays`→`starvationDays` 统一计数器键名）；③修复 build.py `_strip_comments_safe` 删除 `/* */` 后 token 粘连导致 63 处 `returnReact` ReferenceError 白屏的 P0 bug（状态机补空格 + 正则兜底 `[)}:=!~]` 标点边界）；④修复 Immer UMD wrapper 的 `return module.exports` 被注释行删除导致 `Immer.produce` undefined 的 P0 bug；⑤修复 build.py 正则过度匹配（`[^\s]`→字母）导致全文 `var`→`v a r` 字符间距破坏的回归 bug；⑥新增 `src/state/gameConstants.js` 集中化 GAME_BALANCE 常量（18 项阈值/概率/时长），替换 5 个 slice 文件中的魔法数字；⑦EXPLORE case 从 222 行/6 层嵌套分解为 `_selectExploreEvent` + `_postExploreProcessing` + 85 行主干（-61%）；⑧`commitSelectedEvent` 写入 `triggeredEvents`（SSOT），加守卫防止双重 push；⑨GameModals 的 visualDistortion/flickerEffect toggle 同步 dispatch `ACCESSIBILITY_TOGGLE`，修复 state/settings 不一致；⑩resourceNarrative.js 的危险区域改为数据驱动 `area.infection_risk` 标志；⑪extendedEvents.js 添加构建顺序依赖注释；⑫清理 eventSystemV2.js 的 `computeEventWeight` 死代码 |
 | **0.2.1** | 2026-06-03 | **系统深化 + 构建修复** — ①修复 `utils/uiStore.js` 重复打包导致 `SyntaxError: _useSyncExternalStore` 的致命bug；②NPC 关系网(§1.2)：`setNpcRelation`/`getNpcRelation`/`getNpcConnections` — NPC间动态关系(ally/enemy/relative)，跨循环保留；③NPC 死后遗产(§1.2)：`registerNpcLegacy`/`claimNpcLegacy` — NPC死亡后留下物品/知识/任务；④结局余韵系统(§5.3)：`checkAfterglowUnlock`/`getAfterglowTexts`/`getEndingRecord` — 结局附带可解锁Afterglow文本；⑤轮回平衡重做(§2.2)：SAN阶梯式上限(loop4-5下限60, loop10+固定50)，污染取代SAN惩罚；⑥结局代币+轮回商店(§2.4)：每达成结局+1代币，loop5/7解锁商店层级；⑦Meta事件真实后果(§3.3)：存档覆盖/NPC信任锁定/NPC永久失踪/对话分支删除；⑧质量分层(§3.2)：Tier C事件文本截断+重复触发泛化替换；⑨Meta事件频率门控(§3.4)：`max_meta_per_run`触发条件；⑩数据大幅扩展：game_base.json +8322行，9个事件模块全面更新 |
 | **0.2.0** | 2026-06-02 | **SAN系统满分实现** — 6阶段×4维度详细污染定义；SSOT单一数据源(`getCurrentSanStage()`零硬编码)；SanPollutionLayer完全重写(194行，CSS动画+Canvas渲染+CorruptibleChoice+AbyssPopup)；6阶段渐进效果(色偏/颤抖/泛光/扫描线/暗角/barrel/撕裂/虚假选项/伪造通知)；三滑块SAN控制；轻度污染模式(无障碍)；引擎层独立(4模块758行)；双Store架构；DevPanel(F12)；build --analyze/--dev/--prod |
 | **0.1.2** | 2026-06-01 | appHelpers拆分(-60%)；dailySlice REST 7子函数；GamePanels组件拆分；miscReducer合并(3→1)；Zustand外部UI Store；章节懒加载(day5/day10)；Vite开发环境(HMR) |

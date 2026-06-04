@@ -1,0 +1,53 @@
+// 新事件模板 — 复制后填入 game_data.json 或 ch2plus.json
+// 命名规则: evt_{区域}_{序号} 或 evt_{主题}_{描述}
+{
+  "id": "evt_TEMPLATE_replace_me",
+  "name": "事件显示名",
+  "type": "area_event",           // area_event | mythos | resource | humanity | meta | silent
+  "event_classification": "区域事件",
+  "chapter": 1,                    // 1-5, 对应章节
+
+  "trigger": {
+    "areas": ["town_center"],      // 必须是 areaRegistry 中的 id
+    "condition": "day >= 3"        // 字符串条件，OR/AND 大写
+  },
+
+  "description": "你在{area}看到了……\n\n这段文字会根据 SAN 值变化。",
+
+  "effects": {
+    "san": -2,                     // SAN 变动
+    "HP": 0,                       // HP 变动
+    "food": 0,                     // 食物变动
+    "items": [],                   // 废弃: 用 add_item
+    "add_item": {                  // 推荐: 给物品
+      "item_id": "tide_timetable", // 必须是 itemRegistry 中的 id
+      "name": "潮汐时刻表",        // 显示名
+      "uses": 1
+    },
+    "add_clue": "clue_1_1",       // 给线索
+    "add_flag": "flag_name",       // 设标记
+    "npc_trust": {                 // NPC 信任变动 (用 id!)
+      "martha_grey": 1
+    }
+  },
+
+  "sanity_damage": 2,              // 基础 SAN 伤害（会被章节/难度修正）
+  "skill_check": {                 // 可选: 技能检定
+    "skill": "侦查",
+    "threshold": 50
+  },
+
+  "choices": [                     // 可选: 分支选择
+    {
+      "text": "仔细查看",
+      "effects": { "san": -1 },
+      "condition": "san > 30"
+    },
+    {
+      "text": "离开",
+      "effects": {}
+    }
+  ],
+
+  "quality_tier": "B"              // S/A/B/C — 影响复读时文本截断
+}

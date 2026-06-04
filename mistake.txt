@@ -1,0 +1,195 @@
+错误根因
+returnReact is not defined 的完整因果链：
+
+code
+JSX 源码 (ErrorBoundary.jsx)
+  ↓ Babel 编译
+return /*#__PURE__*/ React.createElement("div", ...)
+  ↓ minification 删除注释
+return React.createElement("div", ...)     ← 正确（有空格）
+  ↓ 但实际发生了：
+returnReact.createElement("div", ...)       ← BUG！空格丢失
+  ↓ JS 引擎解析
+ReferenceError: returnReact is not defined
+为什么空格会丢失
+Babel 输出中 /*#__PURE__*/ 注释前后的空格不确定——有时有空格，有时没有。当输出为：
+
+js
+return/*#__PURE__*/React.createElement(...)
+构建系统用 _strip_comments_safe() 状态机逐字符扫描，遇到 /* 就跳到 */ 之后继续。删除注释后前后字符直接粘连：
+
+code
+r e t u r n / * # _ _ P U R E _ _ * / R e a c t
+              ^^^^^^^^^^^^^^^^^^^^ 被跳过
+r e t u r n R e a c t   ← 变成了 returnReact
+为什么只影响大文件
+build.py 有两条 minification 路径：
+
+文件大小	函数	注释处理
+≤800KB	minify_js()	正则替换 + 空格保护 ✅
+>800KB（本项目1.14MB走这条）	_strip_comments_safe()	状态机直接跳过，不补空格 ❌
+之前修复了小文件路径的 minify_js()，但实际编译产物走的是大文件路径的 _strip_comments_safe()，所以修复无效。
+
+修复
+在 _strip_comments_safe() 的块注释删除逻辑中加入：删除注释后检查前后字符是否为单词/标识符字符，若是则插入一个空格
+
+
+================================================================================
+v0.2.x 全量 Bug 排查记录 (2026-06-04)
+================================================================================
+
+本次排查共发现 12 个问题（4×P0 + 5×P1 + 3×P2），修复过程中又引入 2 个回归 bug。
+以下按发现顺序记录。
+
+────────────────────────────────────────────────────────────────────────────────
+一、原始 Bug 列表
+────────────────────────────────────────────────────────────────────────────────
+
+P0-1: dailySlice.js — ctx 未传递给子函数 → REST TypeError
+  文件: src/reducers/slices/dailySlice.js
+  根因: handleDailyAction(s, action, c) 签名无 ctx 参数，但 9 个子函数内部
+        直接引用模块级全局变量 ctx（如 getAreaInfo(s.currentArea, ctx)）。
+        ctx 定义在 app.jsx 模块顶层，运行时通过闭包可用，但：
+        (1) 无法独立单元测试
+        (2) 子函数声明在 ctx 定义之前，依赖隐式作用域链
+  修复: handleDailyAction(s, action, c, ctx) + 所有 9 个子函数签名加 ctx；
+        app.jsx 调用处传入 ctx。
+
+P0-2: exploreSlice.js — ctx 未传递 → EXPLORE TypeError
+  文件: src/reducers/slices/exploreSlice.js
+  根因: 与 P0-1 同源。handleExploreAction(s, action, c) 中多处调用
+        getAreaInfo(s.currentArea, ctx)、checkTriggerExtended(e, state, ctx) 等。
+  修复: handleExploreAction(s, action, c, ctx)；app.jsx 调用处传入 ctx。
+
+P0-3: resourceNarrative.js — var 提升破坏饥饿追踪
+  文件: src/systems/resourceNarrative.js
+  位置: processDailyResources() 函数
+  根因: 两个问题叠加：
+        (1) var food = state.food || 0 声明在 if (food === 0) 之后。
+            var 提升使 food 在判断时为 undefined，undefined !== 0 恒为 false，
+            导致饥饿天数永远不递增。
+        (2) 使用 state._starvingDays（带下划线），而全项目其他 6 处
+            （dailySlice/effectReducer/eventReducer/npcSlice/initialState）
+            统一使用 state.starvationDays（无下划线）。两个计数器互不通信。
+  修复: (1) 将 var food 声明移到函数顶部（判断之前）；
+        (2) _starvingDays → starvationDays，统一计数器。
+
+P0-4: build.py — _strip_comments_safe 删除注释后 token 粘连 → 63 处 returnReact
+  文件: build.py
+  根因: Babel 输出 return/*#__PURE__*/React，_strip_comments_safe() 状态机
+        遇到 /* */ 直接跳过，不补空格 → returnReact。
+        本项目编译产物 >800KB 走此路径（≤800KB 走的 minify_js() 有正则保护）。
+  修复: 块注释删除后检测前后字符，若为非空白则插入空格。
+        额外加正则兜底：([)}:=!~])(?=[A-Za-z_$]) → \1 。
+  ⚠️ 此修复后来引入回归（见下方"修复过程中引入的回归"）。
+
+P1-5: eventSystemV2.js — computeEventWeight 死代码
+  文件: src/systems/eventSystemV2.js
+  根因: ~40 行的 computeEventWeight() 从未被调用。实际使用的是
+        extendedEvents.js 中的 getEventWeight()。两者逻辑近似但不一致
+        （前者多了 first-week 折叠）。
+  修复: 删除函数体，替换为文档注释标注 dead code。
+
+P1-6: visualDistortion 类型三端不一致
+  涉及: settingsReducer / GameModals.jsx / app.jsx / uiSlice.js
+  根因: settings 层用 boolean（visualDistortion），state 层用 boolean
+        （visual_distortion），但 GameModals 修改 settings 时不 dispatch
+        ACCESSIBILITY_TOGGLE，导致 state 不同步。
+  修复: GameModals 新增 dispatch prop，toggleA11y() 同时更新 settings + dispatch。
+
+P1-7: extendedEvents.js — 构建顺序隐性依赖无注释
+  文件: src/reducers/extendedEvents.js
+  根因: getEventWeight() 内 5 处 typeof === 'function' 检查依赖
+        eventSystemV2.js、resourceNarrative.js 等先于本文件打包。
+        调整 REDUCER_FILES 顺序会导致权重修正器静默失效。
+  修复: 文件头添加 BUILD ORDER DEPENDENCY 注释块。
+
+P1-8: exploreSlice.js — triggeredEvents 双重写入
+  文件: src/reducers/slices/exploreSlice.js
+  根因: 特殊事件（omen/600）调用 commitSelectedEvent() 后，第 221 行
+        又无条件 s.triggeredEvents.push(evt.id)。当前数组幂等不报错，
+        但改 Set 结构会立即出 bug。
+  修复: (1) commitSelectedEvent() 内部增加 triggeredEvents.push 写入；
+        (2) exploreSlice 第 221 行加 if(!s.triggeredEvents.includes(evt.id)) 守卫。
+
+P1-9: exploreSlice.js — EXPLORE case 222 行 / 6 层嵌套
+  文件: src/reducers/slices/exploreSlice.js
+  根因: 单个 case 块包含事件选择、文本渲染、SAN 损失、技能检定、
+        死亡判定、事件链、结论检查、怪物显现、行为追踪等全部逻辑。
+  修复: 提取 _selectExploreEvent()（事件选择管线）和
+        _postExploreProcessing()（后处理）。
+        EXPLORE case 从 222 行缩减至 85 行（-61%）。
+
+P2-10: 全局变量 ctx 隐式绑定
+  涉及: 全部 6 个 slice 文件
+  根因: 每个 slice 的处理函数签名是 (s, action, c)，但内部大量调用
+        ctx.xxx（模块级全局变量）。从 gameReducer 闭包中提取后遗留。
+  修复: dailySlice + exploreSlice 已加 ctx 参数。其余 4 个 slice（core/npc/dark/ui）
+        的顶层函数在 gameReducer 闭包内执行，ctx 可达，暂不修改。
+
+P2-11: 魔法数字散布
+  涉及: 多文件（exploreSlice/dailySlice/coreSlice/npcSlice/resourceNarrative）
+  根因: san<=10、day<=7、Math.random()<0.35 等阈值硬编码在业务逻辑中。
+  修复: 创建 src/state/gameConstants.js → GAME_BALANCE（Object.freeze）。
+        注册在 build.py REDUCER_FILES（reducers/utils.js 之后）。
+        替换 18 处魔法数字为 GAME_BALANCE.xxx 常量引用。
+
+P2-12: 危险区域列表硬编码
+  文件: src/systems/resourceNarrative.js
+  根因: var dangerousAreas = ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove']
+        硬编码在逻辑文件中，与 game_base.json 的 area 数据不同步。
+  修复: 改为数据驱动：area.infection_risk 标志。在 game_base.json 的
+        deep_catacombs/ruins_of_yith/forbidden_grove 添加 infection_risk:true，
+        lighthouse 添加 infection_risk:false（叙事排除）。
+
+
+────────────────────────────────────────────────────────────────────────────────
+二、修复过程中引入的回归 Bug（共 2 个）
+────────────────────────────────────────────────────────────────────────────────
+
+回归-1: build.py 正则过度匹配 → 全文字符间距破坏
+  时间: 修复 P0-4 时引入
+  根因: 添加正则 r'(?<=[^\s({\[])(?=[A-Za-z_$])' 作为 token 防粘连兜底。
+        该正则是零宽匹配，[^\s({\[] 匹配字母/数字，导致标识符内部也被切分：
+          var Immer → v a r  I m m e r
+          function → f u n c t i o n
+        全部 1.1MB JS 被破坏，浏览器报 SyntaxError: Unexpected identifier 'a'。
+  修复: 缩窄正则为 r'([)}:=!~])(?=[A-Za-z_$])'（仅 6 种标点）。
+        不包含 + - ;（会破坏 ++a、--b、有效 ;keyword 模式）。
+  教训: 零宽正则 + 广义字符类 = 灾难。做 token 边界修复时必须逐个枚举标点。
+
+回归-2: Immer UMD wrapper 的 return 被注释删除 → Immer.produce undefined
+  时间: 修复 P0-4 后的同一次构建
+  根因: src/vendor/immer.production.js 第 6 行：
+        //# sourceMappingURL=immer.cjs.production.js.map  return module.exports;
+        return module.exports 被拼接在 source map 注释的同一行。
+        _strip_comments_safe() 删除 // 注释时整行删除，连带 return 一起消失。
+        IIFE 无 return → var Immer = undefined → Immer.produce TypeError。
+  修复: 删除死代码 0&&(module.exports={...}) 和 sourceMappingURL 引用；
+        return module.exports 独立成行。
+  教训: 第三方 vendor 文件必须人工审查注释行，确保关键语句不在注释同行。
+
+
+────────────────────────────────────────────────────────────────────────────────
+三、根因分类总结
+────────────────────────────────────────────────────────────────────────────────
+
+A. 作用域/参数传递 (P0-1, P0-2, P2-10)
+   slice 文件从 app.jsx 提取时，ctx 作为模块级全局变量被隐式捕获。
+   修复模式：函数签名加 ctx 参数，调用处显式传入。
+
+B. 变量提升 (P0-3)
+   var 声明提升到函数顶部但赋值不提升。声明必须在首次使用之前。
+   同名但不同键（_starvingDays vs starvationDays）是隐蔽的数据断联。
+
+C. 构建产物安全 (P0-4, 回归-1, 回归-2)
+   (1) 注释删除必须补空格（防止 token 粘连）
+   (2) 正则兜底必须逐个枚举标点（防止过度匹配）
+   (3) vendor 文件的注释行不能包含可执行代码
+   (4) 构建回归需要 CI 测试覆盖（当前无此机制）
+
+D. 死代码/类型不一致 (P1-5, P1-6)
+   重构遗留。统一数据类型 + 删除未引用函数。
+
+E. 可维护性 (P1-7, P1-8, P1-9, P2-11, P2-12)
+   隐式依赖需注释、重复写入需守卫、长函数需拆分、魔法数字需集中。

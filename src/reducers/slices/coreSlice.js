@@ -23,19 +23,19 @@ function handleCoreAction(s, action, c) {
     return s;
   }
   case 'BEGIN_ADVENTURE':{
-    s.screen='game';c.ensureMutableArrays();
+    s.screen='game';
     s.objectives=genObjectives(1,ctx);
-    audioManager.playEffect('begin');audioManager.playAreaAmbient(s.currentArea||'town_center','morning');
+    c.effects.push({type:'AUDIO_PLAY',id:'begin'},{type:'AUDIO_AMBIENT',area:s.currentArea||'town_center',phase:'morning'});
     // SAN visual corruption: now handled by SanPollutionLayer component (no init needed)
     s.currentChapter=getChapterForDay(s.day,ctx).key||'chapter_1';
     // Apply archetype NPC trust mods (P1-1)
     const archDef2=(GD.systems?.player?.archetypes||[]).find(a=>a.id===s.archetype);
-    if(archDef2?.npc_trust_mod){Object.entries(archDef2.npc_trust_mod).forEach(([npc,v])=>{s.npcTrust[npc]=(s.npcTrust[npc]||0)+v;});}
+    if(archDef2?.npc_trust_mod){Object.entries(archDef2.npc_trust_mod).forEach(([npc,v])=>{setNpcTrust(s,npc,getNpcTrust(s,npc)+v);});}
     if(s.loopCount>0){
-      audioManager.playEffect('loop_restart');audioManager.playEffect('loop_memory');audioManager.playEffect('bell_memory');
+      c.effects.push({type:'AUDIO_PLAY',id:'loop_restart'},{type:'AUDIO_PLAY',id:'loop_memory'},{type:'AUDIO_PLAY',id:'bell_memory'});
       const drt=GD.implementation_notes?.death_restart_text?.death_types;
       const restartTexts=s.lastDeathType==='mental'?drt?.mental_death?.restart_text:drt?.physical_death?.restart_text;
-      const loopKey=s.loopCount>=5?'loop_5_plus':s.loopCount>=3&&s.lastDeathType==='mental'?'loop_3_plus':'loop_'+s.loopCount;
+      const loopKey=s.loopCount>=GAME_BALANCE.LOOP_TEXT_VARIANT_5?'loop_5_plus':s.loopCount>=GAME_BALANCE.LOOP_TEXT_VARIANT_3&&s.lastDeathType==='mental'?'loop_3_plus':'loop_'+s.loopCount;
       const restartText=restartTexts?.[loopKey];
       if(restartText){
         c.narr('system',restartText,{locationName:'轮回·第'+s.loopCount+'次'});
@@ -55,7 +55,7 @@ function handleCoreAction(s, action, c) {
     if(!s.triggeredEvents.includes('evt_day1_opening_cut')){
       s.triggeredEvents.push('evt_day1_opening_cut');
       const cutText='公告栏最下面有一张新的失踪告示。\n纸面干燥，边缘还没有卷起。\n\n照片里的人低着头，外套领口沾着海盐。\n\n你认出那件外套。\n\n你低头看了一眼自己。\n同一颗纽扣，缺了一半。\n\n告示下方写着：\n失踪时间：今天傍晚。';
-      c.narr('event',cutText,{eventTitle:'第一张告示',eventType:'opening_cut',isSpecial:true,imageSrc:getAreaSceneImage(s.currentArea,s),imageAlt:'第一张告示'});
+      c.narr('event',cutText,{eventTitle:'第一张告示',eventType:'opening_cut',isSpecial:true,imageSrc:getAreaSceneImage(s.currentArea,{...c.view,visits:(s.visitedAreas||[]).filter(a=>a===s.currentArea).length}),imageAlt:'第一张告示'});
       if(!hasClueId(s.clues,'clue_missing_notice_self'))s.clues.push({id:'clue_missing_notice_self',name:'你的失踪告示'});
       addRunMemory(s,'你在公告栏上看见了自己的失踪告示。','opening_cut');
     }
@@ -68,7 +68,7 @@ function handleCoreAction(s, action, c) {
     // Track refusal of final choice (player chose to loop again rather than accept ending)
     if(s.ending)c.bt.final_choice_refused_count=(c.bt.final_choice_refused_count||0)+1;
     // Achievement stats
-    try{incrementStat('total_runs');if(s.hp<=0||s.san<=0)incrementStat('total_deaths');}catch(e){}
+    c.effects.push({type:'INCREMENT_STAT',key:'total_runs'});if(s.hp<=0||s.san<=0)c.effects.push({type:'INCREMENT_STAT',key:'total_deaths'});
     // Build previous run summary before reset (extended events system)
     const prevSummary = buildPreviousRunSummary(s);
     const f=initialState();

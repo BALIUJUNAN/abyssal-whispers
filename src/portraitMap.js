@@ -159,37 +159,71 @@ var EVENT_IMAGE_MAP = {
 };
 
 // === 查询函数 ===
+// 资源层只关心显示状态，不读游戏 state 全结构。
+// 调用方负责从 state 中提取 { phase, visits, pollution, san, hp, ... } 再传入。
 
-function getNpcImage(npcName, npcStates) {
-  if (!npcName) return null;
-  var entry = NPC_IMAGE_MAP[npcName];
+/**
+ * Get NPC portrait. Accepts Chinese name or stable id.
+ * Phase B compat: tries NPC_IMAGE_MAP (by name), then NPC_REGISTRY (by id → portrait).
+ */
+function getNpcImage(npcInput, npcStates) {
+  if (!npcInput) return null;
+  var entry = null;
+  var lookupKey = npcInput;
+  // Try direct lookup in legacy name-keyed map
+  entry = NPC_IMAGE_MAP[npcInput];
+  // If not found, try resolveNpcId → getNpcName → NPC_IMAGE_MAP
+  if (!entry && typeof resolveNpcId === 'function') {
+    var resolved = resolveNpcId(npcInput);
+    if (resolved !== npcInput) {
+      // Input was a name or alias; look up by resolved id's display name
+      var displayName = typeof getNpcName === 'function' ? getNpcName(resolved) : resolved;
+      entry = NPC_IMAGE_MAP[displayName];
+      if (entry) lookupKey = displayName;
+    }
+  }
+  // If still not found, try NPC_REGISTRY portraits
+  if (!entry && typeof NPC_REGISTRY !== 'undefined') {
+    var regEntry = NPC_REGISTRY[npcInput] || NPC_REGISTRY[resolveNpcId(npcInput)];
+    if (regEntry && regEntry.portrait) entry = regEntry.portrait;
+  }
   if (!entry) return null;
-  var ns = (npcStates || {})[npcName] || {};
+  // Look up npcStates by both name and id
+  var ns = (npcStates || {})[npcInput] || {};
+  if (!ns.corrupted && typeof resolveNpcId === 'function') {
+    var altKey = resolveNpcId(npcInput);
+    if (altKey !== npcInput) ns = (npcStates || {})[altKey] || ns;
+  }
   if (ns.redeemed && entry.redeemed) return PORTRAIT_BASE + entry.redeemed;
   if (ns.corrupted) return PORTRAIT_BASE + (entry.corrupted || entry.normal);
   return PORTRAIT_BASE + entry.normal;
 }
 
-function getPlayerImage(state) {
-  if (!state) return PORTRAIT_BASE + PLAYER_STATE_IMAGE.normal;
+/**
+ * @param {object} view - { san, hp, maxHp, pollution, loopCount, madnessActive }
+ */
+function getPlayerImage(view) {
+  if (!view) return PORTRAIT_BASE + PLAYER_STATE_IMAGE.normal;
   var key = 'normal';
-  if (state.san < 20 || state.madnessActive) key = 'mad';
-  else if (state.pollution > 0.3) key = 'polluted';
-  else if (state.hp < state.maxHp * 0.5) key = 'injured';
-  else if (state.loopCount > 0) key = 'loop';
+  if (view.san < 20 || view.madnessActive) key = 'mad';
+  else if (view.pollution > 0.3) key = 'polluted';
+  else if (view.hp < view.maxHp * 0.5) key = 'injured';
+  else if (view.loopCount > 0) key = 'loop';
   return PORTRAIT_BASE + (PLAYER_STATE_IMAGE[key] || PLAYER_STATE_IMAGE.normal);
 }
 
-// getPhase is defined in reducers/utils.js — use that global
-
-function getAreaSceneImage(areaId, state) {
+/**
+ * @param {string} areaId
+ * @param {object} view - { phase, visits, pollution } — 调用方从 state 提取
+ */
+function getAreaSceneImage(areaId, view) {
   if (!areaId) return null;
   var entry = AREA_IMAGE_MAP[areaId];
   if (!entry) return null;
-  var phase = getPhase(state.ap, state.maxAp);
+  var phase = view.phase;
   var isNight = phase === 'midnight' || phase === 'evening';
-  var visits = (state.visitedAreas || []).filter(function(a) { return a === areaId; }).length;
-  var pollution = state.pollution || 0;
+  var visits = view.visits || 0;
+  var pollution = view.pollution || 0;
   var variant = 'default';
   if (isNight && entry.night) variant = 'night';
   else if (pollution > 0.5 && entry.corruptionHigh) variant = 'corruptionHigh';

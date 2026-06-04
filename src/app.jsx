@@ -121,16 +121,21 @@ function getCorruptedSystemText(baseText, layer){
 }
 
 // === SAN破壁事件 (P1-3) ===
+// Pure state mutation: narrates and records memory. Returns side-effect descriptors for audio/timers.
 function checkBreakWallEvent(state, narr){
   // SSOT: only fires at reality_dissolution and below (level >= 4, SAN <= 24)
-  if(state.san>24)return;
-  if(Math.random()>=0.10)return;
+  if(state.san>24)return null;
+  if(Math.random()>=0.10)return null;
   const r=Math.random();
-  audioManager.playEffect('wall_break');audioManager.playEffect('safehouse_wall');audioManager.playEffect('bell_wrong');
+  const fx=[
+    {type:'AUDIO_PLAY',id:'wall_break'},
+    {type:'AUDIO_PLAY',id:'safehouse_wall'},
+    {type:'AUDIO_PLAY',id:'bell_wrong'},
+  ];
   if(r<0.33){
     // Effect 1: Fake save message
     narr('system','存档完成。Day '+state.day+' - '+(state.currentArea||'???'),{isSpecial:true});
-    setTimeout(()=>{try{narr('system','它在看着你写入这段存档。',{isSpecial:true});}catch(e){}},3000);
+    fx.push({type:'NARRATE_DELAYED',delay:3000,text:'它在看着你写入这段存档。',extra:{isSpecial:true}});
     addRunMemory(state,'你听见自己的名字在系统提示之外出现。','break_wall');
   }else if(r<0.66){
     // Effect 2: Fake error
@@ -147,6 +152,7 @@ function checkBreakWallEvent(state, narr){
       addRunMemory(state,corruptedItem.name+'的描述被篡改了。','break_wall');
     }
   }
+  return fx;
 }
 
 // Fear lens: module-level reference for corruption function
@@ -174,40 +180,38 @@ let _currentFearTuning = null;
  * @param {function} narr - narrative function
  */
 
-// === REDUCER ===
-// Lazy-clone pattern: arrays/objects are only cloned when a given action actually mutates them.
-// Game logic is split into slice handlers (core/explore/npc/daily/dark/ui).
-// Each slice receives (s, action, c) where c is a context with narr/log/ensureMutableArrays.
+// === REDUCER (Immer) ===
+// Immer draft: all direct mutations (s.xxx = ..., .push(), .pop()) are safe.
+// Slice handlers receive (draft, action, c) and return draft if handled, null otherwise.
 function gameReducer(state,action){
-  // Update module-level fear tuning for corruption functions
-  _currentFearTuning = state.fearTuning || null;
-  // Shallow copy of state; arrays stay as references until explicitly cloned
-  let s={...state};
-  let _cloned={};
-  const ensureArr=(k)=>{if(!_cloned[k]){s[k]=[...(state[k]||[])];_cloned[k]=true;}};
-  const ensureObj=(k)=>{if(!_cloned[k]){s[k]={...(state[k]||{})};_cloned[k]=true;}};
-  // Build context for slice handlers (narr, log, clone helpers, etc.)
-  const c=buildReducerCtx(s,state,ensureArr,ensureObj);
-  // Daily action tracking for behavior endings
-  const trackableTypes=['MOVE','EXPLORE','TALK_NPC','USE_ITEM','SWITCH_SAFEHOUSE','REST','GAMBLE_CHOICE','DO_SKILL_CHECK','NPC_RESPONSE','WORK','PREACH','ATTACK','BUY_FOOD'];
-  if(trackableTypes.includes(action.type)&&action.type!=='REST'){
-    if(!s._dayActions)s._dayActions=[];
-    s._dayActions.push(action.type==='NPC_RESPONSE'?action.choice||'talk':action.type);
-  }
-  // Phase 5: Behavioral profiling — record action history for event selection
-  if(typeof recordActionHistory==='function')recordActionHistory(s,action.type);
-  // Track food/money hoarding
-  if((s.food||0)>(c.bt.hoarded_food_max||0))c.bt.hoarded_food_max=s.food;
-  if((s.money||0)>(c.bt.hoarded_money_max||0))c.bt.hoarded_money_max=s.money;
-  // Dispatch to slice handlers (each returns s or null if unhandled)
-  let result;
-  result=handleCoreAction(s,action,c);    if(result)return result;
-  result=handleExploreAction(s,action,c); if(result)return result;
-  result=handleNpcAction(s,action,c);     if(result)return result;
-  result=handleDailyAction(s,action,c);   if(result)return result;
-  result=handleDarkAction(s,action,c);    if(result)return result;
-  result=handleUiAction(s,action,c);      if(result)return result;
-  return s;
+  return produce(state,(s)=>{
+    _currentFearTuning = s.fearTuning || null;
+    const c=buildReducerCtx(s);
+    // Daily action tracking for behavior endings
+    const trackableTypes=['MOVE','EXPLORE','TALK_NPC','USE_ITEM','SWITCH_SAFEHOUSE','REST','GAMBLE_CHOICE','DO_SKILL_CHECK','NPC_RESPONSE','WORK','PREACH','ATTACK','BUY_FOOD'];
+    if(trackableTypes.includes(action.type)&&action.type!=='REST'){
+      s._dayActions.push(action.type==='NPC_RESPONSE'?action.choice||'talk':action.type);
+    }
+    // Phase 5: Behavioral profiling — record action history for event selection
+    if(typeof recordActionHistory==='function')recordActionHistory(s,action.type);
+    // Track food/money hoarding
+    if((s.food||0)>(c.bt.hoarded_food_max||0))c.bt.hoarded_food_max=s.food;
+    if((s.money||0)>(c.bt.hoarded_money_max||0))c.bt.hoarded_money_max=s.money;
+    // Dispatch to slice handlers (each returns s if handled, null otherwise)
+    let r;
+    r=handleCoreAction(s,action,c);    if(r)return;
+    r=handleExploreAction(s,action,c,ctx); if(r)return;
+    r=handleNpcAction(s,action,c);     if(r)return;
+    r=handleDailyAction(s,action,c,ctx);   if(r)return;
+    r=handleDarkAction(s,action,c);    if(r)return;
+    r=handleUiAction(s,action,c);      if(r)return;
+    // Tag effects deterministically from action.meta.actionId (no Date.now/random in reducer)
+    if(c.effects.length>0){
+      const batchId=action.meta?.actionId||'anon';
+      c.effects.forEach((fx,i)=>{fx._fxId=batchId+'_'+i;});
+      s._effects=c.effects;
+    }
+  });
 }
 
 function App(){
@@ -216,8 +220,15 @@ function App(){
   const stateRef=useRef(state);
   stateRef.current=state;
   const dispatch = useCallback((action) => {
+    // Attach deterministic actionId for effect dedup (keeps reducer pure)
+    if(!action.meta)action.meta={};
+    if(!action.meta.actionId)action.meta.actionId=Date.now()+'_'+Math.random().toString(16).slice(2,6);
     errorTracker.record(action, stateRef.current);
-    return rawDispatch(action);
+    const result = rawDispatch(action);
+    // Execute post-reducer side effects (audio, delayed narrate, etc.)
+    try { runPostReducerEffects(result._effects, dispatch); } catch(e) {}
+    // _effects consumed above; dedup Set prevents re-execution, toPersistedState strips on save
+    return result;
   }, []);
   // Dual store: initialize game store bridge for useGameStore/useSan/useDay selectors
   useEffect(function() { initGameStore(state, dispatch); }, []);
@@ -292,7 +303,7 @@ function App(){
       onSettingsOpen={()=>uiStore.setState({settingsOpen:true})}
       onAchOpen={()=>uiStore.setState({achOpen:true})}
     />
-    <SettingsModal open={ui.settingsOpen} onClose={()=>uiStore.setState({settingsOpen:false})} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>uiStore.setState({achOpen:true})}/>
+    <SettingsModal open={ui.settingsOpen} onClose={()=>uiStore.setState({settingsOpen:false})} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>uiStore.setState({achOpen:true})} dispatch={dispatch}/>
     <SaveLoadModal open={ui.saveLoadOpen} onClose={()=>uiStore.setState({saveLoadOpen:false})} state={null} onLoad={handleLoadSlot} mode="load" onSaved={notifySave}/>
     <AchievementGallery open={ui.achOpen} onClose={()=>uiStore.setState({achOpen:false})}/>
   </>;
@@ -319,7 +330,7 @@ function App(){
       <CenterPanel state={state} dispatch={dispatch}/>
       <RightPanel state={state} dispatch={dispatch}/>
     </div>
-    <SettingsModal open={ui.settingsOpen} onClose={()=>uiStore.setState({settingsOpen:false})} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>uiStore.setState({achOpen:true})}/>
+    <SettingsModal open={ui.settingsOpen} onClose={()=>uiStore.setState({settingsOpen:false})} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>uiStore.setState({achOpen:true})} dispatch={dispatch}/>
     <SaveLoadModal open={ui.saveLoadOpen} onClose={()=>uiStore.setState({saveLoadOpen:false})} state={state} onLoad={handleLoadSlot} mode={ui.saveLoadMode} onSaved={notifySave}/>
     <AchievementGallery open={ui.achOpen} onClose={()=>uiStore.setState({achOpen:false})}/>
     {ui.ugcOpen&&<Modal open={ui.ugcOpen} onClose={()=>uiStore.setState({ugcOpen:false})} title="模组管理" width="720px"><UgcPanel onClose={()=>uiStore.setState({ugcOpen:false})} GD={GD}/></Modal>}
