@@ -13,7 +13,7 @@ import { applyUgcToGD } from '../utils/buildEventPool.js';
  * Merges all 599 new events into GD.events.
  * Injects the hidden ending for missing_event_600.
  * Merges enabled UGC mods into the event pool.
- * Call this once at app startup (after __GAME_DATA__ is set).
+ * Call this once at app startup (after game data is set).
  *
  * @param {object} GD - the global game data object
  * @returns {object} GD with extended events merged in

@@ -316,8 +316,12 @@ def minify_js(code):
     original_len = len(code)
     # Remove single-line // comments (but not URLs http:// or strings)
     code = re.sub(r'(?<!:)//[^\n]*', '', code)
-    # Remove /* ... */ block comments
-    code = re.sub(r'/\*.*?\*/', '', code, flags=re.DOTALL)
+    # Remove /* ... */ block comments — MUST preserve surrounding spaces
+    # e.g. "return/*#__PURE__*/React" → must become "return React", NOT "returnReact"
+    code = re.sub(r'(\w)/\*.*?\*/(\w)', r'\1 \2', code, flags=re.DOTALL)
+    code = re.sub(r'/\*.*?\*/', ' ', code, flags=re.DOTALL)  # remaining comments → space
+    # Insert space at line boundaries where two tokens would collide
+    code = re.sub(r'(\w)\n(\w)', r'\1 \2', code)
     # Collapse multiple newlines/spaces
     code = re.sub(r'\n\s*\n', '\n', code)
     code = re.sub(r'  +', ' ', code)
@@ -401,6 +405,79 @@ def load_and_merge_split_json():
     return json.loads(read_file(DATA_PATH))
 
 
+def _strip_comments_safe(code):
+    """Strip JS comments while respecting string literals and template literals.
+
+    Simple regex-based // stripping breaks when JSON string values contain //
+    (e.g. "// text" inside a description field). This state-machine approach
+    tracks whether we're inside a string/template literal before stripping.
+    """
+    out = []
+    i = 0
+    n = len(code)
+    in_str = None  # None, '"', "'", or '`'
+    in_regex = False
+
+    while i < n:
+        c = code[i]
+
+        # Inside a string literal
+        if in_str is not None:
+            out.append(c)
+            if c == '\\':
+                # Escape: skip next char
+                if i + 1 < n:
+                    out.append(code[i + 1])
+                    i += 2
+                    continue
+            elif c == in_str:
+                in_str = None
+            elif in_str == '`' and c == '$' and i + 1 < n and code[i + 1] == '{':
+                # Template literal expression — handled naively (good enough for minification)
+                pass
+            i += 1
+            continue
+
+        # Start of string literal
+        if c in ('"', "'", '`'):
+            in_str = c
+            out.append(c)
+            i += 1
+            continue
+
+        # Potential comment
+        if c == '/' and i + 1 < n:
+            nc = code[i + 1]
+            if nc == '/':
+                # Single-line comment: skip to end of line
+                nl = code.find('\n', i)
+                if nl < 0:
+                    break  # rest is comment
+                i = nl  # keep the newline
+                continue
+            elif nc == '*':
+                # Block comment: skip to */
+                # Preserve preceding char for token-boundary detection
+                prev_char = out[-1] if out else ''
+                end = code.find('*/', i + 2)
+                if end < 0:
+                    break  # unclosed comment
+                i = end + 2  # skip past */
+                # Insert space if comment was between two word characters
+                # e.g. "return/*PURE__*/React" must not become "returnReact"
+                next_char = code[i] if i < n else ''
+                if prev_char and next_char:
+                    if (prev_char.isalnum() or prev_char in '_$') and \
+                       (next_char.isalnum() or next_char in '_$'):
+                        out.append(' ')
+                continue
+
+        out.append(c)
+        i += 1
+
+    return ''.join(out)
+
+
 def build(use_babel=True):
     # Read source files
     template = read_file(TEMPLATE_PATH)
@@ -454,8 +531,14 @@ def build(use_babel=True):
         if len(compiled_js) > 800_000:
             import re as _re
             _orig = len(compiled_js)
-            compiled_js = _re.sub(r'(?<!:)//[^\n]*', '', compiled_js)
-            compiled_js = _re.sub(r'/\*.*?\*/', '', compiled_js, flags=_re.DOTALL)
+            # State-machine comment stripper that respects string literals.
+            # Simple regex // removal breaks when JSON string values contain //
+            # (e.g. "// 如果角色碰到了这里" in game data).
+            compiled_js = _strip_comments_safe(compiled_js)
+            # CRITICAL: After comment stripping, ensure tokens don't collide.
+            # Babel outputs "return/*#__PURE__*/React" and after removing the comment,
+            # we need "return React", NOT "returnReact".
+            compiled_js = _re.sub(r'(\w)\n(\w)', r'\1 \2', compiled_js)
             compiled_js = _re.sub(r'\n\s*\n', '\n', compiled_js)
             compiled_js = _re.sub(r'  +', ' ', compiled_js)
             print(f'  Basic minification: {_orig:,} -> {len(compiled_js):,} bytes ({len(compiled_js)/_orig*100:.1f}%)')

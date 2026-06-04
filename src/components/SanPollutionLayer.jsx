@@ -13,7 +13,7 @@ function getNoise(w, h) {
 var _CLEAN_VIS = {saturation:0,vignette:0,scanline:0,noise:0,barrel_distortion:0,chromatic_aberration:0,rotation:0,text_shadow:false,text_tremble:false,glow:false};
 
 function getVisualForSan(san) {
-  var GD = (typeof __GAME_DATA__ !== 'undefined') ? __GAME_DATA__ : (typeof window !== 'undefined' && window.__GAME_DATA__) || {};
+  var GD = (typeof window !== 'undefined' && window.GD) || {};
   var stages = (GD.systems && GD.systems.sanity && GD.systems.sanity.san_stages) || [];
   if (stages.length === 0) return {sat:0,vig:0,scan:0,noise:0,barrel:0,chroma:0,rot:0,shadow:false,tremble:false,glow:false,level:0};
   var curIdx = 0;
