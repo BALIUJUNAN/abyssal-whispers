@@ -247,7 +247,7 @@ function App(){
       saveAchievements(achData);
       newUnlocks.forEach(id=>{
         const def=getAchievementDef(id);
-        if(def)setToasts(prev=>[...prev,{id,def,key:Date.now()}]);
+        if(def)addUiToast({id,def,type:'achievement'});
       });
     }
   },[state.day,state.ending,state.visitedAreas?.length,state.clues?.length]);

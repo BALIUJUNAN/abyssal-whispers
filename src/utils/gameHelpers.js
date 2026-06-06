@@ -15,7 +15,7 @@ function getNpcsHere(state){
     if(state.npcStates[n.name]?.dead)return false;
     const d=((state.day-1)%5)+1;
     const sch=(n.schedule||[]).find(x=>x.startsWith('day'+d));
-    return sch&&sch.split(':')[1]===state.currentArea;
+    return sch&&(sch.split(':')[1]||'').trim()===state.currentArea;
   });
 }
 

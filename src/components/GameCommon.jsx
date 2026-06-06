@@ -46,7 +46,7 @@ const NarrativeBlock=memo(function NarrativeBlock({block}){
   const mythosTypes=['超自然遭遇','怪物遭遇','神秘事件','mythos'];
   const isMythos=block.eventType&&mythosTypes.includes(block.eventType);
   const eventTypeLabel=block.eventType?(EVENT_TYPE_LABELS[block.eventType]||block.eventType):null;
-  return <div className={'narrative-block'+(block.type==='system'?' system':'')+(block.isEffect?' system':'')+(block.isSpecial?' system':'')+(block.type==='death'?' death-narrative':'')+(isSanRecovery?' san-recovery':'')+(isMythos?' mythos-text':'')}>
+  return <div className={'narrative-block'+(block.type==='system'?' system':'')+(block.isEffect?' system':'')+(block.isSpecial?' system':'')+(block.type==='death'?' death-narrative':'')+(isSanRecovery?' san-recovery':'')+(isMythos?' mythos-text':'')+(block._areaClass?' '+block._areaClass:'')}>
     {block.locationName&&<div className="location-name">📍 {block.locationName}</div>}
     {block.eventTitle&&<div className="event-title">{block._ugcAuthor?<span className="ugc-badge" title={'MOD by '+block._ugcAuthor}>🏷️ [MOD]</span>:null}{block.eventTitle}</div>}
     {block.eventType&&<div className={'event-type '+block.eventType}>{eventTypeLabel}</div>}

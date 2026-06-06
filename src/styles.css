@@ -430,12 +430,7 @@ body::before{
 .area-node .area-danger.d4,.area-node .area-danger.d5{color:var(--san-low)}
 
 /* NPC entries */
-.npc-entry{padding:0.25rem 0.3rem;border-bottom:1px solid rgba(42,42,48,0.3);margin-bottom:0.1rem}
-.npc-entry .npc-name{color:var(--cyan);font-size:0.74rem}
-.npc-entry .npc-role{color:var(--text-dim);font-size:0.6rem;margin-top:0.05rem}
-.npc-entry .npc-trust{font-size:0.58rem;color:var(--gold)}
-.npc-entry .npc-status.corrupted{color:var(--danger2)}
-.npc-entry .npc-status.dead{color:var(--text-dim);text-decoration:line-through}
+/* NPC panel styles moved to "NPC Panel Enhancement" section above */
 
 /* Conclusion / Ending hints */
 .conclusion-entry{font-size:0.65rem;color:var(--gold);padding:0.12rem 0.2rem;border-left:2px solid rgba(184,150,58,0.3);padding-left:0.4rem;margin-bottom:0.15rem}
@@ -546,9 +541,16 @@ body::before{
 .timeline-text{color:var(--text);font-family:'Noto Serif SC','Songti SC',serif;line-height:1.5}
 
 /* Death animations */
-.death-anim-physical{animation:deathBlackout 2s ease-in forwards}
-.death-anim-mental{animation:deathDistort 2s ease-in forwards}
-@keyframes deathBlackout{0%{opacity:1}40%{opacity:1}100%{opacity:0.15}}
+.death-anim-physical{position:relative}
+.death-anim-physical::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:rgba(0,0,0,0);animation:deathBlackout 2.5s ease-in forwards}
+.death-anim-mental{position:relative}
+.death-anim-mental::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;filter:none;animation:deathDistort 2.5s ease-in forwards}
+.death-anim-physical h2,.death-anim-mental h2{position:relative;z-index:1}
+.death-anim-physical .ending-desc,.death-anim-mental .ending-desc{position:relative;z-index:1}
+.death-anim-physical .stats-summary,.death-anim-mental .stats-summary{position:relative;z-index:1}
+.death-anim-physical .death-recap,.death-anim-mental .death-recap{position:relative;z-index:1}
+.death-anim-physical .btn,.death-anim-mental .btn{position:relative;z-index:1}
+@keyframes deathBlackout{0%{background:rgba(0,0,0,0)}40%{background:rgba(0,0,0,0)}100%{background:rgba(0,0,0,0.65)}}
 @keyframes deathDistort{0%{filter:none;transform:none}30%{filter:blur(0.5px)}60%{filter:blur(1px) hue-rotate(10deg);transform:skewX(0.5deg)}100%{filter:blur(0.3px) hue-rotate(5deg);transform:skewX(0.2deg)}}
 
 /* ==========================================================
@@ -691,6 +693,28 @@ body::before{
 
 /* Title screen scanline overlay */
 .title-screen::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:2;background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px)}
+
+/* ==========================================================
+   Area Atmospheric Effects — 场景沉浸层
+   ========================================================== */
+.narrative-block.area-scene-harbor_district{position:relative;overflow:visible}
+.narrative-block.area-scene-harbor_district::before{content:'';position:absolute;top:0;left:-1rem;right:0;bottom:0;pointer-events:none;z-index:0;background:linear-gradient(180deg,rgba(40,60,80,0.06) 0%,rgba(20,35,50,0.04) 60%,transparent 100%);border-left:1px solid rgba(120,160,200,0.08)}
+.narrative-block.area-scene-harbor_district::after{content:'';position:absolute;bottom:0;left:0;right:0;height:60%;pointer-events:none;z-index:0;background:repeating-linear-gradient(0deg,transparent 0px,transparent 4px,rgba(100,150,180,0.015) 4px,rgba(100,150,180,0.015) 5px);animation:harborRipple 6s ease-in-out infinite alternate}
+.narrative-block.area-scene-harbor_district .narrative-image{filter:sepia(.12) contrast(1.08) brightness(.82) saturate(.85)}
+@keyframes harborRipple{0%{transform:translateY(0)}100%{transform:translateY(-2px)}}
+
+/* ==========================================================
+   NPC Panel Enhancement — NPC肖像面板
+   ========================================================== */
+.npc-entry{display:flex;align-items:flex-start;gap:0.45rem;padding:0.35rem 0.3rem;border-bottom:1px solid rgba(42,42,48,0.3);margin-bottom:0.1rem;transition:background .2s}
+.npc-clickable{cursor:pointer}
+.npc-clickable:hover{background:rgba(184,150,58,0.08)}
+.npc-portrait-thumb{width:36px;height:36px;object-fit:cover;border-radius:2px;border:1px solid rgba(184,150,58,0.2);filter:sepia(.15) contrast(1.05) brightness(.88);flex-shrink:0}
+.npc-entry .npc-name{color:var(--cyan);font-size:0.74rem;line-height:1.2}
+.npc-entry .npc-role{color:var(--text-dim);font-size:0.6rem;margin-top:0.05rem;line-height:1.2}
+.npc-entry .npc-trust{font-size:0.58rem;color:var(--gold);line-height:1.2}
+.npc-entry .npc-status.corrupted{color:var(--danger2)}
+.npc-entry .npc-status.dead{color:var(--text-dim);text-decoration:line-through}
 
 /* ==========================================================
    Modal

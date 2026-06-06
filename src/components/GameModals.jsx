@@ -96,14 +96,24 @@ function SaveLoadModal({open,onClose,state,onLoad,mode,onSaved}){
   const renderSlot=(slot)=>{
     const isManual=slot.slotId.startsWith('manual');
     const label=isManual?'手动 '+slot.slotId.split('_')[1]:slot.slotId==='auto_1'?'最近自动':'自动 '+slot.slotId.split('_')[1];
-    if(!slot.exists)return <div key={slot.slotId} className="save-slot empty" onClick={()=>{if(mode==='save'&&isManual){manualSave(slot.slotId,state);onClose();onSaved&&onSaved('存档成功');}}}>
+    if(!slot.exists)return <div key={slot.slotId} className="save-slot empty" onClick={()=>{
+      if(mode==='save'&&isManual&&state){manualSave(slot.slotId,state);onClose();onSaved&&onSaved('存档成功');}
+      else if(mode==='save'&&!state){alert('无法存档：无游戏状态');}
+    }}>
       <div className="save-slot-label">{label}</div>
-      <div className="save-slot-meta">空</div>
+      <div className="save-slot-meta">{mode==='load'?'（空）':'点击存档'}</div>
     </div>;
     const m=slot.meta||{};
     return <div key={slot.slotId} className={'save-slot'+(isManual?' manual':' auto')} onClick={()=>{
       if(mode==='save'&&isManual){if(confirm('覆盖此存档？')){manualSave(slot.slotId,state);onClose();onSaved&&onSaved('存档成功');}}
-      else if(mode==='load'){const loaded=loadSlot(slot.slotId);if(loaded&&!loaded.incompatible){onLoad(loaded);onClose();}else if(loaded?.incompatible){alert('存档版本不兼容');}}
+      else if(mode==='load'){
+        try{
+          const loaded=loadSlot(slot.slotId);
+          if(loaded&&!loaded.incompatible){onLoad(loaded);onClose();}
+          else if(loaded?.incompatible){alert('存档版本不兼容');}
+          else{alert('无法读取此存档');}
+        }catch(e){alert('读取异常: '+e.message);}
+      }
     }}>
       <div className="save-slot-label">{label}</div>
       <div className="save-slot-meta">第{m.day||'?'}日 · {m.area||'?'} · SAN:{m.san||'?'}</div>
@@ -111,10 +121,9 @@ function SaveLoadModal({open,onClose,state,onLoad,mode,onSaved}){
     </div>;
   };
   return <Modal open={open} onClose={onClose} title={mode==='save'?'写入调查记录':'读取调查记录'} width="440px">
-    {mode==='save'&&<div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.6rem'}}>手动存档槽位（点击覆盖）：</div>}
-    {mode==='save'&&<div className="save-slots-grid">{manualSlots.map(renderSlot)}</div>}
+    <div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.6rem'}}>{mode==='save'?'手动存档槽位（点击空槽存档）：':'手动存档：'}</div>
+    <div className="save-slots-grid">{manualSlots.map(renderSlot)}</div>
     {mode==='load'&&<>
-      {manualSlots.some(s=>s.exists)&&<><div style={{fontSize:'0.7rem',color:'var(--text-dim)',marginBottom:'0.4rem'}}>手动存档：</div><div className="save-slots-grid">{manualSlots.map(renderSlot)}</div></>}
       <div style={{fontSize:'0.7rem',color:'var(--text-dim)',margin:'0.8rem 0 0.4rem',borderTop:'1px solid var(--border)',paddingTop:'0.5rem'}}>自动存档：</div>
       <div className="save-slots-grid">{autoSlots.map(renderSlot)}</div>
     </>}

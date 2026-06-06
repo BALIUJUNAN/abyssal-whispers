@@ -279,10 +279,17 @@ const RightPanel=memo(function RightPanel({state,dispatch}){
       <div className="npc-section">{npcs.filter(n=>!state.npcStates[n.name]?.dead).map(n=>{
         const trust=state.npcTrust[n.name]||0;const ns=state.npcStates[n.name]||{};
         const d=((state.day-1)%5)+1;const sch=(n.schedule||[]).find(s=>s.startsWith('day'+d));
-        const loc=sch?sch.split(':')[1]:'???';const ln=(areas.find(a=>a.id===loc)||{}).name||loc;
-        return <div key={n.name} className="npc-entry">
-          <div className="npc-name">{n.name}{n.chapter_1_availability==='core'&&<span style={{fontSize:'0.6rem',color:'var(--gold)',marginLeft:'0.2rem'}}>核心</span>}{ns.corrupted&&<span className="npc-status corrupted"> [腐蚀]</span>}{ns.dead&&<span className="npc-status dead"> [死亡]</span>}</div>
-          <div className="npc-role">{n.role}</div><div className="npc-trust">{'★'.repeat(Math.max(0,trust))}{'☆'.repeat(Math.max(0,5-trust))} | {ln}</div>
+        const loc=sch?(sch.split(':')[1]||'').trim():'???';const ln=(areas.find(a=>a.id===loc)||{}).name||loc;
+        const npcImg=(trust>0||ns.corrupted)?getNpcImage(n.name,state.npcStates):null;
+        const inArea=state.currentArea===loc;
+        const canTalk=inArea&&state.ap>=1&&!state.pendingEvent?.rolled&&!state.pendingNpc&&!state.ending;
+        return <div key={n.name} className={'npc-entry'+(canTalk?' npc-clickable':'')} onClick={canTalk?()=>dispatch({type:'TALK_NPC',npc:n}):undefined}>
+          {npcImg&&<img className="npc-portrait-thumb" src={npcImg} alt={n.name} onError={e=>{e.currentTarget.style.display='none';}}/>}
+          {!npcImg&&trust===0&&!ns.corrupted&&<div className="npc-portrait-thumb" style={{display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(184,150,58,0.06)',color:'var(--text-dim)',fontSize:'0.7rem'}}>?</div>}
+          <div>
+            <div className="npc-name">{n.name}{n.chapter_1_availability==='core'&&<span style={{fontSize:'0.6rem',color:'var(--gold)',marginLeft:'0.2rem'}}>核心</span>}{inArea&&state.ap>=1&&<span style={{fontSize:'0.55rem',color:'var(--accent2)',marginLeft:'0.3rem'}}>💬</span>}{ns.corrupted&&<span className="npc-status corrupted"> [腐蚀]</span>}{ns.dead&&<span className="npc-status dead"> [死亡]</span>}</div>
+            <div className="npc-role">{n.role}</div><div className="npc-trust">{'★'.repeat(Math.max(0,trust))}{'☆'.repeat(Math.max(0,5-trust))} | {ln}</div>
+          </div>
         </div>;
       })}</div>
       {state.activeBlessings&&state.activeBlessings.length>0&&<><div className="panel-title" style={{color:'var(--gold)'}}>恩赐</div>{state.activeBlessings.map((bkey,i)=>{
@@ -415,6 +422,7 @@ function GameHeader({state,dispatch,areas,onSettingsOpen,onUgcOpen,onSaveOpen}){
       <button className="header-btn" onClick={()=>dispatch({type:'AUDIO_MUTE_TOGGLE'})} title={state.audioMuted?'取消静音':'静音'}>{state.audioMuted?'🔇':'🔊'}</button>
       <button className="header-btn header-btn-state" onClick={()=>dispatch({type:'ACCESSIBILITY_TOGGLE',key:'visual_distortion'})} title="切换视觉特效">{state.accessibilityOptions?.visual_distortion===false?'特效:关':'特效:开'}</button>
       <button className="header-btn" onClick={()=>{onSaveOpen&&onSaveOpen();audioManager.playUI('panel_open');}} title="写入调查记录">💾</button>
+      <button className="header-btn" onClick={()=>{uiStore.setState({saveLoadMode:'load',saveLoadOpen:true});audioManager.playUI('panel_open');}} title="读取调查记录">📖</button>
     </div>
   </header>;
 }

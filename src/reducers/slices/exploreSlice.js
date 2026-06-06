@@ -202,10 +202,32 @@ function handleExploreAction(s, action, c, ctx) {
     // Light level affects text corruption (P2-1)
     const lightCorrPenalty=(s.lightLevel||0)<(targetArea?.resource_pressure?.required_light_level||0)?2:1;
     let desc=getSanTextVariant(targetArea.description,s.san,pick,ctx);
+    // Layout variants: weighted random selection based on game state
+    if(targetArea.layout_variants&&targetArea.layout_variants.length>0){
+      const phase=getPhase(s.ap,s.maxAp);
+      const isNight=phase==='midnight'||phase==='evening';
+      const isRainy=s.weather==='雨天'||s.weather==='大雾';
+      const visitCount=(s.visitedAreas||[]).filter(a=>a===target).length;
+      const eligible=targetArea.layout_variants.filter(v=>{
+        if(v.id.endsWith('_dark')&&!isNight)return false;
+        if(v.id.endsWith('_flooded')&&!isRainy)return false;
+        if(v.id.endsWith('_wrecked')&&visitCount<2)return false;
+        return true;
+      });
+      if(eligible.length>0){
+        const totalW=eligible.reduce((t,v)=>t+(v.weight||1),0);
+        let r=Math.random()*totalW;
+        let chosen=eligible[0];
+        for(const v of eligible){r-=(v.weight||1);if(r<=0){chosen=v;break;}}
+        if(chosen.description)desc+='\n\n'+chosen.description;
+      }
+    }
     if(lightCorrPenalty>1&&Math.random()<GAME_BALANCE.LIGHT_CORRUPTION_CHANCE)desc+='\n\n光线不足。你不确定自己看到的是不是真的。';
     // Phase 6: Resource-based text corruption on area descriptions
     desc=applyResourceTextCorruption(desc,s);
-    c.narr('location',desc,{locationName:displayName,imageSrc:getAreaSceneImage(target,{...c.view,visits:(s.visitedAreas||[]).filter(a=>a===target).length}),imageAlt:displayName});
+    // Area CSS class for atmospheric effects
+    var areaCssClass='area-scene-'+target;
+    c.narr('location',desc,{locationName:displayName,imageSrc:getAreaSceneImage(target,{...c.view,visits:(s.visitedAreas||[]).filter(a=>a===target).length}),imageAlt:displayName,_areaClass:areaCssClass});
     // Switch ambient to match new area
     try{const phase=getPhase(s.ap,s.maxAp);c.effects.push({type:'AUDIO_AMBIENT',area:target,phase:phase});}catch(e){}
     if(targetArea.micro_events&&targetArea.micro_events.length>0&&Math.random()<GAME_BALANCE.MICRO_EVENT_CHANCE){

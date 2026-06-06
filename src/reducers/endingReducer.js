@@ -130,6 +130,7 @@ export function parseConditionString(condStr) {
 }
 
 function checkSingleCondition(state, cond) {
+  if(!cond||typeof cond!=='object')return false;
   switch (cond.type) {
     case 'san_below': return state.san < cond.value;
     case 'san_above': return state.san > cond.value;
@@ -173,8 +174,8 @@ function checkSingleCondition(state, cond) {
     case 'all': return (cond.conditions||[]).every(c=>checkSingleCondition(state,c));
     case 'any': return (cond.conditions||[]).some(c=>checkSingleCondition(state,c));
     case 'not': return !checkSingleCondition(state,cond.condition);
-    case 'always_true': return true;
-    default: return true;
+    case 'always_true': return false;
+    default: return false;
   }
 }
 

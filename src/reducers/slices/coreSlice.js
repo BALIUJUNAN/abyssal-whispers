@@ -10,11 +10,17 @@ function handleCoreAction(s, action, c) {
     const d=(GD.systems?.player?.default_template||GD.module5_player?.default_template||{}).base_stats||{};
     const st={};
     Object.entries(d).forEach(([k,v])=>{st[k]=typeof v==='object'?rollDice(v.dice)*(v.multiplier??5):50;});
+    // Fallback: if base_stats was empty (GD not loaded), use safe defaults
+    const _statNames=['STR','CON','DEX','APP','POW','INT','SIZ','EDU'];
+    const _statDefaults={STR:50,CON:55,DEX:55,APP:50,POW:60,INT:65,SIZ:60,EDU:70};
+    _statNames.forEach(k=>{if(typeof st[k]!=='number'||isNaN(st[k])||st[k]<=0)st[k]=_statDefaults[k];});
     // Apply archetype stat modifiers (P1-1)
     const archDef=(GD.systems?.player?.archetypes||[]).find(a=>a.id===s.archetype);
     if(archDef?.stat_modifiers){Object.entries(archDef.stat_modifiers).forEach(([k,v])=>{st[k]=(st[k]||50)+v;});}
-    s.stats=st;s.maxHp=Math.floor((st.CON+st.SIZ)/10);s.hp=s.maxHp;
-    s.san=st.POW;s.maxSan=99;s.luck=rollDice('3d6')*5;s.mp=Math.floor(st.POW/5);
+    // Enforce minimum stat floor (prevent 0/negative from bad data or extreme modifiers)
+    _statNames.forEach(k=>{if(typeof st[k]==='number')st[k]=Math.max(1,st[k]);});
+    s.stats=st;s.maxHp=Math.max(1,Math.floor((st.CON+st.SIZ)/10));s.hp=s.maxHp;
+    s.san=Math.max(1,st.POW);s.maxSan=99;s.luck=rollDice('3d6')*5;s.mp=Math.max(1,Math.floor(st.POW/5));
     // Occultist SAN penalty
     if(archDef?.starting_san_penalty){s.san=Math.max(1,s.san-archDef.starting_san_penalty);s.maxSan=Math.floor(s.maxSan*0.7);}
     s.skills={...initSkills()};s.skills['闪避']=Math.floor(st.DEX/2);s.skills['意志']=Math.floor(st.POW/2);
@@ -78,9 +84,16 @@ function handleCoreAction(s, action, c) {
     return f;
   }
   case 'CONTINUE_GAME':{
-    const loaded={ ...action.savedState, screen: 'game', transition: null, narrative: [{id:Date.now(),type:'system',text:'—— 你从存档中醒来。'}] };
-    // Ensure extended state fields exist (backward-compatible migration)
-    return ensureExtendedState(loaded);
+    // Copy saved state fields onto the Immer draft (mutate, don't replace)
+    const saved=action.savedState;
+    if(saved&&typeof saved==='object'){
+      Object.keys(saved).forEach(k=>{s[k]=saved[k];});
+    }
+    s.screen='game';
+    s.transition=null;
+    s.narrative=[{id:Date.now(),type:'system',text:'—— 你从存档中醒来。'}];
+    ensureExtendedState(s);
+    return s;
   }
   case 'SWITCH_SAFEHOUSE':{
     const shName=action.safehouse;
