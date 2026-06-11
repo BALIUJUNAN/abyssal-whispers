@@ -1,9 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 const SRC = path.join(__dirname, '..', 'src');
-const base = JSON.parse(fs.readFileSync(path.join(SRC, 'game_data.json'), 'utf8'));
+const DATA = path.join(SRC, 'data');
+const base = JSON.parse(fs.readFileSync(path.join(DATA, 'game_base.json'), 'utf8'));
 let ch2plus = {};
-try { ch2plus = JSON.parse(fs.readFileSync(path.join(SRC, 'data', 'game_ch2plus.json'), 'utf8')); } catch(e) {}
+let meta = {};
+try { ch2plus = JSON.parse(fs.readFileSync(path.join(DATA, 'game_ch2plus.json'), 'utf8')); } catch(e) {}
+try { meta = JSON.parse(fs.readFileSync(path.join(DATA, 'game_meta.json'), 'utf8')); } catch(e) {}
 const allEvents = [...(base.events || []), ...(ch2plus.events || [])];
 const allEndings = [...(base.endings || []), ...(ch2plus.endings || [])];
 const npcs = base.npcs || [];

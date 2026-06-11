@@ -1,6 +1,6 @@
 /**
  * Game Data Protocol Tests
- * Validates structural integrity of game_data.json + ch2plus + meta.
+ * Validates structural integrity of split JSON (game_base + game_ch2plus + game_meta).
  * Run: node tests/test_game_data_protocol.cjs
  */
 const assert = require('assert');
@@ -16,7 +16,7 @@ function test(name, fn) {
 }
 
 // Load data
-const base = JSON.parse(fs.readFileSync(path.join(SRC, 'game_data.json'), 'utf8'));
+const base = JSON.parse(fs.readFileSync(path.join(SRC, 'data', 'game_base.json'), 'utf8'));
 let ch2plus = {};
 let meta = {};
 try { ch2plus = JSON.parse(fs.readFileSync(path.join(SRC, 'data', 'game_ch2plus.json'), 'utf8')); } catch(e) {}

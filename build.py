@@ -7,7 +7,9 @@ Reads:
   src/styles.css                - Stylesheet
   src/app.jsx                   - Game logic (JSX, with __GAME_DATA__ placeholder)
   src/reducers/*.js             - Reducer modules (bundled into app.jsx at build time)
-  src/game_data.json            - Game data (single source of truth)
+  src/data/game_base.json       - Game data (split source of truth — base)
+  src/data/game_ch2plus.json    - Game data (split source of truth — ch2+)
+  src/data/game_meta.json       - Game data (split source of truth — meta)
 
 Writes:
   index.html                    - Single self-contained HTML file
@@ -416,9 +418,16 @@ def load_and_merge_split_json():
         print(f'  Merged events: {len(merged.get("events", []))} total')
         return merged
 
-    # Fallback: monolithic file
-    print(f'  Split JSON not found, falling back to {DATA_PATH}')
-    return json.loads(read_file(DATA_PATH))
+    # No fallback — split JSON is the single source of truth
+    missing = []
+    if not os.path.exists(DATA_BASE_PATH): missing.append('game_base.json')
+    if not os.path.exists(DATA_CH2PLUS_PATH): missing.append('game_ch2plus.json')
+    if not os.path.exists(DATA_META_PATH): missing.append('game_meta.json')
+    raise FileNotFoundError(
+        f'Missing split game data files: {", ".join(missing)}\n'
+        f'Expected in: {DATA_DIR}\n'
+        f'The monolithic src/game_data.json is no longer used.'
+    )
 
 
 def _strip_comments_safe(code):
