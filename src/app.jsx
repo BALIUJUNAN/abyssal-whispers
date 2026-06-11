@@ -13,7 +13,7 @@ import { getSafehouseStage, processSafehouseNight, getItemDef, useItemByDef, loa
 import { checkTrigger, selectEvent, doSkillCheck, getGambleOptions, processNormalAnchorEvent } from './reducers/eventReducer.js';
 import { applyEffects, applyLegacyEffects } from './reducers/effectReducer.js';
 import { genObjectives, checkObjCompletion } from './reducers/objectiveReducer.js';
-import { saveGame, loadGame, clearSave, hasSave, getAllSlots, autoSave, manualSave, loadSlot, deleteSlotById, migrateOldSave, exportSave, importSave } from './reducers/saveReducer.js';
+import { saveGame, loadGame, clearSave, hasSave, getAllSlots, autoSave, manualSave, loadSlot, deleteSlotById, migrateOldSave, exportSave, importSave } from './engine/SaveManager.js';
 import { loadAchievements, saveAchievements, checkAchievements, getAchievementDef, getAllAchievements, incrementStat, resetRunStats } from './reducers/achievementReducer.js';
 import { getPollutionText, initLoopState } from './reducers/loopReducer.js';
 import { getChapterForDay, getMythosCap, getChapterAlias, checkChapterTransition, getMotifFlavorText, getMonsterManifestation } from './reducers/chapterReducer.js';
