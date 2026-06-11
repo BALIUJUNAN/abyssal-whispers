@@ -1,15 +1,19 @@
 // src/app.jsx - 深渊低语：沃切斯特之影 游戏主逻辑
-// Imports stripped by build.py bundler — each import must map to an actual export
+// All imports are stripped by build.py bundler at build time.
+// In Vite (ESM), these imports resolve to real modules.
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { produce } from 'immer';
+
+// ── Core reducers & systems ──
 import { rand, d100, d3, clamp, pick, rollDice, shuffle } from './reducers/utils.js';
 import { getPhase, getSealState, getSealStateId, getWeather, getAreaInfo, getConnectedAreas, getDistortedName } from './reducers/worldReducer.js';
 import { getSanStage, getSanTextVariant, getSanSceneVariant, processSanLoss, rollMadness } from './reducers/sanReducer.js';
-import { getSafehouseStage, processSafehouseNight } from './reducers/miscReducer.js';
+import { getSafehouseStage, processSafehouseNight, getItemDef, useItemByDef, loadSettings, saveSettings } from './reducers/miscReducer.js';
 import { checkTrigger, selectEvent, doSkillCheck, getGambleOptions, processNormalAnchorEvent } from './reducers/eventReducer.js';
 import { applyEffects, applyLegacyEffects } from './reducers/effectReducer.js';
-import { getItemDef, useItemByDef } from './reducers/miscReducer.js';
 import { genObjectives, checkObjCompletion } from './reducers/objectiveReducer.js';
 import { saveGame, loadGame, clearSave, hasSave, getAllSlots, autoSave, manualSave, loadSlot, deleteSlotById, migrateOldSave, exportSave, importSave } from './reducers/saveReducer.js';
-import { loadSettings, saveSettings } from './reducers/miscReducer.js';
 import { loadAchievements, saveAchievements, checkAchievements, getAchievementDef, getAllAchievements, incrementStat, resetRunStats } from './reducers/achievementReducer.js';
 import { getPollutionText, initLoopState } from './reducers/loopReducer.js';
 import { getChapterForDay, getMythosCap, getChapterAlias, checkChapterTransition, getMotifFlavorText, getMonsterManifestation } from './reducers/chapterReducer.js';
@@ -25,20 +29,49 @@ import { resolveDeath } from './reducers/deathSystem.js';
 import { PROLOGUE_EVENTS } from './data/prologue_events.js';
 import { initPrologueState, handlePrologueChoice, handleSkipPrologue, getPrologueEvent, getPrologueSceneOrder } from './reducers/prologueReducer.js';
 import { getFearEventWeightModifier, applyFearLens, getFearNpcLine, applyFearCorruption } from './systems/fearLens.js';
-// sanVisualCorruption.js replaced by SanPollutionLayer.jsx component
 import { applyTextHallucination, maybeGetFakeMessage, getChoiceDelay, maybeInsertFalseMemory, corruptEventWeights } from './systems/logicCorruption.js';
+
+// ── Engine & runtime ──
+import { recordActionHistory } from './engine/EventEngine.js';
+import { runPostReducerEffects } from './runtime/effectExecutor.js';
+
+// ── Reducer slice handlers ──
+import { handleCoreAction } from './reducers/slices/coreSlice.js';
+import { handleExploreAction } from './reducers/slices/exploreSlice.js';
+import { handleNpcAction } from './reducers/slices/npcSlice.js';
+import { handleDailyAction } from './reducers/slices/dailySlice.js';
+import { handleDarkAction } from './reducers/slices/darkSlice.js';
+import { handleUiAction } from './reducers/slices/uiSlice.js';
+
+// ── Utilities ──
+import { addRunMemory, preloadEndingCGs, buildReducerCtx } from './utils/appHelpers.js';
+import { getCorruptionLevel } from './utils/gameHelpers.js';
+import { createErrorTracker } from './utils/errorTracker.js';
+
+// ── State stores ──
+import { initGameStore, updateGameStore } from './state/gameStore.js';
+import { uiStore, getSettings, addUiToast, removeUiToast, notifySave } from './state/uiStore.js';
+import { initialState } from './state/initialState.js';
+
+// ── Components ──
 import { UgcPanel } from './components/UgcImportExport.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
-/* [TRACKER-IMPORT] 测试期错误追踪模块 — 正式版删除此行即可移除 */
-import { createErrorTracker } from './utils/errorTracker.js';
-// 暗黑地牢风格城镇地图系统
 import { InteractiveTownMap, HotspotNode, MapPaths } from './components/InteractiveTownMap.js';
 import { AreaPanelModal } from './components/AreaPanelModal.js';
 import { FloatingInfoBar, NarrativeFloatingPanel } from './components/FloatingInfoBar.js';
 import { GameLayout } from './components/GameLayout.js';
 import { TOWN_HOTSPOTS, getVisibleHotspots, isHotspotUnlocked, getHotspotState } from './data/townHotspots.js';
+import { audioManager } from './managers/AudioManager.js';
+import { TitleScreen } from './components/TitleScreen.js';
+import { AppToast } from './components/AppToast.js';
+import { SettingsModal, SaveLoadModal, AchievementGallery } from './components/GameModals.jsx';
+import { PrologueScreen, SurvivalGuide, CharCreation } from './components/GameScreens.jsx';
+import { AbyssPopup } from './components/SanPollutionLayer.jsx';
+import { DevPanel } from './components/ui/DevPanel.jsx';
+import { EndingScreen, GameHeader, LeftPanel, CenterPanel, RightPanel } from './components/GamePanels.jsx';
 
-// GAME_DATA placeholder is replaced at build time (see line 33)
+// GAME_DATA placeholder is replaced at build time by build.py.
+// In Vite, __GAME_DATA__ is set on window by main.vite.jsx before this module loads.
 
 const {useState,useReducer,useEffect,useRef,useMemo,useCallback,memo}=React;
 
@@ -47,17 +80,6 @@ const ctx={GD};
 /* [TRACKER-INIT] 初始化 — GD 之后，dispatch 之前 */
 const errorTracker = createErrorTracker();
 if (typeof window !== 'undefined') { window.errorTracker = errorTracker; }
-
-// === 提取到独立模块的代码 ===
-// clueNameMap.js: CLUE_NAME_MAP, resolveClueName, hasClueId
-// gameHelpers.js: initSkills, getNpcsHere, applyChainCompletionEffects, checkChainCompletion, etc.
-// initialState.js: initialState()
-// AudioManager.js: audioManager
-// TitleScreen.jsx, AppToast.jsx: UI components
-
-import { audioManager } from './managers/AudioManager.js';
-import { TitleScreen } from './components/TitleScreen.js';
-import { AppToast } from './components/AppToast.js';
 
 function checkSilentEvent(state, narr, location){
   const pool=(GD.implementation_notes?.silent_events?.event_pool||[]).filter(e=>{
