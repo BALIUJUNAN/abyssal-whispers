@@ -29,7 +29,7 @@ import { resolveDeath } from './reducers/deathSystem.js';
 import { PROLOGUE_EVENTS } from './data/prologue_events.js';
 import { initPrologueState, handlePrologueChoice, handleSkipPrologue, getPrologueEvent, getPrologueSceneOrder } from './reducers/prologueReducer.js';
 import { getFearEventWeightModifier, applyFearLens, getFearNpcLine, applyFearCorruption } from './systems/fearLens.js';
-import { applyTextHallucination, maybeGetFakeMessage, getChoiceDelay, maybeInsertFalseMemory, corruptEventWeights } from './systems/logicCorruption.js';
+import { applyTextHallucination, maybeGetFakeMessage, getChoiceDelay, maybeInsertFalseMemory, corruptEventWeights } from './engine/PollutionManager.js';
 
 // ── Engine & runtime ──
 import { recordActionHistory } from './engine/EventEngine.js';
