@@ -1,3 +1,14 @@
+/**
+ * @deprecated 这个脚本已不再用于生产发布。
+ *
+ * 发布路径说明（2026-06）：
+ *   - GitHub Pages / 浏览器直接打开：使用项目根目录的 index.html（由 python build.py 产出）
+ *   - 根目录 index.html 是唯一生产产物，无需复制到 dist/
+ *   - 本脚本仅用于需要 dist/ 目录结构的旧部署场景
+ *
+ * 如需使用：node build-web.cjs
+ */
+
 const fs = require('fs');
 const path = require('path');
 
