@@ -3,7 +3,7 @@
 /**
  * Check if a single evidence source is satisfied by current state.
  */
-function isEvidenceSatisfied(ev, state) {
+export function isEvidenceSatisfied(ev, state) {
   // Direct event trigger
   if (ev.source && state.triggeredEvents.includes(ev.source)) return true;
   // NPC trust requirement: "玛莎·格雷 trust>=4"

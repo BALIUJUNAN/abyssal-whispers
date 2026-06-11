@@ -4,7 +4,7 @@
 
 import { parseConditionString } from '../reducers/endingReducer.js';
 
-const BEHAVIOR_ENDINGS = [
+export const BEHAVIOR_ENDINGS = [
 
   // =====================================================================
   // 自我毁灭与融合类 (Self-Destruction & Fusion) — 6 endings

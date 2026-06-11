@@ -4,7 +4,7 @@
 
 // src/reducers/safehouseReducer.js - Safehouse degradation
 
-function getSafehouseStage(corruption, ctx) {
+export function getSafehouseStage(corruption, ctx) {
   const { GD } = ctx;
   const stages = GD.systems?.safehouse?.degradation_stages || [];
   for (let i = stages.length - 1; i >= 0; i--) {
@@ -14,7 +14,7 @@ function getSafehouseStage(corruption, ctx) {
   return stages[0] || { stage: 1, name: '安宁', is_safe: true, corruption_range: [0, 15], available_functions: { san_recovery: 2, fatigue_recovery: 30 } };
 }
 
-function processSafehouseNight(state, ctx) {
+export function processSafehouseNight(state, ctx) {
   let corruption = state.safehouseCorruption || 0;
   const sealState = getSealState(state.day, ctx);
   let accel = sealState?.global_modifier?.npc_corruption_rate || 0.05;
@@ -32,13 +32,13 @@ function processSafehouseNight(state, ctx) {
 
 // src/reducers/itemReducer.js - Item usage logic (data-driven)
 
-function getItemDef(itemId, ctx) {
+export function getItemDef(itemId, ctx) {
   const { GD } = ctx;
   const items = GD.items || [];
   return items.find(i => i.id === itemId);
 }
 
-function useItemByDef(state, item, narr, ctx) {
+export function useItemByDef(state, item, narr, ctx) {
   const def = getItemDef(item.id, ctx);
   if (!def) return false;
 
@@ -73,10 +73,10 @@ function useItemByDef(state, item, narr, ctx) {
 
 // src/reducers/settingsReducer.js - 持久化设置管理
 
-const SETTINGS_KEY = 'coc_game_settings';
-const SETTINGS_VERSION = '1.1.0';
+export const SETTINGS_KEY = 'coc_game_settings';
+export const SETTINGS_VERSION = '1.1.0';
 
-const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS = {
   volume: 80,
   ambientVolume: 80,
   effectVolume: 80,
@@ -91,7 +91,7 @@ const DEFAULT_SETTINGS = {
   lightPollutionMode: false,
 };
 
-function loadSettings() {
+export function loadSettings() {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return { ...DEFAULT_SETTINGS };
@@ -103,7 +103,7 @@ function loadSettings() {
   }
 }
 
-function saveSettings(settings) {
+export function saveSettings(settings) {
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify({
       version: SETTINGS_VERSION,

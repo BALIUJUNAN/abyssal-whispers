@@ -6,7 +6,7 @@
 // ── REST sub-functions ──────────────────────────────────────────────
 
 /** Process food consumption, starvation damage, and NPC trust decay. Returns true if player died. */
-function _processFoodAndStarvation(s, c, ctx) {
+export function _processFoodAndStarvation(s, c, ctx) {
   const restArea=getAreaInfo(s.currentArea,ctx);
   const foodMod=restArea?.resource_pressure?.food_consumption_modifier||1.0;
   const foodConsume=Math.ceil(1*foodMod);
@@ -30,7 +30,7 @@ function _processFoodAndStarvation(s, c, ctx) {
 }
 
 /** Process safehouse degradation, world decay, area corruption, and safehouse visual stage. */
-function _processSafehouseAndWorldDecay(s, c, ctx) {
+export function _processSafehouseAndWorldDecay(s, c, ctx) {
   s.safehouseCorruption=processSafehouseNight(s,ctx);
   {const dailyCorr=calculateDailyCorruption(s,ctx);
   s.safehouseCorruption=Math.min(100,(s.safehouseCorruption||0)+dailyCorr);
@@ -52,7 +52,7 @@ function _processSafehouseAndWorldDecay(s, c, ctx) {
 }
 
 /** Process safehouse recovery, long-term effects, and AP reset for new day. */
-function _processRestRecovery(s, c, shStage, ctx) {
+export function _processRestRecovery(s, c, shStage, ctx) {
   let sanRec=shStage.available_functions?.san_recovery||0;
   if(s.currentSafehouse!=='main'){
     const alts=GD.systems?.safehouse?.relocation_rules?.alternative_safehouses||[];
@@ -70,7 +70,7 @@ function _processRestRecovery(s, c, shStage, ctx) {
 }
 
 /** Advance day counter, weather, seal, chapter. Play audio. Returns oldDay. */
-function _advanceDayClock(s, c, ctx) {
+export function _advanceDayClock(s, c, ctx) {
   const oldDay=s.day;
   s.day++;s.ap=s.maxAp;s.weather=getWeather(pick).name;s.sealState=getSealStateId(s.day,ctx);
   c.effects.push({type:'INCREMENT_STAT',key:'night_survived'});if(s.san<=GAME_BALANCE.LOW_SAN_STAT_THRESHOLD)c.effects.push({type:'INCREMENT_STAT',key:'low_san_days'});
@@ -82,7 +82,7 @@ function _advanceDayClock(s, c, ctx) {
 }
 
 /** Process chapter transitions, motif flavor, SAN stage AP mod. */
-function _processChapterAndMotif(s, c, oldDay, ctx) {
+export function _processChapterAndMotif(s, c, oldDay, ctx) {
   const chTransition=checkChapterTransition(oldDay,s.day,ctx);
   if(chTransition){
     s.currentChapter=getChapterForDay(s.day,ctx).key;
@@ -107,7 +107,7 @@ function _processChapterAndMotif(s, c, oldDay, ctx) {
 }
 
 /** Process day-specific critical events and world decay atmosphere. */
-function _processDayCriticalAndDecay(s, c, ctx) {
+export function _processDayCriticalAndDecay(s, c, ctx) {
   {const dayCrit=getDayCriticalEvent(s.day);
   if(dayCrit&&!s.triggeredEvents.includes('day_crit_'+s.day)){
     s.triggeredEvents.push('day_crit_'+s.day);
@@ -123,7 +123,7 @@ function _processDayCriticalAndDecay(s, c, ctx) {
 }
 
 /** Process NPC corruption triggers and seal-state accelerated corruption. */
-function _processNpcCorruption(s, c, ctx) {
+export function _processNpcCorruption(s, c, ctx) {
   const corruptionTriggers=checkNPCCorruption(s,ctx);
   for(const {npc,trigger} of corruptionTriggers){
     applyNPCCorruption(s,npc,trigger,c.narr);
@@ -138,7 +138,7 @@ function _processNpcCorruption(s, c, ctx) {
 }
 
 /** Process safehouse silent events, SAN break-wall, daily resources, corruption effects. */
-function _processNightEffects(s, c, ctx) {
+export function _processNightEffects(s, c, ctx) {
   checkSilentEvent(s,c.narr,'safehouse');
   {const bwfx=checkBreakWallEvent(s,c.narr);if(bwfx)c.effects.push(...bwfx);}
   processDailyResources(s);
@@ -149,7 +149,7 @@ function _processNightEffects(s, c, ctx) {
 }
 
 /** Narrate new day header, area description, forced hooks, check endings and time limit. */
-function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea, ctx) {
+export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea, ctx) {
   narrDailySummary(s, c.narr, _startSan, _startHp, _startClues, _startArea);
   c.narr('system','\n═══ 第 '+s.day+' 天 ═══ 天气：'+s.weather+' ═══ 封印：'+s.sealState+' ═══');
   const area=getAreaInfo(s.currentArea,ctx);
@@ -167,7 +167,7 @@ function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _star
 }
 
 /** Final bookkeeping: objectives, stats, knowledge, daily patterns, auto-save. */
-function _processRestBookkeeping(s, c, ctx) {
+export function _processRestBookkeeping(s, c, ctx) {
   s.objectives=genObjectives(s.day,ctx);
   s.stats_run.days_best=Math.max(s.stats_run.days_best,s.day);
   c.log('第'+s.day+'天开始');
@@ -181,7 +181,7 @@ function _processRestBookkeeping(s, c, ctx) {
 
 // ── Main handler ────────────────────────────────────────────────────
 
-function handleDailyAction(s, action, c, ctx) {
+export function handleDailyAction(s, action, c, ctx) {
   switch(action.type){
   case 'REST':{
     const _startSan=s.san,_startHp=s.hp,_startClues=(s.clues||[]).length,_startArea=s._dayStartArea||s.currentArea;

@@ -6,7 +6,7 @@
 // SECTION 1: Chapter Milestones (Layer 1 — Forced)
 // =============================================
 
-var CHAPTER_MILESTONES = {
+export var CHAPTER_MILESTONES = {
   3: { eventId: 'evt_day3_first_contact', name: '第一次接触', sanCost: 2, corruptionGain: 3,
     text: '你醒来的时候，笔记本上多了一行字。\n不是你的笔迹。\n\n"第三天。你还在看。"\n\n你检查了门锁。锁是从里面开的。' },
   7: { eventId: 'evt_ch1_milestone', name: '第十四声钟响', sanCost: 3, corruptionGain: 5,
@@ -22,7 +22,7 @@ var CHAPTER_MILESTONES = {
 };
 
 // Additional forced narrative hooks for specific progression states
-var FORCED_NARRATIVE_HOOKS = [
+export var FORCED_NARRATIVE_HOOKS = [
   { id: 'hook_first_clue', condition: function(s) { return (s.clues||[]).length === 1 && !s.triggeredEvents.includes('hook_first_clue'); },
     text: '你把第一条线索写在笔记本上。墨水干得很慢——比平时慢。仿佛纸在抗拒被记录。', sanCost: 0 },
   { id: 'hook_first_npc_trust3', condition: function(s) { return Object.values(s.npcTrust||{}).some(function(t){return t>=3;}) && !s.triggeredEvents.includes('hook_first_npc_trust3'); },
@@ -35,14 +35,14 @@ var FORCED_NARRATIVE_HOOKS = [
     text: '你听到了自己的心跳。不——那不是心跳。是敲门声。从你的胸腔里面传出来的。', sanCost: 1 },
 ];
 
-function checkChapterMilestone(day, state) {
+export function checkChapterMilestone(day, state) {
   var milestone = CHAPTER_MILESTONES[day];
   if (!milestone) return null;
   if ((state.triggeredEvents || []).includes(milestone.eventId)) return null;
   return milestone;
 }
 
-function checkForcedNarrativeHook(state) {
+export function checkForcedNarrativeHook(state) {
   for (var i = 0; i < FORCED_NARRATIVE_HOOKS.length; i++) {
     var hook = FORCED_NARRATIVE_HOOKS[i];
     if (hook.condition(state)) return hook;
@@ -50,7 +50,7 @@ function checkForcedNarrativeHook(state) {
   return null;
 }
 
-function createMilestoneEvent(milestone) {
+export function createMilestoneEvent(milestone) {
   return { id: milestone.eventId, name: milestone.name, description: milestone.text,
     type: "milestone", event_classification: "milestone", tier: "signature",
     sanity_damage: milestone.sanCost, trigger: { areas: null },
@@ -66,7 +66,7 @@ function createMilestoneEvent(milestone) {
  * Called once per action dispatch (in gameReducer pre-processing).
  * Stores last 20 actions in state._actionHistory.
  */
-function recordActionHistory(state, actionType) {
+export function recordActionHistory(state, actionType) {
   if (!state._actionHistory) state._actionHistory = [];
   state._actionHistory.push({ type: actionType, day: state.day || 1 });
   if (state._actionHistory.length > 20) state._actionHistory = state._actionHistory.slice(-20);
@@ -76,7 +76,7 @@ function recordActionHistory(state, actionType) {
  * Compute granular behavior scores from action history + behaviorTracking.
  * Returns scores 0-10 for each dimension.
  */
-function getPlayerBehaviorProfile(bt) {
+export function getPlayerBehaviorProfile(bt) {
   if (!bt) return { violent: 0, explorer: 0, social: 0, passive: 0, occultist: 0, investigator: 0, survivor: 0 };
   return {
     violent: Math.min(10, (bt.direct_kill_count||0)*2 + (bt.cannibalism_count||0)*3 + (bt.npc_deaths_by_manipulation||0)*2),
@@ -89,7 +89,7 @@ function getPlayerBehaviorProfile(bt) {
   };
 }
 
-function getDominantArchetype(profile) {
+export function getDominantArchetype(profile) {
   var max = 0, dominant = "balanced";
   for (var key in profile) { if (profile[key] > max) { max = profile[key]; dominant = key; } }
   return dominant;
@@ -99,7 +99,7 @@ function getDominantArchetype(profile) {
  * Compute recent action tendencies from _actionHistory (last 10 actions).
  * Returns { exploreRate, talkRate, moveRate, restRate, darkRate }.
  */
-function getRecentActionTendencies(state) {
+export function getRecentActionTendencies(state) {
   var hist = (state._actionHistory || []).slice(-10);
   if (hist.length === 0) return { exploreRate: 0.3, talkRate: 0.2, moveRate: 0.2, restRate: 0.2, darkRate: 0.1 };
   var counts = { explore: 0, talk: 0, move: 0, rest: 0, dark: 0, total: hist.length };
@@ -125,7 +125,7 @@ function getRecentActionTendencies(state) {
 // SECTION 3: Freshness Decay (Layer 3 — Anti-repetition)
 // =============================================
 
-var COOLDOWN_DECAY_TABLE = [
+export var COOLDOWN_DECAY_TABLE = [
   { daysSince: 0, factor: 0.02 },
   { daysSince: 1, factor: 0.15 },
   { daysSince: 2, factor: 0.40 },
@@ -133,7 +133,7 @@ var COOLDOWN_DECAY_TABLE = [
   { daysSince: 5, factor: 1.00 },
 ];
 
-function getCooldownDecayFactor(eventId, state) {
+export function getCooldownDecayFactor(eventId, state) {
   var cooldowns = state.eventCooldowns;
   if (!cooldowns) return 1.0;
   var lastDay = cooldowns[eventId];
@@ -150,7 +150,7 @@ function getCooldownDecayFactor(eventId, state) {
  * Track which events were seen recently to reduce repeat probability.
  * Called from commitSelectedEvent.
  */
-function recordEventCooldown(state, eventId) {
+export function recordEventCooldown(state, eventId) {
   if (!state.eventCooldowns) state.eventCooldowns = {};
   state.eventCooldowns[eventId] = state.day || 1;
   // Also track in _recentEventIds for quick lookup
@@ -163,7 +163,7 @@ function recordEventCooldown(state, eventId) {
 // SECTION 4: Weight Multipliers (Layer 2 — Weighted)
 // =============================================
 
-var ARCHETYPE_EVENT_BOOST = {
+export var ARCHETYPE_EVENT_BOOST = {
   violent: { boost: ["超自然遭遇","怪物遭遇","meta"], penalty: ["正常事件","氛围事件"], bf: 1.4, pf: 0.6 },
   explorer: { boost: ["area_deep","clue","mythos"], penalty: ["正常事件"], bf: 1.3, pf: 0.7 },
   social: { boost: ["npc_cross","humanity"], penalty: ["meta"], bf: 1.4, pf: 0.7 },
@@ -173,7 +173,7 @@ var ARCHETYPE_EVENT_BOOST = {
   survivor: { boost: ["resource","silent","氛围事件"], penalty: ["怪物遭遇"], bf: 1.3, pf: 0.7 },
 };
 
-function getBehaviorWeightMultiplier(evt, state) {
+export function getBehaviorWeightMultiplier(evt, state) {
   var bt = state.behaviorTracking;
   if (!bt) return 1.0;
   var profile = getPlayerBehaviorProfile(bt);
@@ -190,7 +190,7 @@ function getBehaviorWeightMultiplier(evt, state) {
 /**
  * fearProfile weight: events matching player's fear tags get boosted.
  */
-function getFearProfileMultiplier(evt, state) {
+export function getFearProfileMultiplier(evt, state) {
   if (!state.fearTuning || !state.fearTuning.primary) return 1.0;
   var ftm = _getFearTags();
   var fearTags = ftm[state.fearTuning.primary];
@@ -218,7 +218,7 @@ function getFearProfileMultiplier(evt, state) {
  * SSOT: thresholds aligned with 6 san_stages from game_base.json.
  *   stable [75,100] / mild [55,74] / perception [40,54] / explanation [25,39] / reality [10,24] / narrative [1,9]
  */
-function getSanWeightMultiplier(evt, state) {
+export function getSanWeightMultiplier(evt, state) {
   var san = state.san || 60;
   var isBuffer = evt.normalcy_anchor || false;
   if (isBuffer) {
@@ -241,7 +241,7 @@ function getSanWeightMultiplier(evt, state) {
 /**
  * Area corruption multiplier: corrupted areas boost horror events.
  */
-function getAreaCorruptionMultiplier(evt, state) {
+export function getAreaCorruptionMultiplier(evt, state) {
   var corr = state.safehouseCorruption || 0;
   var isBuffer = evt.normalcy_anchor || false;
   if (corr >= 60 && !isBuffer) return 1.3;
@@ -254,7 +254,7 @@ function getAreaCorruptionMultiplier(evt, state) {
 // SECTION 5: Buffer Enforcement (35-40% early game)
 // =============================================
 
-var BUFFER_RATIO_TABLE = [
+export var BUFFER_RATIO_TABLE = [
   { maxDay: 3,  target: 0.40, tolerance: 0.08 },
   { maxDay: 7,  target: 0.38, tolerance: 0.08 },
   { maxDay: 14, target: 0.30, tolerance: 0.10 },
@@ -265,7 +265,7 @@ var BUFFER_RATIO_TABLE = [
 /**
  * Count buffer vs horror events triggered today.
  */
-function getTodayEventMix(state) {
+export function getTodayEventMix(state) {
   var today = state.day || 1;
   var triggered = state.triggeredEvents || [];
   var buffer = 0, horror = 0;
@@ -278,7 +278,7 @@ function getTodayEventMix(state) {
   return { buffer: buffer, horror: horror, total: total, ratio: total > 0 ? buffer / total : 0.5 };
 }
 
-function getBufferTarget(day) {
+export function getBufferTarget(day) {
   for (var i = 0; i < BUFFER_RATIO_TABLE.length; i++) {
     if (day <= BUFFER_RATIO_TABLE[i].maxDay) return BUFFER_RATIO_TABLE[i];
   }
@@ -289,7 +289,7 @@ function getBufferTarget(day) {
  * Adjust candidate weights to enforce buffer ratio.
  * If buffer ratio is below target, boost buffer events. If above, boost horror.
  */
-function applyBufferEnforcement(candidates, state) {
+export function applyBufferEnforcement(candidates, state) {
   var day = state.day || 1;
   var target = getBufferTarget(day);
   var mix = getTodayEventMix(state);
@@ -319,7 +319,7 @@ function applyBufferEnforcement(candidates, state) {
  * Checks: loop count, SAN level, fearProfile, area corruption.
  * Returns variant text string or null (use original description).
  */
-function getDistortionVariant(evt, state) {
+export function getDistortionVariant(evt, state) {
   if (!evt || !evt.distortion_variants) return null;
   var v = evt.distortion_variants;
   var san = state.san || 60;
@@ -342,7 +342,7 @@ function getDistortionVariant(evt, state) {
 // SECTION 7: First-week filter (legacy compat)
 // =============================================
 
-function applyFirstWeekFilter(candidates, day) {
+export function applyFirstWeekFilter(candidates, day) {
   if (day > 10 || !candidates || candidates.length === 0) return candidates;
   return candidates.map(function(evt) {
     var w = 1.0;
@@ -361,7 +361,7 @@ function applyFirstWeekFilter(candidates, day) {
 
 // Fear tag map: fallback defined inline to avoid var hoisting issues with fearLens.js.
 // The real FEAR_TAG_MAP from fearLens.js takes precedence at runtime via global scope.
-function _getFearTags() {
+export function _getFearTags() {
   if (typeof window !== 'undefined' && window.FEAR_TAG_MAP) return window.FEAR_TAG_MAP;
   return {
     ocean: ['harbor_district','lighthouse','water','drowning','tide','salt','sea','harbor_deep'],

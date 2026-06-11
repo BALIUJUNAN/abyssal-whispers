@@ -2,7 +2,7 @@
 // Executes effects collected during the reducer run. Deduplicates by _fxId.
 // Effect handlers are dispatched by type via EFFECT_HANDLERS map.
 
-var EFFECT_HANDLERS = {
+export var EFFECT_HANDLERS = {
   AUDIO_PLAY: function(fx) { audioManager.playEffect(fx.id); },
   AUDIO_SKILL: function(fx) { audioManager.playSkillEffect(fx.id); },
   AUDIO_AMBIENT: function(fx) { audioManager.playAreaAmbient(fx.area, fx.phase); },
@@ -22,7 +22,7 @@ var EFFECT_HANDLERS = {
 var _executedFxIds = new Set();
 var _FX_DEDUP_CAP = 300;
 
-function runPostReducerEffects(effects, dispatch) {
+export function runPostReducerEffects(effects, dispatch) {
   if (!effects || effects.length === 0) return;
   for (var i = 0; i < effects.length; i++) {
     var fx = effects[i];

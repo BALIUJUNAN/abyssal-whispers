@@ -1,6 +1,6 @@
 // src/components/CitySketchMap.jsx - City sketch map component (extracted from GamePanels.jsx)
 
-function CitySketchMap({areas,state,dispatch,conn}){
+export function CitySketchMap({areas,state,dispatch,conn}){
   const [fullscreen,setFullscreen]=useState(false);
   const areaById=useMemo(()=>{
     const map={};

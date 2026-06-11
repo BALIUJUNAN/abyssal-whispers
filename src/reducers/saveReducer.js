@@ -5,14 +5,14 @@
 
 import { SAVE_VERSION, migrateSaveData, toPersistedState } from './saveMigration.js';
 
-const SAVE_PREFIX = 'coc_save_';
-const AUTO_SLOTS = ['auto_1', 'auto_2', 'auto_3'];
-const MANUAL_SLOTS = ['manual_1', 'manual_2', 'manual_3'];
+export const SAVE_PREFIX = 'coc_save_';
+export const AUTO_SLOTS = ['auto_1', 'auto_2', 'auto_3'];
+export const MANUAL_SLOTS = ['manual_1', 'manual_2', 'manual_3'];
 
 /**
  * Save state to a slot. Uses toPersistedState to strip runtime fields (P0-5).
  */
-function saveToSlot(slotId, state) {
+export function saveToSlot(slotId, state) {
   try {
     const persistedState = toPersistedState(state);
     const saveData = {
@@ -39,7 +39,7 @@ function saveToSlot(slotId, state) {
 /**
  * Load from slot. P0-4: attempts migration instead of deleting on version mismatch.
  */
-function loadFromSlot(slotId) {
+export function loadFromSlot(slotId) {
   try {
     const raw = localStorage.getItem(SAVE_PREFIX + slotId);
     if (!raw) return null;
@@ -72,11 +72,11 @@ function loadFromSlot(slotId) {
   }
 }
 
-function deleteSlot(slotId) {
+export function deleteSlot(slotId) {
   localStorage.removeItem(SAVE_PREFIX + slotId);
 }
 
-function getSlotMeta(slotId) {
+export function getSlotMeta(slotId) {
   try {
     const raw = localStorage.getItem(SAVE_PREFIX + slotId);
     if (!raw) return { slotId, exists: false };

@@ -1,7 +1,7 @@
 // src/utils/clueNameMap.js — 线索 ID → 可读名称映射（惰性求值版）
 let _cache = null;
-function invalidateClueNameCache() { _cache = null; }
-function getClueNameMap() {
+export function invalidateClueNameCache() { _cache = null; }
+export function getClueNameMap() {
   if (_cache) return _cache;
   const m = {};
   (GD.clue_chains || []).forEach(ch => {
@@ -34,14 +34,13 @@ function getClueNameMap() {
   return m;
 }
 
-function resolveClueName(id) {
+export function resolveClueName(id) {
   if (id && typeof id === 'object') return id.name || id.id || '';
   return getClueNameMap()[id] || id.replace(/^clue_/, '').replace(/_/g, ' ');
 }
 
 /** Check if a clue (by id) exists in a clues array (handles both string and {id,name} entries) */
-function hasClueId(clues, id) {
+export function hasClueId(clues, id) {
   return (clues || []).some(c => (typeof c === 'string' ? c : c && c.id) === id);
 }
 
-export { getClueNameMap, resolveClueName, hasClueId };

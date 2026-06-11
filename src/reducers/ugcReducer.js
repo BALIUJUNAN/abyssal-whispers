@@ -7,14 +7,14 @@
 
 import { validateMod, findIdConflicts, prefixEventIds, LIMITS } from '../data/ugcSchema.js';
 
-const STORAGE_KEY = 'ugc_modules';
-const STORAGE_VERSION = '1.0.0';
+export const STORAGE_KEY = 'ugc_modules';
+export const STORAGE_VERSION = '1.0.0';
 
 // ────────────────────────────────────────────────
 // SECTION 1: Low-level storage
 // ────────────────────────────────────────────────
 
-function readStore() {
+export function readStore() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { version: STORAGE_VERSION, mods: [] };
@@ -27,7 +27,7 @@ function readStore() {
   }
 }
 
-function writeStore(store) {
+export function writeStore(store) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
     return true;
@@ -251,7 +251,7 @@ export function getModStats() {
 /**
  * Collect all event IDs from all installed mods (for conflict detection).
  */
-function getAllInstalledEventIds(store) {
+export function getAllInstalledEventIds(store) {
   const ids = new Set();
   for (const mod of store.mods) {
     for (const evt of (mod.events || [])) {
@@ -262,4 +262,3 @@ function getAllInstalledEventIds(store) {
 }
 
 // Re-export for convenience
-export { STORAGE_KEY, STORAGE_VERSION };

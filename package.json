@@ -3,19 +3,15 @@
   "scripts": {
     "dev": "python build.py --dev",
     "dev:vite": "vite",
-
     "build": "python build.py",
     "build:single": "python build.py",
     "build:single:dev": "python build.py --dev",
     "build:vite": "vite build",
-
     "verify": "python build.py --verify",
     "preview": "vite preview",
-
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-
     "test": "node tests/run_all.cjs",
     "test:smoke": "node tests/test_smoke_flows.cjs",
     "test:data": "node tests/test_game_data_protocol.cjs",
@@ -33,6 +29,8 @@
   },
   "dependencies": {
     "@tauri-apps/cli": "^2.11.2",
-    "immer": "^11.1.8"
+    "immer": "^11.1.8",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   }
 }

@@ -18,7 +18,7 @@ export function getLoopEffect(loopCount, ctx) {
 }
 
 // Pollution text fragments that get mixed into descriptions
-const POLLUTION_SUFFIXES = [
+export const POLLUTION_SUFFIXES = [
   '你总觉得有什么东西在看着你。',
   '远处传来一声低语，但你听不清内容。',
   '你的影子似乎比你慢了半拍。',
@@ -31,7 +31,7 @@ const POLLUTION_SUFFIXES = [
 
 // Text quality: forbidden words from design_intent.text_style
 // Avoid direct horror cliches in procedurally generated text
-const FORBIDDEN_WORDS = ['不可名状', '疯狂', '恐怖', '诡异', '扭曲', '令人毛骨悚然', '骇人听闻', '极度恐惧'];
+export const FORBIDDEN_WORDS = ['不可名状', '疯狂', '恐怖', '诡异', '扭曲', '令人毛骨悚然', '骇人听闻', '极度恐惧'];
 
 /**
  * Check if text contains forbidden words (design quality check).

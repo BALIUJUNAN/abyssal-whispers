@@ -1,7 +1,7 @@
 // src/reducers/slices/npcSlice.js - Extracted from gameReducer
 // TALK_NPC, NPC_RESPONSE
 
-function handleNpcAction(s, action, c) {
+export function handleNpcAction(s, action, c) {
   switch(action.type){
   case 'TALK_NPC':{
     if(s.ap<1){c.narr('system','行动点不足。');return s;}

@@ -1,7 +1,7 @@
 // src/components/GameScreens.jsx - Screen components extracted from app.jsx
 // PrologueScreen, SurvivalGuide, CharCreation
 
-function PrologueScreen({state,dispatch}){
+export function PrologueScreen({state,dispatch}){
   const prologue=state.prologue;
   if(!prologue)return null;
 
@@ -123,7 +123,7 @@ function PrologueScreen({state,dispatch}){
   </div>;
 }
 
-function SurvivalGuide({onContinue}){
+export function SurvivalGuide({onContinue}){
   const [visibleItems,setVisibleItems]=useState(0);
   useEffect(()=>{
     const items=[
@@ -177,7 +177,7 @@ function SurvivalGuide({onContinue}){
   </div>;
 }
 
-function CharCreation({state,onRoll,onStart,onSetDifficulty,onSetArchetype}){
+export function CharCreation({state,onRoll,onStart,onSetDifficulty,onSetArchetype}){
   const s=state.stats;const rolled=s.STR!==50;
   const diffs=GD.core_loop?.difficulty_levels||{normal:{},hard:{},nightmare:{}};
   const diffInfo={normal:'标准难度，适合初次游玩',hard:'SAN损失×1.5，检定难度-10',nightmare:'SAN损失×2，检定难度-20'};

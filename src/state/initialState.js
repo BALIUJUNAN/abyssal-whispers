@@ -1,6 +1,6 @@
 // src/state/initialState.js — 游戏初始状态定义（从 app.jsx 提取）
 
-const initialState=()=>{
+export const initialState=()=>{
   const base={screen:'title',day:1,ap:12,maxAp:12,
   stats:{STR:50,CON:55,DEX:55,APP:50,POW:60,INT:65,SIZ:60,EDU:70},
   hp:11,maxHp:11,san:60,maxSan:60,luck:50,mp:12,

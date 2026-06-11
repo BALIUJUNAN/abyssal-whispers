@@ -5,7 +5,7 @@
 // === Multi-Version Dialogue Selector ===
 // Priority: loop_recognition > heavy_corruption > light_corruption > normal
 
-function getNpcDialogueVariant(npcName, trustLevel, state) {
+export function getNpcDialogueVariant(npcName, trustLevel, state) {
   var corruption = state.safehouseCorruption || 0;
   var loop = state.loopCount || 0;
   var san = state.san || 60;
@@ -21,7 +21,7 @@ function getNpcDialogueVariant(npcName, trustLevel, state) {
 }
 
 // NPC-specific corruption dialogue lines (per trust level)
-var NPC_CORRUPTION_LINES = {
+export var NPC_CORRUPTION_LINES = {
   '玛莎·格雷': {
     light: ['你今天看起来……不太一样。是灯光的关系吗？', '你的影子刚才动了一下。不是你动的。', '你身上有股海腥味。你今天去过码头吗？'],
     heavy: ['（她盯着你看了很久。然后把一杯酒推到你面前。酒是黑色的。）', '你不是第一个从雾里走出来的人。但你是唯一一个还在走的。'],
@@ -59,7 +59,7 @@ var NPC_CORRUPTION_LINES = {
 // === NPC Fatigue/Boredom at High Loops ===
 // NPCs become less helpful or more fearful when the player keeps coming back.
 
-function getNpcFatigueEffect(npcName, loopCount, state) {
+export function getNpcFatigueEffect(npcName, loopCount, state) {
   if (loopCount < 3) return null;
 
   var trust = (state.npcTrust || {})[npcName] || 0;
@@ -98,7 +98,7 @@ function getNpcFatigueEffect(npcName, loopCount, state) {
 // === Loop Inheritance: Benefits and Costs ===
 // Enhanced initLoopState additions
 
-function getLoopInheritanceCost(loopCount) {
+export function getLoopInheritanceCost(loopCount) {
   return {
     // SAN max permanent decrease: -2 per loop after loop 5
     sanCapReduction: loopCount >= 5 ? Math.min(20, (loopCount - 4) * 2) : 0,
@@ -112,7 +112,7 @@ function getLoopInheritanceCost(loopCount) {
 // === NPC Trust Decay from High Loops ===
 // NPCs become less trusting when the player keeps returning.
 
-function applyLoopNpcTrustDecay(state, loopCount) {
+export function applyLoopNpcTrustDecay(state, loopCount) {
   if (loopCount < 3) return;
   var decay = Math.floor(loopCount / 3);
   if (decay <= 0) return;

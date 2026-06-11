@@ -39,7 +39,7 @@ export function getConnectedAreas(areaId, ctx) {
 }
 
 // Distorted alternate names per area (for cognitive pollution)
-const AREA_DISTORTIONS = {
+export const AREA_DISTORTIONS = {
   town_center: ['沃切斯特镇中?','沃切斯特镇■心','???斯特镇中心','沃切斯特镇','镇中心广场'],
   harbor_district: ['雾港码头■','雾港?头区','雾港码头区','港■码头区','码头'],
   lighthouse: ['灯塔?','灯塔回廊','???塔','灯塔','灰烬灯塔'],

@@ -1,7 +1,7 @@
 // src/data/mapConstants.js - Map layout data (extracted from appHelpers.js)
 
 // === MAP_LAYOUT ===
-const MAP_LAYOUT={
+export const MAP_LAYOUT={
   town_center:{x:48,y:30,label:'镇中心'},
   voxchester_manor:{x:72,y:22,label:'庄园'},
   harbor_district:{x:32,y:52,label:'码头'},
@@ -13,7 +13,7 @@ const MAP_LAYOUT={
   ruins_of_yith:{x:48,y:90,label:'伊斯遗迹'},
 };
 // === MAP_EDGES ===
-const MAP_EDGES=[
+export const MAP_EDGES=[
   ['town_center','voxchester_manor'],
   ['town_center','harbor_district'],
   ['harbor_district','lighthouse'],
@@ -27,7 +27,7 @@ const MAP_EDGES=[
   ['whispering_forest','ruins_of_yith'],
 ];
 // === MAP_ZONES ===
-const MAP_ZONES=[
+export const MAP_ZONES=[
     {label:'镇 区',x:42,y:16,areas:['town_center','voxchester_manor']},
     {label:'海 岸',x:16,y:42,areas:['harbor_district','lighthouse']},
     {label:'地 下',x:52,y:68,areas:['catacombs_entrance','deep_catacombs']},

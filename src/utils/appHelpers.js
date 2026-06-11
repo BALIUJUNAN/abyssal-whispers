@@ -1,7 +1,7 @@
 // src/utils/appHelpers.js - Extracted from app.jsx
 // All functions use global GD, ctx, pick, clamp from bundle scope.
 
-function getUICorruptionLayer(san, loopCount, safehouseCorruption){
+export function getUICorruptionLayer(san, loopCount, safehouseCorruption){
   if(san<=5||safehouseCorruption>=80)return 4; // hostile — 濒死疯狂（SAN=0已触发死亡，≤5是最后可见窗口）
   if(san<=10||safehouseCorruption>=60)return 3; // contradictory — 濒临疯狂
   if(san<=30||loopCount>=3)return 2; // repetitive — 动摇
@@ -9,7 +9,7 @@ function getUICorruptionLayer(san, loopCount, safehouseCorruption){
   return 0; // clean — 理智
 }
 
-function modHumanity(state, amount, reason){
+export function modHumanity(state, amount, reason){
   state.humanityScore=clamp((state.humanityScore??50)+amount,0,100);
   if(Math.abs(amount)>=5){
     const narr=state.narrative;
@@ -18,19 +18,19 @@ function modHumanity(state, amount, reason){
   }
 }
 
-function getHumanityTier(score){
+export function getHumanityTier(score){
   if(score>=60)return 'high';
   if(score>=30)return 'fragile';
   return 'lost';
 }
 
-function addRunMemory(state, text, type='choice'){
+export function addRunMemory(state, text, type='choice'){
   if(!state.runMemory)state.runMemory=[];
   state.runMemory.push({day:state.day,type,text:'第 '+state.day+' 天：'+text});
   if(state.runMemory.length>12)state.runMemory=state.runMemory.slice(-12);
 }
 
-function buildDeathRecap(state, deathContext=null){
+export function buildDeathRecap(state, deathContext=null){
   const mem=state.runMemory||[];
   // Use precise death type from resolveDeath if available, fall back to binary check
   const HP_TYPES=['drowning','bleeding','infection','starvation','falling','darkness_taken','physical'];
@@ -57,7 +57,7 @@ function buildDeathRecap(state, deathContext=null){
   return {deathType,day:state.day,causeEvent,timeline,keyDiscoveries,conclusionsUnlocked,npcTrustHighlights:npcEntries,permanentUnlocks:state.activeBlessings||[],pollutionGained,adviceLine:adviceLines[0]||'雾不会放弃。你也不应该。'};
 }
 
-function getPerceptionLevels(state){
+export function getPerceptionLevels(state){
   const san=state.san||0;
   const loop=state.loopCount||0;
   const corr=(state.safehouseCorruption||0);
@@ -71,7 +71,7 @@ function getPerceptionLevels(state){
   return {focus:Math.min(3,focus),edge:Math.min(3,edge),audio:Math.min(4,audio),input:Math.min(4,input),text:Math.min(4,text)};
 }
 
-function applyBlessing(state, blessing, narr){
+export function applyBlessing(state, blessing, narr){
   if(!blessing)return;
   const eff=blessing.effect||{};
   narr('system','【恩赐·'+blessing.name+'】'+blessing.description,{isSpecial:true});
@@ -89,7 +89,7 @@ function applyBlessing(state, blessing, narr){
   }
 }
 
-function getAvailableSafehouses(state){
+export function getAvailableSafehouses(state){
   const alts=GD.systems?.safehouse?.relocation_rules?.alternative_safehouses||[];
   return alts.filter(sh=>{
     const npcName=sh.unlock_condition.includes('伊莱亚斯')?'伊莱亚斯·沃德':sh.unlock_condition.includes('希尔达')?'希尔达·莫里斯':null;
@@ -110,7 +110,7 @@ const _DEATH_SAN_TYPES=['madness','possession','identity_erasure','mythos_absorp
  * @param {object} deathCtx   - from resolveDeath()
  * @param {function} narr     - narrative pusher
  */
-function applyDeathResolution(s, deathCtx, narr){
+export function applyDeathResolution(s, deathCtx, narr){
   s.deathContext = deathCtx;
   s.lastDeathType = deathCtx.type;
   s.lastDeathMode = deathCtx.mode;
@@ -140,7 +140,7 @@ function applyDeathResolution(s, deathCtx, narr){
 // === Daily Summary Card (extracted from REST case in app.jsx) ===
 const _ACT_NAMES={MOVE:'移动',EXPLORE:'探索',TALK_NPC:'交谈',WORK:'打工',BUY_FOOD:'购买食物',USE_ITEM:'使用物品',SWITCH_SAFEHOUSE:'更换安全屋'};
 
-function narrDailySummary(s, narr, _startSan, _startHp, _startClues, _startArea){
+export function narrDailySummary(s, narr, _startSan, _startHp, _startClues, _startArea){
   const acts=s._dayActions||[];
   const areaObj=getAreaInfo(_startArea,ctx);
   const areaName=areaObj?.name||'沃切斯特';
@@ -162,7 +162,7 @@ function narrDailySummary(s, narr, _startSan, _startHp, _startClues, _startArea)
 }
 
 // === Daily Behavior Pattern Analysis (extracted from REST case) ===
-function trackDailyBehaviorPatterns(s, bt){
+export function trackDailyBehaviorPatterns(s, bt){
   const acts=s._dayActions||[];
   if(acts.length===0){bt.sleep_streak=(bt.sleep_streak||0)+1;}else{bt.sleep_streak=0;}
   if(acts.length<=1){bt.low_intervention_count=(bt.low_intervention_count||0)+1;}
@@ -175,7 +175,7 @@ function trackDailyBehaviorPatterns(s, bt){
   if(hasItem&&!hasMove&&!hasExplore&&!hasTalk&&!hasWork){bt.record_only_days=(bt.record_only_days||0)+1;}
 }
 
-function checkWrongInference(state, narr){
+export function checkWrongInference(state, narr){
   if(state.triggeredEvents.includes('wrong_inference_checked'))return;
   const wi=GD.systems?.wrong_inference?.consequences||[];
   for(const inf of wi){
@@ -188,7 +188,7 @@ function checkWrongInference(state, narr){
 }
 
 // === CH1 Vertical Slice Script ===
-const CH1_INTRO=[
+export const CH1_INTRO=[
   {type:'system',text:'公元1926年，马萨诸塞州东南海岸。'},
   {type:'system',text:'你乘坐的长途汽车在浓雾中停了下来。司机回头看了一眼，没有说话，只是指了指车窗外隐约可见的路牌：\n\n沃切斯特 —— 3英里'},
   {type:'location',text:'鹅卵石街道在雨后泛着暗沉的光泽，两侧的维多利亚式建筑虽然外表还算完整，但窗后的窗帘永远紧闭。市政厅前的广场上矗立着一座建城者雕像，雕像的面容在岁月侵蚀下变得模糊不清。\n\n公告栏上贴满了失踪人口的告示，日期跨度长达三年。',locationName:'沃切斯特镇中心'},
@@ -196,11 +196,11 @@ const CH1_INTRO=[
   {type:'system',text:'【提示】你可以在镇中心和码头区自由活动。对话NPC获取情报，探索区域收集线索。\n注意SAN值——正常事件不会消耗你的理智，但深究异常需要付出代价。'}
 ];
 // === Event Type Labels ===
-const EVENT_TYPE_LABELS={opening_cut:'序章',area_event:'区域事件',mythos:'神秘事件',resource:'资源事件',humanity:'人性事件',meta:'隐秘事件',silent:'静默事件',prologue:'前传',area_deep:'深层探索',npc_cross:'NPC交错',loop_locked:'轮回锁定',clue:'线索',ending:'结局',madness_immunity:'疯狂免疫',identify_false_clue:'辨别伪证',mechanism:'机关',horror:'恐怖',investigation:'调查',minor_abnormal:'轻微异常',normal:'普通',bad:'负面',good:'正面',hidden:'隐藏',consumable:'消耗品',key_item:'关键物品',add_clue:'线索获取',add_flag:'标记',modify_event_weight:'事件权重',modify_npc_trust:'信任变动',modify_resource:'资源变动'};
+export const EVENT_TYPE_LABELS={opening_cut:'序章',area_event:'区域事件',mythos:'神秘事件',resource:'资源事件',humanity:'人性事件',meta:'隐秘事件',silent:'静默事件',prologue:'前传',area_deep:'深层探索',npc_cross:'NPC交错',loop_locked:'轮回锁定',clue:'线索',ending:'结局',madness_immunity:'疯狂免疫',identify_false_clue:'辨别伪证',mechanism:'机关',horror:'恐怖',investigation:'调查',minor_abnormal:'轻微异常',normal:'普通',bad:'负面',good:'正面',hidden:'隐藏',consumable:'消耗品',key_item:'关键物品',add_clue:'线索获取',add_flag:'标记',modify_event_weight:'事件权重',modify_npc_trust:'信任变动',modify_resource:'资源变动'};
 // === Ending CG Preload ===
-const ENDING_CGS=['人肉税','伊莎贝拉 救赎','伊莎贝拉：第十二声','伊莱亚斯 守门人','伪神','删档祈愿者','十三响的先知','升座的牺牲品','囚徒','回音','埃德加 观测者','多余的餐具','守财奴','守门人','容器','封印的亲吻','屠宰场','希尔达的选择','希尔达：封印代价','希尔达：终局知情','异端降临','归海','循环的蛀虫','悦纳者','愉悦的先知','成为事件的残页','整洁的屠夫','断环','无效档案','旧汗渍','最佳员工','最后的人事','木偶师','档案吞噬者','永恒记录员','污圣徒','洗不掉的印记','海上逃离','深渊吞噬','溶盐者','漂浮的外套','漫游者','潮声之婚','王座上的蛆','玩家成为事件','白页','空白事件卡','空白墓碑','第600事件：笔记本最后一页','第600结局：墨水化','第600预兆：事件日志问号','第600预兆：路人低语','第十二声','筹码','约书亚 救赎','老费舍 最后的人事','血肉合唱','被观察者','裂痕','观测者','证据逃离','账房先生','超越者','身心俱灭','轮回破壁','镜中缺席者','长眠者','页码599变600','餐具','骨头落地的声音','黑暗中的手','黑潮圣婚'];
+export const ENDING_CGS=['人肉税','伊莎贝拉 救赎','伊莎贝拉：第十二声','伊莱亚斯 守门人','伪神','删档祈愿者','十三响的先知','升座的牺牲品','囚徒','回音','埃德加 观测者','多余的餐具','守财奴','守门人','容器','封印的亲吻','屠宰场','希尔达的选择','希尔达：封印代价','希尔达：终局知情','异端降临','归海','循环的蛀虫','悦纳者','愉悦的先知','成为事件的残页','整洁的屠夫','断环','无效档案','旧汗渍','最佳员工','最后的人事','木偶师','档案吞噬者','永恒记录员','污圣徒','洗不掉的印记','海上逃离','深渊吞噬','溶盐者','漂浮的外套','漫游者','潮声之婚','王座上的蛆','玩家成为事件','白页','空白事件卡','空白墓碑','第600事件：笔记本最后一页','第600结局：墨水化','第600预兆：事件日志问号','第600预兆：路人低语','第十二声','筹码','约书亚 救赎','老费舍 最后的人事','血肉合唱','被观察者','裂痕','观测者','证据逃离','账房先生','超越者','身心俱灭','轮回破壁','镜中缺席者','长眠者','页码599变600','餐具','骨头落地的声音','黑暗中的手','黑潮圣婚'];
 let _cgPreloaded=false;
-function preloadEndingCGs(){
+export function preloadEndingCGs(){
   if(_cgPreloaded)return;_cgPreloaded=true;
   const batch=(start)=>{
     const end=Math.min(start+5,ENDING_CGS.length);
@@ -213,7 +213,7 @@ function preloadEndingCGs(){
 // === Reducer Context Builder (Immer) ===
 // Builds the shared context object passed to all slice handlers from gameReducer.
 // `s` is an Immer draft — all direct mutations are safe.
-function buildReducerCtx(s) {
+export function buildReducerCtx(s) {
   const MAX_NARRATIVE_ENTRIES=250;
   const _narrCorrLayer=getUICorruptionLayer(s.san,s.loopCount,s.safehouseCorruption);
   const effects=[];
@@ -245,7 +245,7 @@ function buildReducerCtx(s) {
 // === NPC Trust Compat Helpers ===
 // Resolve npcTrust key: tries direct key first, then resolveNpcId fallback.
 // Works with both Chinese name keys (old) and stable id keys (new).
-function getNpcTrust(s, name) {
+export function getNpcTrust(s, name) {
   if (s.npcTrust[name] !== undefined) return s.npcTrust[name];
   if (typeof resolveNpcId === 'function') {
     var id = resolveNpcId(name);
@@ -253,12 +253,12 @@ function getNpcTrust(s, name) {
   }
   return 0;
 }
-function setNpcTrust(s, name, value) {
+export function setNpcTrust(s, name, value) {
   // Always write to resolved id — state naturally converges to id keys
   var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
   s.npcTrust[id] = value;
 }
-function getNpcState(s, name) {
+export function getNpcState(s, name) {
   if (s.npcStates[name]) return s.npcStates[name];
   if (typeof resolveNpcId === 'function') {
     var id = resolveNpcId(name);
@@ -266,7 +266,7 @@ function getNpcState(s, name) {
   }
   return {};
 }
-function setNpcState(s, name, value) {
+export function setNpcState(s, name, value) {
   var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
   s.npcStates[id] = value;
 }

@@ -19,7 +19,7 @@ export const SAVE_VERSION = '1.2.0';
  * from extendedEventsLoader.js is still called in CONTINUE_GAME as a
  * second safety net.
  */
-function ensureMinimalExtendedState(state) {
+export function ensureMinimalExtendedState(state) {
   if (!state.previousRunSummary) state.previousRunSummary = null;
   if (!state.previousDeathsByArea) state.previousDeathsByArea = {};
   if (!state.previousEndings) state.previousEndings = [];

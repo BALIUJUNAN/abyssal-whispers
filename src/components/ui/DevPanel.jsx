@@ -1,6 +1,6 @@
 // src/components/ui/DevPanel.jsx - Developer Debug Panel
 
-var DevPanel = memo(function DevPanel(props) {
+export var DevPanel = memo(function DevPanel(props) {
   var state = props.state;
   var dispatch = props.dispatch;
   var _o = useState(false);
@@ -62,7 +62,7 @@ var DevPanel = memo(function DevPanel(props) {
   );
 });
 
-var DevPerfMonitor=memo(function(){
+export var DevPerfMonitor=memo(function(){
   var _m=useState({fps:0});var m=_m[0],setM=_m[1];
   useEffect(function(){var lt=performance.now();var c=0;var raf;function t(){c++;var n=performance.now();if(n-lt>=1000){setM({fps:Math.round(c*1000/(n-lt))});c=0;lt=n;}raf=requestAnimationFrame(t);}raf=requestAnimationFrame(t);return function(){cancelAnimationFrame(raf);};},[]);
   var mem=(typeof performance!=='undefined'&&performance.memory)?performance.memory:null;

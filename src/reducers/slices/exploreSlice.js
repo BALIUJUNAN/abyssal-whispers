@@ -11,7 +11,7 @@
 //   _postEventProcessing(s, c) → chain progress, conclusions, endings
 
 // §3.3: Meta event real consequences
-function applyMetaEffect(effectType, state, evt, c) {
+export function applyMetaEffect(effectType, state, evt, c) {
   if (!effectType) return;
   switch (effectType) {
     case 'overwrite_save_slot':
@@ -62,7 +62,7 @@ function applyMetaEffect(effectType, state, evt, c) {
 // Tier B: normal display
 // Tier C: first trigger = truncate to 2 sentences; subsequent = generic replacement
 var _QT_GENERIC_REPLACEMENT = '你又有一种熟悉的感觉，但你想不起细节了。沃切斯特的日常就是这样。';
-function applyQualityTier(text, evt, state) {
+export function applyQualityTier(text, evt, state) {
   var qt = evt.quality_tier;
   if (!qt || qt === 'S' || qt === 'A' || qt === 'B') return text;
   // Tier C: check trigger count
@@ -90,7 +90,7 @@ function applyQualityTier(text, evt, state) {
 /** Phase 1: Select an explore event via extended pipeline + omen/600 fallback.
  *  Milestone + progress guard handled inline by caller (needs c.narr).
  *  Returns { evt, alreadyCommitted }. */
-function _selectExploreEvent(s, ctx, GD) {
+export function _selectExploreEvent(s, ctx, GD) {
   // Extended event selection pipeline
   let evt=null;
   let alreadyCommitted=false;
@@ -126,7 +126,7 @@ function _selectExploreEvent(s, ctx, GD) {
 }
 
 /** Phase 4: Post-event processing — objectives, chains, conclusions, monsters, tracking. */
-function _postExploreProcessing(evt, s, c, GD) {
+export function _postExploreProcessing(evt, s, c, GD) {
   s.objectives=checkObjCompletion(s.objectives,s);
   // Event chain progress
   const chains=GD.event_chains||[];
@@ -179,7 +179,7 @@ function _postExploreProcessing(evt, s, c, GD) {
   if(!s.tutorialSeen.first_explore) s.tutorialSeen={...s.tutorialSeen,first_explore:true};
 }
 
-function handleExploreAction(s, action, c, ctx) {
+export function handleExploreAction(s, action, c, ctx) {
   switch(action.type){
   case 'MOVE':{
     if(s.ap<1){c.narr('system','行动点不足。');return s;}

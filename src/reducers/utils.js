@@ -34,7 +34,7 @@ export const shuffle = (arr) => {
  * @param {object} ctx - { GD }
  * @returns {{ id, name, range, level, ap_modifier, description, visual_tier, event_weight, pollution_effects }}
  */
-function getCurrentSanStage(san, ctx) {
+export function getCurrentSanStage(san, ctx) {
   const { GD } = ctx;
   const stages = GD.systems?.sanity?.san_stages || [];
   if (san <= 0) {

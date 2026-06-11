@@ -12,7 +12,7 @@
 
 const _useSyncExternalStore = React.useSyncExternalStore;
 
-function createUiStore(initialState) {
+export function createUiStore(initialState) {
   let state = typeof initialState === 'function' ? initialState() : { ...initialState };
   const listeners = new Set();
   function getState() { return state; }
@@ -37,7 +37,7 @@ function createUiStore(initialState) {
 }
 
 // === UI Store ===
-const uiStore = createUiStore({
+export const uiStore = createUiStore({
   toasts: [],
   settingsOpen: false,
   saveLoadOpen: false,
@@ -53,7 +53,7 @@ const uiStore = createUiStore({
 });
 
 // Lazy-load settings on first access
-function getSettings() {
+export function getSettings() {
   const s = uiStore.getState();
   if (s.settings === null) {
     uiStore.setState({ settings: loadSettings() });
@@ -62,24 +62,24 @@ function getSettings() {
   return s.settings;
 }
 
-function updateSettings(newSettings) {
+export function updateSettings(newSettings) {
   saveSettings(newSettings);
   uiStore.setState({ settings: newSettings });
 }
 
-function addUiToast(toast) {
+export function addUiToast(toast) {
   uiStore.setState(s => ({
     toasts: [...s.toasts, { ...toast, key: Date.now() }]
   }));
 }
 
-function removeUiToast(key) {
+export function removeUiToast(key) {
   uiStore.setState(s => ({
     toasts: s.toasts.filter(t => t.key !== key)
   }));
 }
 
-function notifySave(msg, type) {
+export function notifySave(msg, type) {
   uiStore.setState(s => ({ saveTick: s.saveTick + 1 }));
   addUiToast({
     id: 'save_' + Date.now(),

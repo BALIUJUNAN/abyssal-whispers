@@ -219,4 +219,3 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export { ErrorBoundary };

@@ -238,7 +238,7 @@ export function checkTriggerExtended(evt, state, ctx) {
 // for candidate peeking, then call commitSelectedEvent only on the final pick.
 
 // Category budget configuration
-const EVENT_BUDGET = {
+export const EVENT_BUDGET = {
   loop_locked:          { maxPerDay: 2, minPerRun: 10, weight: 1.2 },
   humanity:             { maxPerDay: 2, minPerRun: 6,  weight: 1.0 },
   mythos:               { maxPerDay: 2, minPerRun: 6,  weight: 1.0 },
@@ -252,14 +252,14 @@ const EVENT_BUDGET = {
 };
 
 // Types considered "abnormal" for streak tracking
-const ABNORMAL_TYPES = new Set([
+export const ABNORMAL_TYPES = new Set([
   'loop_locked', 'mythos', 'resource_pressure', 'meta',
   // Also count original horror types
   '超自然遭遇', '怪物遭遇', '神秘事件'
 ]);
 
 // Types that serve as anchors (break abnormal streaks)
-const ANCHOR_TYPES = new Set([
+export const ANCHOR_TYPES = new Set([
   'silent', '正常事件', 'NPC互动', '氛围事件', '轻微异常'
 ]);
 
@@ -584,7 +584,7 @@ export function selectEventV2(areaId, state, ctx, pick) {
 /**
  * Quick ending condition check (simplified, for weight calculation only)
  */
-function checkEndingConditionQuick(state, cond) {
+export function checkEndingConditionQuick(state, cond) {
   switch (cond.type) {
     case 'san_below': return state.san < cond.value;
     case 'san_above': return state.san > cond.value;

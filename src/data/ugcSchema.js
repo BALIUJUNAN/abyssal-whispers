@@ -579,4 +579,3 @@ export function parseAndValidateMod(jsonString) {
 }
 
 // Re-export constants for use by other modules
-export { LIMITS, EFFECTS_KEYS_WHITELIST, VALID_EVENT_TYPES, VALID_TIERS };

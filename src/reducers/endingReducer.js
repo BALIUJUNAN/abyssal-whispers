@@ -1,7 +1,7 @@
 // src/reducers/endingReducer.js - Ending condition checking (data-driven)
 
 // Map behavior ending condition variable names to state field accessors
-const CONDITION_VAR_MAP = {
+export const CONDITION_VAR_MAP = {
   // Behavior counters
   direct_kill_count: s=>s.behaviorTracking.direct_kill_count||0,
   cannibalism_count: s=>s.behaviorTracking.cannibalism_count||0,
@@ -129,7 +129,7 @@ export function parseConditionString(condStr) {
   return {type:'always_true'};
 }
 
-function checkSingleCondition(state, cond) {
+export function checkSingleCondition(state, cond) {
   if(!cond||typeof cond!=='object')return false;
   switch (cond.type) {
     case 'san_below': return state.san < cond.value;

@@ -1,6 +1,6 @@
 // src/components/NPCDialog.jsx - NPC dialog component (extracted from GamePanels.jsx)
 
-function NPCDialog({npc,trust,layer,dispatch,state}){
+export function NPCDialog({npc,trust,layer,dispatch,state}){
   const [show,setShow]=useState(false);
   const [confirmAction,setConfirmAction]=useState(null);
   // 对话分组折叠状态：交谈/帮助 默认展开，特殊 默认折叠

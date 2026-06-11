@@ -3,13 +3,13 @@
 // GD 和 ctx 将在 bundle 时由 app.jsx 中的全局变量提供
 // build.py 会剥离 import/export 语句，所以这些函数可以直接使用同作用域的 GD
 
-function initSkills(){
+export function initSkills(){
   const base={};
   (GD.systems?.player?.skills||GD.module5_player?.skills||[]).forEach(s=>{let v=s.base;if(typeof v==='string')v=50;base[s.name]=v;});
   return base;
 }
 
-function getNpcsHere(state){
+export function getNpcsHere(state){
   const npcs=GD.npcs||GD.module3_npcs||[];
   return npcs.filter(n=>{
     if(state.npcStates[n.name]?.dead)return false;
@@ -19,7 +19,7 @@ function getNpcsHere(state){
   });
 }
 
-function applyChainCompletionEffects(state, effects, narr){
+export function applyChainCompletionEffects(state, effects, narr){
   if(!effects||!Array.isArray(effects))return;
   for(const eff of effects){
     switch(eff.type){
@@ -50,7 +50,7 @@ function applyChainCompletionEffects(state, effects, narr){
   }
 }
 
-function checkChainCompletion(state, narr){
+export function checkChainCompletion(state, narr){
   const chains=GD.clue_chains||[];
   for(const chain of chains){
     const chainClues=chain.clues||[];
@@ -88,27 +88,27 @@ function checkChainCompletion(state, narr){
   }
 }
 
-function getSanVariant(san){
+export function getSanVariant(san){
   if(san<=39)return 'abyssal';
   if(san<=59)return 'paranoid';
   if(san<=79)return 'anxious';
   return 'normal';
 }
 
-function getCorruptionLevel(san, loopCount){
+export function getCorruptionLevel(san, loopCount){
   if(san<=20||loopCount>=5)return 3;
   if(san<=40||loopCount>=3)return 2;
   if(san<=60)return 1;
   return 0;
 }
 
-function getOptionText(key, san){
+export function getOptionText(key, san){
   const variants=GD.systems?.subjective_reality?.option_variants?.[key];
   if(!variants)return null;
   return variants[getSanVariant(san)]||variants.normal||null;
 }
 
-function isAreaUnlocked(area, state) {
+export function isAreaUnlocked(area, state) {
   if (area.chapter_1_role === 'locked') return false;
   if (area.chapter_1_role === 'fully_accessible') return true;
   const day = state.day || 1;
@@ -117,6 +117,6 @@ function isAreaUnlocked(area, state) {
   return false;
 }
 
-function getAreaDisplayName(area, state) {
+export function getAreaDisplayName(area, state) {
   return getDistortedName(area, state);
 }

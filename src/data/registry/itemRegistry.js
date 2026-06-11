@@ -1,5 +1,5 @@
 // src/data/registry/itemRegistry.js
-var ITEM_REGISTRY = {
+export var ITEM_REGISTRY = {
   flashlight:       { name: '手电筒',     aliases: [],                type: 'light',     stackable: false },
   notebook:         { name: '笔记本和笔', aliases: ['笔记本'],        type: 'tool',      stackable: false },
   first_aid_kit:    { name: '急救包',     aliases: ['急救'],          type: 'healing',   stackable: true  },
@@ -17,7 +17,7 @@ var ITEM_REGISTRY = {
   elder_sign_copy:  { name: '旧印拓片（关键道具：可在封印仪式中使用）', aliases: ['旧印'], type: 'key', stackable: false },
 };
 
-var CLUE_ITEMS = [
+export var CLUE_ITEMS = [
   '潮汐时刻表','粘液样本','深海之鳞','溺亡者的手镯','失踪者名单副本','扭曲的圣经页',
   '疯乞丐的涂鸦（暗含地图线索）','夜魔羽毛（黑色，冰冷）','发光蘑菇','湿透的笔记（可阅读）',
   '撕裂的外套','石碑拓片','金属盒子（锁住）','碎纸条','陶瓷碎片（可作为标记物）',
@@ -38,12 +38,12 @@ CLUE_ITEMS.forEach(function(name,i){
 // Create helpers via registryUtils (if available)
 var _ih = typeof createRegistryHelpers === 'function' ? createRegistryHelpers(ITEM_REGISTRY) : null;
 
-var ITEM_NAME_TO_ID = _ih ? _ih.nameToId : {};
+export var ITEM_NAME_TO_ID = _ih ? _ih.nameToId : {};
 (function(){if(!_ih){for(var id in ITEM_REGISTRY){var e=ITEM_REGISTRY[id];ITEM_NAME_TO_ID[e.name]=id;for(var i=0;i<(e.aliases||[]).length;i++)ITEM_NAME_TO_ID[e.aliases[i]]=id;}}})();
 
-function resolveItemId(input){return _ih?_ih.resolveId(input):(ITEM_REGISTRY[input]?input:(ITEM_NAME_TO_ID[input]||input));}
-function getItemName(input){return _ih?_ih.getName(input):((ITEM_REGISTRY[input]&&ITEM_REGISTRY[input].name)||input);}
-function normalizeItemRef(input){
+export function resolveItemId(input){return _ih?_ih.resolveId(input):(ITEM_REGISTRY[input]?input:(ITEM_NAME_TO_ID[input]||input));}
+export function getItemName(input){return _ih?_ih.getName(input):((ITEM_REGISTRY[input]&&ITEM_REGISTRY[input].name)||input);}
+export function normalizeItemRef(input){
   if(typeof input==='string'){var id=resolveItemId(input);return{id:id,name:getItemName(id)};}
   if(input&&typeof input==='object'){
     var rawId=input.id||input.item_id||input.item||input.name;
@@ -52,29 +52,29 @@ function normalizeItemRef(input){
   }
   return input;
 }
-function migrateInventory(inv){return _ih?_ih.migrateArray(inv,'name'):(Array.isArray(inv)?inv.map(function(item){
+export function migrateInventory(inv){return _ih?_ih.migrateArray(inv,'name'):(Array.isArray(inv)?inv.map(function(item){
   if(typeof item==='string')return resolveItemId(item);
   if(item&&typeof item==='object'){var rid=resolveItemId(item.id||item.name);return Object.assign({},item,{id:rid,name:getItemName(rid)});}
   return item;
 }):inv);}
-function addItem(s,itemInput,count){
+export function addItem(s,itemInput,count){
   var ref=normalizeItemRef(itemInput);if(!ref||!ref.id)return;
   var ex=s.inventory.find(function(i){return i.id===ref.id;});
   if(ex&&ex.uses>0){ex.uses+=(count||1);}
   else{s.inventory.push({id:ref.id,name:ref.name,uses:count||1});}
 }
-function removeItem(s,itemInput,count){
+export function removeItem(s,itemInput,count){
   var ref=normalizeItemRef(itemInput);if(!ref||!ref.id)return;
   var idx=s.inventory.findIndex(function(i){return i.id===ref.id||i.name===ref.id;});
   if(idx<0)return;
   if(count&&s.inventory[idx].uses>0){s.inventory[idx].uses-=count;if(s.inventory[idx].uses<=0)s.inventory.splice(idx,1);}
   else{s.inventory.splice(idx,1);}
 }
-function hasItem(s,itemInput){
+export function hasItem(s,itemInput){
   var ref=normalizeItemRef(itemInput);if(!ref||!ref.id)return false;
   return s.inventory.some(function(i){return i.id===ref.id||i.name===ref.id;});
 }
-function getItemCount(s,itemInput){
+export function getItemCount(s,itemInput){
   var ref=normalizeItemRef(itemInput);if(!ref||!ref.id)return 0;
   var item=s.inventory.find(function(i){return i.id===ref.id||i.name===ref.id;});
   return item?(item.uses||1):0;

@@ -1,7 +1,7 @@
 // src/components/TitleScreen.jsx — 游戏标题画面
 import { audioManager } from '../managers/AudioManager.js';
 
-const TITLE_TAGLINES=[
+export const TITLE_TAGLINES=[
   '第十三声钟响之后，没有人再数下去。',
   '有些失踪，是从抵达开始的。',
   '沃切斯特记得你。你不记得它。',

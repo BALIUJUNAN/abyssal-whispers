@@ -1,8 +1,8 @@
 // src/systems/fearProfile.js - 前传恐惧画像系统
 // 计算玩家的恐惧倾向和应对方式，生成隐藏flags
 
-const FEAR_KEYS = ['ocean', 'body', 'control', 'isolation', 'knowledge', 'morality'];
-const COPING_KEYS = ['avoidant', 'investigative', 'social', 'controlling', 'sacrificial', 'predatory'];
+export const FEAR_KEYS = ['ocean', 'body', 'control', 'isolation', 'knowledge', 'morality'];
+export const COPING_KEYS = ['avoidant', 'investigative', 'social', 'controlling', 'sacrificial', 'predatory'];
 
 /**
  * 不可变地将前传选择的恐惧倾向应用到 prologue 对象。

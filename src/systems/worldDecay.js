@@ -7,7 +7,7 @@
 // SECTION 1: Daily Corruption Calculation
 // =============================================
 
-function calculateDailyCorruption(state, ctx) {
+export function calculateDailyCorruption(state, ctx) {
   var GD = ctx.GD;
   var corruption = 0;
 
@@ -54,7 +54,7 @@ function calculateDailyCorruption(state, ctx) {
  *
  * Called during REST. Updates state._areaCorruption map.
  */
-function updateAreaCorruption(state, ctx) {
+export function updateAreaCorruption(state, ctx) {
   if (!state._areaCorruption) state._areaCorruption = {};
   var todayActions = state._dayActions || [];
   var todayAreas = {};
@@ -92,7 +92,7 @@ function updateAreaCorruption(state, ctx) {
  * @param {object} state
  * @returns {number} 0-100
  */
-function getAreaCorruptionLevel(areaId, state) {
+export function getAreaCorruptionLevel(areaId, state) {
   if (!state._areaCorruption) return 0;
   return state._areaCorruption[areaId] || 0;
 }
@@ -101,7 +101,7 @@ function getAreaCorruptionLevel(areaId, state) {
  * Generate narrative text for area-specific corruption effects.
  * Called during EXPLORE when area corruption is high.
  */
-function getAreaCorruptionNarrative(areaId, state) {
+export function getAreaCorruptionNarrative(areaId, state) {
   var level = getAreaCorruptionLevel(areaId, state);
   if (level < 20) return null;
   var narratives = {
@@ -132,7 +132,7 @@ function getAreaCorruptionNarrative(areaId, state) {
 // SECTION 3: World Decay Narratives
 // =============================================
 
-var WORLD_DECAY_NARRATIVES = [
+export var WORLD_DECAY_NARRATIVES = [
   { minDay: 3, maxDay: 6, minCorruption: 0, text: "你注意到镇上的窗帘拉得更紧了。有些窗户用木板钉死了。" },
   { minDay: 3, maxDay: 6, minCorruption: 10, text: "街角的路灯闪烁了两下，然后熄了。没有人去修。" },
   { minDay: 5, maxDay: 10, minCorruption: 15, text: "你听到远处传来玻璃碎裂的声音。方向是码头区。" },
@@ -153,7 +153,7 @@ var WORLD_DECAY_NARRATIVES = [
   { minDay: 27, maxDay: 28, minCorruption: 90, text: "雾变成了红色。你已经不记得雾是什么颜色的了。" },
 ];
 
-function getWorldDecayNarrative(day, corruption, state) {
+export function getWorldDecayNarrative(day, corruption, state) {
   var candidates = [];
   for (var i = 0; i < WORLD_DECAY_NARRATIVES.length; i++) {
     var n = WORLD_DECAY_NARRATIVES[i];
@@ -170,7 +170,7 @@ function getWorldDecayNarrative(day, corruption, state) {
 // SECTION 4: Critical Day Events (Days 7/14/21)
 // =============================================
 
-var DAY_CRITICAL_EVENTS = {
+export var DAY_CRITICAL_EVENTS = {
   5: { text: "凌晨三点，你被一声巨响惊醒。教堂的钟楼裂开了一道缝。\n\n裂缝里漏出了光。不是日光——是某种粘稠的、缓慢流动的光。", sanCost: 1, corruptionGain: 3 },
   7: { text: "第七天。\n\n教堂的钟声响了十四下。\n\n整个沃切斯特都安静了。连海浪都停了。\n\n然后——你听到了第十五声。不是从教堂传来的。是从你脚下传来的。", sanCost: 3, corruptionGain: 5, isChapterEvent: true },
   10: { text: "码头区传来尖叫声。你赶到时，只看到一滩海水和一只鞋。\n\n海水是温的。鞋是你的尺码。\n\n你低头看了一眼自己的脚。两只鞋都在。但左脚的鞋带松了。你确定你出门的时候系紧了。", sanCost: 2, corruptionGain: 5 },
@@ -182,6 +182,6 @@ var DAY_CRITICAL_EVENTS = {
   28: { text: "最后一天。\n\n你醒来的时候，窗外的雾不再是白色的了。\n\n它是红色的。像血。\n\n时间到了。", sanCost: 0, corruptionGain: 0, isChapterEvent: true },
 };
 
-function getDayCriticalEvent(day) {
+export function getDayCriticalEvent(day) {
   return DAY_CRITICAL_EVENTS[day] || null;
 }

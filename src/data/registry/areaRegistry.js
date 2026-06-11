@@ -2,7 +2,7 @@
 // Areas already use stable IDs (town_center, harbor_district, etc.)
 // This registry adds display names and aliases for completeness.
 
-var AREA_REGISTRY = {
+export var AREA_REGISTRY = {
   town_center:        { name: '沃切斯特镇中心', aliases: ['镇中心', '广场'] },
   harbor_district:    { name: '沃切斯特码头',   aliases: ['码头', '港口', '码头区'] },
   whispering_forest:  { name: '低语森林',       aliases: ['森林'] },
@@ -14,7 +14,7 @@ var AREA_REGISTRY = {
   forbidden_grove:    { name: '禁忌树林',       aliases: ['石碑区'] },
 };
 
-var AREA_NAME_TO_ID = {};
+export var AREA_NAME_TO_ID = {};
 (function() {
   for (var id in AREA_REGISTRY) {
     var entry = AREA_REGISTRY[id];
@@ -25,13 +25,13 @@ var AREA_NAME_TO_ID = {};
   }
 })();
 
-function resolveAreaId(input) {
+export function resolveAreaId(input) {
   if (!input) return input;
   if (AREA_REGISTRY[input]) return input;
   return AREA_NAME_TO_ID[input] || input;
 }
 
-function getAreaName(id) {
+export function getAreaName(id) {
   var entry = AREA_REGISTRY[id];
   return entry ? entry.name : id;
 }

@@ -35,7 +35,6 @@ export function checkTrigger(evt, state) {
 }
 
 // Re-export extended trigger check for use by other modules
-export { checkTriggerExtended };
 
 /** @deprecated Use selectEventV2() instead. Retained as fallback when GD._extendedEventsLoaded is false. */
 export function selectEvent(areaId, state, ctx, pick) {

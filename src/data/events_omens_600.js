@@ -8,7 +8,7 @@ export const OMEN_600_EVENT_IDS = [
   "omen_600_npc_whisper",
 ];
 
-const OMENS = [
+export const OMENS = [
   {
     id: "omen_600_notebook_page",
     name: "笔记本的页码",

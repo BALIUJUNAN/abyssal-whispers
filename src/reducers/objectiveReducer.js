@@ -34,7 +34,7 @@ export function checkObjCompletion(objs, s) {
 // === Critical Progress Guards (extracted from appHelpers.js) ===
 // P0-3: Prevent players from getting permanently stuck on clue chains.
 
-const CRITICAL_PROGRESS_GUARDS = [
+export const CRITICAL_PROGRESS_GUARDS = [
   {
     id: 'guard_harbor_chain', deadlineDay: 6,
     requiredClues: ['clue_1_1', 'clue_1_2', 'clue_1_3'], chainId: 'chain_harbor',
@@ -65,7 +65,7 @@ const CRITICAL_PROGRESS_GUARDS = [
   }
 ];
 
-function getForcedProgressGuard(state, ctx) {
+export function getForcedProgressGuard(state, ctx) {
   const day = state.day || 1;
   const clues = state.clues || [];
   const triggered = state.triggeredEvents || [];
@@ -84,7 +84,7 @@ function getForcedProgressGuard(state, ctx) {
   return null;
 }
 
-function executeForcedProgressGuard(guard, state, narr) {
+export function executeForcedProgressGuard(guard, state, narr) {
   if (!state.triggeredEvents.includes(guard.guardFlag)) {
     state.triggeredEvents.push(guard.guardFlag);
   }

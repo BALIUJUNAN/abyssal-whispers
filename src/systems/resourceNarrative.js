@@ -11,7 +11,7 @@
 // SECTION 1: Resource Text Corruption
 // =============================================
 
-function getResourceTextCorruptionChance(state) {
+export function getResourceTextCorruptionChance(state) {
   var chance = 0;
   var food = state.food || 0;
   var light = state.lightLevel || 0;
@@ -24,7 +24,7 @@ function getResourceTextCorruptionChance(state) {
   return Math.min(0.6, chance);
 }
 
-function getResourceNarrative(state) {
+export function getResourceNarrative(state) {
   var texts = [];
   var food = state.food || 0;
   var light = state.lightLevel || 0;
@@ -47,7 +47,7 @@ function getResourceNarrative(state) {
  * High fatigue: text truncated (memory failure).
  * No food: desperation insertions.
  */
-function applyResourceTextCorruption(text, state) {
+export function applyResourceTextCorruption(text, state) {
   if (!text) return text;
   var chance = getResourceTextCorruptionChance(state);
   if (chance <= 0 || Math.random() > chance) return text;
@@ -109,7 +109,7 @@ function applyResourceTextCorruption(text, state) {
  * @param {object} state - game state
  * @returns {number} weight multiplier (0.3 - 2.0)
  */
-function getResourceEventWeightModifier(evt, state) {
+export function getResourceEventWeightModifier(evt, state) {
   var w = 1.0;
   var light = state.lightLevel || 0;
   var infection = state.infection || 0;
@@ -159,7 +159,7 @@ function getResourceEventWeightModifier(evt, state) {
 // SECTION 3: Daily Resource Processing
 // =============================================
 
-function processDailyResources(state) {
+export function processDailyResources(state) {
   // Declare food BEFORE use to avoid var-hoisting shadowing the starvation check
   var food = state.food || 0;
   var actions = state._dayActions || [];
@@ -194,7 +194,7 @@ function processDailyResources(state) {
 // SECTION 4: Safehouse 5-Stage Degradation System
 // =============================================
 
-var SAFEHOUSE_STAGES = [
+export var SAFEHOUSE_STAGES = [
   {
     stage: 0, corruption: [0, 15], name: '庇护所',
     description: '温暖、干燥、安全。壁炉里的火还在燃烧。至少现在是。',
@@ -227,7 +227,7 @@ var SAFEHOUSE_STAGES = [
   },
 ];
 
-var SAFEHOUSE_POLLUTION_EVENTS = [
+export var SAFEHOUSE_POLLUTION_EVENTS = [
   // Stage 1-2 events (mild unease)
   { minStage: 1, maxStage: 2, text: '你听到楼下的地板嘎吱了一声。你一个人住。', sanCost: 0 },
   { minStage: 1, maxStage: 3, text: '你的笔记本翻到了一页你没有写的笔记。字迹模仿得很像。但不是你的。', sanCost: 1 },
@@ -246,7 +246,7 @@ var SAFEHOUSE_POLLUTION_EVENTS = [
 /**
  * Get safehouse visual stage based on corruption level.
  */
-function getSafehouseVisualStage(corruption) {
+export function getSafehouseVisualStage(corruption) {
   for (var i = SAFEHOUSE_STAGES.length - 1; i >= 0; i--) {
     var s = SAFEHOUSE_STAGES[i];
     if (corruption >= s.corruption[0] && corruption <= s.corruption[1]) return s;
@@ -261,7 +261,7 @@ function getSafehouseVisualStage(corruption) {
  * @param {number} eventChanceOverride - override chance (optional)
  * @returns {object|null} pollution event or null
  */
-function getSafehousePollutionEvent(stage, eventChanceOverride) {
+export function getSafehousePollutionEvent(stage, eventChanceOverride) {
   var stageData = SAFEHOUSE_STAGES[Math.min(stage, SAFEHOUSE_STAGES.length - 1)];
   var chance = eventChanceOverride != null ? eventChanceOverride : stageData.eventChance;
   if (Math.random() >= chance) return null;

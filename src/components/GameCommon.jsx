@@ -2,13 +2,13 @@
 // StatBar, Modal, CollapsibleSection, NarrativeBlock
 // All use React hooks from global scope (useState, useEffect, memo, etc.)
 
-function StatBar({label,value,max,cls,colorMap}){
+export function StatBar({label,value,max,cls,colorMap}){
   const pct=max>0?(value/max)*100:0;
   const bg=colorMap?(pct>60?colorMap[0]:pct>30?colorMap[1]:colorMap[2]):undefined;
   return <div className={'stat-bar '+(cls||'')}><div className="bar-label"><span className="name">{label}</span><span className="val">{value}/{max}</span></div><div className="bar-track"><div className="bar-fill" style={bg?{width:pct+'%',background:bg}:{width:pct+'%'}}/></div></div>;
 }
 
-function Modal({open,onClose,title,children,width}){
+export function Modal({open,onClose,title,children,width}){
   useEffect(()=>{
     if(!open) return;
     const handler=e=>{if(e.key==='Escape')onClose();};
@@ -27,7 +27,7 @@ function Modal({open,onClose,title,children,width}){
   </div>;
 }
 
-function CollapsibleSection({title,count,defaultOpen,summary,children}){
+export function CollapsibleSection({title,count,defaultOpen,summary,children}){
   const [open,setOpen]=useState(defaultOpen||false);
   return <div className="dossier-section">
     <div className="dossier-section-title" onClick={()=>setOpen(!open)}>
@@ -40,7 +40,7 @@ function CollapsibleSection({title,count,defaultOpen,summary,children}){
   </div>;
 }
 
-const NarrativeBlock=memo(function NarrativeBlock({block}){
+export const NarrativeBlock=memo(function NarrativeBlock({block}){
   if(!block)return null;
   const isSanRecovery=block.type==='san-recovery';
   const mythosTypes=['超自然遭遇','怪物遭遇','神秘事件','mythos'];

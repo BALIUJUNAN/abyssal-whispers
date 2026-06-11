@@ -19,7 +19,7 @@ var _gameListeners = new Set();
  * @param {object} state - current game state
  * @param {function} dispatch - reducer dispatch function
  */
-function initGameStore(state, dispatch) {
+export function initGameStore(state, dispatch) {
   _gameStateRef.current = state;
   _gameDispatchRef.current = dispatch;
 }
@@ -28,7 +28,7 @@ function initGameStore(state, dispatch) {
  * Update the game store state reference. Call in useEffect or render.
  * @param {object} state - latest game state
  */
-function updateGameStore(state) {
+export function updateGameStore(state) {
   var prev = _gameStateRef.current;
   _gameStateRef.current = state;
   // Notify listeners if state reference changed
@@ -41,7 +41,7 @@ function updateGameStore(state) {
  * Get current game state (non-reactive, for use outside render).
  * @returns {object} current game state
  */
-function getGameState() {
+export function getGameState() {
   return _gameStateRef.current;
 }
 
@@ -49,7 +49,7 @@ function getGameState() {
  * Get game dispatch function.
  * @returns {function} dispatch
  */
-function getGameDispatch() {
+export function getGameDispatch() {
   return _gameDispatchRef.current;
 }
 
@@ -58,7 +58,7 @@ function getGameDispatch() {
  * @param {function} listener - callback on state change
  * @returns {function} unsubscribe function
  */
-function subscribeGameStore(listener) {
+export function subscribeGameStore(listener) {
   _gameListeners.add(listener);
   return function() { _gameListeners.delete(listener); };
 }
@@ -66,7 +66,7 @@ function subscribeGameStore(listener) {
 // === Selector Hooks ===
 // These can be used by components to subscribe to specific state slices.
 
-function useGameSelector(selector) {
+export function useGameSelector(selector) {
   var sel = selector || function(s) { return s; };
   return React.useSyncExternalStore(
     subscribeGameStore,
@@ -76,15 +76,15 @@ function useGameSelector(selector) {
 }
 
 // Common selectors for convenience
-function useSan() { return useGameSelector(function(s) { return s ? s.san : 60; }); }
-function useHp() { return useGameSelector(function(s) { return s ? s.hp : 0; }); }
-function useDay() { return useGameSelector(function(s) { return s ? s.day : 1; }); }
-function useAp() { return useGameSelector(function(s) { return s ? s.ap : 0; }); }
-function useCurrentArea() { return useGameSelector(function(s) { return s ? s.currentArea : ''; }); }
-function useScreen() { return useGameSelector(function(s) { return s ? s.screen : 'title'; }); }
-function useLoopCount() { return useGameSelector(function(s) { return s ? s.loopCount : 0; }); }
-function usePollution() { return useGameSelector(function(s) { return s ? (s.pollution || 0) : 0; }); }
-function useCorruption() { return useGameSelector(function(s) { return s ? (s.safehouseCorruption || 0) : 0; }); }
-function useFood() { return useGameSelector(function(s) { return s ? (s.food || 0) : 0; }); }
-function useMoney() { return useGameSelector(function(s) { return s ? (s.money || 0) : 0; }); }
+export function useSan() { return useGameSelector(function(s) { return s ? s.san : 60; }); }
+export function useHp() { return useGameSelector(function(s) { return s ? s.hp : 0; }); }
+export function useDay() { return useGameSelector(function(s) { return s ? s.day : 1; }); }
+export function useAp() { return useGameSelector(function(s) { return s ? s.ap : 0; }); }
+export function useCurrentArea() { return useGameSelector(function(s) { return s ? s.currentArea : ''; }); }
+export function useScreen() { return useGameSelector(function(s) { return s ? s.screen : 'title'; }); }
+export function useLoopCount() { return useGameSelector(function(s) { return s ? s.loopCount : 0; }); }
+export function usePollution() { return useGameSelector(function(s) { return s ? (s.pollution || 0) : 0; }); }
+export function useCorruption() { return useGameSelector(function(s) { return s ? (s.safehouseCorruption || 0) : 0; }); }
+export function useFood() { return useGameSelector(function(s) { return s ? (s.food || 0) : 0; }); }
+export function useMoney() { return useGameSelector(function(s) { return s ? (s.money || 0) : 0; }); }
 

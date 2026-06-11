@@ -72,7 +72,7 @@ export const AUDIO_PATHS={
 };
 
 // Area → ambient key mapping
-const AREA_AMBIENT_MAP={
+export const AREA_AMBIENT_MAP={
   town_center:'amb_town',
   harbor_district:'amb_harbor',
   lighthouse:'amb_lighthouse',
@@ -84,7 +84,7 @@ const AREA_AMBIENT_MAP={
   forbidden_grove:'amb_forest'
 };
 
-const SUDDEN_EFFECTS=['san_loss','san_loss_minor','san_loss_medium','san_loss_major','wall_break','madness','madness_loop','death_physical','death_mental','death_hybrid'];
+export const SUDDEN_EFFECTS=['san_loss','san_loss_minor','san_loss_medium','san_loss_major','wall_break','madness','madness_loop','death_physical','death_mental','death_hybrid'];
 
 export const audioManager={
   muted:false,suddenMuted:false,ambientEl:null,_volumeScale:1,

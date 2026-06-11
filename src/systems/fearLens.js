@@ -5,7 +5,7 @@
  * 恐惧类型 → 事件标签权重映射
  * primary: +20%~+30%, secondary: +8%~+15%, coping: +5%~+10%
  */
-const FEAR_TAG_MAP = {
+export const FEAR_TAG_MAP = {
   ocean: ['harbor_district', 'lighthouse', 'water', 'drowning', 'tide', 'salt', 'sea', 'harbor_deep'],
   body: ['fusion', 'wound', 'vessel', 'infection', 'flesh', 'mirror', 'possession'],
   control: ['meta', 'save', 'system', 'clock', 'map', 'locked_door', 'bell', 'thirteenth'],
@@ -14,7 +14,7 @@ const FEAR_TAG_MAP = {
   morality: ['humanity', 'food_choice', 'sacrifice', 'children', 'npc_help', 'redemption']
 };
 
-const COPING_TAG_MAP = {
+export const COPING_TAG_MAP = {
   avoidant: ['safe', 'retreat', 'ignore', 'close_eyes'],
   investigative: ['clue', 'examine', 'search', 'investigate'],
   social: ['npc', 'talk', 'trust', 'ally'],
@@ -30,7 +30,7 @@ const COPING_TAG_MAP = {
  * @param {object} event
  * @returns {string[]} 小写关键词数组
  */
-function extractEventKeywords(event) {
+export function extractEventKeywords(event) {
   const tags = event.tags || [];
   const type = event.type || event.event_classification || '';
   const subtype = event.subtype || '';
@@ -45,7 +45,7 @@ function extractEventKeywords(event) {
  * @param {string[]} tagList   - FEAR_TAG_MAP[key] 或 COPING_TAG_MAP[key]
  * @returns {boolean}
  */
-function keywordsMatchTagList(keywords, tagList) {
+export function keywordsMatchTagList(keywords, tagList) {
   return keywords.some(kw => tagList.some(tag => kw.includes(tag) || tag.includes(kw)));
 }
 
@@ -91,7 +91,7 @@ export function getFearEventWeightModifier(event, state) {
  * 恐惧镜头文本库
  * 在某些事件中追加1-2句倾向相关文本，不改变事件效果
  */
-const FEAR_LENSE_TEXTS = {
+export const FEAR_LENSE_TEXTS = {
   ocean: [
     '你闻到一点盐味。这里离海并不近。',
     '窗玻璃上有一道水痕。外面没有下雨。',
@@ -144,7 +144,7 @@ const FEAR_LENSE_TEXTS = {
  * @param {object} tuning - { primary, secondary, coping }
  * @returns {boolean}
  */
-function isEligibleForFearLens(event, tuning) {
+export function isEligibleForFearLens(event, tuning) {
   // --- 第一层：type / subtype 白名单 ---
   const eligibleTypes = [
     'area_event', 'mythos', 'resource', 'humanity',

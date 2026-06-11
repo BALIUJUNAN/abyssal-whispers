@@ -1,9 +1,9 @@
 // src/reducers/achievementReducer.js - 成就系统
 
-const ACH_KEY = 'coc_achievements';
-const ACH_VERSION = '1.0.0';
+export const ACH_KEY = 'coc_achievements';
+export const ACH_VERSION = '1.0.0';
 
-const ACHIEVEMENTS = [
+export const ACHIEVEMENTS = [
   { id: 'ach_first_step', name: '初入深渊', desc: '开始第一次调查', icon: '🔦', condition: (s, st) => st.total_runs >= 1 },
   { id: 'ach_brave_explorer', name: '无畏探索者', desc: '在一轮中探索全部9个区域', icon: '🗺️', condition: (s) => (s.visitedAreas || []).length >= 9 },
   { id: 'ach_seal_keeper', name: '封印守护者', desc: '修复封印', icon: '🔮', condition: (s) => s.ending?.id?.includes('keeper') || s.ending?.id?.includes('seal') },
@@ -26,7 +26,7 @@ const ACHIEVEMENTS = [
   { id: 'ach_collector', name: '收藏家', desc: '累计收集10件物品', icon: '📦', condition: (s, st) => st.items_collected >= 10 },
 ];
 
-function load() {
+export function load() {
   try {
     const raw = localStorage.getItem(ACH_KEY);
     if (!raw) return { unlocked: [], stats: defaultStats() };
@@ -37,11 +37,11 @@ function load() {
   }
 }
 
-function save(data) {
+export function save(data) {
   try { localStorage.setItem(ACH_KEY, JSON.stringify({ version: ACH_VERSION, ...data })); } catch (e) {}
 }
 
-function defaultStats() {
+export function defaultStats() {
   return { total_runs: 0, total_deaths: 0, madness_count: 0, night_survived: 0, items_collected: 0, run_combat: 0, run_npc_talks: 0, low_san_days: 0 };
 }
 

@@ -1,9 +1,9 @@
 // src/components/SanPollutionLayer.jsx - SAN visual corruption (SSOT, 6 stages)
 const { useEffect, useRef, useCallback, useState, memo } = React;
-const FPS_CAP = 15; const FRAME_MS = 1000 / FPS_CAP; const LERP = 0.06;
-function lerp(a, b, t) { return a + (b - a) * t; }
+export const FPS_CAP = 15; const FRAME_MS = 1000 / FPS_CAP; const LERP = 0.06;
+export function lerp(a, b, t) { return a + (b - a) * t; }
 var _noise = null;
-function getNoise(w, h) {
+export function getNoise(w, h) {
   if (_noise && _noise.width === w && _noise.height === h) return _noise;
   _noise = document.createElement('canvas'); _noise.width = w; _noise.height = h;
   var nc = _noise.getContext('2d'); var id = nc.createImageData(w, h); var d = id.data;
@@ -12,7 +12,7 @@ function getNoise(w, h) {
 }
 var _CLEAN_VIS = {saturation:0,vignette:0,scanline:0,noise:0,barrel_distortion:0,chromatic_aberration:0,rotation:0,text_shadow:false,text_tremble:false,glow:false};
 
-function getVisualForSan(san) {
+export function getVisualForSan(san) {
   var GD = (typeof window !== 'undefined' && window.GD) || {};
   var stages = (GD.systems && GD.systems.sanity && GD.systems.sanity.san_stages) || [];
   if (stages.length === 0) return {sat:0,vig:0,scan:0,noise:0,barrel:0,chroma:0,rot:0,shadow:false,tremble:false,glow:false,level:0};
@@ -40,7 +40,7 @@ function getVisualForSan(san) {
 }
 
 // === Canvas Renderer ===
-var SanPollutionLayer = memo(function SanPollutionLayer(props) {
+export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
   var san=props.san, loopCount=props.loopCount, corruption=props.corruption;
   var enabled=props.enabled, intensity=props.intensity;
   var canvasRef=useRef(null);
@@ -98,7 +98,7 @@ var SanPollutionLayer = memo(function SanPollutionLayer(props) {
 // === CorruptibleChoice: stage-aware hover corruption ===
 var _CG='█▓▒░▄▀▌▐■▬▲▼●○☼★';
 var _CP=[['探索','窥视'],['移动','爬行'],['交谈','低语'],['休息','放弃'],['深入','坠入'],['调查','挖掘'],['离开','逃跑'],['相信','服从'],['质疑','背叛'],['安全','暂时'],['选择','屈服']];
-var CorruptibleChoice=memo(function(props){
+export var CorruptibleChoice=memo(function(props){
   var children=props.children,san=props.san,onClick=props.onClick,className=props.className,disabled=props.disabled;
   var _l=useState(0);var level=_l[0],setLevel=_l[1];
   var hoverRef=useRef(false),tickRef=useRef(null),decayRef=useRef(null);
@@ -128,7 +128,7 @@ var CorruptibleChoice=memo(function(props){
 // === AbyssPopup ===
 var _AM=['你确定你在控制这个角色吗？','它在看着你读这段文字。','你的上一次循环也这么想的。','存档已被观察。','别回头。','你听到了吗？不是钟声。是呼吸。','第七层。还在吐司。','这个提示框不应该存在。'];
 var _MM=['你以为你还在控制吗？','欢迎回来。第几次了？','你的存档里多了一行字。不是你写的。','系统日志：玩家已被标记。','第十三声钟响。你还在吗？','安全屋的门从里面锁了。你没有锁它。'];
-function AbyssPopup(props){
+export function AbyssPopup(props){
   var san=props.san;var _v=useState(false);var visible=_v[0],setVisible=_v[1];
   var _m=useState('');var msg=_m[0],setMsg=_m[1];var timerRef=useRef(null);
   useEffect(function(){

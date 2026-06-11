@@ -7,7 +7,7 @@
 // 设计参考：Darkest Dungeon 的 Hamlet 地图 — 每个建筑/区域是一个锚点，
 // 点击后弹出该地点的功能界面（而非切换屏幕）。
 
-const TOWN_HOTSPOTS = [
+export const TOWN_HOTSPOTS = [
 
   // ─── 核心区域（9个） ────────────────────────────────────────
   {
@@ -201,11 +201,11 @@ const TOWN_HOTSPOTS = [
 // 直接使用 mapConstants.js 的 MAP_EDGES，无需重复定义
 
 // ─── 热点查找工具 ────────────────────────────────────────────
-function getHotspotById(id) {
+export function getHotspotById(id) {
   return TOWN_HOTSPOTS.find(h => h.id === id) || null;
 }
 
-function getVisibleHotspots(state) {
+export function getVisibleHotspots(state) {
   return TOWN_HOTSPOTS.filter(h => {
     // 区域热点：始终显示（但可能灰显/锁定）
     if (h.type === 'area') return true;
@@ -215,7 +215,7 @@ function getVisibleHotspots(state) {
   });
 }
 
-function isHotspotUnlocked(hotspot, state) {
+export function isHotspotUnlocked(hotspot, state) {
   if (hotspot.unlocked === true) return true;
   if (hotspot.unlocked === false) {
     // 使用 areaRegistry 的解锁逻辑
@@ -227,7 +227,7 @@ function isHotspotUnlocked(hotspot, state) {
   return true;
 }
 
-function getHotspotState(hotspot, state) {
+export function getHotspotState(hotspot, state) {
   if (hotspot.type !== 'area') return 'available';
   if (state.currentArea === hotspot.areaId) return 'current';
   if (!isHotspotUnlocked(hotspot, state)) return 'locked';

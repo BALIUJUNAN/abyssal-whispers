@@ -1,7 +1,7 @@
 // src/reducers/slices/darkSlice.js - Extracted from gameReducer
 // SELF_HARM, SPREAD_PROPHECY, CONSUME_ARCHIVE, SELF_SACRIFICE, DESECRATE, BREAK_SEAL
 
-function handleDarkAction(s, action, c) {
+export function handleDarkAction(s, action, c) {
   switch(action.type){
   case 'SELF_HARM':{
     if(s.ap<2){c.narr('system','行动点不足。');return s;}

@@ -1,7 +1,7 @@
 // src/data/registry/registryUtils.js — Generic registry helper factory.
 // Eliminates duplicated resolve/getName/has/migrate patterns across entity registries.
 
-function createRegistryHelpers(registry, opts) {
+export function createRegistryHelpers(registry, opts) {
   opts = opts || {};
   var nameToId = {};
   var aliasToId = {};

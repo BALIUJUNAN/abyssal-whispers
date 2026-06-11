@@ -1,7 +1,7 @@
 // src/utils/npcMemory.js - NPC loop memory data and logic (extracted from appHelpers.js)
 
 // === NPC Memory Lines (extracted from TALK_NPC in app.jsx to avoid per-call allocation) ===
-const NPC_MEMORY_LINES={
+export const NPC_MEMORY_LINES={
   '玛莎·格雷':{
     t1:['又来了……我是说，欢迎光临。','你上次来过。对吧？','你看起来很面熟。'],
     t2:['你这次又住几天？','别点啤酒了。你上次没喝完。','你是不是……每个月都来一次？'],
@@ -44,7 +44,7 @@ const NPC_MEMORY_LINES={
  * Handle NPC memory tier logic for loop >= 3. Returns lines to narrate or null.
  * Also mutates state for loop 10+ behavior memory.
  */
-function handleNpcMemoryTier(s, npc, narr){
+export function handleNpcMemoryTier(s, npc, narr){
   const loop = s.loopCount;
   if(loop < 3) return;
   const npcLines = NPC_MEMORY_LINES[npc.name];

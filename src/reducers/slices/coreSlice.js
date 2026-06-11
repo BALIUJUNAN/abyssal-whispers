@@ -1,7 +1,7 @@
 // src/reducers/slices/coreSlice.js - Extracted from gameReducer
 // START_GAME, SET_DIFFICULTY, SET_ARCHETYPE, ROLL_STATS, BEGIN_ADVENTURE, NEW_GAME, CONTINUE_GAME, SWITCH_SAFEHOUSE
 
-function handleCoreAction(s, action, c) {
+export function handleCoreAction(s, action, c) {
   switch(action.type){
   case 'START_GAME':s.screen='prologue';s.prologue=initPrologueState();s.fearTuning=null;s.skills=initSkills();return s;
   case 'SET_DIFFICULTY':s.difficulty=action.difficulty;return s;

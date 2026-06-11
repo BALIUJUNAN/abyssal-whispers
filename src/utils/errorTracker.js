@@ -14,7 +14,7 @@
  */
 
 // ═══ 配置 ═══
-const CONFIG = {
+export const CONFIG = {
   // 保留最近多少步操作（超出后截断旧记录）
   MAX_STEPS: 50,
   
@@ -34,7 +34,7 @@ let _stepCount = 0;        // 总步数
 /**
  * 创建错误追踪器实例
  */
-function createErrorTracker() {
+export function createErrorTracker() {
   _steps = [];
   _snapshots = [];
   _sessionStart = new Date().toISOString();
@@ -243,7 +243,7 @@ function createErrorTracker() {
 /**
  * 简化 action 对象为可读的一行字符串（避免过长）
  */
-function simplifyAction(action) {
+export function simplifyAction(action) {
   if (!action) return '(empty)';
   if (typeof action === 'string') return action.substring(0, 80);
   
@@ -275,7 +275,7 @@ function simplifyAction(action) {
 /**
  * 序列化 state（去除不可序列化字段如函数、DOM节点、循环引用）
  */
-function serializeState(state) {
+export function serializeState(state) {
   try {
     return JSON.stringify(state, (key, value) => {
       // 跳过函数和 React 元素
@@ -293,7 +293,7 @@ function serializeState(state) {
 /**
  * 根据错误和操作历史，生成人类可读的问题摘要
  */
-function generateSummary(error, steps) {
+export function generateSummary(error, steps) {
   const summaries = [];
   
   // 错误类型匹配
@@ -334,4 +334,3 @@ function generateSummary(error, steps) {
   return summaries;
 }
 
-export { createErrorTracker };

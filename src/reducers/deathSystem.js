@@ -6,7 +6,7 @@
 // =============================================
 
 // HP death types (body dies)
-const HP_DEATH_TYPES = {
+export const HP_DEATH_TYPES = {
   drowning:      { label: '溺水',   tags: ['water', 'harbor'] },
   bleeding:      { label: '失血',   tags: ['combat', 'wound'] },
   infection:     { label: '感染',   tags: ['infection', 'no_medicine'] },
@@ -17,7 +17,7 @@ const HP_DEATH_TYPES = {
 };
 
 // SAN death types (self dies)
-const SAN_DEATH_TYPES = {
+export const SAN_DEATH_TYPES = {
   madness:           { label: '疯狂',     tags: [] },
   possession:        { label: '附身',     tags: ['possession'] },
   identity_erasure:  { label: '身份抹除', tags: ['meta'] },
@@ -28,11 +28,11 @@ const SAN_DEATH_TYPES = {
 };
 
 // Hybrid (both HP and SAN zero)
-const HYBRID_DEATH_TYPES = {
+export const HYBRID_DEATH_TYPES = {
   body_and_self_lost: { label: '身心俱灭', tags: ['hybrid'] },
 };
 
-const ALL_DEATH_TYPES = { ...HP_DEATH_TYPES, ...SAN_DEATH_TYPES, ...HYBRID_DEATH_TYPES };
+export const ALL_DEATH_TYPES = { ...HP_DEATH_TYPES, ...SAN_DEATH_TYPES, ...HYBRID_DEATH_TYPES };
 
 // =============================================
 // Core: resolveDeath

@@ -4,7 +4,7 @@
 
 // === Text Hallucination ===
 // Substitutes keywords in event descriptions to create cognitive dissonance.
-const HALLUCINATION_PAIRS = [
+export const HALLUCINATION_PAIRS = [
   ['灯光', '火光'], ['门', '裂缝'], ['声音', '低语'],
   ['海', '血'], ['雾', '眼'], ['人影', '它'], ['脚步', '心跳'],
   ['安全', '暂时'], ['正常', '熟悉'], ['记忆', '假设'],
@@ -34,7 +34,7 @@ export function applyTextHallucination(text, san) {
 
 // === Fake Event Injection ===
 // At very low SAN, inject phantom narrative entries that the player didn't trigger.
-const FAKE_SYSTEM_MESSAGES = [
+export const FAKE_SYSTEM_MESSAGES = [
   '你记得这个地方。但你确定你没有来过。',
   '有人在你身后。你回头——没有人。但椅子的角度变了。',
   '你口袋里的笔记本翻到了一页你不记得写过的笔记。',
@@ -81,7 +81,7 @@ export function getChoiceDelay(san) {
 
 // === False Memory Insertion ===
 // At low SAN + high loop, insert memories that may or may not be real.
-const FALSE_MEMORIES = [
+export const FALSE_MEMORIES = [
   '你记得第 {day} 天你去过码头。但你的笔记本上没有记录。',
   '有人在你耳边说了什么。你转过头——没有人。但你记得那句话。你只是想不起来是什么。',
   '你的口袋里多了一张纸条。笔迹是你的。你不记得写过。',

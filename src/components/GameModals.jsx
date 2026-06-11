@@ -1,7 +1,7 @@
 // src/components/GameModals.jsx - Modal components extracted from app.jsx
 // SettingsModal, SaveLoadModal, AchievementGallery
 
-function SettingsModal({open,onClose,settings,onChange,onAchOpen,dispatch}){
+export function SettingsModal({open,onClose,settings,onChange,onAchOpen,dispatch}){
   const update=(key,val)=>onChange({...settings,[key]:val});
   const toggleA11y=(key)=>{const val=!settings[key];update(key,val);if(dispatch)dispatch({type:'ACCESSIBILITY_TOGGLE',key:key==='visualDistortion'?'visual_distortion':key==='flickerEffect'?'flicker_control':key,value:val});};
   return <Modal open={open} onClose={onClose} title="设置" width="400px">
@@ -88,7 +88,7 @@ function SettingsModal({open,onClose,settings,onChange,onAchOpen,dispatch}){
   </Modal>;
 }
 
-function SaveLoadModal({open,onClose,state,onLoad,mode,onSaved}){
+export function SaveLoadModal({open,onClose,state,onLoad,mode,onSaved}){
   const slots=getAllSlots();
   const autoSlots=slots.filter(s=>s.slotId.startsWith('auto'));
   const manualSlots=slots.filter(s=>s.slotId.startsWith('manual'));
@@ -134,7 +134,7 @@ function SaveLoadModal({open,onClose,state,onLoad,mode,onSaved}){
   </Modal>;
 }
 
-function AchievementGallery({open,onClose}){
+export function AchievementGallery({open,onClose}){
   const all=getAllAchievements();
   const data=loadAchievements();
   return <Modal open={open} onClose={onClose} title="成就" width="480px">

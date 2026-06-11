@@ -6,8 +6,8 @@ let _canvas = null;
 let _ctx = null;
 let _lastUpdate = 0;
 let _active = false;
-const FRAME_INTERVAL = 100; // 10fps
-const COOLDOWN_MS = 2000;   // 2s between major effect changes
+export const FRAME_INTERVAL = 100; // 10fps
+export const COOLDOWN_MS = 2000;   // 2s between major effect changes
 
 // Current effect targets (lerped for smooth transitions)
 let _curColorR = 0, _curColorG = 0, _curColorB = 0, _curColorA = 0;
@@ -32,7 +32,7 @@ export function initSanVisualOverlay() {
   _active = true;
 }
 
-function _resizeCanvas() {
+export function _resizeCanvas() {
   if (!_canvas) return;
   // Use device pixel ratio for crisp scan lines
   const dpr = Math.min(window.devicePixelRatio || 1, 2);

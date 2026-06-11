@@ -1,7 +1,7 @@
 // src/reducers/slices/uiSlice.js - Extracted from gameReducer
 // CHOICE_SELECT, DISMISS_PENDING, CLEAR_TRANSITION, AUDIO_MUTE_TOGGLE, ACCESSIBILITY_TOGGLE, GAMBLE_CHOICE, START_PROLOGUE, PROLOGUE_CHOICE, COMPLETE_PROLOGUE, DISMISS_GUIDE, SKIP_PROLOGUE
 
-function handleUiAction(s, action, c) {
+export function handleUiAction(s, action, c) {
   switch(action.type){
   case 'CHOICE_SELECT':{
     const pc=s.pendingChoice;if(!pc)return s;

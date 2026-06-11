@@ -2,7 +2,7 @@
 // LeftPanel, CenterPanel, RightPanel, EndingScreen, GameHeader
 // NPCDialog -> NPCDialog.jsx, CitySketchMap -> CitySketchMap.jsx
 
-const LeftPanel=memo(function LeftPanel({state}){
+export const LeftPanel=memo(function LeftPanel({state}){
   const seal=useMemo(()=>(GD.world?.seal_state_machine||[]).find(s=>s.id===state.sealState)||(GD.module8_time_schedule?.seal_state_machine?.states||[]).find(s=>s.id===state.sealState),[state.sealState]);
   const shStage=useMemo(()=>getSafehouseStage(state.safehouseCorruption,ctx),[state.safehouseCorruption]);
   // 快捷键 I：滚动到随身物件
@@ -61,7 +61,7 @@ const LeftPanel=memo(function LeftPanel({state}){
   </div>;
 })
 
-const CenterPanel=memo(function CenterPanel({state,dispatch}){
+export const CenterPanel=memo(function CenterPanel({state,dispatch}){
   const ref=useRef(null);
   const transitionTimer=useRef(null);
   const [forbiddenOpen,setForbiddenOpen]=useState(false);
@@ -237,7 +237,7 @@ const CenterPanel=memo(function CenterPanel({state,dispatch}){
   </div>;
 })
 
-const RightPanel=memo(function RightPanel({state,dispatch}){
+export const RightPanel=memo(function RightPanel({state,dispatch}){
   const [tab,setTab]=useState('map');
   // 快捷键事件监听：M切换地图，J切换线索
   useEffect(()=>{
@@ -315,7 +315,7 @@ const RightPanel=memo(function RightPanel({state,dispatch}){
   </div>;
 })
 
-function EndingScreen({ending,state,dispatch}){
+export function EndingScreen({ending,state,dispatch}){
   const tc=ending.type==='good'?'good':ending.type==='bad'?'bad':ending.type==='hidden'?'hidden':'neutral';
   const recap=ending.recap;
   const endingImage=ending.id?getEndingCgImage(ending.id):null;
@@ -391,7 +391,7 @@ function EndingScreen({ending,state,dispatch}){
   </div>;
 }
 
-function GameHeader({state,dispatch,areas,onSettingsOpen,onUgcOpen,onSaveOpen}){
+export function GameHeader({state,dispatch,areas,onSettingsOpen,onUgcOpen,onSaveOpen}){
   const area=areas.find(a=>a.id===state.currentArea);
   const areaName=area?getAreaDisplayName(area,state):state.currentArea;
   const sanStage=getSanStage(state.san,ctx);
