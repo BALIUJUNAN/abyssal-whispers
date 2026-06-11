@@ -1,7 +1,7 @@
 // src/reducers/eventReducer.js - Event selection, skill checks, triggers
 
 import { d100 } from './utils.js';
-import { getPhase } from './worldReducer.js';
+import { getPhase } from '../engine/WorldTimeSystem.js';
 import { checkTriggerExtended, selectEventV2 } from './extendedEvents.js';
 
 export function checkTrigger(evt, state) {

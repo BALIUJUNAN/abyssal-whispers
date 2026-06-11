@@ -3,7 +3,7 @@
 // Use getCurrentSanStage(san, ctx) to get the current stage for any SAN value.
 
 import { pick } from './utils.js';
-import { getSealState } from './worldReducer.js';
+import { getSealState } from '../engine/WorldTimeSystem.js';
 
 // getCurrentSanStage() is defined in utils.js (SSOT) — loaded before this file.
 

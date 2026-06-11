@@ -35,11 +35,11 @@ import * as _worldDecay from './systems/worldDecay.js';
 import * as _resourceNarrative from './systems/resourceNarrative.js';
 import * as _metaCorruption from './systems/metaCorruption.js';
 import * as _npcDialogue from './systems/npcDialogue.js';
-import * as _eventSystemV2 from './systems/eventSystemV2.js';
+// _eventSystemV2: removed (replaced by engine/EventEngine)
 import * as _fearProfile from './systems/fearProfile.js';
 import * as _fearLens from './systems/fearLens.js';
 import * as _sanVisualCorruption from './systems/sanVisualCorruption.js';
-import * as _logicCorruption from './systems/logicCorruption.js';
+// _logicCorruption: removed (replaced by engine/PollutionManager)
 
 // ── Reducers ──
 import * as _extendedEvents from './reducers/extendedEvents.js';
@@ -99,7 +99,6 @@ const MODULES = [
   _gameConstants, _initialState, _transientKeys, _uiStore, _gameStore,
   _worldTime, _sanReducer, _eventEngine, _pollutionMgr, _saveManager,
   _worldDecay, _resourceNarrative, _metaCorruption, _npcDialogue,
-  _eventSystemV2, _fearProfile, _fearLens, _sanVisualCorruption, _logicCorruption,
   _extendedEvents, _eventReducer, _miscReducer, _effectReducer, _endingReducer,
   _objectiveReducer, _saveMigration, _achievementReducer, _loopReducer,
   _chapterReducer, _conclusionReducer, _npcReducer, _deathSystem,

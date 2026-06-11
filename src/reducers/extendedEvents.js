@@ -17,7 +17,7 @@
 //   At bundle time, these are concatenated before this file in index.html.
 //   getEventWeight() uses typeof guards for optional dependencies.
 
-import { getPhase } from './worldReducer.js';
+import { getPhase } from '../engine/WorldTimeSystem.js';
 import { clamp } from './utils.js';
 import { shouldTriggerMissing600, createMissing600Event, MISSING_600_EVENT_ID } from '../data/events_missing_600.js';
 import { checkOmens } from '../data/events_omens_600.js';

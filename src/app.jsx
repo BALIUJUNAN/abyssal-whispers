@@ -7,7 +7,7 @@ import { produce } from 'immer';
 
 // ── Core reducers & systems ──
 import { rand, d100, d3, clamp, pick, rollDice, shuffle } from './reducers/utils.js';
-import { getPhase, getSealState, getSealStateId, getWeather, getAreaInfo, getConnectedAreas, getDistortedName } from './reducers/worldReducer.js';
+import { getPhase, getSealState, getSealStateId, getWeather, getAreaInfo, getConnectedAreas, getDistortedName } from './engine/WorldTimeSystem.js';
 import { getSanStage, getSanTextVariant, getSanSceneVariant, processSanLoss, rollMadness } from './reducers/sanReducer.js';
 import { getSafehouseStage, processSafehouseNight, getItemDef, useItemByDef, loadSettings, saveSettings } from './reducers/miscReducer.js';
 import { checkTrigger, selectEvent, doSkillCheck, getGambleOptions, processNormalAnchorEvent } from './reducers/eventReducer.js';
