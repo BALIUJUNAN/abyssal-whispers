@@ -3,13 +3,13 @@
 import { rand, d100, d3, clamp, pick, rollDice, shuffle } from './reducers/utils.js';
 import { getPhase, getSealState, getSealStateId, getWeather, getAreaInfo, getConnectedAreas, getDistortedName } from './reducers/worldReducer.js';
 import { getSanStage, getSanTextVariant, getSanSceneVariant, processSanLoss, rollMadness } from './reducers/sanReducer.js';
-import { getSafehouseStage, processSafehouseNight } from './reducers/safehouseReducer.js';
+import { getSafehouseStage, processSafehouseNight } from './reducers/miscReducer.js';
 import { checkTrigger, selectEvent, doSkillCheck, getGambleOptions, processNormalAnchorEvent } from './reducers/eventReducer.js';
 import { applyEffects, applyLegacyEffects } from './reducers/effectReducer.js';
-import { getItemDef, useItemByDef } from './reducers/itemReducer.js';
+import { getItemDef, useItemByDef } from './reducers/miscReducer.js';
 import { genObjectives, checkObjCompletion } from './reducers/objectiveReducer.js';
 import { saveGame, loadGame, clearSave, hasSave, getAllSlots, autoSave, manualSave, loadSlot, deleteSlotById, migrateOldSave, exportSave, importSave } from './reducers/saveReducer.js';
-import { loadSettings, saveSettings } from './reducers/settingsReducer.js';
+import { loadSettings, saveSettings } from './reducers/miscReducer.js';
 import { loadAchievements, saveAchievements, checkAchievements, getAchievementDef, getAllAchievements, incrementStat, resetRunStats } from './reducers/achievementReducer.js';
 import { getPollutionText, initLoopState } from './reducers/loopReducer.js';
 import { getChapterForDay, getMythosCap, getChapterAlias, checkChapterTransition, getMotifFlavorText, getMonsterManifestation } from './reducers/chapterReducer.js';
@@ -27,7 +27,7 @@ import { initPrologueState, handlePrologueChoice, handleSkipPrologue, getPrologu
 import { getFearEventWeightModifier, applyFearLens, getFearNpcLine, applyFearCorruption } from './systems/fearLens.js';
 // sanVisualCorruption.js replaced by SanPollutionLayer.jsx component
 import { applyTextHallucination, maybeGetFakeMessage, getChoiceDelay, maybeInsertFalseMemory, corruptEventWeights } from './systems/logicCorruption.js';
-import { UgcPanel } from './components/UgcImportExport.js';
+import { UgcPanel } from './components/UgcImportExport.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 /* [TRACKER-IMPORT] 测试期错误追踪模块 — 正式版删除此行即可移除 */
 import { createErrorTracker } from './utils/errorTracker.js';
