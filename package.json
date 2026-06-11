@@ -1,14 +1,21 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:legacy": "python build.py --no-babel",
+    "dev": "python build.py --dev",
+    "dev:vite": "vite",
+
     "build": "python build.py",
+    "build:single": "python build.py",
+    "build:single:dev": "python build.py --dev",
     "build:vite": "vite build",
+
+    "verify": "python build.py --verify",
     "preview": "vite preview",
+
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
+
     "test:missing600": "node src/data/test_missing_600.js",
     "lint:events": "node src/data/lint_extended_events.js"
   },
