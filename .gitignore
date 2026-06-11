@@ -48,3 +48,14 @@ dist-vite/
 # Operations log (local only, never commit)
 .ops-log.json
 OPS_LOG.md
+ops-log.cjs
+
+# Temporary / debug files
+_spl.json
+_write_spl.py
+_check.txt
+mistake.txt
+
+# Large raw assets (use WebP in assets/)
+*.png
+!assets/**/*.png
