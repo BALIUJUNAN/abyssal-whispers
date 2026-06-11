@@ -46,6 +46,10 @@ const uiStore = createUiStore({
   ugcOpen: false,
   settings: null, // loaded lazily via loadSettings()
   saveTick: 0,
+  // ── 暗黑地牢风格地图模式 ──
+  uiMode: 'town_map',       // 'town_map' | 'classic' — 地图模式 vs 经典模式
+  activeHotspot: null,       // 当前激活的热点 { id, type, data, ... }
+  activePanel: null,         // 当前面板类型: 'area_actions' | 'explore' | 'talk' | null
 });
 
 // Lazy-load settings on first access

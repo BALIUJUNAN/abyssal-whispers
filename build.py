@@ -156,6 +156,12 @@ REDUCER_FILES = [
     'components/AppToast.jsx',
     # UGC UI component
     'components/UgcImportExport.jsx',
+    # ── 暗黑地牢风格城镇地图系统 ──
+    'data/townHotspots.js',           # 热点数据结构（区域 + 建筑 + NPC点）
+    'components/InteractiveTownMap.jsx',  # 互动城镇全景地图（主界面）
+    'components/AreaPanelModal.jsx',      # 热点功能面板（点击后弹出）
+    'components/FloatingInfoBar.jsx',     # 浮动信息栏（HUD）
+    'components/GameLayout.jsx',          # 布局模式切换入口（地图/经典）
     # ── Dev Panel (debug tools) ──
     'components/ui/DevPanel.jsx',    # F12 / Ctrl+Shift+D debug panel
 ]

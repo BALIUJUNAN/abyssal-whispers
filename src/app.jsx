@@ -31,6 +31,12 @@ import { UgcPanel } from './components/UgcImportExport.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 /* [TRACKER-IMPORT] 测试期错误追踪模块 — 正式版删除此行即可移除 */
 import { createErrorTracker } from './utils/errorTracker.js';
+// 暗黑地牢风格城镇地图系统
+import { InteractiveTownMap, HotspotNode, MapPaths } from './components/InteractiveTownMap.js';
+import { AreaPanelModal } from './components/AreaPanelModal.js';
+import { FloatingInfoBar, NarrativeFloatingPanel } from './components/FloatingInfoBar.js';
+import { GameLayout } from './components/GameLayout.js';
+import { TOWN_HOTSPOTS, getVisibleHotspots, isHotspotUnlocked, getHotspotState } from './data/townHotspots.js';
 
 // GAME_DATA placeholder is replaced at build time (see line 33)
 
@@ -324,11 +330,8 @@ function App(){
     <DevPanel state={state} dispatch={dispatch}/>
     <SanPollutionLayer san={state.san} loopCount={state.loopCount} corruption={state.safehouseCorruption||0} enabled={state.screen==='game' && allowVisualFX} intensity={settings.visualPollution??50} interactionPollution={settings.interactionPollution??50} metaPollution={settings.metaPollution??50}/>
     <AbyssPopup san={state.san}/>
-    <div className={'game-layout '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+sanStageClass+' '+fontSizeClass}>
-      <GameHeader state={state} dispatch={dispatch} areas={areas} onSettingsOpen={()=>uiStore.setState({settingsOpen:true})} onUgcOpen={()=>uiStore.setState({ugcOpen:true})} onSaveOpen={()=>{uiStore.setState({saveLoadMode:'save',saveLoadOpen:true});}}/>
-      <LeftPanel state={state}/>
-      <CenterPanel state={state} dispatch={dispatch}/>
-      <RightPanel state={state} dispatch={dispatch}/>
+    <div className={'game-root '+(corrLevel>0?'corruption-'+corrLevel+' ':'')+sanClass+sanStageClass+' '+fontSizeClass}>
+      <GameLayout state={state} dispatch={dispatch} areas={areas} settings={settings}/>
     </div>
     <SettingsModal open={ui.settingsOpen} onClose={()=>uiStore.setState({settingsOpen:false})} settings={settings} onChange={handleSettingsChange} onAchOpen={()=>uiStore.setState({achOpen:true})} dispatch={dispatch}/>
     <SaveLoadModal open={ui.saveLoadOpen} onClose={()=>uiStore.setState({saveLoadOpen:false})} state={state} onLoad={handleLoadSlot} mode={ui.saveLoadMode} onSaved={notifySave}/>

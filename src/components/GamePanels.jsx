@@ -359,7 +359,7 @@ function EndingScreen({ending,state,dispatch}){
         </div>}
         {recap.npcTrustHighlights.length>0&&<div className="recap-section">
           <div className="recap-section-label">NPC关系</div>
-          {recap.npcTrustHighlights.map(([name,trust],i)=><div key={i} className="recap-section-item">{name}：{'★'.repeat(trust)}{'☆'.repeat(5-trust)}</div>)}
+          {recap.npcTrustHighlights.map(([name,trust],i)=>{const t=Math.max(0,Math.min(5,trust));return <div key={i} className="recap-section-item">{name}：{'★'.repeat(t)}{'☆'.repeat(5-t)}</div>;})}
         </div>}
         {recap.permanentUnlocks.length>0&&<div className="recap-section">
           <div className="recap-section-label">永久解锁</div>
