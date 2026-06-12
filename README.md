@@ -42,15 +42,15 @@ python -m http.server 8080
 ```bash
 # 从源码构建（需要 Rust + Node.js 环境）
 npm install
-npm run tauri build
+npm run tauri:build
 # 输出：src-tauri/target/release/abyssal-whispers_0.2.3_x64-setup.exe
 ```
 
 | 平台        | 状态          | 说明                  |
 | ----------- | ------------- | --------------------- |
 | **Windows** | ✅ 已验证     | NSIS 安装包，~10MB    |
-| **macOS**   | ⚠️ 需自行构建 | `npm run tauri build` |
-| **Linux**   | ⚠️ 需自行构建 | `npm run tauri build` |
+| **macOS**   | ⚠️ 需自行构建 | `npm run tauri:build` |
+| **Linux**   | ⚠️ 需自行构建 | `npm run tauri:build` |
 
 - 无需安装任何依赖，完全离线可玩
 - 手机 / 平板 / 桌面全平台响应式适配
