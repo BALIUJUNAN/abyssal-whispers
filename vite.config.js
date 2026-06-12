@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { renameSync, existsSync } from 'fs';
 
 // Dev-only plugin: redirect / to /dev.html so Vite processes dev.html
 // (with @vitejs/plugin-react preamble injection) instead of root index.html
@@ -22,8 +23,25 @@ function devHtmlPlugin() {
   };
 }
 
+// Build-only plugin: rename dev.html → index.html in output so preview
+// server can serve it at / without configuration.
+function renameOutputPlugin() {
+  return {
+    name: 'rename-output',
+    apply: 'build',
+    closeBundle() {
+      const outDir = resolve(__dirname, 'dist-vite');
+      const src = resolve(outDir, 'dev.html');
+      const dst = resolve(outDir, 'index.html');
+      if (existsSync(src)) {
+        renameSync(src, dst);
+      }
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), devHtmlPlugin()],
+  plugins: [react(), devHtmlPlugin(), renameOutputPlugin()],
   root: '.',
   publicDir: 'assets',
   server: {

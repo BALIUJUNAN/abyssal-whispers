@@ -1,9 +1,9 @@
 // src/portraitMap.js - 立绘/场景图片路径映射
 // 纯数据模块，零依赖，供 app.jsx 使用
 
-var PORTRAIT_BASE = 'assets/webp/';
+export var PORTRAIT_BASE = 'assets/webp/';
 
-var NPC_IMAGE_MAP = {
+export var NPC_IMAGE_MAP = {
   '伊莱亚斯·沃德':       { normal: '伊莱亚斯·沃德 正常.webp',       corrupted: '伊莱亚斯·沃德 污染.webp' },
   '玛莎·格雷':           { normal: '玛莎·格雷 正常.webp',           corrupted: '玛莎·格雷 污染.webp' },
   '约书亚·布莱克':       { normal: '约书亚·布莱克 正常.webp',       corrupted: '约书亚·布莱克 污染.webp' },
@@ -37,7 +37,7 @@ var NPC_IMAGE_MAP = {
   '伊斯残影':   { normal: '伊斯残影.webp',     corrupted: '伊斯残影.webp' },
 };
 
-var AREA_IMAGE_MAP = {
+export var AREA_IMAGE_MAP = {
   town_center: {
     default: '镇中心街道 白天.webp',
     night: '镇中心街道 深夜.webp',
@@ -81,7 +81,7 @@ var AREA_IMAGE_MAP = {
   }
 };
 
-var PLAYER_STATE_IMAGE = {
+export var PLAYER_STATE_IMAGE = {
   normal:   '我 正常.webp',
   injured:  '我 受伤.webp',
   polluted: '我 污染.webp',
@@ -93,7 +93,7 @@ var PLAYER_STATE_IMAGE = {
   escaped:  '我 逃脱.webp'
 };
 
-var EVENT_IMAGE_MAP = {
+export var EVENT_IMAGE_MAP = {
   'evt_seal_collapse':     '封印崩塌.webp',
   'evt_endless_stairs':    '无尽楼梯.webp',
   'evt_portraits_turn':    '肖像全部转头.webp',
@@ -166,7 +166,7 @@ var EVENT_IMAGE_MAP = {
  * Get NPC portrait. Accepts Chinese name or stable id.
  * Phase B compat: tries NPC_IMAGE_MAP (by name), then NPC_REGISTRY (by id → portrait).
  */
-function getNpcImage(npcInput, npcStates) {
+export function getNpcImage(npcInput, npcStates) {
   if (!npcInput) return null;
   var entry = null;
   var lookupKey = npcInput;
@@ -202,7 +202,7 @@ function getNpcImage(npcInput, npcStates) {
 /**
  * @param {object} view - { san, hp, maxHp, pollution, loopCount, madnessActive }
  */
-function getPlayerImage(view) {
+export function getPlayerImage(view) {
   if (!view) return PORTRAIT_BASE + PLAYER_STATE_IMAGE.normal;
   var key = 'normal';
   if (view.san < 20 || view.madnessActive) key = 'mad';
@@ -216,7 +216,7 @@ function getPlayerImage(view) {
  * @param {string} areaId
  * @param {object} view - { phase, visits, pollution } — 调用方从 state 提取
  */
-function getAreaSceneImage(areaId, view) {
+export function getAreaSceneImage(areaId, view) {
   if (!areaId) return null;
   var entry = AREA_IMAGE_MAP[areaId];
   if (!entry) return null;
@@ -232,14 +232,14 @@ function getAreaSceneImage(areaId, view) {
   return PORTRAIT_BASE + filename;
 }
 
-function getEventImage(eventId) {
+export function getEventImage(eventId) {
   if (!eventId) return null;
   var filename = EVENT_IMAGE_MAP[eventId];
   return filename ? PORTRAIT_BASE + filename : null;
 }
 
 // === 结局CG映射 (webp_ending/) ===
-var ENDING_CG_BASE = 'assets/webp_ending/';
+export var ENDING_CG_BASE = 'assets/webp_ending/';
 
 var ENDING_CG_MAP = {
   // Behavior endings (36)
