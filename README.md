@@ -286,8 +286,8 @@ React 18 + useReducer 全状态驱动 + 双 Store 架构 (useGameStore + useUiSt
   → 身份注册表（区域/物品/NPC 双格式 ESM+CJS，名称别名解析）
   → 数据验证器（效果/条件/引用三层校验，构建时 + 运行时）
   → 章节懒加载（ch2+ 在 day5 加载，meta 在 day10 加载）
-  → Babel JSX 编译 + CSS/JS minify → 单文件构建产物 index.html (~1.8MB)
-  → Vite 开发环境（HMR + 热更新 + 路径别名）
+  → Vite 主线构建（ESM + HMR + 热更新 + 路径别名）→ 多文件产物 dist-vite/
+  → Python 单文件构建（Babel JSX + CSS/JS minify）→ index.html (~1.8MB)
   → Tauri v2 打包 → 原生桌面应用 (~10MB)
 ```
 
@@ -295,11 +295,11 @@ React 18 + useReducer 全状态驱动 + 双 Store 架构 (useGameStore + useUiSt
 
 ```
 COC/
-├── index.html                # 构建产物（单文件 ~1.8MB）
-├── build.py                  # Python 构建脚本（--dev/--prod/--analyze/--verify）
-├── vite.config.js            # Vite 开发环境配置（HMR + 路径别名）
-├── dev.html                  # Vite 开发入口
-├── package.json              # npm scripts: dev / build / build:vite / tauri
+├── index.html                # Legacy 构建产物（单文件 ~1.8MB）
+├── build.py                  # Python 单文件构建脚本（--dev/--prod/--analyze/--verify）
+├── vite.config.js            # Vite 配置（dev server + build + 路径别名）
+├── dev.html                  # Vite 开发入口（dev server 通过 middleware 重定向）
+├── package.json              # npm scripts: dev / build / build:single / verify / tauri
 ├── game_base.json            # 主数据（构建时从 src/data/ 复制）
 ├── game_ch2plus.json         # 二周目+数据
 ├── game_meta.json            # Meta 层数据
@@ -308,12 +308,13 @@ COC/
 ├── audio/                    # 53 个音频文件（WAV + MP3）
 │
 ├── src/                      # 20,456 行 JS/JSX，104 个源文件
-│   ├── app.jsx               # 主入口（346 行 — 路由 + 双Store桥接 + 布局切换）
-│   ├── main.jsx              # Vite ES 模块入口
+│   ├── app.jsx               # 主入口（368 行 — 路由 + 双Store桥接 + 布局切换）
+│   ├── main.vite.jsx         # Vite 入口（加载 shim + 游戏数据 + 启动 app）
+│   ├── main.jsx              # Legacy 构建入口（Babel 环境）
+│   ├── vite-compat-shim.jsx  # Vite 兼容层（54 模块 globalThis 桥接）
 │   ├── styles.css            # 样式表（1,483 行）— 含 SAN 腐化动画 + 地图模式样式
-│   ├── portraitMap.js        # 图片路径映射（379 行）
-│   ├── game_data.json        # 构建时合并的完整游戏数据
-│   ├── index.template.html   # 构建模板（__INLINE_CSS__ / __INLINE_JS__ 占位符）
+│   ├── portraitMap.js        # 图片路径映射（379 行，ESM export）
+│   ├── index.template.html   # Legacy 构建模板（__INLINE_CSS__ / __INLINE_JS__ 占位符）
 │   │
 │   ├── engine/               # 4 个引擎模块（758 行）— 核心逻辑独立层
 │   │   ├── EventEngine.js          # 统一三层加权事件选择（373 行）
@@ -383,11 +384,9 @@ COC/
 │   │   ├── prologueReducer.js      # 前传系统（195 行）
 │   │   ├── sanReducer.js           # SAN 值变更与阶段判断（95 行）
 │   │   ├── npcReducer.js           # NPC 状态管理（158 行）
-│   │   ├── saveReducer.js          # 存档/读档（190 行）
 │   │   ├── saveMigration.js        # 存档版本迁移（187 行）
 │   │   ├── ugcReducer.js           # UGC 模组处理（265 行）
 │   │   ├── miscReducer.js          # 杂项 action 处理（115 行）
-│   │   ├── worldReducer.js         # 世界状态变更（97 行）
 │   │   ├── chapterReducer.js       # 章节转场（70 行）
 │   │   ├── achievementReducer.js   # 成就系统（90 行）
 │   │   ├── conclusionReducer.js    # 结局余韵（73 行）
@@ -395,13 +394,11 @@ COC/
 │   │   └── utils.js                # reducer 共用工具函数（50 行）
 │   │
 │   ├── systems/              # 9 个游戏系统（1,872 行）
-│   │   ├── eventSystemV2.js        # 三层事件选择（367 行）
 │   │   ├── fearLens.js             # 恐惧滤镜 — 文本+NPC对话（333 行）
 │   │   ├── fearProfile.js          # 恐惧画像系统（111 行）
 │   │   ├── resourceNarrative.js    # 资源-叙事绑定（271 行）
 │   │   │                           #   数据驱动 infection_risk
 │   │   ├── worldDecay.js           # 世界腐化推进（187 行）
-│   │   ├── logicCorruption.js      # 逻辑层腐化（151 行）
 │   │   ├── sanVisualCorruption.js  # SAN 视觉腐化系统（152 行）
 │   │   ├── npcDialogue.js          # NPC 对话系统（128 行）
 │   │   └── metaCorruption.js       # Meta 层腐化（73 行）
@@ -495,6 +492,8 @@ COC/
     ├── event_authoring.md          # 事件编写指南
     ├── event_template.jsonc        # 事件模板
     ├── effect_types.md             # 效果类型文档
+    ├── vite-smoke-checklist.md     # Vite 浏览器手动验收清单（9 步）
+    ├── maintenance-audit-baseline.md # 维护审计基线
     └── ERROR_TRACKER_REMOVAL.md    # Error Tracker 移除指南
 ```
 
@@ -580,28 +579,41 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
 # 安装依赖
 npm install
 
-# 开发模式（推荐）— Vite HMR 热更新
+# ── 主线（Vite） ──────────────────────────────────────
+
+# 开发模式 — Vite HMR 热更新
 npm run dev
 # 访问 http://localhost:3000
 
-# 生产构建 — 单文件 HTML
+# 生产构建 — 多文件产物
 npm run build
+# 输出：dist-vite/（index.html + assets/ + 游戏图片）
+
+# 预览生产构建
+npm run preview
+# 访问 http://localhost:4173
+
+# ── Legacy 单文件构建（Python） ──────────────────────
+
+# 单文件 HTML 构建（Babel JSX + CSS/JS minify）
+npm run build:single
 # 输出：index.html（~1.8MB）
 
-# 生产构建（要求 Babel 编译成功，否则失败）
-python build.py --prod
+# Legacy 开发模式（跳过 Babel 编译）
+npm run dev:legacy
 
-# 快速开发构建（跳过 Babel 编译）
-python build.py --dev
+# ── 验证 & 测试 ──────────────────────────────────────
+
+# 完整验证（单元测试 + Vite 构建 + Legacy 构建）
+npm run verify
+
+# 仅单元测试
+npm test
 
 # 包体积分析（按目录分类展示各模块大小）
 python build.py --analyze
 
-# 验证当前 index.html
-python build.py --verify
-
-# Vite 构建（实验性）
-npm run build:vite
+# ── 其他 ─────────────────────────────────────────────
 
 # 构建桌面版（需要 Rust）
 npm run tauri build
@@ -636,7 +648,7 @@ npm run test:missing600
 | **事件系统** | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents |
 | **SAN 系统** | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现 |
 | **子系统** | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk |
-| **构建流程** | **9.0/10** | ✅ --analyze/--dev/--prod 模式；注释安全删除 + token 边界保护 |
+| **构建流程** | **9.5/10** | ✅ Vite 主线（ESM + HMR）；Legacy 单文件保留；verify 覆盖双构建；注释安全删除 + token 边界保护 |
 | **开发体验** | **9.5/10** | ✅ DevPanel(F12) + 双Store选择器 + 三滑块SAN控制 + GAME_BALANCE 常量 |
 
 ### 架构优势
@@ -653,10 +665,12 @@ npm run test:missing600
 - ✅ **数据驱动设计** — 新增事件无需改reducer代码，只需添加JSON条目；危险区域用 `infection_risk` 标志
 - ✅ **身份注册表** — 区域/物品/NPC 统一注册（ESM+CJS双格式），名称别名双向解析
 - ✅ **数据验证器** — 效果/条件/引用三层校验器，构建时 + 运行时自动校验
+- ✅ **Vite 主线构建** — `npm run dev` / `npm run build` 使用 Vite，ESM 原生模块 + HMR 热更新 + 路径别名
 - ✅ **DevPanel调试** — F12一键打开，实时查看/修改游戏状态、事件权重、性能指标
 - ✅ **ctx 显式传参** — slice handler 通过参数接收上下文，可独立单元测试，无隐式全局依赖
 - ✅ **GAME_BALANCE 常量** — `src/state/gameConstants.js` 集中管理平衡参数，零散魔法数字已消除
 - ✅ **EXPLORE 分阶段** — 事件选择(`_selectExploreEvent`) + 效果应用(inline) + 后处理(`_postExploreProcessing`) 三阶段清晰分离
+- ✅ **slice handler 显式 import** — 所有 6 个 slice handler 具备完整 ESM import，不依赖 globalThis 桥接
 
 ---
 
@@ -664,6 +678,7 @@ npm run test:missing600
 
 | 版本 | 日期 | 主要更新 |
 |------|------|---------|
+| **0.3.0** | 2026-06-12 | **Vite 主线切换** — ①`npm run dev` / `npm run build` 切换为 Vite；②修复 14 个组件缺失 export + React hooks 未解构；③修复 SaveManager 相对路径、ugcSchema/gameConstants/transientKeys 缺少 export；④所有 6 个 slice handler 添加显式 import（~60 条）；⑤shim 从 60 模块缩减至 54；⑥`npm run verify` 同时覆盖测试 + Vite 构建 + Legacy 构建；⑦新增 `docs/vite-smoke-checklist.md`；⑧Legacy 构建通过 `build:single` / `dev:legacy` 保留 |
 | **0.2.3** | 2026-06-06 | **Bug 修复 + 体验增强** — ①修复开局 ROLL_STATS 可能产出 0 HP/SAN 的 bug；②修复成就弹窗 ReferenceError；③修复 `checkSingleCondition` 的 `default: return true` 导致任何解析失败的结局条件都会触发；④修复 Babel 编译器 JSON 字符串空格导致 NPC schedule 解析失败；⑤修复 `CONTINUE_GAME` 存档读取后 UI 不更新；⑥修复死亡动画遮挡"再次踏入轮回"按钮；⑦激活码头区 layout_variants 系统；⑧码头区氛围 CSS；⑨NPC 面板增强（肖像+对话）；⑩读档系统修复 |
 | **0.2.2** | 2026-06-04 | **运行时稳定性 + 构建安全 + 工程规范化** — ①修复 slice handler `ctx` 未传递导致 P0 崩溃；②修复 var 提升导致饥饿系统失效；③修复 build.py 注释删除 token 粘连导致白屏；④修复 Immer wrapper 被误删；⑤新增 GAME_BALANCE 常量集中化；⑥EXPLORE case 分解（-61%）；⑦triggeredEvents SSOT 守卫；⑧Accessibility toggle 同步；⑨数据驱动 infection_risk |
 | **0.2.1** | 2026-06-03 | **系统深化** — NPC 关系网 + 死后遗产；结局余韵 Afterglow；轮回平衡重做（SAN 阶梯式上限）；结局代币 + 轮回商店；Meta 事件真实后果；质量分层；Meta 频率门控；数据大幅扩展 |
