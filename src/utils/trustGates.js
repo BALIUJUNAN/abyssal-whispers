@@ -5,10 +5,10 @@ export function checkTrustGate(nextTrust, s, npcName) {
   const clues = s.clues || [];
   const chains = s.completedChains || [];
   const day = s.day || 1;
-  const harborVisits = (s.behaviorTracking?.harbor_visits) || 0;
+  const harborVisits = s.behaviorTracking?.harbor_visits || 0;
   const hasChain = (id) => chains.includes(id);
   const hasClue = (id) => hasClueId(clues, id);
-  const hasAnyClueFrom = (ids) => ids.some(id => hasClue(id));
+  const hasAnyClueFrom = (ids) => ids.some((id) => hasClue(id));
   const harborClues = ['clue_1_1', 'clue_1_2', 'clue_1_3'];
   const morrisClues = ['clue_m_1', 'clue_m_2', 'clue_m_3'];
   const heresyClues = ['clue_h_1', 'clue_h_2', 'clue_h_3'];
@@ -16,7 +16,11 @@ export function checkTrustGate(nextTrust, s, npcName) {
   // 伊莱亚斯·沃德 — 退休教授，神秘学家
   if (npcName === '伊莱亚斯·沃德') {
     if (nextTrust === 3) {
-      if (!visited.includes('lighthouse') && !visited.includes('catacombs_entrance') && clues.length < 1)
+      if (
+        !visited.includes('lighthouse') &&
+        !visited.includes('catacombs_entrance') &&
+        clues.length < 1
+      )
         return '你需要先去探索灯塔或墓穴入口，或找到一些线索，他才会愿意深谈。';
       return null;
     }
@@ -73,18 +77,15 @@ export function checkTrustGate(nextTrust, s, npcName) {
   // 希尔达·莫里斯 — 莫里斯家族继承人
   if (npcName === '希尔达·莫里斯') {
     if (nextTrust === 3) {
-      if (!visited.includes('voxchester_manor'))
-        return '你还没有去过沃切斯特庄园。去她的家看看。';
+      if (!visited.includes('voxchester_manor')) return '你还没有去过沃切斯特庄园。去她的家看看。';
       return null;
     }
     if (nextTrust === 4) {
-      if (!hasAnyClueFrom(morrisClues))
-        return '你需要在庄园里找到关于莫里斯家族的秘密线索。';
+      if (!hasAnyClueFrom(morrisClues)) return '你需要在庄园里找到关于莫里斯家族的秘密线索。';
       return null;
     }
     if (nextTrust === 5) {
-      if (!hasChain('chain_morris'))
-        return '你还没有揭开莫里斯家族诅咒的真相。完成这条线索链。';
+      if (!hasChain('chain_morris')) return '你还没有揭开莫里斯家族诅咒的真相。完成这条线索链。';
       return null;
     }
   }
@@ -92,18 +93,15 @@ export function checkTrustGate(nextTrust, s, npcName) {
   // 汤米·陈 — 杂货店老板，业余摄影师
   if (npcName === '汤米·陈') {
     if (nextTrust === 3) {
-      if (clues.length < 2)
-        return '他对你还不够信任。多收集一些线索再来。';
+      if (clues.length < 2) return '他对你还不够信任。多收集一些线索再来。';
       return null;
     }
     if (nextTrust === 4) {
-      if (visited.length < 3)
-        return '他想看看你是不是认真在调查。多探索几个区域。';
+      if (visited.length < 3) return '他想看看你是不是认真在调查。多探索几个区域。';
       return null;
     }
     if (nextTrust === 5) {
-      if (chains.length < 1)
-        return '他需要你完成一条线索链，才会把最重要的照片给你看。';
+      if (chains.length < 1) return '他需要你完成一条线索链，才会把最重要的照片给你看。';
       return null;
     }
   }
@@ -121,8 +119,7 @@ export function checkTrustGate(nextTrust, s, npcName) {
       return null;
     }
     if (nextTrust === 5) {
-      if (!hasChain('chain_heretical'))
-        return '你还没有揭开教堂异端仪式的真相。完成这条线索链。';
+      if (!hasChain('chain_heretical')) return '你还没有揭开教堂异端仪式的真相。完成这条线索链。';
       return null;
     }
   }
@@ -130,13 +127,11 @@ export function checkTrustGate(nextTrust, s, npcName) {
   // 老费舍 — 老渔夫，深潜者混血后裔
   if (npcName === '老费舍') {
     if (nextTrust === 3) {
-      if (!visited.includes('harbor_district'))
-        return '他只在码头附近活动。去码头区找他。';
+      if (!visited.includes('harbor_district')) return '他只在码头附近活动。去码头区找他。';
       return null;
     }
     if (nextTrust === 4) {
-      if (harborVisits < 2 && day < 4)
-        return '他需要看到你对码头的执着。多去几次，或者等到第4天。';
+      if (harborVisits < 2 && day < 4) return '他需要看到你对码头的执着。多去几次，或者等到第4天。';
       return null;
     }
     if (nextTrust === 5) {
@@ -149,13 +144,11 @@ export function checkTrustGate(nextTrust, s, npcName) {
   // 埃德加·洛夫克拉夫特 — 作家
   if (npcName === '埃德加·洛夫克拉夫特') {
     if (nextTrust === 3) {
-      if (clues.length < 1)
-        return '他是一个作家，需要素材。带一些线索来，他会更愿意交谈。';
+      if (clues.length < 1) return '他是一个作家，需要素材。带一些线索来，他会更愿意交谈。';
       return null;
     }
     if (nextTrust === 4) {
-      if (clues.length < 3)
-        return '他需要更多故事素材。收集更多线索。';
+      if (clues.length < 3) return '他需要更多故事素材。收集更多线索。';
       return null;
     }
     if (nextTrust === 5) {
@@ -167,5 +160,3 @@ export function checkTrustGate(nextTrust, s, npcName) {
 
   return null;
 }
-
-

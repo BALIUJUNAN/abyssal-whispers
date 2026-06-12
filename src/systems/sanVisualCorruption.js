@@ -7,10 +7,13 @@ let _ctx = null;
 let _lastUpdate = 0;
 let _active = false;
 export const FRAME_INTERVAL = 100; // 10fps
-export const COOLDOWN_MS = 2000;   // 2s between major effect changes
+export const COOLDOWN_MS = 2000; // 2s between major effect changes
 
 // Current effect targets (lerped for smooth transitions)
-let _curColorR = 0, _curColorG = 0, _curColorB = 0, _curColorA = 0;
+let _curColorR = 0,
+  _curColorG = 0,
+  _curColorB = 0,
+  _curColorA = 0;
 let _curScanlineA = 0;
 let _curTearChance = 0;
 
@@ -24,7 +27,8 @@ export function initSanVisualOverlay() {
   _canvas.id = 'san-corruption-canvas';
   _canvas.setAttribute('aria-hidden', 'true');
   // Style: fixed, full viewport, pointer-events none, above everything except modals
-  _canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9997;mix-blend-mode:multiply;opacity:0;transition:opacity 1.5s ease;';
+  _canvas.style.cssText =
+    'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9997;mix-blend-mode:multiply;opacity:0;transition:opacity 1.5s ease;';
   document.body.appendChild(_canvas);
   _ctx = _canvas.getContext('2d');
   _resizeCanvas();
@@ -98,13 +102,22 @@ export function updateSanVisualOverlay(san, loopCount, corruption) {
   _curColorA += (targetA - _curColorA) * lerp;
 
   if (_curColorA > 0.005) {
-    _ctx.fillStyle = 'rgba(' + Math.floor(_curColorR) + ',' + Math.floor(_curColorG) + ',' + Math.floor(_curColorB) + ',' + _curColorA.toFixed(3) + ')';
+    _ctx.fillStyle =
+      'rgba(' +
+      Math.floor(_curColorR) +
+      ',' +
+      Math.floor(_curColorG) +
+      ',' +
+      Math.floor(_curColorB) +
+      ',' +
+      _curColorA.toFixed(3) +
+      ')';
     _ctx.fillRect(0, 0, w, h);
   }
 
   // === Tier 2: Scan lines (SAN < 50) ===
   if (san < 50 || corruption >= 40) {
-    const targetScanA = Math.min(0.06, (50 - san) / 50 * 0.04 + corrFactor * 0.02);
+    const targetScanA = Math.min(0.06, ((50 - san) / 50) * 0.04 + corrFactor * 0.02);
     _curScanlineA += (targetScanA - _curScanlineA) * lerp;
 
     if (_curScanlineA > 0.003) {
@@ -122,7 +135,7 @@ export function updateSanVisualOverlay(san, loopCount, corruption) {
 
   // === Tier 3: Screen tearing (SAN < 30) ===
   if (san < 30) {
-    const tearChance = (30 - san) / 30 * 0.08;
+    const tearChance = ((30 - san) / 30) * 0.08;
     _curTearChance += (tearChance - _curTearChance) * lerp;
 
     if (Math.random() < _curTearChance) {
@@ -133,7 +146,7 @@ export function updateSanVisualOverlay(san, loopCount, corruption) {
       try {
         const imgData = _ctx.getImageData(0, Math.floor(sliceY), Math.floor(w), Math.floor(sliceH));
         _ctx.putImageData(imgData, Math.floor(shift), Math.floor(sliceY));
-      } catch(e) {
+      } catch (e) {
         // getImageData can fail on some browsers; silently ignore
       }
     }
@@ -143,7 +156,7 @@ export function updateSanVisualOverlay(san, loopCount, corruption) {
   if (san < 20) {
     const pulse = 0.5 + 0.5 * Math.sin(now * 0.002);
     const vigA = 0.1 + pulse * 0.15;
-    const gradient = _ctx.createRadialGradient(w/2, h/2, w*0.2, w/2, h/2, w*0.7);
+    const gradient = _ctx.createRadialGradient(w / 2, h / 2, w * 0.2, w / 2, h / 2, w * 0.7);
     gradient.addColorStop(0, 'rgba(0,0,0,0)');
     gradient.addColorStop(1, 'rgba(20,0,10,' + vigA.toFixed(3) + ')');
     _ctx.fillStyle = gradient;

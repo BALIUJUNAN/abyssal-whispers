@@ -1,19 +1,19 @@
 # Error Tracker 模块 — 移除指南
 
 > **设计原则**: 测试期调试工具，正式版发布前应完全移除
-> 
+>
 > **当前状态**: ✅ 已集成（测试期开启）
 
 ---
 
 ## 📋 快速检查清单
 
-| 步骤 | 操作 | 影响 | 预计时间 |
-|------|------|------|----------|
-| 1 | 删除 3 个标记代码块 | app.jsx 减少约 10 行 | **30秒** |
-| 2 | build.py 注释掉 1 行文件引用 | 产物减少 ~8KB | **10秒** |
-| 3 | `python build.py` 重新构建 | 生成干净版本 | **5秒** |
-| 4 | `node check_build.cjs` 验证 | 确认无残留 | **3秒** |
+| 步骤 | 操作                         | 影响                 | 预计时间 |
+| ---- | ---------------------------- | -------------------- | -------- |
+| 1    | 删除 3 个标记代码块          | app.jsx 减少约 10 行 | **30秒** |
+| 2    | build.py 注释掉 1 行文件引用 | 产物减少 ~8KB        | **10秒** |
+| 3    | `python build.py` 重新构建   | 生成干净版本         | **5秒**  |
+| 4    | `node check_build.cjs` 验证  | 确认无残留           | **3秒**  |
 
 ---
 
@@ -24,30 +24,39 @@
 搜索 `// [TRACKER]` 标记，删除以下 3 处：
 
 #### ❌ 删除位置 A：import 语句（第30行附近）
+
 ```javascript
 /* [TRACKER-IMPORT] 测试期错误追踪模块 — 正式版删除此行即可移除 */
-import { createErrorTracker } from './utils/errorTracker.js';  // ← 整行删掉
+import { createErrorTracker } from './utils/errorTracker.js'; // ← 整行删掉
 ```
 
 #### ❌ 删除位置 B：初始化代码（第38行附近）
+
 ```javascript
 /* [TRACKER-INIT] 初始化 — GD 之后，dispatch 之前 */
-const errorTracker = createErrorTracker();                      // ← 这2行都删掉
-if (typeof window !== 'undefined') { window.errorTracker = errorTracker; }
+const errorTracker = createErrorTracker(); // ← 这2行都删掉
+if (typeof window !== 'undefined') {
+  window.errorTracker = errorTracker;
+}
 ```
 
 #### ❌ 删除位置 C：dispatch 包装（第2919行附近）
+
 ```javascript
 /* [TRACKER-DISPATCH] 包装 dispatch — 自动记录每步操作 */
-const dispatch = useCallback((action) => {
-  errorTracker.record(action, state);                           // ← 改回原始版本：
-  return rawDispatch(action);                                    //   const dispatch=rawDispatch;
-}, [state]);                                                     //   （或直接删掉这4行）
+const dispatch = useCallback(
+  (action) => {
+    errorTracker.record(action, state); // ← 改回原始版本：
+    return rawDispatch(action); //   const dispatch=rawDispatch;
+  },
+  [state]
+); //   （或直接删掉这4行）
 ```
 
 **替换为：**
+
 ```javascript
-const dispatch = rawDispatch;  // 原始 dispatch，无追踪
+const dispatch = rawDispatch; // 原始 dispatch，无追踪
 ```
 
 ### 第2步：build.py 中注释掉文件引用（第96行）
@@ -72,7 +81,7 @@ node check_build.cjs               # 验证构建成功（应显示 10/10 PASS�
 
 ```javascript
 // 在 app.jsx 顶部（第34行之前）添加：
-const __ENABLE_ERROR_TRACKER__ = false;  // false = 完全禁用
+const __ENABLE_ERROR_TRACKER__ = false; // false = 完全禁用
 
 // 然后将所有 tracker 调用包裹在条件中：
 if (__ENABLE_ERROR_TRACKER__) {
@@ -81,10 +90,13 @@ if (__ENABLE_ERROR_TRACKER__) {
 }
 
 // dispatch 包装改为：
-const dispatch = useCallback((action) => {
-  if (__ENABLE_ERROR_TRACKER__) errorTracker.record(action, state);
-  return rawDispatch(action);
-}, [state]);
+const dispatch = useCallback(
+  (action) => {
+    if (__ENABLE_ERROR_TRACKER__) errorTracker.record(action, state);
+    return rawDispatch(action);
+  },
+  [state]
+);
 ```
 
 > **V8 引擎优化**：当 `__ENABLE_ERROR_TRACKER__` 为 `false` 时，
@@ -95,6 +107,7 @@ const dispatch = useCallback((action) => {
 ## 🔍 验证是否已完全移除
 
 ### 方法1：搜索残留代码
+
 ```bash
 # 应该找不到任何结果
 grep -r "errorTracker" dist/index.html
@@ -102,6 +115,7 @@ grep -r "createErrorTracker" src/app.jsx
 ```
 
 ### 方法2：对比构建产物大小
+
 ```bash
 # 当前（含 tracker）:
 ls -lh index.html          # 预计 ~2.00 MB
@@ -112,6 +126,7 @@ ls -lh index.html          # 应减少 ~8KB
 ```
 
 ### 方法3：功能测试
+
 - 打开游戏，触发一个错误（如控制台输入 `throw new Error('test')`）
 - ErrorBoundary 应显示基础错误页（**没有**「复制错误报告」按钮）
 - 控制台不应有 `[ErrorTracker]` 或 `[Tracker]` 日志
@@ -132,17 +147,20 @@ ls -lh index.html          # 应减少 ~8KB
 ## ⚠️ 注意事项
 
 ### 不影响的功能
+
 - ✅ 游戏核心逻辑（reducer/state/effects 全部独立）
 - ✅ ErrorBoundary 基础功能（即使没有 tracker，仍会捕获并显示错误）
 - ✅ 存档/读档/成就系统（与 tracker 无关）
 - ✅ 音频管理器/UI渲染/事件系统
 
 ### 可能的影响范围
+
 - ⚠️ 错误发生时无法自动收集「最近 30 步操作」上下文
 - ⚠️ 无法一键复制格式化错误报告给开发者
 - ⚠️ 玩家只能手动描述 bug 触发过程
 
 ### 性能影响（测试期）
+
 - **内存**：~50KB（保存最近 50 步操作 + state 快照）
 - **CPU**：每次 dispatch 多一次 `.record()` 调用（<0.1ms）
 - **产物大小**：+8KB（gzip 后 +2.5KB）
@@ -169,12 +187,12 @@ UI 显示: 错误页面的「📋 复制错误报告」按钮
 
 ## 🎯 最佳实践建议
 
-| 发布阶段 | 推荐配置 | 理由 |
-|----------|----------|------|
-| **Alpha 内测** | `__ENABLE_ERROR_TRACKER__ = true` | 收集早期 bug 报告 |
-| **Beta 公测** | `true`（但 CONFIG.MAX_STEPS 改为 20） | 平衡性能和信息量 |
-| **正式 v1.0** | **完全移除**（按上面3步） | 最小化产物，消除所有开销 |
-| **紧急补丁** | 临时恢复 | 收集特定 bug 的上下文 |
+| 发布阶段       | 推荐配置                              | 理由                     |
+| -------------- | ------------------------------------- | ------------------------ |
+| **Alpha 内测** | `__ENABLE_ERROR_TRACKER__ = true`     | 收集早期 bug 报告        |
+| **Beta 公测**  | `true`（但 CONFIG.MAX_STEPS 改为 20） | 平衡性能和信息量         |
+| **正式 v1.0**  | **完全移除**（按上面3步）             | 最小化产物，消除所有开销 |
+| **紧急补丁**   | 临时恢复                              | 收集特定 bug 的上下文    |
 
 ---
 

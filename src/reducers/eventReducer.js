@@ -41,17 +41,17 @@ export function selectEvent(areaId, state, ctx, pick) {
   const { GD } = ctx;
   const allEvents = GD.events || [];
   const areas = GD.areas || [];
-  const area = areas.find(a => a.id === areaId);
+  const area = areas.find((a) => a.id === areaId);
   const pool = area?.events_pool;
 
   let areaEvents;
   if (pool && pool.length > 0) {
     // Prioritize area's curated event pool
     areaEvents = pool
-      .map(id => allEvents.find(e => e.id === id))
-      .filter(e => e && checkTrigger(e, state));
+      .map((id) => allEvents.find((e) => e.id === id))
+      .filter((e) => e && checkTrigger(e, state));
   } else {
-    areaEvents = allEvents.filter(e => {
+    areaEvents = allEvents.filter((e) => {
       if (!e.trigger || !e.trigger.areas) return false;
       return e.trigger.areas.includes(areaId) && checkTrigger(e, state);
     });
@@ -74,7 +74,7 @@ export function selectEvent(areaId, state, ctx, pick) {
   const normalRatio = isChapter1 && vs ? (parseFloat(vs.normal_ratio) || 40) / 100 : 0;
 
   const weighted = [];
-  areaEvents.forEach(e => {
+  areaEvents.forEach((e) => {
     const evtType = e.event_classification || e.type;
     const isAbnormal = abnormalTypes.includes(evtType);
     const isNormal = ['正常事件', 'NPC对话', '轻微异常'].includes(evtType);
@@ -87,16 +87,19 @@ export function selectEvent(areaId, state, ctx, pick) {
     const count = Math.max(1, Math.round(prob * 10 * lightPenalty));
     for (let i = 0; i < count; i++) weighted.push(e);
   });
-  const untriggered = weighted.filter(e => !state.triggeredEvents.includes(e.id));
+  const untriggered = weighted.filter((e) => !state.triggeredEvents.includes(e.id));
   const selected = untriggered.length > 0 && Math.random() < 0.6 ? untriggered : weighted;
   return pick(selected);
 }
 
 export function doSkillCheck(skillName, threshold, state, difficulty, ctx) {
   const { GD } = ctx;
-  const tempBonus = (state.tempSkillBonus && state.tempSkillBonus.skill === skillName) ? state.tempSkillBonus.bonus : 0;
+  const tempBonus =
+    state.tempSkillBonus && state.tempSkillBonus.skill === skillName
+      ? state.tempSkillBonus.bonus
+      : 0;
   // Starvation penalty: Day2=-5, Day3+=-10
-  const starvePenalty = (state.starvationDays >= 3) ? -10 : (state.starvationDays === 2) ? -5 : 0;
+  const starvePenalty = state.starvationDays >= 3 ? -10 : state.starvationDays === 2 ? -5 : 0;
   const playerSkill = (state.skills[skillName] || 0) + tempBonus + starvePenalty;
   const roll = d100();
   const dl = GD.core_loop?.difficulty_levels?.[difficulty] || {};
@@ -122,11 +125,22 @@ export function processNormalAnchorEvent(evt, state) {
   if (!evt.normalcy_anchor) return { sanGain: 0, text: '' };
   let sanGain = 0;
   let text = '';
-  if (evt.id === 'evt_ch1_martha_polish') { sanGain = 1; text = '与玛莎闲聊让你暂时忘记了恐惧。SAN +1'; }
-  else if (evt.id === 'evt_ch1_church_organ') { sanGain = 1; text = '风琴声让你的心绪平静了下来。SAN +1'; }
-  else if (evt.id === 'evt_ch1_fisher_mending') { text = '老费舍的建议让你对码头的夜晚有所准备。当晚码头事件风险降低。'; state.harborRiskReduction = (state.harborRiskReduction || 0) + 0.1; }
-  else if (evt.id === 'evt_ch1_tommy_photo') { text = '汤米的照片提供了侦查线索。侦查检定临时+2。'; state.tempSkillBonus = { skill: '侦查', bonus: 2, days: 1 }; }
-  else if (evt.id === 'evt_ch1_cat_stare') { text = '那只猫让你紧绷的神经放松了一些。疲劳 -1。'; }
-  else { sanGain = 0; }
+  if (evt.id === 'evt_ch1_martha_polish') {
+    sanGain = 1;
+    text = '与玛莎闲聊让你暂时忘记了恐惧。SAN +1';
+  } else if (evt.id === 'evt_ch1_church_organ') {
+    sanGain = 1;
+    text = '风琴声让你的心绪平静了下来。SAN +1';
+  } else if (evt.id === 'evt_ch1_fisher_mending') {
+    text = '老费舍的建议让你对码头的夜晚有所准备。当晚码头事件风险降低。';
+    state.harborRiskReduction = (state.harborRiskReduction || 0) + 0.1;
+  } else if (evt.id === 'evt_ch1_tommy_photo') {
+    text = '汤米的照片提供了侦查线索。侦查检定临时+2。';
+    state.tempSkillBonus = { skill: '侦查', bonus: 2, days: 1 };
+  } else if (evt.id === 'evt_ch1_cat_stare') {
+    text = '那只猫让你紧绷的神经放松了一些。疲劳 -1。';
+  } else {
+    sanGain = 0;
+  }
   return { sanGain, text };
 }

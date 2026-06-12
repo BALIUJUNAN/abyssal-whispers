@@ -19,24 +19,24 @@ function createRegistryHelpers(registry, opts) {
     nameToId: nameToId,
     aliasToId: aliasToId,
 
-    resolveId: function(input) {
+    resolveId: function (input) {
       if (!input) return input;
       if (registry[input]) return input;
       return nameToId[input] || aliasToId[input] || input;
     },
 
-    getName: function(input) {
+    getName: function (input) {
       var id = this.resolveId(input);
       return (registry[id] && registry[id].name) || input;
     },
 
-    has: function(input) {
+    has: function (input) {
       var id = this.resolveId(input);
       return !!registry[id];
     },
 
     // Migrate an object's keys from Chinese name/alias to id.
-    migrateKeys: function(obj) {
+    migrateKeys: function (obj) {
       if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
       var next = {};
       for (var key in obj) {
@@ -48,17 +48,19 @@ function createRegistryHelpers(registry, opts) {
     },
 
     // Migrate an array of items (strings or {id/name} objects).
-    migrateArray: function(arr, nameField) {
+    migrateArray: function (arr, nameField) {
       if (!Array.isArray(arr)) return arr;
       var self = this;
       nameField = nameField || 'name';
-      return arr.map(function(item) {
+      return arr.map(function (item) {
         if (typeof item === 'string') return self.resolveId(item);
         if (item && typeof item === 'object') {
           var raw = item.id || item[nameField];
           var resolved = self.resolveId(raw);
           var copy = {};
-          for (var k in item) { if (Object.prototype.hasOwnProperty.call(item, k)) copy[k] = item[k]; }
+          for (var k in item) {
+            if (Object.prototype.hasOwnProperty.call(item, k)) copy[k] = item[k];
+          }
           copy.id = resolved;
           if (copy[nameField]) copy[nameField] = self.getName(resolved);
           return copy;
@@ -68,15 +70,19 @@ function createRegistryHelpers(registry, opts) {
     },
 
     // Get all registered ids.
-    allIds: function() { return Object.keys(registry); },
+    allIds: function () {
+      return Object.keys(registry);
+    },
 
     // Get all registered names.
-    allNames: function() {
+    allNames: function () {
       var names = [];
       for (var id in registry) names.push(registry[id].name);
       return names;
-    }
+    },
   };
 }
 
-try { module.exports = { createRegistryHelpers }; } catch(e) {}
+try {
+  module.exports = { createRegistryHelpers };
+} catch (e) {}

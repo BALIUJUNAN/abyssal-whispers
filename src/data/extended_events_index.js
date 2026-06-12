@@ -47,28 +47,28 @@ export const EXTENDED_EVENT_STATS = {
     resource_pressure: resourceEvents.length,
     npc_cross: npcCrossEvents.length,
     area_deep: areaDeepEvents.length,
-    ending_omen: endingEvents.filter(e => e.subtype === 'omen' || e.subtype === 'cross').length,
-    ending_aftermath: endingEvents.filter(e => e.subtype === 'aftermath').length,
+    ending_omen: endingEvents.filter((e) => e.subtype === 'omen' || e.subtype === 'cross').length,
+    ending_aftermath: endingEvents.filter((e) => e.subtype === 'aftermath').length,
     silent: silentEvents.length,
     meta: metaEvents.length,
   },
   byTier: {
-    normal: ALL_EXTENDED_EVENTS.filter(e => e.tier === 'normal').length,
-    rare: ALL_EXTENDED_EVENTS.filter(e => e.tier === 'rare').length,
-    signature: ALL_EXTENDED_EVENTS.filter(e => e.tier === 'signature').length,
-    meta: ALL_EXTENDED_EVENTS.filter(e => e.tier === 'meta').length,
+    normal: ALL_EXTENDED_EVENTS.filter((e) => e.tier === 'normal').length,
+    rare: ALL_EXTENDED_EVENTS.filter((e) => e.tier === 'rare').length,
+    signature: ALL_EXTENDED_EVENTS.filter((e) => e.tier === 'signature').length,
+    meta: ALL_EXTENDED_EVENTS.filter((e) => e.tier === 'meta').length,
   },
 };
 
 // 验证事件ID唯一性
-const ids = ALL_EXTENDED_EVENTS.map(e => e.id);
+const ids = ALL_EXTENDED_EVENTS.map((e) => e.id);
 const uniqueIds = new Set(ids);
 if (uniqueIds.size !== ids.length) {
   // duplicate IDs silently ignored (last-write-wins)
 }
 
 // 验证所有事件有必需字段
-const missingFields = ALL_EXTENDED_EVENTS.filter(e => !e.id || !e.name || !e.type || !e.trigger);
+const missingFields = ALL_EXTENDED_EVENTS.filter((e) => !e.id || !e.name || !e.type || !e.trigger);
 if (missingFields.length > 0) {
   // incomplete events silently skipped
 }

@@ -7,15 +7,32 @@ import { NPCDialog } from './NPCDialog.jsx';
 
 export function FloatingInfoBar({ state, dispatch }) {
   const areas = GD.areas || GD.module2_areas || [];
-  const area = areas.find(a => a.id === state.currentArea);
+  const area = areas.find((a) => a.id === state.currentArea);
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
   const sanStage = getSanStage(state.san, ctx);
-  const sanClass = state.san >= 80 ? 'stable' : state.san >= 60 ? 'tense' : state.san >= 40 ? 'shaken' : state.san >= 20 ? 'critical' : 'abyssal';
-  const sealLabel = state.sealState === 'intact' ? '完整' : state.sealState === 'weakening' ? '削弱' : state.sealState === 'critical' ? '危急' : state.sealState === 'collapsing' ? '崩塌' : '破裂';
+  const sanClass =
+    state.san >= 80
+      ? 'stable'
+      : state.san >= 60
+        ? 'tense'
+        : state.san >= 40
+          ? 'shaken'
+          : state.san >= 20
+            ? 'critical'
+            : 'abyssal';
+  const sealLabel =
+    state.sealState === 'intact'
+      ? '完整'
+      : state.sealState === 'weakening'
+        ? '削弱'
+        : state.sealState === 'critical'
+          ? '危急'
+          : state.sealState === 'collapsing'
+            ? '崩塌'
+            : '破裂';
 
   return (
     <div className="floating-info-bar">
-
       {/* 左侧：位置 + 时间 */}
       <div className="finfo-left">
         <div className="finfo-location">
@@ -36,21 +53,30 @@ export function FloatingInfoBar({ state, dispatch }) {
           <div className={'finfo-bar san ' + sanClass}>
             <span className="finfo-bar-label">精神</span>
             <div className="finfo-bar-track">
-              <div className="finfo-bar-fill" style={{ width: (state.san / state.maxSan * 100) + '%' }} />
+              <div
+                className="finfo-bar-fill"
+                style={{ width: (state.san / state.maxSan) * 100 + '%' }}
+              />
             </div>
             <span className="finfo-bar-value">{state.san}</span>
           </div>
           <div className="finfo-bar hp">
             <span className="finfo-bar-label">生命</span>
             <div className="finfo-bar-track">
-              <div className="finfo-bar-fill" style={{ width: (state.hp / state.maxHp * 100) + '%' }} />
+              <div
+                className="finfo-bar-fill"
+                style={{ width: (state.hp / state.maxHp) * 100 + '%' }}
+              />
             </div>
             <span className="finfo-bar-value">{state.hp}</span>
           </div>
           <div className="finfo-bar ap">
             <span className="finfo-bar-label">行动</span>
             <div className="finfo-bar-track">
-              <div className="finfo-bar-fill" style={{ width: (state.ap / state.maxAp * 100) + '%' }} />
+              <div
+                className="finfo-bar-fill"
+                style={{ width: (state.ap / state.maxAp) * 100 + '%' }}
+              />
             </div>
             <span className="finfo-bar-value">{state.ap}</span>
           </div>
@@ -59,14 +85,46 @@ export function FloatingInfoBar({ state, dispatch }) {
 
       {/* 右侧：快捷操作 */}
       <div className="finfo-right">
-        <span className="finfo-pill food">⻝ {state.food || 0}/{state.maxFood || 5}</span>
+        <span className="finfo-pill food">
+          ⻝ {state.food || 0}/{state.maxFood || 5}
+        </span>
         <span className="finfo-pill money">💰 {state.money || 0}</span>
         <span className={'finfo-pill seal seal-' + state.sealState}>封印：{sealLabel}</span>
         <span className="finfo-pill clue">线索 {state.clues.length}</span>
-        <button className="finfo-btn" onClick={() => uiStore.setState({ settingsOpen: true })} title="设置">⚙</button>
-        <button className="finfo-btn" onClick={() => { uiStore.setState({ saveLoadMode: 'save', saveLoadOpen: true }); }} title="存档">💾</button>
-        <button className="finfo-btn" onClick={() => { uiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true }); }} title="读档">📖</button>
-        <button className="finfo-btn" onClick={() => { uiStore.setState({ uiMode: 'classic' }); }} title="切换经典模式">☷</button>
+        <button
+          className="finfo-btn"
+          onClick={() => uiStore.setState({ settingsOpen: true })}
+          title="设置"
+        >
+          ⚙
+        </button>
+        <button
+          className="finfo-btn"
+          onClick={() => {
+            uiStore.setState({ saveLoadMode: 'save', saveLoadOpen: true });
+          }}
+          title="存档"
+        >
+          💾
+        </button>
+        <button
+          className="finfo-btn"
+          onClick={() => {
+            uiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true });
+          }}
+          title="读档"
+        >
+          📖
+        </button>
+        <button
+          className="finfo-btn"
+          onClick={() => {
+            uiStore.setState({ uiMode: 'classic' });
+          }}
+          title="切换经典模式"
+        >
+          ☷
+        </button>
       </div>
     </div>
   );
@@ -90,21 +148,34 @@ export function NarrativeFloatingPanel({ state, dispatch }) {
   }, [state.narrative?.length, expanded]);
 
   // 待处理事件（技能检定、NPC对话、选择等）
-  const hasPending = state.pendingEvent?.rolled || state.pendingNpc || state.pendingGamble || state.pendingChoice || state.ending;
+  const hasPending =
+    state.pendingEvent?.rolled ||
+    state.pendingNpc ||
+    state.pendingGamble ||
+    state.pendingChoice ||
+    state.ending;
 
   if (!expanded && !hasPending && recentNarrative.length === 0) return null;
 
   return (
-    <div className={'narrative-floating-panel' + (expanded ? ' expanded' : '') + (hasPending ? ' has-pending' : '')}>
+    <div
+      className={
+        'narrative-floating-panel' +
+        (expanded ? ' expanded' : '') +
+        (hasPending ? ' has-pending' : '')
+      }
+    >
       {/* 折叠按钮 */}
-      <button className="narrative-toggle" onClick={() => setExpanded(v => !v)}>
+      <button className="narrative-toggle" onClick={() => setExpanded((v) => !v)}>
         {expanded ? '▼ 收起叙述' : '▲ 展开叙述'} ({state.narrative.length})
       </button>
 
       {/* 叙述内容 */}
       {expanded && (
         <div className="narrative-floating-content" ref={panelRef}>
-          {state.narrative.map(b => <NarrativeBlock key={b.id} block={b} />)}
+          {state.narrative.map((b) => (
+            <NarrativeBlock key={b.id} block={b} />
+          ))}
         </div>
       )}
 
@@ -114,24 +185,46 @@ export function NarrativeFloatingPanel({ state, dispatch }) {
           {state.pendingEvent?.rolled && (
             <div className="skill-check">
               <div className="roll-result">
-                <div className={'roll-num ' + (state.pendingEvent.result === 'success' ? 'success' : 'fail')}>
-                  {state.pendingEvent.roll} / 技能{state.pendingEvent.playerSkill} / 难度{state.pendingEvent.threshold}
+                <div
+                  className={
+                    'roll-num ' + (state.pendingEvent.result === 'success' ? 'success' : 'fail')
+                  }
+                >
+                  {state.pendingEvent.roll} / 技能{state.pendingEvent.playerSkill} / 难度
+                  {state.pendingEvent.threshold}
                 </div>
-                <div className={state.pendingEvent.result === 'success' ? 'result-success' : 'result-fail'}>
+                <div
+                  className={
+                    state.pendingEvent.result === 'success' ? 'result-success' : 'result-fail'
+                  }
+                >
                   {state.pendingEvent.result === 'success' ? '成功！' : '失败！'}
                 </div>
               </div>
-              <button className="btn btn-sm" onClick={() => dispatch({ type: 'DISMISS_PENDING' })}>继续</button>
+              <button className="btn btn-sm" onClick={() => dispatch({ type: 'DISMISS_PENDING' })}>
+                继续
+              </button>
             </div>
           )}
           {state.pendingNpc && (
-            <NPCDialog npc={state.pendingNpc.npc} trust={state.pendingNpc.trust} layer={state.pendingNpc.layer} dispatch={dispatch} state={state} />
+            <NPCDialog
+              npc={state.pendingNpc.npc}
+              trust={state.pendingNpc.trust}
+              layer={state.pendingNpc.layer}
+              dispatch={dispatch}
+              state={state}
+            />
           )}
           {state.pendingChoice && (
             <div className="skill-check">
               <div className="check-title">选择</div>
               {state.pendingChoice.choices.map((ch, i) => (
-                <CorruptibleChoice key={i} className="btn btn-sm" san={state.san} onClick={() => dispatch({ type: 'CHOICE_SELECT', choiceIdx: i })}>
+                <CorruptibleChoice
+                  key={i}
+                  className="btn btn-sm"
+                  san={state.san}
+                  onClick={() => dispatch({ type: 'CHOICE_SELECT', choiceIdx: i })}
+                >
                   {ch.label}
                 </CorruptibleChoice>
               ))}

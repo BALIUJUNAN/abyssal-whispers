@@ -2,15 +2,21 @@
 // False events, false logs, save name pollution at low SAN
 // Makes the player feel "the game is playing me"
 
-export var META_CORRUPTION_CHANCE = 0.20; // 20% per REST at SAN < 25
+export var META_CORRUPTION_CHANCE = 0.2; // 20% per REST at SAN < 25
 
 export var FALSE_EVENTS = [
-  {text:'你听到了敲门声。你打开门，没有人。但门框上多了一行字：「第零天」。',prefix:'[系统错误]'},
-  {text:'你的笔记本翻到了一页你不记得写过的笔记。字迹是你的。内容是你明天会做的事。',prefix:'[记忆碎片]'},
-  {text:'你抬头看了一眼安全屋的钟。时间在倒流。你确定刚才不是三点。',prefix:'[时序异常]'},
-  {text:'你听到了自己的声音从墙里传出来。说的不是你说过的话。',prefix:'[回声]'},
-  {text:'你看到窗外有人在看你。那个人穿着你的衣服。',prefix:'[观察者]'},
-  {text:'你安全屋的门自己关上了。你没有听到脚步声，但你知道有人进来了。',prefix:'[入侵]'},
+  {
+    text: '你听到了敲门声。你打开门，没有人。但门框上多了一行字：「第零天」。',
+    prefix: '[系统错误]',
+  },
+  {
+    text: '你的笔记本翻到了一页你不记得写过的笔记。字迹是你的。内容是你明天会做的事。',
+    prefix: '[记忆碎片]',
+  },
+  { text: '你抬头看了一眼安全屋的钟。时间在倒流。你确定刚才不是三点。', prefix: '[时序异常]' },
+  { text: '你听到了自己的声音从墙里传出来。说的不是你说过的话。', prefix: '[回声]' },
+  { text: '你看到窗外有人在看你。那个人穿着你的衣服。', prefix: '[观察者]' },
+  { text: '你安全屋的门自己关上了。你没有听到脚步声，但你知道有人进来了。', prefix: '[入侵]' },
 ];
 
 export var FALSE_LOGS = [
@@ -23,8 +29,15 @@ export var FALSE_LOGS = [
 ];
 
 export var SAVE_POLLUTION_NAMES = [
-  '它在看着你', '第零天', '已损坏', '你确定吗', '已观察',
-  '循环#∞', '不要打开', '时间已停止', '记忆已覆盖',
+  '它在看着你',
+  '第零天',
+  '已损坏',
+  '你确定吗',
+  '已观察',
+  '循环#∞',
+  '不要打开',
+  '时间已停止',
+  '记忆已覆盖',
 ];
 
 /**
@@ -45,7 +58,10 @@ export function applyMetaCorruption(s, c, intensity) {
   if (roll < 0.45) {
     // False event: inject unsettling narrative
     var evt = FALSE_EVENTS[Math.floor(Math.random() * FALSE_EVENTS.length)];
-    c.narr('system', (evt.prefix ? evt.prefix + ' ' : '') + evt.text, {isSpecial: true, isEffect: true});
+    c.narr('system', (evt.prefix ? evt.prefix + ' ' : '') + evt.text, {
+      isSpecial: true,
+      isEffect: true,
+    });
   } else if (roll < 0.75) {
     // False log entry
     var logText = FALSE_LOGS[Math.floor(Math.random() * FALSE_LOGS.length)];
@@ -53,9 +69,10 @@ export function applyMetaCorruption(s, c, intensity) {
   } else {
     // Save name pollution: set a flag for the save/load modal to read
     if (!s._savePollution) s._savePollution = {};
-    s._savePollution.name = SAVE_POLLUTION_NAMES[Math.floor(Math.random() * SAVE_POLLUTION_NAMES.length)];
+    s._savePollution.name =
+      SAVE_POLLUTION_NAMES[Math.floor(Math.random() * SAVE_POLLUTION_NAMES.length)];
     s._savePollution.until = s.day + 1 + Math.floor(Math.random() * 2);
-    c.narr('system', '你感觉有什么东西在你存档的间隙中注视着。', {isSpecial: true});
+    c.narr('system', '你感觉有什么东西在你存档的间隙中注视着。', { isSpecial: true });
   }
 }
 

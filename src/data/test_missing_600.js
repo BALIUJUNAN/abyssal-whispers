@@ -34,16 +34,13 @@ assert(
 );
 
 assert(
-  !allExtended.some(e => e.id === MISSING_600_EVENT_ID),
+  !allExtended.some((e) => e.id === MISSING_600_EVENT_ID),
   'missing_event_600 is NOT in the event array'
 );
 
-const ids = allExtended.map(e => e.id);
+const ids = allExtended.map((e) => e.id);
 const uniqueIds = new Set(ids);
-assert(
-  uniqueIds.size === ids.length,
-  `All ${ids.length} event IDs are unique`
-);
+assert(uniqueIds.size === ids.length, `All ${ids.length} event IDs are unique`);
 
 // =============================================
 // Test Suite 2: shouldTriggerMissing600 - Positive
@@ -55,12 +52,22 @@ function makeState(overrides = {}) {
     loopCount: 10,
     mythosLevel: 25,
     san: 5,
-    hp: 5, maxHp: 11,
-    food: 3, lightLevel: 2,
+    hp: 5,
+    maxHp: 11,
+    food: 3,
+    lightLevel: 2,
     safehouseCorruption: 0,
     humanityScore: 50,
-    day: 20, ap: 12, maxAp: 12,
-    previousEndings: ['ending_seal_player_keeper', 'ending_escape_by_sea', 'ending_abyss_consumed', 'ending_heretical_dawn', 'ending_transcendence'],
+    day: 20,
+    ap: 12,
+    maxAp: 12,
+    previousEndings: [
+      'ending_seal_player_keeper',
+      'ending_escape_by_sea',
+      'ending_abyss_consumed',
+      'ending_heretical_dawn',
+      'ending_transcendence',
+    ],
     endingHistory: [],
     triggeredEvents: ['meta_ui_001'],
     triggeredSilentEvents: [],
@@ -81,49 +88,67 @@ assert(
 );
 
 assert(
-  shouldTriggerMissing600(makeState({ triggeredEvents: ['meta_ui_001', 'missing_event_600_seen'] }), allExtended) === false,
+  shouldTriggerMissing600(
+    makeState({ triggeredEvents: ['meta_ui_001', 'missing_event_600_seen'] }),
+    allExtended
+  ) === false,
   'Already seen -> returns false'
 );
 
 // Endgame content trigger paths: each type should independently satisfy condition 6
 assert(
-  shouldTriggerMissing600(makeState({ triggeredEvents: ['loop_endpoint_001'] }), allExtended) === true,
+  shouldTriggerMissing600(makeState({ triggeredEvents: ['loop_endpoint_001'] }), allExtended) ===
+    true,
   'loop_endpoint event satisfies endgame content check'
 );
 
 assert(
-  shouldTriggerMissing600(makeState({ triggeredEvents: ['clue_endpoint_yith_final'] }), allExtended) === true,
+  shouldTriggerMissing600(
+    makeState({ triggeredEvents: ['clue_endpoint_yith_final'] }),
+    allExtended
+  ) === true,
   'clue_endpoint_yith_final satisfies endgame content check'
 );
 
 assert(
-  shouldTriggerMissing600(makeState({ triggeredEvents: ['ending_transcendence_available'] }), allExtended) === true,
+  shouldTriggerMissing600(
+    makeState({ triggeredEvents: ['ending_transcendence_available'] }),
+    allExtended
+  ) === true,
   'ending_transcendence_available satisfies endgame content check'
 );
 
 assert(
-  shouldTriggerMissing600(makeState({ triggeredEvents: ['ending_loop_truth_available'] }), allExtended) === true,
+  shouldTriggerMissing600(
+    makeState({ triggeredEvents: ['ending_loop_truth_available'] }),
+    allExtended
+  ) === true,
   'ending_loop_truth_available satisfies endgame content check'
 );
 
 assert(
-  shouldTriggerMissing600(makeState({ triggeredEvents: ['clue_mythos_final_revelation'] }), allExtended) === true,
+  shouldTriggerMissing600(
+    makeState({ triggeredEvents: ['clue_mythos_final_revelation'] }),
+    allExtended
+  ) === true,
   'clue_mythos_final_revelation satisfies endgame content check'
 );
 
 assert(
-  shouldTriggerMissing600(makeState({ triggeredEvents: ['meta_system_003'] }), allExtended) === true,
+  shouldTriggerMissing600(makeState({ triggeredEvents: ['meta_system_003'] }), allExtended) ===
+    true,
   'meta_system event satisfies endgame content check'
 );
 
 // endingHistory-based ending count (not just previousEndings)
 assert(
-  shouldTriggerMissing600(makeState({
-    previousEndings: ['a', 'b'],
-    endingHistory: [
-      { ending_id: 'c' }, { ending_id: 'd' }, { ending_id: 'e' },
-    ],
-  }), allExtended) === true,
+  shouldTriggerMissing600(
+    makeState({
+      previousEndings: ['a', 'b'],
+      endingHistory: [{ ending_id: 'c' }, { ending_id: 'd' }, { ending_id: 'e' }],
+    }),
+    allExtended
+  ) === true,
   'endings from endingHistory count toward 5-ending threshold'
 );
 
@@ -142,10 +167,7 @@ assert(
   'mythosLevel=24 -> false'
 );
 
-assert(
-  shouldTriggerMissing600(makeState({ san: 11 }), allExtended) === false,
-  'san=11 -> false'
-);
+assert(shouldTriggerMissing600(makeState({ san: 11 }), allExtended) === false, 'san=11 -> false');
 
 assert(
   shouldTriggerMissing600(makeState({ previousEndings: ['a', 'b', 'c'] }), allExtended) === false,
@@ -153,7 +175,8 @@ assert(
 );
 
 assert(
-  shouldTriggerMissing600(makeState({ triggeredEvents: ['evt_harbor_shadow'] }), allExtended) === false,
+  shouldTriggerMissing600(makeState({ triggeredEvents: ['evt_harbor_shadow'] }), allExtended) ===
+    false,
   'No meta/endpoint/transcendence content -> false'
 );
 
@@ -162,15 +185,9 @@ assert(
   'Pool length !== 599 -> false'
 );
 
-assert(
-  shouldTriggerMissing600(makeState(), []) === false,
-  'Empty pool -> false'
-);
+assert(shouldTriggerMissing600(makeState(), []) === false, 'Empty pool -> false');
 
-assert(
-  shouldTriggerMissing600(makeState(), null) === false,
-  'Null pool -> false'
-);
+assert(shouldTriggerMissing600(makeState(), null) === false, 'Null pool -> false');
 
 // =============================================
 // Test Suite 4: createMissing600Event
@@ -180,35 +197,20 @@ console.log('\n=== Test Suite 4: createMissing600Event ===');
 const state = makeState();
 const evt = createMissing600Event(state);
 
-assert(
-  evt.id === MISSING_600_EVENT_ID,
-  `Event ID is ${MISSING_600_EVENT_ID}`
-);
+assert(evt.id === MISSING_600_EVENT_ID, `Event ID is ${MISSING_600_EVENT_ID}`);
 
-assert(
-  evt.name === '第600个事件',
-  'Event name is "第600个事件"'
-);
+assert(evt.name === '第600个事件', 'Event name is "第600个事件"');
 
-assert(
-  evt.type === 'meta' && evt.subtype === 'missing_600',
-  'Type=meta, subtype=missing_600'
-);
+assert(evt.type === 'meta' && evt.subtype === 'missing_600', 'Type=meta, subtype=missing_600');
 
-assert(
-  evt.tier === 'meta',
-  'Tier is meta'
-);
+assert(evt.tier === 'meta', 'Tier is meta');
 
-assert(
-  evt.choices && evt.choices.length === 3,
-  `Has 3 choices (actual: ${evt.choices?.length})`
-);
+assert(evt.choices && evt.choices.length === 3, `Has 3 choices (actual: ${evt.choices?.length})`);
 
 assert(
   evt.choices[0].label === '继续阅读' &&
-  evt.choices[1].label === '合上笔记本' &&
-  evt.choices[2].label === '写下自己的名字',
+    evt.choices[1].label === '合上笔记本' &&
+    evt.choices[2].label === '写下自己的名字',
   'Choice labels are correct'
 );
 
@@ -227,39 +229,24 @@ assert(
   'Choice 2 unlocks ending_player_becomes_event'
 );
 
-assert(
-  evt.trigger.once_ever === true,
-  'Trigger has once_ever: true'
-);
+assert(evt.trigger.once_ever === true, 'Trigger has once_ever: true');
 
-assert(
-  evt.effects.san < 0 && evt.effects.mythos > 0,
-  'Base effects: SAN loss, mythos gain'
-);
+assert(evt.effects.san < 0 && evt.effects.mythos > 0, 'Base effects: SAN loss, mythos gain');
 
 // =============================================
 // Test Suite 5: Ending Definition
 // =============================================
 console.log('\n=== Test Suite 5: Hidden Ending ===');
 
-assert(
-  ENDING_PLAYER_BECOMES_EVENT.id === 'ending_player_becomes_event',
-  'Ending ID is correct'
-);
+assert(ENDING_PLAYER_BECOMES_EVENT.id === 'ending_player_becomes_event', 'Ending ID is correct');
 
-assert(
-  ENDING_PLAYER_BECOMES_EVENT.name === '第六百个事件',
-  'Ending name is "第六百个事件"'
-);
+assert(ENDING_PLAYER_BECOMES_EVENT.name === '第六百个事件', 'Ending name is "第六百个事件"');
 
-assert(
-  ENDING_PLAYER_BECOMES_EVENT.type === 'hidden',
-  'Ending type is hidden'
-);
+assert(ENDING_PLAYER_BECOMES_EVENT.type === 'hidden', 'Ending type is hidden');
 
 assert(
   ENDING_PLAYER_BECOMES_EVENT.conditions.length === 1 &&
-  ENDING_PLAYER_BECOMES_EVENT.conditions[0].type === 'has_flag',
+    ENDING_PLAYER_BECOMES_EVENT.conditions[0].type === 'has_flag',
   'Ending condition: has_flag'
 );
 
@@ -286,7 +273,7 @@ const mockGD = {
 injectMissingEnding(mockGD);
 
 assert(
-  mockGD.endings.some(e => e.id === 'ending_player_becomes_event'),
+  mockGD.endings.some((e) => e.id === 'ending_player_becomes_event'),
   'Ending injected into GD.endings'
 );
 
@@ -298,7 +285,7 @@ assert(
 // Double injection is idempotent
 injectMissingEnding(mockGD);
 assert(
-  mockGD.endings.filter(e => e.id === 'ending_player_becomes_event').length === 1,
+  mockGD.endings.filter((e) => e.id === 'ending_player_becomes_event').length === 1,
   'Double injection is idempotent'
 );
 
@@ -309,10 +296,7 @@ console.log('\n=== Test Suite 7: selectEventV2 Integration ===');
 
 import { selectEventV2 } from '../reducers/extendedEvents.js';
 
-assert(
-  typeof selectEventV2 === 'function',
-  'selectEventV2 is exported and callable'
-);
+assert(typeof selectEventV2 === 'function', 'selectEventV2 is exported and callable');
 
 // Build a mock GD with 599 events (the real extended events) + area + systems
 const mockGD2 = {
@@ -320,20 +304,29 @@ const mockGD2 = {
   _extendedEvents: [...allExtended],
   _extendedEventsLoaded: true,
   _extendedEventCount: 599,
-  areas: [{ id: 'town_center', connected_areas: [], resource_pressure: { required_light_level: 0 } }],
+  areas: [
+    { id: 'town_center', connected_areas: [], resource_pressure: { required_light_level: 0 } },
+  ],
   world: { horror_density_control: { per_area: {} } },
   systems: { sanity: { sanity_gamble: { enabled: false } } },
   core_loop: { difficulty_levels: { normal: { skill_check_bonus: 0 } } },
 };
 
 // Deterministic pick: always returns first element
-const pickFirst = arr => arr[0];
+const pickFirst = (arr) => arr[0];
 
 // State that satisfies all missing_600 conditions
 // Include omen IDs so they don't fire before event 600 in tests
 const readyState = makeState({
-  ap: 12, maxAp: 12, day: 20,
-  triggeredEvents: ['loop_endpoint_001', 'omen_600_notebook_page', 'omen_600_event_log', 'omen_600_npc_whisper'],
+  ap: 12,
+  maxAp: 12,
+  day: 20,
+  triggeredEvents: [
+    'loop_endpoint_001',
+    'omen_600_notebook_page',
+    'omen_600_event_log',
+    'omen_600_npc_whisper',
+  ],
   triggeredSilentEvents: [],
 });
 
@@ -343,7 +336,14 @@ const origRandom = Math.random;
 for (let i = 0; i < 50; i++) {
   Math.random = () => 0.01; // always < 0.35
   // Clone state to avoid mutation side effects
-  const s = { ...readyState, categoryCountsToday: {}, categoryCountsRun: {}, abnormalStreak: 0, eventCooldowns: {}, triggeredEvents: [...readyState.triggeredEvents] };
+  const s = {
+    ...readyState,
+    categoryCountsToday: {},
+    categoryCountsRun: {},
+    abnormalStreak: 0,
+    eventCooldowns: {},
+    triggeredEvents: [...readyState.triggeredEvents],
+  };
   const result = selectEventV2('town_center', s, { GD: mockGD2 }, pickFirst);
   if (result && result.id === MISSING_600_EVENT_ID) missing600Returned++;
 }
@@ -360,11 +360,20 @@ for (let i = 0; i < 20; i++) {
   Math.random = () => 0.01;
   const unreadyState = makeState({
     loopCount: 1, // too low
-    ap: 12, maxAp: 12, day: 5,
+    ap: 12,
+    maxAp: 12,
+    day: 5,
     triggeredEvents: ['evt_harbor_shadow'],
     triggeredSilentEvents: [],
   });
-  const s2 = { ...unreadyState, categoryCountsToday: {}, categoryCountsRun: {}, abnormalStreak: 0, eventCooldowns: {}, triggeredEvents: [...unreadyState.triggeredEvents] };
+  const s2 = {
+    ...unreadyState,
+    categoryCountsToday: {},
+    categoryCountsRun: {},
+    abnormalStreak: 0,
+    eventCooldowns: {},
+    triggeredEvents: [...unreadyState.triggeredEvents],
+  };
   const result = selectEventV2('town_center', s2, { GD: mockGD2 }, pickFirst);
   if (result && result.id === MISSING_600_EVENT_ID) notMissing++;
 }
@@ -391,20 +400,23 @@ import { events as silent_events } from './events_silent.js';
 import { events as meta_events } from './events_meta.js';
 
 const all_files = [
-  ...loop_events, ...humanity_events, ...mythos_events,
-  ...resource_events, ...npc_events, ...area_events,
-  ...ending_events, ...silent_events, ...meta_events,
+  ...loop_events,
+  ...humanity_events,
+  ...mythos_events,
+  ...resource_events,
+  ...npc_events,
+  ...area_events,
+  ...ending_events,
+  ...silent_events,
+  ...meta_events,
 ];
 
 assert(
-  !all_files.some(e => e.id === MISSING_600_EVENT_ID),
+  !all_files.some((e) => e.id === MISSING_600_EVENT_ID),
   'missing_event_600 is NOT in any events_*.js file'
 );
 
-assert(
-  all_files.length === 599,
-  `Total across all files is 599 (actual: ${all_files.length})`
-);
+assert(all_files.length === 599, `Total across all files is 599 (actual: ${all_files.length})`);
 
 // =============================================
 // Test Suite 9: Death System
@@ -415,10 +427,7 @@ import { resolveDeath, inferDeathType, getDeathTypeLabel } from '../reducers/dea
 import { events as deathEchoEvents } from './events_death_echo.js';
 
 // resolveDeath returns null when alive
-assert(
-  resolveDeath(makeState({ hp: 5, san: 5 })) === null,
-  'resolveDeath returns null when alive'
-);
+assert(resolveDeath(makeState({ hp: 5, san: 5 })) === null, 'resolveDeath returns null when alive');
 
 // HP death
 const hpDeath = resolveDeath(makeState({ hp: 0, san: 10 }));
@@ -445,13 +454,15 @@ assert(hybridDeath.finalText.includes('身心俱灭'), 'Hybrid death text includ
 const hintText = inferDeathType(
   makeState({ currentArea: 'town_center' }),
   { tags: [], effects: { death_hint: 'drowning' } },
-  null, 'hp'
+  null,
+  'hp'
 );
 assert(hintText === 'drowning', 'death_hint on event effects overrides type inference');
 
 // Tag-based inference
 assert(
-  inferDeathType(makeState({ currentArea: 'harbor_district' }), { tags: ['water'] }, null, 'hp') === 'drowning',
+  inferDeathType(makeState({ currentArea: 'harbor_district' }), { tags: ['water'] }, null, 'hp') ===
+    'drowning',
   'water tag -> drowning'
 );
 assert(
@@ -459,29 +470,35 @@ assert(
   'meta tag -> identity_erasure'
 );
 assert(
-  inferDeathType(makeState({ loopCount: 8, san: 5, mythosLevel: 0 }), { tags: [] }, null, 'san') === 'loop_collapse',
+  inferDeathType(makeState({ loopCount: 8, san: 5, mythosLevel: 0 }), { tags: [] }, null, 'san') ===
+    'loop_collapse',
   'high loop + low san + low mythos -> loop_collapse'
 );
 
 // Death echo events exist and are well-formed
 assert(deathEchoEvents.length >= 17, `Death echo events: ${deathEchoEvents.length}`);
 assert(
-  deathEchoEvents.every(e => e.id.startsWith('death_echo_')),
+  deathEchoEvents.every((e) => e.id.startsWith('death_echo_')),
   'All death echo event IDs start with death_echo_'
 );
 assert(
-  deathEchoEvents.every(e => e.trigger?.requires_last_death_type || e.trigger?.requires_last_death_mode),
+  deathEchoEvents.every(
+    (e) => e.trigger?.requires_last_death_type || e.trigger?.requires_last_death_mode
+  ),
   'All death echo events have requires_last_death_type or requires_last_death_mode'
 );
 
 // getDeathTypeLabel
 assert(getDeathTypeLabel('drowning') === '溺水', 'getDeathTypeLabel("drowning") = 溺水');
 assert(getDeathTypeLabel('madness') === '疯狂', 'getDeathTypeLabel("madness") = 疯狂');
-assert(getDeathTypeLabel('body_and_self_lost') === '身心俱灭', 'getDeathTypeLabel("body_and_self_lost") = 身心俱灭');
+assert(
+  getDeathTypeLabel('body_and_self_lost') === '身心俱灭',
+  'getDeathTypeLabel("body_and_self_lost") = 身心俱灭'
+);
 
 // Death echo events are NOT in the 599 pool
 assert(
-  !allExtended.some(e => e.id.startsWith('death_echo_')),
+  !allExtended.some((e) => e.id.startsWith('death_echo_')),
   'Death echo events are NOT in the 599 extended pool'
 );
 

@@ -10,9 +10,17 @@ const REQUIRED_FIELDS = ['id', 'name', 'type', 'trigger', 'description'];
 let errors = 0;
 let warnings = 0;
 
-function fail(msg) { errors++; console.error('  FAIL:', msg); }
-function warn(msg) { warnings++; console.warn('  WARN:', msg); }
-function pass(msg) { console.log('  PASS:', msg); }
+function fail(msg) {
+  errors++;
+  console.error('  FAIL:', msg);
+}
+function warn(msg) {
+  warnings++;
+  console.warn('  WARN:', msg);
+}
+function pass(msg) {
+  console.log('  PASS:', msg);
+}
 
 // 1. Count === 599
 console.log('\n== Pool Integrity ==');
@@ -23,7 +31,7 @@ if (allExtended.length === 599) {
 }
 
 // 2. Unique IDs
-const ids = allExtended.map(e => e.id);
+const ids = allExtended.map((e) => e.id);
 const uniqueIds = new Set(ids);
 if (uniqueIds.size === ids.length) {
   pass(`All ${ids.length} IDs unique`);
@@ -40,7 +48,7 @@ if (!ids.includes('missing_event_600')) {
 }
 
 // 4. death_echo NOT in pool
-const deathEchoInPool = ids.filter(id => id.startsWith('death_echo_'));
+const deathEchoInPool = ids.filter((id) => id.startsWith('death_echo_'));
 if (deathEchoInPool.length === 0) {
   pass('No death_echo_ events in pool');
 } else {
@@ -49,21 +57,21 @@ if (deathEchoInPool.length === 0) {
 
 // 5. Required fields
 console.log('\n== Required Fields ==');
-const missing = allExtended.filter(e => {
-  return REQUIRED_FIELDS.some(f => !e[f]);
+const missing = allExtended.filter((e) => {
+  return REQUIRED_FIELDS.some((f) => !e[f]);
 });
 if (missing.length === 0) {
   pass('All events have id/name/type/trigger/description');
 } else {
   for (const e of missing) {
-    const missingFields = REQUIRED_FIELDS.filter(f => !e[f]);
+    const missingFields = REQUIRED_FIELDS.filter((f) => !e[f]);
     fail(`${e.id || 'UNKNOWN'}: missing ${missingFields.join(', ')}`);
   }
 }
 
 // 6. trigger.areas present
 console.log('\n== Trigger Structure ==');
-const noAreas = allExtended.filter(e => !e.trigger?.areas || e.trigger.areas.length === 0);
+const noAreas = allExtended.filter((e) => !e.trigger?.areas || e.trigger.areas.length === 0);
 if (noAreas.length === 0) {
   pass('All events have trigger.areas');
 } else {

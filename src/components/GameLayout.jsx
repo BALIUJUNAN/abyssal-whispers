@@ -19,7 +19,9 @@ export function GameLayout({ state, dispatch, areas, settings }) {
     const handler = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.key === 'm' || e.key === 'M') {
-        uiStore.setState(prev => ({ uiMode: prev.uiMode === 'town_map' ? 'classic' : 'town_map' }));
+        uiStore.setState((prev) => ({
+          uiMode: prev.uiMode === 'town_map' ? 'classic' : 'town_map',
+        }));
       }
     };
     window.addEventListener('keydown', handler);
@@ -60,10 +62,15 @@ export function GameLayout({ state, dispatch, areas, settings }) {
   // 经典模式（原有三栏布局）
   return (
     <div className="game-layout">
-      <GameHeader state={state} dispatch={dispatch} areas={areas}
+      <GameHeader
+        state={state}
+        dispatch={dispatch}
+        areas={areas}
         onSettingsOpen={() => uiStore.setState({ settingsOpen: true })}
         onUgcOpen={() => uiStore.setState({ ugcOpen: true })}
-        onSaveOpen={() => { uiStore.setState({ saveLoadMode: 'save', saveLoadOpen: true }); }}
+        onSaveOpen={() => {
+          uiStore.setState({ saveLoadMode: 'save', saveLoadOpen: true });
+        }}
       />
       <LeftPanel state={state} />
       <CenterPanel state={state} dispatch={dispatch} />
@@ -77,16 +84,19 @@ function EventLogButton({ state }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="event-log-floating">
-      <button className="event-log-fab" onClick={() => setOpen(v => !v)}>
+      <button className="event-log-fab" onClick={() => setOpen((v) => !v)}>
         📜 事件记录 ({state.eventLog.length})
       </button>
       {open && (
         <div className="event-log-floating-body">
-          {state.eventLog.slice(-10).reverse().map((l, i) => (
-            <div key={i} className="log-entry">
-              <span className="log-day">[Day {l.day}]</span> {l.text}
-            </div>
-          ))}
+          {state.eventLog
+            .slice(-10)
+            .reverse()
+            .map((l, i) => (
+              <div key={i} className="log-entry">
+                <span className="log-day">[Day {l.day}]</span> {l.text}
+              </div>
+            ))}
         </div>
       )}
     </div>

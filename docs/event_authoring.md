@@ -37,6 +37,7 @@ NPC 引用:    "martha_grey"     不要 "玛莎·格雷"
 ### 4. 新增债务会 FAIL
 
 构建时 `python build.py --prod` 会运行验证器。如果新增了：
+
 - 未注册的 NPC/物品引用 → E14/E15 ERROR
 - 超过 baseline 的中文引用 → E11_BASELINE/E12_BASELINE ERROR
 
@@ -57,9 +58,7 @@ NPC 引用:    "martha_grey"     不要 "玛莎·格雷"
   "effects": {
     "san": -2,
     "items": ["tide_timetable"],
-    "npc_changes": [
-      { "name": "martha_grey", "trust_delta": 1 }
-    ]
+    "npc_changes": [{ "name": "martha_grey", "trust_delta": 1 }]
   },
   "sanity_damage": 2
 }
@@ -67,8 +66,8 @@ NPC 引用:    "martha_grey"     不要 "玛莎·格雷"
 
 ## 快速参考
 
-| 实体类型 | Registry | 查 ID 命令 |
-|---------|----------|-----------|
-| NPC | npcRegistry.js | `node -e "console.log(Object.keys(require('./src/data/registry/npcRegistry.cjs').NPC_REGISTRY))"` |
-| 区域 | areaRegistry.js | `node -e "console.log(Object.keys(require('./src/data/registry/areaRegistry.cjs').AREA_REGISTRY))"` |
-| 物品 | itemRegistry.js | `node -e "console.log(Object.keys(require('./src/data/registry/itemRegistry.cjs').ITEM_REGISTRY))"` |
+| 实体类型 | Registry        | 查 ID 命令                                                                                          |
+| -------- | --------------- | --------------------------------------------------------------------------------------------------- |
+| NPC      | npcRegistry.js  | `node -e "console.log(Object.keys(require('./src/data/registry/npcRegistry.cjs').NPC_REGISTRY))"`   |
+| 区域     | areaRegistry.js | `node -e "console.log(Object.keys(require('./src/data/registry/areaRegistry.cjs').AREA_REGISTRY))"` |
+| 物品     | itemRegistry.js | `node -e "console.log(Object.keys(require('./src/data/registry/itemRegistry.cjs').ITEM_REGISTRY))"` |

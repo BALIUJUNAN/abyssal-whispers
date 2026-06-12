@@ -19,8 +19,8 @@ export function mergeExtendedEvents(GD, extendedModules) {
   }
 
   // Deduplicate by ID
-  const existingIds = new Set(GD.events.map(e => e.id));
-  const newEvents = allNewEvents.filter(e => !existingIds.has(e.id));
+  const existingIds = new Set(GD.events.map((e) => e.id));
+  const newEvents = allNewEvents.filter((e) => !existingIds.has(e.id));
 
   GD.events.push(...newEvents);
 
@@ -63,11 +63,11 @@ export function mergeChapterDataIntoGD(GD, chapterData, chapterKey) {
   if (!chapterData) return 0;
 
   let added = 0;
-  const existingIds = new Set((GD.events || []).map(e => e.id));
+  const existingIds = new Set((GD.events || []).map((e) => e.id));
 
   // Merge events
   if (chapterData.events && Array.isArray(chapterData.events)) {
-    const newEvents = chapterData.events.filter(e => !existingIds.has(e.id));
+    const newEvents = chapterData.events.filter((e) => !existingIds.has(e.id));
     if (newEvents.length > 0) {
       GD.events.push(...newEvents);
       added += newEvents.length;
@@ -77,7 +77,7 @@ export function mergeChapterDataIntoGD(GD, chapterData, chapterKey) {
   // Merge endings
   if (chapterData.endings && Array.isArray(chapterData.endings)) {
     if (!GD.endings) GD.endings = [];
-    const existingEndingIds = new Set(GD.endings.map(e => e.id));
+    const existingEndingIds = new Set(GD.endings.map((e) => e.id));
     for (const ending of chapterData.endings) {
       if (!existingEndingIds.has(ending.id)) GD.endings.push(ending);
     }
@@ -90,7 +90,10 @@ export function mergeChapterDataIntoGD(GD, chapterData, chapterKey) {
 
   // Merge implementation_notes
   if (chapterData.implementation_notes) {
-    GD.implementation_notes = { ...(GD.implementation_notes || {}), ...chapterData.implementation_notes };
+    GD.implementation_notes = {
+      ...(GD.implementation_notes || {}),
+      ...chapterData.implementation_notes,
+    };
   }
 
   _loadedChapters.add(chapterKey);
@@ -128,7 +131,9 @@ export async function loadChapterData(GD, chapterKey, url) {
       const data = await resp.json();
       const added = mergeChapterDataIntoGD(GD, data, chapterKey);
       if (added > 0) {
-        console.log(`[LazyLoad] ${chapterKey}: merged ${added} events (total: ${GD._totalEventCount})`);
+        console.log(
+          `[LazyLoad] ${chapterKey}: merged ${added} events (total: ${GD._totalEventCount})`
+        );
       }
       return added;
     } catch (e) {
@@ -189,7 +194,7 @@ export function ensureExtendedState(state) {
 
   // Death context system
   if (!state.deathContext) state.deathContext = null;
-  if (!state.lastDeathMode) state.lastDeathMode = null;        // "hp" | "san" | "hybrid"
+  if (!state.lastDeathMode) state.lastDeathMode = null; // "hp" | "san" | "hybrid"
   if (!state.previousDeathContext) state.previousDeathContext = null;
 
   // Prologue system (fear tuning persists across loops)

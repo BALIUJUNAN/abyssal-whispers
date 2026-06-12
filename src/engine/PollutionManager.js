@@ -5,10 +5,19 @@
 // === Text Hallucination ===
 // Activates at stage.level >= 2 (perception_shift, SAN 40-54)
 export const HALLUCINATION_PAIRS = [
-  ['灯光', '火光'], ['门', '裂缝'], ['声音', '低语'],
-  ['海', '血'], ['雾', '眼'], ['人影', '它'], ['脚步', '心跳'],
-  ['安全', '暂时'], ['正常', '熟悉'], ['记忆', '假设'],
-  ['钟声', '呼吸'], ['墙壁', '皮肤'], ['窗户', '伤口'],
+  ['灯光', '火光'],
+  ['门', '裂缝'],
+  ['声音', '低语'],
+  ['海', '血'],
+  ['雾', '眼'],
+  ['人影', '它'],
+  ['脚步', '心跳'],
+  ['安全', '暂时'],
+  ['正常', '熟悉'],
+  ['记忆', '假设'],
+  ['钟声', '呼吸'],
+  ['墙壁', '皮肤'],
+  ['窗户', '伤口'],
 ];
 
 export function applyTextHallucination(text, san) {
@@ -16,7 +25,7 @@ export function applyTextHallucination(text, san) {
   // SSOT: use stage level (need GD context for getCurrentSanStage)
   // Fallback: simple threshold for when ctx is unavailable
   if (san >= 55) return text;
-  const chance = Math.max(0, (55 - san)) / 200;
+  const chance = Math.max(0, 55 - san) / 200;
   if (Math.random() > chance) return text;
   const pair = HALLUCINATION_PAIRS[Math.floor(Math.random() * HALLUCINATION_PAIRS.length)];
   const idx = text.indexOf(pair[0]);
@@ -41,7 +50,7 @@ export function maybeGetFakeMessage(san, loopCount) {
   // SSOT: level >= 4 means SAN <= 24
   if (san > 24) return null;
   if (loopCount < 2 && san >= 10) return null;
-  const chance = 0.03 + (24 - san) / 24 * 0.09;
+  const chance = 0.03 + ((24 - san) / 24) * 0.09;
   if (Math.random() > chance) return null;
   return FAKE_SYSTEM_MESSAGES[Math.floor(Math.random() * FAKE_SYSTEM_MESSAGES.length)];
 }
@@ -50,7 +59,7 @@ export function maybeGetFakeMessage(san, loopCount) {
 // Activates at stage.level >= 1 (mild_erosion, SAN 55-74)
 export function getChoiceDelay(san) {
   if (san >= 75) return 0;
-  return Math.floor((75 - san) / 75 * 350);
+  return Math.floor(((75 - san) / 75) * 350);
 }
 
 // === False Memory Insertion ===
@@ -71,14 +80,17 @@ export function maybeInsertFalseMemory(narr, san, loopCount, day) {
   if (Math.random() > 0.07) return;
   let text = FALSE_MEMORIES[Math.floor(Math.random() * FALSE_MEMORIES.length)];
   text = text.replace('{day}', String(Math.max(1, day - 1)));
-  narr('system', text, { isSpecial: true, madness: { name: '虚假记忆', description: '你不确定什么是真的。' } });
+  narr('system', text, {
+    isSpecial: true,
+    madness: { name: '虚假记忆', description: '你不确定什么是真的。' },
+  });
 }
 
 // === Event Weight Corruption ===
 // Activates at stage.level >= 2 (perception_shift, SAN 40-54)
 export function corruptEventWeights(candidates, san) {
   if (san >= 55 || !candidates || candidates.length === 0) return candidates;
-  return candidates.map(function(item) {
+  return candidates.map(function (item) {
     let w = item.weight || 1;
     const evt = item.event || item;
     const type = evt.type || evt.event_classification || '';

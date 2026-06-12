@@ -19,7 +19,11 @@
 
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { clamp } from './utils.js';
-import { shouldTriggerMissing600, createMissing600Event, MISSING_600_EVENT_ID } from '../data/events_missing_600.js';
+import {
+  shouldTriggerMissing600,
+  createMissing600Event,
+  MISSING_600_EVENT_ID,
+} from '../data/events_missing_600.js';
 import { checkOmens } from '../data/events_omens_600.js';
 
 // =============================================
@@ -97,14 +101,21 @@ export function checkTriggerExtended(evt, state, ctx) {
   // Resource thresholds
   if (t.food_lte != null && (state.food || 0) > t.food_lte) return false;
   if (t.light_lte != null && (state.lightLevel || 0) > t.light_lte) return false;
-  if (t.safehouse_corruption_gte != null && (state.safehouseCorruption || 0) < t.safehouse_corruption_gte) return false;
+  if (
+    t.safehouse_corruption_gte != null &&
+    (state.safehouseCorruption || 0) < t.safehouse_corruption_gte
+  )
+    return false;
 
   // Death type requirement
-  if (t.requires_last_death_type && state.lastDeathType !== t.requires_last_death_type) return false;
+  if (t.requires_last_death_type && state.lastDeathType !== t.requires_last_death_type)
+    return false;
 
   // Death mode requirement (hp / san / hybrid)
   if (t.requires_last_death_mode) {
-    const mode = state.lastDeathMode || (state.lastDeathType === 'physical' ? 'hp' : state.lastDeathType === 'mental' ? 'san' : null);
+    const mode =
+      state.lastDeathMode ||
+      (state.lastDeathType === 'physical' ? 'hp' : state.lastDeathType === 'mental' ? 'san' : null);
     if (mode !== t.requires_last_death_mode) return false;
   }
 
@@ -131,7 +142,7 @@ export function checkTriggerExtended(evt, state, ctx) {
   // Required items
   if (t.requires_items && t.requires_items.length > 0) {
     for (const item of t.requires_items) {
-      if (!state.inventory.some(i => i.id === item || i.name === item)) return false;
+      if (!state.inventory.some((i) => i.id === item || i.name === item)) return false;
     }
   }
 
@@ -164,7 +175,7 @@ export function checkTriggerExtended(evt, state, ctx) {
   // Previous endings requirements
   if (t.previous_endings && t.previous_endings.length > 0) {
     const prevEndings = state.previousEndings || [];
-    const hasEnding = t.previous_endings.some(e => prevEndings.includes(e));
+    const hasEnding = t.previous_endings.some((e) => prevEndings.includes(e));
     if (!hasEnding) return false;
   }
   if (t.min_previous_endings_count != null) {
@@ -197,7 +208,7 @@ export function checkTriggerExtended(evt, state, ctx) {
   // §3.4: Max meta events per run (heavy meta gate)
   if (t.max_meta_per_run) {
     const runTriggered = state.runTriggeredExtendedEvents || [];
-    const metaThisRun = runTriggered.filter(id => id.startsWith('meta_'));
+    const metaThisRun = runTriggered.filter((id) => id.startsWith('meta_'));
     if (metaThisRun.length >= t.max_meta_per_run) return false;
   }
 
@@ -205,7 +216,7 @@ export function checkTriggerExtended(evt, state, ctx) {
   if (t.cooldown_days && t.cooldown_days > 0) {
     const cooldowns = state.eventCooldowns || {};
     const lastTriggered = cooldowns[evt.id];
-    if (lastTriggered != null && (state.day - lastTriggered) < t.cooldown_days) return false;
+    if (lastTriggered != null && state.day - lastTriggered < t.cooldown_days) return false;
   }
 
   // Category daily budget
@@ -239,29 +250,32 @@ export function checkTriggerExtended(evt, state, ctx) {
 
 // Category budget configuration
 export const EVENT_BUDGET = {
-  loop_locked:          { maxPerDay: 2, minPerRun: 10, weight: 1.2 },
-  humanity:             { maxPerDay: 2, minPerRun: 6,  weight: 1.0 },
-  mythos:               { maxPerDay: 2, minPerRun: 6,  weight: 1.0 },
-  resource_pressure:    { maxPerDay: 1, minPerRun: 5,  weight: 0.8 },
-  npc_cross:            { maxPerDay: 1, minPerRun: 4,  weight: 0.7 },
-  area_deep:            { maxPerDay: 2, minPerRun: 12, weight: 1.1 },
-  ending_omen:          { maxPerDay: 1, minPerRun: 0,  weight: 0.6 },
-  ending_aftermath:     { maxPerDay: 1, minPerRun: 0,  weight: 0.5 },
-  silent:               { maxPerDay: 3, minPerRun: 0,  weight: 0.9, isAnchor: true },
-  meta:                 { maxPerRun: 2,                 weight: 0.3 },
+  loop_locked: { maxPerDay: 2, minPerRun: 10, weight: 1.2 },
+  humanity: { maxPerDay: 2, minPerRun: 6, weight: 1.0 },
+  mythos: { maxPerDay: 2, minPerRun: 6, weight: 1.0 },
+  resource_pressure: { maxPerDay: 1, minPerRun: 5, weight: 0.8 },
+  npc_cross: { maxPerDay: 1, minPerRun: 4, weight: 0.7 },
+  area_deep: { maxPerDay: 2, minPerRun: 12, weight: 1.1 },
+  ending_omen: { maxPerDay: 1, minPerRun: 0, weight: 0.6 },
+  ending_aftermath: { maxPerDay: 1, minPerRun: 0, weight: 0.5 },
+  silent: { maxPerDay: 3, minPerRun: 0, weight: 0.9, isAnchor: true },
+  meta: { maxPerRun: 2, weight: 0.3 },
 };
 
 // Types considered "abnormal" for streak tracking
 export const ABNORMAL_TYPES = new Set([
-  'loop_locked', 'mythos', 'resource_pressure', 'meta',
+  'loop_locked',
+  'mythos',
+  'resource_pressure',
+  'meta',
   // Also count original horror types
-  '超自然遭遇', '怪物遭遇', '神秘事件'
+  '超自然遭遇',
+  '怪物遭遇',
+  '神秘事件',
 ]);
 
 // Types that serve as anchors (break abnormal streaks)
-export const ANCHOR_TYPES = new Set([
-  'silent', '正常事件', 'NPC互动', '氛围事件', '轻微异常'
-]);
+export const ANCHOR_TYPES = new Set(['silent', '正常事件', 'NPC互动', '氛围事件', '轻微异常']);
 
 /**
  * PURE: Get all eligible events for the current area and state.
@@ -280,7 +294,7 @@ export function getEligibleEvents(areaId, state, ctx) {
   const allEvents = GD.events || [];
 
   // Step 1: Area + trigger check (deterministic — no Math.random)
-  const eligible = allEvents.filter(e => {
+  const eligible = allEvents.filter((e) => {
     if (!e.trigger || !e.trigger.areas) return false;
     if (!e.trigger.areas.includes(areaId)) return false;
     return checkTriggerExtended(e, state, ctx);
@@ -289,7 +303,7 @@ export function getEligibleEvents(areaId, state, ctx) {
   if (eligible.length === 0) return [];
 
   // Step 2: Budget filtering (read-only against state)
-  return eligible.filter(e => {
+  return eligible.filter((e) => {
     const cat = e.type || 'unknown';
     const budget = EVENT_BUDGET[cat];
     if (!budget) return true;
@@ -323,7 +337,7 @@ export function getEventWeight(evt, areaId, state, ctx) {
   const cat = evt.type || 'unknown';
   const budget = EVENT_BUDGET[cat] || {};
   const areas = GD.areas || [];
-  const area = areas.find(a => a.id === areaId);
+  const area = areas.find((a) => a.id === areaId);
   const loop = state.loopCount || 0;
 
   let weight = evt.weight || budget.weight || 1.0;
@@ -356,9 +370,9 @@ export function getEventWeight(evt, areaId, state, ctx) {
   // Ending omen boost
   if (cat === 'ending_omen') {
     const endings = GD.endings || [];
-    const closeToEnding = endings.some(ed => {
+    const closeToEnding = endings.some((ed) => {
       if (!ed.conditions) return false;
-      const met = ed.conditions.filter(c => checkEndingConditionQuick(state, c)).length;
+      const met = ed.conditions.filter((c) => checkEndingConditionQuick(state, c)).length;
       return met / ed.conditions.length >= 0.6;
     });
     if (closeToEnding) weight *= 2.0;
@@ -450,7 +464,8 @@ export function chooseWeightedEvent(candidates, areaId, state, ctx, pick) {
 
   // Roll and binary search — O(log n)
   const roll = Math.random() * total;
-  let lo = 0, hi = n - 1;
+  let lo = 0,
+    hi = n - 1;
   while (lo < hi) {
     const mid = (lo + hi) >>> 1;
     if (cumWeights[mid] < roll) lo = mid + 1;
@@ -502,7 +517,11 @@ export function commitSelectedEvent(evt, state) {
 
   // Phase 5: Track today's event mix for buffer enforcement
   if (!state._todayEventTypes) state._todayEventTypes = [];
-  state._todayEventTypes.push({ id: evt.id, isBuffer: !!evt.normalcy_anchor, type: evt.type || '' });
+  state._todayEventTypes.push({
+    id: evt.id,
+    isBuffer: !!evt.normalcy_anchor,
+    type: evt.type || '',
+  });
 
   // Track once-per-run
   if (evt.trigger?.once_per_run) {
@@ -547,8 +566,9 @@ export function selectEventV2(areaId, state, ctx, pick) {
   }
 
   // Step 1: Virtual 600th event check (before all normal filtering)
-  const extendedEvents = GD._extendedEvents
-    || (allEvents.length > (GD._deathEchoCount || 0)
+  const extendedEvents =
+    GD._extendedEvents ||
+    (allEvents.length > (GD._deathEchoCount || 0)
       ? allEvents.slice(0, allEvents.length - (GD._deathEchoCount || 0))
       : allEvents);
   if (shouldTriggerMissing600(state, extendedEvents) && Math.random() < 0.35) {
@@ -559,7 +579,7 @@ export function selectEventV2(areaId, state, ctx, pick) {
 
   // Step 2: Force anchor if abnormal streak >= 3
   if (state.abnormalStreak >= 3) {
-    const anchorEvents = allEvents.filter(e => {
+    const anchorEvents = allEvents.filter((e) => {
       const isAnchor = ANCHOR_TYPES.has(e.type) || e.normalcy_anchor;
       return isAnchor && checkTriggerExtended(e, state, ctx);
     });
@@ -586,18 +606,30 @@ export function selectEventV2(areaId, state, ctx, pick) {
  */
 export function checkEndingConditionQuick(state, cond) {
   switch (cond.type) {
-    case 'san_below': return state.san < cond.value;
-    case 'san_above': return state.san > cond.value;
-    case 'san_lte': return state.san <= cond.value;
-    case 'hp_below': return state.hp < cond.value;
-    case 'hp_lte': return state.hp <= cond.value;
-    case 'day_gte': return state.day >= cond.value;
-    case 'in_area': return state.currentArea === cond.area_id;
-    case 'has_item': return state.inventory.some(i => i.id === cond.item_id || i.name === cond.item_id);
-    case 'has_clue': return hasClueId(state.clues, cond.clue_id);
-    case 'has_flag': return state.triggeredEvents.includes(cond.flag_id);
-    case 'npc_trust_gte': return (state.npcTrust[cond.npc_id] || 0) >= cond.value;
-    default: return false;
+    case 'san_below':
+      return state.san < cond.value;
+    case 'san_above':
+      return state.san > cond.value;
+    case 'san_lte':
+      return state.san <= cond.value;
+    case 'hp_below':
+      return state.hp < cond.value;
+    case 'hp_lte':
+      return state.hp <= cond.value;
+    case 'day_gte':
+      return state.day >= cond.value;
+    case 'in_area':
+      return state.currentArea === cond.area_id;
+    case 'has_item':
+      return state.inventory.some((i) => i.id === cond.item_id || i.name === cond.item_id);
+    case 'has_clue':
+      return hasClueId(state.clues, cond.clue_id);
+    case 'has_flag':
+      return state.triggeredEvents.includes(cond.flag_id);
+    case 'npc_trust_gte':
+      return (state.npcTrust[cond.npc_id] || 0) >= cond.value;
+    default:
+      return false;
   }
 }
 
@@ -632,7 +664,7 @@ export function applyExtendedEffect(state, eff) {
       state.runMemory.push({
         day: state.day,
         type: eff.memory_type || 'extended',
-        text: '第 ' + state.day + ' 天：' + (eff.text || '')
+        text: '第 ' + state.day + ' 天：' + (eff.text || ''),
       });
       if (state.runMemory.length > 12) state.runMemory = state.runMemory.slice(-12);
       return true;
@@ -684,7 +716,8 @@ export function applyExtendedEffect(state, eff) {
  * Called during NEW_GAME before resetting state.
  */
 export function buildPreviousRunSummary(state) {
-  const deathType = state.hp <= 0 ? 'physical' : state.san <= 0 ? 'mental' : state.day > 28 ? 'time' : 'unknown';
+  const deathType =
+    state.hp <= 0 ? 'physical' : state.san <= 0 ? 'mental' : state.day > 28 ? 'time' : 'unknown';
   const highTrustNpcs = Object.entries(state.npcTrust || {})
     .filter(([, v]) => v >= 3)
     .map(([name]) => name);
@@ -698,8 +731,8 @@ export function buildPreviousRunSummary(state) {
     humanity: state.humanityScore ?? 50,
     mythos: state.mythosLevel || 0,
     highTrustNpcs,
-    triggeredKeyEvents: (state.triggeredEvents || []).filter(id =>
-      id.startsWith('evt_ch4_') || id.startsWith('evt_ch5_') || id.startsWith('ending_')
+    triggeredKeyEvents: (state.triggeredEvents || []).filter(
+      (id) => id.startsWith('evt_ch4_') || id.startsWith('evt_ch5_') || id.startsWith('ending_')
     ),
     cluesFound: (state.clues || []).length,
     areasVisited: [...(state.visitedAreas || [])],

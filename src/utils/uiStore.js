@@ -7,20 +7,26 @@ const _useSyncExternalStore = React.useSyncExternalStore;
 function createUiStore(initialState) {
   let state = typeof initialState === 'function' ? initialState() : { ...initialState };
   const listeners = new Set();
-  function getState() { return state; }
+  function getState() {
+    return state;
+  }
   function setState(partial) {
     const next = typeof partial === 'function' ? partial(state) : partial;
     if (next === state) return;
     state = { ...state, ...next };
-    listeners.forEach(fn => fn());
+    listeners.forEach((fn) => fn());
   }
   function subscribe(listener) {
     listeners.add(listener);
     return () => listeners.delete(listener);
   }
   function useStore(selector) {
-    const sel = selector || (s => s);
-    return _useSyncExternalStore(subscribe, () => sel(getState()), () => sel(getState()));
+    const sel = selector || ((s) => s);
+    return _useSyncExternalStore(
+      subscribe,
+      () => sel(getState()),
+      () => sel(getState())
+    );
   }
   useStore.getState = getState;
   useStore.setState = setState;
@@ -56,22 +62,22 @@ function updateSettings(newSettings) {
 }
 
 function addUiToast(toast) {
-  uiStore.setState(s => ({
-    toasts: [...s.toasts, { ...toast, key: Date.now() }]
+  uiStore.setState((s) => ({
+    toasts: [...s.toasts, { ...toast, key: Date.now() }],
   }));
 }
 
 function removeUiToast(key) {
-  uiStore.setState(s => ({
-    toasts: s.toasts.filter(t => t.key !== key)
+  uiStore.setState((s) => ({
+    toasts: s.toasts.filter((t) => t.key !== key),
   }));
 }
 
 function notifySave(msg, type) {
-  uiStore.setState(s => ({ saveTick: s.saveTick + 1 }));
+  uiStore.setState((s) => ({ saveTick: s.saveTick + 1 }));
   addUiToast({
     id: 'save_' + Date.now(),
     type: type || 'save',
-    def: { icon: type === 'load' ? '📖' : '💾', name: msg || '已存档', desc: '' }
+    def: { icon: type === 'load' ? '📖' : '💾', name: msg || '已存档', desc: '' },
   });
 }

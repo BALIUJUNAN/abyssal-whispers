@@ -2,7 +2,14 @@
 // 计算玩家的恐惧倾向和应对方式，生成隐藏flags
 
 export const FEAR_KEYS = ['ocean', 'body', 'control', 'isolation', 'knowledge', 'morality'];
-export const COPING_KEYS = ['avoidant', 'investigative', 'social', 'controlling', 'sacrificial', 'predatory'];
+export const COPING_KEYS = [
+  'avoidant',
+  'investigative',
+  'social',
+  'controlling',
+  'sacrificial',
+  'predatory',
+];
 
 /**
  * 不可变地将前传选择的恐惧倾向应用到 prologue 对象。
@@ -36,7 +43,7 @@ export function applyPrologueChoice(prologue, fear, choiceId) {
     ...prologue,
     fearProfile: newFp,
     copingProfile: newCp,
-    choicesMade: [...prologue.choicesMade, choiceId]
+    choicesMade: [...prologue.choicesMade, choiceId],
   };
 }
 
@@ -99,7 +106,7 @@ export const FEAR_LABELS = {
   control: '控制',
   isolation: '孤立',
   knowledge: '知识',
-  morality: '道德'
+  morality: '道德',
 };
 
 export const COPING_LABELS = {
@@ -108,5 +115,5 @@ export const COPING_LABELS = {
   social: '社交',
   controlling: '支配',
   sacrificial: '牺牲',
-  predatory: '掠夺'
+  predatory: '掠夺',
 };

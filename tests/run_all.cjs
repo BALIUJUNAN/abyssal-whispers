@@ -13,11 +13,11 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 
 const SUITES = [
-  { file: 'tests/test_effect_protocol.cjs',    label: 'effect_protocol' },
+  { file: 'tests/test_effect_protocol.cjs', label: 'effect_protocol' },
   { file: 'tests/test_game_data_protocol.cjs', label: 'game_data_protocol' },
-  { file: 'tests/test_event_system.cjs',       label: 'event_system' },
-  { file: 'tests/test_smoke_flows.cjs',        label: 'smoke_flows' },
-  { file: 'tests/integration_test.cjs',        label: 'integration' },
+  { file: 'tests/test_event_system.cjs', label: 'event_system' },
+  { file: 'tests/test_smoke_flows.cjs', label: 'smoke_flows' },
+  { file: 'tests/integration_test.cjs', label: 'integration' },
 ];
 
 let totalPassed = 0;
@@ -62,7 +62,7 @@ for (const suite of SUITES) {
 
   // On failure, show last few lines of output for diagnosis
   if (exitCode !== 0) {
-    const lines = output.split('\n').filter(l => l.trim());
+    const lines = output.split('\n').filter((l) => l.trim());
     for (const line of lines.slice(-5)) {
       console.log(`     ${line}`);
     }
@@ -72,7 +72,7 @@ for (const suite of SUITES) {
 console.log('');
 console.log(`  ${totalPassed} passed, ${totalFailed} failed — ${suiteResults.length} suites`);
 
-const anyFailed = suiteResults.some(r => r.status === 'FAIL');
+const anyFailed = suiteResults.some((r) => r.status === 'FAIL');
 if (anyFailed) {
   console.log('\n  ❌ TEST SUITE FAILED');
   process.exit(1);

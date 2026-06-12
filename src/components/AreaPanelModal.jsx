@@ -14,7 +14,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   // 区域信息
   const area = useMemo(() => {
     if (!hotspot.areaId) return null;
-    return (GD.areas || GD.module2_areas || []).find(a => a.id === hotspot.areaId);
+    return (GD.areas || GD.module2_areas || []).find((a) => a.id === hotspot.areaId);
   }, [hotspot.areaId]);
 
   // 区域场景图
@@ -22,7 +22,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
     if (!hotspot.areaId) return null;
     return getAreaSceneImage(hotspot.areaId, {
       phase: getPhase ? getPhase(state.day) : 'morning',
-      visits: (state.visitedAreas || []).filter(a => a === hotspot.areaId).length,
+      visits: (state.visitedAreas || []).filter((a) => a === hotspot.areaId).length,
       pollution: state.pollution || 0,
     });
   }, [hotspot.areaId, state.day, state.pollution, state.visitedAreas]);
@@ -53,14 +53,17 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
         cost: '2 AP',
         costAp: 2,
         disabled: state.ap < 2,
-        onClick: () => { dispatch({ type: 'EXPLORE' }); onClose(); },
+        onClick: () => {
+          dispatch({ type: 'EXPLORE' });
+          onClose();
+        },
       });
     }
 
     // 移动到相邻区域
     if (isCurrentHotspot) {
-      conn.forEach(aid => {
-        const a = (GD.areas || GD.module2_areas || []).find(ar => ar.id === aid);
+      conn.forEach((aid) => {
+        const a = (GD.areas || GD.module2_areas || []).find((ar) => ar.id === aid);
         if (!a) return;
         const unlocked = isAreaUnlocked(a, state);
         if (!unlocked) return;
@@ -71,14 +74,17 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
           cost: '1 AP',
           costAp: 1,
           disabled: state.ap < 1,
-          onClick: () => { dispatch({ type: 'MOVE', areaId: aid }); onClose(); },
+          onClick: () => {
+            dispatch({ type: 'MOVE', areaId: aid });
+            onClose();
+          },
         });
       });
     }
 
     // NPC 对话
     if (isInArea && npcsHere.length > 0) {
-      npcsHere.forEach(npc => {
+      npcsHere.forEach((npc) => {
         actions.push({
           id: 'talk_' + npc.name,
           icon: '💬',
@@ -86,14 +92,18 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
           cost: '1 AP',
           costAp: 1,
           disabled: state.ap < 1,
-          onClick: () => { dispatch({ type: 'TALK_NPC', npc }); onClose(); },
+          onClick: () => {
+            dispatch({ type: 'TALK_NPC', npc });
+            onClose();
+          },
         });
       });
     }
 
     // 买食物（仅镇中心杂货店）
     if (hotspot.id === 'grocery' || (hotspot.id === 'town_center' && isInArea)) {
-      const canBuy = state.ap >= 1 && (state.money || 0) >= 3 && (state.food || 0) < (state.maxFood || 5);
+      const canBuy =
+        state.ap >= 1 && (state.money || 0) >= 3 && (state.food || 0) < (state.maxFood || 5);
       actions.push({
         id: 'buy_food',
         icon: '🛒',
@@ -101,7 +111,10 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
         cost: '1 AP · 3金钱',
         costAp: 1,
         disabled: !canBuy,
-        onClick: () => { dispatch({ type: 'BUY_FOOD' }); onClose(); },
+        onClick: () => {
+          dispatch({ type: 'BUY_FOOD' });
+          onClose();
+        },
       });
     }
 
@@ -114,7 +127,10 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
         cost: '2 AP',
         costAp: 2,
         disabled: state.ap < 2,
-        onClick: () => { dispatch({ type: 'WORK' }); onClose(); },
+        onClick: () => {
+          dispatch({ type: 'WORK' });
+          onClose();
+        },
       });
     }
 
@@ -127,24 +143,35 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
         cost: '休息恢复',
         costAp: 0,
         disabled: false,
-        onClick: () => { dispatch({ type: 'REST' }); onClose(); },
+        onClick: () => {
+          dispatch({ type: 'REST' });
+          onClose();
+        },
       });
     }
 
     // 切换安全屋
-    if (hotspot.actions?.includes('switch_safehouse') && typeof getAvailableSafehouses === 'function') {
+    if (
+      hotspot.actions?.includes('switch_safehouse') &&
+      typeof getAvailableSafehouses === 'function'
+    ) {
       const shs = getAvailableSafehouses(state);
-      shs.filter(sh => state.currentSafehouse !== sh.name).forEach(sh => {
-        actions.push({
-          id: 'safehouse_' + sh.name,
-          icon: '🏠',
-          label: '搬到 ' + sh.name,
-          cost: '恢复+' + (sh.functions?.san_restore || 0),
-          costAp: 0,
-          disabled: false,
-          onClick: () => { dispatch({ type: 'SWITCH_SAFEHOUSE', safehouse: sh.name }); onClose(); },
+      shs
+        .filter((sh) => state.currentSafehouse !== sh.name)
+        .forEach((sh) => {
+          actions.push({
+            id: 'safehouse_' + sh.name,
+            icon: '🏠',
+            label: '搬到 ' + sh.name,
+            cost: '恢复+' + (sh.functions?.san_restore || 0),
+            costAp: 0,
+            disabled: false,
+            onClick: () => {
+              dispatch({ type: 'SWITCH_SAFEHOUSE', safehouse: sh.name });
+              onClose();
+            },
+          });
         });
-      });
     }
 
     // 如果没有行动且不在该区域 → 显示移动按钮
@@ -158,7 +185,10 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
           cost: '1 AP',
           costAp: 1,
           disabled: state.ap < 1 || !conn.includes(hotspot.areaId),
-          onClick: () => { dispatch({ type: 'MOVE', areaId: hotspot.areaId }); onClose(); },
+          onClick: () => {
+            dispatch({ type: 'MOVE', areaId: hotspot.areaId });
+            onClose();
+          },
         });
       }
     }
@@ -182,27 +212,35 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   }, [hotspot.id, state.safehouseCorruption]);
 
   return (
-    <div className="area-panel-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className="area-panel-overlay"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="area-panel-modal">
-
         {/* 标题栏 */}
         <div className="area-panel-header">
           <div className="area-panel-title-row">
             <span className="area-panel-icon">{hotspot.icon}</span>
             <h2 className="area-panel-title">{hotspot.label}</h2>
-            <button className="area-panel-close" onClick={onClose} title="关闭 (Esc)">✕</button>
+            <button className="area-panel-close" onClick={onClose} title="关闭 (Esc)">
+              ✕
+            </button>
           </div>
           {area && (
             <div className="area-panel-subtitle">
-              危险等级：{'★'.repeat(Math.min(3, area.danger_level || 0))}{'☆'.repeat(Math.max(0, 3 - (area.danger_level || 0)))}
-              {state.currentArea === hotspot.areaId && <span className="area-here-badge">当前位置</span>}
+              危险等级：{'★'.repeat(Math.min(3, area.danger_level || 0))}
+              {'☆'.repeat(Math.max(0, 3 - (area.danger_level || 0)))}
+              {state.currentArea === hotspot.areaId && (
+                <span className="area-here-badge">当前位置</span>
+              )}
             </div>
           )}
         </div>
 
         {/* 主内容区 */}
         <div className="area-panel-body">
-
           {/* 左侧：区域插图 + 描述 */}
           <div className="area-panel-left">
             {sceneImage && (
@@ -210,18 +248,19 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
                 className="area-panel-scene"
                 src={sceneImage}
                 alt={hotspot.label}
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             )}
-            <div className="area-panel-description">
-              {hotspot.description}
-            </div>
+            <div className="area-panel-description">{hotspot.description}</div>
             {/* 安全屋详情（仅酒馆） */}
             {shStage && (
               <div className="area-panel-safehouse">
                 <div className="safehouse-stage-name">{shStage.name}</div>
                 <div className="safehouse-detail">
-                  恢复：{shStage.available_functions?.san_recovery || 0} SAN | 污染：{state.safehouseCorruption}%
+                  恢复：{shStage.available_functions?.san_recovery || 0} SAN | 污染：
+                  {state.safehouseCorruption}%
                 </div>
               </div>
             )}
@@ -229,20 +268,30 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
             {npcsHere.length > 0 && (
               <div className="area-panel-npcs">
                 <div className="area-panel-npcs-title">在此处的人</div>
-                {npcsHere.map(npc => {
+                {npcsHere.map((npc) => {
                   const trust = state.npcTrust[npc.name] || 0;
                   const ns = state.npcStates[npc.name] || {};
                   const img = getNpcImage(npc.name, state.npcStates);
                   return (
                     <div key={npc.name} className="area-panel-npc-item">
-                      {img && <img className="area-panel-npc-img" src={img} alt={npc.name}
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+                      {img && (
+                        <img
+                          className="area-panel-npc-img"
+                          src={img}
+                          alt={npc.name}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      )}
                       <div>
                         <div className="area-panel-npc-name">
-                          {npc.name}{ns.corrupted && <span className="npc-corrupted-badge">腐蚀</span>}
+                          {npc.name}
+                          {ns.corrupted && <span className="npc-corrupted-badge">腐蚀</span>}
                         </div>
                         <div className="area-panel-npc-trust">
-                          {'★'.repeat(Math.max(0, Math.min(5, trust)))}{'☆'.repeat(Math.max(0, 5 - Math.min(5, trust)))}
+                          {'★'.repeat(Math.max(0, Math.min(5, trust)))}
+                          {'☆'.repeat(Math.max(0, 5 - Math.min(5, trust)))}
                         </div>
                       </div>
                     </div>
@@ -263,7 +312,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
               </div>
             )}
             <div className="area-panel-actions-list">
-              {availableActions.map(action => (
+              {availableActions.map((action) => (
                 <button
                   key={action.id}
                   className={'area-panel-action-btn' + (action.disabled ? ' disabled' : '')}
@@ -281,15 +330,21 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
             <div className="area-panel-resources">
               <div className="resource-item">
                 <span className="resource-label">行动点</span>
-                <span className="resource-value">{state.ap}/{state.maxAp}</span>
+                <span className="resource-value">
+                  {state.ap}/{state.maxAp}
+                </span>
               </div>
               <div className="resource-item">
                 <span className="resource-label">SAN</span>
-                <span className="resource-value">{state.san}/{state.maxSan}</span>
+                <span className="resource-value">
+                  {state.san}/{state.maxSan}
+                </span>
               </div>
               <div className="resource-item">
                 <span className="resource-label">食物</span>
-                <span className="resource-value">{state.food || 0}/{state.maxFood || 5}</span>
+                <span className="resource-value">
+                  {state.food || 0}/{state.maxFood || 5}
+                </span>
               </div>
               <div className="resource-item">
                 <span className="resource-label">金钱</span>

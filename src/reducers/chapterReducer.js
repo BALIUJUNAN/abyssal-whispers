@@ -28,7 +28,7 @@ export function checkChapterTransition(oldDay, newDay, ctx) {
   const newCh = getChapterForDay(newDay, ctx);
   if (oldCh.key === newCh.key) return null;
   const transitions = GD.implementation_notes?.chapters?.chapter_transition_events || [];
-  const t = transitions.find(tr => tr.from === oldCh.key && tr.to === newCh.key);
+  const t = transitions.find((tr) => tr.from === oldCh.key && tr.to === newCh.key);
   return t || { event_text: '你感到某些东西发生了变化。', san_cost: 0, mythos_gain: 0 };
 }
 
@@ -58,7 +58,10 @@ export function getMonsterManifestation(creatureType, day, ctx) {
   let stage = 'absence';
   for (const [s, w] of Object.entries(dist)) {
     r -= w;
-    if (r <= 0) { stage = s; break; }
+    if (r <= 0) {
+      stage = s;
+      break;
+    }
   }
   // Early days prefer absence/trace
   if (day <= 7 && (stage === 'full_presence' || stage === 'partial_presence')) {
@@ -66,5 +69,8 @@ export function getMonsterManifestation(creatureType, day, ctx) {
   }
   // Full presence only in late game
   if (stage === 'full_presence' && day < 15) stage = 'partial_presence';
-  return { stage, manifestation: manifestations[Math.floor(Math.random() * manifestations.length)] };
+  return {
+    stage,
+    manifestation: manifestations[Math.floor(Math.random() * manifestations.length)],
+  };
 }

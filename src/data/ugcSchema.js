@@ -12,18 +12,18 @@
 // ────────────────────────────────────────────────
 
 export const LIMITS = {
-  MAX_EVENTS_PER_MOD:    30,
+  MAX_EVENTS_PER_MOD: 30,
   MAX_CHOICES_PER_EVENT: 6,
   MAX_DESCRIPTION_CHARS: 2000,
-  MAX_NAME_CHARS:        80,
-  MAX_ID_CHARS:          64,
-  MAX_AUTHOR_CHARS:      40,
-  MAX_MOD_NAME_CHARS:    80,
-  MAX_VERSION_CHARS:     16,
-  MAX_CLUE_NAME_CHARS:   80,
-  MAX_TEXT_CHARS:        1500,
-  MAX_LABEL_CHARS:       60,
-  MAX_MODS_TOTAL:        20,
+  MAX_NAME_CHARS: 80,
+  MAX_ID_CHARS: 64,
+  MAX_AUTHOR_CHARS: 40,
+  MAX_MOD_NAME_CHARS: 80,
+  MAX_VERSION_CHARS: 16,
+  MAX_CLUE_NAME_CHARS: 80,
+  MAX_TEXT_CHARS: 1500,
+  MAX_LABEL_CHARS: 60,
+  MAX_MODS_TOTAL: 20,
 };
 
 // Keys allowed inside an event's `effects` object (top-level)
@@ -144,7 +144,7 @@ const DANGEROUS_VALUE_PATTERNS = [
   /\bthis\b.*\bconstructor\b/i,
   /<script/i,
   /javascript:/i,
-  /on\w+\s*=/i,  // onclick=, onerror= etc.
+  /on\w+\s*=/i, // onclick=, onerror= etc.
 ];
 
 // ────────────────────────────────────────────────
@@ -238,7 +238,11 @@ function validateId(value, fieldName, maxLen) {
 /**
  * Validate a number field within optional bounds.
  */
-function validateNumberField(value, fieldName, { required = false, min, max, integer = false } = {}) {
+function validateNumberField(
+  value,
+  fieldName,
+  { required = false, min, max, integer = false } = {}
+) {
   if (value === undefined || value === null) {
     return required ? [`${fieldName}: required`] : [];
   }
@@ -272,7 +276,14 @@ export function validateEvent(raw, index = 0) {
   // ── Step 2: Required fields ──
   errors.push(...validateId(raw.id, `${prefix}.id`, LIMITS.MAX_ID_CHARS));
   errors.push(...validateStringField(raw.name, `${prefix}.name`, LIMITS.MAX_NAME_CHARS, true));
-  errors.push(...validateStringField(raw.description, `${prefix}.description`, LIMITS.MAX_DESCRIPTION_CHARS, true));
+  errors.push(
+    ...validateStringField(
+      raw.description,
+      `${prefix}.description`,
+      LIMITS.MAX_DESCRIPTION_CHARS,
+      true
+    )
+  );
 
   if (raw.type && !VALID_EVENT_TYPES.has(raw.type)) {
     errors.push(`${prefix}.type: invalid type "${raw.type}"`);
@@ -292,15 +303,49 @@ export function validateEvent(raw, index = 0) {
         // Allow custom area IDs (for future UGC areas), but warn
       }
     }
-    errors.push(...validateNumberField(t.min_loop, `${prefix}.trigger.min_loop`, { min: 0, max: 99, integer: true }));
-    errors.push(...validateNumberField(t.max_loop, `${prefix}.trigger.max_loop`, { min: 0, max: 99, integer: true }));
-    errors.push(...validateNumberField(t.probability, `${prefix}.trigger.probability`, { min: 0, max: 1 }));
-    errors.push(...validateNumberField(t.san_lte, `${prefix}.trigger.san_lte`, { min: 0, max: 99 }));
-    errors.push(...validateNumberField(t.san_gte, `${prefix}.trigger.san_gte`, { min: 0, max: 99 }));
-    errors.push(...validateNumberField(t.humanity_min, `${prefix}.trigger.humanity_min`, { min: 0, max: 100 }));
-    errors.push(...validateNumberField(t.humanity_max, `${prefix}.trigger.humanity_max`, { min: 0, max: 100 }));
-    errors.push(...validateNumberField(t.cooldown_days, `${prefix}.trigger.cooldown_days`, { min: 0, max: 99, integer: true }));
-    errors.push(...validateNumberField(t.max_per_day_category, `${prefix}.trigger.max_per_day_category`, { min: 1, max: 10, integer: true }));
+    errors.push(
+      ...validateNumberField(t.min_loop, `${prefix}.trigger.min_loop`, {
+        min: 0,
+        max: 99,
+        integer: true,
+      })
+    );
+    errors.push(
+      ...validateNumberField(t.max_loop, `${prefix}.trigger.max_loop`, {
+        min: 0,
+        max: 99,
+        integer: true,
+      })
+    );
+    errors.push(
+      ...validateNumberField(t.probability, `${prefix}.trigger.probability`, { min: 0, max: 1 })
+    );
+    errors.push(
+      ...validateNumberField(t.san_lte, `${prefix}.trigger.san_lte`, { min: 0, max: 99 })
+    );
+    errors.push(
+      ...validateNumberField(t.san_gte, `${prefix}.trigger.san_gte`, { min: 0, max: 99 })
+    );
+    errors.push(
+      ...validateNumberField(t.humanity_min, `${prefix}.trigger.humanity_min`, { min: 0, max: 100 })
+    );
+    errors.push(
+      ...validateNumberField(t.humanity_max, `${prefix}.trigger.humanity_max`, { min: 0, max: 100 })
+    );
+    errors.push(
+      ...validateNumberField(t.cooldown_days, `${prefix}.trigger.cooldown_days`, {
+        min: 0,
+        max: 99,
+        integer: true,
+      })
+    );
+    errors.push(
+      ...validateNumberField(t.max_per_day_category, `${prefix}.trigger.max_per_day_category`, {
+        min: 1,
+        max: 10,
+        integer: true,
+      })
+    );
     if (t.time_phase && Array.isArray(t.time_phase)) {
       for (const tp of t.time_phase) {
         if (!VALID_TIME_PHASES.has(tp)) {
@@ -311,14 +356,23 @@ export function validateEvent(raw, index = 0) {
   }
 
   // ── Step 4: Effects whitelist ──
-  errors.push(...validateEffectsKeys(raw.effects, EFFECTS_KEYS_WHITELIST, `${prefix}.effects`).errors);
+  errors.push(
+    ...validateEffectsKeys(raw.effects, EFFECTS_KEYS_WHITELIST, `${prefix}.effects`).errors
+  );
 
   // Validate add_clue structure
   if (raw.effects?.add_clue) {
     const ac = raw.effects.add_clue;
     if (typeof ac === 'object') {
       errors.push(...validateId(ac.id, `${prefix}.effects.add_clue.id`, LIMITS.MAX_ID_CHARS));
-      errors.push(...validateStringField(ac.name, `${prefix}.effects.add_clue.name`, LIMITS.MAX_CLUE_NAME_CHARS, true));
+      errors.push(
+        ...validateStringField(
+          ac.name,
+          `${prefix}.effects.add_clue.name`,
+          LIMITS.MAX_CLUE_NAME_CHARS,
+          true
+        )
+      );
     } else if (typeof ac !== 'string') {
       errors.push(`${prefix}.effects.add_clue: must be string or {id, name} object`);
     }
@@ -345,12 +399,18 @@ export function validateEvent(raw, index = 0) {
       for (let ci = 0; ci < raw.choices.length; ci++) {
         const c = raw.choices[ci];
         const cp = `${prefix}.choices[${ci}]`;
-        if (!c || typeof c !== 'object') { errors.push(`${cp}: must be an object`); continue; }
+        if (!c || typeof c !== 'object') {
+          errors.push(`${cp}: must be an object`);
+          continue;
+        }
         errors.push(...validateId(c.id, `${cp}.id`, LIMITS.MAX_ID_CHARS));
         errors.push(...validateStringField(c.label, `${cp}.label`, LIMITS.MAX_LABEL_CHARS, true));
-        if (c.text) errors.push(...validateStringField(c.text, `${cp}.text`, LIMITS.MAX_TEXT_CHARS, false));
+        if (c.text)
+          errors.push(...validateStringField(c.text, `${cp}.text`, LIMITS.MAX_TEXT_CHARS, false));
         // Choice effects whitelist
-        errors.push(...validateEffectsKeys(c.effects, CHOICE_EFFECTS_KEYS_WHITELIST, `${cp}.effects`).errors);
+        errors.push(
+          ...validateEffectsKeys(c.effects, CHOICE_EFFECTS_KEYS_WHITELIST, `${cp}.effects`).errors
+        );
         // Security scan on choice
         const cs = scanForDanger(c, cp);
         if (!cs.safe) errors.push(...cs.violations);
@@ -375,19 +435,19 @@ export function validateEvent(raw, index = 0) {
   }
 
   const sanitized = {
-    id:          raw.id,
-    name:        raw.name,
-    type:        raw.type || 'ugc',
-    subtype:     raw.subtype || 'ugc',
-    weight:      typeof raw.weight === 'number' ? Math.max(0.1, Math.min(10, raw.weight)) : 1,
-    tier:        raw.tier || 'common',
-    tags:        Array.isArray(raw.tags) ? raw.tags.slice(0, 20) : [],
-    trigger:     sanitizeTrigger(raw.trigger),
+    id: raw.id,
+    name: raw.name,
+    type: raw.type || 'ugc',
+    subtype: raw.subtype || 'ugc',
+    weight: typeof raw.weight === 'number' ? Math.max(0.1, Math.min(10, raw.weight)) : 1,
+    tier: raw.tier || 'common',
+    tags: Array.isArray(raw.tags) ? raw.tags.slice(0, 20) : [],
+    trigger: sanitizeTrigger(raw.trigger),
     description: raw.description,
-    effects:     sanitizeObject(raw.effects, EFFECTS_KEYS_WHITELIST),
-    choices:     sanitizeChoices(raw.choices),
+    effects: sanitizeObject(raw.effects, EFFECTS_KEYS_WHITELIST),
+    choices: sanitizeChoices(raw.choices),
     // Marker for rendering layer
-    source:      'ugc',
+    source: 'ugc',
   };
 
   return { valid: true, errors: [], sanitized };
@@ -399,9 +459,11 @@ export function validateEvent(raw, index = 0) {
 function sanitizeTrigger(trigger) {
   if (!trigger || typeof trigger !== 'object') return undefined;
   const out = {};
-  if (Array.isArray(trigger.areas)) out.areas = trigger.areas.filter(a => typeof a === 'string');
-  if (Array.isArray(trigger.time_phase)) out.time_phase = trigger.time_phase.filter(t => VALID_TIME_PHASES.has(t));
-  if (typeof trigger.probability === 'number') out.probability = Math.max(0, Math.min(1, trigger.probability));
+  if (Array.isArray(trigger.areas)) out.areas = trigger.areas.filter((a) => typeof a === 'string');
+  if (Array.isArray(trigger.time_phase))
+    out.time_phase = trigger.time_phase.filter((t) => VALID_TIME_PHASES.has(t));
+  if (typeof trigger.probability === 'number')
+    out.probability = Math.max(0, Math.min(1, trigger.probability));
   if (typeof trigger.min_loop === 'number') out.min_loop = trigger.min_loop;
   if (typeof trigger.max_loop === 'number') out.max_loop = trigger.max_loop;
   if (typeof trigger.san_lte === 'number') out.san_lte = trigger.san_lte;
@@ -414,10 +476,12 @@ function sanitizeTrigger(trigger) {
   if (typeof trigger.once_ever === 'boolean') out.once_ever = trigger.once_ever;
   if (Array.isArray(trigger.requires)) out.requires = trigger.requires;
   if (Array.isArray(trigger.forbidden_flags)) out.forbidden_flags = trigger.forbidden_flags;
-  if (Array.isArray(trigger.requires_prev_event)) out.requires_prev_event = trigger.requires_prev_event;
+  if (Array.isArray(trigger.requires_prev_event))
+    out.requires_prev_event = trigger.requires_prev_event;
   if (Array.isArray(trigger.requires_clues)) out.requires_clues = trigger.requires_clues;
   if (Array.isArray(trigger.requires_flags)) out.requires_flags = trigger.requires_flags;
-  if (typeof trigger.max_per_day_category === 'number') out.max_per_day_category = trigger.max_per_day_category;
+  if (typeof trigger.max_per_day_category === 'number')
+    out.max_per_day_category = trigger.max_per_day_category;
   return Object.keys(out).length > 0 ? out : undefined;
 }
 
@@ -438,10 +502,10 @@ function sanitizeObject(obj, whitelist) {
  */
 function sanitizeChoices(choices) {
   if (!Array.isArray(choices)) return [];
-  return choices.slice(0, LIMITS.MAX_CHOICES_PER_EVENT).map(c => ({
-    id:      c.id,
-    label:   c.label,
-    text:    c.text || '',
+  return choices.slice(0, LIMITS.MAX_CHOICES_PER_EVENT).map((c) => ({
+    id: c.id,
+    label: c.label,
+    text: c.text || '',
     effects: sanitizeObject(c.effects, CHOICE_EFFECTS_KEYS_WHITELIST) || {},
   }));
 }
@@ -529,14 +593,14 @@ export function validateMod(raw) {
   }
 
   const sanitized = {
-    id:        raw.id,
-    name:      raw.name,
-    author:    raw.author,
-    version:   raw.version,
-    events:    sanitizedEvents,
-    metadata:  (raw.metadata && typeof raw.metadata === 'object') ? raw.metadata : {},
+    id: raw.id,
+    name: raw.name,
+    author: raw.author,
+    version: raw.version,
+    events: sanitizedEvents,
+    metadata: raw.metadata && typeof raw.metadata === 'object' ? raw.metadata : {},
     createdAt: raw.createdAt || new Date().toISOString(),
-    enabled:   true,
+    enabled: true,
   };
 
   return { valid: true, errors: [], warnings, sanitized };
@@ -547,8 +611,8 @@ export function validateMod(raw) {
  * Returns array of conflicting IDs.
  */
 export function findIdConflicts(modEvents, existingEvents) {
-  const existingIds = new Set(existingEvents.map(e => e.id));
-  return modEvents.filter(e => existingIds.has(e.id)).map(e => e.id);
+  const existingIds = new Set(existingEvents.map((e) => e.id));
+  return modEvents.filter((e) => existingIds.has(e.id)).map((e) => e.id);
 }
 
 /**

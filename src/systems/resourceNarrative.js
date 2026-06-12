@@ -17,10 +17,15 @@ export function getResourceTextCorruptionChance(state) {
   var light = state.lightLevel || 0;
   var infection = state.infection || 0;
   var fatigue = state.fatigue || 0;
-  if (food === 0) chance += 0.15; else if (food === 1) chance += 0.05;
-  if (light === 0) chance += 0.25; else if (light === 1) chance += 0.10;
-  if (infection >= 7) chance += 0.30; else if (infection >= 4) chance += 0.15; else if (infection >= 2) chance += 0.05;
-  if (fatigue >= 8) chance += 0.20; else if (fatigue >= 5) chance += 0.08;
+  if (food === 0) chance += 0.15;
+  else if (food === 1) chance += 0.05;
+  if (light === 0) chance += 0.25;
+  else if (light === 1) chance += 0.1;
+  if (infection >= 7) chance += 0.3;
+  else if (infection >= 4) chance += 0.15;
+  else if (infection >= 2) chance += 0.05;
+  if (fatigue >= 8) chance += 0.2;
+  else if (fatigue >= 5) chance += 0.08;
   return Math.min(0.6, chance);
 }
 
@@ -65,7 +70,13 @@ export function applyResourceTextCorruption(text, state) {
   }
   // Light = 1: occasional word replacement (unreliable perception)
   if (light === 1 && Math.random() < 0.3) {
-    var unreliablePairs = [['看到了','以为你看到了'],['听到了','可能是'],['确定','不确定'],['真实','模糊'],['存在','似乎']];
+    var unreliablePairs = [
+      ['看到了', '以为你看到了'],
+      ['听到了', '可能是'],
+      ['确定', '不确定'],
+      ['真实', '模糊'],
+      ['存在', '似乎'],
+    ];
     var t = text;
     var pair = unreliablePairs[Math.floor(Math.random() * unreliablePairs.length)];
     if (t.includes(pair[0])) t = t.replace(pair[0], pair[1]);
@@ -120,7 +131,8 @@ export function getResourceEventWeightModifier(evt, state) {
 
   // Low light: perception events up, reliable events down
   if (light === 0) {
-    if (tags.indexOf('perception') >= 0 || tags.indexOf('unreliable') >= 0 || type === '轻微异常') w *= 1.8;
+    if (tags.indexOf('perception') >= 0 || tags.indexOf('unreliable') >= 0 || type === '轻微异常')
+      w *= 1.8;
     if (tags.indexOf('reliable') >= 0 || type === '正常事件') w *= 0.5;
     // Darkness-specific events
     if (tags.indexOf('darkness') >= 0) w *= 2.0;
@@ -130,7 +142,8 @@ export function getResourceEventWeightModifier(evt, state) {
 
   // High infection: corruption events up, normal events down
   if (infection >= 7) {
-    if (tags.indexOf('infection') >= 0 || tags.indexOf('body') >= 0 || tags.indexOf('flesh') >= 0) w *= 2.0;
+    if (tags.indexOf('infection') >= 0 || tags.indexOf('body') >= 0 || tags.indexOf('flesh') >= 0)
+      w *= 2.0;
     if (type === '怪物遭遇' || type === '超自然遭遇') w *= 1.4;
     if (type === '正常事件') w *= 0.5;
   } else if (infection >= 4) {
@@ -148,7 +161,8 @@ export function getResourceEventWeightModifier(evt, state) {
 
   // No food: desperation and resource events up
   if (food === 0) {
-    if (tags.indexOf('resource') >= 0 || tags.indexOf('food') >= 0 || type === 'resource_pressure') w *= 1.8;
+    if (tags.indexOf('resource') >= 0 || tags.indexOf('food') >= 0 || type === 'resource_pressure')
+      w *= 1.8;
     if (tags.indexOf('desperation') >= 0) w *= 1.5;
   }
 
@@ -167,20 +181,27 @@ export function processDailyResources(state) {
   var corr = state.safehouseCorruption || 0;
   var fatigueRec = corr < 20 ? 4 : corr < 40 ? 3 : corr < 60 ? 2 : 1;
   state.fatigue = Math.max(0, state.fatigue - fatigueRec);
-  var corruptedNpcs = Object.values(state.npcStates || {}).filter(function(ns) { return ns.corrupted && !ns.dead; }).length;
+  var corruptedNpcs = Object.values(state.npcStates || {}).filter(function (ns) {
+    return ns.corrupted && !ns.dead;
+  }).length;
   if (corruptedNpcs > 0 && Math.random() < 0.15 * corruptedNpcs) {
     state.infection = Math.min(state.maxInfection || 10, (state.infection || 0) + 1);
   }
   // Dangerous area infection: driven by area.infection_risk flag (from game data),
   // falls back to danger_level >= 5 for backward compatibility.
   // NOTE: lighthouse (level 5) has infection_risk=false in game data — narrative exclusion.
-  var areaData = typeof getAreaInfo === 'function' ? getAreaInfo(state.currentArea, { GD: GD }) : null;
-  var isInfectious = areaData ? !!areaData.infection_risk : ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove'].indexOf(state.currentArea) >= 0;
+  var areaData =
+    typeof getAreaInfo === 'function' ? getAreaInfo(state.currentArea, { GD: GD }) : null;
+  var isInfectious = areaData
+    ? !!areaData.infection_risk
+    : ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove'].indexOf(state.currentArea) >= 0;
   if (isInfectious) {
     state.infection = Math.min(state.maxInfection || 10, (state.infection || 0) + 1);
   }
   // Light degradation: flashlight uses consumed over time
-  var flashlight = (state.inventory || []).find(function(i) { return i.name === '手电筒' || i.id === 'flashlight'; });
+  var flashlight = (state.inventory || []).find(function (i) {
+    return i.name === '手电筒' || i.id === 'flashlight';
+  });
   if (flashlight) state.lightLevel = flashlight.uses > 0 ? 2 : 0;
   // Starvation tracking: uses same `starvationDays` key as _processFoodAndStarvation
   if (food === 0) {
@@ -196,51 +217,119 @@ export function processDailyResources(state) {
 
 export var SAFEHOUSE_STAGES = [
   {
-    stage: 0, corruption: [0, 15], name: '庇护所',
+    stage: 0,
+    corruption: [0, 15],
+    name: '庇护所',
     description: '温暖、干燥、安全。壁炉里的火还在燃烧。至少现在是。',
-    sound: 'rest_generic', recovery: 2, eventChance: 0,
-    atmosphere: '酒馆的木头发出温暖的嘎吱声。窗外的雾暂时被关在了外面。'
+    sound: 'rest_generic',
+    recovery: 2,
+    eventChance: 0,
+    atmosphere: '酒馆的木头发出温暖的嘎吱声。窗外的雾暂时被关在了外面。',
   },
   {
-    stage: 1, corruption: [16, 35], name: '临时住所',
+    stage: 1,
+    corruption: [16, 35],
+    name: '临时住所',
     description: '墙角有水渍。窗帘在没有风的时候动了一下。地板上的灰尘里有你没留过的脚印。',
-    sound: 'safehouse_breath', recovery: 1, eventChance: 0.08,
-    atmosphere: '你听到了滴水声。不是水龙头——是从墙壁里面传出来的。'
+    sound: 'safehouse_breath',
+    recovery: 1,
+    eventChance: 0.08,
+    atmosphere: '你听到了滴水声。不是水龙头——是从墙壁里面传出来的。',
   },
   {
-    stage: 2, corruption: [36, 55], name: '可疑空间',
-    description: '你不确定门是不是你关的。镜子里的你眨眼的频率不太对。家具的位置和你记忆中的不完全一致。',
-    sound: 'safehouse_breath', recovery: 0, eventChance: 0.15,
-    atmosphere: '你醒来的时候，床单上有盐的结晶。你的枕头是湿的。但你没有哭。'
+    stage: 2,
+    corruption: [36, 55],
+    name: '可疑空间',
+    description:
+      '你不确定门是不是你关的。镜子里的你眨眼的频率不太对。家具的位置和你记忆中的不完全一致。',
+    sound: 'safehouse_breath',
+    recovery: 0,
+    eventChance: 0.15,
+    atmosphere: '你醒来的时候，床单上有盐的结晶。你的枕头是湿的。但你没有哭。',
   },
   {
-    stage: 3, corruption: [56, 75], name: '不可靠空间',
-    description: '安全屋不再安全。墙壁在呼吸。地板在记忆你的脚步。你关上门的时候，门从另一边推了一下。',
-    sound: 'safehouse_not_safe', recovery: -1, eventChance: 0.25,
-    atmosphere: '你在半夜醒来。你的笔记本翻到了你不记得写的那一页。字迹是你的。但墨水还没有干。'
+    stage: 3,
+    corruption: [56, 75],
+    name: '不可靠空间',
+    description:
+      '安全屋不再安全。墙壁在呼吸。地板在记忆你的脚步。你关上门的时候，门从另一边推了一下。',
+    sound: 'safehouse_not_safe',
+    recovery: -1,
+    eventChance: 0.25,
+    atmosphere: '你在半夜醒来。你的笔记本翻到了你不记得写的那一页。字迹是你的。但墨水还没有干。',
   },
   {
-    stage: 4, corruption: [76, 100], name: '深渊的延伸',
+    stage: 4,
+    corruption: [76, 100],
+    name: '深渊的延伸',
     description: '这里不是你的安全屋。这里从来都不是。你只是被允许待在这里。暂时。',
-    sound: 'safehouse_not_safe', recovery: -3, eventChance: 0.40,
-    atmosphere: '你闭上眼睛的时候，感觉有人在你耳边呼吸。你睁开眼睛，空气是冷的。但你的脖子后面是热的。'
+    sound: 'safehouse_not_safe',
+    recovery: -3,
+    eventChance: 0.4,
+    atmosphere:
+      '你闭上眼睛的时候，感觉有人在你耳边呼吸。你睁开眼睛，空气是冷的。但你的脖子后面是热的。',
   },
 ];
 
 export var SAFEHOUSE_POLLUTION_EVENTS = [
   // Stage 1-2 events (mild unease)
   { minStage: 1, maxStage: 2, text: '你听到楼下的地板嘎吱了一声。你一个人住。', sanCost: 0 },
-  { minStage: 1, maxStage: 3, text: '你的笔记本翻到了一页你没有写的笔记。字迹模仿得很像。但不是你的。', sanCost: 1 },
-  { minStage: 1, maxStage: 2, text: '窗外有人在看你。你拉开窗帘——没有人。但窗玻璃上有手印。从外面。', sanCost: 0 },
-  { minStage: 2, maxStage: 3, text: '你醒来的时候，安全屋的门是开着的。你确定你关了。', sanCost: 1 },
+  {
+    minStage: 1,
+    maxStage: 3,
+    text: '你的笔记本翻到了一页你没有写的笔记。字迹模仿得很像。但不是你的。',
+    sanCost: 1,
+  },
+  {
+    minStage: 1,
+    maxStage: 2,
+    text: '窗外有人在看你。你拉开窗帘——没有人。但窗玻璃上有手印。从外面。',
+    sanCost: 0,
+  },
+  {
+    minStage: 2,
+    maxStage: 3,
+    text: '你醒来的时候，安全屋的门是开着的。你确定你关了。',
+    sanCost: 1,
+  },
   { minStage: 2, maxStage: 4, text: '镜子里的你微笑了。你没有。', sanCost: 2 },
   // Stage 3-4 events (active hostility)
-  { minStage: 3, maxStage: 4, text: '你的食物少了一份。不是因为你吃了。是因为有什么东西帮你吃了。', sanCost: 1 },
-  { minStage: 3, maxStage: 4, text: '你安全屋的墙壁上出现了文字。不是油漆——更像是从墙壁内部渗出来的。', sanCost: 2 },
-  { minStage: 3, maxStage: 4, text: '你在半夜听到有人在用你的声音说话。说的是你明天要说的话。', sanCost: 2 },
-  { minStage: 4, maxStage: 4, text: '你醒来的时候，发现自己站在门口。门是开的。你的脚是湿的。你不记得走过路。', sanCost: 3 },
-  { minStage: 4, maxStage: 4, text: '安全屋的灯灭了。不是灯泡坏了。是黑暗自己走了进来。', sanCost: 3 },
-  { minStage: 4, maxStage: 4, text: '你看到自己的影子在墙上移动。但你没有动。影子在看着你。', sanCost: 2 },
+  {
+    minStage: 3,
+    maxStage: 4,
+    text: '你的食物少了一份。不是因为你吃了。是因为有什么东西帮你吃了。',
+    sanCost: 1,
+  },
+  {
+    minStage: 3,
+    maxStage: 4,
+    text: '你安全屋的墙壁上出现了文字。不是油漆——更像是从墙壁内部渗出来的。',
+    sanCost: 2,
+  },
+  {
+    minStage: 3,
+    maxStage: 4,
+    text: '你在半夜听到有人在用你的声音说话。说的是你明天要说的话。',
+    sanCost: 2,
+  },
+  {
+    minStage: 4,
+    maxStage: 4,
+    text: '你醒来的时候，发现自己站在门口。门是开的。你的脚是湿的。你不记得走过路。',
+    sanCost: 3,
+  },
+  {
+    minStage: 4,
+    maxStage: 4,
+    text: '安全屋的灯灭了。不是灯泡坏了。是黑暗自己走了进来。',
+    sanCost: 3,
+  },
+  {
+    minStage: 4,
+    maxStage: 4,
+    text: '你看到自己的影子在墙上移动。但你没有动。影子在看着你。',
+    sanCost: 2,
+  },
 ];
 
 /**
@@ -265,7 +354,9 @@ export function getSafehousePollutionEvent(stage, eventChanceOverride) {
   var stageData = SAFEHOUSE_STAGES[Math.min(stage, SAFEHOUSE_STAGES.length - 1)];
   var chance = eventChanceOverride != null ? eventChanceOverride : stageData.eventChance;
   if (Math.random() >= chance) return null;
-  var eligible = SAFEHOUSE_POLLUTION_EVENTS.filter(function(e) { return stage >= e.minStage && stage <= e.maxStage; });
+  var eligible = SAFEHOUSE_POLLUTION_EVENTS.filter(function (e) {
+    return stage >= e.minStage && stage <= e.maxStage;
+  });
   if (eligible.length === 0) return null;
   return eligible[Math.floor(Math.random() * eligible.length)];
 }

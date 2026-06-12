@@ -40,13 +40,13 @@ if (!fs.existsSync(INDEX_PATH)) {
 const HTML = fs.readFileSync(INDEX_PATH, 'utf8');
 
 const keywords = [
-  ['const GD=',           'GD 初始化'],
-  ['ErrorBoundary',       'ErrorBoundary 组件'],
+  ['const GD=', 'GD 初始化'],
+  ['ErrorBoundary', 'ErrorBoundary 组件'],
   ['ReactDOM.createRoot', 'React 挂载点'],
-  ['getClueNameMap',      '线索名映射 (getClueNameMap)'],
-  ['audioManager',        '音频管理器'],
-  ['initialState',        '初始状态'],
-  ['gameReducer',         '主 reducer'],
+  ['getClueNameMap', '线索名映射 (getClueNameMap)'],
+  ['audioManager', '音频管理器'],
+  ['initialState', '初始状态'],
+  ['gameReducer', '主 reducer'],
 ];
 
 for (const [kw, label] of keywords) {
@@ -73,7 +73,9 @@ stripped = stripped.replace(/'([^'\\]|\\.)*'/g, "''");
 stripped = stripped.replace(/`([^`\\]|\\.)*`/g, '``');
 
 const importMatch = stripped.match(/\bimport\s*[\s{]/);
-const exportMatch = stripped.match(/\bexport\s*(?:default\s+|(?:const|let|var|function|class)\s+|\{)/);
+const exportMatch = stripped.match(
+  /\bexport\s*(?:default\s+|(?:const|let|var|function|class)\s+|\{)/
+);
 
 if (importMatch) {
   fail('import 残留', '发现: import ... (位置约 ' + importMatch.index + ')');
@@ -93,10 +95,10 @@ if (!checkDist) {
   console.log('  dist/ 检查已跳过（使用 --dist 参数启用）');
   console.log('='.repeat(60));
 } else {
-  const DIST_INDEX  = path.join(DIST_PATH, 'index.html');
+  const DIST_INDEX = path.join(DIST_PATH, 'index.html');
   const DIST_ASSETS = path.join(DIST_PATH, 'assets');
-  const DIST_AUDIO  = path.join(DIST_PATH, 'audio');
-  const DIST_SRC    = path.join(DIST_PATH, 'src');
+  const DIST_AUDIO = path.join(DIST_PATH, 'audio');
+  const DIST_SRC = path.join(DIST_PATH, 'src');
 
   // 4. dist/index.html 存在
   if (fs.existsSync(DIST_INDEX)) {
@@ -127,7 +129,7 @@ if (!checkDist) {
   // 7a. dist/assets/webp/ 下 webp 文件数 >= 200
   const webpDir = path.join(DIST_ASSETS, 'webp');
   if (fs.existsSync(webpDir)) {
-    const count = fs.readdirSync(webpDir).filter(f => f.endsWith('.webp')).length;
+    const count = fs.readdirSync(webpDir).filter((f) => f.endsWith('.webp')).length;
     if (count >= 200) {
       pass('dist/assets/webp/ 文件数', count + ' 个');
     } else {
@@ -139,9 +141,7 @@ if (!checkDist) {
 
   // 7b. dist/audio/ 音频文件数 >= 50
   if (fs.existsSync(DIST_AUDIO)) {
-    const count = fs.readdirSync(DIST_AUDIO).filter(f =>
-      /\.(wav|mp3|ogg|m4a)$/i.test(f)
-    ).length;
+    const count = fs.readdirSync(DIST_AUDIO).filter((f) => /\.(wav|mp3|ogg|m4a)$/i.test(f)).length;
     if (count >= 50) {
       pass('dist/audio/ 音频文件数', count + ' 个');
     } else {
@@ -151,8 +151,8 @@ if (!checkDist) {
 }
 
 // ─ 输出汇总 ────────────────────────────────────────────────────────
-const passed = results.filter(r => r.status === 'PASS').length;
-const failed = results.filter(r => r.status === 'FAIL').length;
+const passed = results.filter((r) => r.status === 'PASS').length;
+const failed = results.filter((r) => r.status === 'FAIL').length;
 
 console.log('');
 console.log('='.repeat(60));

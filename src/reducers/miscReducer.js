@@ -11,7 +11,15 @@ export function getSafehouseStage(corruption, ctx) {
     const r = stages[i].corruption_range;
     if (corruption >= r[0] && corruption <= r[1]) return stages[i];
   }
-  return stages[0] || { stage: 1, name: '安宁', is_safe: true, corruption_range: [0, 15], available_functions: { san_recovery: 2, fatigue_recovery: 30 } };
+  return (
+    stages[0] || {
+      stage: 1,
+      name: '安宁',
+      is_safe: true,
+      corruption_range: [0, 15],
+      available_functions: { san_recovery: 2, fatigue_recovery: 30 },
+    }
+  );
 }
 
 export function processSafehouseNight(state, ctx) {
@@ -23,7 +31,9 @@ export function processSafehouseNight(state, ctx) {
   if (state.san < 30) baseGain = Math.round(baseGain * 1.3); // SAN<30: +30% speed
   if (state.npcStates['玛莎·格雷']?.corrupted) baseGain = Math.round(baseGain * 1.5); // Martha corrupted: +50%
   corruption += baseGain;
-  const corruptedCount = Object.values(state.npcStates).filter(ns => ns.corrupted && !ns.dead).length;
+  const corruptedCount = Object.values(state.npcStates).filter(
+    (ns) => ns.corrupted && !ns.dead
+  ).length;
   corruption += corruptedCount;
   return Math.min(100, corruption);
 }
@@ -35,7 +45,7 @@ export function processSafehouseNight(state, ctx) {
 export function getItemDef(itemId, ctx) {
   const { GD } = ctx;
   const items = GD.items || [];
-  return items.find(i => i.id === itemId);
+  return items.find((i) => i.id === itemId);
 }
 
 export function useItemByDef(state, item, narr, ctx) {
@@ -53,14 +63,17 @@ export function useItemByDef(state, item, narr, ctx) {
 
   if (def.effects && def.effects.length > 0) {
     applyEffects(state, def.effects, { source: 'item_use', item_id: item.id });
-    const effectDesc = def.effects.map(e => {
-      if (e.type === 'modify_stat') return `${e.target} ${e.amount > 0 ? '+' : ''}${e.amount}`;
-      if (e.type === 'modify_resource') return `${e.resource} ${e.amount > 0 ? '+' : ''}${e.amount}`;
-      if (e.type === 'add_item') return `获得 ${e.name || e.item_id}`;
-      if (e.type === 'add_clue') return `获得线索`;
-      if (e.type === 'add_flag') return `标记 ${e.flag_id}`;
-      return e.type;
-    }).join(', ');
+    const effectDesc = def.effects
+      .map((e) => {
+        if (e.type === 'modify_stat') return `${e.target} ${e.amount > 0 ? '+' : ''}${e.amount}`;
+        if (e.type === 'modify_resource')
+          return `${e.resource} ${e.amount > 0 ? '+' : ''}${e.amount}`;
+        if (e.type === 'add_item') return `获得 ${e.name || e.item_id}`;
+        if (e.type === 'add_clue') return `获得线索`;
+        if (e.type === 'add_flag') return `标记 ${e.flag_id}`;
+        return e.type;
+      })
+      .join(', ');
     narr('system', '使用 ' + item.name + '，' + effectDesc);
   } else if (def.use_text) {
     narr('system', def.use_text);
@@ -105,10 +118,13 @@ export function loadSettings() {
 
 export function saveSettings(settings) {
   try {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
-      version: SETTINGS_VERSION,
-      settings
-    }));
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({
+        version: SETTINGS_VERSION,
+        settings,
+      })
+    );
   } catch (e) {
     console.error('Save settings failed:', e);
   }

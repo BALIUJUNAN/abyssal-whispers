@@ -19,7 +19,7 @@ import { findIdConflicts, prefixEventIds } from '../data/ugcSchema.js';
  */
 export function buildEventPool(GD, ugcMods) {
   const baseEvents = GD.events || [];
-  const baseIdSet = new Set(baseEvents.map(e => e.id));
+  const baseIdSet = new Set(baseEvents.map((e) => e.id));
 
   // Load mods from storage if not provided
   const mods = ugcMods || getEnabledMods();
@@ -36,14 +36,17 @@ export function buildEventPool(GD, ugcMods) {
     if (mod.enabled === false) continue;
 
     // Clone events to avoid mutating stored data
-    const modEvents = mod.events.map(e => ({ ...e }));
+    const modEvents = mod.events.map((e) => ({ ...e }));
 
     // Find conflicts with base game
-    const conflicts = findIdConflicts(modEvents, baseEvents.map(id => ({ id: id.id || id })));
+    const conflicts = findIdConflicts(
+      modEvents,
+      baseEvents.map((id) => ({ id: id.id || id }))
+    );
     if (conflicts.length > 0) {
       // Auto-prefix conflicting IDs
       prefixEventIds(modEvents, mod.id);
-      allConflicts.push(...conflicts.map(c => `${mod.id}: ${c} → ${mod.id}__${c}`));
+      allConflicts.push(...conflicts.map((c) => `${mod.id}: ${c} → ${mod.id}__${c}`));
     }
 
     // Tag all events from this mod
@@ -72,8 +75,8 @@ export function buildEventPool(GD, ugcMods) {
   const merged = [...baseEvents, ...uniqueUgcEvents];
 
   return {
-    events:    merged,
-    ugcCount:  uniqueUgcEvents.length,
+    events: merged,
+    ugcCount: uniqueUgcEvents.length,
     conflicts: allConflicts,
   };
 }
@@ -109,7 +112,7 @@ export function applyUgcToGD(GD) {
  * @returns {{ eventCount: number, conflicts: string[], types: object }}
  */
 export function previewMod(rawMod, GD) {
-  const baseIdSet = new Set((GD.events || []).map(e => e.id));
+  const baseIdSet = new Set((GD.events || []).map((e) => e.id));
   const events = rawMod.events || [];
   const conflicts = [];
   const types = {};

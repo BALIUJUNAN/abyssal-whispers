@@ -24,9 +24,9 @@ export function saveToSlot(slotId, state) {
         area: state.currentArea || '',
         loopCount: state.loopCount || 0,
         san: state.san || 0,
-        hp: state.hp || 0
+        hp: state.hp || 0,
       },
-      state: persistedState
+      state: persistedState,
     };
     localStorage.setItem(SAVE_PREFIX + slotId, JSON.stringify(saveData));
     return true;
@@ -51,7 +51,15 @@ export function loadFromSlot(slotId) {
     }
 
     // P0-4: Version mismatch — attempt migration instead of deleting
-    console.info('[Save] Slot ' + slotId + ' version mismatch (got ' + data.version + ', expected ' + SAVE_VERSION + '). Attempting migration...');
+    console.info(
+      '[Save] Slot ' +
+        slotId +
+        ' version mismatch (got ' +
+        data.version +
+        ', expected ' +
+        SAVE_VERSION +
+        '). Attempting migration...'
+    );
     const migrated = migrateSaveData(data, slotId);
     if (migrated) {
       // Persist the migrated save back to localStorage
@@ -81,7 +89,13 @@ export function getSlotMeta(slotId) {
     const raw = localStorage.getItem(SAVE_PREFIX + slotId);
     if (!raw) return { slotId, exists: false };
     const data = JSON.parse(raw);
-    return { slotId, exists: true, timestamp: data.timestamp, meta: data.meta, version: data.version };
+    return {
+      slotId,
+      exists: true,
+      timestamp: data.timestamp,
+      meta: data.meta,
+      version: data.version,
+    };
   } catch {
     return { slotId, exists: false };
   }
@@ -115,7 +129,9 @@ export function deleteSlotById(slotId) {
 }
 
 // Backward compatibility
-export function saveGame(state) { autoSave(state); }
+export function saveGame(state) {
+  autoSave(state);
+}
 export function loadGame() {
   const data = loadFromSlot('auto_1');
   if (!data || data.incompatible) return data;
@@ -126,7 +142,7 @@ export function clearSave() {
   localStorage.removeItem('coc_game_save'); // old key
 }
 export function hasSave() {
-  return [...AUTO_SLOTS, ...MANUAL_SLOTS].some(sid => getSlotMeta(sid).exists);
+  return [...AUTO_SLOTS, ...MANUAL_SLOTS].some((sid) => getSlotMeta(sid).exists);
 }
 
 /**
@@ -152,7 +168,7 @@ export function migrateOldSave() {
 export function exportSave() {
   try {
     const slots = {};
-    [...AUTO_SLOTS, ...MANUAL_SLOTS].forEach(sid => {
+    [...AUTO_SLOTS, ...MANUAL_SLOTS].forEach((sid) => {
       const raw = localStorage.getItem(SAVE_PREFIX + sid);
       if (raw) slots[sid] = JSON.parse(raw);
     });
@@ -160,10 +176,15 @@ export function exportSave() {
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'savegame.json'; a.click();
+    a.href = url;
+    a.download = 'savegame.json';
+    a.click();
     URL.revokeObjectURL(url);
     return true;
-  } catch (e) { console.error('Export save failed:', e); return false; }
+  } catch (e) {
+    console.error('Export save failed:', e);
+    return false;
+  }
 }
 
 /**
@@ -186,5 +207,7 @@ export function importSave(jsonString) {
       }
     });
     return { ok: true };
-  } catch (e) { return { ok: false, error: '存档格式不兼容' }; }
+  } catch (e) {
+    return { ok: false, error: '存档格式不兼容' };
+  }
 }

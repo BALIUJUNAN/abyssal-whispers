@@ -14,7 +14,7 @@ export const SAVE_VERSION = '1.2.0';
  * Minimal extended state defaults (subset of ensureExtendedState).
  * Used during migration when ensureExtendedState is not available
  * (e.g., in Node.js test environments).
- * 
+ *
  * This is intentionally kept lightweight — the full ensureExtendedState
  * from extendedEventsLoader.js is still called in CONTINUE_GAME as a
  * second safety net.
@@ -55,7 +55,7 @@ export function buildSaveMeta(state) {
     area: state.currentArea || '',
     loopCount: state.loopCount || 0,
     san: state.san || 0,
-    hp: state.hp || 0
+    hp: state.hp || 0,
   };
 }
 
@@ -88,18 +88,42 @@ export function migrateSaveData(data, slotId) {
   // Migrate flat behavior tracking counters into behaviorTracking object (v1.2.0)
   if (!state.behaviorTracking) {
     const BT_KEYS = [
-      'direct_kill_count', 'cannibalism_count', 'clean_kill_pattern',
-      'npc_deaths_by_manipulation', 'cult_leader_score',
-      'self_harm_ritual_count', 'fusion_accepted_count', 'possession_accepted_count',
-      'forbidden_intimacy_flags', 'sacred_desecration_count', 'same_npc_harm_max',
-      '_npc_harm_tally', 'npc_as_resource_count', 'betrayed_high_trust_npcs',
-      'self_sacrifice_for_power', 'fusion_and_self_harm_total', 'harbor_visits',
-      'sea_acceptance_flags', 'sleep_streak', 'work_only_days', 'safehouse_stay_days',
-      'move_only_days', 'record_only_days', 'low_intervention_count', 'work_count',
-      'hoarded_money_max', 'hoarded_food_max', 'archive_consumed_count',
-      'prophecy_spread_count', 'redeemed_npcs', 'thirteenth_bell_obsession',
-      'meta_boundary_breaks', 'final_choice_refused_count', 'save_delete_attempts',
-      'loop_exploit_score', 'loop_break_attempts',
+      'direct_kill_count',
+      'cannibalism_count',
+      'clean_kill_pattern',
+      'npc_deaths_by_manipulation',
+      'cult_leader_score',
+      'self_harm_ritual_count',
+      'fusion_accepted_count',
+      'possession_accepted_count',
+      'forbidden_intimacy_flags',
+      'sacred_desecration_count',
+      'same_npc_harm_max',
+      '_npc_harm_tally',
+      'npc_as_resource_count',
+      'betrayed_high_trust_npcs',
+      'self_sacrifice_for_power',
+      'fusion_and_self_harm_total',
+      'harbor_visits',
+      'sea_acceptance_flags',
+      'sleep_streak',
+      'work_only_days',
+      'safehouse_stay_days',
+      'move_only_days',
+      'record_only_days',
+      'low_intervention_count',
+      'work_count',
+      'hoarded_money_max',
+      'hoarded_food_max',
+      'archive_consumed_count',
+      'prophecy_spread_count',
+      'redeemed_npcs',
+      'thirteenth_bell_obsession',
+      'meta_boundary_breaks',
+      'final_choice_refused_count',
+      'save_delete_attempts',
+      'loop_exploit_score',
+      'loop_break_attempts',
     ];
     const bt = {};
     for (const key of BT_KEYS) {
@@ -115,7 +139,13 @@ export function migrateSaveData(data, slotId) {
   // npcTrust, npcStates, npcRelations are keyed by NPC identifier.
   // Old saves use Chinese names; new system uses stable ids (e.g. martha_grey).
   if (typeof resolveNpcId === 'function') {
-    const NPC_KEYED_FIELDS = ['npcTrust', 'npcStates', 'npcRelations', '_npcTrustLocked', '_npcHarmTally'];
+    const NPC_KEYED_FIELDS = [
+      'npcTrust',
+      'npcStates',
+      'npcRelations',
+      '_npcTrustLocked',
+      '_npcHarmTally',
+    ];
     for (const field of NPC_KEYED_FIELDS) {
       const obj = state[field];
       if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
@@ -153,7 +183,7 @@ export function migrateSaveData(data, slotId) {
     timestamp: data.timestamp || Date.now(),
     slotId: data.slotId || slotId,
     meta: data.meta || buildSaveMeta(state),
-    state
+    state,
   };
 }
 
@@ -168,9 +198,20 @@ export function migrateSaveData(data, slotId) {
  */
 export function toPersistedState(state) {
   // UI states (not persisted — rebuilt on load)
-  const UI_KEYS = ['narrative', 'transition', 'pendingNpc', 'pendingChoice', 'pendingGamble', 'pendingEvent', 'pendingDeath'];
+  const UI_KEYS = [
+    'narrative',
+    'transition',
+    'pendingNpc',
+    'pendingChoice',
+    'pendingGamble',
+    'pendingEvent',
+    'pendingDeath',
+  ];
   // Runtime keys (from transientKeys.js) — never persisted
-  const RUNTIME_KEYS = typeof TRANSIENT_STATE_KEYS !== 'undefined' ? TRANSIENT_STATE_KEYS : ['_effects', '_lastAction', '_runtime', '_debug', '_actionHistory'];
+  const RUNTIME_KEYS =
+    typeof TRANSIENT_STATE_KEYS !== 'undefined'
+      ? TRANSIENT_STATE_KEYS
+      : ['_effects', '_lastAction', '_runtime', '_debug', '_actionHistory'];
   const excludeSet = new Set([...UI_KEYS, ...RUNTIME_KEYS]);
 
   const persisted = {};

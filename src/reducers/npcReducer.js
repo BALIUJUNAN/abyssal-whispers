@@ -27,7 +27,11 @@ export function checkNPCCorruption(state, ctx) {
  * Apply NPC corruption from a trigger.
  */
 export function applyNPCCorruption(state, npc, trigger, narr) {
-  state.npcStates[npc.name] = { ...state.npcStates[npc.name], corrupted: true, corruptionSource: trigger.id };
+  state.npcStates[npc.name] = {
+    ...state.npcStates[npc.name],
+    corrupted: true,
+    corruptionSource: trigger.id,
+  };
   narr('system', trigger.description, { isSpecial: true });
   if (trigger.dialogue_after) {
     narr('system', npc.name + '："' + trigger.dialogue_after + '"');
@@ -125,7 +129,8 @@ export function getAvailableLegacy(state, npcName) {
  */
 export function claimNpcLegacy(state, npcName, narr) {
   const npcState = state.npcStates?.[npcName];
-  if (!npcState || !npcState.dead || npcState.legacyClaimed) return { items: [], knowledge: [], questTriggered: null };
+  if (!npcState || !npcState.dead || npcState.legacyClaimed)
+    return { items: [], knowledge: [], questTriggered: null };
 
   const legacy = npcState.legacy || {};
   npcState.legacyClaimed = true;

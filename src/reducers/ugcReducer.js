@@ -54,7 +54,7 @@ export function getAllMods() {
  * @returns {object[]}
  */
 export function getEnabledMods() {
-  return readStore().mods.filter(m => m.enabled !== false);
+  return readStore().mods.filter((m) => m.enabled !== false);
 }
 
 /**
@@ -63,7 +63,7 @@ export function getEnabledMods() {
  * @returns {object|null}
  */
 export function getMod(modId) {
-  return readStore().mods.find(m => m.id === modId) || null;
+  return readStore().mods.find((m) => m.id === modId) || null;
 }
 
 /**
@@ -80,10 +80,12 @@ export function installMod(rawMod) {
   const store = readStore();
 
   // Step 2: Check mod-level ID conflict
-  if (store.mods.some(m => m.id === validation.sanitized.id)) {
+  if (store.mods.some((m) => m.id === validation.sanitized.id)) {
     return {
       success: false,
-      errors: [`Mod ID "${validation.sanitized.id}" is already installed. Uninstall it first, or change the mod ID.`],
+      errors: [
+        `Mod ID "${validation.sanitized.id}" is already installed. Uninstall it first, or change the mod ID.`,
+      ],
       warnings: validation.warnings,
     };
   }
@@ -99,7 +101,10 @@ export function installMod(rawMod) {
 
   // Step 4: Auto-prefix event IDs to avoid conflicts with base game
   const allBaseEvents = getAllInstalledEventIds(store);
-  const conflicts = findIdConflicts(validation.sanitized.events, [...allBaseEvents].map(id => ({ id })));
+  const conflicts = findIdConflicts(
+    validation.sanitized.events,
+    [...allBaseEvents].map((id) => ({ id }))
+  );
   if (conflicts.length > 0) {
     // Auto-prefix rather than reject
     prefixEventIds(validation.sanitized.events, validation.sanitized.id);
@@ -122,7 +127,7 @@ export function installMod(rawMod) {
  */
 export function uninstallMod(modId) {
   const store = readStore();
-  const idx = store.mods.findIndex(m => m.id === modId);
+  const idx = store.mods.findIndex((m) => m.id === modId);
   if (idx < 0) return false;
   store.mods.splice(idx, 1);
   writeStore(store);
@@ -137,7 +142,7 @@ export function uninstallMod(modId) {
  */
 export function setModEnabled(modId, enabled) {
   const store = readStore();
-  const mod = store.mods.find(m => m.id === modId);
+  const mod = store.mods.find((m) => m.id === modId);
   if (!mod) return false;
   mod.enabled = !!enabled;
   writeStore(store);
@@ -151,7 +156,7 @@ export function setModEnabled(modId, enabled) {
  */
 export function toggleMod(modId) {
   const store = readStore();
-  const mod = store.mods.find(m => m.id === modId);
+  const mod = store.mods.find((m) => m.id === modId);
   if (!mod) return false;
   mod.enabled = !mod.enabled;
   writeStore(store);
@@ -166,7 +171,7 @@ export function toggleMod(modId) {
  */
 export function updateMod(modId, rawMod) {
   const store = readStore();
-  const idx = store.mods.findIndex(m => m.id === modId);
+  const idx = store.mods.findIndex((m) => m.id === modId);
   if (idx < 0) return { success: false, errors: [`Mod "${modId}" not found`] };
 
   const validation = validateMod(rawMod);
@@ -179,9 +184,7 @@ export function updateMod(modId, rawMod) {
   validation.sanitized.enabled = store.mods[idx].enabled;
 
   // Prefix event IDs if needed
-  const otherModEvents = store.mods
-    .filter((_, i) => i !== idx)
-    .flatMap(m => m.events || []);
+  const otherModEvents = store.mods.filter((_, i) => i !== idx).flatMap((m) => m.events || []);
   const conflicts = findIdConflicts(validation.sanitized.events, otherModEvents);
   if (conflicts.length > 0) {
     prefixEventIds(validation.sanitized.events, modId);
@@ -203,12 +206,12 @@ export function exportMod(modId) {
   if (!mod) return null;
   // Strip runtime fields before export
   const exportData = {
-    id:        mod.id,
-    name:      mod.name,
-    author:    mod.author,
-    version:   mod.version,
-    events:    mod.events,
-    metadata:  mod.metadata || {},
+    id: mod.id,
+    name: mod.name,
+    author: mod.author,
+    version: mod.version,
+    events: mod.events,
+    metadata: mod.metadata || {},
     createdAt: mod.createdAt,
   };
   return JSON.stringify(exportData, null, 2);
@@ -234,12 +237,12 @@ export function importModFromJson(jsonString) {
  */
 export function getModStats() {
   const mods = getAllMods();
-  const enabled = mods.filter(m => m.enabled !== false);
+  const enabled = mods.filter((m) => m.enabled !== false);
   const totalEvents = enabled.reduce((sum, m) => sum + (m.events?.length || 0), 0);
   return {
-    totalMods:      mods.length,
-    enabledMods:    enabled.length,
-    disabledMods:   mods.length - enabled.length,
+    totalMods: mods.length,
+    enabledMods: enabled.length,
+    disabledMods: mods.length - enabled.length,
     totalUgcEvents: totalEvents,
   };
 }
@@ -254,7 +257,7 @@ export function getModStats() {
 export function getAllInstalledEventIds(store) {
   const ids = new Set();
   for (const mod of store.mods) {
-    for (const evt of (mod.events || [])) {
+    for (const evt of mod.events || []) {
       ids.add(evt.id);
     }
   }

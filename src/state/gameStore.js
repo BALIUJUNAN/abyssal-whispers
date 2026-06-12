@@ -33,7 +33,11 @@ export function updateGameStore(state) {
   _gameStateRef.current = state;
   // Notify listeners if state reference changed
   if (prev !== state) {
-    _gameListeners.forEach(function(fn) { try { fn(); } catch(e) {} });
+    _gameListeners.forEach(function (fn) {
+      try {
+        fn();
+      } catch (e) {}
+    });
   }
 }
 
@@ -60,31 +64,84 @@ export function getGameDispatch() {
  */
 export function subscribeGameStore(listener) {
   _gameListeners.add(listener);
-  return function() { _gameListeners.delete(listener); };
+  return function () {
+    _gameListeners.delete(listener);
+  };
 }
 
 // === Selector Hooks ===
 // These can be used by components to subscribe to specific state slices.
 
 export function useGameSelector(selector) {
-  var sel = selector || function(s) { return s; };
+  var sel =
+    selector ||
+    function (s) {
+      return s;
+    };
   return React.useSyncExternalStore(
     subscribeGameStore,
-    function() { return sel(_gameStateRef.current); },
-    function() { return sel(_gameStateRef.current); }
+    function () {
+      return sel(_gameStateRef.current);
+    },
+    function () {
+      return sel(_gameStateRef.current);
+    }
   );
 }
 
 // Common selectors for convenience
-export function useSan() { return useGameSelector(function(s) { return s ? s.san : 60; }); }
-export function useHp() { return useGameSelector(function(s) { return s ? s.hp : 0; }); }
-export function useDay() { return useGameSelector(function(s) { return s ? s.day : 1; }); }
-export function useAp() { return useGameSelector(function(s) { return s ? s.ap : 0; }); }
-export function useCurrentArea() { return useGameSelector(function(s) { return s ? s.currentArea : ''; }); }
-export function useScreen() { return useGameSelector(function(s) { return s ? s.screen : 'title'; }); }
-export function useLoopCount() { return useGameSelector(function(s) { return s ? s.loopCount : 0; }); }
-export function usePollution() { return useGameSelector(function(s) { return s ? (s.pollution || 0) : 0; }); }
-export function useCorruption() { return useGameSelector(function(s) { return s ? (s.safehouseCorruption || 0) : 0; }); }
-export function useFood() { return useGameSelector(function(s) { return s ? (s.food || 0) : 0; }); }
-export function useMoney() { return useGameSelector(function(s) { return s ? (s.money || 0) : 0; }); }
-
+export function useSan() {
+  return useGameSelector(function (s) {
+    return s ? s.san : 60;
+  });
+}
+export function useHp() {
+  return useGameSelector(function (s) {
+    return s ? s.hp : 0;
+  });
+}
+export function useDay() {
+  return useGameSelector(function (s) {
+    return s ? s.day : 1;
+  });
+}
+export function useAp() {
+  return useGameSelector(function (s) {
+    return s ? s.ap : 0;
+  });
+}
+export function useCurrentArea() {
+  return useGameSelector(function (s) {
+    return s ? s.currentArea : '';
+  });
+}
+export function useScreen() {
+  return useGameSelector(function (s) {
+    return s ? s.screen : 'title';
+  });
+}
+export function useLoopCount() {
+  return useGameSelector(function (s) {
+    return s ? s.loopCount : 0;
+  });
+}
+export function usePollution() {
+  return useGameSelector(function (s) {
+    return s ? s.pollution || 0 : 0;
+  });
+}
+export function useCorruption() {
+  return useGameSelector(function (s) {
+    return s ? s.safehouseCorruption || 0 : 0;
+  });
+}
+export function useFood() {
+  return useGameSelector(function (s) {
+    return s ? s.food || 0 : 0;
+  });
+}
+export function useMoney() {
+  return useGameSelector(function (s) {
+    return s ? s.money || 0 : 0;
+  });
+}

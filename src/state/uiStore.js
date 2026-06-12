@@ -15,20 +15,26 @@ const _useSyncExternalStore = React.useSyncExternalStore;
 export function createUiStore(initialState) {
   let state = typeof initialState === 'function' ? initialState() : { ...initialState };
   const listeners = new Set();
-  function getState() { return state; }
+  function getState() {
+    return state;
+  }
   function setState(partial) {
     const next = typeof partial === 'function' ? partial(state) : partial;
     if (next === state) return;
     state = { ...state, ...next };
-    listeners.forEach(fn => fn());
+    listeners.forEach((fn) => fn());
   }
   function subscribe(listener) {
     listeners.add(listener);
     return () => listeners.delete(listener);
   }
   function useStore(selector) {
-    const sel = selector || (s => s);
-    return _useSyncExternalStore(subscribe, () => sel(getState()), () => sel(getState()));
+    const sel = selector || ((s) => s);
+    return _useSyncExternalStore(
+      subscribe,
+      () => sel(getState()),
+      () => sel(getState())
+    );
   }
   useStore.getState = getState;
   useStore.setState = setState;
@@ -47,9 +53,9 @@ export const uiStore = createUiStore({
   settings: null, // loaded lazily via loadSettings()
   saveTick: 0,
   // ── 暗黑地牢风格地图模式 ──
-  uiMode: 'town_map',       // 'town_map' | 'classic' — 地图模式 vs 经典模式
-  activeHotspot: null,       // 当前激活的热点 { id, type, data, ... }
-  activePanel: null,         // 当前面板类型: 'area_actions' | 'explore' | 'talk' | null
+  uiMode: 'town_map', // 'town_map' | 'classic' — 地图模式 vs 经典模式
+  activeHotspot: null, // 当前激活的热点 { id, type, data, ... }
+  activePanel: null, // 当前面板类型: 'area_actions' | 'explore' | 'talk' | null
 });
 
 // Lazy-load settings on first access
@@ -68,22 +74,22 @@ export function updateSettings(newSettings) {
 }
 
 export function addUiToast(toast) {
-  uiStore.setState(s => ({
-    toasts: [...s.toasts, { ...toast, key: Date.now() }]
+  uiStore.setState((s) => ({
+    toasts: [...s.toasts, { ...toast, key: Date.now() }],
   }));
 }
 
 export function removeUiToast(key) {
-  uiStore.setState(s => ({
-    toasts: s.toasts.filter(t => t.key !== key)
+  uiStore.setState((s) => ({
+    toasts: s.toasts.filter((t) => t.key !== key),
   }));
 }
 
 export function notifySave(msg, type) {
-  uiStore.setState(s => ({ saveTick: s.saveTick + 1 }));
+  uiStore.setState((s) => ({ saveTick: s.saveTick + 1 }));
   addUiToast({
     id: 'save_' + Date.now(),
     type: type || 'save',
-    def: { icon: type === 'load' ? '📖' : '💾', name: msg || '已存档', desc: '' }
+    def: { icon: type === 'load' ? '📖' : '💾', name: msg || '已存档', desc: '' },
   });
 }

@@ -1,4 +1,3 @@
-
 // validateGameData.cjs — Orchestrator: delegates to sub-validators.
 var ref = require('./referenceValidator.cjs');
 var cond = require('./conditionValidator.cjs');
@@ -12,4 +11,6 @@ function validateGameData(base, ch2plus, meta) {
   );
 }
 
-try{module.exports={validateGameData};}catch(e){}
+try {
+  module.exports = { validateGameData };
+} catch (e) {}

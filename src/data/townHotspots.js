@@ -8,7 +8,6 @@
 // 点击后弹出该地点的功能界面（而非切换屏幕）。
 
 export const TOWN_HOTSPOTS = [
-
   // ─── 核心区域（9个） ────────────────────────────────────────
   {
     id: 'town_center',
@@ -16,11 +15,12 @@ export const TOWN_HOTSPOTS = [
     label: '沃切斯特镇中心',
     shortLabel: '镇中心',
     icon: '🏛',
-    x: 48, y: 30,        // 与 MAP_LAYOUT 一致
-    radius: 5,            // 点击热区半径(%)
+    x: 48,
+    y: 30, // 与 MAP_LAYOUT 一致
+    radius: 5, // 点击热区半径(%)
     description: '石板路、公告栏、紧闭的窗户。',
     areaId: 'town_center',
-    unlocked: true,       // 始终解锁
+    unlocked: true, // 始终解锁
     glowColor: '#b8963a', // 金色光晕（安全区）
     unlockHint: null,
     // 可在该区域执行的行动分类
@@ -32,7 +32,8 @@ export const TOWN_HOTSPOTS = [
     label: '莫里斯庄园',
     shortLabel: '庄园',
     icon: '🏚',
-    x: 72, y: 22,
+    x: 72,
+    y: 22,
     radius: 4.5,
     description: '维多利亚式庄园，肖像画中的人好像在看你。',
     areaId: 'voxchester_manor',
@@ -47,7 +48,8 @@ export const TOWN_HOTSPOTS = [
     label: '沃切斯特码头',
     shortLabel: '码头',
     icon: '⚓',
-    x: 32, y: 52,
+    x: 32,
+    y: 52,
     radius: 4.5,
     description: '海风裹着盐味和另一种说不清的气味。',
     areaId: 'harbor_district',
@@ -62,14 +64,17 @@ export const TOWN_HOTSPOTS = [
     label: '灯塔',
     shortLabel: '灯塔',
     icon: '🗼',
-    x: 14, y: 72,
+    x: 14,
+    y: 72,
     radius: 4,
     description: '灯塔已经很久没亮了。但每到午夜，有人说它自己会亮。',
     areaId: 'lighthouse',
     unlocked: false,
     glowColor: '#5a9e6e',
     unlockHint: '需要先前往码头或墓穴入口',
-    unlockCondition: (state) => state.visitedAreas.includes('harbor_district') || state.visitedAreas.includes('catacombs_entrance'),
+    unlockCondition: (state) =>
+      state.visitedAreas.includes('harbor_district') ||
+      state.visitedAreas.includes('catacombs_entrance'),
     actions: ['explore'],
   },
   {
@@ -78,7 +83,8 @@ export const TOWN_HOTSPOTS = [
     label: '墓穴入口',
     shortLabel: '墓穴',
     icon: '⚰',
-    x: 58, y: 58,
+    x: 58,
+    y: 58,
     radius: 4,
     description: '石阶向下延伸，空气变得又冷又潮。',
     areaId: 'catacombs_entrance',
@@ -93,7 +99,8 @@ export const TOWN_HOTSPOTS = [
     label: '深层墓穴',
     shortLabel: '深层',
     icon: '🕯',
-    x: 62, y: 78,
+    x: 62,
+    y: 78,
     radius: 3.5,
     description: '空气几乎凝固。墙壁上刻满了看不懂的符文。',
     areaId: 'deep_catacombs',
@@ -109,7 +116,8 @@ export const TOWN_HOTSPOTS = [
     label: '低语森林',
     shortLabel: '森林',
     icon: '🌲',
-    x: 82, y: 54,
+    x: 82,
+    y: 54,
     radius: 4.5,
     description: '树干之间的风声不像风声。更像是……低语。',
     areaId: 'whispering_forest',
@@ -124,7 +132,8 @@ export const TOWN_HOTSPOTS = [
     label: '禁忌林地',
     shortLabel: '禁忌林',
     icon: '🌑',
-    x: 88, y: 76,
+    x: 88,
+    y: 76,
     radius: 3.5,
     description: '石碑上的字你不想读。但你已经读了。',
     areaId: 'forbidden_grove',
@@ -140,14 +149,17 @@ export const TOWN_HOTSPOTS = [
     label: '伊斯遗迹',
     shortLabel: '遗迹',
     icon: '🔮',
-    x: 48, y: 90,
+    x: 48,
+    y: 90,
     radius: 3.5,
     description: '这里的时间不是线性的。你确定现在是现在吗？',
     areaId: 'ruins_of_yith',
     unlocked: false,
     glowColor: '#6a1a6a',
     unlockHint: '需要线索或深入墓穴/森林',
-    unlockCondition: (state) => state.visitedAreas.includes('deep_catacombs') || state.visitedAreas.includes('forbidden_grove'),
+    unlockCondition: (state) =>
+      state.visitedAreas.includes('deep_catacombs') ||
+      state.visitedAreas.includes('forbidden_grove'),
     actions: ['explore'],
   },
 
@@ -158,7 +170,8 @@ export const TOWN_HOTSPOTS = [
     label: '沉锚酒馆',
     shortLabel: '酒馆',
     icon: '🍺',
-    x: 42, y: 24,        // 镇中心附近
+    x: 42,
+    y: 24, // 镇中心附近
     radius: 3,
     description: '你的安全屋。酒保看你的表情好像你已经来过很多次了。',
     glowColor: '#b8963a',
@@ -172,7 +185,8 @@ export const TOWN_HOTSPOTS = [
     label: '杂货店',
     shortLabel: '杂货',
     icon: '🛒',
-    x: 54, y: 26,
+    x: 54,
+    y: 26,
     radius: 3,
     description: '货架上的东西不多，但够用。如果你有金钱的话。',
     glowColor: '#8a7a3a',
@@ -185,7 +199,8 @@ export const TOWN_HOTSPOTS = [
     label: '替代安全屋',
     shortLabel: '避风港',
     icon: '🏠',
-    x: 26, y: 44,
+    x: 26,
+    y: 44,
     radius: 3,
     description: '如果酒馆不再安全，这里也许可以。',
     glowColor: '#5a8a5a',
@@ -202,11 +217,11 @@ export const TOWN_HOTSPOTS = [
 
 // ─── 热点查找工具 ────────────────────────────────────────────
 export function getHotspotById(id) {
-  return TOWN_HOTSPOTS.find(h => h.id === id) || null;
+  return TOWN_HOTSPOTS.find((h) => h.id === id) || null;
 }
 
 export function getVisibleHotspots(state) {
-  return TOWN_HOTSPOTS.filter(h => {
+  return TOWN_HOTSPOTS.filter((h) => {
     // 区域热点：始终显示（但可能灰显/锁定）
     if (h.type === 'area') return true;
     // 建筑热点：根据 visibleWhen 条件判断
@@ -219,7 +234,7 @@ export function isHotspotUnlocked(hotspot, state) {
   if (hotspot.unlocked === true) return true;
   if (hotspot.unlocked === false) {
     // 使用 areaRegistry 的解锁逻辑
-    const areaDef = (GD.areas || GD.module2_areas || []).find(a => a.id === hotspot.areaId);
+    const areaDef = (GD.areas || GD.module2_areas || []).find((a) => a.id === hotspot.areaId);
     if (areaDef && typeof isAreaUnlocked === 'function') return isAreaUnlocked(areaDef, state);
     if (hotspot.unlockCondition) return hotspot.unlockCondition(state);
     return false;
@@ -231,7 +246,8 @@ export function getHotspotState(hotspot, state) {
   if (hotspot.type !== 'area') return 'available';
   if (state.currentArea === hotspot.areaId) return 'current';
   if (!isHotspotUnlocked(hotspot, state)) return 'locked';
-  const conn = typeof getConnectedAreas === 'function' ? getConnectedAreas(state.currentArea, ctx) : [];
+  const conn =
+    typeof getConnectedAreas === 'function' ? getConnectedAreas(state.currentArea, ctx) : [];
   if (conn.includes(hotspot.areaId)) return 'reachable';
   if (state.visitedAreas.includes(hotspot.areaId)) return 'visited';
   return 'known';

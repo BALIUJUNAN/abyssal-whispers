@@ -2,7 +2,12 @@
 // 处理前传相关的reducer actions
 
 import { PROLOGUE_EVENTS } from '../data/prologue_events.js';
-import { applyPrologueChoice, calculateFearTuning, generateFearFlags, getNeutralTuning } from '../systems/fearProfile.js';
+import {
+  applyPrologueChoice,
+  calculateFearTuning,
+  generateFearFlags,
+  getNeutralTuning,
+} from '../systems/fearProfile.js';
 
 /**
  * 获取当前前传场景的事件数据
@@ -11,7 +16,7 @@ import { applyPrologueChoice, calculateFearTuning, generateFearFlags, getNeutral
  */
 export function getPrologueEvent(sceneId) {
   const eventId = 'prologue_' + sceneId;
-  return PROLOGUE_EVENTS.find(e => e.id === eventId) || null;
+  return PROLOGUE_EVENTS.find((e) => e.id === eventId) || null;
 }
 
 /**
@@ -46,7 +51,7 @@ export function initPrologueState() {
       control: 0,
       isolation: 0,
       knowledge: 0,
-      morality: 0
+      morality: 0,
     },
     copingProfile: {
       avoidant: 0,
@@ -54,10 +59,10 @@ export function initPrologueState() {
       social: 0,
       controlling: 0,
       sacrificial: 0,
-      predatory: 0
+      predatory: 0,
     },
     choicesMade: [],
-    resultingFlags: []
+    resultingFlags: [],
   };
 }
 
@@ -75,12 +80,10 @@ export function handlePrologueChoice(state, choiceId) {
     return { state, narration: [], nextScene: null, completed: true };
 
   const currentEvent = getPrologueEvent(prologue.currentScene);
-  if (!currentEvent)
-    return { state, narration: [], nextScene: null, completed: true };
+  if (!currentEvent) return { state, narration: [], nextScene: null, completed: true };
 
-  const choice = currentEvent.choices.find(c => c.id === choiceId);
-  if (!choice)
-    return { state, narration: [], nextScene: null, completed: false };
+  const choice = currentEvent.choices.find((c) => c.id === choiceId);
+  if (!choice) return { state, narration: [], nextScene: null, completed: false };
 
   // --- 开始构建新 state（不可变） ---
   let s = state;
@@ -123,7 +126,11 @@ export function handlePrologueChoice(state, choiceId) {
 
   // 线索记录提示（显示中文名，存储稳定ID）
   if (clueId) {
-    narration.push({ type: 'system', text: '【线索记录】' + (clueName || clueId), isSpecial: true });
+    narration.push({
+      type: 'system',
+      text: '【线索记录】' + (clueName || clueId),
+      isSpecial: true,
+    });
   }
 
   // AP消耗提示（如果有的话）
@@ -148,7 +155,7 @@ export function handlePrologueChoice(state, choiceId) {
       ...s,
       fearTuning: tuning,
       prologue: completedPrologue,
-      triggeredEvents: newTriggered
+      triggeredEvents: newTriggered,
     };
 
     narration.push({ type: 'system', text: '档案已建立。', isSpecial: true });

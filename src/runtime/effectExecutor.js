@@ -3,20 +3,47 @@
 // Effect handlers are dispatched by type via EFFECT_HANDLERS map.
 
 export var EFFECT_HANDLERS = {
-  AUDIO_PLAY: function(fx) { audioManager.playEffect(fx.id); },
-  AUDIO_SKILL: function(fx) { audioManager.playSkillEffect(fx.id); },
-  AUDIO_AMBIENT: function(fx) { audioManager.playAreaAmbient(fx.area, fx.phase); },
-  AUDIO_SAN_LOSS: function(fx) { audioManager.playSanLoss(fx.amount); },
-  AUDIO_UI: function(fx) { audioManager.playUI(fx.id); },
-  AUDIO_SET_MUTED: function(fx) { audioManager.setMuted(fx.muted); },
-  AUDIO_SUDDEN_MUTED: function(fx) { audioManager.suddenMuted = fx.value; },
-  SAVE_GAME: function(fx) { saveGame(fx.state); },
-  INCREMENT_STAT: function(fx) { try { incrementStat(fx.key); } catch(e) {} },
-  NARRATE_DELAYED: function(fx, dispatch) {
-    setTimeout(function() {
-      try { dispatch({ type: 'DELAYED_NARRATE', narrType: fx.narrType || 'system', text: fx.text, extra: fx.extra || {} }); } catch(e) {}
+  AUDIO_PLAY: function (fx) {
+    audioManager.playEffect(fx.id);
+  },
+  AUDIO_SKILL: function (fx) {
+    audioManager.playSkillEffect(fx.id);
+  },
+  AUDIO_AMBIENT: function (fx) {
+    audioManager.playAreaAmbient(fx.area, fx.phase);
+  },
+  AUDIO_SAN_LOSS: function (fx) {
+    audioManager.playSanLoss(fx.amount);
+  },
+  AUDIO_UI: function (fx) {
+    audioManager.playUI(fx.id);
+  },
+  AUDIO_SET_MUTED: function (fx) {
+    audioManager.setMuted(fx.muted);
+  },
+  AUDIO_SUDDEN_MUTED: function (fx) {
+    audioManager.suddenMuted = fx.value;
+  },
+  SAVE_GAME: function (fx) {
+    saveGame(fx.state);
+  },
+  INCREMENT_STAT: function (fx) {
+    try {
+      incrementStat(fx.key);
+    } catch (e) {}
+  },
+  NARRATE_DELAYED: function (fx, dispatch) {
+    setTimeout(function () {
+      try {
+        dispatch({
+          type: 'DELAYED_NARRATE',
+          narrType: fx.narrType || 'system',
+          text: fx.text,
+          extra: fx.extra || {},
+        });
+      } catch (e) {}
     }, fx.delay || 3000);
-  }
+  },
 };
 
 var _executedFxIds = new Set();

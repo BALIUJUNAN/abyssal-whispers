@@ -18,10 +18,11 @@ export function applyEffects(state, effects, context) {
     switch (eff.type) {
       case 'modify_stat': {
         const target = eff.target;
-        const amount = eff.amount_dice ? rollDice(eff.amount_dice) : (eff.amount || 0);
+        const amount = eff.amount_dice ? rollDice(eff.amount_dice) : eff.amount || 0;
         if (target === 'HP') state.hp = clamp(state.hp + amount, 0, state.maxHp);
         else if (target === 'SAN') state.san = clamp(state.san + amount, 0, state.maxSan);
-        else if (state.stats[target] !== undefined) state.stats[target] = clamp(state.stats[target] + amount, 0, 999);
+        else if (state.stats[target] !== undefined)
+          state.stats[target] = clamp(state.stats[target] + amount, 0, 999);
         break;
       }
       case 'modify_resource': {
@@ -38,18 +39,28 @@ export function applyEffects(state, effects, context) {
         break;
       }
       case 'add_item': {
-        const existing = state.inventory.find(i => i.id === eff.item_id);
+        const existing = state.inventory.find((i) => i.id === eff.item_id);
         if (existing && existing.uses > 0) {
-          existing.uses += (eff.amount || 1);
+          existing.uses += eff.amount || 1;
         } else {
-          state.inventory.push({ id: eff.item_id, name: eff.name || eff.item_id, uses: eff.uses || 1 });
+          state.inventory.push({
+            id: eff.item_id,
+            name: eff.name || eff.item_id,
+            uses: eff.uses || 1,
+          });
         }
-        try{incrementStat('items_collected');}catch(e){}
-        try{if(typeof audioManager!=='undefined')audioManager.playEffect('item_gain');}catch(e){}
+        try {
+          incrementStat('items_collected');
+        } catch (e) {}
+        try {
+          if (typeof audioManager !== 'undefined') audioManager.playEffect('item_gain');
+        } catch (e) {}
         break;
       }
       case 'remove_item': {
-        const idx = state.inventory.findIndex(i => i.id === eff.item_id || i.name === eff.item_id);
+        const idx = state.inventory.findIndex(
+          (i) => i.id === eff.item_id || i.name === eff.item_id
+        );
         if (idx >= 0) {
           if (eff.amount && state.inventory[idx].uses > 0) {
             state.inventory[idx].uses -= eff.amount;
@@ -61,11 +72,20 @@ export function applyEffects(state, effects, context) {
         break;
       }
       case 'add_clue': {
-        const _clueExists = state.clues.some(c => (typeof c === 'string' ? c : c.id) === eff.clue_id);
+        const _clueExists = state.clues.some(
+          (c) => (typeof c === 'string' ? c : c.id) === eff.clue_id
+        );
         if (!_clueExists) {
-          const _resolved = typeof resolveClueName === 'function' ? resolveClueName(eff.clue_id) : null;
-          state.clues.push(_resolved && _resolved !== eff.clue_id ? { id: eff.clue_id, name: _resolved } : eff.clue_id);
-          try{if(typeof audioManager!=='undefined')audioManager.playEffect('clue_found');}catch(e){}
+          const _resolved =
+            typeof resolveClueName === 'function' ? resolveClueName(eff.clue_id) : null;
+          state.clues.push(
+            _resolved && _resolved !== eff.clue_id
+              ? { id: eff.clue_id, name: _resolved }
+              : eff.clue_id
+          );
+          try {
+            if (typeof audioManager !== 'undefined') audioManager.playEffect('clue_found');
+          } catch (e) {}
         }
         break;
       }
@@ -82,12 +102,18 @@ export function applyEffects(state, effects, context) {
         const npcId = eff.npc_id;
         // §3.3: NPC trust lock check (meta event consequence)
         if (state._npcTrustLocked && state._npcTrustLocked[npcId]) break;
-        state.npcTrust[npcId] = Math.min(5, Math.max(0, (state.npcTrust[npcId] || 0) + (eff.amount || 1)));
+        state.npcTrust[npcId] = Math.min(
+          5,
+          Math.max(0, (state.npcTrust[npcId] || 0) + (eff.amount || 1))
+        );
         break;
       }
       case 'modify_npc_corruption': {
         const npcId2 = eff.npc_id;
-        state.npcStates[npcId2] = { ...state.npcStates[npcId2], corrupted: eff.corrupted !== undefined ? eff.corrupted : true };
+        state.npcStates[npcId2] = {
+          ...state.npcStates[npcId2],
+          corrupted: eff.corrupted !== undefined ? eff.corrupted : true,
+        };
         break;
       }
       case 'add_log': {
@@ -114,12 +140,22 @@ export function applyLegacyEffects(state, eff) {
   if (!eff) return;
   // 检测未识别的 legacy key（防止静默丢失效果）
   const KNOWN_LEGACY_KEYS = new Set([
-    'HP','hp','san','food','mythos','humanity',
-    'add_flag','add_clue','add_item','npc_trust',
-    'safehouseCorruption','add_run_memory',
-    'unlock_ending_condition','death_hint'
+    'HP',
+    'hp',
+    'san',
+    'food',
+    'mythos',
+    'humanity',
+    'add_flag',
+    'add_clue',
+    'add_item',
+    'npc_trust',
+    'safehouseCorruption',
+    'add_run_memory',
+    'unlock_ending_condition',
+    'death_hint',
   ]);
-  const unknownKeys = Object.keys(eff).filter(k => !KNOWN_LEGACY_KEYS.has(k));
+  const unknownKeys = Object.keys(eff).filter((k) => !KNOWN_LEGACY_KEYS.has(k));
   if (unknownKeys.length > 0 && !eff.type) {
     console.warn('[applyLegacyEffects] 未识别字段将被忽略: ' + unknownKeys.join(', '), eff);
   }
@@ -132,7 +168,8 @@ export function applyLegacyEffects(state, eff) {
   // Mythos
   if (eff.mythos != null) applyExtendedEffect(state, { type: 'modify_mythos', amount: eff.mythos });
   // Humanity
-  if (eff.humanity != null) applyExtendedEffect(state, { type: 'modify_humanity', amount: eff.humanity });
+  if (eff.humanity != null)
+    applyExtendedEffect(state, { type: 'modify_humanity', amount: eff.humanity });
   // Flags
   if (eff.add_flag) {
     const flags = Array.isArray(eff.add_flag) ? eff.add_flag : [eff.add_flag];
@@ -145,12 +182,13 @@ export function applyLegacyEffects(state, eff) {
     const clues = Array.isArray(eff.add_clue) ? eff.add_clue : [eff.add_clue];
     for (const cid of clues) {
       if (typeof cid === 'string') {
-        if (!state.clues.some(c => (typeof c === 'string' ? c : c.id) === cid)) {
+        if (!state.clues.some((c) => (typeof c === 'string' ? c : c.id) === cid)) {
           const resolved = typeof resolveClueName === 'function' ? resolveClueName(cid) : cid;
           state.clues.push(resolved && resolved !== cid ? { id: cid, name: resolved } : cid);
         }
       } else if (cid && cid.id) {
-        if (!state.clues.some(c => (typeof c === 'string' ? c : c.id) === cid.id)) state.clues.push(cid);
+        if (!state.clues.some((c) => (typeof c === 'string' ? c : c.id) === cid.id))
+          state.clues.push(cid);
       }
     }
   }
@@ -168,7 +206,10 @@ export function applyLegacyEffects(state, eff) {
   }
   // Safehouse corruption
   if (eff.safehouseCorruption) {
-    state.safehouseCorruption = Math.max(0, (state.safehouseCorruption || 0) + eff.safehouseCorruption);
+    state.safehouseCorruption = Math.max(
+      0,
+      (state.safehouseCorruption || 0) + eff.safehouseCorruption
+    );
   }
   // Run memory
   if (eff.add_run_memory) {
@@ -176,7 +217,10 @@ export function applyLegacyEffects(state, eff) {
   }
   // Ending condition unlock
   if (eff.unlock_ending_condition) {
-    applyExtendedEffect(state, { type: 'unlock_ending_condition', condition_id: eff.unlock_ending_condition });
+    applyExtendedEffect(state, {
+      type: 'unlock_ending_condition',
+      condition_id: eff.unlock_ending_condition,
+    });
   }
   // Death hint
   if (eff.death_hint) {

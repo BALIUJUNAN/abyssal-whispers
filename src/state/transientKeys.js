@@ -3,11 +3,11 @@
 // All save paths (toPersistedState, exportSave, manualSave) must use this list.
 
 export var TRANSIENT_STATE_KEYS = [
-  '_effects',        // post-reducer side effect queue
-  '_lastAction',     // debug: last dispatched action
-  '_runtime',        // runtime metadata
-  '_debug',          // debug-only fields
-  '_actionHistory',  // rolling behavior profile (rebuilt each session)
+  '_effects', // post-reducer side effect queue
+  '_lastAction', // debug: last dispatched action
+  '_runtime', // runtime metadata
+  '_debug', // debug-only fields
+  '_actionHistory', // rolling behavior profile (rebuilt each session)
 ];
 
 // Strip all transient keys from a state object. Returns a new object.

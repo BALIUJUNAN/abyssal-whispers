@@ -26,8 +26,8 @@ export function initExtendedEvents(GD) {
 
   // Merge death echo events separately (they must NOT change _extendedEventCount)
   if (deathEchoEvents && deathEchoEvents.length > 0) {
-    const existingIds = new Set(GD.events.map(e => e.id));
-    const newEcho = deathEchoEvents.filter(e => !existingIds.has(e.id));
+    const existingIds = new Set(GD.events.map((e) => e.id));
+    const newEcho = deathEchoEvents.filter((e) => !existingIds.has(e.id));
     GD.events.push(...newEcho);
     GD._deathEchoCount = newEcho.length;
   }
@@ -87,11 +87,10 @@ export function getEventStats(GD, state) {
   const san = state?.san || 60;
   const endingsCount = new Set([
     ...(state?.previousEndings || []),
-    ...(state?.endingHistory || []).map(e => e.ending_id).filter(Boolean),
+    ...(state?.endingHistory || []).map((e) => e.ending_id).filter(Boolean),
   ]).size;
 
-  const meetsPartial =
-    loop >= 5 && mythos >= 15 && san <= 30 && endingsCount >= 3;
+  const meetsPartial = loop >= 5 && mythos >= 15 && san <= 30 && endingsCount >= 3;
 
   // 构建 UI 显示文本
   let displayCount = '599';

@@ -7,24 +7,24 @@
 
 // HP death types (body dies)
 export const HP_DEATH_TYPES = {
-  drowning:      { label: '溺水',   tags: ['water', 'harbor'] },
-  bleeding:      { label: '失血',   tags: ['combat', 'wound'] },
-  infection:     { label: '感染',   tags: ['infection', 'no_medicine'] },
-  starvation:    { label: '饥饿',   tags: ['food'] },
-  falling:       { label: '坠落',   tags: ['fall', 'lighthouse', 'catacombs'] },
-  darkness_taken:{ label: '黑暗吞噬', tags: ['darkness'] },
-  physical:      { label: '肉体消亡', tags: [] },
+  drowning: { label: '溺水', tags: ['water', 'harbor'] },
+  bleeding: { label: '失血', tags: ['combat', 'wound'] },
+  infection: { label: '感染', tags: ['infection', 'no_medicine'] },
+  starvation: { label: '饥饿', tags: ['food'] },
+  falling: { label: '坠落', tags: ['fall', 'lighthouse', 'catacombs'] },
+  darkness_taken: { label: '黑暗吞噬', tags: ['darkness'] },
+  physical: { label: '肉体消亡', tags: [] },
 };
 
 // SAN death types (self dies)
 export const SAN_DEATH_TYPES = {
-  madness:           { label: '疯狂',     tags: [] },
-  possession:        { label: '附身',     tags: ['possession'] },
-  identity_erasure:  { label: '身份抹除', tags: ['meta'] },
+  madness: { label: '疯狂', tags: [] },
+  possession: { label: '附身', tags: ['possession'] },
+  identity_erasure: { label: '身份抹除', tags: ['meta'] },
   mythos_absorption: { label: '神话吞噬', tags: ['mythos'] },
-  loop_collapse:     { label: '循环崩塌', tags: ['loop'] },
-  becomes_event:     { label: '成为事件', tags: ['missing_600'] },
-  mental:            { label: '理智崩塌', tags: [] },
+  loop_collapse: { label: '循环崩塌', tags: ['loop'] },
+  becomes_event: { label: '成为事件', tags: ['missing_600'] },
+  mental: { label: '理智崩塌', tags: [] },
 };
 
 // Hybrid (both HP and SAN zero)
@@ -90,10 +90,7 @@ export function inferDeathType(state, event, choice, mode) {
     return choice.effects.death_hint;
   }
 
-  const tags = [
-    ...(event?.tags || []),
-    ...(choice?.tags || []),
-  ];
+  const tags = [...(event?.tags || []), ...(choice?.tags || [])];
 
   // 2. SAN death typing
   if (mode === 'san') {
@@ -109,10 +106,15 @@ export function inferDeathType(state, event, choice, mode) {
   if (mode === 'hybrid') return 'body_and_self_lost';
 
   // 4. HP death typing
-  if (tags.includes('water') || (state.currentArea === 'harbor_district' && !tags.includes('combat'))) return 'drowning';
+  if (
+    tags.includes('water') ||
+    (state.currentArea === 'harbor_district' && !tags.includes('combat'))
+  )
+    return 'drowning';
   if (tags.includes('infection')) return 'infection';
   if (tags.includes('food') || (state.food != null && state.food <= 0)) return 'starvation';
-  if (tags.includes('darkness') || (state.lightLevel != null && state.lightLevel <= 0)) return 'darkness_taken';
+  if (tags.includes('darkness') || (state.lightLevel != null && state.lightLevel <= 0))
+    return 'darkness_taken';
   if (tags.includes('fall') || state.currentArea === 'lighthouse') return 'falling';
   if (tags.includes('combat')) return 'bleeding';
 
@@ -168,10 +170,8 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '你低头看着自己的手。手指在发白。\n\n' +
         '你试图站起来。膝盖没有响应。\n\n' +
         '你最后看到的是天花板上的裂缝。裂缝的形状像一条河。',
-      worldHandles:
-        '第二天，有人在你倒下的地方放了一束花。花是白色的。到了晚上就枯了。',
-      residue:
-        '下一周目，你的衣袖上会有一块洗不掉的深色印记。\n不是血。但你知道它是什么。',
+      worldHandles: '第二天，有人在你倒下的地方放了一束花。花是白色的。到了晚上就枯了。',
+      residue: '下一周目，你的衣袖上会有一块洗不掉的深色印记。\n不是血。但你知道它是什么。',
     },
     infection: {
       title: '你死于感染。',
@@ -180,10 +180,8 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '你的视线开始模糊。你知道这是发烧。\n\n' +
         '你试图叫人。声音从喉咙里出来的时候，已经不像你的了。\n\n' +
         '你最后想到的是——你本可以用那瓶药的。',
-      worldHandles:
-        '安全屋的床单上留下了一片汗渍。形状像一只手。没有人去洗它。',
-      residue:
-        '下一周目，安全屋的床单上会有旧汗渍。\n你不会在意。\n但你的身体会记得那种热度。',
+      worldHandles: '安全屋的床单上留下了一片汗渍。形状像一只手。没有人去洗它。',
+      residue: '下一周目，安全屋的床单上会有旧汗渍。\n你不会在意。\n但你的身体会记得那种热度。',
     },
     starvation: {
       title: '你死于饥饿。',
@@ -192,8 +190,7 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '这才是最危险的信号。\n\n' +
         '你的身体在消耗自己。你能感觉到——不是疼痛，而是一种空洞。从胃开始，向四肢蔓延。\n\n' +
         '你最后看到的是一张空桌子。桌上有划痕。像是有人用指甲在上面写字。',
-      worldHandles:
-        '安全屋的餐桌上永远少了一副餐具。没有人记得原来有几副。',
+      worldHandles: '安全屋的餐桌上永远少了一副餐具。没有人记得原来有几副。',
       residue:
         '下一周目，你的餐桌上会多出一副没有人用的餐具。\n你会觉得这很正常。\n直到你数了数椅子。',
     },
@@ -204,10 +201,8 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '不是外面的风——是你自己下坠时切割空气的声音。\n\n' +
         '你试图抓住什么。手指划过石壁，指甲断了两根。\n\n' +
         '你最后想到的是——坠落比你想象的要安静。',
-      worldHandles:
-        '竖井底部的石头上多了一道裂痕。形状像一个人。',
-      residue:
-        '下一周目，你会在某个高处听到骨头落地的声音。\n不是真的。\n但你的膝盖会发软。',
+      worldHandles: '竖井底部的石头上多了一道裂痕。形状像一个人。',
+      residue: '下一周目，你会在某个高处听到骨头落地的声音。\n不是真的。\n但你的膝盖会发软。',
     },
     darkness_taken: {
       title: '你被黑暗吞噬。',
@@ -218,8 +213,7 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '你感到有什么东西在你身边。不是敌人。更像是——等待。\n\n' +
         '你最后看到的是——\n\n' +
         '不。你什么都没看到。',
-      worldHandles:
-        '你的安全屋多了一盏没有人点燃的灯。灯油是满的。但火柴盒是空的。',
+      worldHandles: '你的安全屋多了一盏没有人点燃的灯。灯油是满的。但火柴盒是空的。',
       residue:
         '下一周目，你醒来时嘴里会有石灰粉的味道。\n你会以为是做梦。\n但你的指甲缝里确实有白色的粉末。',
     },
@@ -229,10 +223,8 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '你的身体停止了运作。\n\n' +
         '不是某个特定的原因。只是——磨损。累积的伤害、疲惫、和沃切斯特的重量。\n\n' +
         '你最后想到的是一个你本可以做但没有做的选择。',
-      worldHandles:
-        '有人在你倒下的地方做了一个标记。标记后来被雾冲掉了。',
-      residue:
-        '下一周目，你会在某个地方看到一个模糊的标记。\n你不会认出它。\n但你的身体会停下来。',
+      worldHandles: '有人在你倒下的地方做了一个标记。标记后来被雾冲掉了。',
+      residue: '下一周目，你会在某个地方看到一个模糊的标记。\n你不会认出它。\n但你的身体会停下来。',
     },
   };
 
@@ -246,10 +238,8 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '你继续站着，继续呼吸，继续看着沃切斯特的街道。街灯亮着。海风吹过来。有人从你身边经过，礼貌地点头。\n\n' +
         '你想回应。\n\n' +
         '但你想不起自己的名字。',
-      worldHandles:
-        '笔记本从你手里滑落。最后一页自己翻开。\n上面写着："该角色已失去观察资格。"',
-      residue:
-        '下一周目，笔记本上会出现不属于你的涂鸦。\n你不会记得写过它们。\n但笔迹确实是你的。',
+      worldHandles: '笔记本从你手里滑落。最后一页自己翻开。\n上面写着："该角色已失去观察资格。"',
+      residue: '下一周目，笔记本上会出现不属于你的涂鸦。\n你不会记得写过它们。\n但笔迹确实是你的。',
     },
     possession: {
       title: '你被替换了。',
@@ -273,8 +263,7 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '你的身体还在街上站着。\n你的手还握着笔记本。\n你的眼睛还看着这个世界。\n\n' +
         '只是从这一刻开始，看的人不再是你。\n\n' +
         '你想尖叫。但你的声音也被写进了 description 里。',
-      worldHandles:
-        '存档名短暂变成了空白。\n然后恢复了。\n但文件大小少了一个字节。',
+      worldHandles: '存档名短暂变成了空白。\n然后恢复了。\n但文件大小少了一个字节。',
       residue:
         '下一周目，你的名字会在某些地方消失。\nNPC会叫你"调查员"而不是你的名字。\n你不会注意到。\n直到你翻到笔记本的扉页。',
     },
@@ -286,10 +275,8 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '它们围着你旋转。你试图读它们。你确实读了。\n\n' +
         '你读懂了。\n\n' +
         '这才是最可怕的部分。',
-      worldHandles:
-        '你翻开的那本书自动合上了。书页的边缘烧焦了一小块。\n没有人再去碰它。',
-      residue:
-        '下一周目，你能读懂不该读懂的文字。\n但这不是礼物。\n文字也会读懂你。',
+      worldHandles: '你翻开的那本书自动合上了。书页的边缘烧焦了一小块。\n没有人再去碰它。',
+      residue: '下一周目，你能读懂不该读懂的文字。\n但这不是礼物。\n文字也会读懂你。',
     },
     loop_collapse: {
       title: '循环崩塌了。',
@@ -301,10 +288,8 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '路不见了。树也不见了。\n\n' +
         '你试图回忆那条路通向哪里。你的大脑拒绝了。\n\n' +
         '不是想不起来。是不允许想。',
-      worldHandles:
-        '沃切斯特的面积比昨天小了一点。\n没有人注意到。\n因为记忆也被一起删除了。',
-      residue:
-        '下一周目，地图上会少一条你记得存在的路。\n你不会质疑它。\n循环会帮你处理好一切。',
+      worldHandles: '沃切斯特的面积比昨天小了一点。\n没有人注意到。\n因为记忆也被一起删除了。',
+      residue: '下一周目，地图上会少一条你记得存在的路。\n你不会质疑它。\n循环会帮你处理好一切。',
     },
     becomes_event: {
       title: '你成为了第600个事件。',
@@ -325,8 +310,7 @@ export function getDeathText(mode, type, state, sourceEvent) {
         '但你的思绪像是握在手里的沙子。越用力，流失得越快。\n\n' +
         '你最后想到的是——\n\n' +
         '你忘了你要想什么。',
-      worldHandles:
-        '你的笔记本掉在了地上。没有人捡起它。\n风翻了几页。然后停了。',
+      worldHandles: '你的笔记本掉在了地上。没有人捡起它。\n风翻了几页。然后停了。',
       residue:
         '下一周目，你会在某个时刻突然忘记自己在做什么。\n只有几秒钟。\n但那几秒钟里，你不是你。',
     },
@@ -352,12 +336,15 @@ export function getDeathText(mode, type, state, sourceEvent) {
   };
 
   const textMap = mode === 'hp' ? hpTexts : mode === 'san' ? sanTexts : hybridTexts;
-  const text = textMap[type] || textMap.physical || textMap.mental || textMap.body_and_self_lost || {
-    title: '你死了。',
-    lastMoment: '你的故事在这里中断了。',
-    worldHandles: '世界继续运转。',
-    residue: '下一周目，你会感到一阵莫名的熟悉。',
-  };
+  const text = textMap[type] ||
+    textMap.physical ||
+    textMap.mental ||
+    textMap.body_and_self_lost || {
+      title: '你死了。',
+      lastMoment: '你的故事在这里中断了。',
+      worldHandles: '世界继续运转。',
+      residue: '下一周目，你会感到一阵莫名的熟悉。',
+    };
 
   return [
     text.title,
