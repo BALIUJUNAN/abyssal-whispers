@@ -6,6 +6,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 
 <img src="docs/dossier.png" alt="沃切斯特档案" style="max-width:860px; border:1px solid #333; box-shadow: 0 4px 24px rgba(0,0,0,0.5);">
 
+![CI](https://github.com/BALIUJUNAN/abyssal-whispers/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-1.8MB_production-green)
@@ -586,7 +587,11 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
       "description": "你在公告栏后面发现了一张纸条……",
       "effects": { "san": -1 },
       "choices": [
-        { "id": "keep", "text": "收起来", "effects": { "add_clue": { "id": "clue_note", "name": "纸条" } } },
+        {
+          "id": "keep",
+          "text": "收起来",
+          "effects": { "add_clue": { "id": "clue_note", "name": "纸条" } }
+        },
         { "id": "ignore", "text": "忽略", "effects": {} }
       ]
     }
@@ -621,14 +626,14 @@ my-mod/
 
 UGC 模组有严格的安全限制：
 
-| 限制 | 说明 |
-|------|------|
-| **仅 JSON** | 不支持 JavaScript 代码执行，所有逻辑通过声明式 effects 实现 |
-| **未知字段剥离** | Schema 不认识的字段会被静默移除，不会进入游戏 |
-| **ID 校验** | 仅允许字母、数字、下划线、连字符 |
-| **深度限制** | 最多 30 个事件 / 每事件 6 个选项 |
-| **危险内容拦截** | 自动扫描并拦截脚本注入、事件处理器、远程 URL |
-| **兼容性字段** | `compatibility` 字段标注适用游戏版本（如 `>=0.2.3`） |
+| 限制             | 说明                                                        |
+| ---------------- | ----------------------------------------------------------- |
+| **仅 JSON**      | 不支持 JavaScript 代码执行，所有逻辑通过声明式 effects 实现 |
+| **未知字段剥离** | Schema 不认识的字段会被静默移除，不会进入游戏               |
+| **ID 校验**      | 仅允许字母、数字、下划线、连字符                            |
+| **深度限制**     | 最多 30 个事件 / 每事件 6 个选项                            |
+| **危险内容拦截** | 自动扫描并拦截脚本注入、事件处理器、远程 URL                |
+| **兼容性字段**   | `compatibility` 字段标注适用游戏版本（如 `>=0.2.3`）        |
 
 > **不会执行任何远程代码。** 模组只包含数据，不包含可执行逻辑。
 
