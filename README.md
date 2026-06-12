@@ -585,57 +585,49 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
 nvm use   # 读取 .nvmrc → 20.19.0
 ```
 
-### 构建命令
+### 构建路线
+
+项目有两条构建路线，**推荐使用 Vite**：
+
+| 路线              | 命令                            | 产物                  | 适用场景                          |
+| ----------------- | ------------------------------- | --------------------- | --------------------------------- |
+| **Vite（推荐）**  | `npm run dev` / `npm run build` | `dist-vite/` 多文件   | 日常开发、生产部署                |
+| **Legacy 单文件** | `npm run build:single`          | `index.html` (~1.8MB) | GitHub Pages 单文件部署、离线分发 |
+| **Tauri 桌面版**  | `npm run tauri:build`           | `.exe` 安装包         | 桌面客户端                        |
 
 ```bash
 # 安装依赖
 npm install
 
-# ── 主线（Vite） ──────────────────────────────────────
+# ── 推荐路线 ──────────────────────────────────────────
 
-# 开发模式 — Vite HMR 热更新
-npm run dev
-# 访问 http://localhost:3000
+npm run dev              # 开发服务器 → http://localhost:3000（Vite HMR）
+npm run build            # 生产构建 → dist-vite/
+npm run preview          # 预览生产构建 → http://localhost:4173
+npm run tauri:build      # 桌面版构建（需要 Rust）
 
-# 生产构建 — 多文件产物
-npm run build
-# 输出：dist-vite/（index.html + assets/ + 游戏图片）
+# ── 验证 ──────────────────────────────────────────────
 
-# 预览生产构建
-npm run preview
-# 访问 http://localhost:4173
+npm run verify           # 完整验证（测试 + Vite 构建 + Legacy 构建）
+npm test                 # 仅单元测试（54 tests）
+npm run format:check     # 代码格式检查（Prettier）
 
-# ── Legacy 单文件构建（Python） ──────────────────────
+# ── Legacy 路线（兼容保留，不推荐新开发使用） ─────────
 
-# 单文件 HTML 构建（Babel JSX + CSS/JS minify）
-npm run build:single
-# 输出：index.html（~1.8MB）
+npm run build:single     # Python 单文件构建 → index.html
+npm run dev:legacy       # Legacy 开发模式（跳过 Babel）
+python build.py --analyze # 包体积分析
 
-# Legacy 开发模式（跳过 Babel 编译）
-npm run dev:legacy
+# ── 工具 ──────────────────────────────────────────────
 
-# ── 验证 & 测试 ──────────────────────────────────────
-
-# 完整验证（单元测试 + Vite 构建 + Legacy 构建）
-npm run verify
-
-# 仅单元测试
-npm test
-
-# 包体积分析（按目录分类展示各模块大小）
-python build.py --analyze
-
-# ── 其他 ─────────────────────────────────────────────
-
-# 构建桌面版（需要 Rust）
-npm run tauri build
-
-# 扩展事件 lint
-npm run lint:events
-
-# 第 600 号事件测试
-npm run test:missing600
+npm run format           # 格式化全部源文件（Prettier）
+npm run lint:events      # 扩展事件 lint
+npm run test:missing600  # 第 600 号事件测试
 ```
+
+> **路线说明**：Vite 是当前主线，提供 ESM 原生模块 + HMR 热更新 + 路径别名。
+> Legacy 单文件构建通过 `build.py` 保留，用于 GitHub Pages 部署和离线分发场景。
+> `npm run verify` 同时覆盖两条路线，确保不退化。
 
 ### 开发者调试面板
 
