@@ -17,6 +17,8 @@ const SUITES = [
   { file: 'tests/test_game_data_protocol.cjs', label: 'game_data_protocol' },
   { file: 'tests/test_event_system.cjs', label: 'event_system' },
   { file: 'tests/test_smoke_flows.cjs', label: 'smoke_flows' },
+  { file: 'tests/test_reincarnation_core.cjs', label: 'reincarnation' },
+  { file: 'tests/test_reincarnation_player_sim.cjs', label: 'reincarnation_player_sim' },
   { file: 'tests/integration_test.cjs', label: 'integration' },
 ];
 

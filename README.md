@@ -474,13 +474,17 @@ COC/
 │   └── vendor/                     # React 18 / ReactDOM / Babel / Immer
 │
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 6 个测试文件
-│   ├── test_event_system.js        # 事件系统测试
-│   ├── test_event_system.cjs       # 事件系统测试（CJS）
-│   ├── test_effect_protocol.cjs    # 效果协议测试
-│   ├── test_game_data_protocol.cjs # 游戏数据协议测试
+├── tests/                    # 8 个测试文件（188 tests）
+│   ├── test_effect_protocol.cjs    # 效果协议测试（6 tests）
+│   ├── test_game_data_protocol.cjs # 游戏数据协议测试（10 tests）
+│   ├── test_event_system.cjs       # 事件系统测试（19 tests）
 │   ├── test_smoke_flows.cjs        # 冒烟测试
-│   └── integration_test.cjs        # 集成测试
+│   ├── test_reincarnation_core.cjs # 轮回系统完整测试（102 tests）
+│   │                               #   Part A: 单元测试（继承/污染/NPC/死亡/结局）
+│   │                               #   Part B: 场景测试（全流程/极端/存档迁移/平衡）
+│   ├── test_reincarnation_player_sim.cjs # 玩家行为模拟器（32 tests）
+│   │                               #   5种人格×确定性种子×多轮回×报表生成
+│   └── integration_test.cjs        # 集成测试（19 tests）
 │
 ├── mods/                     # UGC 模组
 │   └── examples/             # 示例模组
@@ -490,7 +494,11 @@ COC/
 │       └── chain_quest.json        # 链式任务示例
 │
 ├── scripts/
-│   └── report_references.cjs       # 引用关系分析脚本
+│   ├── report_references.cjs       # 引用关系分析脚本
+│   ├── simulate_loops.cjs          # 轮回批量模拟器（--loops N --seed N）
+│   ├── mod_validate.cjs            # UGC 模组校验
+│   ├── mod_preview.cjs             # UGC 模组预览
+│   └── mod_pack.cjs                # UGC 模组打包
 │
 └── docs/                     # 文档
     ├── dossier.png                 # 沃切斯特档案封面
@@ -679,8 +687,14 @@ npm run tauri:build      # 桌面版构建（需要 Rust）
 # ── 验证 ──────────────────────────────────────────────
 
 npm run verify           # 完整验证（测试 + Vite 构建 + Legacy 构建）
-npm test                 # 仅单元测试（54 tests）
+npm test                 # 全部测试（188 tests / 7 suites）
 npm run format:check     # 代码格式检查（Prettier）
+
+# ── 轮回系统测试 ─────────────────────────────────────
+
+npm run test:reinc       # 轮回核心+场景测试（102 tests）
+npm run test:reinc:sim   # 玩家行为模拟器（5人格×8轮报表）
+npm run simulate:loops   # 批量轮回模拟（默认 10 轮）
 
 # ── Legacy 路线（兼容保留，不推荐新开发使用） ─────────
 
@@ -693,6 +707,9 @@ python build.py --analyze # 包体积分析
 npm run format           # 格式化全部源文件（Prettier）
 npm run lint:events      # 扩展事件 lint
 npm run test:missing600  # 第 600 号事件测试
+npm run mod:validate     # UGC 模组校验
+npm run mod:preview      # UGC 模组预览
+npm run mod:pack         # UGC 模组打包
 ```
 
 > **路线说明**：Vite 是当前主线，提供 ESM 原生模块 + HMR 热更新 + 路径别名。
@@ -709,6 +726,36 @@ npm run test:missing600  # 第 600 号事件测试
 | **TOOLS**   | 一键 Force EXPLORE / REST / New Game / Reset Pollution / Full SAN / Full HP        |
 | **WEIGHTS** | 查看触发事件数/今日类型/异常连续/最近事件/类别预算/冷却计时                        |
 | **PERF**    | FPS 监控/State key 数量/Narrative 条目数/堆内存使用                                |
+
+### 轮回系统测试套件
+
+`npm run test:reinc` 运行 **102 个测试**，覆盖轮回系统的完整状态机：
+
+| 部分   | 覆盖内容                                            | 用例 |
+| ------ | --------------------------------------------------- | ---- |
+| 单元   | SAN 曲线 · 污染叠加 · NPC 信任 · 技能保留 · 行为计数器 · 代币商店 · 15 种死亡类型 · 结局条件解析 · SSOT 一致性 | 75   |
+| 场景   | 全流程烟雾 · 连续 SAN 归零 · 高污染 · 存档迁移 · 后期平衡 · 结局历史 · 死亡区域追踪                     | 27   |
+
+`npm run test:reinc:sim` 运行 **玩家行为模拟器**（32 tests），使用概率+规则驱动的 AI 模拟 5 种人格：
+
+| 人格         | 特点                     | 平均存活 |
+| ------------ | ------------------------ | -------- |
+| `balanced`   | 均衡探索/社交/生存       | ~11 天   |
+| `explorer`   | 狂探索高危区域           | ~9 天    |
+| `investigator` | 线索+对话优先          | ~12 天   |
+| `social`     | 优先刷 NPC 好感          | ~13 天   |
+| `suicidal`   | 作死到底，测极端死亡路径 | ~2.6 天  |
+
+```bash
+node tests/test_reincarnation_player_sim.cjs --verbose --loops 10 --personality suicidal --seed 42
+```
+
+`npm run simulate:loops` 批量轮回模拟，输出统计报表（平均存活天数、死因分布、平衡评估）：
+
+```bash
+node scripts/simulate_loops.cjs --loops 20 --seed 42 --verbose
+node scripts/simulate_loops.cjs --loops 50 --report report.txt
+```
 
 ---
 
