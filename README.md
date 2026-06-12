@@ -42,7 +42,7 @@ python -m http.server 8080
 # 从源码构建（需要 Rust + Node.js 环境）
 npm install
 npm run tauri build
-# 输出：src-tauri/target/release/abyssal-whispers_0.1.0_x64-setup.exe
+# 输出：src-tauri/target/release/abyssal-whispers_0.2.3_x64-setup.exe
 ```
 
 | 平台 | 状态 | 说明 |
@@ -569,9 +569,17 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
 
 ### 环境要求
 
-- Node.js >= 18
-- Python >= 3.8
-- (可选) Rust + Cargo — 如需构建 Tauri 桌面版
+| 依赖 | 版本 | 说明 |
+|------|------|------|
+| **Node.js** | >= 20.19.0 | Vite 8 官方要求；项目含 `.nvmrc` |
+| **npm** | >= 10 | 随 Node.js 20+ 自带 |
+| **Python** | >= 3.8 | Legacy 单文件构建 (`build.py`) |
+| **Rust stable** | latest | 仅 Tauri 桌面版构建需要 |
+
+```bash
+# 推荐：使用 nvm 自动切换版本
+nvm use   # 读取 .nvmrc → 20.19.0
+```
 
 ### 构建命令
 
