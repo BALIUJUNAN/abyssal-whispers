@@ -10,6 +10,27 @@
 //   _applyEventEffects(s, c)   → SAN damage, skill checks, madness
 //   _postEventProcessing(s, c) → chain progress, conclusions, endings
 
+import { rand, clamp, pick } from '../utils.js';
+import { GAME_BALANCE } from '../../state/gameConstants.js';
+import { getPhase, getAreaInfo } from '../../engine/WorldTimeSystem.js';
+import { getSanSceneVariant, getSanTextVariant, processSanLoss, rollMadness } from '../sanReducer.js';
+import { checkTrigger, doSkillCheck, getGambleOptions, processNormalAnchorEvent, selectEvent } from '../eventReducer.js';
+import { applyLegacyEffects } from '../effectReducer.js';
+import { checkObjCompletion } from '../objectiveReducer.js';
+import { getPollutionText } from '../loopReducer.js';
+import { getMonsterManifestation } from '../chapterReducer.js';
+import { checkConclusions, checkFalseInterpretations } from '../conclusionReducer.js';
+import { resolveDeath } from '../deathSystem.js';
+import { selectEventV2, getEligibleEvents, chooseWeightedEvent, commitSelectedEvent, getEventWeight } from '../extendedEvents.js';
+import { shouldTriggerMissing600, createMissing600Event } from '../../data/events_missing_600.js';
+import { checkOmens } from '../../data/events_omens_600.js';
+import { applyFearLens, getFearEventWeightModifier } from '../../systems/fearLens.js';
+import { applyTextHallucination } from '../../engine/PollutionManager.js';
+import { addRunMemory, setNpcTrust } from '../../utils/appHelpers.js';
+
+// TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
+// It remains a global for now; will be extracted to a utility in a future PR.
+
 // §3.3: Meta event real consequences
 export function applyMetaEffect(effectType, state, evt, c) {
   if (!effectType) return;

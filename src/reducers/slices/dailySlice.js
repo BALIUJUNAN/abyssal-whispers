@@ -3,6 +3,23 @@
 // Phase 1 Refactor: REST case decomposed into sub-functions for readability.
 // NOTE: Sub-functions receive ctx (bundle-scope context with GD) as 3rd param.
 
+import { rand, clamp, pick } from '../utils.js';
+import { GAME_BALANCE } from '../../state/gameConstants.js';
+import { getPhase, getAreaInfo, getSealState, getSealStateId, getWeather } from '../../engine/WorldTimeSystem.js';
+import { getSanStage, processSanLoss } from '../sanReducer.js';
+import { getSafehouseStage, processSafehouseNight } from '../miscReducer.js';
+import { genObjectives } from '../objectiveReducer.js';
+import { getChapterForDay, getMotifFlavorText, checkChapterTransition } from '../chapterReducer.js';
+import { checkConclusions } from '../conclusionReducer.js';
+import { checkEnding } from '../endingReducer.js';
+import { checkNPCCorruption, applyNPCCorruption } from '../npcReducer.js';
+import { resetDailyCategoryCounts } from '../extendedEvents.js';
+import { maybeGetFakeMessage, maybeInsertFalseMemory } from '../../engine/PollutionManager.js';
+import { addRunMemory, getNpcTrust, setNpcTrust } from '../../utils/appHelpers.js';
+
+// TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
+// It remains a global for now; will be extracted to a utility in a future PR.
+
 // ── REST sub-functions ──────────────────────────────────────────────
 
 /** Process food consumption, starvation damage, and NPC trust decay. Returns true if player died. */

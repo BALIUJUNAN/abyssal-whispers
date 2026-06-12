@@ -1,6 +1,14 @@
 // src/reducers/slices/npcSlice.js - Extracted from gameReducer
 // TALK_NPC, NPC_RESPONSE
 
+import { rand, d3, clamp, pick } from '../utils.js';
+import { GAME_BALANCE } from '../../state/gameConstants.js';
+import { processSanLoss } from '../sanReducer.js';
+import { checkObjCompletion } from '../objectiveReducer.js';
+import { setCorruptionFlag } from '../npcReducer.js';
+import { getFearNpcLine } from '../../systems/fearLens.js';
+import { addRunMemory, getNpcTrust, setNpcTrust } from '../../utils/appHelpers.js';
+
 export function handleNpcAction(s, action, c) {
   switch(action.type){
   case 'TALK_NPC':{

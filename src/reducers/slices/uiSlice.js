@@ -1,6 +1,15 @@
 // src/reducers/slices/uiSlice.js - Extracted from gameReducer
 // CHOICE_SELECT, DISMISS_PENDING, CLEAR_TRANSITION, AUDIO_MUTE_TOGGLE, ACCESSIBILITY_TOGGLE, GAMBLE_CHOICE, START_PROLOGUE, PROLOGUE_CHOICE, COMPLETE_PROLOGUE, DISMISS_GUIDE, SKIP_PROLOGUE
 
+import { rand, clamp, pick } from '../utils.js';
+import { processSanLoss, rollMadness } from '../sanReducer.js';
+import { doSkillCheck } from '../eventReducer.js';
+import { applyLegacyEffects } from '../effectReducer.js';
+import { checkObjCompletion } from '../objectiveReducer.js';
+import { resolveDeath } from '../deathSystem.js';
+import { initPrologueState, handlePrologueChoice, handleSkipPrologue, getPrologueEvent } from '../prologueReducer.js';
+import { addRunMemory } from '../../utils/appHelpers.js';
+
 export function handleUiAction(s, action, c) {
   switch(action.type){
   case 'CHOICE_SELECT':{

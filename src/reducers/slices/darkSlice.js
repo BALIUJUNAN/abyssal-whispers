@@ -1,6 +1,10 @@
 // src/reducers/slices/darkSlice.js - Extracted from gameReducer
 // SELF_HARM, SPREAD_PROPHECY, CONSUME_ARCHIVE, SELF_SACRIFICE, DESECRATE, BREAK_SEAL
 
+import { rand, clamp } from '../utils.js';
+import { setCorruptionFlag } from '../npcReducer.js';
+import { addRunMemory, modHumanity } from '../../utils/appHelpers.js';
+
 export function handleDarkAction(s, action, c) {
   switch(action.type){
   case 'SELF_HARM':{
