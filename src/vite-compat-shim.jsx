@@ -1,10 +1,15 @@
 // src/vite-compat-shim.jsx — Vite compatibility shim
-// Imports all source modules and exposes their exports on globalThis.
+// Imports source modules and exposes their exports on globalThis.
 // This bridges the gap between build.py's flat global-scope concatenation
 // and Vite's ESM module isolation.
 //
-// Each module's exports are assigned to globalThis so that app.jsx
-// (which calls these functions without importing) can find them.
+// PROGRESS: Slice handlers (PR13-14) now have explicit imports and are
+// removed from this shim. Remaining modules are still used as globals by
+// component files, reducers, systems, and utility modules.
+//
+// TODO: Continue adding explicit imports to remaining modules (reducers,
+// systems, etc.) until this shim can be reduced to only the minimal set
+// of truly shared globals (GD, React, ctx, errorTracker, audioManager).
 
 // ── Utility modules ──
 import * as _reducersUtils from './reducers/utils.js';
@@ -35,11 +40,9 @@ import * as _worldDecay from './systems/worldDecay.js';
 import * as _resourceNarrative from './systems/resourceNarrative.js';
 import * as _metaCorruption from './systems/metaCorruption.js';
 import * as _npcDialogue from './systems/npcDialogue.js';
-// _eventSystemV2: removed (replaced by engine/EventEngine)
 import * as _fearProfile from './systems/fearProfile.js';
 import * as _fearLens from './systems/fearLens.js';
 import * as _sanVisualCorruption from './systems/sanVisualCorruption.js';
-// _logicCorruption: removed (replaced by engine/PollutionManager)
 
 // ── Reducers ──
 import * as _extendedEvents from './reducers/extendedEvents.js';
@@ -58,13 +61,8 @@ import * as _deathSystem from './reducers/deathSystem.js';
 import * as _prologueReducer from './reducers/prologueReducer.js';
 import * as _ugcReducer from './reducers/ugcReducer.js';
 
-// ── Slices ──
-import * as _coreSlice from './reducers/slices/coreSlice.js';
-import * as _exploreSlice from './reducers/slices/exploreSlice.js';
-import * as _npcSlice from './reducers/slices/npcSlice.js';
-import * as _dailySlice from './reducers/slices/dailySlice.js';
-import * as _darkSlice from './reducers/slices/darkSlice.js';
-import * as _uiSlice from './reducers/slices/uiSlice.js';
+// Slice handlers: removed (PR13-14 added explicit imports to all slice files)
+// _coreSlice, _exploreSlice, _npcSlice, _dailySlice, _darkSlice, _uiSlice
 
 // ── Runtime ──
 import * as _effectExecutor from './runtime/effectExecutor.js';
@@ -89,10 +87,9 @@ import * as _npcRegistry from './data/registry/npcRegistry.js';
 import * as _areaRegistry from './data/registry/areaRegistry.js';
 import * as _itemRegistry from './data/registry/itemRegistry.js';
 
-// ── Immer ──
-import { produce as _produce } from 'immer';
-
 // ── Assign all exports to globalThis ──
+// NOTE: 'produce' is already set by main.vite.jsx (window.produce = produce),
+// so we no longer import/assign it here.
 const MODULES = [
   _reducersUtils, _clueNameMap, _gameHelpers, _trustGates, _npcMemory,
   _errorTracker, _appHelpers, _buildEventPool,
@@ -103,7 +100,6 @@ const MODULES = [
   _objectiveReducer, _saveMigration, _achievementReducer, _loopReducer,
   _chapterReducer, _conclusionReducer, _npcReducer, _deathSystem,
   _prologueReducer, _ugcReducer,
-  _coreSlice, _exploreSlice, _npcSlice, _dailySlice, _darkSlice, _uiSlice,
   _effectExecutor, _audioManager,
   _eventsMissing600, _eventsOmens600, _extendedEventsIndex, _behaviorEndings,
   _endingMissing600, _eventsDeathEcho, _prologueEvents, _descriptionTemplates,
@@ -117,11 +113,6 @@ for (const mod of MODULES) {
       globalThis[key] = value;
     }
   }
-}
-
-// Immer produce — critical for gameReducer
-if (!('produce' in globalThis)) {
-  globalThis.produce = _produce;
 }
 
 // audioManager singleton
