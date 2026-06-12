@@ -1,5 +1,6 @@
 // src/components/GameScreens.jsx - Screen components extracted from app.jsx
 // PrologueScreen, SurvivalGuide, CharCreation
+const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
 export function PrologueScreen({state,dispatch}){
   const prologue=state.prologue;

@@ -2,7 +2,7 @@
 // These keys are NEVER persisted to save files, exports, or localStorage.
 // All save paths (toPersistedState, exportSave, manualSave) must use this list.
 
-var TRANSIENT_STATE_KEYS = [
+export var TRANSIENT_STATE_KEYS = [
   '_effects',        // post-reducer side effect queue
   '_lastAction',     // debug: last dispatched action
   '_runtime',        // runtime metadata

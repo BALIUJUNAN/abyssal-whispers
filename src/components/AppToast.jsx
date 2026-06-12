@@ -1,5 +1,6 @@
 // src/components/AppToast.jsx — 吐司通知组件
 import { audioManager } from '../managers/AudioManager.js';
+const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
 export function AppToast({toast,onDismiss}){
   const isAch=!!toast.def?.icon&&toast.type!=='save'&&toast.type!=='load';

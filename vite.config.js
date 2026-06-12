@@ -2,8 +2,28 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
+// Dev-only plugin: redirect / to /dev.html so Vite processes dev.html
+// (with @vitejs/plugin-react preamble injection) instead of root index.html
+// (the 1.8MB legacy build output).
+function devHtmlPlugin() {
+  return {
+    name: 'dev-html',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        // Rewrite root requests to dev.html so Vite's HTML transform
+        // pipeline (including @vitejs/plugin-react preamble) runs on it.
+        if (req.url === '/' || req.url === '/index.html') {
+          req.url = '/dev.html';
+        }
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), devHtmlPlugin()],
   root: '.',
   publicDir: 'assets',
   server: {

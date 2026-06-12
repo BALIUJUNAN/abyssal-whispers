@@ -1,8 +1,11 @@
 // src/components/GameLayout.jsx — 布局模式切换入口
 // 在地图模式（暗黑地牢风格）和经典模式（三栏面板）之间切换。
 // 这是 game screen 渲染的唯一入口，替换 app.jsx 中直接渲染的三栏布局。
+const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
+import { InteractiveTownMap } from './InteractiveTownMap.jsx';
+import { FloatingInfoBar, NarrativeFloatingPanel } from './FloatingInfoBar.jsx';
 
-function GameLayout({ state, dispatch, areas, settings }) {
+export function GameLayout({ state, dispatch, areas, settings }) {
   const ui = uiStore();
   const uiMode = ui.uiMode || 'town_map';
   const activeHotspot = ui.activeHotspot;

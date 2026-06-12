@@ -1,6 +1,6 @@
 // src/components/ErrorBoundary.jsx - React ErrorBoundary with error tracker integration
 
-class ErrorBoundary extends React.Component {
+export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null, reportText: '' };

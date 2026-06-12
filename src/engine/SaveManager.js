@@ -3,7 +3,7 @@
 // P0-4: Migration mechanism for version-incompatible saves (no more auto-delete)
 // P0-5: toPersistedState filters runtime UI fields before saving
 
-import { SAVE_VERSION, migrateSaveData, toPersistedState } from './saveMigration.js';
+import { SAVE_VERSION, migrateSaveData, toPersistedState } from '../reducers/saveMigration.js';
 
 export const SAVE_PREFIX = 'coc_save_';
 export const AUTO_SLOTS = ['auto_1', 'auto_2', 'auto_3'];

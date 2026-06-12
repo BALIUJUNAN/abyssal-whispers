@@ -1,4 +1,5 @@
 // src/state/initialState.js — 游戏初始状态定义（从 app.jsx 提取）
+import { ensureExtendedState } from '../reducers/extendedEventsLoader.js';
 
 export const initialState=()=>{
   const base={screen:'title',day:1,ap:12,maxAp:12,

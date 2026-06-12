@@ -1,6 +1,10 @@
 // src/components/GamePanels.jsx - Game panel components (extracted from app.jsx)
 // LeftPanel, CenterPanel, RightPanel, EndingScreen, GameHeader
 // NPCDialog -> NPCDialog.jsx, CitySketchMap -> CitySketchMap.jsx
+const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
+import { StatBar, CollapsibleSection, NarrativeBlock } from './GameCommon.jsx';
+import { NPCDialog } from './NPCDialog.jsx';
+import { CitySketchMap } from './CitySketchMap.jsx';
 
 export const LeftPanel=memo(function LeftPanel({state}){
   const seal=useMemo(()=>(GD.world?.seal_state_machine||[]).find(s=>s.id===state.sealState)||(GD.module8_time_schedule?.seal_state_machine?.states||[]).find(s=>s.id===state.sealState),[state.sealState]);

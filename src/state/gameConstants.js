@@ -4,7 +4,7 @@
 //
 // BUNDLE ORDER: loaded after reducers/utils.js, before all slice files.
 
-var GAME_BALANCE = Object.freeze({
+export var GAME_BALANCE = Object.freeze({
 
   // ── SAN thresholds ─────────────────────────────────────────────────
   LOW_SAN_STAT_THRESHOLD:    10,   // dailySlice: stat "low_san_days" when san <= this

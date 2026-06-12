@@ -8,7 +8,7 @@
 
 const { useState, useEffect, useMemo, useCallback, memo } = React;
 
-function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
+export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   const [tab, setTab] = useState('actions'); // 'actions' | 'info' | 'npc'
 
   // 区域信息

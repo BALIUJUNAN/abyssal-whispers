@@ -55,15 +55,15 @@ import { initialState } from './state/initialState.js';
 
 // ── Components ──
 import { UgcPanel } from './components/UgcImportExport.jsx';
-import { ErrorBoundary } from './components/ErrorBoundary.js';
-import { InteractiveTownMap, HotspotNode, MapPaths } from './components/InteractiveTownMap.js';
-import { AreaPanelModal } from './components/AreaPanelModal.js';
-import { FloatingInfoBar, NarrativeFloatingPanel } from './components/FloatingInfoBar.js';
-import { GameLayout } from './components/GameLayout.js';
+import { ErrorBoundary } from './components/ErrorBoundary.jsx';
+import { InteractiveTownMap, HotspotNode, MapPaths } from './components/InteractiveTownMap.jsx';
+import { AreaPanelModal } from './components/AreaPanelModal.jsx';
+import { FloatingInfoBar, NarrativeFloatingPanel } from './components/FloatingInfoBar.jsx';
+import { GameLayout } from './components/GameLayout.jsx';
 import { TOWN_HOTSPOTS, getVisibleHotspots, isHotspotUnlocked, getHotspotState } from './data/townHotspots.js';
 import { audioManager } from './managers/AudioManager.js';
-import { TitleScreen } from './components/TitleScreen.js';
-import { AppToast } from './components/AppToast.js';
+import { TitleScreen } from './components/TitleScreen.jsx';
+import { AppToast } from './components/AppToast.jsx';
 import { SettingsModal, SaveLoadModal, AchievementGallery } from './components/GameModals.jsx';
 import { PrologueScreen, SurvivalGuide, CharCreation } from './components/GameScreens.jsx';
 import { AbyssPopup } from './components/SanPollutionLayer.jsx';

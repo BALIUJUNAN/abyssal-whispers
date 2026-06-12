@@ -1,6 +1,7 @@
 // src/components/GameCommon.jsx - Common UI components extracted from app.jsx
 // StatBar, Modal, CollapsibleSection, NarrativeBlock
 // All use React hooks from global scope (useState, useEffect, memo, etc.)
+const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
 export function StatBar({label,value,max,cls,colorMap}){
   const pct=max>0?(value/max)*100:0;

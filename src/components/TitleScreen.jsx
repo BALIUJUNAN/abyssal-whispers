@@ -1,5 +1,6 @@
 // src/components/TitleScreen.jsx — 游戏标题画面
 import { audioManager } from '../managers/AudioManager.js';
+const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
 export const TITLE_TAGLINES=[
   '第十三声钟响之后，没有人再数下去。',

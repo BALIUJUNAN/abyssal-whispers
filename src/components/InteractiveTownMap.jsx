@@ -11,7 +11,7 @@
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
 // === 热点节点组件 ===
-const HotspotNode = memo(function HotspotNode({ hotspot, hotspotState: hs, isCurrentArea, npcHere, onClick }) {
+export const HotspotNode = memo(function HotspotNode({ hotspot, hotspotState: hs, isCurrentArea, npcHere, onClick }) {
   const [hovered, setHovered] = useState(false);
   const cls = [
     'town-hotspot',
@@ -74,7 +74,7 @@ const HotspotNode = memo(function HotspotNode({ hotspot, hotspotState: hs, isCur
 });
 
 // === 连接路径线（SVG overlay） ===
-const MapPaths = memo(function MapPaths({ hotspots, state }) {
+export const MapPaths = memo(function MapPaths({ hotspots, state }) {
   const visibleIds = useMemo(() => {
     return new Set(hotspots.filter(h => h.type === 'area').map(h => h.areaId || h.id));
   }, [hotspots]);
@@ -131,7 +131,7 @@ function getMapBackground(state) {
 }
 
 // === 主组件：InteractiveTownMap ===
-function InteractiveTownMap({ state, dispatch }) {
+export function InteractiveTownMap({ state, dispatch }) {
   const containerRef = useRef(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });

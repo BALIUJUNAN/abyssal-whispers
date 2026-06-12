@@ -1,5 +1,6 @@
 // src/components/GameModals.jsx - Modal components extracted from app.jsx
 // SettingsModal, SaveLoadModal, AchievementGallery
+import { Modal } from './GameCommon.jsx';
 
 export function SettingsModal({open,onClose,settings,onChange,onAchOpen,dispatch}){
   const update=(key,val)=>onChange({...settings,[key]:val});

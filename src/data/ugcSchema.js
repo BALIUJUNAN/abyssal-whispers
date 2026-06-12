@@ -11,7 +11,7 @@
 // SECTION 1: Constants & Whitelists
 // ────────────────────────────────────────────────
 
-const LIMITS = {
+export const LIMITS = {
   MAX_EVENTS_PER_MOD:    30,
   MAX_CHOICES_PER_EVENT: 6,
   MAX_DESCRIPTION_CHARS: 2000,

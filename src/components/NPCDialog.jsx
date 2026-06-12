@@ -1,4 +1,5 @@
 // src/components/NPCDialog.jsx - NPC dialog component (extracted from GamePanels.jsx)
+const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
 export function NPCDialog({npc,trust,layer,dispatch,state}){
   const [show,setShow]=useState(false);

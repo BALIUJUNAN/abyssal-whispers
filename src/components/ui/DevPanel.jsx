@@ -1,4 +1,5 @@
 // src/components/ui/DevPanel.jsx - Developer Debug Panel
+const { memo, useState, useEffect, useRef } = React;
 
 export var DevPanel = memo(function DevPanel(props) {
   var state = props.state;

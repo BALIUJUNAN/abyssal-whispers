@@ -1,8 +1,11 @@
 // src/components/FloatingInfoBar.jsx — 暗黑地牢风格浮动信息栏
 // 悬浮在地图上方的 HUD，显示关键状态信息。
 // 设计参考：Darkest Dungeon 的顶部/底部状态栏
+const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
+import { NarrativeBlock } from './GameCommon.jsx';
+import { NPCDialog } from './NPCDialog.jsx';
 
-function FloatingInfoBar({ state, dispatch }) {
+export function FloatingInfoBar({ state, dispatch }) {
   const areas = GD.areas || GD.module2_areas || [];
   const area = areas.find(a => a.id === state.currentArea);
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
@@ -70,7 +73,7 @@ function FloatingInfoBar({ state, dispatch }) {
 }
 
 // === 叙事浮动面板（在地图模式下显示最新的叙述文本） ===
-function NarrativeFloatingPanel({ state, dispatch }) {
+export function NarrativeFloatingPanel({ state, dispatch }) {
   const panelRef = useRef(null);
   const [expanded, setExpanded] = useState(false);
 
