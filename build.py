@@ -107,6 +107,7 @@ REDUCER_FILES = [
     # engine/SaveManager.js replaces reducers/saveReducer.js (save system)
     'engine/SaveManager.js',
     'reducers/achievementReducer.js',
+    'systems/reincarnationDiff.js',  # MUST precede loopReducer.js
     'reducers/loopReducer.js',
     'reducers/chapterReducer.js',
     'reducers/conclusionReducer.js',
@@ -135,6 +136,14 @@ REDUCER_FILES = [
     'state/gameStore.js',           # useGameStore — game state bridge (selector hooks)
     # ── Runtime: post-reducer effect execution ──
     'runtime/effectExecutor.js',
+    # Phase 2: System modules (must precede appHelpers.js and slices)
+    'systems/deathSummary.js',        # MUST precede appHelpers.js
+    'systems/firstRunGuide.js',       # Used by app.jsx
+    'systems/sanFeedback.js',         # Used by app.jsx
+    'systems/npcFeedback.js',         # MUST precede npcSlice.js
+    'systems/firstLoopBalance.js',    # MUST precede exploreSlice.js
+    'systems/textVariants.js',        # MUST precede exploreSlice.js
+    # gameSettings.js excluded: DEFAULT_SETTINGS already in miscReducer.js
     # Phase 2: App-level helper functions extracted from app.jsx
     'utils/appHelpers.js',
     # Phase 3: GameReducer slice handlers (extracted from app.jsx)

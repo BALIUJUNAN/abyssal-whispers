@@ -2,10 +2,8 @@
 // SSOT: All SAN stage thresholds come from GD.systems.sanity.san_stages (game_base.json).
 // Use getCurrentSanStage(san, ctx) to get the current stage for any SAN value.
 
-import { pick } from './utils.js';
+import { pick, getCurrentSanStage } from './utils.js';
 import { getSealState } from '../engine/WorldTimeSystem.js';
-
-// getCurrentSanStage() is defined in utils.js (SSOT) — loaded before this file.
 
 export function getSanStage(san, ctx) {
   const stage = getCurrentSanStage(san, ctx);

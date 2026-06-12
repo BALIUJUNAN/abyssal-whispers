@@ -1,5 +1,7 @@
 // src/reducers/objectiveReducer.js - Objective generation and completion
 
+import { applySanLoss } from './utils.js';
+
 export function genObjectives(day, ctx) {
   const vs = ctx?.GD?.vertical_slice;
   if (day === 1) {
@@ -122,6 +124,6 @@ export function executeForcedProgressGuard(guard, state, narr) {
       narr('system', '（你将这条信息记录在了笔记本上。）', { isSpecial: true });
     }
   }
-  state.san = Math.max(0, (state.san || 0) - 1);
+  applySanLoss(state, 1);
   narr('system', 'SAN -1', { isEffect: true });
 }

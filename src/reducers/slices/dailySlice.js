@@ -3,7 +3,7 @@
 // Phase 1 Refactor: REST case decomposed into sub-functions for readability.
 // NOTE: Sub-functions receive ctx (bundle-scope context with GD) as 3rd param.
 
-import { rand, clamp, pick } from '../utils.js';
+import { rand, clamp, pick, applySanLoss } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
 import {
   getPhase,
@@ -38,7 +38,7 @@ export function _processFoodAndStarvation(s, c, ctx) {
     s.starvationDays = (s.starvationDays || 0) + 1;
     const sd = s.starvationDays;
     if (sd === 1) {
-      s.san = clamp(s.san - 1, 0, s.maxSan);
+      applySanLoss(s, 1);
       c.narr('system', '你腹中空空。胃部的抽搐让你难以集中注意力。', { isSpecial: true });
     } else if (sd === 2) {
       s.hp = Math.max(0, s.hp - 1);
@@ -102,7 +102,7 @@ export function _processSafehouseAndWorldDecay(s, c, ctx) {
     if (pollutionEvt) {
       c.narr('system', '【安全屋】' + pollutionEvt.text, { isSpecial: true });
       if (pollutionEvt.sanCost > 0) {
-        s.san = clamp(s.san - pollutionEvt.sanCost, 0, s.maxSan);
+        applySanLoss(s, pollutionEvt.sanCost);
         c.narr('system', 'SAN -' + pollutionEvt.sanCost, { isEffect: true });
       }
     }
@@ -218,7 +218,7 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
         isSpecial: true,
       });
       if (dayCrit.sanCost > 0) {
-        s.san = clamp(s.san - dayCrit.sanCost, 0, s.maxSan);
+        applySanLoss(s, dayCrit.sanCost);
         c.narr('system', 'SAN -' + dayCrit.sanCost, { isEffect: true });
       }
       if (dayCrit.corruptionGain > 0)
@@ -331,7 +331,7 @@ export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues
     if (hook) {
       s.triggeredEvents.push(hook.id);
       c.narr('system', hook.text, { isSpecial: true });
-      if (hook.sanCost) s.san = clamp(s.san - hook.sanCost, 0, s.maxSan);
+      if (hook.sanCost) applySanLoss(s, hook.sanCost);
     }
   }
   const ending = checkEnding(s, ctx);

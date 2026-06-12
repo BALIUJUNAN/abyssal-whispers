@@ -1139,6 +1139,75 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
   );
 });
 
+/** 4-section death summary view */
+function DeathSummaryView({ summary }) {
+  const s1 = summary.section1;
+  const s2 = summary.section2;
+  const s3 = summary.section3;
+  const s4 = summary.section4;
+  if (!s1) return null;
+
+  return (
+    <div className="death-summary" style={{ maxWidth: 520, margin: '1.5rem auto', textAlign: 'left', fontSize: 14, lineHeight: 1.7 }}>
+      {/* Section 1: 你如何死去 */}
+      <div className="summary-section" style={{ marginBottom: '1.2rem' }}>
+        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6, color: 'var(--text, #e0d5c0)' }}>{s1.title}</div>
+        <div style={{ fontStyle: 'italic', color: 'var(--text-secondary, #a89a85)', marginBottom: 8 }}>{s1.narrativeLead}</div>
+        {s1.narrative && <div style={{ marginBottom: 8, whiteSpace: 'pre-line' }}>{s1.narrative.split('\n').filter(Boolean).map((p, i) => <p key={i} style={{ margin: '0 0 4px' }}>{p}</p>)}</div>}
+        {s1.factors && s1.factors.length > 0 && (
+          <div style={{ fontSize: 12, opacity: 0.5, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 6, marginTop: 6 }}>
+            主要因素：{s1.factors.join('、')}
+          </div>
+        )}
+      </div>
+
+      {/* Section 2: 你本轮发现了什么 */}
+      {s2 && (
+        <div className="summary-section" style={{ marginBottom: '1.2rem' }}>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{s2.title}</div>
+          {s2.discoveries.map((d, i) => (
+            <div key={i} style={{ marginBottom: 4 }}>
+              <span style={{ opacity: 0.7 }}>{d.label}：</span>{d.summary}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Section 3: 世界因此改变了什么 */}
+      {s3 && (
+        <div className="summary-section" style={{ marginBottom: '1.2rem' }}>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{s3.title}</div>
+          {s3.changes.map((c, i) => (
+            <div key={i} style={{
+              marginBottom: 4,
+              color: c.severity === 'warning' ? 'var(--danger2, #e67e22)' : c.severity === 'positive' ? 'var(--green, #27ae60)' : 'inherit',
+            }}>
+              {c.severity === 'warning' ? '⚠ ' : c.severity === 'positive' ? '✓ ' : ''}{c.text}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Section 4: 下一轮你可以尝试什么 */}
+      {s4 && (
+        <div className="summary-section">
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{s4.title}</div>
+          {s4.suggestions.map((s, i) => (
+            <div key={i} style={{ marginBottom: 4, color: s.priority === 'high' ? 'var(--text, #e0d5c0)' : 'var(--text-secondary, #a89a85)' }}>
+              {s.priority === 'high' ? '→ ' : '  '}{s.text}
+            </div>
+          ))}
+          {s4.inherited && s4.inherited.length > 0 && (
+            <div style={{ fontSize: 12, opacity: 0.5, marginTop: 8, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 6 }}>
+              继承：{s4.inherited.join('、')}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function EndingScreen({ ending, state, dispatch }) {
   const tc =
     ending.type === 'good'
@@ -1373,6 +1442,8 @@ export function EndingScreen({ ending, state, dispatch }) {
       <button className="btn btn-primary" onClick={() => dispatch({ type: 'NEW_GAME' })}>
         {state.loopCount > 0 ? '这次不一样' : '再次踏入深渊'}
       </button>
+      {/* 4-section death summary */}
+      {ending.deathSummary && <DeathSummaryView summary={ending.deathSummary} />}
     </div>
   );
 }

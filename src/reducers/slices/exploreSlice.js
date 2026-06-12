@@ -10,7 +10,7 @@
 //   _applyEventEffects(s, c)   → SAN damage, skill checks, madness
 //   _postEventProcessing(s, c) → chain progress, conclusions, endings
 
-import { rand, clamp, pick } from '../utils.js';
+import { rand, clamp, pick, applySanLoss } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { getPhase, getAreaInfo } from '../../engine/WorldTimeSystem.js';
 import {
@@ -44,6 +44,8 @@ import { checkOmens } from '../../data/events_omens_600.js';
 import { applyFearLens, getFearEventWeightModifier } from '../../systems/fearLens.js';
 import { applyTextHallucination } from '../../engine/PollutionManager.js';
 import { addRunMemory, setNpcTrust } from '../../utils/appHelpers.js';
+import { adjustSanLossForFirstLoop, shouldBlockLethalEvent } from '../../systems/firstLoopBalance.js';
+import { getTrackedText, createSeenTextMap } from '../../systems/textVariants.js';
 
 // TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
 // It remains a global for now; will be extracted to a utility in a future PR.
@@ -151,7 +153,9 @@ export function _selectExploreEvent(s, ctx, GD) {
   let evt = null;
   let alreadyCommitted = false;
   if (GD._extendedEventsLoaded) {
-    const candidates = getEligibleEvents(s.currentArea, s, ctx);
+    const rawCandidates = getEligibleEvents(s.currentArea, s, ctx);
+    // First-loop protection: filter out lethal events during safe window
+    const candidates = rawCandidates.filter(ev => !shouldBlockLethalEvent(ev, s));
     if (candidates.length > 0) {
       if (s.fearTuning && s.fearTuning.primary) {
         const fearScored = candidates
@@ -399,7 +403,7 @@ export function handleExploreAction(s, action, c, ctx) {
         c.narr('system', meText, { type: '微事件' });
         if (me.effect)
           Object.entries(me.effect).forEach(([k, v]) => {
-            if (k === 'SAN') s.san = clamp(s.san + v, 0, s.maxSan);
+            if (k === 'SAN') applySanLoss(s, -v);
             if (k === 'HP') s.hp = clamp(s.hp + v, 0, s.maxHp);
           });
       }
@@ -449,8 +453,9 @@ export function handleExploreAction(s, action, c, ctx) {
             isSpecial: true,
           });
           if (_milestoneEvt.sanity_damage > 0) {
-            s.san = clamp(s.san - _milestoneEvt.sanity_damage, 0, s.maxSan);
-            c.narr('system', 'SAN -' + _milestoneEvt.sanity_damage, { isEffect: true });
+            const _adjDmg = adjustSanLossForFirstLoop(_milestoneEvt.sanity_damage, s);
+            applySanLoss(s, _adjDmg);
+            c.narr('system', 'SAN -' + _adjDmg, { isEffect: true });
           }
           if (_milestoneEvt._corruptionGain > 0) {
             s.safehouseCorruption = Math.min(
@@ -506,6 +511,10 @@ export function handleExploreAction(s, action, c, ctx) {
       if (s.fearTuning && s.fearTuning.primary) evtText = applyFearLens(evt, evtText, s);
       evtText = applyTextHallucination(evtText, s.san);
       evtText = applyResourceTextCorruption(evtText, s);
+      // Text variant tracking: cross-loop persistent (renamed from _seenTexts)
+      if (!s.seenEventTexts) s.seenEventTexts = {};
+      const _tvResult = getTrackedText(evt.id, evtText, s.pollution || 0, s.loopCount || 0, s.seenEventTexts);
+      if (_tvResult.action !== 'skip') evtText = _tvResult.text;
       c.narr('event', evtText, {
         eventTitle: evt.name,
         eventType: evt.type || evt.event_classification,
@@ -535,7 +544,7 @@ export function handleExploreAction(s, action, c, ctx) {
       // Anchor + SAN damage + skill check + madness + death
       const anchorResult = processNormalAnchorEvent(evt, s);
       if (anchorResult.sanGain > 0) {
-        s.san = clamp(s.san + anchorResult.sanGain, 0, s.maxSan);
+        applySanLoss(s, -anchorResult.sanGain);
         c.narr('san-recovery', anchorResult.text);
       } else if (anchorResult.text) c.narr('system', anchorResult.text, { isSpecial: true });
       let sanDmg = Math.abs(evt.sanity_damage || 0);
@@ -555,6 +564,7 @@ export function handleExploreAction(s, action, c, ctx) {
           s.difficulty,
           ctx
         );
+        sanDmg = adjustSanLossForFirstLoop(sanDmg, s);
         if (sanDmg > 0) {
           if (evt.skill_check) {
             c.effects.push({ type: 'AUDIO_SKILL', id: 'roll' });
@@ -597,11 +607,9 @@ export function handleExploreAction(s, action, c, ctx) {
               s.stats_run.checks_failed++;
             }
           }
-          s.san = clamp(s.san - sanDmg, 0, s.maxSan);
+          applySanLoss(s, sanDmg, { trackStats: true, audio: true, effects: c.effects });
           c.narr('system', 'SAN -' + sanDmg, { isEffect: true });
           if (sanDmg >= GAME_BALANCE.SAN_LOSS_TRANSITION) s.transition = 'san-loss';
-          s.stats_run.max_san_loss_single = Math.max(s.stats_run.max_san_loss_single || 0, sanDmg);
-          s.stats_run.total_san_loss = (s.stats_run.total_san_loss || 0) + sanDmg;
           if (sanDmg >= GAME_BALANCE.MEMORY_TRACK_THRESHOLD) {
             addRunMemory(
               s,

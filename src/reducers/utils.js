@@ -34,6 +34,37 @@ export const shuffle = (arr) => {
  * @param {object} ctx - { GD }
  * @returns {{ id, name, range, level, ap_modifier, description, visual_tier, event_weight, pollution_effects }}
  */
+/**
+ * Deduct SAN from player state, clamp to [0, maxSan], and optionally track stats.
+ * Centralizes ALL SAN loss mutations — callers must NOT use `s.san = clamp(s.san - ...)` directly.
+ *
+ * @param {object}  s       - mutable game state
+ * @param {number}  amount  - SAN to deduct (positive = loss; negative = gain)
+ * @param {object}  [opts]
+ * @param {boolean} [opts.trackStats]  - track max_san_loss_single / total_san_loss
+ * @param {boolean} [opts.audio]       - push AUDIO_SAN_LOSS effect (requires opts.effects)
+ * @param {Array}   [opts.effects]     - c.effects array for audio push
+ * @returns {number} the new SAN value
+ */
+export function applySanLoss(s, amount, opts) {
+  const old = s.san;
+  s.san = clamp(s.san - amount, 0, s.maxSan);
+  if (opts) {
+    if (opts.trackStats && amount > 0) {
+      s.stats_run.max_san_loss_single = Math.max(s.stats_run.max_san_loss_single || 0, amount);
+      s.stats_run.total_san_loss = (s.stats_run.total_san_loss || 0) + amount;
+    }
+    if (opts.audio && opts.effects && amount >= 1) {
+      opts.effects.push({ type: 'AUDIO_SAN_LOSS', amount });
+    }
+  }
+  // Record SAN change for UI feedback layer (read by sanFeedback.js)
+  if (amount > 0) {
+    s._lastSanLoss = { amount, oldSan: old, newSan: s.san };
+  }
+  return s.san;
+}
+
 export function getCurrentSanStage(san, ctx) {
   const { GD } = ctx;
   const stages = GD.systems?.sanity?.san_stages || [];

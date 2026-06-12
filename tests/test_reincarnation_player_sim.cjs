@@ -449,7 +449,7 @@ function getAvailableActions(s) {
   if (s.ap >= 1) {
     const npcsHere = NPCS.filter((n) => {
       const ns = s.npcStates[n.name];
-      return !ns?.dead && !ns?.fled && (n.area === s.currentArea || n.chapter_1_role === 'core');
+      return !ns?.dead && !ns?.fled && (n.location === s.currentArea || n.chapter_1_availability === 'core');
     });
     for (const npc of npcsHere) {
       actions.push({ type: 'TALK_NPC', npc: npc.name, apCost: 1 });
@@ -865,6 +865,7 @@ function runFullSimulation(options) {
   let state = makeState();
 
   for (let i = 0; i < loops; i++) {
+    const preSimPollution = state.pollution;
     const { state: endState, log } = simulateOneLoop(state, personality, maxDays);
 
     report.loops.push({
@@ -882,6 +883,8 @@ function runFullSimulation(options) {
       finalHp: endState.hp,
       maxSan: endState.maxSan,
       pollution: endState.pollution,
+      endPollution: endState.pollution,
+      transitionPollution: preSimPollution,
       mythosLevel: endState.mythosLevel,
       humanity: endState.humanityScore,
       money: endState.money,
@@ -891,6 +894,8 @@ function runFullSimulation(options) {
 
     if (verbose) {
       const l = report.loops[report.loops.length - 1];
+      const lDelta = Math.max(0, (l.endPollution - l.transitionPollution) * 100);
+      const lTotal = l.endPollution * 100;
       console.log(
         '  Loop ' +
           String(l.loop).padStart(2) +
@@ -906,8 +911,10 @@ function runFullSimulation(options) {
           '/' +
           String(l.maxSan).padStart(2) +
           ' │ 污染:' +
-          (l.pollution * 100).toFixed(0).padStart(3) +
-          '%' +
+          lDelta.toFixed(0).padStart(3) +
+          '%+' +
+          lTotal.toFixed(0).padStart(3) +
+          '%总' +
           ' │ 线索:' +
           String(l.totalClues).padStart(2) +
           ' │ NPC:' +
@@ -922,11 +929,15 @@ function runFullSimulation(options) {
   }
 
   // Compute summary
+  //   l.pollution = l.endPollution = endState.pollution (global cumulative, reset each transition)
+  //   l.transitionPollution = pollution base set by performLoopTransition for this loop
+  //   finalPollution = state.pollution after the last performLoopTransition (next-loop base)
   const rl = report.loops;
   report.summary = {
     avgDays: (rl.reduce((s, l) => s + l.daysSurvived, 0) / rl.length).toFixed(1),
     avgFinalSan: (rl.reduce((s, l) => s + l.finalSan, 0) / rl.length).toFixed(1),
-    avgPollution: ((rl.reduce((s, l) => s + l.pollution, 0) / rl.length) * 100).toFixed(1) + '%',
+    avgPollution: ((rl.reduce((s, l) => s + l.endPollution, 0) / rl.length) * 100).toFixed(1) + '%',
+    avgTransitionPollution: ((rl.reduce((s, l) => s + l.transitionPollution, 0) / rl.length) * 100).toFixed(1) + '%',
     deathTypeDist: {},
     totalDarkActions: rl.reduce((s, l) => s + l.darkActions, 0),
     totalClues: rl[rl.length - 1]?.totalClues || 0,
@@ -1327,7 +1338,8 @@ if (verbose || loopArg >= 0) {
   console.log('  暗黑行为总数: ' + report.summary.totalDarkActions);
   console.log('  最终线索数:  ' + report.summary.totalClues);
   console.log('  最终maxSan:  ' + report.summary.finalMaxSan);
-  console.log('  最终污染:    ' + report.summary.finalPollution);
+  console.log('  平均轮末污染: ' + report.summary.avgPollution + ' (每轮结束时的全局污染值)');
+  console.log('  平均轮基污染: ' + report.summary.avgTransitionPollution + ' (轮回转换时的基准污染)');
   console.log('  结局代币:    ' + report.summary.endingCoins);
   console.log('  商店等级:    Tier ' + report.summary.shopTier);
   console.log('');

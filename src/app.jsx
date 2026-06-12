@@ -99,6 +99,8 @@ import { shouldTriggerMissing600, createMissing600Event } from './data/events_mi
 import { checkOmens } from './data/events_omens_600.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
 import { resolveDeath } from './reducers/deathSystem.js';
+import { getGuideStep } from './systems/firstRunGuide.js';
+import { getSanLossPresentation, getSanStageFeedback } from './systems/sanFeedback.js';
 import { PROLOGUE_EVENTS } from './data/prologue_events.js';
 import {
   initPrologueState,
@@ -575,6 +577,7 @@ function App() {
   const visualDistortion = state.accessibilityOptions?.visual_distortion;
   const allowVisualFX = visualDistortion !== false;
   // SSOT: stage class for CSS-driven effects (matches san_stages levels)
+  const sanFeedback = getSanStageFeedback(state.san, ctx);
   const sanStageClass = allowVisualFX
     ? state.san <= 9
       ? ' san-stage-5'
@@ -620,6 +623,20 @@ function App() {
           fontSizeClass
         }
       >
+        {settings?.showGuideHints !== false && (() => {
+          const _guide = getGuideStep(state, ctx);
+          return _guide ? (
+            <div className="guide-hint" style={{
+              position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
+              background: 'rgba(0,0,0,0.85)', color: '#e0d5c0', padding: '10px 24px',
+              borderRadius: 8, fontSize: 14, zIndex: 1000, maxWidth: 440, textAlign: 'center',
+              border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'none',
+              fontStyle: 'italic', letterSpacing: '0.02em', lineHeight: 1.6,
+            }}>
+              <div>{_guide.message}</div>
+            </div>
+          ) : null;
+        })()}
         <GameLayout state={state} dispatch={dispatch} areas={areas} settings={settings} />
       </div>
       <SettingsModal

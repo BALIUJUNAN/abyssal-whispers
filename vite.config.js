@@ -42,6 +42,7 @@ function renameOutputPlugin() {
 
 export default defineConfig({
   plugins: [react(), devHtmlPlugin(), renameOutputPlugin()],
+  base: './',
   root: '.',
   publicDir: 'assets',
   server: {

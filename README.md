@@ -10,7 +10,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-1.8MB_production-green)
-![Version](https://img.shields.io/badge/version-0.2.3-orange)
+![Version](https://img.shields.io/badge/version-0.2.4-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -224,32 +224,41 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 
 ## 系统功能一览
 
-| 功能                | 说明                                                                                                |
-| ------------------- | --------------------------------------------------------------------------------------------------- |
-| **双界面模式**      | 全景地图模式（暗黑地牢风格）+ 经典三栏模式，M 键切换                                                |
-| **SAN 系统**        | 6 阶段 × 4 维度污染（视觉/交互/逻辑/Meta），SSOT 统一配置，平滑过渡                                 |
-| **商店系统**        | 2 家商店，NPC 信任解锁高级商品                                                                      |
-| **事件链 / 线索链** | 顺序推进的多阶段调查，线索组合推导结论                                                              |
-| **音频系统**        | 53 段音频 — 区域环境音乐(9区×昼夜) + 技能检定音效 + 死亡叙事 + 中文语音台词 + 钟声变体              |
-| **设置面板**        | 4 类音量 / 字号三级缩放 / 视觉扭曲开关 / 突发音效 / 闪烁效果 / **三滑块SAN污染控制** / 轻度污染模式 |
-| **成就系统**        | 20 个成就，进程 / 结局 / 挑战 / 隐藏四大类                                                          |
-| **多槽位存档**      | 3 自动 + 3 手动，版本迁移兼容，JSON 导入/导出                                                       |
-| **快捷键**          | `1-9` 选择 / `Space` 确认 / `M` 布局切换 / `I` 物品 / `J` 线索                                      |
-| **章节转场**        | Day 4/8/15/22 沉浸式过渡动画（3D 透视旋转）                                                         |
-| **轮回继承**        | 知识碎片 / 世界污染 / NPC 跨轮记忆 / 关系网 / 死后遗产 / 技能保留(30%) / 行为计数器搬入 / 结局代币  |
-| **结局余韵**        | 每条结局附带 Afterglow 文本，满足条件后解锁（事件/物品/周目数）                                     |
-| **NPC 关系网**      | NPC 间动态关系（ally/enemy/relative），跨循环保留，影响对话与事件                                   |
-| **NPC 死后遗产**    | NPC 死亡后留下物品/知识/任务，玩家可领取继承                                                        |
-| **轮回商店**        | 结局代币解锁（loop5+ Tier1 / loop7+ Tier2），提供稀有物资                                           |
-| **Meta 事件后果**   | 存档覆盖 / NPC 信任锁定 / NPC 永久失踪 / 对话分支删除                                               |
-| **数据验证**        | 效果/条件/引用三层校验器（CJS），运行时自动校验游戏数据完整性                                       |
-| **身份注册表**      | 区域/物品/NPC 统一注册表（双格式 ESM+CJS），支持名称别名解析                                        |
-| **效果执行器**      | 独立 post-reducer 副作用层（音频/存档/统计），去重 + 类型分发                                       |
-| **无障碍支持**      | 轻度污染模式 / 可关闭视觉扭曲 / 字号放大 / prefers-reduced-motion                                   |
-| **UGC 模组**        | 支持导入自定义事件 JSON（Schema 校验）                                                              |
-| **ErrorBoundary**   | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载                                     |
-| **Error Tracker**   | 测试期玩家操作追踪模块（可插拔，一行删除即可移除）                                                  |
-| **DevPanel**        | 开发者调试面板（F12 / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                         |
+| 功能                      | 说明                                                                                                |
+| ------------------------- | --------------------------------------------------------------------------------------------------- |
+| **双界面模式**            | 全景地图模式（暗黑地牢风格）+ 经典三栏模式，M 键切换                                                |
+| **SAN 系统**              | 6 阶段 × 4 维度污染（视觉/交互/逻辑/Meta），SSOT 统一配置，平滑过渡                                 |
+| **SAN 扣减统一**          | `applySanLoss()` 中央函数 — 所有 reducer 通过此函数扣 SAN，禁止直接 `clamp(san-)`                    |
+| **SAN 反馈分层**          | 4 档损失表现：minor(1-3) / moderate(4-8) / severe(9-15) / critical(16+)，各有独立音效+屏幕特效+文案 |
+| **死亡总结页**            | 4 段叙事结构：你如何死去 / 你发现了什么 / 世界变化了什么 / 下一轮尝试什么                           |
+| **轮回差异提示**          | 每次新周目开始时展示跨轮变化：SAN上限/污染/NPC信任/技能/商店/恩赐                                   |
+| **叙事引导**              | 前30分钟氛围式引导（非手游教程），受 `showGuideHints` 设置控制                                      |
+| **NPC 关系反馈**          | 6 级信任分层（敌意→忠诚），跨级触发脉冲+音效，同级轻提示                                           |
+| **首轮保护**              | 前3天屏蔽致命事件，SAN损失上限5，饥饿伤害减半，怪物遭遇率×0.3                                      |
+| **文本重复控制**          | 4 层污染变体：原文→微妙替换→可读腐蚀→跳过摘要，跨轮持久追踪                                        |
+| **商店系统**              | 2 家商店，NPC 信任解锁高级商品                                                                      |
+| **事件链 / 线索链**       | 顺序推进的多阶段调查，线索组合推导结论                                                              |
+| **音频系统**              | 53 段音频 — 区域环境音乐(9区×昼夜) + 技能检定音效 + 死亡叙事 + 中文语音台词 + 钟声变体              |
+| **设置面板**              | 字号/行高/字族 · 闪烁/动画/高对比度 · 视觉污染/震动/文字污染/暗角 · 5路音量/静音 · 引导/跳过已读   |
+| **成就系统**              | 20 个成就，进程 / 结局 / 挑战 / 隐藏四大类                                                          |
+| **多槽位存档**            | 3 自动 + 3 手动，版本迁移兼容，JSON 导入/导出                                                       |
+| **快捷键**                | `1-9` 选择 / `Space` 确认 / `M` 布局切换 / `I` 物品 / `J` 线索                                      |
+| **章节转场**              | Day 4/8/15/22 沉浸式过渡动画（3D 透视旋转）                                                         |
+| **轮回继承**              | 知识碎片 / 世界污染 / NPC 跨轮记忆 / 关系网 / 死后遗产 / 技能保留(30%) / 行为计数器搬入 / 结局代币  |
+| **结局余韵**              | 每条结局附带 Afterglow 文本，满足条件后解锁（事件/物品/周目数）                                     |
+| **NPC 关系网**            | NPC 间动态关系（ally/enemy/relative），跨循环保留，影响对话与事件                                   |
+| **NPC 死后遗产**          | NPC 死亡后留下物品/知识/任务，玩家可领取继承                                                        |
+| **轮回商店**              | 结局代币解锁（loop5+ Tier1 / loop7+ Tier2），提供稀有物资                                           |
+| **Meta 事件后果**         | 存档覆盖 / NPC 信任锁定 / NPC 永久失踪 / 对话分支删除                                               |
+| **数据验证**              | 效果/条件/引用三层校验器（CJS），运行时自动校验游戏数据完整性                                       |
+| **身份注册表**            | 区域/物品/NPC 统一注册表（双格式 ESM+CJS），支持名称别名解析                                        |
+| **效果执行器**            | 独立 post-reducer 副作用层（音频/存档/统计），去重 + 类型分发                                       |
+| **无障碍支持**            | 轻度污染模式 / 减少动画 / 高对比度 / 字号放大 / 闪烁控制 / prefers-reduced-motion                   |
+| **UGC 模组**              | 支持导入自定义事件 JSON（Schema 校验）                                                              |
+| **ErrorBoundary**         | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载                                     |
+| **Error Tracker**         | 测试期玩家操作追踪模块（可插拔，一行删除即可移除）                                                  |
+| **DevPanel**              | 开发者调试面板（F12 / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                         |
+| **SAN mutation 静态检查** | `npm run lint:san` — 扫描全部 reducer，禁止直接 `s.san = clamp(san-...)`，白名单除外                 |
 
 ---
 
@@ -398,7 +407,7 @@ COC/
 │   │   ├── objectiveReducer.js     # 任务目标（102 行）
 │   │   └── utils.js                # reducer 共用工具函数（50 行）
 │   │
-│   ├── systems/              # 9 个游戏系统（1,872 行）
+│   ├── systems/              # 17 个游戏系统（~3,200 行）
 │   │   ├── fearLens.js             # 恐惧滤镜 — 文本+NPC对话（333 行）
 │   │   ├── fearProfile.js          # 恐惧画像系统（111 行）
 │   │   ├── resourceNarrative.js    # 资源-叙事绑定（271 行）
@@ -406,7 +415,16 @@ COC/
 │   │   ├── worldDecay.js           # 世界腐化推进（187 行）
 │   │   ├── sanVisualCorruption.js  # SAN 视觉腐化系统（152 行）
 │   │   ├── npcDialogue.js          # NPC 对话系统（128 行）
-│   │   └── metaCorruption.js       # Meta 层腐化（73 行）
+│   │   ├── metaCorruption.js       # Meta 层腐化（73 行）
+│   │   ├── deathSummary.js         # 死亡总结页 — 4段叙事结构（~300 行）
+│   │   │                           #   你如何死去 / 你发现了什么 / 世界变化 / 下轮目标
+│   │   ├── reincarnationDiff.js    # 轮回差异提示 — 跨轮变化对比（~100 行）
+│   │   ├── firstRunGuide.js        # 前30分钟叙事引导 — 氛围式提示（~80 行）
+│   │   ├── npcFeedback.js          # NPC 关系反馈 — 6级信任分层（~100 行）
+│   │   ├── sanFeedback.js          # SAN 反馈分层 — 4档损失表现（~120 行）
+│   │   ├── firstLoopBalance.js     # 首轮保护 — 限制随机暴毙（~40 行）
+│   │   ├── textVariants.js         # 文本重复控制 — 4层污染变体（~150 行）
+│   │   └── gameSettings.js         # 设置系统 — 无障碍+音量+视觉控制（~100 行）
 │   │
 │   ├── utils/                # 8 个工具模块（1,310 行）
 │   │   ├── appHelpers.js           # 游戏核心辅助函数（274 行）
@@ -474,17 +492,24 @@ COC/
 │   └── vendor/                     # React 18 / ReactDOM / Babel / Immer
 │
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 8 个测试文件（188 tests）
-│   ├── test_effect_protocol.cjs    # 效果协议测试（6 tests）
-│   ├── test_game_data_protocol.cjs # 游戏数据协议测试（10 tests）
-│   ├── test_event_system.cjs       # 事件系统测试（19 tests）
-│   ├── test_smoke_flows.cjs        # 冒烟测试
-│   ├── test_reincarnation_core.cjs # 轮回系统完整测试（102 tests）
-│   │                               #   Part A: 单元测试（继承/污染/NPC/死亡/结局）
-│   │                               #   Part B: 场景测试（全流程/极端/存档迁移/平衡）
+├── tests/                    # 9 个测试文件（272 tests）
+│   ├── test_effect_protocol.cjs       # 效果协议测试（6 tests）
+│   ├── test_game_data_protocol.cjs    # 游戏数据协议测试（10 tests）
+│   ├── test_event_system.cjs          # 事件系统测试（19 tests）
+│   ├── test_smoke_flows.cjs           # 冒烟+集成验证测试（53 tests）
+│   │                                  #   S1-S6: 数据/区域/NPC/事件/轮回/状态
+│   │                                  #   S7-S8: SAN mutation hygiene + death resolution
+│   │                                  #   S9-S10: 模块接入验证 + 修复验证
+│   ├── test_reincarnation_core.cjs    # 轮回系统完整测试（102 tests）
+│   │                                  #   Part A: 单元测试（继承/污染/NPC/死亡/结局）
+│   │                                  #   Part B: 场景测试（全流程/极端/存档迁移/平衡）
 │   ├── test_reincarnation_player_sim.cjs # 玩家行为模拟器（32 tests）
-│   │                               #   5种人格×确定性种子×多轮回×报表生成
-│   └── integration_test.cjs        # 集成测试（19 tests）
+│   │                                  #   5种人格×确定性种子×多轮回×报表生成
+│   ├── test_ending_reachability.cjs   # 结局可达性测试（6 tests）
+│   │                                  #   验证 10-15 轮内可达至少 2 个结局方向
+│   ├── test_player_experience_loop.cjs # 玩家体验链集成测试（25 tests）
+│   │                                  #   完整体验: 引导→NPC→SAN→死亡→总结→轮回→差异
+│   └── integration_test.cjs           # 集成测试（19 tests）
 │
 ├── mods/                     # UGC 模组
 │   └── examples/             # 示例模组
@@ -496,6 +521,7 @@ COC/
 ├── scripts/
 │   ├── report_references.cjs       # 引用关系分析脚本
 │   ├── simulate_loops.cjs          # 轮回批量模拟器（--loops N --seed N）
+│   ├── lint_san_mutations.cjs      # SAN mutation 静态检查（禁止直接 clamp）
 │   ├── mod_validate.cjs            # UGC 模组校验
 │   ├── mod_preview.cjs             # UGC 模组预览
 │   └── mod_pack.cjs                # UGC 模组打包
@@ -529,7 +555,15 @@ COC/
 | **useUiStore**         | `state/`                 | 89      | UI状态管理                          | 模态框/Toast/设置/地图模式/热点状态                    |
 | **DevPanel**           | `components/ui/`         | 79      | 开发者调试面板                      | F12打开，4标签页：状态/工具/权重/性能                  |
 | **死亡系统**           | `reducers/`              | 383     | 16种死亡×四段叙事                   | 标题→临终→世界处理→残留提示                            |
+| **死亡总结**           | `systems/`               | 300     | 4段叙事死亡总结                     | 死因叙事/发现/世界变化/新目标，不暴露机制               |
 | **轮回系统**           | `reducers/`              | 258     | 跨周目状态传递                      | 污染累积/SAN上限削减/技能继承30%/NPC记忆渐进           |
+| **轮回差异**           | `systems/`               | 100     | 跨轮变化对比                        | SAN/污染/NPC/技能/商店/恩赐变化列表                    |
+| **applySanLoss**       | `reducers/utils.js`      | 25      | SAN 扣减统一入口                    | 统计追踪/音频推送/_lastSanLoss UI反馈                  |
+| **叙事引导**           | `systems/`               | 80      | 前30分钟氛围式提示                  | 8条环境叙事，受设置控制，不打破第四面墙                 |
+| **NPC 反馈**           | `systems/`               | 100     | 信任变化分层反馈                    | 6级信任/跨级脉冲+音效/同级轻提示                       |
+| **SAN 反馈**           | `systems/`               | 120     | SAN 损失4档表现                     | minor/moderate/severe/critical 各有独立音效+屏幕特效    |
+| **首轮保护**           | `systems/`               | 40      | 防止首轮随机暴毙                    | 前3天屏蔽致命/SAN上限5/饥饿减半/怪物率×0.3             |
+| **文本变体**           | `systems/`               | 150     | 文本重复控制                        | 4层：原文→微妙替换→可读腐蚀→跳过摘要，跨轮持久         |
 | **前传系统**           | `reducers/`              | 195     | 7场景恐惧画像                       | 6维度心理profile/跳过保护                              |
 | **结局引擎**           | `reducers/`              | 343     | AND/OR条件解析                      | 36行为结局+10主线+隐藏+Meta打破                        |
 | **NPC系统**            | `reducers/` + `systems/` | 286+128 | 8人×5级信任×4层记忆×关系网×死后遗产 | 信任门控/腐蚀/救赎路线/NPC间关系/遗产继承              |
@@ -687,7 +721,7 @@ npm run tauri:build      # 桌面版构建（需要 Rust）
 # ── 验证 ──────────────────────────────────────────────
 
 npm run verify           # 完整验证（测试 + Vite 构建 + Legacy 构建）
-npm test                 # 全部测试（188 tests / 7 suites）
+npm test                 # 全部测试（272 tests / 9 suites）
 npm run format:check     # 代码格式检查（Prettier）
 
 # ── 轮回系统测试 ─────────────────────────────────────
@@ -705,6 +739,7 @@ python build.py --analyze # 包体积分析
 # ── 工具 ──────────────────────────────────────────────
 
 npm run format           # 格式化全部源文件（Prettier）
+npm run lint:san         # SAN mutation 静态检查（禁止直接 clamp）
 npm run lint:events      # 扩展事件 lint
 npm run test:missing600  # 第 600 号事件测试
 npm run mod:validate     # UGC 模组校验
@@ -792,6 +827,14 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 - ✅ **GAME_BALANCE 常量** — `src/state/gameConstants.js` 集中管理平衡参数，零散魔法数字已消除
 - ✅ **EXPLORE 分阶段** — 事件选择(`_selectExploreEvent`) + 效果应用(inline) + 后处理(`_postExploreProcessing`) 三阶段清晰分离
 - ✅ **slice handler 显式 import** — 所有 6 个 slice handler 具备完整 ESM import，不依赖 globalThis 桥接
+- ✅ **SAN 扣减统一** — `applySanLoss()` 中央函数，28 个 reducer 文件全部通过此函数扣 SAN，`lint:san` 静态检查强制执行
+- ✅ **死亡总结4段叙事** — 死因叙事先行（不暴露机制）→ 发现回顾 → 世界变化 → 新目标建议，`DeathSummaryView` 组件直接渲染
+- ✅ **轮回差异提示** — `computeReincarnationDiff()` 在 `initLoopState` 末尾自动生成，存入 `f.reincarnationDiff`
+- ✅ **NPC 反馈分层** — 跨级触发脉冲+音效，同级轻文本，信任降级有警告，避免 UI 噪音
+- ✅ **首轮保护** — `shouldBlockLethalEvent` + `adjustSanLossForFirstLoop` 接入 exploreSlice 事件筛选和伤害计算
+- ✅ **文本重复控制** — `getTrackedText` 4 层分级，`seenEventTexts` 跨轮持久化（loopReducer 搬入）
+- ✅ **体验链测试** — `test_player_experience_loop.cjs` 25 个测试覆盖完整玩家旅程：引导→NPC→SAN→死亡→总结→轮回→差异
+- ✅ **结局可达性测试** — `test_ending_reachability.cjs` 验证 10-15 轮内普通玩家可达多个结局方向
 
 ---
 
@@ -800,6 +843,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **0.3.0** | 2026-06-12 | **Vite 主线切换** — ①`npm run dev` / `npm run build` 切换为 Vite；②修复 14 个组件缺失 export + React hooks 未解构；③修复 SaveManager 相对路径、ugcSchema/gameConstants/transientKeys 缺少 export；④所有 6 个 slice handler 添加显式 import（~60 条）；⑤shim 从 60 模块缩减至 54；⑥`npm run verify` 同时覆盖测试 + Vite 构建 + Legacy 构建；⑦新增 `docs/vite-smoke-checklist.md`；⑧Legacy 构建通过 `build:single` / `dev:legacy` 保留          |
+| **0.2.4** | 2026-06-12 | **玩家体验系统 + SAN 工程治理** — ①新增 8 个系统模块（deathSummary/reincarnationDiff/firstRunGuide/npcFeedback/sanFeedback/firstLoopBalance/textVariants/gameSettings）；②`applySanLoss` 中央 SAN 扣减函数，28 个 reducer 文件全部接入，`lint:san` 静态检查强制执行；③死亡总结页 4 段叙事结构（DeathSummaryView 组件直接渲染）；④轮回差异提示自动计算并存入 state；⑤NPC 反馈分层（跨级脉冲+音效，同级轻提示）；⑥SAN 反馈 4 档分级（minor/moderate/severe/critical）；⑦首轮保护（前3天屏蔽致命事件，SAN 上限 5）；⑧文本重复控制 4 层变体（跨轮持久化）；⑨设置系统完善（字号/行高/字族/减少动画/高对比度/5路音量/引导开关）；⑩新增 2 个测试套件（ending_reachability + player_experience），总用例 272 / 9 套件；⑪修复 smoke_flows 从 0 用例到 53 用例；⑫修复 NPC 过滤器字段名（area→location, chapter_1_role→chapter_1_availability）；⑬污染日志区分轮基值与本轮增量 |
 | **0.2.3** | 2026-06-06 | **Bug 修复 + 体验增强** — ①修复开局 ROLL_STATS 可能产出 0 HP/SAN 的 bug；②修复成就弹窗 ReferenceError；③修复 `checkSingleCondition` 的 `default: return true` 导致任何解析失败的结局条件都会触发；④修复 Babel 编译器 JSON 字符串空格导致 NPC schedule 解析失败；⑤修复 `CONTINUE_GAME` 存档读取后 UI 不更新；⑥修复死亡动画遮挡"再次踏入轮回"按钮；⑦激活码头区 layout_variants 系统；⑧码头区氛围 CSS；⑨NPC 面板增强（肖像+对话）；⑩读档系统修复 |
 | **0.2.2** | 2026-06-04 | **运行时稳定性 + 构建安全 + 工程规范化** — ①修复 slice handler `ctx` 未传递导致 P0 崩溃；②修复 var 提升导致饥饿系统失效；③修复 build.py 注释删除 token 粘连导致白屏；④修复 Immer wrapper 被误删；⑤新增 GAME_BALANCE 常量集中化；⑥EXPLORE case 分解（-61%）；⑦triggeredEvents SSOT 守卫；⑧Accessibility toggle 同步；⑨数据驱动 infection_risk                                                                                                  |
 | **0.2.1** | 2026-06-03 | **系统深化** — NPC 关系网 + 死后遗产；结局余韵 Afterglow；轮回平衡重做（SAN 阶梯式上限）；结局代币 + 轮回商店；Meta 事件真实后果；质量分层；Meta 频率门控；数据大幅扩展                                                                                                                                                                                                                                                                       |

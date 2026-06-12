@@ -1,6 +1,6 @@
 {
   "name": "abyssal-whispers",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "type": "module",
   "engines": {
     "node": ">=20.19.0"
@@ -27,6 +27,7 @@
     "simulate:loops": "node scripts/simulate_loops.cjs",
     "test:missing600": "node src/data/test_missing_600.js",
     "lint:events": "node src/data/lint_extended_events.js",
+    "lint:san": "node scripts/lint_san_mutations.cjs",
     "mod:validate": "node scripts/mod_validate.cjs",
     "mod:preview": "node scripts/mod_preview.cjs",
     "mod:pack": "node scripts/mod_pack.cjs",

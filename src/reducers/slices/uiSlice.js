@@ -1,7 +1,7 @@
 // src/reducers/slices/uiSlice.js - Extracted from gameReducer
 // CHOICE_SELECT, DISMISS_PENDING, CLEAR_TRANSITION, AUDIO_MUTE_TOGGLE, ACCESSIBILITY_TOGGLE, GAMBLE_CHOICE, START_PROLOGUE, PROLOGUE_CHOICE, COMPLETE_PROLOGUE, DISMISS_GUIDE, SKIP_PROLOGUE
 
-import { rand, clamp, pick } from '../utils.js';
+import { rand, clamp, pick, applySanLoss } from '../utils.js';
 import { processSanLoss, rollMadness } from '../sanReducer.js';
 import { doSkillCheck } from '../eventReducer.js';
 import { applyLegacyEffects } from '../effectReducer.js';
@@ -127,13 +127,8 @@ export function handleUiAction(s, action, c) {
                 s.stats_run.checks_failed++;
               }
             }
-            s.san = clamp(s.san - sanDmg, 0, s.maxSan);
+            applySanLoss(s, sanDmg, { trackStats: true });
             c.narr('system', 'SAN -' + sanDmg, { isEffect: true });
-            s.stats_run.max_san_loss_single = Math.max(
-              s.stats_run.max_san_loss_single || 0,
-              sanDmg
-            );
-            s.stats_run.total_san_loss = (s.stats_run.total_san_loss || 0) + sanDmg;
             if (sanDmg >= 1) {
               c.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanDmg });
               s.transition = 'san-loss';
@@ -144,10 +139,8 @@ export function handleUiAction(s, action, c) {
         // Deep investigate: roll 1d6 SAN loss, then check for reward
         const sanRoll = rand(1, 6);
         c.narr('system', opt.text);
-        s.san = clamp(s.san - sanRoll, 0, s.maxSan);
+        applySanLoss(s, sanRoll, { trackStats: true });
         c.narr('system', 'SAN -' + sanRoll, { isEffect: true });
-        s.stats_run.max_san_loss_single = Math.max(s.stats_run.max_san_loss_single || 0, sanRoll);
-        s.stats_run.total_san_loss = (s.stats_run.total_san_loss || 0) + sanRoll;
         if (sanRoll >= 1) {
           c.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanRoll });
           s.transition = 'san-loss';
@@ -185,7 +178,7 @@ export function handleUiAction(s, action, c) {
         } else if (r < reward.clue_chance + reward.san_gain_chance) {
           // SAN recovery — no special causal text (neutral outcome)
           const gain = rand(1, 3);
-          s.san = clamp(s.san + gain, 0, s.maxSan);
+          applySanLoss(s, -gain);
           c.narr('san-recovery', '你在混乱中找到了某种秩序。SAN +' + gain);
           c.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
         } else if (r < reward.clue_chance + reward.san_gain_chance + reward.madness_risk) {
@@ -216,9 +209,8 @@ export function handleUiAction(s, action, c) {
             ctx
           );
           if (baseSanDmg > 0) {
-            s.san = clamp(s.san - baseSanDmg, 0, s.maxSan);
+            applySanLoss(s, baseSanDmg, { audio: true, effects: c.effects });
             c.narr('system', 'SAN -' + baseSanDmg, { isEffect: true });
-            c.effects.push({ type: 'AUDIO_SAN_LOSS', amount: baseSanDmg });
           }
         }
       }

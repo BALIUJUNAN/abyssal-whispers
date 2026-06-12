@@ -90,18 +90,41 @@ export const SETTINGS_KEY = 'coc_game_settings';
 export const SETTINGS_VERSION = '1.1.0';
 
 export const DEFAULT_SETTINGS = {
+  // Audio (legacy fields kept for compat)
   volume: 80,
   ambientVolume: 80,
   effectVolume: 80,
   uiVolume: 80,
+  // Audio (granular)
+  masterVolume: 80,
+  musicVolume: 60,
+  sfxVolume: 80,
+  voiceVolume: 70,
+  muteAll: false,
+  // Display
   narrativeFontSize: 'medium',
+  fontSize: 16,
+  lineHeight: 1.6,
+  fontFamily: 'serif',
+  // Accessibility
   visualDistortion: true,
   suddenSounds: true,
   flickerEffect: true,
+  reduceMotion: false,
+  highContrast: false,
+  // Visual pollution
   visualPollution: 50,
   interactionPollution: 50,
   metaPollution: 50,
   lightPollutionMode: false,
+  screenShake: true,
+  textCorruption: true,
+  vignetteIntensity: 1.0,
+  // Gameplay
+  autoSave: true,
+  showGuideHints: true,
+  skipSeenText: false,
+  confirmActions: false,
 };
 
 export function loadSettings() {

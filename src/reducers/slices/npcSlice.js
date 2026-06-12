@@ -1,13 +1,23 @@
 // src/reducers/slices/npcSlice.js - Extracted from gameReducer
 // TALK_NPC, NPC_RESPONSE
 
-import { rand, d3, clamp, pick } from '../utils.js';
+import { rand, d3, clamp, pick, applySanLoss } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { processSanLoss } from '../sanReducer.js';
 import { checkObjCompletion } from '../objectiveReducer.js';
 import { setCorruptionFlag } from '../npcReducer.js';
 import { getFearNpcLine } from '../../systems/fearLens.js';
 import { addRunMemory, getNpcTrust, setNpcTrust } from '../../utils/appHelpers.js';
+import { computeNpcFeedback, getTrustTierInfo } from '../../systems/npcFeedback.js';
+
+/** Light trust-drop warning — only narrates, no audio. Used for significant drops. */
+function _warnTrustDrop(c, npcName, oldVal, newVal) {
+  const oldTier = getTrustTierInfo(oldVal);
+  const newTier = getTrustTierInfo(newVal);
+  if (oldTier.id !== newTier.id) {
+    c.narr('system', npcName + '对你的态度变成了「' + newTier.label + '」。', { isEffect: true });
+  }
+}
 
 export function handleNpcAction(s, action, c) {
   switch (action.type) {
@@ -80,7 +90,7 @@ export function handleNpcAction(s, action, c) {
           ctx
         );
         if (corrLoss > 0) {
-          s.san = clamp(s.san - corrLoss, 0, s.maxSan);
+          applySanLoss(s, corrLoss);
           c.narr('system', npc.name + '的状态不对劲。SAN -' + corrLoss);
         }
         if (trust >= 3) modHumanity(s, -5, '明知' + npc.name + '已被腐蚀仍继续利用');
@@ -88,7 +98,7 @@ export function handleNpcAction(s, action, c) {
         const sanRec = GD.npcs?.find((n) => n.name === npc.name)?.san_recovery_effect;
         if (sanRec && sanRec.normal_chat) {
           if (sanRec.normal_chat.includes('SAN+1')) {
-            s.san = clamp(s.san + 1, 0, s.maxSan);
+            applySanLoss(s, -1);
             c.narr(
               'san-recovery',
               sanRec.description || '与' + npc.name + '交谈让你感到安慰。SAN +1'
@@ -99,7 +109,7 @@ export function handleNpcAction(s, action, c) {
         } else if (trust < 3) {
           const rec = d3() - 1;
           if (rec > 0) {
-            s.san = clamp(s.san + rec, 0, s.maxSan);
+            applySanLoss(s, -rec);
             c.narr('san-recovery', '与' + npc.name + '交谈让你感到些许安慰。SAN +' + rec);
           }
         }
@@ -154,7 +164,19 @@ export function handleNpcAction(s, action, c) {
                   }
                 });
             }
-            c.narr('system', npc.name + '对你的信任度提升了。（信任等级：' + newTrust + '）');
+            // NPC feedback: tier change = strong, same-tier = subtle
+            const _fb = computeNpcFeedback({ [npc.name]: trust }, { [npc.name]: newTrust }, 'TALK_NPC');
+            for (const f of _fb) {
+              if (f.tierChanged) {
+                // Cross-tier: full feedback with audio
+                c.narr('system', f.message, { isEffect: true });
+                c.effects.push({ type: 'AUDIO_PLAY', id: 'trust_tier_change' });
+              } else if (f.delta >= 0) {
+                // Same-tier gain: quiet single-line
+                c.narr('system', npc.name + '似乎更放松了一些。', { isEffect: true });
+              }
+              // Same-tier loss: handled by existing narr above, no extra noise
+            }
             modHumanity(s, 3, '与' + npc.name + '建立真诚的联系');
             addRunMemory(s, npc.name + '开始相信你。', 'npc');
             // Keep dialog open with updated trust & layer
@@ -211,7 +233,7 @@ export function handleNpcAction(s, action, c) {
           'system',
           silenceEntries.length > 0 ? pick(silenceEntries) : '你没有回答。沉默也是一种回答。'
         );
-        s.san = clamp(s.san - 1, 0, s.maxSan);
+        applySanLoss(s, 1);
         modHumanity(s, -5, '在' + npc.name + '面前选择沉默，隐瞒真相');
         addRunMemory(s, '你没有回答。沉默也被记录了。', 'humanity');
       } else if (choice === 'share_food') {
@@ -279,7 +301,7 @@ export function handleNpcAction(s, action, c) {
           c.bt.direct_kill_count = (c.bt.direct_kill_count || 0) + 1;
           setNpcState(s, npc.name, { ...ns, dead: true, killedByPlayer: true });
           const sanLoss = rand(4, 12);
-          s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+          applySanLoss(s, sanLoss);
           modHumanity(s, -20, '亲手杀害了' + npc.name);
           addRunMemory(s, '你杀了' + npc.name + '。', 'death');
           c.narr(
@@ -298,7 +320,7 @@ export function handleNpcAction(s, action, c) {
         } else {
           const dmg = rand(2, 8);
           s.hp = Math.max(0, s.hp - dmg);
-          setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 2));
+          { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, Math.max(0, _old - 2)); _warnTrustDrop(c, npc.name, _old, Math.max(0, _old - 2)); }
           c.narr(
             'system',
             '【攻击】掷骰 ' +
@@ -324,7 +346,7 @@ export function handleNpcAction(s, action, c) {
         } else {
           c.narr('system', '你没有时间仔细处理，但你尽力隐藏了能隐藏的一切。');
         }
-        s.san = clamp(s.san - 2, 0, s.maxSan);
+        applySanLoss(s, 2);
         modHumanity(s, -5, '冷静地隐藏了' + npc.name + '的尸体');
         s.pendingNpc = null;
       } else if (choice === 'post_kill_cannibal') {
@@ -332,7 +354,7 @@ export function handleNpcAction(s, action, c) {
         s.food = Math.min(s.maxFood, (s.food || 0) + 2);
         s.starvationDays = 0; // 饥饿解除
         const sanLoss = rand(8, 20);
-        s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+        applySanLoss(s, sanLoss);
         modHumanity(s, -30, '食用了' + npc.name + '的肉体');
         addRunMemory(s, '你吃了' + npc.name + '。饥饿比道德更真实。', 'death');
         c.narr('system', '你做了无法挽回的事。食物+2。某种东西在你体内扎了根。SAN -' + sanLoss, {
@@ -358,7 +380,7 @@ export function handleNpcAction(s, action, c) {
           c.bt.npc_deaths_by_manipulation = (c.bt.npc_deaths_by_manipulation || 0) + 1;
           setNpcState(s, npc.name, { ...ns, dead: true, manipulatedDeath: true });
           const sanLoss = rand(3, 8);
-          s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+          applySanLoss(s, sanLoss);
           modHumanity(s, -15, '操纵导致' + npc.name + '的死亡');
           addRunMemory(s, '你说了一些话。' + npc.name + '走向了危险。', 'death');
           c.narr(
@@ -413,7 +435,7 @@ export function handleNpcAction(s, action, c) {
         }
         s.ap -= 1;
         c.bt.betrayed_high_trust_npcs = (c.bt.betrayed_high_trust_npcs || 0) + 1;
-        setNpcTrust(s, npc.name, 0);
+        { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, 0); _warnTrustDrop(c, npc.name, _old, 0); }
         if (!c.bt._npc_harm_tally) c.bt._npc_harm_tally = {};
         c.bt._npc_harm_tally[npc.name] = (c.bt._npc_harm_tally[npc.name] || 0) + 1;
         c.bt.same_npc_harm_max = Math.max(
@@ -437,7 +459,7 @@ export function handleNpcAction(s, action, c) {
         s.ap -= 2;
         c.bt.forbidden_intimacy_flags = (c.bt.forbidden_intimacy_flags || 0) + 1;
         const sanLoss = rand(3, 8);
-        s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+        applySanLoss(s, sanLoss);
         s.pollution = Math.min(1, (s.pollution || 0) + 0.1);
         c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
         modHumanity(s, -8, '与' + npc.name + '发生了禁忌的亲密');
@@ -463,7 +485,7 @@ export function handleNpcAction(s, action, c) {
           c.bt.cult_leader_score = (c.bt.cult_leader_score || 0) + 1;
           setNpcState(s, npc.name, { ...ns, follower: true });
           const sanLoss = rand(2, 6);
-          s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+          applySanLoss(s, sanLoss);
           modHumanity(s, -10, '将' + npc.name + '引入歧途，建立邪教追随');
           addRunMemory(s, npc.name + '开始追随你。不是信任——是信仰。', 'npc');
           c.narr(

@@ -1,7 +1,7 @@
 // src/reducers/effectReducer.js - Unified effect application system
 // All game effects (items, events, NPCs, areas, endings) go through applyEffects().
 
-import { clamp, rollDice } from './utils.js';
+import { clamp, rollDice, applySanLoss } from './utils.js';
 import { applyExtendedEffect } from './extendedEvents.js';
 import { incrementStat } from './achievementReducer.js';
 
@@ -20,7 +20,7 @@ export function applyEffects(state, effects, context) {
         const target = eff.target;
         const amount = eff.amount_dice ? rollDice(eff.amount_dice) : eff.amount || 0;
         if (target === 'HP') state.hp = clamp(state.hp + amount, 0, state.maxHp);
-        else if (target === 'SAN') state.san = clamp(state.san + amount, 0, state.maxSan);
+        else if (target === 'SAN') applySanLoss(state, -amount);
         else if (state.stats[target] !== undefined)
           state.stats[target] = clamp(state.stats[target] + amount, 0, 999);
         break;

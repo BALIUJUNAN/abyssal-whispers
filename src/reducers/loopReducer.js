@@ -6,6 +6,7 @@
 
 import { pick, clamp } from './utils.js';
 import { setCorruptionFlag } from './npcReducer.js';
+import { computeReincarnationDiff } from '../systems/reincarnationDiff.js';
 
 /**
  * Get the loop count effects for a given loop number.
@@ -288,6 +289,12 @@ export function initLoopState(f, s, ctx, options = {}) {
   if ((s.humanityScore ?? 30) >= 30 && (s.direct_kill_count || 0) >= 3) {
     setCorruptionFlag(f, 'has_committed_contradictory_extremes');
   }
+
+  // ── 15) 文本重复追踪（跨轮持久化） ──
+  f.seenEventTexts = { ...(s.seenEventTexts || {}) };
+
+  // ── 16) 轮回差异提示 ──
+  f.reincarnationDiff = computeReincarnationDiff(s, f, ctx);
 
   return f;
 }

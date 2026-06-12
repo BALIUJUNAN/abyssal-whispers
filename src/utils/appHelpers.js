@@ -1,6 +1,8 @@
 // src/utils/appHelpers.js - Extracted from app.jsx
 // All functions use global GD, ctx, pick, clamp from bundle scope.
 
+import { buildDeathSummary } from '../systems/deathSummary.js';
+
 export function getUICorruptionLayer(san, loopCount, safehouseCorruption) {
   if (san <= 5 || safehouseCorruption >= 80) return 4; // hostile — 濒死疯狂（SAN=0已触发死亡，≤5是最后可见窗口）
   if (san <= 10 || safehouseCorruption >= 60) return 3; // contradictory — 濒临疯狂
@@ -238,6 +240,8 @@ export function applyDeathResolution(s, deathCtx, narr) {
   else audioManager.playEffect('death_hybrid');
   // Narrative
   narr('death', deathCtx.finalText, { isSpecial: true });
+  // Build death summary (4-section narrative)
+  const deathSummary = buildDeathSummary(s, deathCtx, ctx);
   // Ending
   if (deathCtx.mode === 'hp') {
     const failPhys = GD.implementation_notes?.failure_states?.failure_types?.physical_death;
@@ -246,11 +250,12 @@ export function applyDeathResolution(s, deathCtx, narr) {
       type: 'bad',
       description: deathCtx.finalText,
       recap: buildDeathRecap(s, deathCtx),
+      deathSummary,
     };
   } else if (deathCtx.mode === 'san') {
     const ending = checkEnding(s, ctx);
     if (ending) {
-      s.ending = { ...ending, recap: buildDeathRecap(s, deathCtx) };
+      s.ending = { ...ending, recap: buildDeathRecap(s, deathCtx), deathSummary };
     } else {
       const failMental = GD.implementation_notes?.failure_states?.failure_types?.mental_death;
       s.ending = {
@@ -259,6 +264,7 @@ export function applyDeathResolution(s, deathCtx, narr) {
         description: deathCtx.finalText,
         permanent_pollution: failMental?.permanent_pollution || 0,
         recap: buildDeathRecap(s, deathCtx),
+        deathSummary,
       };
     }
   } else {
@@ -267,6 +273,7 @@ export function applyDeathResolution(s, deathCtx, narr) {
       type: 'bad',
       description: deathCtx.finalText,
       recap: buildDeathRecap(s, deathCtx),
+      deathSummary,
     };
   }
   addRunMemory(s, deathCtx.finalText.split('\n')[0], 'death');

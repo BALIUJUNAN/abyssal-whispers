@@ -1,7 +1,7 @@
 // src/reducers/slices/darkSlice.js - Extracted from gameReducer
 // SELF_HARM, SPREAD_PROPHECY, CONSUME_ARCHIVE, SELF_SACRIFICE, DESECRATE, BREAK_SEAL
 
-import { rand, clamp } from '../utils.js';
+import { rand, clamp, applySanLoss } from '../utils.js';
 import { setCorruptionFlag } from '../npcReducer.js';
 import { addRunMemory, modHumanity } from '../../utils/appHelpers.js';
 
@@ -16,7 +16,7 @@ export function handleDarkAction(s, action, c) {
       c.bt.self_harm_ritual_count = (c.bt.self_harm_ritual_count || 0) + 1;
       c.bt.fusion_and_self_harm_total = (c.bt.fusion_and_self_harm_total || 0) + 1;
       const sanLoss = rand(3, 10);
-      s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+      applySanLoss(s, sanLoss);
       modHumanity(s, -10, '用刀在自己身上刻下符号');
       addRunMemory(
         s,
@@ -44,7 +44,7 @@ export function handleDarkAction(s, action, c) {
       c.bt.prophecy_spread_count = (c.bt.prophecy_spread_count || 0) + 1;
       c.bt.cult_leader_score = (c.bt.cult_leader_score || 0) + 1;
       const sanLoss = rand(2, 5);
-      s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+      applySanLoss(s, sanLoss);
       modHumanity(s, -8, '向镇民散布不祥的预言');
       c.narr(
         'system',
@@ -90,7 +90,7 @@ export function handleDarkAction(s, action, c) {
       const hpLoss = rand(4, 10);
       s.hp = Math.max(1, s.hp - hpLoss);
       s.maxSan = Math.max(10, s.maxSan - 5);
-      s.san = clamp(s.san - rand(5, 15), 0, s.maxSan);
+      applySanLoss(s, rand(5, 15));
       modHumanity(s, -25, '为了力量献祭了自己的一部分');
       addRunMemory(
         s,
@@ -119,7 +119,7 @@ export function handleDarkAction(s, action, c) {
       s.ap -= 2;
       c.bt.sacred_desecration_count = (c.bt.sacred_desecration_count || 0) + 1;
       const sanLoss = rand(4, 12);
-      s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+      applySanLoss(s, sanLoss);
       modHumanity(s, -15, '亵渎了神圣之地');
       c.narr(
         'system',
@@ -148,7 +148,7 @@ export function handleDarkAction(s, action, c) {
       c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
       c.bt.loop_break_attempts = (c.bt.loop_break_attempts || 0) + 1;
       const sanLoss = rand(8, 20);
-      s.san = clamp(s.san - sanLoss, 0, s.maxSan);
+      applySanLoss(s, sanLoss);
       modHumanity(s, -25, '试图破坏封印');
       addRunMemory(s, '你把手放在封印上。然后你推了。', 'death');
       c.narr(

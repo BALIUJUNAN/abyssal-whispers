@@ -34,6 +34,7 @@ export const initialState = () => {
     weather: '阴天',
     triggeredEvents: [],
     triggeredSilentEvents: [],
+    seenEventTexts: {},
     longTermEffects: [],
     madnessActive: null,
     objectives: [],
