@@ -1,0 +1,27 @@
+{
+  "id": "first_whisper_001",
+  "name": "一张奇怪的纸条",
+  "type": "ugc",
+  "weight": 1,
+  "tier": "normal",
+  "tags": ["ugc", "note"],
+  "trigger": {
+    "areas": ["town_center"],
+    "probability": 0.3,
+    "once_per_run": true
+  },
+  "description": "你在公告栏后面发现了一张折叠的纸条。\n上面只写了一句话：\n\n「你不是第一个读到这句话的人。」\n\n纸条的边缘有烧焦的痕迹。",
+  "effects": { "san": -1 },
+  "choices": [
+    {
+      "id": "first_whisper_keep",
+      "text": "把纸条收进口袋",
+      "effects": { "add_clue": { "id": "clue_strange_note", "name": "奇怪的纸条" } }
+    },
+    {
+      "id": "first_whisper_burn",
+      "text": "把纸条撕碎",
+      "effects": {}
+    }
+  ]
+}

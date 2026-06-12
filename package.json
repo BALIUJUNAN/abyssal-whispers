@@ -24,6 +24,9 @@
     "test:integration": "node tests/integration_test.cjs",
     "test:missing600": "node src/data/test_missing_600.js",
     "lint:events": "node src/data/lint_extended_events.js",
+    "mod:validate": "node scripts/mod_validate.cjs",
+    "mod:preview": "node scripts/mod_preview.cjs",
+    "mod:pack": "node scripts/mod_pack.cjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

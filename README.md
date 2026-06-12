@@ -567,6 +567,71 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
 
 事件调度器会自动将其纳入触发池。
 
+### UGC 模组创作指南
+
+> **10 分钟写出你的第一个事件模组。** 只需要 JSON，不需要写代码。
+
+#### 最小模组
+
+```json
+{
+  "id": "mod_my_first",
+  "name": "我的第一个模组",
+  "events": [
+    {
+      "id": "my_event_001",
+      "name": "一张奇怪的纸条",
+      "type": "ugc",
+      "trigger": { "areas": ["town_center"], "probability": 0.3 },
+      "description": "你在公告栏后面发现了一张纸条……",
+      "effects": { "san": -1 },
+      "choices": [
+        { "id": "keep", "text": "收起来", "effects": { "add_clue": { "id": "clue_note", "name": "纸条" } } },
+        { "id": "ignore", "text": "忽略", "effects": {} }
+      ]
+    }
+  ]
+}
+```
+
+#### 作者工具
+
+```bash
+# 校验模组 JSON（检查结构、字段、安全规则）
+npm run mod:validate mods/my-mod.json
+
+# 预览模组事件（人类可读格式）
+npm run mod:preview mods/my-mod.json
+
+# 打包目录为单个 JSON（my-mod/mod.json + events/*.json → my-mod.json）
+npm run mod:pack mods/my-mod
+```
+
+#### 模组目录结构（推荐）
+
+```
+my-mod/
+  mod.json          ← 模组元数据（id, name, author, version, compatibility）
+  events/
+    strange_note.json
+    mysterious_sound.json
+```
+
+#### 安全限制
+
+UGC 模组有严格的安全限制：
+
+| 限制 | 说明 |
+|------|------|
+| **仅 JSON** | 不支持 JavaScript 代码执行，所有逻辑通过声明式 effects 实现 |
+| **未知字段剥离** | Schema 不认识的字段会被静默移除，不会进入游戏 |
+| **ID 校验** | 仅允许字母、数字、下划线、连字符 |
+| **深度限制** | 最多 30 个事件 / 每事件 6 个选项 |
+| **危险内容拦截** | 自动扫描并拦截脚本注入、事件处理器、远程 URL |
+| **兼容性字段** | `compatibility` 字段标注适用游戏版本（如 `>=0.2.3`） |
+
+> **不会执行任何远程代码。** 模组只包含数据，不包含可执行逻辑。
+
 ---
 
 ## 开发指南

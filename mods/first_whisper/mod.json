@@ -1,0 +1,8 @@
+{
+  "id": "mod_first_whisper",
+  "name": "第一声低语",
+  "author": "你",
+  "version": "1.0.0",
+  "compatibility": ">=0.2.3",
+  "description": "你的第一个模组。10 分钟内完成。"
+}

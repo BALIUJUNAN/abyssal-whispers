@@ -14,17 +14,26 @@
       "weight": 1,
       "tier": "normal",
       "quality_tier": "B",
-      "tags": ["example", "harbor", "diary"],
+      "tags": [
+        "example",
+        "harbor",
+        "diary"
+      ],
       "trigger": {
-        "areas": ["harbor_district"],
+        "areas": [
+          "harbor_district"
+        ],
         "probability": 0.2,
         "once_per_run": true
       },
       "description": "你在码头边的木板缝隙里发现了一本旧日记。\n日记的封面已经褪色，但你还能看清上面的字：「沃切斯特，1893年」。\n你翻开了第一页。\n「今天到达了沃切斯特。海面很平静。但镇民的眼神不太对。」\n你合上日记。1893年。一百多年前。\n你把日记放回了缝隙里。它属于这里。",
-      "effects": { "san": -1 },
+      "effects": {
+        "san": -1
+      },
       "event_classification": "调查",
       "normalcy_anchor": false,
       "choices": []
     }
-  ]
+  ],
+  "compatibility": ">=0.2.3"
 }

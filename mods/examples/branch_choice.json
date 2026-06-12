@@ -14,9 +14,16 @@
       "weight": 1,
       "tier": "normal",
       "quality_tier": "B",
-      "tags": ["example", "town", "beggar", "choice"],
+      "tags": [
+        "example",
+        "town",
+        "beggar",
+        "choice"
+      ],
       "trigger": {
-        "areas": ["town_center"],
+        "areas": [
+          "town_center"
+        ],
         "probability": 0.15,
         "once_per_run": true
       },
@@ -28,19 +35,32 @@
         {
           "label": "给他一些食物",
           "text": "你把口袋里的面包递给了他。他接过来，没有说谢谢，但他的眼睛湿润了。",
-          "effects": { "food": -1, "humanity": 3, "npc_trust": { "流浪汉": 2 } }
+          "effects": {
+            "food": -1,
+            "humanity": 3,
+            "npc_trust": {
+              "流浪汉": 2
+            }
+          }
         },
         {
           "label": "给他一些钱",
           "text": "你给了他几枚硬币。他接过来，低声说了一句：「今晚码头有船。」",
-          "effects": { "money": -2, "san": 1, "add_clue": "clue_example_beggar_tip" }
+          "effects": {
+            "money": -2,
+            "san": 1,
+            "add_clue": "clue_example_beggar_tip"
+          }
         },
         {
           "label": "走开",
           "text": "你加快了脚步。背后的目光像针一样扎着你。",
-          "effects": { "humanity": -2 }
+          "effects": {
+            "humanity": -2
+          }
         }
       ]
     }
-  ]
+  ],
+  "compatibility": ">=0.2.3"
 }

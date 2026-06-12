@@ -14,9 +14,16 @@
       "weight": 1,
       "tier": "normal",
       "quality_tier": "B",
-      "tags": ["example", "town", "cat", "quest_start"],
+      "tags": [
+        "example",
+        "town",
+        "cat",
+        "quest_start"
+      ],
       "trigger": {
-        "areas": ["town_center"],
+        "areas": [
+          "town_center"
+        ],
         "probability": 0.2,
         "once_per_run": true
       },
@@ -28,12 +35,17 @@
         {
           "label": "答应帮忙",
           "text": "「我会帮你找的。」她的眼睛亮了。",
-          "effects": { "add_flag": "flag_looking_for_cat", "humanity": 2 }
+          "effects": {
+            "add_flag": "flag_looking_for_cat",
+            "humanity": 2
+          }
         },
         {
           "label": "拒绝",
           "text": "「对不起，我有更重要的事。」她低下了头。",
-          "effects": { "humanity": -1 }
+          "effects": {
+            "humanity": -1
+          }
         }
       ]
     },
@@ -45,18 +57,31 @@
       "weight": 1,
       "tier": "normal",
       "quality_tier": "A",
-      "tags": ["example", "harbor", "cat", "quest_end"],
+      "tags": [
+        "example",
+        "harbor",
+        "cat",
+        "quest_end"
+      ],
       "trigger": {
-        "areas": ["harbor_district"],
+        "areas": [
+          "harbor_district"
+        ],
         "probability": 0.3,
         "once_per_run": true,
-        "requires_flags": ["flag_looking_for_cat"]
+        "requires_flags": [
+          "flag_looking_for_cat"
+        ]
       },
       "description": "你在码头的仓库后面找到了小灰。它蜷缩在一个纸箱里。\n你把它抱起来。它发出了呼噜声。\n你把它还给了孩子。孩子笑了。\n「谢谢你！」她说，「小灰说它发现了一个秘密。跟我来。」\n她带你走到了仓库的角落。地上有一个铁环。铁环连着一扇活板门。",
-      "effects": { "add_clue": "clue_example_cat_secret", "san": 1 },
+      "effects": {
+        "add_clue": "clue_example_cat_secret",
+        "san": 1
+      },
       "event_classification": "调查",
       "normalcy_anchor": false,
       "choices": []
     }
-  ]
+  ],
+  "compatibility": ">=0.2.3"
 }

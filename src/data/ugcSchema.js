@@ -564,6 +564,15 @@ export function validateMod(raw) {
     }
   }
 
+  // ── Optional: validate compatibility ──
+  // Semver range string, e.g. ">=0.2.3" or "0.2.x"
+  if (raw.compatibility && typeof raw.compatibility !== 'string') {
+    warnings.push('mod.compatibility: ignored (not a string)');
+  }
+  if (raw.compatibility && raw.compatibility.length > 32) {
+    warnings.push('mod.compatibility: too long (max 32 chars)');
+  }
+
   // ── Optional: validate metadata ──
   if (raw.metadata && typeof raw.metadata !== 'object') {
     warnings.push('mod.metadata: ignored (not an object)');
@@ -597,6 +606,7 @@ export function validateMod(raw) {
     name: raw.name,
     author: raw.author,
     version: raw.version,
+    compatibility: raw.compatibility || null,
     events: sanitizedEvents,
     metadata: raw.metadata && typeof raw.metadata === 'object' ? raw.metadata : {},
     createdAt: raw.createdAt || new Date().toISOString(),
