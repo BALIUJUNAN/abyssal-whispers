@@ -770,6 +770,23 @@ def run_verify():
                 all_pass = False
             elif actual > warn_threshold:
                 print(f'  [WARN] {label}: {actual/1024/1024:.1f} MB > {warn_threshold/1024/1024:.0f} MB budget')
+    # Vite build check (non-blocking: warn only, don't fail verify)
+    vite_dist = os.path.join(BASE, 'dist-vite', 'index.html')
+    try:
+        result = subprocess.run(
+            'npm run build:vite', shell=True, capture_output=True, text=True,
+            cwd=BASE, timeout=120, encoding='utf-8', errors='replace'
+        )
+        if result.returncode == 0 and os.path.exists(vite_dist):
+            vite_size = os.path.getsize(vite_dist)
+            print(f'  [OK] Vite build: {vite_size:,} bytes')
+        else:
+            print(f'  [WARN] Vite build failed (non-blocking)')
+            if result.stderr:
+                for line in result.stderr.strip().split('\n')[-3:]:
+                    if line.strip(): print(f'         {line.strip()[:120]}')
+    except Exception as e:
+        print(f'  [WARN] Vite build error: {e}')
     return all_pass
 
 
