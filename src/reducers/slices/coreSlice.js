@@ -1,6 +1,21 @@
 // src/reducers/slices/coreSlice.js - Extracted from gameReducer
 // START_GAME, SET_DIFFICULTY, SET_ARCHETYPE, ROLL_STATS, BEGIN_ADVENTURE, NEW_GAME, CONTINUE_GAME, SWITCH_SAFEHOUSE
 
+import { rollDice } from '../utils.js';
+import { GAME_BALANCE } from '../../state/gameConstants.js';
+import { initialState } from '../../state/initialState.js';
+import { initPrologueState } from '../prologueReducer.js';
+import { genObjectives } from '../objectiveReducer.js';
+import { getChapterForDay } from '../chapterReducer.js';
+import { initLoopState } from '../loopReducer.js';
+import { buildPreviousRunSummary } from '../extendedEvents.js';
+import { ensureExtendedState } from '../extendedEventsLoader.js';
+import { clearSave } from '../../engine/SaveManager.js';
+import { addRunMemory, getNpcTrust, setNpcTrust, CH1_INTRO, applyBlessing } from '../../utils/appHelpers.js';
+import { initSkills } from '../../utils/gameHelpers.js';
+import { hasClueId } from '../../utils/clueNameMap.js';
+import { getAreaSceneImage } from '../../portraitMap.js';
+
 export function handleCoreAction(s, action, c) {
   switch(action.type){
   case 'START_GAME':s.screen='prologue';s.prologue=initPrologueState();s.fearTuning=null;s.skills=initSkills();return s;
