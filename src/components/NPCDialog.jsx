@@ -1,5 +1,6 @@
 // src/components/NPCDialog.jsx - NPC dialog component (extracted from GamePanels.jsx)
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
+import { applyMythosAliases, maybeCorruptNpcName } from '../systems/textVariants.js';
 
 export function NPCDialog({ npc, trust, layer, dispatch, state }) {
   const [show, setShow] = useState(false);
@@ -84,7 +85,7 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
           />
         )}
         <div style={{ color: 'var(--cyan)', fontSize: '0.9rem', marginBottom: '0.3rem' }}>
-          与 {npc.name} 交谈
+          与 {maybeCorruptNpcName(npc.name, state?.san || 60, state?.loopCount || 0)} 交谈
         </div>
         <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: '0.3rem' }}>
           {npc.role}
@@ -129,7 +130,13 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
               fontSize: '0.85rem',
             }}
           >
-            {ns.corrupted ? '（' + npc.name + '的状态不对，说话含混不清。）' : layer.dialogue}
+            {ns.corrupted ? '（' + npc.name + '的状态不对，说话含混不清。）' : (() => {
+              let dlgText = layer.dialogue;
+              if (state && dlgText && typeof GD !== 'undefined') {
+                dlgText = applyMythosAliases(dlgText, state.currentChapter || 'chapter_1', state.mythosLevel || 0, { GD });
+              }
+              return dlgText;
+            })()}
           </div>
         )}
         {layer?.hint && !ns.corrupted && (

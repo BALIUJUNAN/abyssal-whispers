@@ -109,6 +109,25 @@ export function handleCoreAction(s, action, c) {
           setNpcTrust(s, npc, getNpcTrust(s, npc) + v);
         });
       }
+      // Apply loop shop purchased effects
+      if (s._shopBonusSkillPoints > 0) {
+        // Distribute bonus skill points to top skills
+        const skillKeys = Object.keys(s.skills).filter(k => s.skills[k] > 0);
+        if (skillKeys.length > 0) {
+          const target = skillKeys[Math.floor(Math.random() * skillKeys.length)];
+          s.skills[target] = (s.skills[target] || 0) + s._shopBonusSkillPoints;
+          c.narr('system', '你感到某些知识比上次更清晰了。' + target + ' +' + s._shopBonusSkillPoints);
+        }
+      }
+      if (s._shopNpcTrustBonus > 0) {
+        // Apply trust bonus to a random NPC
+        const coreNpcs = (GD.npcs || []).filter(n => n.chapter_1_availability === 'core');
+        if (coreNpcs.length > 0) {
+          const target = coreNpcs[Math.floor(Math.random() * coreNpcs.length)];
+          setNpcTrust(s, target.name, getNpcTrust(s, target.name) + s._shopNpcTrustBonus);
+          c.narr('system', target.name + '似乎对你有一种莫名的熟悉感。');
+        }
+      }
       if (s.loopCount > 0) {
         c.effects.push(
           { type: 'AUDIO_PLAY', id: 'loop_restart' },
@@ -144,6 +163,28 @@ export function handleCoreAction(s, action, c) {
         const bKey2 = s.loopCount <= 5 ? 'loop_' + s.loopCount : 'loop_6_plus';
         const curBlessing = GD.systems?.loop?.loop_blessings?.[bKey2];
         if (curBlessing) applyBlessing(s, curBlessing, c.narr);
+        // Loop blessing + cost: atmospheric hints, never explicit numbers
+        // "You feel something different but can't name it"
+        {
+          const loopEffect = GD.systems?.loop?.loop_count_effects?.[bKey2];
+          if (curBlessing || loopEffect) {
+            // Atmospheric blessing hints — never mention numbers
+            const blessingHints = [
+              '你又回来了。你觉得自己对这座城市更熟悉了——有些路，你好像本来就知道怎么走。',
+              '你隐约感到某些东西在帮助你。不是善意——更像是某种交易的余温。',
+              '你口袋里多了一样你不记得什么时候放进去的东西。',
+              '你发现自己能读懂一些以前读不懂的暗示了。这不是好事。',
+            ];
+            const costHints = [
+              '但你也感觉到了——你的灵魂又薄了一层。有些感觉，再也找不回来了。',
+              '但你的影子比上次淡了一点。你注意到了。你没有在意。',
+              '但你照镜子的时候，总觉得镜子里的人比你晚了一瞬才动。',
+              '但你听到自己的心跳声比以前远了一点。',
+            ];
+            c.narr('system', blessingHints[Math.min(s.loopCount - 1, blessingHints.length - 1)] || blessingHints[0], { isSpecial: true });
+            c.narr('system', costHints[Math.min(s.loopCount - 1, costHints.length - 1)] || costHints[0], { isSpecial: true });
+          }
+        }
       }
       CH1_INTRO.forEach((block) =>
         c.narr(block.type, block.text, { locationName: block.locationName })
@@ -198,6 +239,26 @@ export function handleCoreAction(s, action, c) {
       s.transition = null;
       s.narrative = [{ id: Date.now(), type: 'system', text: '—— 你从存档中醒来。' }];
       ensureExtendedState(s);
+      return s;
+    }
+    case 'LOOP_SHOP_PURCHASE': {
+      const itemId = action.itemId;
+      const cost = action.cost || 0;
+      if ((s.endingCoins || 0) < cost) return s;
+      if (!s.purchasedShopItems) s.purchasedShopItems = [];
+      if (s.purchasedShopItems.includes(itemId)) return s;
+      s.endingCoins -= cost;
+      s.purchasedShopItems.push(itemId);
+      // Apply immediate effects
+      const shopEffects = {
+        shop_skill_points: () => { s._shopBonusSkillPoints = (s._shopBonusSkillPoints || 0) + 3; },
+        shop_npc_trust: () => { s._shopNpcTrustBonus = (s._shopNpcTrustBonus || 0) + 2; },
+        shop_resistance: () => { s._shopMythosResistance = (s._shopMythosResistance || 0) + 0.1; },
+        shop_death_insurance: () => { s._shopDeathInsurance = true; },
+        shop_san_cap_boost: () => { s._shopSanCapBoost = (s._shopSanCapBoost || 0) + 5; },
+        shop_random_rare: () => { s._shopRandomRare = true; },
+      };
+      if (shopEffects[itemId]) shopEffects[itemId]();
       return s;
     }
     case 'SWITCH_SAFEHOUSE': {

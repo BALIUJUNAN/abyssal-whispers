@@ -9,6 +9,7 @@ import { setCorruptionFlag } from '../npcReducer.js';
 import { getFearNpcLine } from '../../systems/fearLens.js';
 import { addRunMemory, getNpcTrust, setNpcTrust } from '../../utils/appHelpers.js';
 import { computeNpcFeedback, getTrustTierInfo } from '../../systems/npcFeedback.js';
+import { getSanTextVariant } from '../sanReducer.js';
 
 /** Light trust-drop warning — only narrates, no audio. Used for significant drops. */
 function _warnTrustDrop(c, npcName, oldVal, newVal) {
@@ -99,12 +100,14 @@ export function handleNpcAction(s, action, c) {
         if (sanRec && sanRec.normal_chat) {
           if (sanRec.normal_chat.includes('SAN+1')) {
             applySanLoss(s, -1);
-            c.narr(
-              'san-recovery',
-              sanRec.description || '与' + npc.name + '交谈让你感到安慰。SAN +1'
+            const _sanRecText = getSanTextVariant(
+              sanRec.description || '与' + npc.name + '交谈让你感到安慰。SAN +1',
+              s.san, pick, ctx
             );
+            c.narr('san-recovery', _sanRecText);
           } else {
-            c.narr('system', sanRec.description || sanRec.normal_chat);
+            const _npcChatText = getSanTextVariant(sanRec.description || sanRec.normal_chat, s.san, pick, ctx);
+            c.narr('system', _npcChatText);
           }
         } else if (trust < 3) {
           const rec = d3() - 1;

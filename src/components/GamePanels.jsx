@@ -3,6 +3,7 @@
 // NPCDialog -> NPCDialog.jsx, CitySketchMap -> CitySketchMap.jsx
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { StatBar, CollapsibleSection, NarrativeBlock } from './GameCommon.jsx';
+import { isPhantomExpired } from '../systems/textVariants.js';
 import { NPCDialog } from './NPCDialog.jsx';
 import { CitySketchMap } from './CitySketchMap.jsx';
 
@@ -333,7 +334,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
         </div>
       )}
       <div className={'narrative-area' + percCls} ref={ref}>
-        {state.narrative.map((b) => (
+        {state.narrative.filter(b => !isPhantomExpired(b)).map((b) => (
           <NarrativeBlock key={b.id} block={b} />
         ))}
         {state.pendingEvent &&
@@ -792,7 +793,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
           </div>
           {logOpen && (
             <div className="event-log-body">
-              {state.eventLog.slice(-8).map((l, i) => (
+              {state.eventLog.filter(l => !isPhantomExpired(l)).slice(-8).map((l, i) => (
                 <div key={i} className="log-entry">
                   <span className="log-day">[Day {l.day}]</span> {l.text}
                 </div>
@@ -1439,6 +1440,43 @@ export function EndingScreen({ ending, state, dispatch }) {
           ? ' | 结论：' + state.discoveredConclusions.length + '个'
           : ''}
       </div>
+      {/* Personality Report — atmospheric self-questioning, never explicit labels */}
+      {ending.personalityReport && ending.personalityReport.traits.length > 0 && (
+        <div className="personality-report" style={{ maxWidth: 520, margin: '1rem auto', textAlign: 'left', fontSize: 13, lineHeight: 1.8, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem', color: 'var(--text-secondary, #a89a85)' }}>
+          <div style={{ fontStyle: 'italic', marginBottom: 8 }}>
+            你看着镜子里的自己。
+          </div>
+          {ending.personalityReport.traits.slice(0, 3).map((t, i) => {
+            // Convert explicit labels to atmospheric self-questions
+            const reflections = {
+              mass_killer: '你已经不记得这是第几次了。手很稳。这让你不安。',
+              killer: '你的手上有痕迹。不是血——是某种你已经习惯的东西。',
+              cannibal: '你吃过了不该吃的东西。你没有吐。这本身就是一种变化。',
+              puppeteer: '你没有亲自动过手。但这让你更不安，而不是更安心。',
+              betrayer: '有人曾经信任你。你不确定那个人现在怎么看你。',
+              cult_leader: '有人跪在你面前。你不确定他们跪的是你，还是你身后的东西。',
+              desecrator: '你打碎了什么。不是因为愤怒——是因为你想看看碎了之后里面有什么。',
+              ritualist: '你用刀在自己身上画了什么。疤痕还在。你已经不记得画的是什么了。',
+              fused: '你感觉自己的边界比以前模糊了。空气有时候会穿过你。',
+              vessel: '你里面有什么东西。不是寄生——更像是一个沉默的室友。',
+              sea_bound: '海在叫你。不是用声音——是用空缺。',
+              sleeper: '你睡了很久。久到你不确定外面还是不是同一天。',
+              workaholic: '你的手上有老茧。你的账本很整齐。你已经不记得来这里是为了什么了。',
+              hermit: '安全屋的墙壁记住了你的呼吸。你不确定这是安慰还是囚禁。',
+              wanderer: '你走了很多路。但你没有找到你来时要找的东西。',
+              meta_breaker: '你看到了什么不该看到的东西。不是恐怖——是结构。',
+              deleter: '你试图删除什么。它回来了。但少了一点。',
+              redeemer: '你帮了一个人。那个人没有说谢谢。但这不重要。',
+              hoarder: '你拥有很多东西。你一样都没有用过。',
+            };
+            const text = reflections[t.id] || t.desc;
+            return <div key={i} style={{ marginBottom: 6 }}>{text}</div>;
+          })}
+          <div style={{ fontSize: 12, opacity: 0.4, marginTop: 10, fontStyle: 'italic' }}>
+            你还是你吗？
+          </div>
+        </div>
+      )}
       <button className="btn btn-primary" onClick={() => dispatch({ type: 'NEW_GAME' })}>
         {state.loopCount > 0 ? '这次不一样' : '再次踏入深渊'}
       </button>

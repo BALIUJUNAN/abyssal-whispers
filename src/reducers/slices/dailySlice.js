@@ -12,7 +12,7 @@ import {
   getSealStateId,
   getWeather,
 } from '../../engine/WorldTimeSystem.js';
-import { getSanStage, processSanLoss } from '../sanReducer.js';
+import { getSanStage, processSanLoss, rollMadness } from '../sanReducer.js';
 import { getSafehouseStage, processSafehouseNight } from '../miscReducer.js';
 import { genObjectives } from '../objectiveReducer.js';
 import { getChapterForDay, getMotifFlavorText, checkChapterTransition } from '../chapterReducer.js';
@@ -22,6 +22,7 @@ import { checkNPCCorruption, applyNPCCorruption } from '../npcReducer.js';
 import { resetDailyCategoryCounts } from '../extendedEvents.js';
 import { maybeGetFakeMessage, maybeInsertFalseMemory } from '../../engine/PollutionManager.js';
 import { addRunMemory, getNpcTrust, setNpcTrust } from '../../utils/appHelpers.js';
+import { maybeInjectPhantomLog } from '../../systems/textVariants.js';
 
 // TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
 // It remains a global for now; will be extracted to a utility in a future PR.
@@ -185,6 +186,27 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
   if (stage.apMod !== 0) {
     s.ap = clamp(s.ap + stage.apMod, 0, s.maxAp);
     c.narr('system', '【' + stage.name + '】' + stage.desc + ' AP修正：' + stage.apMod);
+  }
+  // Clear expired madness FIRST (madness from previous turns expires on rest)
+  if (s.madnessActive) {
+    c.narr('system', '疯狂的浪潮渐渐退去。你暂时恢复了理智。');
+    s.madnessActive = null;
+    s._madnessSkillPenalty = null;
+    s._madnessApMultiplier = null;
+    s._madnessGlobalCheckPenalty = null;
+  }
+  // THEN check for passive madness (low SAN triggers madness even without event)
+  // SAN <= 15: 30% chance; SAN <= 10: 50% chance
+  if (s.san <= 15) {
+    var passiveMadnessChance = s.san <= 10 ? 0.5 : 0.3;
+    if (Math.random() < passiveMadnessChance) {
+      var passiveMad = rollMadness(ctx);
+      s.madnessActive = passiveMad;
+      c.effects.push({ type: 'INCREMENT_STAT', key: 'madness_count' });
+      c.narr('madness', '【被动疯狂检定】你的心智在低语中碎裂。\n【' + passiveMad.name + '】' + passiveMad.description, { madness: passiveMad });
+      addRunMemory(s, '在低SAN状态下触发被动疯狂——' + passiveMad.name, 'madness');
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'madness' });
+    }
   }
   if (s.day === GAME_BALANCE.FOG_CLEAR_DAY)
     c.narr(
@@ -396,6 +418,8 @@ export function handleDailyAction(s, action, c, ctx) {
       _processNightEffects(s, c, ctx);
       _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea, ctx);
       _processRestBookkeeping(s, c, ctx);
+      // "Suspected bug" — phantom log entry (0.5% at low SAN/high loop)
+      maybeInjectPhantomLog(s.eventLog, s.san, s.loopCount);
       return s;
     }
     case 'WORK': {

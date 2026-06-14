@@ -135,6 +135,7 @@ export const initialState = () => {
     money: 0,
     endingCoins: 0,
     loopShopTier: 0,
+    purchasedShopItems: [],
     _dayActions: [],
     _dayStartArea: null,
     _lastAreaBeforeRest: null,

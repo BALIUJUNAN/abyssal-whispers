@@ -4,6 +4,79 @@
 
 // src/reducers/safehouseReducer.js - Safehouse degradation
 
+// === Light Source System ===
+// Reads the 4-level light configuration from game_base.json and applies effects.
+
+/**
+ * Get the light level effects for the current lightLevel.
+ * Returns an object with text_reliability, false_option_detection, hidden_clue_detection,
+ * map_corruption_resist, san_distortion_increase, monster_encounter_multiplier.
+ *
+ * @param {number} lightLevel - current light level (0-3)
+ * @param {object} ctx - { GD }
+ * @returns {object} effects with name and all modifiers
+ */
+export function getLightLevelEffects(lightLevel, ctx) {
+  var GD = ctx.GD;
+  var lightConfig = GD.systems?.resource_pressure?.light || GD.module2_areas?.light;
+  if (!lightConfig || !lightConfig.light_levels) {
+    return { name: '未知', text_reliability: 0, false_option_detection: 0.5, hidden_clue_detection: 0, monster_encounter_multiplier: 1, san_distortion_increase: 0, map_corruption_resist: 0 };
+  }
+  var levelKey = String(Math.max(0, Math.min(3, lightLevel)));
+  var levelData = lightConfig.light_levels[levelKey];
+  if (!levelData || !levelData.effects) {
+    return { name: '未知', text_reliability: 0, false_option_detection: 0.5, hidden_clue_detection: 0, monster_encounter_multiplier: 1, san_distortion_increase: 0, map_corruption_resist: 0 };
+  }
+  return { name: levelData.name, ...levelData.effects };
+}
+
+/**
+ * Apply light source text corruption to event text.
+ * Low light levels cause text to become unreliable (characters replaced, words shifted).
+ *
+ * @param {string} text - event description
+ * @param {number} lightLevel - current light level (0-3)
+ * @param {object} ctx - { GD }
+ * @returns {string} corrupted text
+ */
+export function applyLightTextCorruption(text, lightLevel, ctx) {
+  if (!text || lightLevel >= 2) return text; // Stable+ light = no corruption
+  var effects = getLightLevelEffects(lightLevel, ctx);
+  var reliability = effects.text_reliability || 0;
+  if (reliability >= 0) return text; // No corruption needed
+
+  // Corruption chance based on negative reliability
+  var corruptChance = Math.abs(reliability);
+  if (Math.random() >= corruptChance) return text;
+
+  var chars = text.split('');
+  var corrupted = 0;
+  var maxCorrupt = Math.max(1, Math.floor(chars.length * 0.02));
+  var result = chars.map(function(c) {
+    if (corrupted >= maxCorrupt) return c;
+    if (Math.random() < 0.03 && c !== ' ' && c !== '\n' && c !== '，' && c !== '。') {
+      corrupted++;
+      var replacements = ['…', '·', '?', '□', c]; // 50% keep original
+      return replacements[Math.floor(Math.random() * replacements.length)];
+    }
+    return c;
+  });
+  return result.join('');
+}
+
+/**
+ * Check if a false option should be revealed (player can detect it).
+ * Higher light = higher detection chance.
+ *
+ * @param {number} lightLevel - current light level (0-3)
+ * @param {object} ctx - { GD }
+ * @returns {boolean} true if player can detect false options
+ */
+export function canDetectFalseOption(lightLevel, ctx) {
+  var effects = getLightLevelEffects(lightLevel, ctx);
+  return Math.random() < (effects.false_option_detection || 0);
+}
+
 export function getSafehouseStage(corruption, ctx) {
   const { GD } = ctx;
   const stages = GD.systems?.safehouse?.degradation_stages || [];

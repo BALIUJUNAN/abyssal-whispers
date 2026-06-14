@@ -100,7 +100,11 @@ export function doSkillCheck(skillName, threshold, state, difficulty, ctx) {
       : 0;
   // Starvation penalty: Day2=-5, Day3+=-10
   const starvePenalty = state.starvationDays >= 3 ? -10 : state.starvationDays === 2 ? -5 : 0;
-  const playerSkill = (state.skills[skillName] || 0) + tempBonus + starvePenalty;
+  // Madness penalties: specific skill penalty + global check penalty
+  const madnessSkillPenalty = (state._madnessSkillPenalty && state._madnessSkillPenalty.skill === skillName)
+    ? state._madnessSkillPenalty.penalty : 0;
+  const madnessGlobalPenalty = state._madnessGlobalCheckPenalty || 0;
+  const playerSkill = (state.skills[skillName] || 0) + tempBonus + starvePenalty + madnessSkillPenalty + madnessGlobalPenalty;
   const roll = d100();
   const dl = GD.core_loop?.difficulty_levels?.[difficulty] || {};
   const diffBonus = dl.skill_check_bonus || 0;

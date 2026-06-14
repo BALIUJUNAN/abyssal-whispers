@@ -10,7 +10,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-1.8MB_production-green)
-![Version](https://img.shields.io/badge/version-0.2.4-orange)
+![Version](https://img.shields.io/badge/version-0.3.1-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -82,7 +82,7 @@ npm run tauri:build
 | **前传系统**   | 7 场景线性叙事 — 构建你的恐惧画像                                                                                           |
 | **SAN 系统**   | 6 阶段 × 4 维度（视觉/交互/逻辑/Meta）完整污染定义                                                                          |
 | **布局模式**   | 2 种 — 暗黑地牢风格全景地图 / 经典三栏面板                                                                                  |
-| **代码规模**   | 20,456 行 JS/JSX — 104 个源文件                                                                                             |
+| **代码规模**   | 21,300+ 行 JS/JSX — 104 个源文件                                                                                            |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -248,7 +248,13 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 | **结局余韵**              | 每条结局附带 Afterglow 文本，满足条件后解锁（事件/物品/周目数）                                     |
 | **NPC 关系网**            | NPC 间动态关系（ally/enemy/relative），跨循环保留，影响对话与事件                                   |
 | **NPC 死后遗产**          | NPC 死亡后留下物品/知识/任务，玩家可领取继承                                                        |
-| **轮回商店**              | 结局代币解锁（loop5+ Tier1 / loop7+ Tier2），提供稀有物资                                           |
+| **轮回商店**              | 结局代币解锁（loop5+ Tier1 / loop7+ Tier2），标题画面🪙入口，6件永久商品，跨轮回效果生效          |
+| **神话专名渐进渗透**      | 每NPC独立roll"滑嘴"概率，Ch2=0-5%→Ch5=70-95%，高信任更易说漏，说完立刻"改口"                     |
+| **临时疯狂系统**          | 10种疯狂效果（AP清零/SAN额外/NPC信任-1/HP-3/检定惩罚/AP翻倍/附身），被动检定SAN≤15触发            |
+| **光源系统**              | 4级光源影响怪物遭遇倍率(2×→0.7×)+事件文本可靠性腐蚀                                               |
+| **行为人格报告**          | 32项行为计数器→人格档案，自问式叙事（"你还是你吗？"），死亡/结局时自动生成                         |
+| **恐怖密度控制**          | per-chapter异常率上限(Ch1=15%/Ch5=70%)+per-area上限，接入事件权重系统                              |
+| **"疑似bug"系统**         | 幻影日志(0.5%,8s消失)/NPC名字错字(0.3%)/幻影叙述(0.3%,5s消失)，玩家永远不确定是bug还是疯狂         |
 | **Meta 事件后果**         | 存档覆盖 / NPC 信任锁定 / NPC 永久失踪 / 对话分支删除                                               |
 | **数据验证**              | 效果/条件/引用三层校验器（CJS），运行时自动校验游戏数据完整性                                       |
 | **身份注册表**            | 区域/物品/NPC 统一注册表（双格式 ESM+CJS），支持名称别名解析                                        |
@@ -563,7 +569,7 @@ COC/
 | **NPC 反馈**           | `systems/`               | 100     | 信任变化分层反馈                    | 6级信任/跨级脉冲+音效/同级轻提示                       |
 | **SAN 反馈**           | `systems/`               | 120     | SAN 损失4档表现                     | minor/moderate/severe/critical 各有独立音效+屏幕特效    |
 | **首轮保护**           | `systems/`               | 40      | 防止首轮随机暴毙                    | 前3天屏蔽致命/SAN上限5/饥饿减半/怪物率×0.3             |
-| **文本变体**           | `systems/`               | 150     | 文本重复控制                        | 4层：原文→微妙替换→可读腐蚀→跳过摘要，跨轮持久         |
+| **文本变体**           | `systems/`               | 330+    | 文本重复+神话别名+疑似bug           | 4层重复控制+专名渐进渗透+幻影日志/NPC错字/幻影叙述      |
 | **前传系统**           | `reducers/`              | 195     | 7场景恐惧画像                       | 6维度心理profile/跳过保护                              |
 | **结局引擎**           | `reducers/`              | 343     | AND/OR条件解析                      | 36行为结局+10主线+隐藏+Meta打破                        |
 | **NPC系统**            | `reducers/` + `systems/` | 286+128 | 8人×5级信任×4层记忆×关系网×死后遗产 | 信任门控/腐蚀/救赎路线/NPC间关系/遗产继承              |
@@ -843,6 +849,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **0.3.0** | 2026-06-12 | **Vite 主线切换** — ①`npm run dev` / `npm run build` 切换为 Vite；②修复 14 个组件缺失 export + React hooks 未解构；③修复 SaveManager 相对路径、ugcSchema/gameConstants/transientKeys 缺少 export；④所有 6 个 slice handler 添加显式 import（~60 条）；⑤shim 从 60 模块缩减至 54；⑥`npm run verify` 同时覆盖测试 + Vite 构建 + Legacy 构建；⑦新增 `docs/vite-smoke-checklist.md`；⑧Legacy 构建通过 `build:single` / `dev:legacy` 保留          |
+| **0.3.1** | 2026-06-14 | **克苏鲁混乱感落地 + 10大系统对接** — ①神话专名渐进渗透系统：每NPC每句话独立roll"滑嘴"概率（Ch2=0-5%, Ch3=5-30%, Ch4=20-60%, 永不到100%），高信任NPC更易说漏；②临时疯狂10种效果全部接入（恐慌逃跑AP清零/歇斯底里SAN额外/偏执妄想NPC信任-1/暴力发作HP-3/幻觉SAN/失忆侦查-10/僵直闪避-50/强迫AP翻倍/幻痛全检定-15/短暂附身神话+SAN-）；③被动疯狂检定：SAN≤15时30%概率/SAN≤10时50%概率，休息时触发；④光源系统4等级接入：无光→弱光→稳定→仪式级，影响怪物遭遇倍率(2×/1.3×/1×/0.7×)+事件文本可靠性腐蚀；⑤行为人格报告：32项行为计数器→人格档案（深渊使徒/矛盾体/观测者等），死亡/结局时自动生成，自问式叙事（非标签）；⑥轮回商店UI：标题画面🪙入口，Tier1/Tier2共6件商品，代币购买+跨轮回持久化+效果接入（技能点/NPC信任/神话抗性/SAN上限）；⑦恐怖密度控制：per-chapter异常率上限（Ch1=15%/Ch5=70%）+per-area上限接入事件权重；⑧事件去重：`seenEventTexts`权重衰减（2次→0.5×, 3+次→0.2×）；⑨"疑似bug"设计系统：幻影日志(0.5%)→8秒消失/NPC名字错字(0.3%)/幻影叙述(0.3%)→5秒消失；⑩SAN文本污染概率渐进：所有硬阈值改为SAN每降1点概率微增（不再100%开关）；⑪序列规则概率梯度：连续2异常→30%插正常/3→60%/4→90%/永远不到100%；⑫修复6个bug：Immer冻结状态setTimeout修改/疯狂被同REST周期清除/恐怖密度计数逻辑反转/商店效果死状态/暴力发疯狂no-op/无用import |
 | **0.2.4** | 2026-06-12 | **玩家体验系统 + SAN 工程治理** — ①新增 8 个系统模块（deathSummary/reincarnationDiff/firstRunGuide/npcFeedback/sanFeedback/firstLoopBalance/textVariants/gameSettings）；②`applySanLoss` 中央 SAN 扣减函数，28 个 reducer 文件全部接入，`lint:san` 静态检查强制执行；③死亡总结页 4 段叙事结构（DeathSummaryView 组件直接渲染）；④轮回差异提示自动计算并存入 state；⑤NPC 反馈分层（跨级脉冲+音效，同级轻提示）；⑥SAN 反馈 4 档分级（minor/moderate/severe/critical）；⑦首轮保护（前3天屏蔽致命事件，SAN 上限 5）；⑧文本重复控制 4 层变体（跨轮持久化）；⑨设置系统完善（字号/行高/字族/减少动画/高对比度/5路音量/引导开关）；⑩新增 2 个测试套件（ending_reachability + player_experience），总用例 272 / 9 套件；⑪修复 smoke_flows 从 0 用例到 53 用例；⑫修复 NPC 过滤器字段名（area→location, chapter_1_role→chapter_1_availability）；⑬污染日志区分轮基值与本轮增量 |
 | **0.2.3** | 2026-06-06 | **Bug 修复 + 体验增强** — ①修复开局 ROLL_STATS 可能产出 0 HP/SAN 的 bug；②修复成就弹窗 ReferenceError；③修复 `checkSingleCondition` 的 `default: return true` 导致任何解析失败的结局条件都会触发；④修复 Babel 编译器 JSON 字符串空格导致 NPC schedule 解析失败；⑤修复 `CONTINUE_GAME` 存档读取后 UI 不更新；⑥修复死亡动画遮挡"再次踏入轮回"按钮；⑦激活码头区 layout_variants 系统；⑧码头区氛围 CSS；⑨NPC 面板增强（肖像+对话）；⑩读档系统修复 |
 | **0.2.2** | 2026-06-04 | **运行时稳定性 + 构建安全 + 工程规范化** — ①修复 slice handler `ctx` 未传递导致 P0 崩溃；②修复 var 提升导致饥饿系统失效；③修复 build.py 注释删除 token 粘连导致白屏；④修复 Immer wrapper 被误删；⑤新增 GAME_BALANCE 常量集中化；⑥EXPLORE case 分解（-61%）；⑦triggeredEvents SSOT 守卫；⑧Accessibility toggle 同步；⑨数据驱动 infection_risk                                                                                                  |

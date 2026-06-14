@@ -45,7 +45,8 @@ import { applyFearLens, getFearEventWeightModifier } from '../../systems/fearLen
 import { applyTextHallucination } from '../../engine/PollutionManager.js';
 import { addRunMemory, setNpcTrust } from '../../utils/appHelpers.js';
 import { adjustSanLossForFirstLoop, shouldBlockLethalEvent } from '../../systems/firstLoopBalance.js';
-import { getTrackedText, createSeenTextMap } from '../../systems/textVariants.js';
+import { getTrackedText, createSeenTextMap, applyMythosAliases, maybeInjectPhantomNarrative } from '../../systems/textVariants.js';
+import { getLightLevelEffects, applyLightTextCorruption } from '../miscReducer.js';
 
 // TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
 // It remains a global for now; will be extracted to a utility in a future PR.
@@ -304,6 +305,75 @@ export function _postExploreProcessing(evt, s, c, GD) {
   if (!s.tutorialSeen.first_explore) s.tutorialSeen = { ...s.tutorialSeen, first_explore: true };
 }
 
+/**
+ * Apply mechanical effects from temporary_madness_table.
+ * Maps madness name to in-game consequences.
+ */
+function _applyMadnessEffects(mad, s, c, ctx) {
+  var name = mad.name || '';
+  // Panic flee: lose all remaining AP
+  if (name === '恐慌逃跑') {
+    s.ap = 0;
+    c.narr('system', '你无法控制自己的双腿。剩余行动力耗尽。', { isEffect: true });
+  }
+  // Hysteria: extra SAN loss
+  else if (name === '歇斯底里') {
+    var extraSan = rand(1, 3);
+    applySanLoss(s, extraSan);
+    c.narr('system', '你无法停止大笑/大哭。SAN -' + extraSan, { isEffect: true });
+  }
+  // Paranoia: NPC trust -1 for all known NPCs
+  else if (name === '偏执妄想') {
+    var npcs = Object.keys(s.npcTrust || {});
+    for (var i = 0; i < npcs.length; i++) {
+      if ((s.npcTrust[npcs[i]] || 0) > 0) {
+        s.npcTrust[npcs[i]] = Math.max(0, s.npcTrust[npcs[i]] - 1);
+      }
+    }
+    if (npcs.length > 0) c.narr('system', '你开始怀疑每一个人。所有NPC信任 -1。', { isEffect: true });
+  }
+  // Violence: HP loss to self
+  else if (name === '暴力发作') {
+    s.hp = Math.max(0, s.hp - 3);
+    c.narr('system', '你失控了。HP -3。', { isEffect: true });
+  }
+  // Hallucination: extra SAN loss
+  else if (name === '幻觉侵袭') {
+    var hallSan = rand(1, 4);
+    applySanLoss(s, hallSan);
+    c.narr('system', '幻觉吞没了你。SAN -' + hallSan, { isEffect: true });
+  }
+  // Amnesia: lose recent clues (narrative only, don't actually remove)
+  else if (name === '失忆症') {
+    c.narr('system', '你想不起来了……最近获得的线索变得模糊。（侦查检定 -10）', { isEffect: true });
+    s._madnessSkillPenalty = { skill: '侦查', penalty: -10 };
+  }
+  // Catatonia: narrative only (AP already consumed by the event)
+  else if (name === '僵直症') {
+    c.narr('system', '你蜷缩在地上，无法动弹。闪避 -50。', { isEffect: true });
+    s._madnessSkillPenalty = { skill: '闪避', penalty: -50 };
+  }
+  // Compulsion: AP cost doubled (flag for next actions)
+  else if (name === '强迫行为') {
+    c.narr('system', '你开始反复数数。接下来的行动消耗翻倍。', { isEffect: true });
+    s._madnessApMultiplier = 2;
+  }
+  // Phantom pain: all checks -15
+  else if (name === '幻痛') {
+    c.narr('system', '剧烈的疼痛袭来——但你身上没有伤口。所有检定 -15。', { isEffect: true });
+    s._madnessGlobalCheckPenalty = -15;
+  }
+  // Brief possession: mythos gain + extra SAN loss
+  else if (name === '短暂附身') {
+    var mythosGain = rand(1, 3);
+    var possSan = rand(1, 6);
+    s.mythosLevel = (s.mythosLevel || 0) + mythosGain;
+    applySanLoss(s, possSan);
+    c.narr('system', '你的嘴说出了不属于你的话。克苏鲁神话 +' + mythosGain + '，SAN -' + possSan, { isEffect: true });
+    c.bt.possession_accepted_count = (c.bt.possession_accepted_count || 0) + 1;
+  }
+}
+
 export function handleExploreAction(s, action, c, ctx) {
   switch (action.type) {
     case 'MOVE': {
@@ -347,6 +417,8 @@ export function handleExploreAction(s, action, c, ctx) {
       const lightCorrPenalty =
         (s.lightLevel || 0) < (targetArea?.resource_pressure?.required_light_level || 0) ? 2 : 1;
       let desc = getSanTextVariant(targetArea.description, s.san, pick, ctx);
+      // Mythos name alias for area descriptions
+      desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
       // Layout variants: weighted random selection based on game state
       if (targetArea.layout_variants && targetArea.layout_variants.length > 0) {
         const phase = getPhase(s.ap, s.maxAp);
@@ -436,11 +508,12 @@ export function handleExploreAction(s, action, c, ctx) {
       return s;
     }
     case 'EXPLORE': {
-      if (s.ap < 2) {
-        c.narr('system', '行动点不足（需要2AP）。');
+      const _apCost = 2 * (s._madnessApMultiplier || 1);
+      if (s.ap < _apCost) {
+        c.narr('system', '行动点不足（需要' + _apCost + 'AP）。');
         return s;
       }
-      s.ap -= 2;
+      s.ap -= _apCost;
       // Phase 1: Chapter milestone (highest priority, inline — needs c.narr)
       {
         const _milestone = checkChapterMilestone(s.day, s);
@@ -510,11 +583,15 @@ export function handleExploreAction(s, action, c, ctx) {
       evtText = getPollutionText(getSanTextVariant(evtText, s.san, pick, ctx), s.pollution || 0);
       if (s.fearTuning && s.fearTuning.primary) evtText = applyFearLens(evt, evtText, s);
       evtText = applyTextHallucination(evtText, s.san);
+      // Light source text corruption: low light causes unreliable text
+      evtText = applyLightTextCorruption(evtText, s.lightLevel || 0, ctx);
       evtText = applyResourceTextCorruption(evtText, s);
       // Text variant tracking: cross-loop persistent (renamed from _seenTexts)
       if (!s.seenEventTexts) s.seenEventTexts = {};
       const _tvResult = getTrackedText(evt.id, evtText, s.pollution || 0, s.loopCount || 0, s.seenEventTexts);
       if (_tvResult.action !== 'skip') evtText = _tvResult.text;
+      // Mythos name alias: replace true names with chapter-appropriate aliases
+      evtText = applyMythosAliases(evtText, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
       c.narr('event', evtText, {
         eventTitle: evt.name,
         eventType: evt.type || evt.event_classification,
@@ -565,6 +642,14 @@ export function handleExploreAction(s, action, c, ctx) {
           ctx
         );
         sanDmg = adjustSanLossForFirstLoop(sanDmg, s);
+        // Loop shop mythos resistance: reduce mythos-type SAN damage
+        if (s._shopMythosResistance > 0) {
+          const isMythosEvent = (evt.type === 'mythos' || evt.event_classification === '神秘事件'
+            || (evt.tags && evt.tags.includes('mythos')));
+          if (isMythosEvent) {
+            sanDmg = Math.max(1, Math.round(sanDmg * (1 - s._shopMythosResistance)));
+          }
+        }
         if (sanDmg > 0) {
           if (evt.skill_check) {
             c.effects.push({ type: 'AUDIO_SKILL', id: 'roll' });
@@ -631,6 +716,8 @@ export function handleExploreAction(s, action, c, ctx) {
           { type: 'AUDIO_PLAY', id: 'madness' },
           { type: 'AUDIO_PLAY', id: 'madness_loop' }
         );
+        // Apply mechanical effects from temporary_madness_table
+        _applyMadnessEffects(mad, s, c, ctx);
       }
       {
         const deathCtx = resolveDeath(s, evt, null);
@@ -638,6 +725,8 @@ export function handleExploreAction(s, action, c, ctx) {
       }
       // Phase 4: Post-event processing (extracted)
       _postExploreProcessing(evt, s, c, GD);
+      // "Suspected bug" — phantom narrative line (0.3% at low SAN)
+      maybeInjectPhantomNarrative(s.narrative, s.san);
       return s;
     }
     case 'DO_SKILL_CHECK': {

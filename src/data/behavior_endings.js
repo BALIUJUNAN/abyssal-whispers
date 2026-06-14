@@ -759,6 +759,92 @@ export const BEHAVIOR_ENDINGS = [
 ];
 
 // ==========================================
+// Behavior Personality Report Generator
+// ==========================================
+
+/**
+ * Generate a personality report from behavior tracking counters.
+ * Called at loop end / ending screen to show the player what kind of person they became.
+ *
+ * @param {object} bt - behaviorTracking from state
+ * @param {number} humanityScore - 0-100
+ * @returns {{ archetype, traits, summary, humanityLabel }}
+ */
+export function generatePersonalityReport(bt, humanityScore) {
+  if (!bt) return { archetype: '沉默者', traits: [], summary: '你几乎没有留下任何痕迹。', humanityLabel: '未知' };
+
+  const traits = [];
+
+  // Violence
+  if ((bt.direct_kill_count || 0) >= 5) traits.push({ id: 'mass_killer', label: '屠杀者', desc: '亲手终结了' + bt.direct_kill_count + '条生命', severity: 'dark' });
+  else if ((bt.direct_kill_count || 0) >= 2) traits.push({ id: 'killer', label: '杀戮者', desc: '手上有' + bt.direct_kill_count + '条人命', severity: 'dark' });
+
+  // Cannibalism
+  if ((bt.cannibalism_count || 0) >= 1) traits.push({ id: 'cannibal', label: '食人者', desc: '你吃过了不该吃的东西', severity: 'dark' });
+
+  // Manipulation
+  if ((bt.npc_deaths_by_manipulation || 0) >= 2) traits.push({ id: 'puppeteer', label: '幕后操纵者', desc: bt.npc_deaths_by_manipulation + '人因你的言语而死', severity: 'dark' });
+  if ((bt.betrayed_high_trust_npcs || 0) >= 3) traits.push({ id: 'betrayer', label: '背叛者', desc: '你出卖了信任你的人', severity: 'dark' });
+
+  // Cult / Power
+  if ((bt.cult_leader_score || 0) >= 3) traits.push({ id: 'cult_leader', label: '邪教领袖', desc: '你建立了一个追随者团体', severity: 'dark' });
+  if ((bt.sacred_desecration_count || 0) >= 2) traits.push({ id: 'desecrator', label: '亵渎者', desc: '你破坏了神圣之物', severity: 'dark' });
+
+  // Occult
+  if ((bt.self_harm_ritual_count || 0) >= 3) traits.push({ id: 'ritualist', label: '仪式主义者', desc: '你的身体成为了仪式的画布', severity: 'dark' });
+  if ((bt.fusion_accepted_count || 0) >= 2) traits.push({ id: 'fused', label: '融合者', desc: '你接受了与异质存在的融合', severity: 'dark' });
+  if ((bt.possession_accepted_count || 0) >= 1) traits.push({ id: 'vessel', label: '容器', desc: '你让出了自己的身体', severity: 'dark' });
+
+  // Sea obsession
+  if ((bt.harbor_visits || 0) >= 10 && (bt.sea_acceptance_flags || 0) >= 2) traits.push({ id: 'sea_bound', label: '归海者', desc: '海一直在叫你的名字', severity: 'obsession' });
+
+  // Passive
+  if ((bt.sleep_streak || 0) >= 7) traits.push({ id: 'sleeper', label: '沉睡者', desc: '你用睡眠逃避了' + bt.sleep_streak + '天', severity: 'passive' });
+  if ((bt.work_only_days || 0) >= 7) traits.push({ id: 'workaholic', label: '机械劳作者', desc: '你用工作填满了所有时间', severity: 'passive' });
+  if ((bt.safehouse_stay_days || 0) >= 7) traits.push({ id: 'hermit', label: '隐居者', desc: '你把自己关在安全屋里', severity: 'passive' });
+  if ((bt.move_only_days || 0) >= 7) traits.push({ id: 'wanderer', label: '漫游者', desc: '你只走路，不停留', severity: 'passive' });
+
+  // Meta
+  if ((bt.meta_boundary_breaks || 0) >= 3) traits.push({ id: 'meta_breaker', label: '边界突破者', desc: '你看到了叙事的边界', severity: 'meta' });
+  if ((bt.save_delete_attempts || 0) >= 3) traits.push({ id: 'deleter', label: '删档者', desc: '你试图删除自己的存在', severity: 'meta' });
+
+  // Positive
+  if ((bt.redeemed_npcs || 0) >= 1) traits.push({ id: 'redeemer', label: '救赎者', desc: '你帮助了迷失的灵魂', severity: 'light' });
+
+  // Hoarding
+  if ((bt.hoarded_money_max || 0) >= 50 && (bt.hoarded_food_max || 0) >= 5) traits.push({ id: 'hoarder', label: '囤积者', desc: '你拥有一切，但使用了 nothing', severity: 'obsession' });
+
+  // Determine dominant archetype
+  let archetype = '沉默者';
+  if (traits.length === 0) {
+    archetype = '沉默者';
+  } else {
+    const darkCount = traits.filter(t => t.severity === 'dark').length;
+    const lightCount = traits.filter(t => t.severity === 'light').length;
+    const passiveCount = traits.filter(t => t.severity === 'passive').length;
+    const metaCount = traits.filter(t => t.severity === 'meta').length;
+
+    if (darkCount >= 3) archetype = '深渊行者';
+    else if (darkCount >= 1 && lightCount >= 1) archetype = '矛盾体';
+    else if (metaCount >= 1) archetype = '观测者';
+    else if (passiveCount >= 1) archetype = '逃避者';
+    else if (lightCount >= 1) archetype = '守望者';
+    else if (darkCount >= 1) archetype = '堕落者';
+    else archetype = '普通人';
+  }
+
+  // Humanity label
+  const humanityLabel = humanityScore >= 60 ? '人性尚存' : humanityScore >= 30 ? '人性脆弱' : '人性迷失';
+
+  // Summary
+  const summary = traits.length === 0
+    ? '你在沃切斯特走过了一遭，几乎没有留下痕迹。也许这就是最好的结局。'
+    : '你成为了「' + archetype + '」。' + traits.slice(0, 3).map(t => t.label).join('、') + '——这些标签将永远跟着你。';
+
+  return { archetype, traits, summary, humanityLabel };
+}
+
+// ==========================================
 // Injection function
 // ==========================================
 

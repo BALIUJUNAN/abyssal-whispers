@@ -347,10 +347,25 @@ export function getEventWeight(evt, areaId, state, ctx) {
     weight *= evt.trigger.probability;
   }
 
-  // Light level penalty
+  // Light level penalty (basic)
   const lightDiff = (area?.resource_pressure?.required_light_level || 0) - (state.lightLevel || 0);
   const lightPenalty = lightDiff > 0 ? Math.max(0.2, 1 - lightDiff * 0.3) : 1;
   weight *= lightPenalty;
+
+  // Phase 7: Light source system — monster encounter multiplier from light levels
+  // Low light boosts horror event weight, high light reduces it
+  {
+    var lightCfg = GD.systems?.resource_pressure?.light || {};
+    var llKey = String(Math.max(0, Math.min(3, state.lightLevel || 0)));
+    var llData = lightCfg.light_levels?.[llKey];
+    if (llData && llData.effects) {
+      var monsterMult = llData.effects.monster_encounter_multiplier;
+      if (monsterMult && monsterMult !== 1) {
+        var isHorrorEvt = ['loop_locked', 'mythos', 'meta', '超自然遭遇', '怪物遭遇', '神秘事件'].indexOf(cat) >= 0;
+        if (isHorrorEvt) weight *= monsterMult;
+      }
+    }
+  }
 
   // Loop scaling
   if (evt.trigger?.min_loop && loop >= evt.trigger.min_loop) {
@@ -388,6 +403,14 @@ export function getEventWeight(evt, areaId, state, ctx) {
   // Untriggered bonus
   if (!(state.triggeredEvents || []).includes(evt.id)) weight *= 1.5;
 
+  // Phase 7: Event dedup via seenEventTexts — reduce weight for frequently-seen events
+  if (state.seenEventTexts && state.seenEventTexts[evt.id] > 0) {
+    const seen = state.seenEventTexts[evt.id];
+    if (seen >= 3) weight *= 0.2;      // Very heavily penalize 4th+ view
+    else if (seen >= 2) weight *= 0.5;  // Moderately penalize 3rd view
+    else weight *= 0.8;                 // Slightly penalize 2nd view
+  }
+
   // Phase 4: Cooldown decay — recently triggered events have reduced weight
   // getCooldownDecayFactor is defined in eventSystemV2.js (bundled before this file)
   if (typeof getCooldownDecayFactor === 'function') {
@@ -418,6 +441,47 @@ export function getEventWeight(evt, areaId, state, ctx) {
   // Phase 6: Resource-bound weight modifier (light/infection/fatigue/food)
   if (typeof getResourceEventWeightModifier === 'function') {
     weight *= getResourceEventWeightModifier(evt, state);
+  }
+
+  // Phase 7: Horror density control — per-chapter & per-area abnormal event caps
+  // Reduces weight of abnormal events when approaching density limits
+  {
+    const abnormalTypes7 = ['loop_locked', 'mythos', 'resource_pressure', 'meta', '超自然遭遇', '怪物遭遇', '神秘事件'];
+    const evtType = evt.type || 'unknown';
+    const isAbnormal7 = abnormalTypes7.includes(evtType);
+    if (isAbnormal7) {
+      // Per-chapter cap
+      const currentChapter = state.currentChapter || 'chapter_1';
+      const hdc = GD.systems?.horror_density_control || GD.implementation_notes?.horror_density_control;
+      if (hdc) {
+        const chapterRule = hdc.per_chapter?.[currentChapter];
+        if (chapterRule && chapterRule.abnormal_ratio_max < 1) {
+          // Count how many abnormal events have been triggered today vs total
+          const todayTypes = state._todayEventTypes || [];
+          const totalToday = todayTypes.length;
+          const abnormalToday = todayTypes.filter(t => abnormalTypes7.includes(t.type)).length;
+          const currentRatio = totalToday > 0 ? abnormalToday / totalToday : 0;
+          if (currentRatio > chapterRule.abnormal_ratio_max) {
+            weight *= 0.3; // Heavily penalize if over cap
+          } else if (currentRatio > chapterRule.abnormal_ratio_max * 0.8) {
+            weight *= 0.6; // Light penalty when approaching cap
+          }
+        }
+
+        // Per-area cap
+        const areaRule = hdc.per_area?.[areaId];
+        if (areaRule && areaRule.abnormal_ratio_max < 1) {
+          const areaToday = todayTypes.length;
+          if (areaToday >= 3) { // Only apply after enough events to have a ratio
+            const areaAbnormal = todayTypes.filter(t => abnormalTypes7.includes(t.type)).length;
+            const areaRatio = areaAbnormal / areaToday;
+            if (areaRatio > areaRule.abnormal_ratio_max) {
+              weight *= 0.3;
+            }
+          }
+        }
+      }
+    }
   }
 
   return Math.max(0, weight);
@@ -577,16 +641,27 @@ export function selectEventV2(areaId, state, ctx, pick) {
     return missing;
   }
 
-  // Step 2: Force anchor if abnormal streak >= 3
-  if (state.abnormalStreak >= 3) {
-    const anchorEvents = allEvents.filter((e) => {
-      const isAnchor = ANCHOR_TYPES.has(e.type) || e.normalcy_anchor;
-      return isAnchor && checkTriggerExtended(e, state, ctx);
-    });
-    if (anchorEvents.length > 0) {
-      const selected = pick(anchorEvents);
-      commitSelectedEvent(selected, state);
-      return selected;
+  // Step 2: Probability gradient for anchor insertion (was: hard force at streak >= 3)
+  // Streak 2: 30% chance to insert normal event
+  // Streak 3: 60% chance
+  // Streak 4: 90% chance
+  // Never 100% — player should sometimes get 4+ abnormal events in a row
+  // and wonder "is the game broken or is this intentional?"
+  {
+    const streak = state.abnormalStreak || 0;
+    if (streak >= 2) {
+      const anchorChance = Math.min(0.90, 0.30 + (streak - 2) * 0.30);
+      if (Math.random() < anchorChance) {
+        const anchorEvents = allEvents.filter((e) => {
+          const isAnchor = ANCHOR_TYPES.has(e.type) || e.normalcy_anchor;
+          return isAnchor && checkTriggerExtended(e, state, ctx);
+        });
+        if (anchorEvents.length > 0) {
+          const selected = pick(anchorEvents);
+          commitSelectedEvent(selected, state);
+          return selected;
+        }
+      }
     }
   }
 

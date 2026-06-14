@@ -359,6 +359,20 @@ export function getFearProfileMultiplier(evt, state) {
 export function getSanWeightMultiplier(evt, state) {
   var san = state.san || 60;
   var isBuffer = evt.normalcy_anchor || false;
+
+  // Use stage-based event_weight if available (SSOT from game_base.json san_stages)
+  // getSanStage is defined in sanReducer.js; use typeof guard for bundle ordering
+  if (typeof getSanStage === 'function') {
+    try {
+      var stage = getSanStage(san, { GD: typeof GD !== 'undefined' ? GD : {} });
+      if (stage && stage.event_weight) {
+        var ew = stage.event_weight;
+        return isBuffer ? (ew.buffer_boost || 1.0) : (ew.horror_penalty || 1.0);
+      }
+    } catch (e) { /* fallback to hardcoded */ }
+  }
+
+  // Fallback: hardcoded stage multipliers
   if (isBuffer) {
     if (san <= 9) return 0.4; // narrative_death
     if (san <= 24) return 0.6; // reality_dissolution

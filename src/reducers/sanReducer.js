@@ -44,24 +44,41 @@ export function getSanStage(san, ctx) {
 export function getSanTextVariant(baseText, san, pickFn, ctx) {
   const stage = getSanStage(san, ctx || { GD: {} });
   if (!stage.textMod) return baseText;
-  // Use stage.level instead of hardcoded name checks
-  if (stage.level >= 5) {
-    // narrative_death
+  // PHILOSOPHY: Probability gradients, not hard switches.
+  // Each call rolls independently. The player never knows if the corruption
+  // will appear this time or not. SAN drops 1 point → slightly higher chance,
+  // not "now it always happens".
+  const level = stage.level;
+  if (level >= 5) {
+    // narrative_death: gradual corruption, not uniform
+    // Each character individually rolls — some lines are clean, some aren't
+    const charChance = Math.max(0.01, Math.min(0.05, (10 - san) * 0.005));
     const words = baseText.split('');
     const corrupted = words
       .map((c, i) =>
-        Math.random() < 0.03 ? (pickFn || pick)(['▓', '█', '■', '?', '...', '　']) : c
+        Math.random() < charChance ? (pickFn || pick)(['…', '·', '?', '□', c, c]) : c
       )
       .join('');
-    return corrupted + '\n\n—— ' + stage.textMod;
+    // Only append the stage text sometimes — not every time
+    return corrupted + (Math.random() < 0.6 ? '\n\n—— ' + stage.textMod : '');
   }
-  if (stage.level >= 4) {
-    // reality_dissolution
-    return baseText + (Math.random() < 0.4 ? '\n\n' + stage.textMod : '');
+  if (level >= 4) {
+    // reality_dissolution: probability = (25 - san) / 25, so san=24 → 4%, san=10 → 60%
+    const chance = Math.max(0.04, (25 - san) / 25 * 0.6);
+    return baseText + (Math.random() < chance ? '\n\n' + stage.textMod : '');
   }
-  if (stage.level >= 3) {
-    // explanation_loss
-    return baseText + (Math.random() < 0.2 ? '\n\n—— 你眨了眨眼。' + stage.textMod : '');
+  if (level >= 3) {
+    // explanation_loss: probability = (40 - san) / 40, so san=39 → 2.5%, san=25 → 37%
+    const chance = Math.max(0.02, (40 - san) / 40 * 0.3);
+    return baseText + (Math.random() < chance ? '\n\n—— 你眨了眨眼。' + stage.textMod : '');
+  }
+  // perception_shift (level 2): very rare whisper — 2-8% chance
+  if (level >= 2) {
+    const chance = Math.max(0.02, (55 - san) / 55 * 0.08);
+    if (Math.random() < chance) {
+      const whispers = ['……你确定吗？', '（远处有什么在动。）', '（你没有看错。）', '（不，你可能看错了。）'];
+      return baseText + '\n\n' + whispers[Math.floor(Math.random() * whispers.length)];
+    }
   }
   return baseText;
 }

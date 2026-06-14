@@ -530,6 +530,12 @@ function App() {
           }}
           onSettingsOpen={() => uiStore.setState({ settingsOpen: true })}
           onAchOpen={() => uiStore.setState({ achOpen: true })}
+          endingCoins={state.endingCoins || 0}
+          loopShopTier={state.loopShopTier || 0}
+          loopCount={state.loopCount || 0}
+          onShopPurchase={(item) => {
+            dispatch({ type: 'LOOP_SHOP_PURCHASE', itemId: item.id, cost: item.cost });
+          }}
         />
         <SettingsModal
           open={ui.settingsOpen}
@@ -577,7 +583,12 @@ function App() {
   const visualDistortion = state.accessibilityOptions?.visual_distortion;
   const allowVisualFX = visualDistortion !== false;
   // SSOT: stage class for CSS-driven effects (matches san_stages levels)
+  // Use getSanStage() for visual_tier-driven CSS class (design-intent SSOT)
+  const _sanStage = getSanStage(state.san, ctx);
   const sanFeedback = getSanStageFeedback(state.san, ctx);
+  const _vtClass = allowVisualFX && _sanStage.visual_tier && _sanStage.visual_tier !== 'clean'
+    ? ' visual-' + _sanStage.visual_tier
+    : '';
   const sanStageClass = allowVisualFX
     ? state.san <= 9
       ? ' san-stage-5'
@@ -619,6 +630,7 @@ function App() {
           (corrLevel > 0 ? 'corruption-' + corrLevel + ' ' : '') +
           sanClass +
           sanStageClass +
+          _vtClass +
           ' ' +
           fontSizeClass
         }

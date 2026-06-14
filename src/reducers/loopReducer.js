@@ -167,6 +167,24 @@ export function initLoopState(f, s, ctx, options = {}) {
   f.loopShopTier = s.loopShopTier || 0;
   if (f.loopCount >= 5 && f.loopShopTier < 1) f.loopShopTier = 1;
   if (f.loopCount >= 7 && f.loopShopTier < 2) f.loopShopTier = 2;
+  // Purchased shop items persist across loops (permanent upgrades)
+  f.purchasedShopItems = [...(s.purchasedShopItems || [])];
+  // Apply purchased shop effects to new loop state
+  if (f.purchasedShopItems.includes('shop_skill_points')) {
+    f._shopBonusSkillPoints = 3;
+  }
+  if (f.purchasedShopItems.includes('shop_san_cap_boost')) {
+    f.maxSan = Math.min(70, (f.maxSan || 60) + 5);
+  }
+  if (f.purchasedShopItems.includes('shop_death_insurance')) {
+    f._shopDeathInsurance = true;
+  }
+  if (f.purchasedShopItems.includes('shop_resistance')) {
+    f._shopMythosResistance = 0.1;
+  }
+  if (f.purchasedShopItems.includes('shop_npc_trust')) {
+    f._shopNpcTrustBonus = 2;
+  }
 
   // ── 7) 行为结局计数器全量搬入（behaviorTracking 嵌套结构） ──
   const sBT = s.behaviorTracking || {};
