@@ -43,6 +43,8 @@ import * as _npcDialogue from './systems/npcDialogue.js';
 import * as _fearProfile from './systems/fearProfile.js';
 import * as _fearLens from './systems/fearLens.js';
 import * as _sanVisualCorruption from './systems/sanVisualCorruption.js';
+import * as _sanityVisual from './systems/sanityVisual.js';
+import * as _earlyHooks from './systems/earlyHooks.js';
 
 // ── Reducers ──
 import * as _extendedEvents from './reducers/extendedEvents.js';
@@ -106,6 +108,7 @@ const MODULES = [
   _gameStore,
   _worldTime,
   _sanReducer,
+  _sanityVisual,
   _eventEngine,
   _pollutionMgr,
   _saveManager,

@@ -31,6 +31,19 @@ export function FloatingInfoBar({ state, dispatch }) {
             ? '崩塌'
             : '破裂';
 
+  // Chapter 1 bell countdown HUD: shows mystery hint on Days 1-3
+  var bellHint = null;
+  if (state.day <= 3 && state.loopCount <= 0) {
+    var bellsHeard = 0;
+    if ((state.triggeredEvents || []).includes('evt_strange_clock')) bellsHeard = 13;
+    else if ((state.clues || []).length > 0) bellsHeard = 12;
+    bellHint = bellsHeard >= 13
+      ? '🔔 十三声……还差什么？'
+      : bellsHeard >= 12
+        ? '🔔 钟声响了十二下。你还在等什么？'
+        : '🔔 你在数钟声。';
+  }
+
   return (
     <div className="floating-info-bar">
       {/* 左侧：位置 + 时间 */}
@@ -45,6 +58,7 @@ export function FloatingInfoBar({ state, dispatch }) {
           {state.loopCount > 0 && <span className="finfo-loop">轮回 ×{state.loopCount}</span>}
         </div>
         <div className="finfo-weather">{state.weather}</div>
+        {bellHint && <div className="finfo-bell-hint" style={{ fontSize: 11, opacity: 0.55, fontStyle: 'italic', marginTop: 2, color: 'var(--san-mid, #c8a96e)' }}>{bellHint}</div>}
       </div>
 
       {/* 中间：核心状态条 */}
@@ -206,7 +220,7 @@ export function NarrativeFloatingPanel({ state, dispatch }) {
               </button>
             </div>
           )}
-          {state.pendingNpc && (
+          {state.pendingNpc && !uiStore.getState().activeHotspot && (
             <NPCDialog
               npc={state.pendingNpc.npc}
               trust={state.pendingNpc.trust}

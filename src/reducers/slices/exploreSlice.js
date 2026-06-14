@@ -14,6 +14,7 @@ import { rand, clamp, pick, applySanLoss } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { getPhase, getAreaInfo } from '../../engine/WorldTimeSystem.js';
 import {
+  getSanStageFromGD,
   getSanSceneVariant,
   getSanTextVariant,
   processSanLoss,
@@ -27,6 +28,8 @@ import {
   selectEvent,
 } from '../eventReducer.js';
 import { applyLegacyEffects } from '../effectReducer.js';
+import { EARLY_WHISPERS } from '../../systems/earlyHooks.js';
+import { emit } from '../../engine/eventBus.js';
 import { checkObjCompletion } from '../objectiveReducer.js';
 import { getPollutionText } from '../loopReducer.js';
 import { getMonsterManifestation } from '../chapterReducer.js';
@@ -67,7 +70,7 @@ export function applyMetaEffect(effectType, state, evt, c) {
         return kv[1] >= 3;
       });
       if (trustNpcs.length > 0) {
-        var target = trustNpcs[Math.floor(Math.random() * trustNpcs.length)];
+        var target = c.pick(trustNpcs);
         setNpcTrust(state, target[0], 0);
         state._npcTrustLocked = state._npcTrustLocked || {};
         state._npcTrustLocked[target[0]] = true;
@@ -91,7 +94,7 @@ export function applyMetaEffect(effectType, state, evt, c) {
         return !kv[1].dead;
       });
       if (aliveNpcs.length > 0) {
-        var victim = aliveNpcs[Math.floor(Math.random() * aliveNpcs.length)];
+        var victim = c.pick(aliveNpcs);
         setNpcState(state, victim[0], {
           ...getNpcState(state, victim[0]),
           dead: true,
@@ -149,7 +152,7 @@ export function applyQualityTier(text, evt, state) {
 /** Phase 1: Select an explore event via extended pipeline + omen/600 fallback.
  *  Milestone + progress guard handled inline by caller (needs c.narr).
  *  Returns { evt, alreadyCommitted }. */
-export function _selectExploreEvent(s, ctx, GD) {
+export function _selectExploreEvent(s, ctx, GD, c) {
   // Extended event selection pipeline
   let evt = null;
   let alreadyCommitted = false;
@@ -173,7 +176,7 @@ export function _selectExploreEvent(s, ctx, GD) {
           const totalW = fearScored.reduce(function (a, b) {
             return a + b.weight;
           }, 0);
-          let roll = Math.random() * totalW;
+          let roll = (c.rng ? c.rng.next() : Math.random()) * totalW;
           for (const item of fearScored) {
             roll -= item.weight;
             if (roll <= 0) {
@@ -202,7 +205,7 @@ export function _selectExploreEvent(s, ctx, GD) {
             : allEvts);
         if (
           shouldTriggerMissing600(s, extEvts) &&
-          Math.random() < GAME_BALANCE.MISSING_600_CHANCE
+          (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MISSING_600_CHANCE
         ) {
           evt = createMissing600Event(s);
           commitSelectedEvent(evt, s);
@@ -267,7 +270,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
       { isSpecial: true }
     );
   // Monster manifestation
-  if (Math.random() < GAME_BALANCE.MONSTER_MANIFEST_CHANCE) {
+  if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MONSTER_MANIFEST_CHANCE) {
     const creature = pick(['deep_ones', 'night_gaunts', 'shoggoth']);
     const manifest = getMonsterManifestation(creature, s.day, ctx);
     if (manifest) {
@@ -397,8 +400,11 @@ export function handleExploreAction(s, action, c, ctx) {
         return s;
       }
       s.ap -= action.cost || 1;
+      var _fromArea = s.currentArea;
       s.currentArea = target;
       if (!s.visitedAreas.includes(target)) s.visitedAreas.push(target);
+      // eventBus: notify listeners of area change
+      try { emit('AREA_ENTERED', { areaId: target, fromArea: _fromArea }); } catch (e) {}
       if (target === 'harbor_district') {
         c.bt.harbor_visits = (c.bt.harbor_visits || 0) + 1;
         c.effects.push({ type: 'AUDIO_PLAY', id: 'harbor_water_omen' });
@@ -417,6 +423,8 @@ export function handleExploreAction(s, action, c, ctx) {
       const lightCorrPenalty =
         (s.lightLevel || 0) < (targetArea?.resource_pressure?.required_light_level || 0) ? 2 : 1;
       let desc = getSanTextVariant(targetArea.description, s.san, pick, ctx);
+      // DESIGN_REFACTOR_NOTES.md: "光源<30%时，town_center描述轻度污染"
+      desc = applyLightTextCorruption(desc, s.lightLevel || 0, ctx);
       // Mythos name alias for area descriptions
       desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
       // Layout variants: weighted random selection based on game state
@@ -433,7 +441,7 @@ export function handleExploreAction(s, action, c, ctx) {
         });
         if (eligible.length > 0) {
           const totalW = eligible.reduce((t, v) => t + (v.weight || 1), 0);
-          let r = Math.random() * totalW;
+          let r = (c.rng ? c.rng.next() : Math.random()) * totalW;
           let chosen = eligible[0];
           for (const v of eligible) {
             r -= v.weight || 1;
@@ -445,7 +453,7 @@ export function handleExploreAction(s, action, c, ctx) {
           if (chosen.description) desc += '\n\n' + chosen.description;
         }
       }
-      if (lightCorrPenalty > 1 && Math.random() < GAME_BALANCE.LIGHT_CORRUPTION_CHANCE)
+      if (lightCorrPenalty > 1 && (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.LIGHT_CORRUPTION_CHANCE)
         desc += '\n\n光线不足。你不确定自己看到的是不是真的。';
       // Phase 6: Resource-based text corruption on area descriptions
       desc = applyResourceTextCorruption(desc, s);
@@ -468,7 +476,7 @@ export function handleExploreAction(s, action, c, ctx) {
       if (
         targetArea.micro_events &&
         targetArea.micro_events.length > 0 &&
-        Math.random() < GAME_BALANCE.MICRO_EVENT_CHANCE
+        (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MICRO_EVENT_CHANCE
       ) {
         const me = pick(targetArea.micro_events);
         const meText = getSanTextVariant(me.description, s.san, pick, ctx);
@@ -480,7 +488,7 @@ export function handleExploreAction(s, action, c, ctx) {
           });
       }
       // Silent events: 15% chance on move
-      if (Math.random() < GAME_BALANCE.SILENT_EVENT_ON_MOVE) checkSilentEvent(s, c.narr, target);
+      if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SILENT_EVENT_ON_MOVE) checkSilentEvent(s, c.narr, target);
       // SAN scene variants: location-based flavor text
       const sceneKeyMap = {
         harbor_district: 'harbor_water',
@@ -491,7 +499,7 @@ export function handleExploreAction(s, action, c, ctx) {
       if (
         sceneKey &&
         s.san < GAME_BALANCE.SAN_SCENE_VARIANT_GATE &&
-        Math.random() < GAME_BALANCE.SAN_SCENE_VARIANT_CHANCE
+        (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SAN_SCENE_VARIANT_CHANCE
       ) {
         const sceneText = getSanSceneVariant(sceneKey, s.san, ctx);
         if (sceneText) c.narr('system', sceneText);
@@ -543,7 +551,7 @@ export function handleExploreAction(s, action, c, ctx) {
       const _guard = getForcedProgressGuard(s, ctx);
       if (_guard) executeForcedProgressGuard(_guard, s, c.narr);
       // Phase 2: Event selection via pure pipeline (extracted)
-      const _sel = _selectExploreEvent(s, ctx, GD);
+      const _sel = _selectExploreEvent(s, ctx, GD, c);
       let evt = _sel.evt;
       const _alreadyCommitted = _sel.alreadyCommitted;
       // No-event fallback chain (inline — needs c.narr + early return)
@@ -580,9 +588,19 @@ export function handleExploreAction(s, action, c, ctx) {
       // Phase 3: Event rendering + effects (inline — has early returns)
       let evtText = getDistortionVariant(evt, s) || evt.description;
       evtText = applyQualityTier(evtText, evt, s);
-      evtText = getPollutionText(getSanTextVariant(evtText, s.san, pick, ctx), s.pollution || 0);
+      // DESIGN_REFACTOR_NOTES.md: text corruption gated by unreliable_narration_level.
+      // Events with level 0-1 skip SAN text corruption entirely (normal actions stay clean).
+      // Only events with level 2+ get the full getSanTextVariant treatment.
+      var unrelLevel = evt.unreliable_narration_level || 0;
+      if (unrelLevel >= 2) {
+        evtText = getPollutionText(getSanTextVariant(evtText, s.san, pick, ctx), s.pollution || 0);
+      } else if (unrelLevel === 1) {
+        // Light corruption only: pollution text but no SAN-based char mutation
+        evtText = getPollutionText(evtText, s.pollution || 0);
+      }
+      // else: level 0 = completely clean text
       if (s.fearTuning && s.fearTuning.primary) evtText = applyFearLens(evt, evtText, s);
-      evtText = applyTextHallucination(evtText, s.san);
+      evtText = applyTextHallucination(evtText, s.san, getSanStageFromGD);
       // Light source text corruption: low light causes unreliable text
       evtText = applyLightTextCorruption(evtText, s.lightLevel || 0, ctx);
       evtText = applyResourceTextCorruption(evtText, s);
@@ -725,6 +743,14 @@ export function handleExploreAction(s, action, c, ctx) {
       }
       // Phase 4: Post-event processing (extracted)
       _postExploreProcessing(evt, s, c, GD);
+      // Chapter 1 early whisper: 20% chance on Days 1-3, first loop only
+      // Atmospheric — no AP cost, no game effect, pure unease.
+      if (s.day <= 3 && s.loopCount <= 0 && Math.random() < 0.2) {
+        var whispers = EARLY_WHISPERS[s.currentArea];
+        if (whispers && whispers.length > 0) {
+          c.narr('system', whispers[Math.floor(Math.random() * whispers.length)], { isSpecial: true });
+        }
+      }
       // "Suspected bug" — phantom narrative line (0.3% at low SAN)
       maybeInjectPhantomNarrative(s.narrative, s.san);
       return s;
@@ -763,7 +789,7 @@ export function handleExploreAction(s, action, c, ctx) {
             ' —— 成功！'
         );
         c.narr('system', sc.success?.text || sc.success || '检定成功。');
-        if (Math.random() < GAME_BALANCE.SKILL_IMPROVE_CHANCE)
+        if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SKILL_IMPROVE_CHANCE)
           s.skills[result.skillName] = (s.skills[result.skillName] || 0) + rand(1, 3);
       } else {
         c.effects.push({ type: 'AUDIO_SKILL', id: result.isCritFail ? 'critical_fail' : 'fail' });

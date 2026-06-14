@@ -12,7 +12,7 @@ export var DevPanel = memo(function DevPanel(props) {
     setTab = _t[1];
   useEffect(function () {
     function h(e) {
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd'))) {
+      if (e.key === '`' || e.key === '~' || (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd'))) {
         e.preventDefault();
         setOpen(function (v) {
           return !v;
@@ -152,7 +152,7 @@ export var DevPanel = memo(function DevPanel(props) {
       React.createElement(
         'span',
         { style: { fontSize: '10px', color: '#666' } },
-        'F12 / Ctrl+Shift+D'
+        '~ / Ctrl+Shift+D'
       ),
       B(
         'X',
@@ -165,7 +165,7 @@ export var DevPanel = memo(function DevPanel(props) {
     React.createElement(
       'div',
       { style: { marginBottom: '8px' } },
-      ['state', 'tools', 'weights', 'perf'].map(function (t) {
+      ['state', 'tools', 'weights', 'events', 'perf'].map(function (t) {
         return React.createElement(
           'span',
           {
@@ -257,8 +257,88 @@ export var DevPanel = memo(function DevPanel(props) {
           R('CatRun', JSON.stringify(state.categoryCountsRun || {}))
         )
       : null,
+    tab === 'events' ? React.createElement(DevEventExplorer, { state: state }) : null,
     tab === 'perf' ? React.createElement(DevPerfMonitor, null) : null
   );
+});
+
+/** P1-D: Event Selection Explorer — shows why events are excluded/eligible */
+export var DevEventExplorer = memo(function DevEventExplorer(props) {
+  var state = props.state;
+  var _r = useState(null);
+  var report = _r[0], setReport = _r[1];
+  var _auto = useState(true);
+  var autoRefresh = _auto[0], setAutoRefresh = _auto[1];
+
+  useEffect(function () {
+    if (!autoRefresh) return;
+    // explainEventSelection is available on window (bundle scope) or can be imported
+    var fn = typeof explainEventSelection === 'function' ? explainEventSelection : null;
+    if (!fn) return;
+    try {
+      var ctx = { GD: (typeof GD !== 'undefined' && GD) || (window.GD) || {} };
+      var result = fn(state.currentArea, state, ctx);
+      setReport(result);
+    } catch (e) {
+      setReport({ error: e.message });
+    }
+  }, [autoRefresh, state.day, state.currentArea, state.san, state.loopCount,
+      (state.triggeredEvents || []).length]);
+
+  if (!report) {
+    return React.createElement('div', { style: { color: '#888' } },
+      'Loading event analysis...');
+  }
+  if (report.error) {
+    return React.createElement('div', { style: { color: '#f00' } },
+      'Error: ' + report.error);
+  }
+
+  var rows = [];
+  // Summary
+  rows.push(React.createElement('div', { key: 'sum', style: { color: '#ff0', fontSize: '13px', marginBottom: '6px', borderBottom: '1px solid #333' } },
+    'Event Selection Report'));
+  rows.push(React.createElement('div', { key: 'area', style: { color: '#888' } },
+    'Area: ' + report.area + ' | Day: ' + report.day + ' | SAN: ' + report.san));
+  rows.push(React.createElement('div', { key: 'pool', style: { color: '#888', marginBottom: '4px' } },
+    'Pool: ' + report.totalEvents + ' total → ' + report.eligibleCount + ' eligible, ' + report.excludedCount + ' excluded'));
+
+  // Exclusion reasons (grouped)
+  var rc = report.reasonCounts || {};
+  var reasonKeys = Object.keys(rc).sort(function (a, b) { return rc[b] - rc[a]; });
+  if (reasonKeys.length > 0) {
+    rows.push(React.createElement('div', { key: 'excl-h', style: { color: '#f80', marginTop: '6px', fontSize: '12px' } },
+      'Exclusion Reasons:'));
+    for (var i = 0; i < reasonKeys.length; i++) {
+      rows.push(React.createElement('div', { key: 'excl-' + i, style: { color: '#888', fontSize: '11px', paddingLeft: '8px' } },
+        reasonKeys[i] + ': ' + rc[reasonKeys[i]]));
+    }
+  }
+
+  // Top eligible events
+  var elig = report.eligible || [];
+  if (elig.length > 0) {
+    rows.push(React.createElement('div', { key: 'elig-h', style: { color: '#0f0', marginTop: '6px', fontSize: '12px' } },
+      'Top Eligible (by weight):'));
+    for (var j = 0; j < Math.min(elig.length, 10); j++) {
+      var e = elig[j];
+      rows.push(React.createElement('div', { key: 'elig-' + j, style: { color: '#888', fontSize: '11px', paddingLeft: '8px' } },
+        (j + 1) + '. ' + e.name + '  w=' + e.weight + '  [' + e.type + ']'));
+    }
+  }
+
+  // Auto-refresh toggle
+  rows.push(React.createElement('div', { key: 'ctrl', style: { marginTop: '8px', borderTop: '1px solid #333', paddingTop: '4px' } },
+    React.createElement('label', { style: { color: '#888', fontSize: '11px', cursor: 'pointer' } },
+      React.createElement('input', {
+        type: 'checkbox',
+        checked: autoRefresh,
+        onChange: function (ev) { setAutoRefresh(ev.target.checked); },
+        style: { marginRight: '4px' },
+      }),
+      'Auto-refresh (on state change)')));
+
+  return React.createElement('div', null, rows);
 });
 
 export var DevPerfMonitor = memo(function () {

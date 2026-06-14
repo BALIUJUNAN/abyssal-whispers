@@ -95,6 +95,7 @@ REDUCER_FILES = [
     'reducers/ugcReducer.js',
     'utils/buildEventPool.js',
     'reducers/extendedEventsInit.js',
+    'reducers/achievementReducer.js',  # MUST precede effectReducer.js (imported by it)
     'reducers/effectReducer.js',
     'reducers/endingReducer.js',
     'reducers/objectiveReducer.js',
@@ -106,12 +107,11 @@ REDUCER_FILES = [
     'reducers/saveMigration.js',
     # engine/SaveManager.js replaces reducers/saveReducer.js (save system)
     'engine/SaveManager.js',
-    'reducers/achievementReducer.js',
+    'reducers/npcReducer.js',          # MUST precede loopReducer.js (imported by it)
     'systems/reincarnationDiff.js',  # MUST precede loopReducer.js
     'reducers/loopReducer.js',
     'reducers/chapterReducer.js',
     'reducers/conclusionReducer.js',
-    'reducers/npcReducer.js',
     'reducers/deathSystem.js',
     # Prologue system
     'data/prologue_events.js',
@@ -130,6 +130,7 @@ REDUCER_FILES = [
     'utils/npcMemory.js',           # NPC loop memory data (extracted from appHelpers.js)
     # utils/uiStore.js removed — migrated to state/uiStore.js (below)
     'utils/errorTracker.js',  # Error tracker for player operation logging & bug reports
+    'utils/seededRng.js',     # MUST precede initialState.js (generateRunSeed)
     'state/initialState.js',
     # ── Dual Store Architecture ──
     'state/uiStore.js',             # useUiStore — migrated from utils/uiStore.js (re-export)
@@ -174,6 +175,7 @@ REDUCER_FILES = [
     'components/FloatingInfoBar.jsx',     # 浮动信息栏（HUD）
     'components/GameLayout.jsx',          # 布局模式切换入口（地图/经典）
     # ── Dev Panel (debug tools) ──
+    'systems/eventDebugger.js',      # P1-D: Event selection explainability
     'components/ui/DevPanel.jsx',    # F12 / Ctrl+Shift+D debug panel
 ]
 
@@ -595,9 +597,11 @@ def build(use_babel=True):
     else:
         # Dev build: Babel standalone in browser (local)
         babel_script = '<script>\n' + babel_js + '\n</script>\n' if babel_js else '<script src="https://cdn.bootcdn.net/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>\n'
-        html = template.replace(
-            '<script>\n__INLINE_JS__\n</script>',
-            '<script type="text/babel">\n__INLINE_JS__\n</script>'
+        # Use regex to match <script> wrapping __INLINE_JS__ (tolerates any whitespace/indentation)
+        html = re.sub(
+            r'<script>(\s*__INLINE_JS__[^<]*)</script>',
+            r'<script type="text/babel">\1</script>',
+            template, count=1
         )
         html = html.replace(
             '<script type="text/babel">',

@@ -124,17 +124,25 @@ export function checkChainCompletion(state, narr) {
 }
 
 export function getSanVariant(san) {
-  if (san <= 39) return 'abyssal';
-  if (san <= 59) return 'paranoid';
-  if (san <= 79) return 'anxious';
-  return 'normal';
+  // P1-A: SSOT — variant derived from stage.level
+  const stage = getSanStageFromGD(san);
+  if (stage.level >= 3) return 'abyssal';   // explanation_loss
+  if (stage.level >= 2) return 'paranoid';  // perception_shift
+  if (stage.level >= 1) return 'anxious';   // mild_erosion
+  return 'normal';                           // stable
 }
 
+// P1-A: SAN thresholds derive from getSanStageFromGD (SSOT)
+import { getSanStageFromGD } from '../reducers/sanReducer.js';
+import { getDistortedName } from '../systems/textVariants.js';
+
 export function getCorruptionLevel(san, loopCount) {
-  if (san <= 20 || loopCount >= 5) return 3;
-  if (san <= 40 || loopCount >= 3) return 2;
-  if (san <= 60) return 1;
-  return 0;
+  // SSOT: stage.level maps to corruption levels
+  // Loop count bonuses preserved as additive (not part of san_stages)
+  const stage = getSanStageFromGD(san);
+  const sanCorr = stage.level >= 5 ? 3 : stage.level >= 3 ? 2 : stage.level >= 1 ? 1 : 0;
+  const loopBonus = loopCount >= 5 ? 1 : 0;
+  return Math.min(3, sanCorr + loopBonus);
 }
 
 export function getOptionText(key, san) {

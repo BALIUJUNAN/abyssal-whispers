@@ -1,22 +1,33 @@
-// src/reducers/saveReducer.js - 多槽位存档系统
-//
-// P0-4: Migration mechanism for version-incompatible saves (no more auto-delete)
-// P0-5: toPersistedState filters runtime UI fields before saving
-
-import { SAVE_VERSION, migrateSaveData, toPersistedState } from '../reducers/saveMigration.js';
+// src/engine/SaveManager.js — Multi-slot save system
+// ENGINE CONTRACT: Zero game-specific imports. Migration injected via configureSaveManager().
 
 export const SAVE_PREFIX = 'coc_save_';
 export const AUTO_SLOTS = ['auto_1', 'auto_2', 'auto_3'];
 export const MANUAL_SLOTS = ['manual_1', 'manual_2', 'manual_3'];
+
+// ── Dependency Injection ──
+var _SAVE_VERSION = 1;
+var _migrateSaveData = null;
+var _toPersistedState = null;
+
+/**
+ * Inject save migration dependencies. Call once at app startup.
+ * @param {{ SAVE_VERSION?: number, migrateSaveData?: function, toPersistedState?: function }} deps
+ */
+export function configureSaveManager(deps) {
+  if (deps.SAVE_VERSION != null) _SAVE_VERSION = deps.SAVE_VERSION;
+  if (deps.migrateSaveData) _migrateSaveData = deps.migrateSaveData;
+  if (deps.toPersistedState) _toPersistedState = deps.toPersistedState;
+}
 
 /**
  * Save state to a slot. Uses toPersistedState to strip runtime fields (P0-5).
  */
 export function saveToSlot(slotId, state) {
   try {
-    const persistedState = toPersistedState(state);
+    const persistedState = _toPersistedState(state);
     const saveData = {
-      version: SAVE_VERSION,
+      version: _SAVE_VERSION,
       timestamp: Date.now(),
       slotId,
       meta: {
@@ -46,7 +57,7 @@ export function loadFromSlot(slotId) {
     const data = JSON.parse(raw);
 
     // Version matches — return as-is
-    if (data.version === SAVE_VERSION) {
+    if (data.version === _SAVE_VERSION) {
       return data;
     }
 
@@ -57,10 +68,10 @@ export function loadFromSlot(slotId) {
         ' version mismatch (got ' +
         data.version +
         ', expected ' +
-        SAVE_VERSION +
+        _SAVE_VERSION +
         '). Attempting migration...'
     );
-    const migrated = migrateSaveData(data, slotId);
+    const migrated = _migrateSaveData(data, slotId);
     if (migrated) {
       // Persist the migrated save back to localStorage
       localStorage.setItem(SAVE_PREFIX + slotId, JSON.stringify(migrated));
@@ -154,7 +165,7 @@ export function migrateOldSave() {
     if (old) {
       const data = JSON.parse(old);
       // P0-4: Accept any version, attempt migration
-      const migrated = migrateSaveData(data, 'auto_1');
+      const migrated = _migrateSaveData(data, 'auto_1');
       if (migrated && migrated.state) {
         saveToSlot('auto_1', migrated.state);
         console.info('[Save] Old single-slot save migrated successfully.');
@@ -172,7 +183,7 @@ export function exportSave() {
       const raw = localStorage.getItem(SAVE_PREFIX + sid);
       if (raw) slots[sid] = JSON.parse(raw);
     });
-    const exportData = { version: SAVE_VERSION, save_time: new Date().toISOString(), slots };
+    const exportData = { version: _SAVE_VERSION, save_time: new Date().toISOString(), slots };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -197,7 +208,7 @@ export function importSave(jsonString) {
     Object.entries(data.slots).forEach(([sid, slotData]) => {
       if ([...AUTO_SLOTS, ...MANUAL_SLOTS].includes(sid) && slotData) {
         // P0-4: Attempt migration on import too
-        const migrated = migrateSaveData(slotData, sid);
+        const migrated = _migrateSaveData(slotData, sid);
         if (migrated && migrated.state) {
           localStorage.setItem(SAVE_PREFIX + sid, JSON.stringify(migrated));
         } else if (slotData.state) {

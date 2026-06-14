@@ -1,20 +1,31 @@
 // src/reducers/utils.js - Pure utility functions (no React dependency)
 // These can be imported by both the reducer and tests.
 
-export const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-export const d100 = () => rand(1, 100);
-export const d3 = () => rand(1, 3);
+// P_NEXT: All game-logic functions accept optional `rng` parameter for deterministic replay.
+// When rng is provided (c.rng from reducer context), use it instead of Math.random.
+// UI-only code can still call these without rng (falls back to Math.random).
+
+export const rand = (min, max, rng) => {
+  if (rng) return rng.intBetween(min, max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+export const d100 = (rng) => rand(1, 100, rng);
+export const d3 = (rng) => rand(1, 3, rng);
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-export const pick = (arr) => arr[rand(0, arr.length - 1)];
-export const rollDice = (dice) => {
+export const pick = (arr, rng) => {
+  if (rng) return rng.pick(arr);
+  return arr[Math.floor(Math.random() * arr.length)];
+};
+export const rollDice = (dice, rng) => {
   const m = dice.match(/(\d+)d(\d+)(?:\+(\d+))?/);
   if (!m) return 0;
   const [n, faces, bonus] = m.slice(1).map(Number);
   let t = bonus || 0;
-  for (let i = 0; i < n; i++) t += rand(1, faces);
+  for (let i = 0; i < n; i++) t += rand(1, faces, rng);
   return t;
 };
-export const shuffle = (arr) => {
+export const shuffle = (arr, rng) => {
+  if (rng) return rng.shuffle(arr);
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = rand(0, i);

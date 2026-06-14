@@ -289,14 +289,48 @@ export const ANCHOR_TYPES = new Set(['silent', '正常事件', 'NPC互动', '氛
  * @param {object} ctx
  * @returns {object[]} eligible events (may be empty)
  */
+/**
+ * Chapter 1 event gating — DESIGN_REFACTOR_NOTES.md requires that the first
+ * chapter only exposes the core "thirteen bells" mystery events + light filler.
+ * Extended events (mythos, resource_pressure, npc_cross, humanity, area_deep,
+ * loop_locked, death_echo, ending) are blocked until Chapter 2 (Day 4+).
+ *
+ * Allowed in Chapter 1:
+ *   - Events with explicit trigger.chapter === 1 (the 20 base events)
+ *   - Type 'silent' (ambient, no gameplay impact)
+ *   - Type '氛围事件' / '正常事件' / '轻微异常' (light filler)
+ *   - NPC互动 (core NPC dialogue)
+ *   - 线索 (clue events)
+ *   - Prologue events
+ */
+var _CH1_ALLOWED_TYPES = new Set([
+  'silent', '氛围事件', '正常事件', '轻微异常',
+  'NPC互动', '线索', 'prologue', 'opening_cut',
+  'tutorial_choice', 'tutorial_san', 'tutorial_npc',
+  'tutorial_move', 'tutorial_humanity', 'tutorial_clue',
+  'transition',
+]);
+var _CH1_BLOCKED_TYPES = new Set([
+  'mythos', 'resource_pressure', 'npc_cross', 'humanity',
+  'area_deep', 'loop_locked', 'death_echo', 'ending',
+  'meta', '怪物遭遇', '超自然遭遇', '神秘事件',
+]);
+
 export function getEligibleEvents(areaId, state, ctx) {
   const { GD } = ctx;
   const allEvents = GD.events || [];
+  const day = state.day || 1;
+  const isChapter1 = day <= 3;
 
   // Step 1: Area + trigger check (deterministic — no Math.random)
   const eligible = allEvents.filter((e) => {
     if (!e.trigger || !e.trigger.areas) return false;
     if (!e.trigger.areas.includes(areaId)) return false;
+    // Chapter 1 hard gate: block heavy extended events in Days 1-3
+    if (isChapter1 && !e.trigger.chapter) {
+      const cat = e.type || e.event_classification || '';
+      if (_CH1_BLOCKED_TYPES.has(cat)) return false;
+    }
     return checkTriggerExtended(e, state, ctx);
   });
 

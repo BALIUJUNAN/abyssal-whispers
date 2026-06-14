@@ -1,14 +1,26 @@
 // src/utils/appHelpers.js - Extracted from app.jsx
 // All functions use global GD, ctx, pick, clamp from bundle scope.
 
+import { clamp, pick } from '../reducers/utils.js';
 import { buildDeathSummary } from '../systems/deathSummary.js';
 import { generatePersonalityReport } from '../data/behavior_endings.js';
+// P1-A: use getSanStageFromGD instead of hardcoded SAN thresholds
+import { getSanStageFromGD } from '../reducers/sanReducer.js';
+// P-REFACTOR: getPerceptionLevels moved to systems/sanityVisual.js
+import { getPerceptionLevels as _getPerceptionLevels } from '../systems/sanityVisual.js';
+// Explicit imports — these were previously implicit globals from the bundle scope
+import { getPhase, getAreaInfo } from '../engine/WorldTimeSystem.js';
+import { checkEnding } from '../reducers/endingReducer.js';
+import { audioManager } from '../managers/AudioManager.js';
 
 export function getUICorruptionLayer(san, loopCount, safehouseCorruption) {
-  if (san <= 5 || safehouseCorruption >= 80) return 4; // hostile — 濒死疯狂（SAN=0已触发死亡，≤5是最后可见窗口）
-  if (san <= 10 || safehouseCorruption >= 60) return 3; // contradictory — 濒临疯狂
-  if (san <= 30 || loopCount >= 3) return 2; // repetitive — 动摇
-  if (san <= 50 || safehouseCorruption >= 20) return 1; // fogged — 不安
+  // P1-A: SAN thresholds derive from stage.level (SSOT)
+  // safehouseCorruption thresholds remain explicit (not part of san_stages)
+  const stage = getSanStageFromGD(san);
+  if (safehouseCorruption >= 80 || stage.level >= 5) return 4; // hostile — 濒死 / 极度腐化
+  if (safehouseCorruption >= 60 || stage.level >= 4) return 3; // contradictory — 现实崩解
+  if (loopCount >= 3 || stage.level >= 3) return 2; // repetitive — 认知丧失
+  if (safehouseCorruption >= 20 || stage.level >= 1) return 1; // fogged — 轻度侵蚀
   return 0; // clean — 理智
 }
 
@@ -118,50 +130,8 @@ export function buildDeathRecap(state, deathContext = null) {
   };
 }
 
-export function getPerceptionLevels(state) {
-  const san = state.san || 0;
-  const loop = state.loopCount || 0;
-  const corr = state.safehouseCorruption || 0;
-  const mythos = state.mythosLevel || 0;
-  let focus = 0,
-    edge = 0,
-    audio = 0,
-    input = 0,
-    text = 0;
-  if (san < 50) {
-    focus++;
-    text++;
-  }
-  if (mythos >= 10) {
-    audio++;
-    edge++;
-  }
-  if (loop >= 3) {
-    text++;
-    input++;
-  }
-  if (corr >= 50) {
-    focus++;
-    edge++;
-    audio++;
-    input++;
-    text++;
-  }
-  if (['deep_catacombs', 'ruins_of_yith'].includes(state.currentArea)) {
-    focus++;
-    edge++;
-    audio++;
-    input++;
-    text++;
-  }
-  return {
-    focus: Math.min(3, focus),
-    edge: Math.min(3, edge),
-    audio: Math.min(4, audio),
-    input: Math.min(4, input),
-    text: Math.min(4, text),
-  };
-}
+// Re-export from sanityVisual.js (canonical implementation)
+export const getPerceptionLevels = _getPerceptionLevels;
 
 export function applyBlessing(state, blessing, narr) {
   if (!blessing) return;
@@ -535,9 +505,12 @@ export function preloadEndingCGs() {
 // === Reducer Context Builder (Immer) ===
 // Builds the shared context object passed to all slice handlers from gameReducer.
 // `s` is an Immer draft — all direct mutations are safe.
-export function buildReducerCtx(s) {
+// P_NEXT: opts.rng — seeded RNG for deterministic gameplay (replaces Math.random in reducers)
+// P_NEXT: opts.now — deterministic timestamp (replaces Date.now in reducers)
+export function buildReducerCtx(s, opts, corruptFn) {
   const MAX_NARRATIVE_ENTRIES = 250;
   const _narrCorrLayer = getUICorruptionLayer(s.san, s.loopCount, s.safehouseCorruption);
+  const _corruptText = corruptFn || function (t) { return t; };
   const effects = [];
   const narr = (type, text, extra = {}) => {
     const entry = { id: Date.now() + Math.random(), type, text, ...extra };
@@ -548,7 +521,7 @@ export function buildReducerCtx(s) {
       !extra.isEffect &&
       !extra.madness
     ) {
-      const corrupted = getCorruptedSystemText(text, _narrCorrLayer);
+      const corrupted = _corruptText(text, _narrCorrLayer);
       if (corrupted !== text) {
         entry._originalText = text;
         entry.text = corrupted;
@@ -579,6 +552,11 @@ export function buildReducerCtx(s) {
     effects,
     bt: s.behaviorTracking,
     view,
+    // P_NEXT: Seeded RNG — all story-affecting randomness should use c.rng
+    rng: (opts && opts.rng) || null,
+    now: (opts && opts.now) || Date.now(),
+    // Deterministic pick — uses rng if available, falls back to Math.random
+    pick: (opts && opts.rng) ? opts.rng.pick : function (arr) { return arr[Math.floor(Math.random() * arr.length)]; },
   };
 }
 

@@ -90,7 +90,8 @@ export function getEventStats(GD, state) {
     ...(state?.endingHistory || []).map((e) => e.ending_id).filter(Boolean),
   ]).size;
 
-  const meetsPartial = loop >= 5 && mythos >= 15 && san <= 30 && endingsCount >= 3;
+  // P1-A: SSOT — partial unlock at explanation_loss (level >= 3)
+  const meetsPartial = loop >= 5 && mythos >= 15 && getSanStageFromGD(san).level >= 3 && endingsCount >= 3;
 
   // 构建 UI 显示文本
   let displayCount = '599';

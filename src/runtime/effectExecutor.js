@@ -44,6 +44,22 @@ export var EFFECT_HANDLERS = {
       } catch (e) {}
     }, fx.delay || 3000);
   },
+  BELL_ENTRANCE: function (fx, dispatch) {
+    // Thirteenth bell entrance hook — see systems/earlyHooks.js
+    try {
+      var earlyHooks = require('../../systems/earlyHooks.js');
+      earlyHooks.fireBellEntrance(dispatch);
+    } catch (e) {
+      // Fallback: just play the audio if earlyHooks unavailable
+      try { audioManager.playEffect('bell_entrance'); } catch (e2) {}
+    }
+  },
+  RESET_EARLY_HOOKS: function () {
+    try {
+      var earlyHooks = require('../../systems/earlyHooks.js');
+      earlyHooks.resetEarlyHooks();
+    } catch (e) {}
+  },
 };
 
 var _executedFxIds = new Set();

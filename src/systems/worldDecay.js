@@ -22,10 +22,11 @@ export function calculateDailyCorruption(state, ctx) {
   if (bt.sacred_desecration_count > 0) corruption += bt.sacred_desecration_count * 2;
   if (bt.loop_break_attempts > 0) corruption += bt.loop_break_attempts * 3;
 
-  // SAN acceleration: low SAN speeds up world decay
+  // P1-A: SSOT — SAN stage accelerates world decay
   var san = state.san || 0;
-  if (san < 30) corruption += 3;
-  else if (san < 50) corruption += 1;
+  var _slvl = getSanStageFromGD(san).level;
+  if (_slvl >= 3) corruption += 3;      // explanation_loss+
+  else if (_slvl >= 2) corruption += 1; // perception_shift+
 
   // Seal state acceleration
   var sealState = state.sealState || 'intact';
@@ -220,6 +221,21 @@ export var WORLD_DECAY_NARRATIVES = [
   },
 ];
 
+// DESIGN_REFACTOR_NOTES.md: "Day 7后harbor_district自动增加深潜者相关模糊事件"
+// Fuzzy references only — "海里的东西", "灰色身影", never "深潜者".
+export var HARBOR_DEEP_ONE_WHISPERS = [
+  { minDay: 7, maxDay: 14, minCorruption: 20, text: '你在码头看到了一组脚印。从海里走出来。脚印在栈桥中间消失了。' },
+  { minDay: 7, maxDay: 14, minCorruption: 25, text: '码头的缆绳今天湿了。不是海水——是某种更粘稠的液体。你没有去碰它。' },
+  { minDay: 7, maxDay: 14, minCorruption: 30, text: '你听到水面下有声音。不是鱼。是一种有节奏的敲击。像是有人在水下敲门。' },
+  { minDay: 10, maxDay: 18, minCorruption: 35, text: '码头栈桥的木板上长了一层灰色的东西。不是苔藓。摸起来像是皮肤。' },
+  { minDay: 10, maxDay: 18, minCorruption: 40, text: '你看到远处的海面上有一个灰色的身影。它站在水面上。然后慢慢沉了下去。' },
+  { minDay: 10, maxDay: 18, minCorruption: 45, text: '码头的鱼今天都不见了。海面很平静。平静得不正常。像是有什么东西在水下把一切都按住了。' },
+  { minDay: 14, maxDay: 21, minCorruption: 50, text: '你在码头闻到了一种味道。不是鱼腥味。是更古老的。像是盐和时间的混合物。' },
+  { minDay: 14, maxDay: 21, minCorruption: 55, text: '码头栈桥的尽头站着一个灰色的身影。你走近的时候，它转过身。它没有脸。只有一层薄膜。' },
+  { minDay: 18, maxDay: 28, minCorruption: 60, text: '海面开始发出声音。不是海浪——是呼吸。整个海面在缓慢地起伏。' },
+  { minDay: 21, maxDay: 28, minCorruption: 70, text: '码头的栈桥被淹没了。海水是温的。你看到水下有灯光。不是灯塔——是从更深的地方来的。' },
+];
+
 export function getWorldDecayNarrative(day, corruption, state) {
   var candidates = [];
   for (var i = 0; i < WORLD_DECAY_NARRATIVES.length; i++) {
@@ -230,6 +246,28 @@ export function getWorldDecayNarrative(day, corruption, state) {
   }
   if (candidates.length === 0) return null;
   var idx = (day * 7 + Math.floor(corruption / 10)) % candidates.length;
+  return candidates[idx];
+}
+
+/**
+ * Get harbor-specific deep one whispers for Day 7+.
+ * DESIGN_REFACTOR_NOTES.md: "harbor_district自动增加深潜者相关模糊事件"
+ * @param {number} day
+ * @param {number} corruption
+ * @param {object} state
+ * @returns {string|null}
+ */
+export function getHarborDeepOneWhisper(day, corruption, state) {
+  if (day < 7) return null;
+  var candidates = [];
+  for (var i = 0; i < HARBOR_DEEP_ONE_WHISPERS.length; i++) {
+    var n = HARBOR_DEEP_ONE_WHISPERS[i];
+    if (day >= n.minDay && day <= n.maxDay && corruption >= n.minCorruption) {
+      candidates.push(n.text);
+    }
+  }
+  if (candidates.length === 0) return null;
+  var idx = (day * 3 + Math.floor(corruption / 8) + (state.loopCount || 0)) % candidates.length;
   return candidates[idx];
 }
 

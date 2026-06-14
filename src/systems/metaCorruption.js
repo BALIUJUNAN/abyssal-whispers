@@ -48,10 +48,15 @@ export var SAVE_POLLUTION_NAMES = [
  * @param {object} c - reducer context
  * @param {number} intensity - 0-100 from settings
  */
+// P1-A: SSOT — import getSanStageFromGD for stage-based threshold
+import { getSanStageFromGD } from '../reducers/sanReducer.js';
+
 export function applyMetaCorruption(s, c, intensity) {
-  if (s.san >= 25 || s.loopCount < 1) return;
+  // P1-A: SSOT — meta corruption fires at explanation_loss (level >= 3) + loop >= 1
+  var _stage = getSanStageFromGD(s.san);
+  if (_stage.level < 3 || s.loopCount < 1) return;
   var I = Math.max(0, Math.min(100, intensity || 50)) / 100;
-  var chance = META_CORRUPTION_CHANCE * I * (1 - s.san / 25);
+  var chance = META_CORRUPTION_CHANCE * I * Math.max(0, 1 - _stage.level / 5);
   if (Math.random() >= chance) return;
 
   var roll = Math.random();

@@ -7,6 +7,7 @@
 //   - 底部：资源消耗提示
 
 const { useState, useEffect, useMemo, useCallback, memo } = React;
+import { NPCDialog } from './NPCDialog.jsx';
 
 export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   const [tab, setTab] = useState('actions'); // 'actions' | 'info' | 'npc'
@@ -21,7 +22,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   const sceneImage = useMemo(() => {
     if (!hotspot.areaId) return null;
     return getAreaSceneImage(hotspot.areaId, {
-      phase: getPhase ? getPhase(state.day) : 'morning',
+      phase: getPhase ? getPhase(state.ap, state.maxAp) : 'morning',
       visits: (state.visitedAreas || []).filter((a) => a === hotspot.areaId).length,
       pollution: state.pollution || 0,
     });
@@ -91,10 +92,10 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
           label: '与 ' + npc.name + ' 交谈',
           cost: '1 AP',
           costAp: 1,
-          disabled: state.ap < 1,
+          disabled: state.ap < 1 || !!state.pendingNpc,
           onClick: () => {
             dispatch({ type: 'TALK_NPC', npc });
-            onClose();
+            // 不关闭面板：NPC 对话浮在面板上方，对话结束后面板自动刷新信赖
           },
         });
       });
@@ -262,6 +263,26 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
                   恢复：{shStage.available_functions?.san_recovery || 0} SAN | 污染：
                   {state.safehouseCorruption}%
                 </div>
+                {/* DESIGN_REFACTOR_NOTES.md: "这里不再完全安全" + SAN小扣 */}
+                {!shStage.is_safe && state.safehouseCorruption >= 36 && (
+                  <div className="safehouse-warning" style={{
+                    marginTop: 6, padding: '6px 10px',
+                    background: 'rgba(180, 80, 30, 0.08)',
+                    borderLeft: '3px solid rgba(180, 80, 30, 0.3)',
+                    fontSize: 12, color: 'var(--danger2, #e67e22)',
+                    borderRadius: '0 3px 3px 0',
+                  }}>
+                    这里不再完全安全。你每次休息都会感到一种无法解释的不安。
+                    <span style={{ opacity: 0.6, display: 'block', marginTop: 2 }}>
+                      休息SAN恢复 -1（安全屋退化）
+                    </span>
+                  </div>
+                )}
+                {state.safehouseCorruption >= 56 && (
+                  <div style={{ marginTop: 4, fontSize: 11, opacity: 0.5, fontStyle: 'italic' }}>
+                    墙壁上有你不记得见过的水渍。
+                  </div>
+                )}
               </div>
             )}
             {/* NPC 列表 */}
@@ -353,6 +374,19 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
             </div>
           </div>
         </div>
+
+        {/* NPC 对话浮在面板内（交谈后信赖实时更新） */}
+        {state.pendingNpc && (
+          <div className="area-panel-npc-dialog">
+            <NPCDialog
+              npc={state.pendingNpc.npc}
+              trust={state.pendingNpc.trust}
+              layer={state.pendingNpc.layer}
+              dispatch={dispatch}
+              state={state}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

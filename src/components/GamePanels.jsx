@@ -448,16 +448,23 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                   marginTop: '0.3rem',
                 }}
               >
-                {state.pendingChoice.choices.map((ch, i) => (
-                  <CorruptibleChoice
-                    key={i}
-                    className="btn btn-sm"
-                    san={state.san}
-                    onClick={() => dispatch({ type: 'CHOICE_SELECT', choiceIdx: i })}
-                  >
-                    {ch.label}
-                  </CorruptibleChoice>
-                ))}
+                {state.pendingChoice.choices.map((ch, i) => {
+                  // DESIGN_REFACTOR_NOTES.md: key events get full corruption, normal actions stay light
+                  var _evt = state.pendingChoice.evt || {};
+                  var _isKey = (_evt.unreliable_narration_level || 0) >= 2
+                    || (_evt.tags || []).some(function(t) { return t === 'bell' || t === 'thirteenth' || t === 'npc_core'; });
+                  return (
+                    <CorruptibleChoice
+                      key={i}
+                      className="btn btn-sm"
+                      san={state.san}
+                      isKeyEvent={_isKey}
+                      onClick={() => dispatch({ type: 'CHOICE_SELECT', choiceIdx: i })}
+                    >
+                      {ch.label}
+                    </CorruptibleChoice>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1203,6 +1210,58 @@ function DeathSummaryView({ summary }) {
               继承：{s4.inherited.join('、')}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Section 5: Legacy Highlights (遗产亮点) */}
+      {summary.legacy && summary.legacy.highlights && summary.legacy.highlights.length > 0 && (
+        <div className="summary-section legacy-highlights" style={{ marginTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '1rem' }}>
+          <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 10, color: 'var(--text, #e0d5c0)', letterSpacing: '0.05em' }}>
+            {summary.legacy.title}
+          </div>
+          {summary.legacy.highlights.map((h, i) => {
+            if (h.type === 'npc_farewell') {
+              return (
+                <div key={i} className="legacy-npc-farewell" style={{
+                  marginBottom: 12, padding: '10px 14px',
+                  background: 'rgba(180, 140, 80, 0.06)',
+                  borderLeft: '3px solid rgba(180, 140, 80, 0.35)',
+                  borderRadius: '0 4px 4px 0',
+                }}>
+                  <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 4 }}>
+                    {h.npc}（信任 {h.trust}）
+                  </div>
+                  <div style={{ fontStyle: 'italic', color: '#c8b89a', whiteSpace: 'pre-line', lineHeight: 1.8 }}>
+                    {h.line}
+                  </div>
+                </div>
+              );
+            }
+            if (h.type === 'moment') {
+              return (
+                <div key={i} style={{
+                  marginBottom: 6, fontSize: 13,
+                  color: h.severity === 'dark' ? 'var(--danger2, #e67e22)' : 'var(--text-secondary, #a89a85)',
+                }}>
+                  <span style={{ opacity: 0.6, marginRight: 6 }}>{h.icon}</span>
+                  <span style={{ opacity: 0.5, marginRight: 4 }}>{h.label}：</span>
+                  {h.text}
+                </div>
+              );
+            }
+            if (h.type === 'loop_stamp') {
+              return (
+                <div key={i} style={{
+                  marginTop: 8, fontSize: 12, opacity: 0.5,
+                  borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 8,
+                }}>
+                  <span style={{ marginRight: 4 }}>{h.icon}</span>
+                  {h.text}
+                </div>
+              );
+            }
+            return null;
+          })}
         </div>
       )}
     </div>

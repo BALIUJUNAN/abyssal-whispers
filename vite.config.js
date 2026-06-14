@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import { renameSync, existsSync } from 'fs';
+import { renameSync, existsSync, cpSync, mkdirSync } from 'fs';
 
 // Dev-only plugin: redirect / to /dev.html so Vite processes dev.html
 // (with @vitejs/plugin-react preamble injection) instead of root index.html
@@ -17,31 +17,61 @@ function devHtmlPlugin() {
         if (req.url === '/' || req.url === '/index.html') {
           req.url = '/dev.html';
         }
+        // Content editor route: localhost:3000/editor
+        if (req.url === '/editor' || req.url === '/editor.html') {
+          req.url = '/tools/editor.html';
+        }
         next();
       });
     },
   };
 }
 
-// Build-only plugin: rename dev.html → index.html in output so preview
-// server can serve it at / without configuration.
-function renameOutputPlugin() {
+// Build-only plugin: finalize output (rename HTML, copy audio).
+function finalizeBuildPlugin() {
   return {
-    name: 'rename-output',
+    name: 'finalize-build',
     apply: 'build',
     closeBundle() {
-      const outDir = resolve(__dirname, 'dist-vite');
+      const outDir = resolve(__dirname, 'dist');
+      // Rename dev.html → index.html
       const src = resolve(outDir, 'dev.html');
       const dst = resolve(outDir, 'index.html');
       if (existsSync(src)) {
         renameSync(src, dst);
+      }
+      // Copy audio directory (not in publicDir, needs explicit copy)
+      const audioSrc = resolve(__dirname, 'audio');
+      const audioDst = resolve(outDir, 'audio');
+      if (existsSync(audioSrc)) {
+        try {
+          cpSync(audioSrc, audioDst, { recursive: true });
+          console.log('[build] Copied audio/ to dist/audio/');
+        } catch (e) {
+          console.warn('[build] Audio copy failed:', e.message);
+        }
+      }
+      // Copy game data JSON files (loaded at runtime via fetch)
+      const dataSrc = resolve(__dirname, 'src/data');
+      const dataFiles = ['game_base.json', 'game_ch2plus.json', 'game_meta.json'];
+      for (const df of dataFiles) {
+        const srcPath = resolve(dataSrc, df);
+        const dstPath = resolve(outDir, df);
+        if (existsSync(srcPath)) {
+          try {
+            cpSync(srcPath, dstPath);
+            console.log('[build] Copied ' + df + ' to dist/');
+          } catch (e) {
+            console.warn('[build] ' + df + ' copy failed:', e.message);
+          }
+        }
       }
     },
   };
 }
 
 export default defineConfig({
-  plugins: [react(), devHtmlPlugin(), renameOutputPlugin()],
+  plugins: [react(), devHtmlPlugin(), finalizeBuildPlugin()],
   base: './',
   root: '.',
   publicDir: 'assets',
@@ -50,20 +80,17 @@ export default defineConfig({
     open: true,
   },
   build: {
-    outDir: 'dist-vite',
+    outDir: 'dist',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'dev.html'),
       },
-      output: {
-        // Single chunk for easy debugging
-        manualChunks: undefined,
-      },
     },
-    // Inline small assets
     assetsInlineLimit: 0,
-    // Single file output
     cssCodeSplit: false,
+    sourcemap: false,
+    // Vite auto-splits vendor chunks via rolldown optimization
+    // No manualChunks needed — Rolldown handles React/Immer separation
   },
   resolve: {
     alias: {

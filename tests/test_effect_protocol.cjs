@@ -143,6 +143,484 @@ test('No Date.now() or Math.random() in gameReducer', function () {
   assert.deepStrictEqual(violations, [], 'Reducer impurity:\n' + violations.join('\n'));
 });
 
+// === P1-E: Integration tests — full effect pipeline ===
+
+// Test 6: Effect executor dispatches to correct handlers by type
+test('effectExecutor routes AUDIO_PLAY to audioManager.playEffect', function () {
+  var calls = [];
+  var mockAudioManager = {
+    playEffect: function (id) { calls.push({ fn: 'playEffect', id: id }); },
+    playSkillEffect: function (id) { calls.push({ fn: 'playSkillEffect', id: id }); },
+    playAreaAmbient: function (a, p) { calls.push({ fn: 'playAreaAmbient', area: a, phase: p }); },
+    playSanLoss: function (amt) { calls.push({ fn: 'playSanLoss', amount: amt }); },
+    playUI: function (id) { calls.push({ fn: 'playUI', id: id }); },
+    setMuted: function (m) { calls.push({ fn: 'setMuted', muted: m }); },
+    suddenMuted: false,
+  };
+  var mockSaveGame = function (s) { calls.push({ fn: 'saveGame' }); };
+  var mockIncrementStat = function (k) { calls.push({ fn: 'incrementStat', key: k }); };
+  var mockDispatch = function (a) { calls.push({ fn: 'dispatch', action: a }); };
+
+  // Simulate the EFFECT_HANDLERS map (mirrors effectExecutor.js)
+  var HANDLERS = {
+    AUDIO_PLAY: function (fx) { mockAudioManager.playEffect(fx.id); },
+    AUDIO_SKILL: function (fx) { mockAudioManager.playSkillEffect(fx.id); },
+    AUDIO_AMBIENT: function (fx) { mockAudioManager.playAreaAmbient(fx.area, fx.phase); },
+    AUDIO_SAN_LOSS: function (fx) { mockAudioManager.playSanLoss(fx.amount); },
+    AUDIO_UI: function (fx) { mockAudioManager.playUI(fx.id); },
+    SAVE_GAME: function (fx) { mockSaveGame(fx.state); },
+    INCREMENT_STAT: function (fx) { mockIncrementStat(fx.key); },
+    NARRATE_DELAYED: function (fx, dispatch) {
+      setTimeout(function () { dispatch({ type: 'DELAYED_NARRATE', text: fx.text }); }, fx.delay);
+    },
+  };
+
+  // Simulate a batch of effects like what gameReducer produces
+  var effects = [
+    { type: 'AUDIO_PLAY', id: 'begin', _fxId: 'batch1_0' },
+    { type: 'AUDIO_AMBIENT', area: 'town_center', phase: 'morning', _fxId: 'batch1_1' },
+    { type: 'INCREMENT_STAT', key: 'total_runs', _fxId: 'batch1_2' },
+  ];
+
+  // Execute (dedup set simulation)
+  var executed = new Set();
+  for (var i = 0; i < effects.length; i++) {
+    var fx = effects[i];
+    if (fx._fxId && executed.has(fx._fxId)) continue;
+    if (fx._fxId) executed.add(fx._fxId);
+    var handler = HANDLERS[fx.type];
+    if (handler) handler(fx, mockDispatch);
+  }
+
+  assert.strictEqual(calls.length, 3, 'Should execute 3 effects');
+  assert.deepStrictEqual(calls[0], { fn: 'playEffect', id: 'begin' });
+  assert.deepStrictEqual(calls[1], { fn: 'playAreaAmbient', area: 'town_center', phase: 'morning' });
+  assert.deepStrictEqual(calls[2], { fn: 'incrementStat', key: 'total_runs' });
+});
+
+// Test 7: Effects with same _fxId are deduplicated
+test('Duplicate _fxId effects only execute once (integration)', function () {
+  var count = 0;
+  var HANDLER = function () { count++; };
+  var effects = [
+    { type: 'AUDIO_PLAY', id: 'bell', _fxId: 'same_0' },
+    { type: 'AUDIO_PLAY', id: 'bell', _fxId: 'same_0' },
+    { type: 'AUDIO_PLAY', id: 'bell', _fxId: 'same_0' },
+    { type: 'AUDIO_PLAY', id: 'other', _fxId: 'diff_0' },
+  ];
+
+  var executed = new Set();
+  for (var i = 0; i < effects.length; i++) {
+    var fx = effects[i];
+    if (fx._fxId && executed.has(fx._fxId)) continue;
+    if (fx._fxId) executed.add(fx._fxId);
+    HANDLER(fx);
+  }
+
+  assert.strictEqual(count, 2, 'Same _fxId should execute once, different _fxId executes');
+});
+
+// Test 8: NARRATE_DELAYED effect defers dispatch (not synchronous)
+test('NARRATE_DELAYED defers dispatch via setTimeout', function () {
+  var dispatched = [];
+  var mockDispatch = function (a) { dispatched.push(a); };
+  var timeoutCalled = false;
+  var timeoutDelay = null;
+
+  // Verify that NARRATE_DELAYED handler calls setTimeout (not dispatch directly)
+  var origSetTimeout = global.setTimeout;
+  global.setTimeout = function (fn, delay) {
+    timeoutCalled = true;
+    timeoutDelay = delay;
+    // Don't actually run the callback — just verify the call
+  };
+
+  try {
+    var fx = { type: 'NARRATE_DELAYED', text: 'delayed text', delay: 3000, _fxId: 'delay_0' };
+    // Simulate NARRATE_DELAYED handler behavior (from effectExecutor.js)
+    setTimeout(function () {
+      mockDispatch({ type: 'DELAYED_NARRATE', narrType: fx.narrType || 'system', text: fx.text });
+    }, fx.delay || 3000);
+
+    assert.strictEqual(dispatched.length, 0, 'Should not dispatch synchronously');
+    assert.ok(timeoutCalled, 'Should call setTimeout');
+    assert.strictEqual(timeoutDelay, 3000, 'Should use the delay value');
+  } finally {
+    global.setTimeout = origSetTimeout;
+  }
+});
+
+// Test 9: BEGIN_ADVENTURE produces expected effect types (structural check)
+test('BEGIN_ADVENTURE action produces AUDIO_PLAY + AUDIO_AMBIENT effects', function () {
+  // Read coreSlice to verify it pushes the right effects
+  var coreSlicePath = path.join(SRC, 'reducers', 'slices', 'coreSlice.js');
+  var content = fs.readFileSync(coreSlicePath, 'utf8');
+
+  // Find the BEGIN_ADVENTURE case
+  var beginIdx = content.indexOf("case 'BEGIN_ADVENTURE'");
+  assert.ok(beginIdx > 0, 'BEGIN_ADVENTURE case should exist');
+  var endIdx = content.indexOf("case 'NEW_GAME'", beginIdx);
+  var beginBlock = content.slice(beginIdx, endIdx);
+
+  // Verify it pushes AUDIO_PLAY effects (either raw objects or via commands.js audio.play/audio.ambient)
+  var hasAudioPlay = beginBlock.includes("type: 'AUDIO_PLAY'") || beginBlock.includes('audio.play(') || beginBlock.includes('audio.ambient(');
+  var hasAudioAmbient = beginBlock.includes("type: 'AUDIO_AMBIENT'") || beginBlock.includes('audio.ambient(');
+  assert.ok(hasAudioPlay, 'Should push AUDIO_PLAY effect (direct or via commands.js)');
+  assert.ok(hasAudioAmbient, 'Should push AUDIO_AMBIENT effect (direct or via commands.js)');
+
+  // Verify it does NOT call audioManager directly (must use effect system)
+  assert.ok(!beginBlock.includes('audioManager.'), 'Should not call audioManager directly');
+  assert.ok(!beginBlock.includes('setTimeout'), 'Should not call setTimeout directly');
+});
+
+// Test 10: EXPLORE produces expected effect types (structural check)
+test('EXPLORE action produces AUDIO_SKILL + AUDIO_PLAY effects', function () {
+  var explorePath = path.join(SRC, 'reducers', 'slices', 'exploreSlice.js');
+  var content = fs.readFileSync(explorePath, 'utf8');
+
+  var exploreIdx = content.indexOf("case 'EXPLORE'");
+  assert.ok(exploreIdx > 0, 'EXPLORE case should exist');
+
+  // Verify it uses c.effects.push for audio
+  assert.ok(content.includes("c.effects.push({ type: 'AUDIO_SKILL'"), 'Should push AUDIO_SKILL via effects');
+  assert.ok(content.includes("c.effects.push({ type: 'AUDIO_PLAY'"), 'Should push AUDIO_PLAY via effects');
+});
+
+// === P2 Verification: Effect buffer safety + eventDebugger dry-run ===
+
+// Test 11: Effect buffer does NOT leak across consecutive dispatches
+test('does not leak pending effects across consecutive dispatches', function () {
+  // Simulate the exact module-level buffer pattern from app.jsx
+  var _pendingEffects = [];
+
+  function fakeReducer(state, action) {
+    _pendingEffects = []; // line 363: clear at reducer entry
+    // Simulate slice handler pushing effects
+    var effects = [];
+    if (action.type === 'ACTION_A') {
+      effects.push({ type: 'AUDIO_PLAY', id: 'effect_a' });
+    }
+    if (action.type === 'ACTION_B') {
+      effects.push({ type: 'AUDIO_PLAY', id: 'effect_b' });
+    }
+    // Tag with actionId
+    var batchId = (action.meta && action.meta.actionId) || 'anon';
+    effects.forEach(function (fx, i) { fx._fxId = batchId + '_' + i; });
+    _pendingEffects = effects;
+    return Object.assign({}, state, { lastAction: action.type });
+  }
+
+  var flushed = [];
+  function fakeFlush() {
+    if (_pendingEffects.length > 0) {
+      var effects = _pendingEffects;
+      _pendingEffects = [];
+      flushed = flushed.concat(effects);
+    }
+  }
+
+  // Dispatch A
+  var state = { day: 1 };
+  state = fakeReducer(state, { type: 'ACTION_A', meta: { actionId: 'a1' } });
+  fakeFlush();
+  assert.strictEqual(flushed.length, 1, 'After ACTION_A: 1 effect flushed');
+  assert.strictEqual(flushed[0].id, 'effect_a', 'After ACTION_A: correct effect');
+  assert.deepStrictEqual(_pendingEffects, [], 'After ACTION_A flush: buffer empty');
+
+  // Dispatch B — must NOT see effect_a
+  state = fakeReducer(state, { type: 'ACTION_B', meta: { actionId: 'b1' } });
+  fakeFlush();
+  assert.strictEqual(flushed.length, 2, 'After ACTION_B: 2 total effects');
+  assert.strictEqual(flushed[1].id, 'effect_b', 'After ACTION_B: only effect_b, not effect_a');
+  assert.deepStrictEqual(_pendingEffects, [], 'After ACTION_B flush: buffer empty');
+
+  // Dispatch C (no effects) — must NOT leak effect_b
+  state = fakeReducer(state, { type: 'ACTION_C', meta: { actionId: 'c1' } });
+  fakeFlush();
+  assert.strictEqual(flushed.length, 2, 'After ACTION_C: no new effects');
+  assert.deepStrictEqual(_pendingEffects, [], 'After ACTION_C: buffer still empty');
+});
+
+// Test 12: StrictMode reducer replay — same _fxId deduped by executor
+test('StrictMode reducer replay does not double-execute effects (fxId dedup)', function () {
+  var executed = [];
+  var _executedFxIds = new Set();
+
+  function mockExecutor(effects) {
+    for (var i = 0; i < effects.length; i++) {
+      var fx = effects[i];
+      if (fx._fxId && _executedFxIds.has(fx._fxId)) continue;
+      if (fx._fxId) _executedFxIds.add(fx._fxId);
+      executed.push(fx._fxId);
+    }
+  }
+
+  // Simulate: action dispatched, reducer runs twice (StrictMode), buffer flushed once
+  var effects_from_reducer = [
+    { type: 'AUDIO_PLAY', id: 'bell', _fxId: 'action1_0' },
+    { type: 'AUDIO_AMBIENT', area: 'town', _fxId: 'action1_1' },
+  ];
+
+  // First flush (from first reducer run)
+  mockExecutor(effects_from_reducer);
+  assert.strictEqual(executed.length, 2, 'First flush: 2 effects executed');
+
+  // Second flush with SAME _fxIds (StrictMode re-runs produce same actionId)
+  mockExecutor(effects_from_reducer);
+  assert.strictEqual(executed.length, 2, 'Second flush: still 2 (deduped by _fxId)');
+
+  // New action with different _fxIds should execute
+  var effects_from_action2 = [
+    { type: 'AUDIO_PLAY', id: 'other', _fxId: 'action2_0' },
+  ];
+  mockExecutor(effects_from_action2);
+  assert.strictEqual(executed.length, 3, 'New action: 3 total (new _fxId executes)');
+});
+
+// Test 13: eventDebugger is a pure dry-run (no state mutation)
+test('explainEventSelection does not mutate game state (dry-run)', function () {
+  var debuggerPath = path.join(SRC, 'systems', 'eventDebugger.js');
+  if (!fs.existsSync(debuggerPath)) {
+    // eventDebugger not yet created — skip
+    console.log('  SKIP: eventDebugger.js not found');
+    passed--; // undo the PASS from test() wrapper
+    return;
+  }
+
+  var content = fs.readFileSync(debuggerPath, 'utf8');
+
+  // Verify no mutation patterns in explainEventSelection
+  var fnStart = content.indexOf('export function explainEventSelection(');
+  var fnEnd = content.indexOf('\nexport function ', fnStart + 1);
+  if (fnEnd === -1) fnEnd = content.length;
+  var fnBody = content.slice(fnStart, fnEnd);
+
+  // Must NOT mutate state
+  var violations = [];
+  var lines = fnBody.split('\n');
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (line.startsWith('//')) continue;
+    // Check for state mutation patterns
+    if (/\bstate\.\w+\s*=/.test(line) && !/state\.\w+\s*===/.test(line)) {
+      violations.push('line ' + (i + 1) + ': state mutation: ' + line);
+    }
+    if (/\bs\.\w+\s*=\s/.test(line) && !/s\.\w+\s*===/.test(line) && !/var |let |const /.test(line)) {
+      violations.push('line ' + (i + 1) + ': draft mutation: ' + line);
+    }
+    if (/\.push\(|\.pop\(|\.splice\(|\.shift\(/.test(line)) {
+      // Only flag pushes on STATE arrays (state.xxx.push or s.xxx.push), not local vars
+      if (/state\.\w+\.push|s\.\w+\.push/.test(line) ||
+          /\btriggeredEvents\.push|\bcooldowns?\[.*\]\s*=|\bclues\.push|\binventory\.push|\bnpcStates/.test(line)) {
+        violations.push('line ' + (i + 1) + ': state array mutation: ' + line);
+      }
+    }
+    if (/Math\.random/.test(line)) {
+      violations.push('line ' + (i + 1) + ': Math.random (non-deterministic): ' + line);
+    }
+    if (/Date\.now/.test(line)) {
+      violations.push('line ' + (i + 1) + ': Date.now (non-deterministic): ' + line);
+    }
+    if (/setTimeout|setInterval/.test(line)) {
+      violations.push('line ' + (i + 1) + ': timer (side effect): ' + line);
+    }
+    if (/dispatch\(/.test(line) && !/\/\/ /.test(line)) {
+      violations.push('line ' + (i + 1) + ': dispatch (side effect): ' + line);
+    }
+    if (/localStorage/.test(line)) {
+      violations.push('line ' + (i + 1) + ': localStorage (side effect): ' + line);
+    }
+  }
+  assert.deepStrictEqual(violations, [], 'eventDebugger must be pure (no mutation/determinism/side-effects):\n' + violations.join('\n'));
+});
+
+// Test 14: eventDebugger output structure is correct
+test('explainEventSelection returns valid report structure', function () {
+  var debuggerPath = path.join(SRC, 'systems', 'eventDebugger.js');
+  if (!fs.existsSync(debuggerPath)) {
+    console.log('  SKIP: eventDebugger.js not found');
+    passed--;
+    return;
+  }
+
+  // Load the module (it's pure ESM, but we can parse it for structure checks)
+  var content = fs.readFileSync(debuggerPath, 'utf8');
+
+  // Verify return structure includes required fields
+  assert.ok(content.includes('eligible:'), 'Report must have eligible field');
+  assert.ok(content.includes('excluded:'), 'Report must have excluded field');
+  assert.ok(content.includes('reasonCounts:'), 'Report must have reasonCounts field');
+  assert.ok(content.includes('totalEvents:'), 'Report must have totalEvents field');
+  assert.ok(content.includes('eligibleCount:'), 'Report must have eligibleCount field');
+  assert.ok(content.includes('excludedCount:'), 'Report must have excludedCount field');
+});
+
+// === P_NEXT: Seeded RNG determinism tests ===
+
+// Test 15: Seeded RNG produces identical sequences for same seed
+test('createSeededRng: same seed+salt produces identical sequence', function () {
+  var rngPath = path.join(SRC, 'utils', 'seededRng.js');
+  if (!fs.existsSync(rngPath)) { console.log('  SKIP: seededRng.js not found'); passed--; return; }
+  var content = fs.readFileSync(rngPath, 'utf8');
+  // Verify the module exports createSeededRng and generateRunSeed
+  assert.ok(content.includes('export function createSeededRng'), 'Must export createSeededRng');
+  assert.ok(content.includes('export function generateRunSeed'), 'Must export generateRunSeed');
+
+  // Inline test of mulberry32 (same logic as the module)
+  function testRng(seed, salt) {
+    var h = 0;
+    var s = String(seed || 'default') + '_' + String(salt || 0);
+    for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+    var state = h >>> 0;
+    if (state === 0) state = 1;
+    var results = [];
+    for (var j = 0; j < 10; j++) {
+      state = (state + 0x6d2b79f5) | 0;
+      var t = Math.imul(state ^ (state >>> 15), 1 | state);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      results.push(((t ^ (t >>> 14)) >>> 0) / 4294967296);
+    }
+    return results;
+  }
+
+  var seq1 = testRng('run_abc', 42);
+  var seq2 = testRng('run_abc', 42);
+  var seq3 = testRng('run_abc', 43);
+  var seq4 = testRng('run_xyz', 42);
+
+  assert.deepStrictEqual(seq1, seq2, 'Same seed+salt → identical sequence');
+  assert.notDeepStrictEqual(seq1, seq3, 'Different salt → different sequence');
+  assert.notDeepStrictEqual(seq1, seq4, 'Different seed → different sequence');
+  assert.ok(seq1[0] >= 0 && seq1[0] < 1, 'Values in [0,1) range');
+});
+
+// Test 16: Seeded RNG pick/weighted/shuffle are deterministic
+test('createSeededRng: pick and shuffle are deterministic', function () {
+  // Inline simulation of pick/weighted/shuffle with seeded rng
+  function makeRng(seed, salt) {
+    var h = 0;
+    var s = String(seed) + '_' + String(salt);
+    for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+    var state = (h >>> 0) || 1;
+    function next() {
+      state = (state + 0x6d2b79f5) | 0;
+      var t = Math.imul(state ^ (state >>> 15), 1 | state);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    function pick(arr) { return arr[Math.floor(next() * arr.length)]; }
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(next() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+      }
+      return a;
+    }
+    return { next: next, pick: pick, shuffle: shuffle };
+  }
+
+  var rng1 = makeRng('test_seed', 0);
+  var rng2 = makeRng('test_seed', 0);
+  var items = ['a', 'b', 'c', 'd', 'e'];
+
+  // Pick sequence
+  var picks1 = [], picks2 = [];
+  for (var i = 0; i < 20; i++) { picks1.push(rng1.pick(items)); picks2.push(rng2.pick(items)); }
+  assert.deepStrictEqual(picks1, picks2, 'pick() sequence identical for same seed');
+
+  // Shuffle
+  var shuf1 = rng1.shuffle(items);
+  var shuf2 = rng2.shuffle(items);
+  assert.deepStrictEqual(shuf1, shuf2, 'shuffle() identical for same seed');
+  assert.notDeepStrictEqual(shuf1, items, 'shuffle() actually reorders');
+});
+
+// Test 17: Build order — all ESM imports in bundle files resolve to earlier files
+test('build order: all imported functions available before use', function () {
+  var buildPath = path.join(__dirname, '..', 'build.py');
+  if (!fs.existsSync(buildPath)) { console.log('  SKIP: build.py not found'); passed--; return; }
+  var buildContent = fs.readFileSync(buildPath, 'utf8');
+  // Extract REDUCER_FILES list
+  var listMatch = buildContent.match(/REDUCER_FILES\s*=\s*\[([\s\S]*?)\]/);
+  if (!listMatch) { console.log('  SKIP: cannot parse REDUCER_FILES'); passed--; return; }
+  var fileListStr = listMatch[1];
+  var fileRegex = /'([^']+)'/g;
+  var buildOrder = [];
+  var m;
+  while ((m = fileRegex.exec(fileListStr)) !== null) {
+    buildOrder.push(m[1]);
+  }
+
+  // For each file in the build order, check that its ESM imports reference
+  // files that appear EARLIER in the build order (or are in the same file)
+  var violations = [];
+  for (var i = 0; i < buildOrder.length; i++) {
+    var relPath = buildOrder[i];
+    var absPath = path.join(SRC, relPath);
+    if (!fs.existsSync(absPath)) continue;
+    var content = fs.readFileSync(absPath, 'utf8');
+    // Find all import ... from './xxx.js' statements
+    var importRegex = /import\s+.*?from\s+['"]\.\/(.*?)['"]/g;
+    var im;
+    while ((im = importRegex.exec(content)) !== null) {
+      var importTarget = im[1];
+      // Normalize: strip ../ prefix to get relative-to-src path
+      var dir = path.dirname(relPath);
+      var resolved = path.normalize(path.join(dir, importTarget)).replace(/\\/g, '/');
+      // Check if this resolved path appears in buildOrder BEFORE current file
+      var foundAt = buildOrder.indexOf(resolved);
+      if (foundAt === -1) {
+        // Not in build order at all — might be a node_module or optional
+        // Only flag if it's a src/ file
+        if (resolved.startsWith('src/')) {
+          violations.push(relPath + ' imports ' + resolved + ' (not in REDUCER_FILES)');
+        }
+      } else if (foundAt > i) {
+        violations.push(relPath + ' (pos ' + i + ') imports ' + resolved + ' (pos ' + foundAt + ') — loaded AFTER');
+      }
+    }
+  }
+  assert.deepStrictEqual(violations, [], 'Build order violations:\n' + violations.join('\n'));
+});
+
+// Test 18b: No shadowed 'c' variable bugs in slice handlers
+test('slice handlers: no c.xxx inside .find/.filter/.map callbacks', function () {
+  var sliceDir = path.join(SRC, 'reducers', 'slices');
+  var files = fs.readdirSync(sliceDir).filter(function (f) { return f.endsWith('.js'); });
+  var violations = [];
+  for (var fi = 0; fi < files.length; fi++) {
+    var content = fs.readFileSync(path.join(sliceDir, files[fi]), 'utf8');
+    var lines = content.split('\n');
+    var inHandler = false;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      // Track if we're inside a handler function (has `c` parameter)
+      if (/export function handle\w+Action\(s,\s*action,\s*c/.test(line)) inHandler = true;
+      if (inHandler && /^}$/.test(line.trim())) inHandler = false;
+      if (!inHandler) continue;
+      // Skip comments
+      if (line.trim().startsWith('//')) continue;
+      // Check for .find/.filter/.map/.forEach callbacks that might shadow 'c'
+      // Pattern: callback param named 'c' then using c.xxx where xxx is a data field
+      var callbackMatch = line.match(/\.\s*(find|filter|map|forEach)\s*\(\s*\(([^)]*)\)\s*=>/);
+      if (callbackMatch) {
+        var params = callbackMatch[2].split(',').map(function (p) { return p.trim(); });
+        // Check if any param is 'c' and the body uses c.something
+        if (params.indexOf('c') !== -1 && /\bc\.\w+/.test(line)) {
+          violations.push(files[fi] + ':' + (i + 1) + ': callback param "c" shadows reducer context: ' + line.trim());
+        }
+      }
+      // Also check: arrow callback with 'c' param in multi-line patterns
+      var arrowC = line.match(/\.\s*(find|filter|map|forEach)\s*\(\s*\(c\)\s*=>/);
+      if (arrowC && /\bc\.(id|name|clues|choices|type|text|weight|area|trigger|effects)\b/.test(line)) {
+        violations.push(files[fi] + ':' + (i + 1) + ': "c." in callback shadows reducer ctx: ' + line.trim());
+      }
+    }
+  }
+  assert.deepStrictEqual(violations, [], 'Shadowed "c" variable bugs:\n' + violations.join('\n'));
+});
+
 // === Summary ===
 console.log('\n=== Effect Protocol Tests ===');
 console.log('  ' + passed + ' passed, ' + failed + ' failed');

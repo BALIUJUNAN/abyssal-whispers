@@ -5,7 +5,7 @@ import { rand, clamp, applySanLoss } from '../utils.js';
 import { setCorruptionFlag } from '../npcReducer.js';
 import { addRunMemory, modHumanity } from '../../utils/appHelpers.js';
 
-export function handleDarkAction(s, action, c) {
+export function handleDarkAction(s, action, c, ctx) {
   switch (action.type) {
     case 'SELF_HARM': {
       if (s.ap < 2) {

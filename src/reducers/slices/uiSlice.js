@@ -15,7 +15,7 @@ import {
 } from '../prologueReducer.js';
 import { addRunMemory } from '../../utils/appHelpers.js';
 
-export function handleUiAction(s, action, c) {
+export function handleUiAction(s, action, c, ctx) {
   switch (action.type) {
     case 'CHOICE_SELECT': {
       const pc = s.pendingChoice;
@@ -151,8 +151,8 @@ export function handleUiAction(s, action, c) {
         if (r < reward.clue_chance) {
           // Clue found — causal feedback
           const availableClues = (GD.clue_chains || [])
-            .flatMap((x) => c.clues || [])
-            .filter((x) => !hasClueId(s.clues, c.id));
+            .flatMap((x) => x.clues || [])
+            .filter((x) => !hasClueId(s.clues, x.id));
           if (availableClues.length > 0) {
             const found = pick(availableClues);
             s.clues.push({ id: found.id, name: found.name || found.id });
@@ -247,20 +247,43 @@ export function handleUiAction(s, action, c) {
       if (!s.prologue || s.prologue.completed) return s;
       const currentEvent = getPrologueEvent(s.prologue.currentScene);
       if (!currentEvent) return s;
-      const pChoice = currentEvent.choices.find((x) => c.id === action.choiceId);
+      const pChoice = currentEvent.choices.find((x) => x.id === action.choiceId);
       if (!pChoice) return s;
-      // AP消耗（前传中简化）
+
+      // 调用纯函数获取结果（不修改 draft）
+      const result = handlePrologueChoice(s, action.choiceId);
+
+      // 将结果写回 draft（Immer mutation 模式，不 return 新对象）
+      // 1) 更新 prologue（fear profile、choicesMade、currentScene）
+      if (result.state.prologue) {
+        Object.assign(s.prologue, result.state.prologue);
+      }
+      // 2) 更新 fearTuning（如果有）
+      if (result.state.fearTuning) {
+        s.fearTuning = result.state.fearTuning;
+      }
+      // 3) 更新 triggeredEvents（前传完成时的 flags）
+      if (result.state.triggeredEvents) {
+        s.triggeredEvents = result.state.triggeredEvents;
+      }
+      // 4) 更新 clues
+      if (result.state.clues) {
+        s.clues = result.state.clues;
+      }
+      // 5) SAN 变化
+      if (result.state.san !== undefined) {
+        s.san = result.state.san;
+      }
+      // 6) AP 消耗
       if (pChoice.cost && pChoice.cost > 0) {
         s.ap = Math.max(0, s.ap - pChoice.cost);
       }
-      // handlePrologueChoice 现在返回 { state, narration, nextScene, completed }
-      const result = handlePrologueChoice(s, action.choiceId);
-      // 用返回的新 state 替换 s（不可变）
-      s = result.state;
+
       // 添加叙述文本
       for (const block of result.narration) {
         c.narr(block.type, block.text, { isEffect: block.isEffect, isSpecial: block.isSpecial });
       }
+
       // 如果完成前传，恢复初始状态用于角色创建
       if (result.completed) {
         s.san = s.maxSan;

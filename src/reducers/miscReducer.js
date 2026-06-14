@@ -101,8 +101,14 @@ export function processSafehouseNight(state, ctx) {
   let accel = sealState?.global_modifier?.npc_corruption_rate || 0.05;
   let baseGain = Math.round(accel * 10 + rand(0, 3));
   // Degradation triggers
-  if (state.san < 30) baseGain = Math.round(baseGain * 1.3); // SAN<30: +30% speed
+  // P1-A: SSOT — explanation_loss (level >= 3) boosts corruption rate
+  if (getSanStageFromGD(state.san).level >= 3) baseGain = Math.round(baseGain * 1.3);
   if (state.npcStates['玛莎·格雷']?.corrupted) baseGain = Math.round(baseGain * 1.5); // Martha corrupted: +50%
+  // DESIGN_REFACTOR_NOTES.md: "每轮回+2天腐蚀进度（loop 3后生效）"
+  // After loop 3, the safehouse starts to remember. The walls know you've been here before.
+  if ((state.loopCount || 0) >= 3) {
+    baseGain += 2;
+  }
   corruption += baseGain;
   const corruptedCount = Object.values(state.npcStates).filter(
     (ns) => ns.corrupted && !ns.dead

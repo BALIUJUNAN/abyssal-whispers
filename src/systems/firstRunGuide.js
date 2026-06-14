@@ -1,6 +1,8 @@
 // src/systems/firstRunGuide.js — Narrative-style contextual hints
 // Functionally = guidance. Expressively = atmosphere.
 // Never breaks the fourth wall. Never uses tutorial language.
+//
+// Early hooks (thirteenth bell entrance) are in src/systems/earlyHooks.js.
 
 const GUIDE_STEPS = [
   {
@@ -29,7 +31,11 @@ const GUIDE_STEPS = [
   },
   {
     id: 'low_san_warning',
-    condition: (s) => s.san < 30 && s.san > 0,
+    condition: (s) => {
+      // P1-A: SSOT — explanation_loss (level >= 3)
+      try { if (typeof getSanStageFromGD === 'function') return getSanStageFromGD(s.san).level >= 3 && s.san > 0; } catch (e) {}
+      return s.san < 30 && s.san > 0; // fallback
+    },
     message: '你的手在发抖。墙壁上的裂缝在移动。你需要找个安全的地方待一会儿。',
     priority: 15,
   },

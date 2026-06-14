@@ -691,3 +691,310 @@ game_data.json (9198行, 31个顶层键)
 - 主观现实选项变体：8个类别
 - 多周目NPC变体：6个NPC
 - 多周目地点变体：4个区域
+
+---
+
+## SAN视觉效果抽取重构 (sanReducer → sanityVisual)
+
+### 重构目标
+
+保持 reducers 纯净：reducer 只负责游戏状态变更逻辑（SAN 扣分、疯狂判定），所有视觉/展示/UI 相关逻辑抽取到 `systems/sanityVisual.js`。
+
+### 新增文件
+
+**`src/systems/sanityVisual.js`** (284行) — SAN 视觉呈现系统，包含7个模块：
+
+| 模块 | 函数 | 来源 | 职责 |
+|------|------|------|------|
+| §1 共享阶段查找 | `findSanStageIndex()` | 新建 | SSOT: SAN值→stages数组索引 |
+| §2 阶段展示层 | `buildSanStagePresentation()` | sanReducer.js | 颜色、文本修饰、视觉等级映射 |
+| §3 文本腐蚀 | `getSanTextVariant()` | sanReducer.js | 字符级SAN文本腐蚀（概率渐变） |
+| §4 场景变体 | `getSanSceneVariant()` | sanReducer.js | 场景键→SAN等级文本变体 |
+| §5 Canvas视觉参数 | `getVisualForSan()` | SanPollutionLayer.jsx | 插值式视觉参数（去重） |
+| §6 CSS类推导 | `getSanStageClasses()` | app.jsx内联逻辑 | SAN→CSS类名一键转换 |
+| §7 感知等级 | `getPerceptionLevels()` | appHelpers.js | 多因子感知扭曲计算 |
+
+### 修改文件
+
+| 文件 | 行数变化 | 改动 |
+|------|----------|------|
+| `reducers/sanReducer.js` | 141→71 (-49%) | 移除presentation函数，改为re-export |
+| `components/SanPollutionLayer.jsx` | 562→489 (-13%) | 移除getVisualForSan内联，改为import |
+| `app.jsx` | -10行 | 用getSanStageClasses替代14行内联CSS逻辑 |
+| `utils/appHelpers.js` | -40行 | getPerceptionLevels改为re-export |
+| `vite-compat-shim.jsx` | +2行 | 添加sanityVisual模块注册 |
+
+### 架构原则
+
+```
+sanityVisual.js (systems/)          ← 纯展示层，无状态变更
+  ├── getVisualForSan()             ← Canvas overlay 参数
+  ├── getSanStageClasses()          ← CSS 类名推导
+  ├── getSanTextVariant()           ← 文本腐蚀
+  ├── getSanSceneVariant()          ← 场景变体
+  └── getPerceptionLevels()         ← 感知扭曲等级
+
+sanReducer.js (reducers/)           ← 纯游戏逻辑
+  ├── processSanLoss()              ← SAN 扣分计算
+  ├── rollMadness()                 ← 疯狂效果掷骰
+  └── re-exports from sanityVisual  ← 向后兼容
+
+utils.js (reducers/)                ← 底层工具
+  ├── getCurrentSanStage()          ← SSOT 阶段查找
+  └── applySanLoss()                ← SAN 值变更
+```
+
+### 向后兼容
+
+- `sanReducer.js` 保留 `getSanStage()`, `getSanStageFromGD()`, `getSanTextVariant()`, `getSanSceneVariant()` 的 re-export
+- 所有现有 import 路径无需修改（`import { getSanStage } from './reducers/sanReducer.js'` 继续工作）
+- `SanPollutionLayer.jsx` 的 `getVisualForSan` re-export 保持向后兼容
+
+---
+
+## 遗产亮点系统 (Legacy Highlights)
+
+### 设计理念
+
+死亡不是终点——是你在这个世界留下的痕迹。遗产亮点在死亡总结页的末尾显示本轮最有意义的瞬间，让玩家感受到自己的选择产生了重量。
+
+### 结构
+
+```
+deathSummary.legacy = {
+  title: '你留下的痕迹',
+  highlights: [
+    { type: 'npc_farewell', npc, trust, tier, line, emphasis }  // 最高信任NPC遗言
+    { type: 'moment', icon, label, text, severity? }             // 本轮最佳时刻
+    { type: 'loop_stamp', icon, label, text, loop }              // 轮回印记
+  ]
+}
+```
+
+### 遗言生成规则
+
+| 信任等级 | tier | 遗言风格 |
+|----------|------|----------|
+| ≥5 | max | 多段叙述，情绪饱满，有具体细节和动作描写 |
+| 3-4 | high | 简短但有温度，通常包含一个小物件或暗示 |
+| 1-2 | low | 客气但有距离感，暗示NPC注意到了什么 |
+| 0 | - | 不显示遗言 |
+
+### 时刻识别
+
+| 条件 | 标签 | 文本 |
+|------|------|------|
+| redeemed_npcs > 0 | 救赎 | 让某人做出属于自己的选择 |
+| humanityScore ≥ 70 | 人性 | 在深渊面前保持了人样 |
+| discoveredConclusions ≥ 2 | 真相 | 推导出多条结论 |
+| cannibalism > 0 或 sacred_desecration > 0 | 堕落 | 做了不该做的事 |
+| clues ≥ 8 | 探索 | 收集了大量线索 |
+| SAN死亡 + 人性≥50 | 代价 | 精神在探索中燃尽 |
+
+### 渲染特征
+
+- NPC遗言：左侧金色边框 + 浅底色，多行斜体，信任值标签
+- 时刻条目：图标 + 灰色文字，堕落时刻用橙色高亮
+- 轮回印记：分割线后小字，仅在 loop > 0 时显示
+
+---
+
+## 早期钩子系统 (Early Hooks) — Day 1-3 感官锚点
+
+### 设计目标
+
+前30分钟必须有1-2个强视觉/音频钩子，让玩家在理性理解之前就被"击中"。
+
+### 十三声钟入口序列 (Thirteenth Bell Entrance)
+
+**触发时机**：BEGIN_ADVENTURE 后 6 秒，仅第一轮（loop 0）
+
+**时序**：
+```
+t=0ms     dispatch GLITCH_PULSE(strength=6) → Canvas 色差+撕裂+模糊
+t=200ms   playEffect('bell_entrance')        → 第十三声钟变奏（bell_13_reverse.wav）
+t=4200ms  playEffect('bell_wrong')           → 亚音速不安层（潜意识不适）
+t=6000ms  dispatch GLITCH_PULSE_CLEAR        → 效果渐消
+```
+
+**实现链路**：
+```
+coreSlice.js BEGIN_ADVENTURE
+  → push { type: 'BELL_ENTRANCE' } to effects[]
+  → effectExecutor.js BELL_ENTRANCE handler
+    → earlyHooks.js fireBellEntrance(dispatch)
+      → dispatch GLITCH_PULSE → coreSlice sets glitchPulse=6
+      → setTimeout 200ms → audioManager.playEffect('bell_entrance')
+      → setTimeout 4200ms → audioManager.playEffect('bell_wrong')
+      → setTimeout 6000ms → dispatch GLITCH_PULSE_CLEAR → glitchPulse=0
+```
+
+**SanPollutionLayer 响应**：
+- 读取 `props.glitchPulse` (0-10)
+- 当 > 0 时：叠加 blur + hue-rotate + saturate 滤镜
+- 绘制红紫色闪烁覆盖层
+- 生成水平撕裂线（canvas getImageData/putImageData）
+
+### 状态字段
+
+| 字段 | 类型 | 位置 | 说明 |
+|------|------|------|------|
+| `glitchPulse` | number (0-10) | runtime state | Canvas扭曲强度，0=关闭 |
+
+### 早期低语 (Early Whispers)
+
+`earlyHooks.js` 导出 `EARLY_WHISPERS` —— 两个区域的氛围文本池：
+- `town_center`：5条（钟声、失踪告示、风琴、路灯、影子）
+- `harbor_district`：5条（海面、木板、缆绳、贝壳味、星星）
+
+这些不是事件，不消耗AP。可在探索时以低概率注入叙事流。
+
+### 新增文件
+
+| 文件 | 行数 | 职责 |
+|------|------|------|
+| `systems/earlyHooks.js` | 83 | Bell entrance序列 + 早期低语文本池 |
+
+### 修改文件
+
+| 文件 | 改动 |
+|------|------|
+| `managers/AudioManager.js` | +`bell_entrance` 音频路径 |
+| `runtime/effectExecutor.js` | +`BELL_ENTRANCE` effect handler |
+| `reducers/slices/coreSlice.js` | BEGIN_ADVENTURE push effect + GLITCH_PULSE handlers |
+| `state/initialState.js` | +`glitchPulse: 0` runtime state |
+| `components/SanPollutionLayer.jsx` | 读取glitchPulse, 叠加扭曲滤镜+撕裂 |
+| `app.jsx` | 传递glitchPulse prop |
+| `vite-compat-shim.jsx` | 注册earlyHooks模块 |
+
+---
+
+## SAN污染精度化 (Precision Horror)
+
+### 设计原则
+
+**恐怖不是一直危险，而是你开始无法确认什么是真的。** 如果每句文本都被腐蚀，什么都不恐怖。SAN污染应该是稀疏的、不可预期的、让人不安的——而不是视觉噪声。
+
+### 改动 1: AbyssPopup 频率降低 + 抵抗微交互
+
+| 阶段 | 旧间隔 | 新间隔 | 变化 |
+|------|--------|--------|------|
+| explanation_loss (25-39) | 60-120s | 90-150s | ↓40% |
+| reality_dissolution (10-24) | 60-120s | 120-180s | ↓150% |
+| narrative_death (1-9) | 30-60s | 30-60s + 抵抗按钮 | 不变频率，新增交互 |
+
+**抵抗微交互**（仅 narrative_death 阶段）：
+- 弹窗出现时显示"抵抗"按钮
+- 玩家快速连点3次可压制弹窗
+- 每次点击扣 1 SAN（代价=喘息）
+- 弹窗带脉冲动画边框，暗示"它可以被推开"
+
+### 改动 2: CorruptibleChoice 事件门控
+
+| 属性 | 普通行动 | 关键事件 (isKeyEvent=true) |
+|------|---------|--------------------------|
+| 最大腐蚀等级 | 0-20（视觉微闪） | 0-100（完全文字改写） |
+| hover延迟 | 2000-3000ms | 400-1200ms |
+| 文字替换 | 不触发 | 触发（窥视/爬行/低语…） |
+| 字符涂黑 | 不触发 | 触发（level≥60） |
+
+**关键事件** = 钟声相关、NPC核心对话、线索事件。
+**普通行动** = 移动、购买、休息、打工。只保留轻微视觉闪动。
+
+### 改动 3: 文本腐蚀概率降低
+
+| 阶段 | 旧概率上限 | 新概率上限 | 降幅 |
+|------|-----------|-----------|------|
+| perception_shift (40-54) | 8% | 5% | -37% |
+| explanation_loss (25-39) | 30% | 12% | -60% |
+| reality_dissolution (10-24) | 60% | 25% | -58% |
+| narrative_death (1-9) | 字符100%/追加60% | 字符60%/追加35% | -42% |
+
+### 改动 4: Canvas 3级性能降级
+
+| 等级 | FPS阈值 | 效果 | 帧率上限 |
+|------|---------|------|----------|
+| Tier 0 正常 | ≥20fps | 全部效果 | 15fps |
+| Tier 1 降级 | 10-20fps | 跳过噪点+barrel distortion+CSS blur | 12fps |
+| Tier 2 临界 | <10fps | 仅颜色偏移+扫描线，跳过撕裂+噪点 | 8fps |
+
+### 改动 5: `unreliable_narration_level` 字段
+
+每个事件新增此字段控制文本腐蚀强度：
+
+| 等级 | 效果 | 典型事件 |
+|------|------|----------|
+| 0 | 完全干净文本 | 氛围事件、日常填充 |
+| 1 | 仅污染文本（无SAN腐蚀） | 杂货店、水手谈天气、猫 |
+| 2 | 完整SAN文本腐蚀 | 渔夫警告、失踪告示、仓库钥匙 |
+| 3 | 深度腐蚀（字符级） | 十三声钟响、教堂低语、疯乞丐 |
+
+### 测试矩阵
+
+用DevPanel强制SAN=15，玩3次第一章，记录：
+- [ ] 哪些弹窗让人不安？保留。
+- [ ] 哪些弹窗让人烦躁？砍掉或拉长间隔。
+- [ ] CorruptibleChoice在普通行动中是否干扰操作？确认只闪不改。
+- [ ] 文本腐蚀是否"恰好在你快忘记时出现"？调概率。
+- [ ] 低端设备帧率是否稳定？确认Tier 1/2生效。
+
+---
+
+## 生存资源与世界倒计时对接
+
+### 改动 1: 光源→区域描述污染
+
+**机制**：光源等级 0-1（< 30%）时，`getDistortedName` 额外 +15% 名称扭曲概率；`applyLightTextCorruption` 应用于区域描述文本。
+
+**效果**：
+- 光源充足：区域名称和描述正常
+- 光源不足：镇中心可能变成"你第一次听到钟声的地方"；区域描述末尾追加感知扭曲后缀
+
+### 改动 2: 感染→NPC对话幻觉变体
+
+**机制**：`getNpcDialogueVariant` 新增 `infection_hallucination` 变体（infection ≥ 50 时优先触发）。
+
+**8个NPC各3条幻觉台词**，共24条。主题：
+- 手指间薄膜（蹼化暗示）
+- 海浪声/盐味（海水入侵感知）
+- 鳃/鳞片/灰色皮肤（身体异化）
+- 水面下的灯光/身影（深海存在暗示）
+
+**设计约束**：全部使用模糊称呼——"灰色身影"、"海里的东西"、"薄膜"，永远不说"深潜者"。
+
+### 改动 3: 安全屋退化加速
+
+**机制**：`processSafehouseNight` 在 `loopCount ≥ 3` 时额外 +2 腐蚀/天。
+
+**UI反馈**（`AreaPanelModal.jsx`）：
+- 腐蚀 ≥ 36（stage 3+）：橙色警告条 "这里不再完全安全" + "休息SAN恢复 -1"
+- 腐蚀 ≥ 56（stage 4+）：斜体小字 "墙壁上有你不记得见过的水渍"
+
+**REST惩罚**（`dailySlice.js`）：
+- Stage 3+：SAN恢复 -1
+- Stage 4+：SAN恢复 -2 + 叙事 "你试图休息。但墙壁在呼吸。"
+
+### 改动 4: 码头深潜者模糊事件
+
+**机制**：Day 7+ 码头区域 30% 概率注入 `HARBOR_DEEP_ONE_WHISPERS` 文本（REST后）。
+
+**10条文本**，按天数+腐蚀度递进：
+
+| 天数 | 腐蚀 | 示例 |
+|------|------|------|
+| 7-14 | 20-30 | "一组脚印。从海里走出来。在栈桥中间消失了。" |
+| 10-18 | 35-45 | "海面上有一个灰色的身影。它站在水面上。然后慢慢沉了下去。" |
+| 14-21 | 50-55 | "栈桥尽头站着一个灰色的身影。它没有脸。只有一层薄膜。" |
+| 18-28 | 60-70 | "海面在缓慢地起伏。像是一个巨大的肺。" |
+
+### 修改文件清单
+
+| 文件 | 改动 |
+|------|------|
+| `engine/WorldTimeSystem.js` | `getDistortedName` 新增光源/感染扭曲因子 |
+| `systems/npcDialogue.js` | +`infection_hallucination` 变体 + 24条感染幻觉台词 |
+| `systems/worldDecay.js` | +`HARBOR_DEEP_ONE_WHISPERS` (10条) + `getHarborDeepOneWhisper()` |
+| `reducers/miscReducer.js` | `processSafehouseNight` loop≥3时 +2腐蚀 |
+| `reducers/slices/dailySlice.js` | 安全屋退化SAN惩罚 + 码头深潜者低语注入 |
+| `reducers/slices/exploreSlice.js` | 区域描述应用光源文本腐蚀 |
+| `components/AreaPanelModal.jsx` | 安全屋退化UI警告 + 水渍提示 |

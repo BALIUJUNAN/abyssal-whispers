@@ -54,6 +54,8 @@ export const AUDIO_PATHS = {
   lighthouse_lens_crack: 'audio/lighthouse_lens_crack.wav',
   // Begin / first bell
   begin: 'audio/begin_low_bell.mp3',
+  // Thirteenth bell entrance — Day 1 delayed hook (bell_reverse layered with low drone)
+  bell_entrance: 'audio/bell_13_reverse.wav',
   // UI
   ui_click: 'audio/ui_click_soft.wav',
   ui_click_forbidden: 'audio/ui_click_forbidden.wav',
@@ -105,16 +107,45 @@ export const audioManager = {
   _ambientScale: 1,
   _effectScale: 1,
   _uiScale: 1,
+  // P2-4: Audio pool — reuse Audio objects for frequently played effects.
+  // Avoids creating new Audio() on every play (prevents GC pressure on rapid triggers).
+  _pool: {},
+  _poolMaxPerSrc: 2,
+  _getPoolEl(src) {
+    if (!this._pool[src]) this._pool[src] = [];
+    // Find an idle element (ended or paused at 0)
+    for (var i = 0; i < this._pool[src].length; i++) {
+      var el = this._pool[src][i];
+      if (el.ended || el.paused && el.currentTime === 0) {
+        return el;
+      }
+    }
+    // Create new if pool not full
+    if (this._pool[src].length < this._poolMaxPerSrc) {
+      var newEl = new Audio(src);
+      this._pool[src].push(newEl);
+      return newEl;
+    }
+    // Pool full — reuse oldest
+    return this._pool[src][0];
+  },
   _play(src, loop = false, category = 'effect') {
     try {
       if (this.muted) return null;
-      const catScale =
+      var catScale =
         category === 'ambient'
           ? this._ambientScale
           : category === 'ui'
             ? this._uiScale
             : this._effectScale;
-      const el = new Audio(src);
+      // P2-4: Use pool for non-looping effects; new Audio for ambient (single instance)
+      var el;
+      if (loop) {
+        el = new Audio(src); // ambient: always new (single instance managed by stopAmbient)
+      } else {
+        el = this._getPoolEl(src);
+        el.currentTime = 0; // rewind for reuse
+      }
       el.loop = loop;
       el.volume = 0.5 * (this._volumeScale || 1) * catScale;
       el.play().catch(() => {});

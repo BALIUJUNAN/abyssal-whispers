@@ -12,7 +12,7 @@ import {
   getSealStateId,
   getWeather,
 } from '../../engine/WorldTimeSystem.js';
-import { getSanStage, processSanLoss, rollMadness } from '../sanReducer.js';
+import { getSanStage, getSanStageFromGD, processSanLoss, rollMadness } from '../sanReducer.js';
 import { getSafehouseStage, processSafehouseNight } from '../miscReducer.js';
 import { genObjectives } from '../objectiveReducer.js';
 import { getChapterForDay, getMotifFlavorText, checkChapterTransition } from '../chapterReducer.js';
@@ -22,6 +22,8 @@ import { checkNPCCorruption, applyNPCCorruption } from '../npcReducer.js';
 import { resetDailyCategoryCounts } from '../extendedEvents.js';
 import { maybeGetFakeMessage, maybeInsertFalseMemory } from '../../engine/PollutionManager.js';
 import { addRunMemory, getNpcTrust, setNpcTrust } from '../../utils/appHelpers.js';
+import { hasClueId } from '../../utils/clueNameMap.js';
+import { emit } from '../../engine/eventBus.js';
 import { maybeInjectPhantomLog } from '../../systems/textVariants.js';
 
 // TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
@@ -125,6 +127,15 @@ export function _processRestRecovery(s, c, shStage, ctx) {
     const curAlt = alts.find((a) => a.name === s.currentSafehouse);
     if (curAlt?.functions?.san_restore) sanRec += curAlt.functions.san_restore;
   }
+  // DESIGN_REFACTOR_NOTES.md: degraded safehouse reduces SAN recovery
+  // Stage 3+ (不再完全安全): -1 SAN recovery
+  // Stage 4+ (安全屋破裂): -2 SAN recovery
+  if (shStage.stage >= 4 && sanRec > 0) {
+    sanRec = Math.max(0, sanRec - 2);
+    c.narr('system', '你试图休息。但墙壁在呼吸。你没有真正睡着。', { isSpecial: true });
+  } else if (shStage.stage >= 3 && sanRec > 0) {
+    sanRec = Math.max(0, sanRec - 1);
+  }
   if ((s.food || 0) > 0) {
     if (sanRec !== 0) s.san = clamp(s.san + sanRec, 0, s.maxSan);
     s.hp = clamp(s.hp + 1, 0, s.maxHp);
@@ -146,7 +157,18 @@ export function _processRestRecovery(s, c, shStage, ctx) {
 export function _advanceDayClock(s, c, ctx) {
   const oldDay = s.day;
   s.day++;
+  // eventBus: notify listeners of day transition
+  try { emit('DAY_ADVANCED', { oldDay: oldDay, newDay: s.day }); } catch (e) {}
   s.ap = s.maxAp;
+  // Chapter 1 protection: cap AP to 5 for Days 1-3 on first loop.
+  // Forces focused exploration — player must visit church/harbor, not wander aimlessly.
+  // DESIGN_REFACTOR_NOTES.md: "前3天AP上限压到4-5"
+  if (s.loopCount <= 0 && s.day <= 3) {
+    s.ap = Math.min(s.ap, 5);
+    if (s.day === 1) {
+      c.narr('system', '雾很浓。你今天走不了太远。', { isSpecial: true });
+    }
+  }
   s.weather = getWeather(pick).name;
   s.sealState = getSealStateId(s.day, ctx);
   c.effects.push({ type: 'INCREMENT_STAT', key: 'night_survived' });
@@ -166,6 +188,7 @@ export function _advanceDayClock(s, c, ctx) {
 
 /** Process chapter transitions, motif flavor, SAN stage AP mod. */
 export function _processChapterAndMotif(s, c, oldDay, ctx) {
+  const oldChKey = getChapterForDay(oldDay, ctx).key;
   const chTransition = checkChapterTransition(oldDay, s.day, ctx);
   if (chTransition) {
     s.currentChapter = getChapterForDay(s.day, ctx).key;
@@ -173,6 +196,38 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
     c.narr('system', chTransition.event_text, { isSpecial: true });
     if (chTransition.san_cost) s.san = clamp(s.san + chTransition.san_cost, 0, s.maxSan);
     if (chTransition.mythos_gain) s.mythosLevel = (s.mythosLevel || 0) + chTransition.mythos_gain;
+    // Chapter 1→2: play the fourteenth bell on the transition
+    if (oldChKey === 'chapter_1' && s.currentChapter === 'chapter_2') {
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'bell_reverse' });
+    }
+  }
+  // Day 3 forced narrative: "you found something" if player has any clues
+  // DESIGN_REFACTOR_NOTES.md: "Day 3结束强制触发教堂地下室或码头仓库过渡事件"
+  if (oldDay === 3 && s.loopCount <= 0 && !s.triggeredEvents.includes('evt_day3_transition')) {
+    s.triggeredEvents.push('evt_day3_transition');
+    var hasChurchClue = hasClueId(s.clues, 'clue_church') || hasClueId(s.clues, 'evt_church_bell')
+      || s.triggeredEvents.includes('evt_church_bell') || s.triggeredEvents.includes('evt_strange_clock');
+    var hasHarborClue = hasClueId(s.clues, 'clue_warehouse') || hasClueId(s.clues, 'evt_warehouse_key')
+      || s.triggeredEvents.includes('evt_warehouse_key') || s.triggeredEvents.includes('evt_fisherman_warning');
+    if (hasChurchClue || hasHarborClue) {
+      var loc = hasChurchClue ? '教堂' : '码头';
+      var detail = hasChurchClue
+        ? '你推开教堂侧厅的木门。门后是一段向下的石阶。石阶上很干燥——但墙壁是湿的。你听到钟声从地下传来。不是十三声。是一声。很长。'
+        : '你找到了仓库后面的暗门。门上没有锁，只有一个铜环。你拉了一下。门开了。海风从门里吹出来——但门后不是海。是一条向下的通道。墙壁上有水痕。水痕的形状像是文字。你读不懂。';
+      c.narr('event', detail, {
+        eventTitle: loc + '的秘密',
+        eventType: 'transition',
+        isSpecial: true,
+      });
+      addRunMemory(s, '在' + loc + '发现了向下的通道。', 'discovery');
+    } else {
+      // Player didn't explore much — give them a hint
+      c.narr('event', '第三天的傍晚，你听到钟声又响了。这次你很确定——是十四声。\n\n你还没有找到钟声的来源。但你知道它来自两个方向之一：教堂，或者码头。\n\n明天你必须做出选择。', {
+        eventTitle: '第十四声',
+        eventType: 'hint',
+        isSpecial: true,
+      });
+    }
   }
   if (Math.random() < GAME_BALANCE.MOTIF_TEXT_CHANCE) {
     const motifText = getMotifFlavorText(
@@ -196,9 +251,10 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
     s._madnessGlobalCheckPenalty = null;
   }
   // THEN check for passive madness (low SAN triggers madness even without event)
-  // SAN <= 15: 30% chance; SAN <= 10: 50% chance
-  if (s.san <= 15) {
-    var passiveMadnessChance = s.san <= 10 ? 0.5 : 0.3;
+  // P1-A: SSOT — narrative_death (level >= 5): 50%; reality_dissolution (level >= 4): 30%
+  var _sanLvl = getSanStageFromGD(s.san).level;
+  if (_sanLvl >= 4) {
+    var passiveMadnessChance = _sanLvl >= 5 ? 0.5 : 0.3;
     if (Math.random() < passiveMadnessChance) {
       var passiveMad = rollMadness(ctx);
       s.madnessActive = passiveMad;
@@ -255,6 +311,15 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
     const decayText = getWorldDecayNarrative(s.day, s.safehouseCorruption || 0, s);
     if (decayText) c.narr('system', decayText);
   }
+  // DESIGN_REFACTOR_NOTES.md: "Day 7后harbor_district自动增加深潜者相关模糊事件"
+  // 30% chance of harbor whisper when player rested near harbor, Day 7+
+  if (s.day >= 7 && Math.random() < 0.3) {
+    var lastArea = s._dayStartArea || s.currentArea || '';
+    if (lastArea === 'harbor_district' || lastArea === 'town_center') {
+      var harborWhisper = getHarborDeepOneWhisper(s.day, s.safehouseCorruption || 0, s);
+      if (harborWhisper) c.narr('system', harborWhisper);
+    }
+  }
 }
 
 /** Process NPC corruption triggers and seal-state accelerated corruption. */
@@ -290,7 +355,7 @@ export function _processNightEffects(s, c, ctx) {
     if (resNarr) c.narr('system', resNarr, { isSpecial: true });
   }
   {
-    const fakeMsg = maybeGetFakeMessage(s.san, s.loopCount);
+    const fakeMsg = maybeGetFakeMessage(s.san, s.loopCount, getSanStageFromGD);
     if (fakeMsg)
       c.narr('system', fakeMsg, {
         isSpecial: true,

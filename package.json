@@ -28,6 +28,9 @@
     "test:missing600": "node src/data/test_missing_600.js",
     "lint:events": "node src/data/lint_extended_events.js",
     "lint:san": "node scripts/lint_san_mutations.cjs",
+    "lint:engine": "node scripts/lint-engine-boundary.cjs",
+    "lint:schema": "node scripts/validate-data.cjs",
+    "lint:schema:verbose": "node scripts/validate-data.cjs --verbose",
     "mod:validate": "node scripts/mod_validate.cjs",
     "mod:preview": "node scripts/mod_preview.cjs",
     "mod:pack": "node scripts/mod_pack.cjs",
@@ -46,6 +49,7 @@
     "@tauri-apps/cli": "^2.11.2",
     "immer": "^11.1.8",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "zod": "^4.4.3"
   }
 }

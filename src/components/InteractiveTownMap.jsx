@@ -383,7 +383,9 @@ export function InteractiveTownMap({ state, dispatch }) {
 
       {/* 操作提示 */}
       <div className="town-map-hint">
-        点击热点探索 · 滚轮缩放 · 拖拽平移 · M键切换经典模式 · Esc关闭面板
+        {state.day <= 3 && state.loopCount <= 0
+          ? '🔔 你听到了钟声。它从教堂的方向传来。或者是码头。你不确定。 · 点击热点探索'
+          : '点击热点探索 · 滚轮缩放 · 拖拽平移 · M键切换经典模式 · Esc关闭面板'}
       </div>
     </div>
   );

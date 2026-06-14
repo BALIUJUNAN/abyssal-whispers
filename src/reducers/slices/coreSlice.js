@@ -3,6 +3,7 @@
 
 import { rollDice } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
+import { audio, hooks, fx } from '../../engine/commands.js';
 import { initialState } from '../../state/initialState.js';
 import { initPrologueState } from '../prologueReducer.js';
 import { genObjectives } from '../objectiveReducer.js';
@@ -22,7 +23,7 @@ import { initSkills } from '../../utils/gameHelpers.js';
 import { hasClueId } from '../../utils/clueNameMap.js';
 import { getAreaSceneImage } from '../../portraitMap.js';
 
-export function handleCoreAction(s, action, c) {
+export function handleCoreAction(s, action, c, ctx) {
   switch (action.type) {
     case 'START_GAME':
       s.screen = 'prologue';
@@ -73,15 +74,21 @@ export function handleCoreAction(s, action, c) {
       s.stats = st;
       s.maxHp = Math.max(1, Math.floor((st.CON + st.SIZ) / 10));
       s.hp = s.maxHp;
-      s.san = Math.max(1, st.POW);
+      s.san = st.POW;
       s.maxSan = 99;
       s.luck = rollDice('3d6') * 5;
       s.mp = Math.max(1, Math.floor(st.POW / 5));
-      // Occultist SAN penalty
+      // Occultist SAN penalty: reduced maxSan ceiling, not starting SAN
       if (archDef?.starting_san_penalty) {
         s.san = Math.max(1, s.san - archDef.starting_san_penalty);
         s.maxSan = Math.floor(s.maxSan * 0.7);
       }
+      // Floor SAN at 40 for Chapter 1 pacing.
+      // 20% of players roll POW<40 (3d6×5), which would drop them straight into
+      // explanation_loss (level 3) — text corruption, AP penalty, accelerated decay.
+      // Chapter 1 should be "slowly tightening", not "already broken".
+      // Occultist's cost is the maxSan cap (69 vs 99), not a crippled start.
+      s.san = Math.max(40, s.san);
       s.skills = { ...initSkills() };
       s.skills['闪避'] = Math.floor(st.DEX / 2);
       s.skills['意志'] = Math.floor(st.POW / 2);
@@ -95,13 +102,11 @@ export function handleCoreAction(s, action, c) {
     }
     case 'BEGIN_ADVENTURE': {
       s.screen = 'game';
-      s.objectives = genObjectives(1, ctx);
-      c.effects.push(
-        { type: 'AUDIO_PLAY', id: 'begin' },
-        { type: 'AUDIO_AMBIENT', area: s.currentArea || 'town_center', phase: 'morning' }
-      );
+      s.objectives = genObjectives(1, c);
+      // Typed commands (src/engine/commands.js) — replaces raw effect objects
+      fx(c.effects, audio.play('begin'), audio.ambient(s.currentArea || 'town_center', 'morning'));
       // SAN visual corruption: now handled by SanPollutionLayer component (no init needed)
-      s.currentChapter = getChapterForDay(s.day, ctx).key || 'chapter_1';
+      s.currentChapter = getChapterForDay(s.day, c).key || 'chapter_1';
       // Apply archetype NPC trust mods (P1-1)
       const archDef2 = (GD.systems?.player?.archetypes || []).find((a) => a.id === s.archetype);
       if (archDef2?.npc_trust_mod) {
@@ -114,7 +119,7 @@ export function handleCoreAction(s, action, c) {
         // Distribute bonus skill points to top skills
         const skillKeys = Object.keys(s.skills).filter(k => s.skills[k] > 0);
         if (skillKeys.length > 0) {
-          const target = skillKeys[Math.floor(Math.random() * skillKeys.length)];
+          const target = c.pick(skillKeys);
           s.skills[target] = (s.skills[target] || 0) + s._shopBonusSkillPoints;
           c.narr('system', '你感到某些知识比上次更清晰了。' + target + ' +' + s._shopBonusSkillPoints);
         }
@@ -123,17 +128,13 @@ export function handleCoreAction(s, action, c) {
         // Apply trust bonus to a random NPC
         const coreNpcs = (GD.npcs || []).filter(n => n.chapter_1_availability === 'core');
         if (coreNpcs.length > 0) {
-          const target = coreNpcs[Math.floor(Math.random() * coreNpcs.length)];
+          const target = c.pick(coreNpcs);
           setNpcTrust(s, target.name, getNpcTrust(s, target.name) + s._shopNpcTrustBonus);
           c.narr('system', target.name + '似乎对你有一种莫名的熟悉感。');
         }
       }
       if (s.loopCount > 0) {
-        c.effects.push(
-          { type: 'AUDIO_PLAY', id: 'loop_restart' },
-          { type: 'AUDIO_PLAY', id: 'loop_memory' },
-          { type: 'AUDIO_PLAY', id: 'bell_memory' }
-        );
+        fx(c.effects, audio.play('loop_restart'), audio.play('loop_memory'), audio.play('bell_memory'));
         const drt = GD.implementation_notes?.death_restart_text?.death_types;
         const restartTexts =
           s.lastDeathType === 'mental'
@@ -211,6 +212,10 @@ export function handleCoreAction(s, action, c) {
       s.ch1IntroComplete = true;
       addRunMemory(s, s.loopCount > 0 ? '再次踏入沃切斯特' : '初次踏入沃切斯特', 'loop');
       c.log(s.loopCount > 0 ? '第' + s.loopCount + '次轮回开始' : '冒险开始');
+      // Thirteenth bell entrance hook: audio + canvas glitch, 6s after game start.
+      if (s.loopCount <= 0) {
+        c.effects.push(hooks.bellEntrance());
+      }
       return s;
     }
     case 'NEW_GAME': {
@@ -218,12 +223,14 @@ export function handleCoreAction(s, action, c) {
       if (s.ending) c.bt.final_choice_refused_count = (c.bt.final_choice_refused_count || 0) + 1;
       // Achievement stats
       c.effects.push({ type: 'INCREMENT_STAT', key: 'total_runs' });
+      // Reset early hooks so the thirteenth bell fires on the next BEGIN_ADVENTURE
+      c.effects.push(hooks.reset());
       if (s.hp <= 0 || s.san <= 0) c.effects.push({ type: 'INCREMENT_STAT', key: 'total_deaths' });
       // Build previous run summary before reset (extended events system)
       const prevSummary = buildPreviousRunSummary(s);
       const f = initialState();
       // P0-L: 全部循环搬入逻辑已提取至 loopReducer.initLoopState()
-      initLoopState(f, s, ctx, { prevSummary });
+      initLoopState(f, s, c, { prevSummary });
       clearSave();
       return f;
     }
@@ -274,6 +281,21 @@ export function handleCoreAction(s, action, c) {
           c.narr('system', '你搬到了' + sh.name + '。' + (sh.drawback || ''));
         }
       }
+      return s;
+    }
+    case 'GLITCH_PULSE': {
+      // Canvas distortion pulse — strength 1-10, read by SanPollutionLayer
+      s.glitchPulse = Math.max(1, Math.min(10, action.strength || 5));
+      return s;
+    }
+    case 'GLITCH_PULSE_CLEAR': {
+      s.glitchPulse = 0;
+      return s;
+    }
+    case 'RESIST_SAN_DRAIN': {
+      // AbyssPopup resist mechanic: player taps to resist, costs SAN
+      var drainAmt = Math.max(1, action.amount || 1);
+      s.san = clamp(s.san - drainAmt, 0, s.maxSan);
       return s;
     }
     default:

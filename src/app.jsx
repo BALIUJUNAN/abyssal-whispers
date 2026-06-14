@@ -14,10 +14,10 @@ import {
   getWeather,
   getAreaInfo,
   getConnectedAreas,
-  getDistortedName,
 } from './engine/WorldTimeSystem.js';
+import { getDistortedName } from './systems/textVariants.js';
 import {
-  getSanStage,
+  getSanStageFromGD,
   getSanTextVariant,
   getSanSceneVariant,
   processSanLoss,
@@ -53,6 +53,7 @@ import {
   migrateOldSave,
   exportSave,
   importSave,
+  configureSaveManager,
 } from './engine/SaveManager.js';
 import {
   loadAchievements,
@@ -101,6 +102,7 @@ import { initExtendedEvents } from './reducers/extendedEventsInit.js';
 import { resolveDeath } from './reducers/deathSystem.js';
 import { getGuideStep } from './systems/firstRunGuide.js';
 import { getSanLossPresentation, getSanStageFeedback } from './systems/sanFeedback.js';
+import { getSanStageClasses } from './systems/sanityVisual.js';
 import { PROLOGUE_EVENTS } from './data/prologue_events.js';
 import {
   initPrologueState,
@@ -137,8 +139,13 @@ import { handleUiAction } from './reducers/slices/uiSlice.js';
 
 // ── Utilities ──
 import { addRunMemory, preloadEndingCGs, buildReducerCtx } from './utils/appHelpers.js';
+import { createSeededRng } from './utils/seededRng.js';
 import { getCorruptionLevel } from './utils/gameHelpers.js';
 import { createErrorTracker } from './utils/errorTracker.js';
+import { SAVE_VERSION, migrateSaveData, toPersistedState } from './reducers/saveMigration.js';
+
+// ── Engine DI: inject save migration into SaveManager (breaks engine → reducers/ dep) ──
+configureSaveManager({ SAVE_VERSION, migrateSaveData, toPersistedState });
 
 // ── State stores ──
 import { initGameStore, updateGameStore } from './state/gameStore.js';
@@ -176,7 +183,7 @@ import {
 // GAME_DATA placeholder is replaced at build time by build.py.
 // In Vite, __GAME_DATA__ is set on window by main.vite.jsx before this module loads.
 
-const { useState, useReducer, useEffect, useRef, useMemo, useCallback, memo } = React;
+const { useState, useReducer, useEffect, useLayoutEffect, useRef, useMemo, useCallback, memo } = React;
 
 const GD = initExtendedEvents(__GAME_DATA__);
 const ctx = { GD };
@@ -275,8 +282,9 @@ function getCorruptedSystemText(baseText, layer) {
 // === SAN破壁事件 (P1-3) ===
 // Pure state mutation: narrates and records memory. Returns side-effect descriptors for audio/timers.
 function checkBreakWallEvent(state, narr) {
-  // SSOT: only fires at reality_dissolution and below (level >= 4, SAN <= 24)
-  if (state.san > 24) return null;
+  // P1-A: SSOT — only fires at reality_dissolution (level >= 4)
+  const _stage = getSanStageFromGD(state.san);
+  if (_stage.level < 4) return null;
   if (Math.random() >= 0.1) return null;
   const r = Math.random();
   const fx = [
@@ -351,10 +359,23 @@ let _currentFearTuning = null;
 // === REDUCER (Immer) ===
 // Immer draft: all direct mutations (s.xxx = ..., .push(), .pop()) are safe.
 // Slice handlers receive (draft, action, c) and return draft if handled, null otherwise.
+// P0 FIX: effects are collected into a module-level buffer and flushed by the
+// dispatch wrapper AFTER the reducer returns. This avoids relying on useReducer's
+// return value (which is undefined) and avoids the early-return bug where
+// `if (r) return` skipped the _effects assignment when a slice handled the action.
+var _pendingEffects = [];
+
 function gameReducer(state, action) {
+  _pendingEffects = [];
   return produce(state, (s) => {
     _currentFearTuning = s.fearTuning || null;
-    const c = buildReducerCtx(s);
+    // Seeded RNG: create deterministic rng for this reducer run
+    const _runSeed = s.runSeed || 'default';
+    const _actIdx = (action.meta && action.meta._actionIndex != null) ? action.meta._actionIndex : (s._actionIndex || 0);
+    const _rng = createSeededRng(_runSeed, _actIdx);
+    const c = buildReducerCtx(s, { rng: _rng, now: action.meta?.now }, getCorruptedSystemText);
+    // Increment action index for next dispatch
+    s._actionIndex = _actIdx + 1;
     // Daily action tracking for behavior endings
     const trackableTypes = [
       'MOVE',
@@ -379,28 +400,26 @@ function gameReducer(state, action) {
     // Track food/money hoarding
     if ((s.food || 0) > (c.bt.hoarded_food_max || 0)) c.bt.hoarded_food_max = s.food;
     if ((s.money || 0) > (c.bt.hoarded_money_max || 0)) c.bt.hoarded_money_max = s.money;
-    // Dispatch to slice handlers (each returns s if handled, null otherwise)
-    let r;
-    r = handleCoreAction(s, action, c);
-    if (r) return;
-    r = handleExploreAction(s, action, c, ctx);
-    if (r) return;
-    r = handleNpcAction(s, action, c);
-    if (r) return;
-    r = handleDailyAction(s, action, c, ctx);
-    if (r) return;
-    r = handleDarkAction(s, action, c);
-    if (r) return;
-    r = handleUiAction(s, action, c);
-    if (r) return;
+    // Dispatch to slice handlers (first handler that returns s wins, but
+    // effects are always flushed — no early return that skips effect collection)
+    let handled = false;
+    if (!handled) { const r = handleCoreAction(s, action, c, ctx); if (r) handled = true; }
+    if (!handled) { const r = handleExploreAction(s, action, c, ctx); if (r) handled = true; }
+    if (!handled) { const r = handleNpcAction(s, action, c, ctx); if (r) handled = true; }
+    if (!handled) { const r = handleDailyAction(s, action, c, ctx); if (r) handled = true; }
+    if (!handled) { const r = handleDarkAction(s, action, c, ctx); if (r) handled = true; }
+    if (!handled) { const r = handleUiAction(s, action, c, ctx); if (r) handled = true; }
+    if (!handled) {
+      c.track?.('unknown_action', action.type);
+    }
     // Tag effects deterministically from action.meta.actionId (no Date.now/random in reducer)
     if (c.effects.length > 0) {
       const batchId = action.meta?.actionId || 'anon';
       c.effects.forEach((fx, i) => {
         fx._fxId = batchId + '_' + i;
       });
-      s._effects = c.effects;
     }
+    _pendingEffects = c.effects;
   });
 }
 
@@ -409,25 +428,49 @@ function App() {
   /* [TRACKER-DISPATCH] 包装 dispatch — 自动记录每步操作 */
   const stateRef = useRef(state);
   stateRef.current = state;
+  // P0 FIX: flushPendingEffects reads from the module-level _pendingEffects buffer
+  // populated by gameReducer, instead of relying on rawDispatch return value (which is
+  // undefined for useReducer). Effects are flushed synchronously after the state update.
+  const flushRef = useRef(function () {});
   const dispatch = useCallback((action) => {
     // Attach deterministic actionId for effect dedup (keeps reducer pure)
     if (!action.meta) action.meta = {};
     if (!action.meta.actionId)
       action.meta.actionId = Date.now() + '_' + Math.random().toString(16).slice(2, 6);
-    errorTracker.record(action, stateRef.current);
-    const result = rawDispatch(action);
-    // Execute post-reducer side effects (audio, delayed narrate, etc.)
-    try {
-      runPostReducerEffects(result._effects, dispatch);
-    } catch (e) {}
-    // _effects consumed above; dedup Set prevents re-execution, toPersistedState strips on save
-    return result;
+    // Seeded RNG: inject runSeed and actionIndex into action meta
+    // so reducer can create deterministic rng = createSeededRng(runSeed, actionIndex)
+    var currentState = stateRef.current;
+    if (!action.meta.now) action.meta.now = Date.now();
+    action.meta._actionIndex = (currentState._actionIndex || 0);
+    errorTracker.record(action, currentState);
+    // Run the reducer. _pendingEffects is now populated by gameReducer.
+    rawDispatch(action);
+    // Flush post-reducer side effects from the module-level buffer.
+    // flushRef.current is updated by useLayoutEffect to always point to
+    // the latest flush function (stable across renders).
+    flushRef.current();
   }, []);
   // Dual store: initialize game store bridge for useGameStore/useSan/useDay selectors
   useEffect(function () {
     initGameStore(state, dispatch);
   }, []);
-  updateGameStore(state);
+  // P0 FIX: flush effects from the module-level buffer.
+  // Use a stable ref so dispatch callback doesn't need to be recreated.
+  flushRef.current = function () {
+    if (_pendingEffects.length > 0) {
+      var effects = _pendingEffects;
+      _pendingEffects = [];
+      try {
+        runPostReducerEffects(effects, dispatch);
+      } catch (e) { /* effect errors are non-fatal */ }
+    }
+  };
+  // P0 FIX: updateGameStore moved from render body to useLayoutEffect.
+  // Calling listeners (via useSyncExternalStore) during render causes
+  // "Cannot update during render" warnings in StrictMode / concurrent mode.
+  useLayoutEffect(function () {
+    updateGameStore(state);
+  }, [state]);
   // UI state from external store (replaces 7 useState calls)
   const ui = uiStore();
   const settings = ui.settings || getSettings();
@@ -499,9 +542,9 @@ function App() {
   };
 
   // 结局CG预加载：SAN < 30 时静默预加载，暗示结局临近
-  // SSOT: preload ending CGs at explanation_loss and below (level >= 3, SAN <= 39)
+  // P1-A: SSOT — preload ending CGs at explanation_loss (level >= 3)
   useEffect(() => {
-    if (state.screen === 'game' && state.san < 40) preloadEndingCGs();
+    if (state.screen === 'game' && getSanStageFromGD(state.san).level >= 3) preloadEndingCGs();
   }, [state.san, state.screen]);
 
   // Lazy-load ch2+ game data (web mode only — skipped if already merged at build time)
@@ -582,35 +625,12 @@ function App() {
   const areas = GD.areas || GD.module2_areas || [];
   const visualDistortion = state.accessibilityOptions?.visual_distortion;
   const allowVisualFX = visualDistortion !== false;
-  // SSOT: stage class for CSS-driven effects (matches san_stages levels)
-  // Use getSanStage() for visual_tier-driven CSS class (design-intent SSOT)
-  const _sanStage = getSanStage(state.san, ctx);
+  // P1-A: ALL CSS classes derived from stage object via sanityVisual.js (no hardcoded SAN numbers)
+  const sanClasses = getSanStageClasses(state.san, allowVisualFX, ctx);
   const sanFeedback = getSanStageFeedback(state.san, ctx);
-  const _vtClass = allowVisualFX && _sanStage.visual_tier && _sanStage.visual_tier !== 'clean'
-    ? ' visual-' + _sanStage.visual_tier
-    : '';
-  const sanStageClass = allowVisualFX
-    ? state.san <= 9
-      ? ' san-stage-5'
-      : state.san <= 24
-        ? ' san-stage-4'
-        : state.san <= 39
-          ? ' san-stage-3'
-          : state.san <= 54
-            ? ' san-stage-2'
-            : state.san <= 74
-              ? ' san-stage-1'
-              : ''
-    : '';
-  const sanClass = allowVisualFX
-    ? state.san < 10
-      ? ' san-fracture san-death'
-      : state.san < 25
-        ? ' san-fracture'
-        : state.san < 40
-          ? ' san-tremor'
-          : ''
-    : '';
+  const _vtClass = sanClasses.vtClass;
+  const sanStageClass = sanClasses.stageClass;
+  const sanClass = sanClasses.sanClass;
   return (
     <>
       <DevPanel state={state} dispatch={dispatch} />
@@ -618,12 +638,13 @@ function App() {
         san={state.san}
         loopCount={state.loopCount}
         corruption={state.safehouseCorruption || 0}
+        glitchPulse={state.glitchPulse || 0}
         enabled={state.screen === 'game' && allowVisualFX}
         intensity={settings.visualPollution ?? 50}
         interactionPollution={settings.interactionPollution ?? 50}
         metaPollution={settings.metaPollution ?? 50}
       />
-      <AbyssPopup san={state.san} />
+      <AbyssPopup san={state.san} onSanDrain={(amt) => dispatch({ type: 'RESIST_SAN_DRAIN', amount: amt })} />
       <div
         className={
           'game-root ' +

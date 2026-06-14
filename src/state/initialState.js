@@ -1,21 +1,34 @@
-// src/state/initialState.js — 游戏初始状态定义（从 app.jsx 提取）
-import { ensureExtendedState } from '../reducers/extendedEventsLoader.js';
+// src/state/initialState.js — 游戏初始状态定义
+// P1-B: Split into semantic sub-functions for clarity and testability.
+// Each section annotates fields as [persisted] / [runtime] / [derived].
+//
+// PUBLIC API:  export const initialState = () => ({ ... })
+// INTERNAL:    createCharacterState, createWorldState, createProgressState,
+//              createResourceState, createRuntimeState, createBehaviorTrackingState,
+//              createPersistenceState
+//
+// SaveManager's toPersistedState (saveMigration.js) handles the actual
+// persisted/runtime split at save time. These annotations are for documentation.
 
-export const initialState = () => {
-  const base = {
-    screen: 'title',
-    day: 1,
-    ap: 12,
-    maxAp: 12,
+import { ensureExtendedState } from '../reducers/extendedEventsLoader.js';
+import { generateRunSeed } from '../utils/seededRng.js';
+
+/**
+ * Character attributes — stats, HP, SAN, skills, inventory.
+ * Mostly [persisted]. maxHp is [derived] from CON+SIZ but cached for performance.
+ */
+function createCharacterState() {
+  return {
     stats: { STR: 50, CON: 55, DEX: 55, APP: 50, POW: 60, INT: 65, SIZ: 60, EDU: 70 },
-    hp: 11,
-    maxHp: 11,
-    san: 60,
-    maxSan: 60,
-    luck: 50,
-    mp: 12,
-    currentArea: 'town_center',
-    visitedAreas: ['town_center'],
+    hp: 11,                         // [persisted]
+    maxHp: 11,                      // [derived] — cached from (CON+SIZ)/10
+    san: 60,                        // [persisted]
+    maxSan: 60,                     // [persisted]
+    luck: 50,                       // [persisted]
+    mp: 12,                         // [persisted]
+    skills: {},                     // [persisted]
+    archetype: null,                // [persisted]
+    tempSkillBonus: null,           // [runtime]
     inventory: (GD.systems?.player?.starting_items?.starting_items || []).map((item) => {
       const idMap = {
         手电筒: 'flashlight',
@@ -25,34 +38,58 @@ export const initialState = () => {
       };
       return { id: idMap[item.name] || item.name, name: item.name, uses: item.uses };
     }),
-    clues: [],
-    skills: {},
-    npcTrust: {},
-    npcStates: {},
-    npcRelations: {},
-    sealState: 'intact',
-    weather: '阴天',
-    triggeredEvents: [],
-    triggeredSilentEvents: [],
-    seenEventTexts: {},
-    longTermEffects: [],
-    madnessActive: null,
-    objectives: [],
-    completedChains: [],
-    difficulty: 'normal',
-    narrative: [],
-    eventLog: [],
-    pendingEvent: null,
-    pendingNpc: null,
-    pendingGamble: null,
-    pendingChoice: null,
-    ending: null,
-    transition: null,
-    safehouseCorruption: 0,
-    currentSafehouse: 'main',
-    harborRiskReduction: 0,
-    tempSkillBonus: null,
-    stats_run: {
+    clues: [],                      // [persisted]
+    difficulty: 'normal',           // [persisted]
+  };
+}
+
+/**
+ * World state — area, NPCs, seals, weather, knowledge.
+ * All [persisted] except areaNameCache ([runtime] optimization cache).
+ */
+function createWorldState() {
+  return {
+    currentArea: 'town_center',     // [persisted]
+    visitedAreas: ['town_center'],  // [persisted]
+    npcTrust: {},                   // [persisted]
+    npcStates: {},                  // [persisted]
+    npcRelations: {},               // [persisted]
+    sealState: 'intact',            // [persisted]
+    weather: '阴天',                // [persisted]
+    safehouseCorruption: 0,         // [persisted]
+    currentSafehouse: 'main',       // [persisted]
+    harborRiskReduction: 0,         // [persisted]
+    areaNameCache: {},              // [runtime] — rebuilt on load
+    retainedKnowledge: [],          // [persisted]
+    lastVisitedDates: {},           // [persisted]
+    lastDeathType: null,            // [persisted]
+    mythosLevel: 0,                 // [persisted]
+    currentChapter: 'chapter_1',    // [persisted]
+    humanityScore: 50,              // [persisted]
+    discoveredConclusions: [],      // [persisted]
+    activeBlessings: [],            // [persisted]
+    pollution: 0,                   // [persisted]
+  };
+}
+
+/**
+ * Progress state — day, objectives, triggered events, event chains.
+ * All [persisted].
+ */
+function createProgressState() {
+  return {
+    day: 1,                         // [persisted]
+    ap: 12,                         // [persisted]
+    maxAp: 12,                      // [persisted]
+    objectives: [],                 // [persisted]
+    completedChains: [],            // [persisted]
+    triggeredEvents: [],            // [persisted]
+    triggeredSilentEvents: [],      // [persisted]
+    seenEventTexts: {},             // [persisted]
+    longTermEffects: [],            // [persisted]
+    madnessActive: null,            // [persisted]
+    ch1IntroComplete: false,        // [persisted]
+    stats_run: {                    // [persisted]
       deaths: 0,
       runs: 1,
       checks_passed: 0,
@@ -62,38 +99,76 @@ export const initialState = () => {
       total_san_loss: 0,
       deepest_area_danger: 0,
     },
-    ch1IntroComplete: false,
-    food: 3,
-    maxFood: 5,
-    lightLevel: 2,
-    starvationDays: 0,
-    infection: 0,
-    maxInfection: 10,
-    fatigue: 0,
-    maxFatigue: 10,
-    loopCount: 0,
-    pollution: 0,
-    areaNameCache: {},
-    retainedKnowledge: [],
-    lastVisitedDates: {},
-    lastDeathType: null,
-    mythosLevel: 0,
-    currentChapter: 'chapter_1',
-    humanityScore: 50,
-    discoveredConclusions: [],
-    accessibilityOptions: {
+  };
+}
+
+/**
+ * Resource state — food, light, infection, fatigue.
+ * All [persisted].
+ */
+function createResourceState() {
+  return {
+    food: 3,                        // [persisted]
+    maxFood: 5,                     // [persisted]
+    lightLevel: 2,                  // [persisted]
+    starvationDays: 0,              // [persisted]
+    infection: 0,                   // [persisted]
+    maxInfection: 10,               // [persisted]
+    fatigue: 0,                     // [persisted]
+    maxFatigue: 10,                 // [persisted]
+    money: 0,                       // [persisted]
+  };
+}
+
+/**
+ * Runtime UI state — narrative, modals, toasts, accessibility.
+ * NOT persisted (rebuilt on load). Stripped by toPersistedState.
+ */
+function createRuntimeState() {
+  return {
+    screen: 'title',                // [runtime]
+    narrative: [],                  // [runtime] — stripped on save
+    eventLog: [],                   // [runtime] — capped at 200 on save
+    pendingEvent: null,             // [runtime]
+    pendingNpc: null,               // [runtime]
+    pendingGamble: null,            // [runtime]
+    pendingChoice: null,            // [runtime]
+    ending: null,                   // [runtime] — triggers save-on-ending
+    transition: null,               // [runtime]
+    prologue: null,                 // [runtime]
+    fearTuning: null,               // [runtime]
+    audioMuted: false,              // [runtime]
+    tutorialSeen: {},               // [runtime]
+    guideSeen: false,               // [runtime]
+    accessibilityOptions: {         // [runtime]
       visual_distortion: true,
       flicker_control: true,
       pseudo_error_style: 'immersive',
     },
-    activeBlessings: [],
-    archetype: null,
-    runMemory: [],
-    audioMuted: false,
-    tutorialSeen: {},
-    guideSeen: false,
-    prologue: null,
-    fearTuning: null,
+    glitchPulse: 0,                 // [runtime] — canvas distortion intensity (0=off, 1-10=strength)
+    // Daily tracking (rebuilt each day)
+    _dayActions: [],                // [runtime]
+    _dayStartArea: null,            // [runtime]
+    _lastAreaBeforeRest: null,      // [runtime]
+    _dayStartSan: null,             // [runtime]
+    _dayStartHp: null,              // [runtime]
+    _dayStartClueCount: null,       // [runtime]
+    _dailyTrustGains: {},           // [runtime]
+    _visualPollution: 50,           // [runtime]
+    _actionHistory: [],             // [runtime] — rolling behavior profile
+    _todayEventTypes: [],           // [runtime]
+    _recentEventIds: [],            // [runtime]
+    _actionIndex: 0,                // [runtime] — incremented per dispatch for deterministic RNG
+    eventCooldowns: {},             // [persisted]
+  };
+}
+
+/**
+ * Behavior tracking — detailed counters for behavior-dependent endings.
+ * All [persisted] — drives ending resolution across loops.
+ */
+function createBehaviorTrackingState() {
+  return {
     behaviorTracking: {
       direct_kill_count: 0,
       cannibalism_count: 0,
@@ -132,22 +207,37 @@ export const initialState = () => {
       loop_exploit_score: 0,
       loop_break_attempts: 0,
     },
-    money: 0,
-    endingCoins: 0,
-    loopShopTier: 0,
-    purchasedShopItems: [],
-    _dayActions: [],
-    _dayStartArea: null,
-    _lastAreaBeforeRest: null,
-    _dayStartSan: null,
-    _dayStartHp: null,
-    _dayStartClueCount: null,
-    _dailyTrustGains: {},
-    _visualPollution: 50,
-    _actionHistory: [],
-    _todayEventTypes: [],
-    _recentEventIds: [],
-    eventCooldowns: {},
+  };
+}
+
+/**
+ * Loop / persistence state — loop count, ending coins, shop items.
+ * All [persisted] — survives across reincarnation loops.
+ */
+function createPersistenceState() {
+  return {
+    loopCount: 0,                   // [persisted]
+    endingCoins: 0,                 // [persisted]
+    loopShopTier: 0,                // [persisted]
+    purchasedShopItems: [],         // [persisted]
+    runMemory: [],                  // [persisted] — max 12 entries
+    runSeed: generateRunSeed(),     // [persisted] — deterministic RNG seed for this run
+  };
+}
+
+/**
+ * Public API: create the full initial game state.
+ * Merges all sub-state sections and applies extended state defaults.
+ */
+export const initialState = () => {
+  const base = {
+    ...createCharacterState(),
+    ...createWorldState(),
+    ...createProgressState(),
+    ...createResourceState(),
+    ...createRuntimeState(),
+    ...createBehaviorTrackingState(),
+    ...createPersistenceState(),
   };
   return ensureExtendedState(base);
 };

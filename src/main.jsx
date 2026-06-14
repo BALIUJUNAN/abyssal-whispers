@@ -1,63 +1,67 @@
-// src/main.jsx - Vite entry point (dev mode)
+// src/main.jsx — Vite entry point (primary dev entry)
+//
 // In production, build.py generates the single-file index.html.
-// This file is only used by Vite dev server for HMR.
+// In development, this file bootstraps the game via Vite + ESM.
+//
+// Architecture:
+//   1. Load & merge split game data JSON (same logic as build.py)
+//   2. Import compatibility shim (globalThis bridge for modules not yet migrated to ESM)
+//   3. Import app.jsx (which initializes GD, renders <App />)
+//
+// P2-1: This is now the PRIMARY Vite entry. The old placeholder page has been removed.
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './styles.css';
+import { produce } from 'immer';
 
-// Game data: loaded from JSON files
-// In dev mode, fetch from server; in prod, already inlined by build.py
-let GD = null;
+// Install React/ReactDOM/produce as globals for app.jsx and component files
+// that still reference them via globalThis (through vite-compat-shim)
+window.React = React;
+window.ReactDOM = ReactDOM;
+window.produce = produce;
 
-async function initGame() {
-  // Load base game data
-  const base = await fetch('/game_base.json').then((r) => r.json());
-  const ch2plus = await fetch('/game_ch2plus.json')
-    .then((r) => r.json())
-    .catch(() => ({}));
-  const meta = await fetch('/game_meta.json')
-    .then((r) => r.json())
-    .catch(() => ({}));
+// Load and merge split game data (mirrors build.py logic)
+async function loadGameData() {
+  const [base, ch2plus, meta] = await Promise.all([
+    fetch('/game_base.json').then((r) => r.json()),
+    fetch('/game_ch2plus.json')
+      .then((r) => r.json())
+      .catch(() => ({})),
+    fetch('/game_meta.json')
+      .then((r) => r.json())
+      .catch(() => ({})),
+  ]);
 
-  // Merge
-  GD = { ...base };
-  GD.events = [...(base.events || []), ...(ch2plus.events || [])];
-  if (ch2plus.endings) GD.endings = ch2plus.endings;
-  if (ch2plus.ending_judgement) GD.ending_judgement = ch2plus.ending_judgement;
-  if (meta.implementation_notes) GD.implementation_notes = meta.implementation_notes;
+  const merged = { ...base };
+  merged.events = [...(base.events || []), ...(ch2plus.events || [])];
+  if (ch2plus.endings) merged.endings = ch2plus.endings;
+  if (ch2plus.ending_judgement) merged.ending_judgement = ch2plus.ending_judgement;
+  if (meta.implementation_notes) merged.implementation_notes = meta.implementation_notes;
   if (meta.deprecated_endings_archive)
-    GD.deprecated_endings_archive = meta.deprecated_endings_archive;
+    merged.deprecated_endings_archive = meta.deprecated_endings_archive;
 
-  // Make GD available globally (for gradual migration from flat bundle)
-  window.__GAME_DATA__ = GD;
-  window.GD = GD;
-
-  // Dynamically import app (which references GD globally)
-  // For now, use the existing build.py output served statically
-  // TODO: gradually convert app.jsx to use ES module imports
-  console.log('[Vite Dev] Game data loaded:', GD.events?.length, 'events');
-
-  // Render a placeholder until full migration
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(
-    React.createElement(
-      'div',
-      { style: { padding: '2rem', color: '#f0e6d3', fontFamily: 'serif' } },
-      React.createElement('h1', null, '深渊低语 — Vite 开发模式'),
-      React.createElement('p', null, '游戏数据已加载: ' + (GD.events?.length || 0) + ' 个事件'),
-      React.createElement('p', null, '当前阶段: ES 模块渐进迁移中'),
-      React.createElement(
-        'p',
-        null,
-        React.createElement('a', { href: '/', style: { color: '#7eb8da' } }, '→ 返回单文件版本')
-      )
-    )
-  );
+  return merged;
 }
 
-initGame().catch((err) => {
-  console.error('[Vite Dev] Failed to initialize:', err);
+// Bootstrap: load data → shim → app
+try {
+  // Import compatibility shim (sets up legacy globals on globalThis)
+  await import('./vite-compat-shim.jsx');
+
+  // Load and merge game data
+  const GD = await loadGameData();
+  window.__GAME_DATA__ = GD;
+  window.GD = GD;
+  console.log('[Vite] Game data loaded:', GD.events?.length, 'events');
+
+  // Import app.jsx — triggers module-level init (GD, ReactDOM.createRoot, etc.)
+  await import('./app.jsx');
+} catch (err) {
+  console.error('[Vite] Bootstrap failed:', err);
   document.getElementById('root').innerHTML =
-    '<div style=\"padding:2rem;color:red\">加载失败: ' + err.message + '</div>';
-});
+    '<div style="padding:2rem;color:#f55;font-family:monospace">' +
+    '<h2>Vite Bootstrap Error</h2>' +
+    '<pre>' +
+    (err.stack || err.message) +
+    '</pre></div>';
+}

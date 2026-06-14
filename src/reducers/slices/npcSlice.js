@@ -20,7 +20,7 @@ function _warnTrustDrop(c, npcName, oldVal, newVal) {
   }
 }
 
-export function handleNpcAction(s, action, c) {
+export function handleNpcAction(s, action, c, ctx) {
   switch (action.type) {
     case 'TALK_NPC': {
       if (s.ap < 1) {

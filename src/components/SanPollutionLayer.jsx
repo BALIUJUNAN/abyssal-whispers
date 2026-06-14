@@ -1,7 +1,16 @@
 // src/components/SanPollutionLayer.jsx - SAN visual corruption (SSOT, 6 stages)
+// Visual parameter computation delegated to systems/sanityVisual.js
 const { useEffect, useRef, useCallback, useState, memo } = React;
-export const FPS_CAP = 15;
-const FRAME_MS = 1000 / FPS_CAP;
+// P2-4: Adaptive FPS — 3-tier performance system
+// Tier 0 (normal): all effects, 15fps cap
+// Tier 1 (degraded): skip barrel distortion + noise, 12fps cap
+// Tier 2 (critical): CSS-only fallback, 8fps cap
+export const FPS_CAP_DEFAULT = 15;
+export const FPS_CAP_DEGRADED = 12;
+export const FPS_CAP_LOW = 8;
+var _currentFpsCap = FPS_CAP_DEFAULT;
+var FRAME_MS = 1000 / _currentFpsCap;
+var _perfTier = 0; // 0=normal, 1=degraded (skip expensive effects), 2=critical (CSS-only)
 const LERP = 0.06;
 export function lerp(a, b, t) {
   return a + (b - a) * t;
@@ -23,89 +32,18 @@ export function getNoise(w, h) {
   nc.putImageData(id, 0, 0);
   return _noise;
 }
-var _CLEAN_VIS = {
-  saturation: 0,
-  vignette: 0,
-  scanline: 0,
-  noise: 0,
-  barrel_distortion: 0,
-  chromatic_aberration: 0,
-  rotation: 0,
-  text_shadow: false,
-  text_tremble: false,
-  glow: false,
-};
 
-export function getVisualForSan(san) {
-  var GD = (typeof window !== 'undefined' && window.GD) || {};
-  var stages = (GD.systems && GD.systems.sanity && GD.systems.sanity.san_stages) || [];
-  if (stages.length === 0)
-    return {
-      sat: 0,
-      vig: 0,
-      scan: 0,
-      noise: 0,
-      barrel: 0,
-      chroma: 0,
-      rot: 0,
-      shadow: false,
-      tremble: false,
-      glow: false,
-      level: 0,
-    };
-  var curIdx = 0;
-  for (var i = 0; i < stages.length; i++) {
-    if (san >= stages[i].range[0] && san <= stages[i].range[1]) {
-      curIdx = i;
-      break;
-    }
-    if (san < stages[i].range[0] && (i === stages.length - 1 || san >= stages[i + 1].range[0])) {
-      curIdx = i;
-      break;
-    }
-  }
-  if (san < stages[stages.length - 1].range[0]) curIdx = stages.length - 1;
-  var cur = stages[curIdx];
-  var curVis = cur.visual || _CLEAN_VIS;
-  if (curIdx >= stages.length - 1 || san >= 75) {
-    return {
-      sat: curVis.saturation || 0,
-      vig: curVis.vignette || 0,
-      scan: curVis.scanline || 0,
-      noise: curVis.noise || 0,
-      barrel: curVis.barrel_distortion || 0,
-      chroma: curVis.chromatic_aberration || 0,
-      rot: curVis.rotation || 0,
-      shadow: !!curVis.text_shadow,
-      tremble: !!curVis.text_tremble,
-      glow: !!curVis.glow,
-      level: cur.level || 0,
-    };
-  }
-  var rangeSize = cur.range[1] - cur.range[0];
-  var blend = rangeSize > 0 ? Math.max(0, Math.min(1, (cur.range[1] - san) / rangeSize)) : 0;
-  var next = stages[curIdx + 1];
-  var nextVis = next.visual || _CLEAN_VIS;
-  return {
-    sat: lerp(curVis.saturation || 0, nextVis.saturation || 0, blend),
-    vig: lerp(curVis.vignette || 0, nextVis.vignette || 0, blend),
-    scan: lerp(curVis.scanline || 0, nextVis.scanline || 0, blend),
-    noise: lerp(curVis.noise || 0, nextVis.noise || 0, blend),
-    barrel: lerp(curVis.barrel_distortion || 0, nextVis.barrel_distortion || 0, blend),
-    chroma: lerp(curVis.chromatic_aberration || 0, nextVis.chromatic_aberration || 0, blend),
-    rot: lerp(curVis.rotation || 0, nextVis.rotation || 0, blend),
-    shadow: curVis.text_shadow || (blend > 0.5 && nextVis.text_shadow),
-    tremble: curVis.text_tremble || (blend > 0.3 && nextVis.text_tremble),
-    glow: curVis.glow || (blend > 0.5 && nextVis.glow),
-    level: cur.level || 0,
-  };
-}
+// getVisualForSan moved to systems/sanityVisual.js (SSOT)
+// Re-export for backward compat; canvas renderer uses the canonical version.
+import { getVisualForSan } from '../systems/sanityVisual.js';
+export { getVisualForSan };
 
 // === Canvas Renderer ===
 export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
   var san = props.san,
     loopCount = props.loopCount,
-    corruption = props.corruption;
+    corruption = props.corruption,
+    glitchPulse = props.glitchPulse || 0;
   var enabled = props.enabled,
     intensity = props.intensity;
   var canvasRef = useRef(null);
@@ -125,6 +63,14 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
     raf: 0,
   });
   var I = Math.max(0, Math.min(100, intensity != null ? intensity : 50)) / 100;
+  // P2-4: prefers-reduced-motion — disable canvas effects entirely for accessibility
+  var _prm = useState(function () {
+    return typeof window !== 'undefined' &&
+      window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+  var reducedMotion = _prm[0];
+  // P2-4: Monitor FPS and auto-degrade if performance is poor
+  var fpsMon = useRef({ frames: 0, lastCheck: 0, avgFps: 60 });
   var resize = useCallback(function () {
     var c = canvasRef.current;
     if (!c) return;
@@ -146,7 +92,7 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
   useEffect(
     function () {
       var canvas = canvasRef.current;
-      if (!canvas || !enabled) return;
+      if (!canvas || !enabled || reducedMotion) return;
       var ctx = canvas.getContext('2d');
       var s = st.current;
       var alive = true;
@@ -155,6 +101,22 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
         s.raf = requestAnimationFrame(frame);
         if (now - s.lastT < FRAME_MS) return;
         s.lastT = now;
+        // P2-4: FPS monitoring — auto-degrade to FPS_CAP_LOW if avg FPS < 10
+        var fm = fpsMon.current;
+        fm.frames++;
+        if (now - fm.lastCheck > 3000) {
+          fm.avgFps = Math.round((fm.frames * 1000) / (now - fm.lastCheck));
+          fm.frames = 0;
+          fm.lastCheck = now;
+          // 3-tier performance degrade: skip expensive effects at low FPS
+          if (fm.avgFps < 10) {
+            if (_perfTier !== 2) { _perfTier = 2; _currentFpsCap = FPS_CAP_LOW; FRAME_MS = 1000 / _currentFpsCap; }
+          } else if (fm.avgFps < 20) {
+            if (_perfTier !== 1) { _perfTier = 1; _currentFpsCap = FPS_CAP_DEGRADED; FRAME_MS = 1000 / _currentFpsCap; }
+          } else {
+            if (_perfTier !== 0) { _perfTier = 0; _currentFpsCap = FPS_CAP_DEFAULT; FRAME_MS = 1000 / _currentFpsCap; }
+          }
+        }
         var w = window.innerWidth,
           h = window.innerHeight;
         ctx.clearRect(0, 0, w, h);
@@ -186,13 +148,15 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
             ')';
           ctx.fillRect(0, 0, w, h);
         }
-        // Noise
-        var targetNoise = (V.noise * I + corF * 0.02) * (1 + 0.3 * Math.sin(now * 0.002));
-        s.noiseA = lerp(s.noiseA, targetNoise, LERP);
-        if (s.noiseA > 0.003) {
-          ctx.globalAlpha = s.noiseA;
-          ctx.drawImage(getNoise(w | 0, h | 0), 0, 0, w, h);
-          ctx.globalAlpha = 1;
+        // Noise (skip at perf tier 1+ — expensive drawImage)
+        if (_perfTier < 1) {
+          var targetNoise = (V.noise * I + corF * 0.02) * (1 + 0.3 * Math.sin(now * 0.002));
+          s.noiseA = lerp(s.noiseA, targetNoise, LERP);
+          if (s.noiseA > 0.003) {
+            ctx.globalAlpha = s.noiseA;
+            ctx.drawImage(getNoise(w | 0, h | 0), 0, 0, w, h);
+            ctx.globalAlpha = 1;
+          }
         }
         // Scanlines
         var targetScan = V.scan * 0.12 * I;
@@ -235,17 +199,44 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
           ctx.fillStyle = cb;
           ctx.fillRect(w - edgeW, 0, edgeW, h);
         }
-        // Barrel + rotation
+        // Barrel + rotation (skip CSS filter/transform at perf tier 1+)
         s.barrelS = lerp(s.barrelS, V.barrel * I, LERP);
         s.rotA = lerp(s.rotA, V.rot * I, LERP);
         var breathPulse = 1 + 0.004 * Math.sin(now * 0.0008) * (V.level >= 3 ? 1 : 0);
         var blurAmt = s.barrelS > 0.02 ? s.barrelS * 8 : 0;
         var rotDeg = s.rotA * Math.sin(now * 0.0003) * 0.5;
-        canvas.style.filter = blurAmt > 0.02 ? 'blur(' + blurAmt.toFixed(1) + 'px) ' : '';
-        canvas.style.transform =
-          'scale(' + breathPulse.toFixed(4) + ') rotate(' + rotDeg.toFixed(2) + 'deg)';
-        // Screen tears (level>=4)
-        if (V.level >= 4) {
+        if (_perfTier < 1) {
+          canvas.style.filter = blurAmt > 0.02 ? 'blur(' + blurAmt.toFixed(1) + 'px) ' : '';
+          canvas.style.transform =
+            'scale(' + breathPulse.toFixed(4) + ') rotate(' + rotDeg.toFixed(2) + 'deg)';
+        } else {
+          canvas.style.filter = 'none';
+          canvas.style.transform = 'none';
+        }
+        // Glitch pulse overlay (early hooks / thirteenth bell entrance)
+        if (glitchPulse > 0) {
+          var gpI = glitchPulse / 10; // 0..1
+          var gpBlur = 1 + gpI * 4;
+          var gpHue = Math.sin(now * 0.01) * 15 * gpI;
+          var gpSat = 1 + gpI * 0.6;
+          canvas.style.filter += 'blur(' + gpBlur.toFixed(1) + 'px) hue-rotate(' + gpHue.toFixed(0) + 'deg) saturate(' + gpSat.toFixed(2) + ')';
+          canvas.style.opacity = '1';
+          // Draw a red-purple flash overlay
+          ctx.fillStyle = 'rgba(120, 10, 30, ' + (gpI * 0.12).toFixed(3) + ')';
+          ctx.fillRect(0, 0, w, h);
+          // Horizontal tear lines
+          for (var gt = 0; gt < 3 * gpI; gt++) {
+            var gtY = Math.random() * h;
+            var gtH = 1 + Math.random() * 3 * gpI;
+            var gtShift = (Math.random() - 0.5) * 30 * gpI;
+            try {
+              var gtData = ctx.getImageData(0, gtY | 0, w | 0, gtH | 0);
+              ctx.putImageData(gtData, gtShift | 0, gtY | 0);
+            } catch (e) {}
+          }
+        }
+        // Screen tears (level>=4, skip at perf tier 2 — expensive getImageData)
+        if (V.level >= 4 && _perfTier < 2) {
           var tearProb = (V.level >= 5 ? 0.18 : 0.06) * I;
           s.tearP = lerp(s.tearP, tearProb, LERP);
           if (Math.random() < s.tearP) {
@@ -265,9 +256,9 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
         cancelAnimationFrame(s.raf);
       };
     },
-    [san, loopCount, corruption, enabled, I]
+    [san, loopCount, corruption, enabled, I, reducedMotion, glitchPulse]
   );
-  if (!enabled) return null;
+  if (!enabled || reducedMotion) return null;
   var V = getVisualForSan(san);
   var tier =
     V.level >= 4
@@ -306,7 +297,8 @@ export var CorruptibleChoice = memo(function (props) {
     san = props.san,
     onClick = props.onClick,
     className = props.className,
-    disabled = props.disabled;
+    disabled = props.disabled,
+    isKeyEvent = props.isKeyEvent; // true = bell/NPC core dialogue: full corruption
   var _l = useState(0);
   var level = _l[0],
     setLevel = _l[1];
@@ -314,19 +306,24 @@ export var CorruptibleChoice = memo(function (props) {
     tickRef = useRef(null),
     decayRef = useRef(null);
   var V = getVisualForSan(san);
-  var active = V.level >= 1 && !disabled;
-  var hoverDelay =
-    V.level >= 5 ? 400 : V.level >= 4 ? 800 : V.level >= 3 ? 600 : V.level >= 2 ? 1200 : 0;
+  // DESIGN_REFACTOR_NOTES.md: "选项自改写只在关键事件触发，普通行动保持轻度"
+  // Non-key events: cap at level 2 (visual flicker only, no text rewriting)
+  var maxCorruption = isKeyEvent ? 100 : (V.level >= 3 ? 20 : 0);
+  var active = V.level >= 1 && !disabled && maxCorruption > 0;
+  // Key events get faster corruption; non-key events get slow, subtle flicker
+  var hoverDelay = isKeyEvent
+    ? (V.level >= 5 ? 400 : V.level >= 4 ? 800 : V.level >= 3 ? 600 : V.level >= 2 ? 1200 : 0)
+    : (V.level >= 4 ? 2000 : V.level >= 3 ? 3000 : 0);
   var startCorruption = useCallback(
     function () {
       if (!active || hoverDelay <= 0) return;
       hoverRef.current = true;
       var delay = hoverDelay + Math.random() * 200;
       tickRef.current = setTimeout(function () {
-        setLevel(10);
+        setLevel(Math.min(maxCorruption, 10));
         tickRef.current = setInterval(function () {
           setLevel(function (p) {
-            return Math.min(100, p + 10);
+            return Math.min(maxCorruption, p + 10);
           });
         }, 200);
       }, delay);
@@ -409,6 +406,10 @@ export var CorruptibleChoice = memo(function (props) {
 });
 
 // === AbyssPopup ===
+// DESIGN_REFACTOR_NOTES.md: "降低中后期触发频率" — precise horror, not noise.
+// Level 3 (explanation_loss, SAN 25-39): 90-150s interval
+// Level 4 (reality_dissolution, SAN 10-24): 120-180s interval
+// Level 5 (narrative_death, SAN 1-9): 30-60s + resist micro-interaction
 var _AM = [
   '你确定你在控制这个角色吗？',
   '它在看着你读这段文字。',
@@ -429,25 +430,39 @@ var _MM = [
 ];
 export function AbyssPopup(props) {
   var san = props.san;
+  var onSanDrain = props.onSanDrain; // optional callback for resist SAN cost
   var _v = useState(false);
   var visible = _v[0],
     setVisible = _v[1];
   var _m = useState('');
   var msg = _m[0],
     setMsg = _m[1];
+  var _r = useState(false);
+  var showResist = _r[0],
+    setShowResist = _r[1];
+  var _rk = useState(0);
+  var resistKey = _rk[0],
+    setResistKey = _rk[1];
   var timerRef = useRef(null);
   useEffect(
     function () {
-      if (san >= 40) {
+      var _slvl = getVisualForSan(san).level || 0;
+      if (_slvl < 3) {
         setVisible(false);
         return;
       }
       var schedule = function () {
-        var delay = san <= 9 ? 30000 + Math.random() * 30000 : 60000 + Math.random() * 60000;
+        // Stretched intervals: precise horror, not spam
+        var delay;
+        if (_slvl >= 5) delay = 30000 + Math.random() * 30000;       // 30-60s (keep fast, but with resist)
+        else if (_slvl >= 4) delay = 120000 + Math.random() * 60000;  // 120-180s
+        else delay = 90000 + Math.random() * 60000;                   // 90-150s
         timerRef.current = setTimeout(function () {
-          var pool = san <= 9 ? _MM.concat(_AM) : _AM;
+          var pool = _slvl >= 5 ? _MM.concat(_AM) : _AM;
           setMsg(pool[Math.floor(Math.random() * pool.length)]);
           setVisible(true);
+          setShowResist(_slvl >= 5); // resist only at narrative_death
+          setResistKey(0);
           schedule();
         }, delay);
       };
@@ -456,13 +471,36 @@ export function AbyssPopup(props) {
         if (timerRef.current) clearTimeout(timerRef.current);
       };
     },
-    [san < 40, san <= 9]
+    [san]
   );
+  // Resist mechanic: at narrative_death (level 5), player can rapid-tap to suppress.
+  // Each tap costs 1 SAN but pushes the popup away. 3 taps = dismissed.
+  var handleResist = function () {
+    var next = resistKey + 1;
+    setResistKey(next);
+    if (onSanDrain) onSanDrain(1); // -1 SAN per tap
+    if (next >= 3) {
+      setVisible(false);
+      setShowResist(false);
+      setResistKey(0);
+    }
+  };
   if (!visible || !msg) return null;
   return React.createElement(
     'div',
-    { className: 'abyss-popup', role: 'alert' },
+    { className: 'abyss-popup' + (showResist ? ' abyss-popup-resist' : ''), role: 'alert' },
     React.createElement('div', { className: 'abyss-popup-text' }, msg),
+    showResist
+      ? React.createElement(
+          'button',
+          {
+            className: 'abyss-resist-btn',
+            onClick: handleResist,
+            title: '抵抗 (-1 SAN)',
+          },
+          '抵抗' + (resistKey > 0 ? ' (' + resistKey + '/3)' : '')
+        )
+      : null,
     React.createElement(
       'button',
       {
@@ -524,6 +562,11 @@ if (typeof document !== 'undefined' && !document.getElementById('spl-css')) {
     '.abyss-popup-text{line-height:1.5}',
     '.abyss-popup-close{position:absolute;top:0.2rem;right:0.5rem;background:none;border:none;color:rgba(180,140,140,0.5);cursor:pointer;font-size:1rem;padding:0.2rem}',
     '.abyss-popup-close:hover{color:rgba(180,140,140,0.8)}',
+    '.abyss-popup-resist{border-color:rgba(180,30,30,0.6);animation:abyssPulse 2s ease-in-out infinite}',
+    '.abyss-resist-btn{display:block;margin:0.5rem 0 0;padding:0.3rem 0.8rem;background:rgba(180,30,30,0.15);border:1px solid rgba(180,30,30,0.4);color:rgba(220,160,160,0.9);cursor:pointer;font-size:0.78rem;font-family:inherit;border-radius:3px;transition:all 0.15s}',
+    '.abyss-resist-btn:hover{background:rgba(180,30,30,0.3);border-color:rgba(180,30,30,0.7)}',
+    '.abyss-resist-btn:active{transform:scale(0.95);background:rgba(180,30,30,0.5)}',
+    '@keyframes abyssPulse{0%,100%{box-shadow:0 0 30px rgba(80,10,10,0.2)}50%{box-shadow:0 0 50px rgba(120,20,20,0.4)}}',
     '@keyframes abyssAppear{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}',
   ].join('');
   document.head.appendChild(_css);

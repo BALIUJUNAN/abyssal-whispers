@@ -1,9 +1,27 @@
-// src/engine/PollutionManager.js - Logic-level SAN corruption (SSOT)
-// All SAN thresholds come from getCurrentSanStage() (defined in utils.js).
-// Uses stage.level instead of hardcoded numbers.
+// src/engine/PollutionManager.js - Logic-level SAN corruption
+// ENGINE CONTRACT: Zero game-specific imports. Stage lookup is injected.
+// Callers pass getStage(san) → { level, id, ... } via parameter or use defaultGD.
+
+/**
+ * @private Default stage getter using window.GD (fallback when caller doesn't inject).
+ * This is the ONLY place in this file that touches game data — and it's a last resort.
+ */
+function _defaultGetStage(san) {
+  var GD = (typeof window !== 'undefined' && window.GD) || {};
+  var stages = (GD.systems && GD.systems.sanity && GD.systems.sanity.san_stages) || [];
+  if (san <= 0) return { id: 'death', level: 6 };
+  for (var i = 0; i < stages.length; i++) {
+    if (san >= stages[i].range[0] && san <= stages[i].range[1]) return stages[i];
+  }
+  return stages[0] || { id: 'stable', level: 0 };
+}
+
+function _stage(san, getStage) {
+  return (getStage || _defaultGetStage)(san);
+}
 
 // === Text Hallucination ===
-// Activates at stage.level >= 2 (perception_shift, SAN 40-54)
+// Activates at stage.level >= 2 (perception_shift)
 export const HALLUCINATION_PAIRS = [
   ['灯光', '火光'],
   ['门', '裂缝'],
@@ -20,15 +38,20 @@ export const HALLUCINATION_PAIRS = [
   ['窗户', '伤口'],
 ];
 
-export function applyTextHallucination(text, san) {
+/**
+ * Apply text hallucination — swap one word for its uncanny pair.
+ * @param {string} text
+ * @param {number} san
+ * @param {function} [getStage] — injected stage lookup (optional)
+ */
+export function applyTextHallucination(text, san, getStage) {
   if (!text) return text;
-  // SSOT: use stage level (need GD context for getCurrentSanStage)
-  // Fallback: simple threshold for when ctx is unavailable
-  if (san >= 55) return text;
-  const chance = Math.max(0, 55 - san) / 200;
+  var stage = _stage(san, getStage);
+  if (stage.level < 2) return text;
+  var chance = Math.max(0, 55 - san) / 200;
   if (Math.random() > chance) return text;
-  const pair = HALLUCINATION_PAIRS[Math.floor(Math.random() * HALLUCINATION_PAIRS.length)];
-  const idx = text.indexOf(pair[0]);
+  var pair = HALLUCINATION_PAIRS[Math.floor(Math.random() * HALLUCINATION_PAIRS.length)];
+  var idx = text.indexOf(pair[0]);
   if (idx < 0) return text;
   return text.slice(0, idx) + pair[1] + text.slice(idx + pair[0].length);
 }
@@ -46,19 +69,32 @@ export const FAKE_SYSTEM_MESSAGES = [
   '你的手在发抖。不是因为冷。是因为你刚刚做了什么，但你不记得了。',
 ];
 
-export function maybeGetFakeMessage(san, loopCount) {
-  // SSOT: level >= 4 means SAN <= 24
-  if (san > 24) return null;
-  if (loopCount < 2 && san >= 10) return null;
-  const chance = 0.03 + ((24 - san) / 24) * 0.09;
+/**
+ * Maybe generate a fake system message (reality_dissolution+).
+ * @param {number} san
+ * @param {number} loopCount
+ * @param {function} [getStage] — injected stage lookup
+ * @returns {string|null}
+ */
+export function maybeGetFakeMessage(san, loopCount, getStage) {
+  var stage = _stage(san, getStage);
+  if (stage.level < 4) return null;
+  if (loopCount < 2 && stage.level < 5) return null;
+  var chance = 0.03 + ((24 - san) / 24) * 0.09;
   if (Math.random() > chance) return null;
   return FAKE_SYSTEM_MESSAGES[Math.floor(Math.random() * FAKE_SYSTEM_MESSAGES.length)];
 }
 
 // === Choice Delay Corruption ===
-// Activates at stage.level >= 1 (mild_erosion, SAN 55-74)
-export function getChoiceDelay(san) {
-  if (san >= 75) return 0;
+// Activates at stage.level >= 1 (mild_erosion)
+/**
+ * @param {number} san
+ * @param {function} [getStage] — injected stage lookup
+ * @returns {number} delay in ms
+ */
+export function getChoiceDelay(san, getStage) {
+  var stage = _stage(san, getStage);
+  if (stage.level < 1) return 0;
   return Math.floor(((75 - san) / 75) * 350);
 }
 
@@ -74,11 +110,19 @@ export const FALSE_MEMORIES = [
   '笔记本的最后一页多了一行字。不是你的笔迹。但签名是你的名字。',
 ];
 
-export function maybeInsertFalseMemory(narr, san, loopCount, day) {
-  // SSOT: level >= 3 means SAN <= 39
-  if (san > 39 || loopCount < 2) return;
+/**
+ * Maybe insert a false memory narrative (explanation_loss+ + loop >= 2).
+ * @param {function} narr
+ * @param {number} san
+ * @param {number} loopCount
+ * @param {number} day
+ * @param {function} [getStage] — injected stage lookup
+ */
+export function maybeInsertFalseMemory(narr, san, loopCount, day, getStage) {
+  var stage = _stage(san, getStage);
+  if (stage.level < 3 || loopCount < 2) return;
   if (Math.random() > 0.07) return;
-  let text = FALSE_MEMORIES[Math.floor(Math.random() * FALSE_MEMORIES.length)];
+  var text = FALSE_MEMORIES[Math.floor(Math.random() * FALSE_MEMORIES.length)];
   text = text.replace('{day}', String(Math.max(1, day - 1)));
   narr('system', text, {
     isSpecial: true,
@@ -87,21 +131,28 @@ export function maybeInsertFalseMemory(narr, san, loopCount, day) {
 }
 
 // === Event Weight Corruption ===
-// Activates at stage.level >= 2 (perception_shift, SAN 40-54)
-export function corruptEventWeights(candidates, san) {
-  if (san >= 55 || !candidates || candidates.length === 0) return candidates;
+// Activates at stage.level >= 2 (perception_shift)
+/**
+ * @param {Array} candidates
+ * @param {number} san
+ * @param {function} [getStage] — injected stage lookup
+ * @returns {Array}
+ */
+export function corruptEventWeights(candidates, san, getStage) {
+  var stage = _stage(san, getStage);
+  if (stage.level < 2 || !candidates || candidates.length === 0) return candidates;
   return candidates.map(function (item) {
     let w = item.weight || 1;
     const evt = item.event || item;
     const type = evt.type || evt.event_classification || '';
-    // SSOT: level 5 (narrative_death, SAN 1-9) — extreme corruption
-    if (san <= 9) {
+    // SSOT: level 5 (narrative_death) — extreme corruption
+    if (stage.level >= 5) {
       if (['超自然遭遇', '怪物遭遇', 'mythos', 'meta'].includes(type)) w *= 1.8;
       if (['正常事件', 'NPC对话', '氛围事件'].includes(type)) w *= 0.4;
       w *= 0.5 + Math.random() * 1.5; // jitter
     }
-    // SSOT: level 3-4 (explanation_loss/reality_dissolution, SAN 10-39)
-    else if (san <= 39) {
+    // SSOT: level 3-4 (explanation_loss/reality_dissolution)
+    else if (stage.level >= 3) {
       if (['超自然遭遇', '怪物遭遇', 'mythos'].includes(type)) w *= 1.3;
       if (['正常事件', '氛围事件'].includes(type)) w *= 0.7;
     }

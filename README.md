@@ -9,8 +9,9 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![CI](https://github.com/BALIUJUNAN/abyssal-whispers/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
-![Build](https://img.shields.io/badge/build-1.8MB_production-green)
-![Version](https://img.shields.io/badge/version-0.3.1-orange)
+![Build](https://img.shields.io/badge/build-Vite_587B_HTML-green)
+![Tests](https://img.shields.io/badge/tests-285_passing-brightgreen)
+![Version](https://img.shields.io/badge/version-0.4.0-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -27,12 +28,17 @@ _不是我不肯走。是这个城镇不允许我离开。_
 ### 浏览器版（无需安装）
 
 ```bash
-# 方式一：直接打开（推荐 Chrome / Edge）
-双击 index.html
+# 方式一：开发模式（推荐，热更新）
+npm install
+npm run dev          # → http://localhost:3000
 
-# 方式二：本地 HTTP 服务器
-python -m http.server 8080
-# 然后访问 http://localhost:8080
+# 方式二：构建后预览
+npm run build        # → dist/ (587字节HTML + 分块JS + 音频 + 图片)
+npx vite preview     # → http://localhost:4173
+
+# 方式三：内容编辑器
+npm run dev
+# 浏览器访问 http://localhost:3000/editor
 ```
 
 ### 桌面版（EXE 安装包）
@@ -80,9 +86,11 @@ npm run tauri:build
 | **存档槽位**   | 6 个 — 3 自动轮转 + 3 手动管理，JSON 导入导出                                                                               |
 | **图片素材**   | 138 张 WebP — 含 72 张独立结局 CG                                                                                           |
 | **前传系统**   | 7 场景线性叙事 — 构建你的恐惧画像                                                                                           |
-| **SAN 系统**   | 6 阶段 × 4 维度（视觉/交互/逻辑/Meta）完整污染定义                                                                          |
+| **SAN 系统**   | 6 阶段 × 4 维度（视觉/交互/逻辑/Meta）完整污染定义，SAN视觉精度化（稀疏恐怖，非噪声）                                        |
 | **布局模式**   | 2 种 — 暗黑地牢风格全景地图 / 经典三栏面板                                                                                  |
-| **代码规模**   | 21,300+ 行 JS/JSX — 104 个源文件                                                                                            |
+| **代码规模**   | 41,000+ 行 JS/JSX — 110+ 个源文件                                                                                           |
+| **数据校验**   | Zod Schema 735条数据全量校验                                                                                                 |
+| **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -173,7 +181,7 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 - **CSS 动画**驱动轻量效果：文字颤抖(`splTremble`)、色偏(`hue-rotate`)、呼吸缩放(`splBreath`)、按钮闪烁(`splFlicker`)
 - **Canvas** 驱动重效果：噪点、扫描线、vignette 暗角、色差、barrel distortion、旋转、屏幕撕裂
 - **CorruptibleChoice** 组件：Hover 延迟随阶段递增(1200→600→800→400ms)，渐进文字腐化(正常→红色→深渊符号)
-- **AbyssPopup** 组件：SAN<40 时每 60-120 秒弹出 meta 消息，SAN≤9 缩短至 30-60 秒并混入伪造通知
+- **AbyssPopup** 组件：SAN<40 时每 90-180 秒弹出 meta 消息，SAN≤9 保留 30-60 秒但可**抵抗**（快速连点3次，每次-1SAN）
 
 **三个独立滑块**（设置面板）：
 
@@ -263,7 +271,7 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 | **UGC 模组**              | 支持导入自定义事件 JSON（Schema 校验）                                                              |
 | **ErrorBoundary**         | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载                                     |
 | **Error Tracker**         | 测试期玩家操作追踪模块（可插拔，一行删除即可移除）                                                  |
-| **DevPanel**              | 开发者调试面板（F12 / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                         |
+| **DevPanel**              | 开发者调试面板（~ / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                           |
 | **SAN mutation 静态检查** | `npm run lint:san` — 扫描全部 reducer，禁止直接 `s.san = clamp(san-...)`，白名单除外                 |
 
 ---
@@ -297,18 +305,19 @@ Copyright © 2024-2026 BALIUJUNAN. All Rights Reserved.
 ### 整体架构
 
 ```
-React 18 + useReducer 全状态驱动 + 双 Store 架构 (useGameStore + useUiStore)
-  → 引擎层 (src/engine/) — 事件引擎 / 污染管理 / 世界时间 / 存档系统
-  → 运行时层 (src/runtime/) — post-reducer 副作用执行器（音频/存档/统计去重）
-  → 模块化 Reducer 体系（21 个领域 reducer，6 个 slice handler）
+React 18 + useReducer + Immer + 双 Store (useGameStore + useUiStore)
+  → 引擎层 (src/engine/) — 独立npm包，零游戏导入，DI注入
+  │    EventEngine / PollutionManager / WorldTimeSystem / SaveManager
+  │    commands.js (类型化effect工厂) / eventBus.js (跨Slice通信)
+  → 运行时层 (src/runtime/) — post-reducer 副作用执行器（类型分发+去重）
+  → 模块化 Reducer（6个slice handler + ctx显式传参）
+  → SAN视觉系统 (systems/sanityVisual.js) — 精度化恐怖，稀疏触发
+  → 早期钩子 (systems/earlyHooks.js) — 十三声钟入口序列 + Canvas脉冲
   → SAN SSOT — getCurrentSanStage() 统一查询，6阶段×4维度
-  → JSON 配置驱动（事件/结局/效果/NPC/商店/SAN阶段 全部数据化）
-  → 身份注册表（区域/物品/NPC 双格式 ESM+CJS，名称别名解析）
-  → 数据验证器（效果/条件/引用三层校验，构建时 + 运行时）
-  → 章节懒加载（ch2+ 在 day5 加载，meta 在 day10 加载）
-  → Vite 主线构建（ESM + HMR + 热更新 + 路径别名）→ 多文件产物 dist-vite/
-  → Python 单文件构建（Babel JSX + CSS/JS minify）→ index.html (~1.8MB)
-  → Tauri v2 打包 → 原生桌面应用 (~10MB)
+  → JSON 配置驱动 + Zod Schema 校验（735条数据全量）
+  → 章节硬限（Chapter 1 事件池过滤 + AP压限 + Day 3强制过渡）
+  → Vite 主线构建（ESM + code-split + 587字节HTML）→ dist/
+  → Tauri v2 打包 → 原生桌面应用
 ```
 
 ### 项目结构
@@ -336,11 +345,14 @@ COC/
 │   ├── portraitMap.js        # 图片路径映射（379 行，ESM export）
 │   ├── index.template.html   # Legacy 构建模板（__INLINE_CSS__ / __INLINE_JS__ 占位符）
 │   │
-│   ├── engine/               # 4 个引擎模块（758 行）— 核心逻辑独立层
-│   │   ├── EventEngine.js          # 统一三层加权事件选择（373 行）
-│   │   ├── PollutionManager.js     # SAN+逻辑+视觉污染（98 行，SSOT阈值）
-│   │   ├── WorldTimeSystem.js      # 世界状态/封印/天气/安全屋（97 行）
-│   │   └── SaveManager.js          # 存档系统+版本迁移（190 行）
+│   ├── engine/               # 6 个引擎模块（1,077 行）— 独立npm包，零游戏导入
+│   │   ├── EventEngine.js          # 统一三层加权事件选择（465 行）
+│   │   ├── PollutionManager.js     # SAN+逻辑+视觉污染（161 行，DI注入getStage）
+│   │   ├── WorldTimeSystem.js      # 世界状态/封印/天气（86 行，纯引擎）
+│   │   ├── SaveManager.js          # 存档系统+版本迁移（224 行，DI注入migration）
+│   │   ├── commands.js             # 类型化effect命令工厂（68 行）
+│   │   ├── eventBus.js             # 跨Slice类型化事件总线（73 行）
+│   │   └── ENGINE_CONTRACT.md      # 引擎边界规则文档
 │   │
 │   ├── runtime/              # 运行时副作用层
 │   │   └── effectExecutor.js       # post-reducer 副作用执行器（45 行）
@@ -355,7 +367,7 @@ COC/
 │   │   └── transientKeys.js        # 临时状态键定义（23 行）
 │   │
 │   ├── components/           # 16 个 UI 组件（2,895 行）
-│   │   ├── ui/DevPanel.jsx         # 开发者调试面板（79 行，F12 打开）
+│   │   ├── ui/DevPanel.jsx         # 开发者调试面板（79 行，~ 打开）
 │   │   │
 │   │   ├── GameLayout.jsx          # 布局模式切换入口（90 行）
 │   │   │                           #   M 键切换全景地图/经典模式
@@ -402,7 +414,7 @@ COC/
 │   │   ├── loopReducer.js          # 轮回/周目切换逻辑（258 行）
 │   │   ├── effectReducer.js        # 效果应用（185 行）
 │   │   ├── prologueReducer.js      # 前传系统（195 行）
-│   │   ├── sanReducer.js           # SAN 值变更与阶段判断（95 行）
+│   │   ├── sanReducer.js           # SAN 游戏逻辑（70 行）— 扣分/疯狂 + re-export展示层
 │   │   ├── npcReducer.js           # NPC 状态管理（158 行）
 │   │   ├── saveMigration.js        # 存档版本迁移（187 行）
 │   │   ├── ugcReducer.js           # UGC 模组处理（265 行）
@@ -413,7 +425,9 @@ COC/
 │   │   ├── objectiveReducer.js     # 任务目标（102 行）
 │   │   └── utils.js                # reducer 共用工具函数（50 行）
 │   │
-│   ├── systems/              # 17 个游戏系统（~3,200 行）
+│   ├── systems/              # 20 个游戏系统（~4,200 行）
+│   │   ├── sanityVisual.js         # SAN 视觉呈现系统（290 行）— 颜色/文本腐蚀/CSS类/Canvas参数
+│   │   ├── earlyHooks.js           # Day 1-3 感官锚点（82 行）— 十三声钟入口+区域低语
 │   │   ├── fearLens.js             # 恐惧滤镜 — 文本+NPC对话（333 行）
 │   │   ├── fearProfile.js          # 恐惧画像系统（111 行）
 │   │   ├── resourceNarrative.js    # 资源-叙事绑定（271 行）
@@ -482,6 +496,12 @@ COC/
 │   │   │   ├── npcRegistry.js      # NPC 注册表（24 行）
 │   │   │   └── registryUtils.js    # 注册表工具函数（82 行）
 │   │   │
+│   │   │   ── Zod Schema 验证 ──
+│   │   ├── schemas/
+│   │   │   └── index.js            # Zod Schema 定义（260 行）— Event/NPC/Area/Item 全量校验
+│   │   │
+│   │   ├── milestones.js           # 章节里程碑 + 强制叙事钩子（102 行）
+│   │   │
 │   │   │   ── 数据验证器（CJS） ──
 │   │   ├── validators/
 │   │   │   ├── conditionValidator.cjs  # 条件表达式校验（26 行）
@@ -528,9 +548,14 @@ COC/
 │   ├── report_references.cjs       # 引用关系分析脚本
 │   ├── simulate_loops.cjs          # 轮回批量模拟器（--loops N --seed N）
 │   ├── lint_san_mutations.cjs      # SAN mutation 静态检查（禁止直接 clamp）
+│   ├── lint_engine_boundary.cjs    # 引擎边界检查（零游戏导入）
+│   ├── validate_data.cjs           # Zod Schema 数据校验 CLI
 │   ├── mod_validate.cjs            # UGC 模组校验
 │   ├── mod_preview.cjs             # UGC 模组预览
 │   └── mod_pack.cjs                # UGC 模组打包
+│
+├── tools/
+│   └── editor.html                 # 内容编辑器（381 行）— 非程序员数据编辑，localhost:3000/editor
 │
 └── docs/                     # 文档
     ├── dossier.png                 # 沃切斯特档案封面
@@ -559,7 +584,7 @@ COC/
 | **AreaPanelModal**     | `components/`            | 303     | 热点功能面板                        | 行动/NPC对话/区域信息三标签页                          |
 | **useGameStore**       | `state/`                 | 90      | 游戏状态桥接                        | useSan/useDay/useHp/usePollution 等选择器钩子          |
 | **useUiStore**         | `state/`                 | 89      | UI状态管理                          | 模态框/Toast/设置/地图模式/热点状态                    |
-| **DevPanel**           | `components/ui/`         | 79      | 开发者调试面板                      | F12打开，4标签页：状态/工具/权重/性能                  |
+| **DevPanel**           | `components/ui/`         | 79      | 开发者调试面板                      | ~打开，4标签页：状态/工具/权重/性能                    |
 | **死亡系统**           | `reducers/`              | 383     | 16种死亡×四段叙事                   | 标题→临终→世界处理→残留提示                            |
 | **死亡总结**           | `systems/`               | 300     | 4段叙事死亡总结                     | 死因叙事/发现/世界变化/新目标，不暴露机制               |
 | **轮回系统**           | `reducers/`              | 258     | 跨周目状态传递                      | 污染累积/SAN上限削减/技能继承30%/NPC记忆渐进           |
@@ -707,11 +732,11 @@ nvm use   # 读取 .nvmrc → 20.19.0
 
 项目有两条构建路线，**推荐使用 Vite**：
 
-| 路线              | 命令                            | 产物                  | 适用场景                          |
-| ----------------- | ------------------------------- | --------------------- | --------------------------------- |
-| **Vite（推荐）**  | `npm run dev` / `npm run build` | `dist-vite/` 多文件   | 日常开发、生产部署                |
-| **Legacy 单文件** | `npm run build:single`          | `index.html` (~1.8MB) | GitHub Pages 单文件部署、离线分发 |
-| **Tauri 桌面版**  | `npm run tauri:build`           | `.exe` 安装包         | 桌面客户端                        |
+| 路线              | 命令                            | 产物                     | 适用场景                          |
+| ----------------- | ------------------------------- | ------------------------ | --------------------------------- |
+| **Vite（推荐）**  | `npm run dev` / `npm run build` | `dist/` 587B HTML + 分块  | 日常开发、生产部署                |
+| **Legacy 单文件** | `npm run build:single`          | `index.html` (~1.8MB)    | 离线分发（保留，非主线）          |
+| **Tauri 桌面版**  | `npm run tauri:build`           | `.exe` 安装包            | 桌面客户端                        |
 
 ```bash
 # 安装依赖
@@ -746,6 +771,8 @@ python build.py --analyze # 包体积分析
 
 npm run format           # 格式化全部源文件（Prettier）
 npm run lint:san         # SAN mutation 静态检查（禁止直接 clamp）
+npm run lint:engine      # 引擎边界检查（src/engine/ 零游戏导入）
+npm run lint:schema      # Zod Schema 数据校验（735条数据全量）
 npm run lint:events      # 扩展事件 lint
 npm run test:missing600  # 第 600 号事件测试
 npm run mod:validate     # UGC 模组校验
@@ -759,7 +786,7 @@ npm run mod:pack         # UGC 模组打包
 
 ### 开发者调试面板
 
-按 **F12** 或 **Ctrl+Shift+D** 打开 DevPanel：
+按 **~** 或 **Ctrl+Shift+D** 打开 DevPanel：
 
 | 标签页      | 功能                                                                               |
 | ----------- | ---------------------------------------------------------------------------------- |
@@ -811,7 +838,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 | **SAN 系统**         | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现                  |
 | **子系统**           | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk                          |
 | **构建流程**         | **9.5/10** | ✅ Vite 主线（ESM + HMR）；Legacy 单文件保留；verify 覆盖双构建；注释安全删除 + token 边界保护 |
-| **开发体验**         | **9.5/10** | ✅ DevPanel(F12) + 双Store选择器 + 三滑块SAN控制 + GAME_BALANCE 常量                           |
+| **开发体验**         | **9.5/10** | ✅ DevPanel(~) + 双Store选择器 + 三滑块SAN控制 + GAME_BALANCE 常量                             |
 
 ### 架构优势
 
@@ -828,7 +855,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 - ✅ **身份注册表** — 区域/物品/NPC 统一注册（ESM+CJS双格式），名称别名双向解析
 - ✅ **数据验证器** — 效果/条件/引用三层校验器，构建时 + 运行时自动校验
 - ✅ **Vite 主线构建** — `npm run dev` / `npm run build` 使用 Vite，ESM 原生模块 + HMR 热更新 + 路径别名
-- ✅ **DevPanel调试** — F12一键打开，实时查看/修改游戏状态、事件权重、性能指标
+- ✅ **DevPanel调试** — ~一键打开，实时查看/修改游戏状态、事件权重、性能指标
 - ✅ **ctx 显式传参** — slice handler 通过参数接收上下文，可独立单元测试，无隐式全局依赖
 - ✅ **GAME_BALANCE 常量** — `src/state/gameConstants.js` 集中管理平衡参数，零散魔法数字已消除
 - ✅ **EXPLORE 分阶段** — 事件选择(`_selectExploreEvent`) + 效果应用(inline) + 后处理(`_postExploreProcessing`) 三阶段清晰分离
@@ -848,6 +875,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.4.0** | 2026-06-15 | **SAN精度化 + 第一章节奏 + 工程改造** — ①新建 `sanityVisual.js`(290行)：SAN视觉呈现集中化，sanReducer瘦身50%；②新建 `earlyHooks.js`(82行)：十三声钟入口序列（6秒延迟音频+Canvas脉冲）+区域氛围低语；③遗产亮点系统：NPC遗言(8人×3档24段)+运行时刻+轮回印记；④Chapter 1硬限：事件池过滤(blocked types)+AP上限5(Days 1-3)+Day 3强制过渡事件；⑤SAN精度化：AbyssPopup间隔拉长(90-180s)+抵抗微交互(3连点-1SAN)+CorruptibleChoice门控(isKeyEvent)+unreliable_narration_level字段+Canvas 3级性能降级+文本腐蚀概率下调37-60%；⑥资源对接：光源→区域描述污染+感染→NPC幻觉变体(24条)+安全屋退化加速(loop≥3+2)+码头深潜者低语(10条)+章节配置回退；⑦工程改造：eventBus.js(跨Slice通信)+commands.js(类型化effect)+Zod Schema(735条数据校验)+engine边界检查(0违规)+Content Editor(editor.html)+Vite构建优化(587B HTML/code-split/734ms)；⑧修复4个运行时Bug：ESM隐式全局/ctx参数不匹配/CSS路径错位/SAN地板值；⑨新增CHANGELOG.md+mistake.txt错误追踪 |
 | **0.3.0** | 2026-06-12 | **Vite 主线切换** — ①`npm run dev` / `npm run build` 切换为 Vite；②修复 14 个组件缺失 export + React hooks 未解构；③修复 SaveManager 相对路径、ugcSchema/gameConstants/transientKeys 缺少 export；④所有 6 个 slice handler 添加显式 import（~60 条）；⑤shim 从 60 模块缩减至 54；⑥`npm run verify` 同时覆盖测试 + Vite 构建 + Legacy 构建；⑦新增 `docs/vite-smoke-checklist.md`；⑧Legacy 构建通过 `build:single` / `dev:legacy` 保留          |
 | **0.3.1** | 2026-06-14 | **克苏鲁混乱感落地 + 10大系统对接** — ①神话专名渐进渗透系统：每NPC每句话独立roll"滑嘴"概率（Ch2=0-5%, Ch3=5-30%, Ch4=20-60%, 永不到100%），高信任NPC更易说漏；②临时疯狂10种效果全部接入（恐慌逃跑AP清零/歇斯底里SAN额外/偏执妄想NPC信任-1/暴力发作HP-3/幻觉SAN/失忆侦查-10/僵直闪避-50/强迫AP翻倍/幻痛全检定-15/短暂附身神话+SAN-）；③被动疯狂检定：SAN≤15时30%概率/SAN≤10时50%概率，休息时触发；④光源系统4等级接入：无光→弱光→稳定→仪式级，影响怪物遭遇倍率(2×/1.3×/1×/0.7×)+事件文本可靠性腐蚀；⑤行为人格报告：32项行为计数器→人格档案（深渊使徒/矛盾体/观测者等），死亡/结局时自动生成，自问式叙事（非标签）；⑥轮回商店UI：标题画面🪙入口，Tier1/Tier2共6件商品，代币购买+跨轮回持久化+效果接入（技能点/NPC信任/神话抗性/SAN上限）；⑦恐怖密度控制：per-chapter异常率上限（Ch1=15%/Ch5=70%）+per-area上限接入事件权重；⑧事件去重：`seenEventTexts`权重衰减（2次→0.5×, 3+次→0.2×）；⑨"疑似bug"设计系统：幻影日志(0.5%)→8秒消失/NPC名字错字(0.3%)/幻影叙述(0.3%)→5秒消失；⑩SAN文本污染概率渐进：所有硬阈值改为SAN每降1点概率微增（不再100%开关）；⑪序列规则概率梯度：连续2异常→30%插正常/3→60%/4→90%/永远不到100%；⑫修复6个bug：Immer冻结状态setTimeout修改/疯狂被同REST周期清除/恐怖密度计数逻辑反转/商店效果死状态/暴力发疯狂no-op/无用import |
 | **0.2.4** | 2026-06-12 | **玩家体验系统 + SAN 工程治理** — ①新增 8 个系统模块（deathSummary/reincarnationDiff/firstRunGuide/npcFeedback/sanFeedback/firstLoopBalance/textVariants/gameSettings）；②`applySanLoss` 中央 SAN 扣减函数，28 个 reducer 文件全部接入，`lint:san` 静态检查强制执行；③死亡总结页 4 段叙事结构（DeathSummaryView 组件直接渲染）；④轮回差异提示自动计算并存入 state；⑤NPC 反馈分层（跨级脉冲+音效，同级轻提示）；⑥SAN 反馈 4 档分级（minor/moderate/severe/critical）；⑦首轮保护（前3天屏蔽致命事件，SAN 上限 5）；⑧文本重复控制 4 层变体（跨轮持久化）；⑨设置系统完善（字号/行高/字族/减少动画/高对比度/5路音量/引导开关）；⑩新增 2 个测试套件（ending_reachability + player_experience），总用例 272 / 9 套件；⑪修复 smoke_flows 从 0 用例到 53 用例；⑫修复 NPC 过滤器字段名（area→location, chapter_1_role→chapter_1_availability）；⑬污染日志区分轮基值与本轮增量 |

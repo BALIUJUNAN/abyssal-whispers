@@ -1,5 +1,7 @@
 // src/systems/textVariants.js — Control text repetition across loops
 // Readability always comes before flair.
+// P1-A: SAN thresholds use getSanStageFromGD (SSOT)
+import { getSanStageFromGD } from '../reducers/sanReducer.js';
 //
 // Tier 1 (seen=0):  Normal text. Always show.
 // Tier 2 (seen=1):  Subtle hint of looping — one word shifts, a familiar unease.
@@ -131,7 +133,8 @@ export function createSeenTextMap() { return {}; }
 export function maybeInjectPhantomLog(logArray, san, loopCount) {
   if (!logArray || logArray.length === 0) return;
   // Only trigger at low SAN or high loop — never in normal play
-  if (san > 40 && loopCount < 2) return;
+  // P1-A: SSOT — explanation_loss (level >= 3) or loop >= 2
+  if (getSanStageFromGD(san).level < 3 && loopCount < 2) return;
   const chance = Math.min(0.005, (60 - san) * 0.0001 + loopCount * 0.001);
   if (Math.random() >= chance) return;
   const phantomTexts = [
@@ -157,7 +160,8 @@ export function maybeInjectPhantomLog(logArray, san, loopCount) {
  */
 export function maybeCorruptNpcName(name, san, loopCount) {
   if (!name || name.length < 2) return name;
-  if (san > 50 && loopCount < 3) return name;
+  // P1-A: SSOT — perception_shift (level >= 2) or loop >= 3
+  if (getSanStageFromGD(san).level < 2 && loopCount < 3) return name;
   const chance = Math.min(0.003, (70 - san) * 0.00005 + loopCount * 0.0005);
   if (Math.random() >= chance) return name;
   // Swap one character with a visually similar one
@@ -185,7 +189,8 @@ export function maybeCorruptNpcName(name, san, loopCount) {
  * Probability: 0.3% per narrative push at low SAN.
  */
 export function maybeInjectPhantomNarrative(narrArray, san) {
-  if (san > 30) return;
+  // P1-A: SSOT — explanation_loss (level >= 3)
+  if (getSanStageFromGD(san).level < 3) return;
   if (Math.random() >= 0.003) return;
   const phantomLines = [
     '你刚才说了什么？',
@@ -294,4 +299,67 @@ export function applyMythosAliases(text, currentChapter, mythosLevel, ctx, opts)
     }
   }
   return result;
+}
+
+// ═══════════════════════════════════════════════════════
+// Area Name Distortion (moved from engine/WorldTimeSystem.js)
+// Game-specific logic — belongs in systems/, not engine/.
+// ═══════════════════════════════════════════════════════
+
+export var AREA_DISTORTIONS = {
+  town_center: ['沃切斯特镇中?', '沃切斯特镇■心', '???斯特镇中心', '沃切斯特镇', '镇中心广场'],
+  harbor_district: ['雾港码头■', '雾港?头区', '雾港码头区', '港■码头区', '码头'],
+  lighthouse: ['灯塔?', '灯塔回廊', '???塔', '灯塔', '灰烬灯塔'],
+  voxchester_manor: ['沃切斯特■园', '庄园?', '???斯特庄园', '庄园', '沃切斯特庄园'],
+  catacombs_entrance: ['墓穴■口', '墓穴入?', '???穴入口', '墓穴', '深渊之门'],
+  whispering_forest: ['低语森■', '低语?林', '???语森林', '森林', '低语森林'],
+  ruins_of_yith: ['伊斯遗■', '伊斯?迹', '???遗迹', '遗迹', '伊斯遗迹'],
+  forbidden_grove: ['禁忌之■', '禁忌?林', '???之林', '禁忌之林', '禁忌之林'],
+  deep_catacombs: ['深渊墓■', '深渊?穴', '???墓穴', '深渊墓穴', '深渊墓穴'],
+};
+
+/**
+ * Get a distorted area name based on SAN/light/infection state.
+ * Moved from engine/WorldTimeSystem.js — this is game-specific presentation logic.
+ *
+ * @param {object} area - area object with .id and .name
+ * @param {object} state - game state
+ * @returns {string} distorted or original name
+ */
+export function getDistortedName(area, state) {
+  if (!area) return '???';
+  if (state.areaNameCache && state.areaNameCache[area.id]) return state.areaNameCache[area.id];
+
+  var san = state.san || 0;
+  var pollution = state.pollution || 0;
+  var light = state.lightLevel || 0;
+  var infection = state.infection || 0;
+  var stage = getSanStageFromGD(san);
+  var chanceByLevel = { 6: 1.0, 5: 0.85, 4: 0.7, 3: 0.4, 2: 0.2, 1: 0.08, 0: 0 };
+  var distortChance = chanceByLevel[stage.level] || 0;
+
+  distortChance += pollution * 0.5;
+  if (light <= 1) distortChance += 0.15;
+  if (infection >= 50) distortChance += 0.1;
+
+  var lastVisit = state.lastVisitedDates?.[area.id] || state.day;
+  var daysSince = (state.day || 1) - lastVisit;
+  var fadeThreshold = Math.max(2, 5 - Math.floor((state.loopCount || 0) * 0.5));
+  if (daysSince > fadeThreshold) distortChance += (daysSince - fadeThreshold) * 0.1;
+
+  distortChance = Math.min(1, distortChance);
+  if (Math.random() >= distortChance) return area.name;
+
+  var alts = AREA_DISTORTIONS[area.id];
+  if (!alts) return area.name;
+
+  var idx;
+  if (stage.level >= 6) idx = 0;
+  else if (stage.level >= 5) idx = Math.random() < 0.6 ? 0 : 1;
+  else if (stage.level >= 4) idx = Math.random() < 0.6 ? 0 : 1;
+  else if (stage.level >= 3) idx = Math.random() < 0.5 ? 1 : 2;
+  else if (stage.level >= 2) idx = Math.random() < 0.5 ? 3 : 1;
+  else idx = 3;
+
+  return alts[idx] || area.name;
 }
