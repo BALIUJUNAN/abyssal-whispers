@@ -46,10 +46,17 @@ import { shouldTriggerMissing600, createMissing600Event } from '../../data/event
 import { checkOmens } from '../../data/events_omens_600.js';
 import { applyFearLens, getFearEventWeightModifier } from '../../systems/fearLens.js';
 import { applyTextHallucination } from '../../engine/PollutionManager.js';
-import { addRunMemory, setNpcTrust } from '../../utils/appHelpers.js';
+import { addRunMemory, setNpcTrust, getNpcState, setNpcState, checkWrongInference, applyDeathResolution, checkSilentEvent, narrApInsufficient } from '../../utils/appHelpers.js';
 import { adjustSanLossForFirstLoop, shouldBlockLethalEvent } from '../../systems/firstLoopBalance.js';
 import { getTrackedText, createSeenTextMap, applyMythosAliases, maybeInjectPhantomNarrative } from '../../systems/textVariants.js';
 import { getLightLevelEffects, applyLightTextCorruption } from '../miscReducer.js';
+import { checkChainCompletion, isAreaUnlocked, getAreaDisplayName } from '../../utils/gameHelpers.js';
+import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
+import { getEventImage } from '../../portraitMap.js';
+import { getAreaCorruptionNarrative } from '../../systems/worldDecay.js';
+import { applyResourceTextCorruption } from '../../systems/resourceNarrative.js';
+import { getForcedProgressGuard, executeForcedProgressGuard } from '../objectiveReducer.js';
+import { checkChapterMilestone, createMilestoneEvent, getDistortionVariant } from '../../engine/EventEngine.js';
 
 // TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
 // It remains a global for now; will be extracted to a utility in a future PR.
@@ -271,7 +278,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
     );
   // Monster manifestation
   if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MONSTER_MANIFEST_CHANCE) {
-    const creature = pick(['deep_ones', 'night_gaunts', 'shoggoth']);
+    const creature = pick(['deep_ones', 'night_gaunts', 'shoggoth'], c.rng);
     const manifest = getMonsterManifestation(creature, s.day, ctx);
     if (manifest) {
       const stageNames = {
@@ -321,7 +328,7 @@ function _applyMadnessEffects(mad, s, c, ctx) {
   }
   // Hysteria: extra SAN loss
   else if (name === '歇斯底里') {
-    var extraSan = rand(1, 3);
+    var extraSan = rand(1, 3, c.rng);
     applySanLoss(s, extraSan);
     c.narr('system', '你无法停止大笑/大哭。SAN -' + extraSan, { isEffect: true });
   }
@@ -342,7 +349,7 @@ function _applyMadnessEffects(mad, s, c, ctx) {
   }
   // Hallucination: extra SAN loss
   else if (name === '幻觉侵袭') {
-    var hallSan = rand(1, 4);
+    var hallSan = rand(1, 4, c.rng);
     applySanLoss(s, hallSan);
     c.narr('system', '幻觉吞没了你。SAN -' + hallSan, { isEffect: true });
   }
@@ -368,8 +375,8 @@ function _applyMadnessEffects(mad, s, c, ctx) {
   }
   // Brief possession: mythos gain + extra SAN loss
   else if (name === '短暂附身') {
-    var mythosGain = rand(1, 3);
-    var possSan = rand(1, 6);
+    var mythosGain = rand(1, 3, c.rng);
+    var possSan = rand(1, 6, c.rng);
     s.mythosLevel = (s.mythosLevel || 0) + mythosGain;
     applySanLoss(s, possSan);
     c.narr('system', '你的嘴说出了不属于你的话。克苏鲁神话 +' + mythosGain + '，SAN -' + possSan, { isEffect: true });
@@ -381,7 +388,7 @@ export function handleExploreAction(s, action, c, ctx) {
   switch (action.type) {
     case 'MOVE': {
       if (s.ap < 1) {
-        c.narr('system', '行动点不足。');
+        narrApInsufficient(s, c.narr, 1);
         return s;
       }
       const target = action.areaId;
@@ -478,7 +485,7 @@ export function handleExploreAction(s, action, c, ctx) {
         targetArea.micro_events.length > 0 &&
         (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MICRO_EVENT_CHANCE
       ) {
-        const me = pick(targetArea.micro_events);
+        const me = pick(targetArea.micro_events, c.rng);
         const meText = getSanTextVariant(me.description, s.san, pick, ctx);
         c.narr('system', meText, { type: '微事件' });
         if (me.effect)
@@ -488,7 +495,7 @@ export function handleExploreAction(s, action, c, ctx) {
           });
       }
       // Silent events: 15% chance on move
-      if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SILENT_EVENT_ON_MOVE) checkSilentEvent(s, c.narr, target);
+      if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SILENT_EVENT_ON_MOVE) checkSilentEvent(s, c.narr, target, GD);
       // SAN scene variants: location-based flavor text
       const sceneKeyMap = {
         harbor_district: 'harbor_water',
@@ -518,7 +525,7 @@ export function handleExploreAction(s, action, c, ctx) {
     case 'EXPLORE': {
       const _apCost = 2 * (s._madnessApMultiplier || 1);
       if (s.ap < _apCost) {
-        c.narr('system', '行动点不足（需要' + _apCost + 'AP）。');
+        narrApInsufficient(s, c.narr, _apCost);
         return s;
       }
       s.ap -= _apCost;
@@ -745,10 +752,10 @@ export function handleExploreAction(s, action, c, ctx) {
       _postExploreProcessing(evt, s, c, GD);
       // Chapter 1 early whisper: 20% chance on Days 1-3, first loop only
       // Atmospheric — no AP cost, no game effect, pure unease.
-      if (s.day <= 3 && s.loopCount <= 0 && Math.random() < 0.2) {
+      if (s.day <= 3 && s.loopCount <= 0 && (c.rng ? c.rng.next() : Math.random()) < 0.2) {
         var whispers = EARLY_WHISPERS[s.currentArea];
         if (whispers && whispers.length > 0) {
-          c.narr('system', whispers[Math.floor(Math.random() * whispers.length)], { isSpecial: true });
+          c.narr('system', pick(whispers, c.rng), { isSpecial: true });
         }
       }
       // "Suspected bug" — phantom narrative line (0.3% at low SAN)
@@ -790,7 +797,7 @@ export function handleExploreAction(s, action, c, ctx) {
         );
         c.narr('system', sc.success?.text || sc.success || '检定成功。');
         if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SKILL_IMPROVE_CHANCE)
-          s.skills[result.skillName] = (s.skills[result.skillName] || 0) + rand(1, 3);
+          s.skills[result.skillName] = (s.skills[result.skillName] || 0) + rand(1, 3, c.rng);
       } else {
         c.effects.push({ type: 'AUDIO_SKILL', id: result.isCritFail ? 'critical_fail' : 'fail' });
         s.stats_run.checks_failed++;

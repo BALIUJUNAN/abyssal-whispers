@@ -6124,7 +6124,8 @@
         "corruption_high": "阴影已经不在水下了。它在你身后。你不需要回头——你能感觉到它的温度。和你的体温一样。",
         "fear_ocean": "水面上的月光碎了。每一片碎片里都映着一只眼睛。它们都在看你。你数不清有多少只。",
         "fear_body": "阴影有你的轮廓。它在模仿你的每一个动作。但它的动作比你慢了半拍——或者说，你比它快了半拍。"
-      }
+      },
+      "unreliable_narration_level": 0
     },
     {
       "id": "evt_fisherman_warning",
@@ -6187,7 +6188,8 @@
         "san_mid": "渔夫的警告。他说的每个字都在你的笔记本上自行出现了。你没有在写。",
         "corruption_high": "他看着你的眼睛说：\"你已经听过这段话了。上一次你没有听。\"",
         "fear_isolation": "他试图警告你。但你听不懂他的话了。不是因为他说的是外语——是因为你已经忘了怎么听。"
-      }
+      },
+      "unreliable_narration_level": 2
     },
     {
       "id": "evt_warehouse_key",
@@ -6248,7 +6250,8 @@
         "san_mid": "仓库的异响。你打开门的时候，里面站着一个人。不——是一个你自己的倒影。倒影把钥匙递给你。",
         "corruption_high": "仓库里没有异响。从来没有。但你的口袋里多了一把钥匙。你不记得它是什么时候出现的。",
         "fear_control": "钥匙的齿纹在变化。每次你看它，它的形状都不一样。它在适应某个你还没有找到的锁。"
-      }
+      },
+      "unreliable_narration_level": 2
     },
     {
       "id": "evt_drowned_voice",
@@ -6311,7 +6314,8 @@
         "corruption_high": "你已经听了一整天了。你不确定声音是来自水下还是来自你的头骨内部。",
         "fear_ocean": "水面上出现了嘴。很多嘴。它们在同步说话。说的是你小时候的事。只有你知道的事。",
         "fear_knowledge": "声音在告诉你一个真相。一个你已经知道但不愿意承认的真相。你试图忘记，但声音不让你忘。"
-      }
+      },
+      "unreliable_narration_level": 3
     },
     {
       "id": "evt_strange_clock",
@@ -6373,7 +6377,8 @@
         "san_mid": "十三声钟响。你发现自己在跟着钟声呼吸。每一次钟响，你的肺就少装一口气。",
         "corruption_high": "钟声没有停。它在你的血管里响。你的脉搏就是钟声的节奏。",
         "fear_control": "钟声在控制你。每响一下，你的身体就做出一个动作。不是你选择的动作。"
-      }
+      },
+      "unreliable_narration_level": 3
     },
     {
       "id": "evt_missing_poster",
@@ -6436,7 +6441,8 @@
         "san_mid": "失踪者名单。你数了一下。少了一个人。你很确定少了一个人。但你记不起是谁。",
         "corruption_high": "告示上写着：\"失踪时间：现在。\"你看了看手表。表停了。",
         "fear_isolation": "名单上的名字你都认识。都是你。不同的你。每一个你都在不同的时间失踪了。"
-      }
+      },
+      "unreliable_narration_level": 2
     },
     {
       "id": "evt_church_bell",
@@ -6498,7 +6504,8 @@
         "san_mid": "教堂深处的低语。它们在祈祷。祈祷的对象是你。",
         "corruption_high": "你走进教堂。十字架转了一个角度面向你。蜡烛自己亮了。没有人在这里。但长椅上坐满了人。",
         "fear_knowledge": "低语声在读一本书。你听出来了——那是你还没有写的书。内容是你在沃切斯特的最后一天。"
-      }
+      },
+      "unreliable_narration_level": 3
     },
     {
       "id": "evt_beggar_clue",
@@ -6557,7 +6564,8 @@
         "san_low": "乞丐在笑。他的牙齿上有字。你凑近看——是你自己的名字。",
         "san_mid": "疯乞丐的预言。他说的每一句话都成真了。包括最后一句：\"你会忘记这段对话。\"",
         "corruption_high": "乞丐不是疯了。他只是比你更清醒。他看到了你看不到的东西——你身后的东西。"
-      }
+      },
+      "unreliable_narration_level": 3
     },
     {
       "id": "evt_vendor_suspicious",
@@ -6616,7 +6624,8 @@
         "san_low": "摊贩的货物在动。不是风吹的。它们在呼吸。每一个包裹里都有一个小小的、跳动的心脏。",
         "san_mid": "可疑的摊贩。他的眼睛不眨。你数了三十秒。一次都没有。",
         "corruption_high": "他卖的东西你都见过。在你的梦里。每一个物品都对应一个你已经遗忘的记忆。"
-      }
+      },
+      "unreliable_narration_level": 2
     },
     {
       "id": "evt_ch1_grocery_supply",
@@ -6643,7 +6652,8 @@
       },
       "sanity_damage": 0,
       "chapter_1_eligible": true,
-      "normalcy_anchor": true
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
     },
     {
       "id": "evt_ch1_martha_polish",
@@ -6670,7 +6680,8 @@
       "sanity_damage": 0,
       "san_recovery": 1,
       "chapter_1_eligible": true,
-      "normalcy_anchor": true
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 2
     },
     {
       "id": "evt_ch1_fisher_mending",
@@ -6697,7 +6708,8 @@
       },
       "sanity_damage": 0,
       "chapter_1_eligible": true,
-      "normalcy_anchor": true
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
     },
     {
       "id": "evt_ch1_tommy_photo",
@@ -6725,7 +6737,8 @@
       },
       "sanity_damage": 0,
       "chapter_1_eligible": true,
-      "normalcy_anchor": true
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 2
     },
     {
       "id": "evt_ch1_bell_excuse",
@@ -6752,7 +6765,8 @@
       "effects": {},
       "sanity_damage": 0,
       "chapter_1_eligible": true,
-      "normalcy_anchor": true
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 0
     },
     {
       "id": "evt_ch1_sailor_weather",
@@ -6776,7 +6790,8 @@
       "effects": {},
       "sanity_damage": 0,
       "chapter_1_eligible": true,
-      "normalcy_anchor": true
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
     },
     {
       "id": "evt_ch1_streetlamp_out",
@@ -6800,7 +6815,8 @@
       "effects": {},
       "sanity_damage": -1,
       "chapter_1_eligible": true,
-      "normalcy_anchor": false
+      "normalcy_anchor": false,
+      "unreliable_narration_level": 0
     },
     {
       "id": "evt_ch1_poster_removed",
@@ -6827,7 +6843,8 @@
       },
       "sanity_damage": -1,
       "chapter_1_eligible": true,
-      "normalcy_anchor": false
+      "normalcy_anchor": false,
+      "unreliable_narration_level": 0
     },
     {
       "id": "evt_ch1_cat_stare",
@@ -6854,7 +6871,8 @@
       },
       "sanity_damage": 0,
       "chapter_1_eligible": true,
-      "normalcy_anchor": true
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
     },
     {
       "id": "evt_ch1_church_organ",
@@ -6880,7 +6898,8 @@
       },
       "sanity_damage": 0,
       "chapter_1_eligible": true,
-      "normalcy_anchor": true
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
     },
     {
       "id": "evt_day1_harbor_shadow_light",
@@ -6940,7 +6959,8 @@
         "san_mid": "水面少了一块月光。你伸手去摸——手指穿过了水面。下面不是水。是空气。是另一个地方。",
         "corruption_high": "月光回来了。但它照出的不是你的影子。是一个你从未见过的人的影子。那个人正在看着你。",
         "fear_ocean": "水面下的月光在说话。不是比喻——是真的在说话。它在说：\"回来。\""
-      }
+      },
+      "unreliable_narration_level": 0
     }
   ],
   "items": [

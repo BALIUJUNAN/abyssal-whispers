@@ -4,8 +4,10 @@
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { NarrativeBlock } from './GameCommon.jsx';
 import { NPCDialog } from './NPCDialog.jsx';
+import { getDisplayedAp } from '../utils/appHelpers.js';
 
 export function FloatingInfoBar({ state, dispatch }) {
+  const [clueOpen, setClueOpen] = useState(false);
   const areas = GD.areas || GD.module2_areas || [];
   const area = areas.find((a) => a.id === state.currentArea);
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
@@ -89,10 +91,10 @@ export function FloatingInfoBar({ state, dispatch }) {
             <div className="finfo-bar-track">
               <div
                 className="finfo-bar-fill"
-                style={{ width: (state.ap / state.maxAp) * 100 + '%' }}
+                style={{ width: (getDisplayedAp(state) / state.maxAp) * 100 + '%' }}
               />
             </div>
-            <span className="finfo-bar-value">{state.ap}</span>
+            <span className="finfo-bar-value">{getDisplayedAp(state)}</span>
           </div>
         </div>
       </div>
@@ -104,7 +106,13 @@ export function FloatingInfoBar({ state, dispatch }) {
         </span>
         <span className="finfo-pill money">💰 {state.money || 0}</span>
         <span className={'finfo-pill seal seal-' + state.sealState}>封印：{sealLabel}</span>
-        <span className="finfo-pill clue">线索 {state.clues.length}</span>
+        <span
+          className={'finfo-pill clue' + (clueOpen ? ' active' : '')}
+          onClick={() => setClueOpen((v) => !v)}
+          style={{ cursor: 'pointer' }}
+        >
+          线索 {state.clues.length}
+        </span>
         <button
           className="finfo-btn"
           onClick={() => uiStore.setState({ settingsOpen: true })}
@@ -139,6 +147,74 @@ export function FloatingInfoBar({ state, dispatch }) {
         >
           ☷
         </button>
+      </div>
+      {/* 线索弹出面板 */}
+      {clueOpen && (
+        <CluePanel state={state} onClose={() => setClueOpen(false)} />
+      )}
+    </div>
+  );
+}
+
+// === 线索弹出面板 ===
+function CluePanel({ state, onClose }) {
+  var inProgress = (GD.systems?.clue_conclusion?.conclusions || [])
+    .filter(function (c) {
+      if ((state.discoveredConclusions || []).includes(c.id)) return false;
+      var req = c.required_clue_ids || c.required_clues || [];
+      return req.length > 0 && req.some(function (id) { return (state.clues || []).some(function (cl) { return (typeof cl === 'object' ? cl.id : cl) === id; }); });
+    });
+
+  return (
+    <div className="clue-panel-overlay" onClick={onClose}>
+      <div className="clue-panel" onClick={function (e) { e.stopPropagation(); }}>
+        <div className="clue-panel-header">
+          <span>📋 已知线索 ({state.clues.length})</span>
+          <button className="finfo-btn" onClick={onClose}>✕</button>
+        </div>
+        <div className="clue-panel-body">
+          {state.clues.length > 0 && (
+            <>
+              <div className="clue-panel-title">线索</div>
+              {state.clues.map(function (c, i) {
+                return <div key={i} className="clue-entry">• {typeof c === 'object' ? c.name : resolveClueName(c)}</div>;
+              })}
+            </>
+          )}
+          {state.completedChains && state.completedChains.length > 0 && (
+            <>
+              <div className="clue-panel-title">事件链</div>
+              {state.completedChains.map(function (cid, i) {
+                return <div key={i} className="clue-entry" style={{ color: 'var(--san-high)' }}>✓ {cid}</div>;
+              })}
+            </>
+          )}
+          {state.discoveredConclusions && state.discoveredConclusions.length > 0 && (
+            <>
+              <div className="clue-panel-title" style={{ color: 'var(--gold)' }}>结论</div>
+              {state.discoveredConclusions.map(function (cid, i) {
+                var conc = (GD.systems?.clue_conclusion?.conclusions || []).find(function (c) { return c.id === cid; });
+                return <div key={i} className="clue-entry" style={{ color: 'var(--gold)' }}>★ {conc?.name || cid}</div>;
+              })}
+            </>
+          )}
+          {inProgress.length > 0 && (
+            <>
+              <div className="clue-panel-title" style={{ color: 'var(--text-dim)' }}>推断中</div>
+              {inProgress.map(function (c, i) {
+                return <div key={i} className="clue-entry" style={{ color: 'var(--text-dim)', opacity: 0.7 }}>… {c.name}</div>;
+              })}
+            </>
+          )}
+          {state.loopCount > 0 && (
+            <div className="clue-entry" style={{ color: 'var(--purple)', marginTop: 8 }}>
+              第 {state.loopCount} 次轮回 | 污染：{Math.round((state.pollution || 0) * 100)}%
+            </div>
+          )}
+          {state.clues.length === 0 && (
+            <div className="clue-entry" style={{ color: 'var(--text-dim)', opacity: 0.5 }}>尚未发现任何线索。</div>
+          )}
+        </div>
       </div>
     </div>
   );

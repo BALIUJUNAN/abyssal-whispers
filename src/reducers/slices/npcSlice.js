@@ -7,9 +7,14 @@ import { processSanLoss } from '../sanReducer.js';
 import { checkObjCompletion } from '../objectiveReducer.js';
 import { setCorruptionFlag } from '../npcReducer.js';
 import { getFearNpcLine } from '../../systems/fearLens.js';
-import { addRunMemory, getNpcTrust, setNpcTrust } from '../../utils/appHelpers.js';
+import { addRunMemory, getNpcTrust, setNpcTrust, modHumanity, getNpcState, setNpcState, narrApInsufficient } from '../../utils/appHelpers.js';
 import { computeNpcFeedback, getTrustTierInfo } from '../../systems/npcFeedback.js';
 import { getSanTextVariant } from '../sanReducer.js';
+import { getNpcDialogueVariant, NPC_CORRUPTION_LINES, getNpcFatigueEffect } from '../../systems/npcDialogue.js';
+import { handleNpcMemoryTier } from '../../utils/npcMemory.js';
+import { checkTrustGate } from '../../utils/trustGates.js';
+import { getNpcsHere } from '../../utils/gameHelpers.js';
+import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
 
 /** Light trust-drop warning — only narrates, no audio. Used for significant drops. */
 function _warnTrustDrop(c, npcName, oldVal, newVal) {
@@ -24,7 +29,7 @@ export function handleNpcAction(s, action, c, ctx) {
   switch (action.type) {
     case 'TALK_NPC': {
       if (s.ap < 1) {
-        c.narr('system', '行动点不足。');
+        narrApInsufficient(s, c.narr, 1);
         return s;
       }
       s.ap -= 1;
@@ -64,10 +69,10 @@ export function handleNpcAction(s, action, c, ctx) {
           const corrLines = NPC_CORRUPTION_LINES[npc.name];
           if (corrLines) {
             const lines = corrVariant === 'heavy_corruption' ? corrLines.heavy : corrLines.light;
-            if (lines && lines.length > 0 && Math.random() < 0.4)
+            if (lines && lines.length > 0 && (c.rng ? c.rng.next() : Math.random()) < 0.4)
               c.narr(
                 'system',
-                npc.name + ': "' + lines[Math.floor(Math.random() * lines.length)] + '"'
+                npc.name + ': "' + pick(lines, c.rng) + '"'
               );
           }
         }
@@ -75,7 +80,7 @@ export function handleNpcAction(s, action, c, ctx) {
       // Phase 7: NPC fatigue at high loops
       {
         const fatigue = getNpcFatigueEffect(npc.name, s.loopCount, s);
-        if (fatigue && Math.random() < 0.3) {
+        if (fatigue && (c.rng ? c.rng.next() : Math.random()) < 0.3) {
           c.narr('system', fatigue.text, { isSpecial: true });
           if (fatigue.trustModifier !== 0)
             setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) + fatigue.trustModifier));
@@ -148,7 +153,7 @@ export function handleNpcAction(s, action, c, ctx) {
           if (gate) {
             c.narr('system', npc.name + '似乎想对你说些什么，但犹豫了。' + gate);
             s.pendingNpc = null;
-          } else if (ns.corrupted && Math.random() < 0.6) {
+          } else if (ns.corrupted && (c.rng ? c.rng.next() : Math.random()) < 0.6) {
             c.narr('system', npc.name + '似乎很热情地回应你，但你隐约感到有些不对劲。');
             s.pendingNpc = null;
           } else {
@@ -193,10 +198,7 @@ export function handleNpcAction(s, action, c, ctx) {
         if (npc.secrets && npc.secrets.length > trust) {
           const secret = npc.secrets[Math.min(trust, npc.secrets.length - 1)];
           c.narr('system', npc.name + '低声告诉你："' + secret + '"');
-          if (!hasClueId(s.clues, secret)) {
-            const _rn = resolveClueName(secret);
-            s.clues.push(_rn && _rn !== secret ? { id: secret, name: _rn } : secret);
-          }
+          // npc.secrets contains narrative text, not clue IDs — do NOT push into s.clues
           // Corruption triggers: asking NPC for info sets flags
           if (npc.name === '玛莎·格雷' && trust >= 2)
             setCorruptionFlag(s, 'player_asked_harbor_watch');
@@ -234,7 +236,7 @@ export function handleNpcAction(s, action, c, ctx) {
             ?.silence_journal_entries || [];
         c.narr(
           'system',
-          silenceEntries.length > 0 ? pick(silenceEntries) : '你没有回答。沉默也是一种回答。'
+          silenceEntries.length > 0 ? pick(silenceEntries, c.rng) : '你没有回答。沉默也是一种回答。'
         );
         applySanLoss(s, 1);
         modHumanity(s, -5, '在' + npc.name + '面前选择沉默，隐瞒真相');
@@ -263,7 +265,7 @@ export function handleNpcAction(s, action, c, ctx) {
             };
             const rKey = npcResourceMap[npc.name];
             const foodChoices = GD.systems?.resources?.resources?.food?.usage_choices || [];
-            const choice_data = foodChoices.find((x) => c.target === rKey);
+            const choice_data = foodChoices.find((x) => x.target === rKey);
             if (choice_data) {
               c.narr('system', choice_data.description || '你把食物分给了' + npc.name + '。');
               if (choice_data.humanity_impact)
@@ -298,12 +300,12 @@ export function handleNpcAction(s, action, c, ctx) {
         c.effects.push({ type: 'INCREMENT_STAT', key: 'run_combat' });
         const fightSkill = s.skills['格斗'] || s.skills['潜行'] || 20;
         const npcDiff = npc.chapter_1_role === 'core' ? 55 : 40;
-        const roll = rand(1, 100);
+        const roll = rand(1, 100, c.rng);
         const success = roll <= fightSkill && roll <= npcDiff;
         if (success) {
           c.bt.direct_kill_count = (c.bt.direct_kill_count || 0) + 1;
           setNpcState(s, npc.name, { ...ns, dead: true, killedByPlayer: true });
-          const sanLoss = rand(4, 12);
+          const sanLoss = rand(4, 12, c.rng);
           applySanLoss(s, sanLoss);
           modHumanity(s, -20, '亲手杀害了' + npc.name);
           addRunMemory(s, '你杀了' + npc.name + '。', 'death');
@@ -321,7 +323,7 @@ export function handleNpcAction(s, action, c, ctx) {
           );
           s.pendingNpc = { ...s.pendingNpc, postKill: true };
         } else {
-          const dmg = rand(2, 8);
+          const dmg = rand(2, 8, c.rng);
           s.hp = Math.max(0, s.hp - dmg);
           { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, Math.max(0, _old - 2)); _warnTrustDrop(c, npc.name, _old, Math.max(0, _old - 2)); }
           c.narr(
@@ -335,7 +337,7 @@ export function handleNpcAction(s, action, c, ctx) {
               '激烈反抗。HP -' +
               dmg
           );
-          if (Math.random() < 0.5) {
+          if ((c.rng ? c.rng.next() : Math.random()) < 0.5) {
             setNpcState(s, npc.name, { ...ns, fled: true });
             c.narr('system', npc.name + '惊恐地逃走了。你可能再也找不到他了。');
           }
@@ -356,7 +358,7 @@ export function handleNpcAction(s, action, c, ctx) {
         c.bt.cannibalism_count = (c.bt.cannibalism_count || 0) + 1;
         s.food = Math.min(s.maxFood, (s.food || 0) + 2);
         s.starvationDays = 0; // 饥饿解除
-        const sanLoss = rand(8, 20);
+        const sanLoss = rand(8, 20, c.rng);
         applySanLoss(s, sanLoss);
         modHumanity(s, -30, '食用了' + npc.name + '的肉体');
         addRunMemory(s, '你吃了' + npc.name + '。饥饿比道德更真实。', 'death');
@@ -367,7 +369,7 @@ export function handleNpcAction(s, action, c, ctx) {
       } else if (choice === 'post_kill_leave') {
         s.pendingNpc = null;
         const witnesses = getNpcsHere(s).filter((n2) => n2.name !== npc.name);
-        if (witnesses.length > 0 && Math.random() < 0.4) {
+        if (witnesses.length > 0 && (c.rng ? c.rng.next() : Math.random()) < 0.4) {
           c.narr('system', '你匆忙离开了。但愿没有人注意到你的行踪。');
         }
       } else if (choice === 'incite') {
@@ -378,11 +380,11 @@ export function handleNpcAction(s, action, c, ctx) {
         }
         s.ap -= 2;
         const socialSkill = s.skills['话术'] || s.skills['心理学'] || 25;
-        const roll = rand(1, 100);
+        const roll = rand(1, 100, c.rng);
         if (roll <= socialSkill) {
           c.bt.npc_deaths_by_manipulation = (c.bt.npc_deaths_by_manipulation || 0) + 1;
           setNpcState(s, npc.name, { ...ns, dead: true, manipulatedDeath: true });
-          const sanLoss = rand(3, 8);
+          const sanLoss = rand(3, 8, c.rng);
           applySanLoss(s, sanLoss);
           modHumanity(s, -15, '操纵导致' + npc.name + '的死亡');
           addRunMemory(s, '你说了一些话。' + npc.name + '走向了危险。', 'death');
@@ -421,7 +423,7 @@ export function handleNpcAction(s, action, c, ctx) {
         s.ap -= 1;
         c.bt.npc_as_resource_count = (c.bt.npc_as_resource_count || 0) + 1;
         setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 2));
-        const gain = rand(2, 6);
+        const gain = rand(2, 6, c.rng);
         s.money = (s.money || 0) + gain;
         modHumanity(s, -12, '把' + npc.name + '当作资源利用');
         addRunMemory(s, '你利用了' + npc.name + '。效率很高。', 'npc');
@@ -461,7 +463,7 @@ export function handleNpcAction(s, action, c, ctx) {
         }
         s.ap -= 2;
         c.bt.forbidden_intimacy_flags = (c.bt.forbidden_intimacy_flags || 0) + 1;
-        const sanLoss = rand(3, 8);
+        const sanLoss = rand(3, 8, c.rng);
         applySanLoss(s, sanLoss);
         s.pollution = Math.min(1, (s.pollution || 0) + 0.1);
         c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
@@ -483,11 +485,11 @@ export function handleNpcAction(s, action, c, ctx) {
         }
         s.ap -= 2;
         const cultSkill = s.skills['神秘学'] || s.skills['话术'] || 20;
-        const roll = rand(1, 100);
+        const roll = rand(1, 100, c.rng);
         if (roll <= cultSkill) {
           c.bt.cult_leader_score = (c.bt.cult_leader_score || 0) + 1;
           setNpcState(s, npc.name, { ...ns, follower: true });
-          const sanLoss = rand(2, 6);
+          const sanLoss = rand(2, 6, c.rng);
           applySanLoss(s, sanLoss);
           modHumanity(s, -10, '将' + npc.name + '引入歧途，建立邪教追随');
           addRunMemory(s, npc.name + '开始追随你。不是信任——是信仰。', 'npc');

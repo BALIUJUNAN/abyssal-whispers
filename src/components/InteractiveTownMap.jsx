@@ -126,20 +126,18 @@ export const MapPaths = memo(function MapPaths({ hotspots, state }) {
 
 // === 背景图切换 ===
 function getMapBackground(state) {
-  // 根据污染程度、时间阶段切换背景变体
+  // 根据污染程度、SAN值切换全景地图变体
   const pollution = state.pollution || 0;
   const san = state.san || 60;
-  const day = state.day || 1;
 
-  // 基础城镇全景图 — 使用现有 AREA_IMAGE_MAP 的组合
-  // 高污染时切换到崩坏版本
-  if (pollution > 0.6) return 'assets/webp/镇中心街道 崩坏.webp';
+  // 高污染 → 崩坏版本
+  if (pollution > 0.6) return 'assets/webp/沃切斯特全景 崩坏.webp';
 
-  // 低SAN时使用深夜/诡异版本
-  if (san <= 30) return 'assets/webp/镇中心街道 深夜.webp';
+  // 低SAN → 深夜版本
+  if (san <= 30) return 'assets/webp/沃切斯特全景 深夜.webp';
 
   // 默认白天版本
-  return 'assets/webp/镇中心街道 白天.webp';
+  return 'assets/webp/沃切斯特全景 白天.webp';
 }
 
 // === 主组件：InteractiveTownMap ===
@@ -298,50 +296,53 @@ export function InteractiveTownMap({ state, dispatch }) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleMouseUp}
     >
-      {/* 全景背景图 */}
+      {/* 缩放+平移容器：背景图、路径、热点一起变换 */}
       <div
-        className="town-map-background"
+        className="town-map-viewport"
         style={{
           transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+          transformOrigin: 'center center',
         }}
       >
-        <img
-          src={bgImage}
-          alt="沃切斯特全景"
-          className="town-map-bg-image"
-          draggable={false}
-          onError={(e) => {
-            // Fallback: 使用 CSS 渐变背景
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.parentElement.classList.add('town-map-bg-fallback');
-          }}
-        />
-        {/* 氛围雾气叠加 */}
-        <div className="town-map-fog" />
-      </div>
+        {/* 全景背景图 */}
+        <div className="town-map-background">
+          <img
+            src={bgImage}
+            alt="沃切斯特全景"
+            className="town-map-bg-image"
+            draggable={false}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement.classList.add('town-map-bg-fallback');
+            }}
+          />
+          {/* 氛围雾气叠加 */}
+          <div className="town-map-fog" />
+        </div>
 
-      {/* SVG 路径连线 */}
-      <MapPaths hotspots={hotspots} state={state} />
+        {/* SVG 路径连线 */}
+        <MapPaths hotspots={hotspots} state={state} />
 
-      {/* 热点节点层 */}
-      <div className="town-map-hotspots">
-        {hotspots.map((hotspot) => {
-          const hotspotState =
-            hotspot.type === 'area' ? getHotspotState(hotspot, state) : 'available';
-          const isCurrent = state.currentArea === (hotspot.areaId || hotspot.id);
-          const npcHere = npcsByArea[hotspot.areaId]?.length > 0;
+        {/* 热点节点层 */}
+        <div className="town-map-hotspots">
+          {hotspots.map((hotspot) => {
+            const hotspotState =
+              hotspot.type === 'area' ? getHotspotState(hotspot, state) : 'available';
+            const isCurrent = state.currentArea === (hotspot.areaId || hotspot.id);
+            const npcHere = npcsByArea[hotspot.areaId]?.length > 0;
 
-          return (
-            <HotspotNode
-              key={hotspot.id}
-              hotspot={hotspot}
-              hotspotState={hotspotState}
-              isCurrentArea={isCurrent}
-              npcHere={npcHere}
-              onClick={handleHotspotClick}
-            />
-          );
-        })}
+            return (
+              <HotspotNode
+                key={hotspot.id}
+                hotspot={hotspot}
+                hotspotState={hotspotState}
+                isCurrentArea={isCurrent}
+                npcHere={npcHere}
+                onClick={handleHotspotClick}
+              />
+            );
+          })}
+        </div>
       </div>
 
       {/* 缩放控制 */}

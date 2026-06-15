@@ -4,8 +4,10 @@
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { StatBar, CollapsibleSection, NarrativeBlock } from './GameCommon.jsx';
 import { isPhantomExpired } from '../systems/textVariants.js';
+import { getPerceptionLevels } from '../systems/sanityVisual.js';
 import { NPCDialog } from './NPCDialog.jsx';
 import { CitySketchMap } from './CitySketchMap.jsx';
+import { getNpcTrust, getDisplayedAp } from '../utils/appHelpers.js';
 
 export const LeftPanel = memo(function LeftPanel({ state }) {
   const seal = useMemo(
@@ -78,7 +80,7 @@ export const LeftPanel = memo(function LeftPanel({ state }) {
           cls={'san' + (state.san <= 30 ? ' low' : state.san <= 50 ? ' mid' : '')}
           colorMap={['var(--san-high)', 'var(--san-mid)', 'var(--san-low)']}
         />
-        <StatBar label="行动力" value={state.ap} max={state.maxAp} cls="ap" />
+        <StatBar label="行动力" value={getDisplayedAp(state)} max={state.maxAp} cls="ap" />
         <StatBar label="食物" value={state.food || 0} max={state.maxFood || 5} cls="food" />
         <div
           style={{
@@ -303,14 +305,15 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
     state.currentArea,
     state.accessibilityOptions?.visual_distortion,
   ]);
-  // audio perception → volume modulation (safe, no side effect on render)
+  // audio perception → volume modulation (multiply user base, don't overwrite)
   const perceptionAudio =
     state.accessibilityOptions?.visual_distortion === false ? 0 : getPerceptionLevels(state).audio;
   try {
+    const baseVol = audioManager._userVolumeScale || 1;
     if (perceptionAudio >= 2) {
-      audioManager._volumeScale = 0.6 + perceptionAudio * 0.15;
+      audioManager._volumeScale = baseVol * (0.6 + perceptionAudio * 0.15);
     } else {
-      audioManager._volumeScale = 1;
+      audioManager._volumeScale = baseVol;
     }
   } catch (e) {}
 
@@ -509,8 +512,11 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
               >
                 <button
                   className="action-btn primary-action"
-                  onClick={() => dispatch({ type: 'EXPLORE' })}
-                  disabled={state.ap < 2}
+                  onClick={() => {
+                    if (state.ap < 2) { audioManager.playUI('click_forbidden'); return; }
+                    dispatch({ type: 'EXPLORE' });
+                  }}
+                  onMouseEnter={() => audioManager.playUI('hover')}
                 >
                   <span className="btn-hint">
                     {(() => {
@@ -533,8 +539,11 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     <button
                       key={aid}
                       className="action-btn primary-action"
-                      onClick={() => dispatch({ type: 'MOVE', areaId: aid })}
-                      disabled={state.ap < 1 || !unlocked}
+                      onClick={() => {
+                        if (state.ap < 1 || !unlocked) { audioManager.playUI('click_forbidden'); return; }
+                        dispatch({ type: 'MOVE', areaId: aid });
+                      }}
+                      onMouseEnter={() => audioManager.playUI('hover')}
                     >
                       <span className="btn-hint">{n}</span>
                       <span className="action-icon">{isRumor ? '?' : '👣'}</span>
@@ -552,8 +561,11 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     <button
                       key={npc.name}
                       className="action-btn"
-                      onClick={() => dispatch({ type: 'TALK_NPC', npc: npc })}
-                      disabled={state.ap < 1}
+                      onClick={() => {
+                        if (state.ap < 1) { audioManager.playUI('click_forbidden'); return; }
+                        dispatch({ type: 'TALK_NPC', npc: npc });
+                      }}
+                      onMouseEnter={() => audioManager.playUI('hover')}
                     >
                       <span className="btn-hint">{n}</span>
                       <span className="action-icon">💬</span>
@@ -585,6 +597,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                           key={i}
                           className="action-btn"
                           onClick={() => dispatch({ type: 'USE_ITEM', item: it })}
+                          onMouseEnter={() => audioManager.playUI('hover')}
                         >
                           <span className="btn-hint">{n}</span>
                           <span className="action-icon">🧪</span>
@@ -645,8 +658,11 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                   return (
                     <button
                       className="action-btn"
-                      onClick={() => dispatch({ type: 'WORK' })}
-                      disabled={state.ap < 2}
+                      onClick={() => {
+                        if (state.ap < 2) { audioManager.playUI('click_forbidden'); return; }
+                        dispatch({ type: 'WORK' });
+                      }}
+                      onMouseEnter={() => audioManager.playUI('hover')}
                     >
                       <span className="btn-hint">{n}</span>
                       <span className="action-icon">💰</span>打工挣钱
@@ -665,8 +681,11 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     return (
                       <button
                         className="action-btn"
-                        onClick={() => dispatch({ type: 'BUY_FOOD' })}
-                        disabled={!canBuy}
+                        onClick={() => {
+                          if (!canBuy) { audioManager.playUI('click_forbidden'); return; }
+                          dispatch({ type: 'BUY_FOOD' });
+                        }}
+                        onMouseEnter={() => audioManager.playUI('hover')}
                       >
                         <span className="btn-hint">{n}</span>
                         <span className="action-icon">🛒</span>杂货店买食物
@@ -678,7 +697,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                   window.__n = (window.__n || 0) + 1;
                   const n = window.__n;
                   return (
-                    <button className="action-btn" onClick={() => dispatch({ type: 'REST' })}>
+                    <button className="action-btn" onClick={() => dispatch({ type: 'REST' })} onMouseEnter={() => audioManager.playUI('hover')}>
                       <span className="btn-hint">{n}</span>
                       <span className="action-icon">🏕️</span>
                       {getOptionText('rest_at_safehouse', state.san) || '结束今日'}
@@ -836,7 +855,7 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
         const satisfied = (conc.evidence_pool || []).filter((ev) => {
           if (ev.source && state.triggeredEvents.includes(ev.source)) return true;
           const tm = ev.source && ev.source.match(/^(.+?)\s+trust>=(\d+)$/);
-          if (tm) return (state.npcTrust[tm[1]] || 0) >= parseInt(tm[2]);
+          if (tm) return getNpcTrust(state, tm[1]) >= parseInt(tm[2]);
           return false;
         });
         const needed = conc.required_evidence_count || 2;
@@ -903,7 +922,7 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
             {npcs
               .filter((n) => !state.npcStates[n.name]?.dead)
               .map((n) => {
-                const trust = state.npcTrust[n.name] || 0;
+                const trust = getNpcTrust(state, n.name);
                 const ns = state.npcStates[n.name] || {};
                 const d = ((state.day - 1) % 5) + 1;
                 const sch = (n.schedule || []).find((s) => s.startsWith('day' + d));
@@ -1602,7 +1621,7 @@ export function GameHeader({ state, dispatch, areas, onSettingsOpen, onUgcOpen, 
         </span>
         <span className={'header-status-pill seal seal-' + state.sealState}>封印：{sealLabel}</span>
         <span className="header-status-pill ap">
-          行动余裕：{state.ap}/{state.maxAp}
+          行动余裕：{getDisplayedAp(state)}/{state.maxAp}
         </span>
       </div>
       <div className="header-controls">

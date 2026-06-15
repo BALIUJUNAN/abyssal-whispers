@@ -8,6 +8,7 @@
 
 const { useState, useEffect, useMemo, useCallback, memo } = React;
 import { NPCDialog } from './NPCDialog.jsx';
+import { getNpcTrust, getDisplayedAp } from '../utils/appHelpers.js';
 
 export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   const [tab, setTab] = useState('actions'); // 'actions' | 'info' | 'npc'
@@ -290,7 +291,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
               <div className="area-panel-npcs">
                 <div className="area-panel-npcs-title">在此处的人</div>
                 {npcsHere.map((npc) => {
-                  const trust = state.npcTrust[npc.name] || 0;
+                  const trust = getNpcTrust(state, npc.name);
                   const ns = state.npcStates[npc.name] || {};
                   const img = getNpcImage(npc.name, state.npcStates);
                   return (
@@ -352,7 +353,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
               <div className="resource-item">
                 <span className="resource-label">行动点</span>
                 <span className="resource-value">
-                  {state.ap}/{state.maxAp}
+                  {getDisplayedAp(state)}/{state.maxAp}
                 </span>
               </div>
               <div className="resource-item">

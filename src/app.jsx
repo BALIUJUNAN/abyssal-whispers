@@ -138,7 +138,7 @@ import { handleDarkAction } from './reducers/slices/darkSlice.js';
 import { handleUiAction } from './reducers/slices/uiSlice.js';
 
 // ── Utilities ──
-import { addRunMemory, preloadEndingCGs, buildReducerCtx } from './utils/appHelpers.js';
+import { addRunMemory, preloadEndingCGs, buildReducerCtx, checkKnowledgeEarned, checkBreakWallEvent, checkSilentEvent } from './utils/appHelpers.js';
 import { createSeededRng } from './utils/seededRng.js';
 import { getCorruptionLevel } from './utils/gameHelpers.js';
 import { createErrorTracker } from './utils/errorTracker.js';
@@ -149,11 +149,12 @@ configureSaveManager({ SAVE_VERSION, migrateSaveData, toPersistedState });
 
 // ── State stores ──
 import { initGameStore, updateGameStore } from './state/gameStore.js';
-import { uiStore, getSettings, addUiToast, removeUiToast, notifySave } from './state/uiStore.js';
+import { uiStore, getSettings, addUiToast, removeUiToast, notifySave, updateSettings } from './state/uiStore.js';
 import { initialState } from './state/initialState.js';
 
 // ── Components ──
 import { UgcPanel } from './components/UgcImportExport.jsx';
+import { Modal } from './components/GameCommon.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import { InteractiveTownMap, HotspotNode, MapPaths } from './components/InteractiveTownMap.jsx';
 import { AreaPanelModal } from './components/AreaPanelModal.jsx';
@@ -193,60 +194,9 @@ if (typeof window !== 'undefined') {
   window.errorTracker = errorTracker;
 }
 
-function checkSilentEvent(state, narr, location) {
-  const pool = (GD.implementation_notes?.silent_events?.event_pool || []).filter((e) => {
-    if (e.location !== location) return false;
-    if (e.repeat_behavior === 'only_once' && state.triggeredSilentEvents.includes(e.id))
-      return false;
-    if (e.trigger_condition && e.trigger_condition !== 'always') {
-      if (e.trigger_condition.startsWith('day>=')) {
-        if (state.day < parseInt(e.trigger_condition.split('>=')[1])) return false;
-      }
-      if (e.trigger_condition.startsWith('corruption>=')) {
-        if ((state.safehouseCorruption || 0) < parseInt(e.trigger_condition.split('>=')[1]))
-          return false;
-      }
-    }
-    return true;
-  });
-  if (pool.length === 0) return false;
-  const evt = pick(pool);
-  state.triggeredSilentEvents.push(evt.id);
-  narr('system', evt.text);
-  if (evt.mechanical_effect?.san) {
-    state.san = clamp(state.san + evt.mechanical_effect.san, 0, state.maxSan);
-  }
-  return true;
-}
+// checkSilentEvent moved to src/utils/appHelpers.js (now accepts GD as 4th param)
 
-function checkKnowledgeEarned(state) {
-  const k = state.retainedKnowledge;
-  if (
-    state.visitedAreas.includes('lighthouse') ||
-    state.visitedAreas.includes('catacombs_entrance')
-  ) {
-    if (!k.includes('knowledge_dark_passages')) k.push('knowledge_dark_passages');
-  }
-  if (Object.values(state.npcTrust).some((t) => t >= 3)) {
-    if (!k.includes('knowledge_npc_weaknesses')) k.push('knowledge_npc_weaknesses');
-  }
-  if (state.visitedAreas.length >= 5) {
-    if (!k.includes('knowledge_map_structure')) k.push('knowledge_map_structure');
-  }
-  if ((state.completedChains || []).length > 0) {
-    if (!k.includes('knowledge_clue_relations')) k.push('knowledge_clue_relations');
-  }
-  if (Object.values(state.npcTrust).some((t) => t >= 2)) {
-    if (!k.includes('knowledge_npc_trust_shadow')) k.push('knowledge_npc_trust_shadow');
-  }
-  // Achievement: areas explored (systems.progression)
-  if (!state.stats_run.areas_explored) state.stats_run.areas_explored = state.visitedAreas.length;
-  else
-    state.stats_run.areas_explored = Math.max(
-      state.stats_run.areas_explored,
-      state.visitedAreas.length
-    );
-}
+// checkKnowledgeEarned moved to src/utils/appHelpers.js
 
 function getCorruptedSystemText(baseText, layer) {
   // Fear lens corruption: prologue-derived fear-specific UI corruption
@@ -279,57 +229,7 @@ function getCorruptedSystemText(baseText, layer) {
   return baseText;
 }
 
-// === SAN破壁事件 (P1-3) ===
-// Pure state mutation: narrates and records memory. Returns side-effect descriptors for audio/timers.
-function checkBreakWallEvent(state, narr) {
-  // P1-A: SSOT — only fires at reality_dissolution (level >= 4)
-  const _stage = getSanStageFromGD(state.san);
-  if (_stage.level < 4) return null;
-  if (Math.random() >= 0.1) return null;
-  const r = Math.random();
-  const fx = [
-    { type: 'AUDIO_PLAY', id: 'wall_break' },
-    { type: 'AUDIO_PLAY', id: 'safehouse_wall' },
-    { type: 'AUDIO_PLAY', id: 'bell_wrong' },
-  ];
-  if (r < 0.33) {
-    // Effect 1: Fake save message
-    narr('system', '存档完成。Day ' + state.day + ' - ' + (state.currentArea || '???'), {
-      isSpecial: true,
-    });
-    fx.push({
-      type: 'NARRATE_DELAYED',
-      delay: 3000,
-      text: '它在看着你写入这段存档。',
-      extra: { isSpecial: true },
-    });
-    addRunMemory(state, '你听见自己的名字在系统提示之外出现。', 'break_wall');
-  } else if (r < 0.66) {
-    // Effect 2: Fake error
-    narr('system', '⚠ 检测到不稳定叙事层\n正在修复……\n修复失败\n它已经知道你在读这段文字了', {
-      isSpecial: true,
-    });
-    addRunMemory(state, '现实出现了裂痕——检测到不稳定叙事层。', 'break_wall');
-  } else {
-    // Effect 3: Item description篡改
-    const items = state.inventory;
-    if (items.length > 0) {
-      const corruptedItem = pick(items);
-      const replacements = {
-        怀表: '它在计算你还剩多少时间',
-        急救包: '它不确定你是否值得被救',
-        手电筒: '光在回避你',
-        笔记本和笔: '你写的字在自行修改',
-      };
-      const corrupted = replacements[corruptedItem.name] || corruptedItem.name + '……它刚才动了？';
-      narr('system', '【' + corruptedItem.name + '】……不对。是【' + corrupted + '】', {
-        isSpecial: true,
-      });
-      addRunMemory(state, corruptedItem.name + '的描述被篡改了。', 'break_wall');
-    }
-  }
-  return fx;
-}
+// checkBreakWallEvent moved to src/utils/appHelpers.js (now accepts GD as 3rd param)
 
 // Fear lens: module-level reference for corruption function
 let _currentFearTuning = null;
@@ -411,6 +311,27 @@ function gameReducer(state, action) {
     if (!handled) { const r = handleUiAction(s, action, c, ctx); if (r) handled = true; }
     if (!handled) {
       c.track?.('unknown_action', action.type);
+    }
+    // ── AP 偷取：污染状态下行动有概率多扣 1 AP ──
+    // 玩家看到的 AP 比实际多，但行动消耗的是真实 AP
+    // 当真实 AP 耗尽而显示 AP 还有剩余时，玩家发现被欺骗
+    if (s._apLies && s._apOffset > 0) {
+      const _apActions = ['MOVE', 'EXPLORE', 'TALK_NPC', 'WORK', 'BUY_FOOD', 'NPC_RESPONSE',
+        'SELF_HARM', 'SPREAD_PROPHECY', 'CONSUME_ARCHIVE', 'SELF_SACRIFICE', 'DESECRATE', 'BREAK_SEAL'];
+      if (_apActions.includes(action.type) && s.ap > 0) {
+        const _stealChance = s._apOffset >= 3 ? 0.4 : 0.2;
+        if (c.rng.next() < _stealChance) {
+          s.ap = Math.max(0, s.ap - 1);
+          // AP 偷取时的叙事暗示
+          const _stealTexts = [
+            '你好像忘了什么。不是记忆——是时间。',
+            '你低头看了一眼表。指针跳了一格。你确定刚才没有那么久。',
+            '你的脚步比你预期的慢了一些。不是疲劳——是空间本身变厚了。',
+            '你做了那个动作。但代价比你想象的多了一点。',
+          ];
+          c.narr('system', pick(_stealTexts, c.rng), { isEffect: true });
+        }
+      }
     }
     // Tag effects deterministically from action.meta.actionId (no Date.now/random in reducer)
     if (c.effects.length > 0) {
@@ -496,6 +417,7 @@ function App() {
 
   useEffect(() => {
     audioManager._volumeScale = settings.volume / 100;
+    audioManager._userVolumeScale = settings.volume / 100;
     audioManager._ambientScale = (settings.ambientVolume ?? 80) / 100;
     audioManager._effectScale = (settings.effectVolume ?? 80) / 100;
     audioManager._uiScale = (settings.uiVolume ?? 80) / 100;
@@ -533,6 +455,24 @@ function App() {
       dispatch({ type: 'SET_META_FIELD', field: '_metaPollution', value: 25 });
     }
   }, [settings]);
+
+  // Audio autoplay unlock: browsers block audio until first user gesture
+  useEffect(() => {
+    var handler = function () {
+      audioManager.unlock();
+      window.removeEventListener('click', handler);
+      window.removeEventListener('touchstart', handler);
+      window.removeEventListener('keydown', handler);
+    };
+    window.addEventListener('click', handler, { once: false });
+    window.addEventListener('touchstart', handler, { once: false });
+    window.addEventListener('keydown', handler, { once: false });
+    return function () {
+      window.removeEventListener('click', handler);
+      window.removeEventListener('touchstart', handler);
+      window.removeEventListener('keydown', handler);
+    };
+  }, []);
 
   const handleSettingsChange = (s) => updateSettings(s);
   const fontSizeClass = 'narrative-size-' + settings.narrativeFontSize;

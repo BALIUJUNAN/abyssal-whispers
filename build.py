@@ -87,6 +87,7 @@ REDUCER_FILES = [
     'data/events_meta.js',
     'data/extended_events_index.js',
     'data/ending_missing_600.js',
+    'reducers/endingReducer.js',       # MUST precede behavior_endings.js
     'data/behavior_endings.js',
     'data/events_death_echo.js',
     'reducers/extendedEventsLoader.js',
@@ -97,7 +98,6 @@ REDUCER_FILES = [
     'reducers/extendedEventsInit.js',
     'reducers/achievementReducer.js',  # MUST precede effectReducer.js (imported by it)
     'reducers/effectReducer.js',
-    'reducers/endingReducer.js',
     'reducers/objectiveReducer.js',
     'state/transientKeys.js',
     'data/registry/registryUtils.js',
@@ -124,6 +124,7 @@ REDUCER_FILES = [
     # Audio system
     'managers/AudioManager.js',
     # Game utilities (must precede app.jsx)
+    'systems/textVariants.js',        # MUST precede gameHelpers.js (getDistortedName)
     'utils/clueNameMap.js',
     'utils/gameHelpers.js',
     'utils/trustGates.js',          # NPC trust gate logic (extracted from appHelpers.js)
@@ -143,12 +144,15 @@ REDUCER_FILES = [
     'systems/sanFeedback.js',         # Used by app.jsx
     'systems/npcFeedback.js',         # MUST precede npcSlice.js
     'systems/firstLoopBalance.js',    # MUST precede exploreSlice.js
-    'systems/textVariants.js',        # MUST precede exploreSlice.js
+    'systems/sanityVisual.js',        # MUST precede appHelpers.js (getPerceptionLevels, getSanStageClasses)
     # gameSettings.js excluded: DEFAULT_SETTINGS already in miscReducer.js
     # Phase 2: App-level helper functions extracted from app.jsx
     'utils/appHelpers.js',
     # Phase 3: GameReducer slice handlers (extracted from app.jsx)
+    'engine/commands.js',            # MUST precede coreSlice.js (audio, hooks, fx)
     'reducers/slices/coreSlice.js',
+    'engine/eventBus.js',              # MUST precede exploreSlice.js, dailySlice.js
+    'systems/earlyHooks.js',           # MUST precede exploreSlice.js
     'reducers/slices/exploreSlice.js',
     'reducers/slices/npcSlice.js',
     'reducers/slices/dailySlice.js',
@@ -523,6 +527,8 @@ def build(use_babel=True):
     # Read source files
     template = read_file(TEMPLATE_PATH)
     css = read_file(CSS_PATH)
+    # Fix asset paths for file:// protocol: /webp/ → ./assets/webp/
+    css = css.replace("url('/webp/", "url('./assets/webp/")
     print('Minifying CSS...')
     css = minify_css(css)
     react_js = read_file(REACT_PATH)

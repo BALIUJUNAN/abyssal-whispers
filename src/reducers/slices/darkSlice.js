@@ -15,7 +15,7 @@ export function handleDarkAction(s, action, c, ctx) {
       s.ap -= 2;
       c.bt.self_harm_ritual_count = (c.bt.self_harm_ritual_count || 0) + 1;
       c.bt.fusion_and_self_harm_total = (c.bt.fusion_and_self_harm_total || 0) + 1;
-      const sanLoss = rand(3, 10);
+      const sanLoss = rand(3, 10, c.rng);
       applySanLoss(s, sanLoss);
       modHumanity(s, -10, '用刀在自己身上刻下符号');
       addRunMemory(
@@ -28,7 +28,7 @@ export function handleDarkAction(s, action, c, ctx) {
         '你用刀尖在皮肤上刻下了一个符号。你不知道它是什么意思。但你的手知道。SAN -' + sanLoss,
         { isSpecial: true }
       );
-      if (Math.random() < 0.3) {
+      if ((c.rng ? c.rng.next() : Math.random()) < 0.3) {
         s.pollution = Math.min(1, (s.pollution || 0) + 0.05);
         c.narr('system', '符号在皮肤下微微发光，然后暗了下去。');
         c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
@@ -43,7 +43,7 @@ export function handleDarkAction(s, action, c, ctx) {
       s.ap -= 2;
       c.bt.prophecy_spread_count = (c.bt.prophecy_spread_count || 0) + 1;
       c.bt.cult_leader_score = (c.bt.cult_leader_score || 0) + 1;
-      const sanLoss = rand(2, 5);
+      const sanLoss = rand(2, 5, c.rng);
       applySanLoss(s, sanLoss);
       modHumanity(s, -8, '向镇民散布不祥的预言');
       c.narr(
@@ -66,12 +66,13 @@ export function handleDarkAction(s, action, c, ctx) {
       s.ap -= 2;
       c.bt.archive_consumed_count = (c.bt.archive_consumed_count || 0) + 1;
       const removed = s.clues.pop();
+      const removedName = typeof removed === 'string' ? removed : (removed?.name || removed?.id || '未知');
       s.mythosLevel = (s.mythosLevel || 0) + 1;
       modHumanity(s, -5, '吞噬了一条线索——让真相永远消失');
       c.narr(
         'system',
         '你把笔记本上的一页撕下来，放进嘴里。纸是苦的。但你咽下去的时候，某种知识进入了你的血液。线索「' +
-          (removed || '未知') +
+          removedName +
           '」永远消失了。克苏鲁神话 +1',
         { isSpecial: true }
       );
@@ -87,10 +88,10 @@ export function handleDarkAction(s, action, c, ctx) {
       s.mythosLevel = (s.mythosLevel || 0) + 3;
       s.pollution = Math.min(1, (s.pollution || 0) + 0.15);
       c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
-      const hpLoss = rand(4, 10);
+      const hpLoss = rand(4, 10, c.rng);
       s.hp = Math.max(1, s.hp - hpLoss);
       s.maxSan = Math.max(10, s.maxSan - 5);
-      applySanLoss(s, rand(5, 15));
+      applySanLoss(s, rand(5, 15, c.rng));
       modHumanity(s, -25, '为了力量献祭了自己的一部分');
       addRunMemory(
         s,
@@ -118,7 +119,7 @@ export function handleDarkAction(s, action, c, ctx) {
       }
       s.ap -= 2;
       c.bt.sacred_desecration_count = (c.bt.sacred_desecration_count || 0) + 1;
-      const sanLoss = rand(4, 12);
+      const sanLoss = rand(4, 12, c.rng);
       applySanLoss(s, sanLoss);
       modHumanity(s, -15, '亵渎了神圣之地');
       c.narr(
@@ -147,7 +148,7 @@ export function handleDarkAction(s, action, c, ctx) {
       s.pollution = Math.min(1, (s.pollution || 0) + 0.2);
       c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
       c.bt.loop_break_attempts = (c.bt.loop_break_attempts || 0) + 1;
-      const sanLoss = rand(8, 20);
+      const sanLoss = rand(8, 20, c.rng);
       applySanLoss(s, sanLoss);
       modHumanity(s, -25, '试图破坏封印');
       addRunMemory(s, '你把手放在封印上。然后你推了。', 'death');

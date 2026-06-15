@@ -11,7 +11,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_587B_HTML-green)
 ![Tests](https://img.shields.io/badge/tests-285_passing-brightgreen)
-![Version](https://img.shields.io/badge/version-0.4.0-orange)
+![Version](https://img.shields.io/badge/version-0.4.1-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -86,7 +86,7 @@ npm run tauri:build
 | **存档槽位**   | 6 个 — 3 自动轮转 + 3 手动管理，JSON 导入导出                                                                               |
 | **图片素材**   | 138 张 WebP — 含 72 张独立结局 CG                                                                                           |
 | **前传系统**   | 7 场景线性叙事 — 构建你的恐惧画像                                                                                           |
-| **SAN 系统**   | 6 阶段 × 4 维度（视觉/交互/逻辑/Meta）完整污染定义，SAN视觉精度化（稀疏恐怖，非噪声）                                        |
+| **SAN 系统**   | 6 阶段 × 4 维度（视觉/交互/逻辑/Meta）完整污染定义，SAN视觉精度化（稀疏恐怖，非噪声）+ AP 污染 + 不可靠总结 + Mythos 门控    |
 | **布局模式**   | 2 种 — 暗黑地牢风格全景地图 / 经典三栏面板                                                                                  |
 | **代码规模**   | 41,000+ 行 JS/JSX — 110+ 个源文件                                                                                           |
 | **数据校验**   | Zod Schema 735条数据全量校验                                                                                                 |
@@ -100,22 +100,22 @@ npm run tauri:build
 
 教堂的钟声每天响 **十三下**。码头潮汐与任何时刻表都不吻合。公告栏上贴着你的失踪告示——上面的照片是你，但你还没拍过那张照。
 
-三百年前莫里斯家族在此建立了封印。三百年后，封印开始松动。
+三百年前莫里斯家族在此建立了这座城市。三百年后，地下的某些东西开始松动。
 
 而你——一个偶然踏入这座城镇的外来者——将用你的选择决定它的命运。
 
 ### 你会遇到这些人
 
-| 角色                | 身份            | 关键特征                                         |
-| ------------------- | --------------- | ------------------------------------------------ |
-| 老费舍              | 渔夫            | 血管里流着不属于人类的东西。他知道的比你想象的多 |
-| 玛莎·格雷           | 酒吧老板娘      | 镇上唯一不问来处的女人                           |
-| 希尔达·莫里斯       | 庄园女主人      | 封印家族最后一位直系后裔。二十八岁               |
-| 伊莎贝拉·韦伯       | 教堂执事        | 每天敲响十三下钟声的人                           |
-| 伊莱亚斯·沃德       | 退休教授        | 能读不该读的文字，代价是理智以可测量速度流失     |
-| 约书亚·布莱克       | 流浪汉          | 前海军陆战队员，身上的螺旋疤痕不是战场上留下的   |
-| 汤米·陈             | 杂货店主/摄影师 | 冲洗的照片里总有些不该存在的影子                 |
-| 埃德加·洛夫克拉夫特 | 神秘学者        | 知道太多不该知道的事，选择用沉默保护自己         |
+| 角色                | 身份            | 关键特征                                                                    |
+| ------------------- | --------------- | --------------------------------------------------------------------------- |
+| 老费舍              | 渔夫            | 六十年不脱鞋。血管在皮肤下蠕动。闭上眼能精确预知潮汐                        |
+| 玛莎·格雷           | 酒吧老板娘      | 丈夫出海五年未归。醉酒水手说在深海中看到了她丈夫的面孔——但那已经不完全是人类的了 |
+| 希尔达·莫里斯       | 庄园女主人      | 莫里斯家族女性没有活过三十岁。她的梳妆台抽屉里有一口量好尺寸的棺材          |
+| 伊莎贝拉·韦伯       | 教堂执事        | 每天敲十三下钟。祈祷词里有一些不属于任何已知语言的音节。手腕内侧的血管是蓝绿色的 |
+| 伊莱亚斯·沃德       | 退休教授        | 手指尖被墨水染成永久蓝黑色。对话中会突然停顿，盯着你身后某个你看不到的东西  |
+| 约书亚·布莱克       | 流浪汉          | 失踪一周后被发现蜷缩在垃圾桶旁。身体上的螺旋疤痕排列得不像意外              |
+| 汤米·陈             | 杂货店主/摄影师 | 冲洗的照片里总有些不该存在的影子。建筑物阴影中多了一个人影                  |
+| 埃德加·洛夫克拉夫特 | 作家            | 从未来过沃切斯特，但他的小说越来越多地与这里的真实事件重合。凌晨三点准时醒来 |
 
 每位 NPC 有 **5 级信任体系** + **4 层跨轮回记忆渐进** —— 沉默也是一种选择。
 
@@ -140,6 +140,9 @@ npm run tauri:build
    NPC 记住你是重复访客 + 关系网跨循环保留
    结局代币 +1，轮回商店按周目解锁
    再次踏入沃切斯特
+
+注意：AP 本身不可靠。SAN 深渊会吞噬你对行动力的感知——
+你以为自己还能行动，但时间已经在你不知情的情况下流逝了。
 ```
 
 ### 双界面模式
@@ -263,6 +266,11 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 | **行为人格报告**          | 32项行为计数器→人格档案，自问式叙事（"你还是你吗？"），死亡/结局时自动生成                         |
 | **恐怖密度控制**          | per-chapter异常率上限(Ch1=15%/Ch5=70%)+per-area上限，接入事件权重系统                              |
 | **"疑似bug"系统**         | 幻影日志(0.5%,8s消失)/NPC名字错字(0.3%)/幻影叙述(0.3%,5s消失)，玩家永远不确定是bug还是疯狂         |
+| **AP 污染系统**           | SAN深/轮回多时AP显示欺骗(多报1-4点)+行动偷取(20-40%多扣1AP)+发现机制(揭示叙事)                   |
+| **不可靠每日总结**        | SAN stage≥2:数值误差±1 / ≥3:省略行动记录 / ≥4:追加虚假记忆                                        |
+| **Mythos SAN门控**        | SAN≥50且loop<3时mythos增益静默跳过——知识"滑过"意识，保持"不可知"恐怖                               |
+| **事件文本感官化**        | 800+事件全面改写：去掉"你知道——"句式，"展现"替代"讲述"，感官细节替代概念说明                       |
+| **神话专名门控**          | 第一周目零真名泄露；loop 2 使用模糊替代（"那个符号""地下的纹路"）；loop 3+ 才解锁专名              |
 | **Meta 事件后果**         | 存档覆盖 / NPC 信任锁定 / NPC 永久失踪 / 对话分支删除                                               |
 | **数据验证**              | 效果/条件/引用三层校验器（CJS），运行时自动校验游戏数据完整性                                       |
 | **身份注册表**            | 区域/物品/NPC 统一注册表（双格式 ESM+CJS），支持名称别名解析                                        |
@@ -311,6 +319,8 @@ React 18 + useReducer + Immer + 双 Store (useGameStore + useUiStore)
   │    commands.js (类型化effect工厂) / eventBus.js (跨Slice通信)
   → 运行时层 (src/runtime/) — post-reducer 副作用执行器（类型分发+去重）
   → 模块化 Reducer（6个slice handler + ctx显式传参）
+  → AP 污染系统 — SAN门控AP欺骗+偷取+揭示（utils/appHelpers.js）
+  → Mythos SAN 门控 — SAN≥50时mythos增益静默跳过（reducers/effectReducer.js）
   → SAN视觉系统 (systems/sanityVisual.js) — 精度化恐怖，稀疏触发
   → 早期钩子 (systems/earlyHooks.js) — 十三声钟入口序列 + Canvas脉冲
   → SAN SSOT — getCurrentSanStage() 统一查询，6阶段×4维度
@@ -590,6 +600,8 @@ COC/
 | **轮回系统**           | `reducers/`              | 258     | 跨周目状态传递                      | 污染累积/SAN上限削减/技能继承30%/NPC记忆渐进           |
 | **轮回差异**           | `systems/`               | 100     | 跨轮变化对比                        | SAN/污染/NPC/技能/商店/恩赐变化列表                    |
 | **applySanLoss**       | `reducers/utils.js`      | 25      | SAN 扣减统一入口                    | 统计追踪/音频推送/_lastSanLoss UI反馈                  |
+| **AP 污染**            | `utils/appHelpers.js`    | 30      | AP 显示欺骗+偷取+揭示               | getDisplayedAp/narrApInsufficient，SAN门控触发          |
+| **Mythos 门控**        | `reducers/effectReducer` | 10      | mythos增益SAN条件触发               | SAN≥50且loop<3静默跳过，保持"不可知"恐怖              |
 | **叙事引导**           | `systems/`               | 80      | 前30分钟氛围式提示                  | 8条环境叙事，受设置控制，不打破第四面墙                 |
 | **NPC 反馈**           | `systems/`               | 100     | 信任变化分层反馈                    | 6级信任/跨级脉冲+音效/同级轻提示                       |
 | **SAN 反馈**           | `systems/`               | 120     | SAN 损失4档表现                     | minor/moderate/severe/critical 各有独立音效+屏幕特效    |
@@ -861,6 +873,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 - ✅ **EXPLORE 分阶段** — 事件选择(`_selectExploreEvent`) + 效果应用(inline) + 后处理(`_postExploreProcessing`) 三阶段清晰分离
 - ✅ **slice handler 显式 import** — 所有 6 个 slice handler 具备完整 ESM import，不依赖 globalThis 桥接
 - ✅ **SAN 扣减统一** — `applySanLoss()` 中央函数，28 个 reducer 文件全部通过此函数扣 SAN，`lint:san` 静态检查强制执行
+- ✅ **Reducer 确定性 RNG** — 6 个 slice handler 共 40+ 处随机调用全部接入 `c.rng`（`createSeededRng`），存档回放和 bug 复现完全确定性
 - ✅ **死亡总结4段叙事** — 死因叙事先行（不暴露机制）→ 发现回顾 → 世界变化 → 新目标建议，`DeathSummaryView` 组件直接渲染
 - ✅ **轮回差异提示** — `computeReincarnationDiff()` 在 `initLoopState` 末尾自动生成，存入 `f.reincarnationDiff`
 - ✅ **NPC 反馈分层** — 跨级触发脉冲+音效，同级轻文本，信任降级有警告，避免 UI 噪音
@@ -875,6 +888,8 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.4.1** | 2026-06-15 | **"活的深渊"系统 + 事件文本感官化** — ①AP污染系统：SAN stage≥3或loop≥3时AP显示欺骗(多报1-4点)+行动偷取(20-40%概率多扣1AP)+发现揭示机制；②不可靠每日总结：SAN stage≥2数值误差/≥3省略行动/≥4追加虚假记忆；③Mythos SAN门控：SAN≥50且loop<3时mythos增益静默跳过，保持"不可知"恐怖；④事件文本感官化重写：343行改动，7个事件文件+5个NPC背景全面改写，去掉"你知道——/你注意到/你认出了"句式，"展现"替代"讲述"；⑤神话专名门控：第一周目零真名泄露，loop 2使用模糊替代("那个符号"/"地下的纹路")，loop 3+解锁专名；⑥全景地图缩放同步：热点图标随背景图一起缩放平移(viewport容器统一transform)；⑦修复6个Bug：updateSettings未定义/c.target变量遮蔽/Modal未import/3函数定义位置错误/60+处缺失ESM import/save变量名冲突 |
+| **0.4.1维护** | 2026-06-15 | **Reducer 确定性 RNG + 3 个 import 缺失 + 2 个逻辑错误** — ①修复 `coreSlice.js` 未导入 `clamp` 导致 `RESIST_SAN_DRAIN` 运行时崩溃（深渊弹窗抵抗机制）；②修复 `effectReducer.js` 未导入 `resolveClueName` 导致线索名解析静默失败（线索显示原始 ID 而非中文名）；③修复 `dailySlice.js` 未导入 `updateAreaCorruption` 导致 REST 时区域腐蚀度不更新；④修复 `npcSlice.js` `get_item` 路径将 NPC 秘密的叙事文本（如"他曾亲眼见过深潜者的祭祀"）当作线索 ID 塞入 `s.clues`，污染线索数组；⑤修复 `darkSlice.js` `CONSUME_ARCHIVE` 线索名显示 `[object Object]`（`s.clues.pop()` 返回对象时未提取 name）；⑥修复 `uiSlice.js` `GAMBLE_CHOICE` deep_investigate 路径 `addRunMemory` 引用 `availableClues[0]` 而非实际被 `pick()` 选中的线索；⑦**确定性 RNG 全面接入**：6 个 reducer slice 文件共 40+ 处 `Math.random()` / `rand()` / `pick()` 调用全部改为 `c.rng` fallback 模式（`(c.rng ? c.rng.next() : Math.random())` + `rand(min, max, c.rng)` + `pick(arr, c.rng)`），确保存档回放、确定性测试、bug 复现可靠 |
 | **0.4.0** | 2026-06-15 | **SAN精度化 + 第一章节奏 + 工程改造** — ①新建 `sanityVisual.js`(290行)：SAN视觉呈现集中化，sanReducer瘦身50%；②新建 `earlyHooks.js`(82行)：十三声钟入口序列（6秒延迟音频+Canvas脉冲）+区域氛围低语；③遗产亮点系统：NPC遗言(8人×3档24段)+运行时刻+轮回印记；④Chapter 1硬限：事件池过滤(blocked types)+AP上限5(Days 1-3)+Day 3强制过渡事件；⑤SAN精度化：AbyssPopup间隔拉长(90-180s)+抵抗微交互(3连点-1SAN)+CorruptibleChoice门控(isKeyEvent)+unreliable_narration_level字段+Canvas 3级性能降级+文本腐蚀概率下调37-60%；⑥资源对接：光源→区域描述污染+感染→NPC幻觉变体(24条)+安全屋退化加速(loop≥3+2)+码头深潜者低语(10条)+章节配置回退；⑦工程改造：eventBus.js(跨Slice通信)+commands.js(类型化effect)+Zod Schema(735条数据校验)+engine边界检查(0违规)+Content Editor(editor.html)+Vite构建优化(587B HTML/code-split/734ms)；⑧修复4个运行时Bug：ESM隐式全局/ctx参数不匹配/CSS路径错位/SAN地板值；⑨新增CHANGELOG.md+mistake.txt错误追踪 |
 | **0.3.0** | 2026-06-12 | **Vite 主线切换** — ①`npm run dev` / `npm run build` 切换为 Vite；②修复 14 个组件缺失 export + React hooks 未解构；③修复 SaveManager 相对路径、ugcSchema/gameConstants/transientKeys 缺少 export；④所有 6 个 slice handler 添加显式 import（~60 条）；⑤shim 从 60 模块缩减至 54；⑥`npm run verify` 同时覆盖测试 + Vite 构建 + Legacy 构建；⑦新增 `docs/vite-smoke-checklist.md`；⑧Legacy 构建通过 `build:single` / `dev:legacy` 保留          |
 | **0.3.1** | 2026-06-14 | **克苏鲁混乱感落地 + 10大系统对接** — ①神话专名渐进渗透系统：每NPC每句话独立roll"滑嘴"概率（Ch2=0-5%, Ch3=5-30%, Ch4=20-60%, 永不到100%），高信任NPC更易说漏；②临时疯狂10种效果全部接入（恐慌逃跑AP清零/歇斯底里SAN额外/偏执妄想NPC信任-1/暴力发作HP-3/幻觉SAN/失忆侦查-10/僵直闪避-50/强迫AP翻倍/幻痛全检定-15/短暂附身神话+SAN-）；③被动疯狂检定：SAN≤15时30%概率/SAN≤10时50%概率，休息时触发；④光源系统4等级接入：无光→弱光→稳定→仪式级，影响怪物遭遇倍率(2×/1.3×/1×/0.7×)+事件文本可靠性腐蚀；⑤行为人格报告：32项行为计数器→人格档案（深渊使徒/矛盾体/观测者等），死亡/结局时自动生成，自问式叙事（非标签）；⑥轮回商店UI：标题画面🪙入口，Tier1/Tier2共6件商品，代币购买+跨轮回持久化+效果接入（技能点/NPC信任/神话抗性/SAN上限）；⑦恐怖密度控制：per-chapter异常率上限（Ch1=15%/Ch5=70%）+per-area上限接入事件权重；⑧事件去重：`seenEventTexts`权重衰减（2次→0.5×, 3+次→0.2×）；⑨"疑似bug"设计系统：幻影日志(0.5%)→8秒消失/NPC名字错字(0.3%)/幻影叙述(0.3%)→5秒消失；⑩SAN文本污染概率渐进：所有硬阈值改为SAN每降1点概率微增（不再100%开关）；⑪序列规则概率梯度：连续2异常→30%插正常/3→60%/4→90%/永远不到100%；⑫修复6个bug：Immer冻结状态setTimeout修改/疯狂被同REST周期清除/恐怖密度计数逻辑反转/商店效果死状态/暴力发疯狂no-op/无用import |

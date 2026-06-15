@@ -1,7 +1,7 @@
 // src/reducers/slices/coreSlice.js - Extracted from gameReducer
 // START_GAME, SET_DIFFICULTY, SET_ARCHETYPE, ROLL_STATS, BEGIN_ADVENTURE, NEW_GAME, CONTINUE_GAME, SWITCH_SAFEHOUSE
 
-import { rollDice } from '../utils.js';
+import { rollDice, clamp } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { audio, hooks, fx } from '../../engine/commands.js';
 import { initialState } from '../../state/initialState.js';
@@ -102,11 +102,11 @@ export function handleCoreAction(s, action, c, ctx) {
     }
     case 'BEGIN_ADVENTURE': {
       s.screen = 'game';
-      s.objectives = genObjectives(1, c);
+      s.objectives = genObjectives(1, ctx);
       // Typed commands (src/engine/commands.js) — replaces raw effect objects
       fx(c.effects, audio.play('begin'), audio.ambient(s.currentArea || 'town_center', 'morning'));
       // SAN visual corruption: now handled by SanPollutionLayer component (no init needed)
-      s.currentChapter = getChapterForDay(s.day, c).key || 'chapter_1';
+      s.currentChapter = getChapterForDay(s.day, ctx).key || 'chapter_1';
       // Apply archetype NPC trust mods (P1-1)
       const archDef2 = (GD.systems?.player?.archetypes || []).find((a) => a.id === s.archetype);
       if (archDef2?.npc_trust_mod) {

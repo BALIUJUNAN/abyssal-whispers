@@ -13,7 +13,10 @@ import {
   handleSkipPrologue,
   getPrologueEvent,
 } from '../prologueReducer.js';
-import { addRunMemory } from '../../utils/appHelpers.js';
+import { addRunMemory, applyDeathResolution } from '../../utils/appHelpers.js';
+import { getItemDef, useItemByDef } from '../miscReducer.js';
+import { hasClueId } from '../../utils/clueNameMap.js';
+import { initSkills } from '../../utils/gameHelpers.js';
 
 export function handleUiAction(s, action, c, ctx) {
   switch (action.type) {
@@ -137,7 +140,7 @@ export function handleUiAction(s, action, c, ctx) {
         }
       } else if (choiceId === 'deep_investigate') {
         // Deep investigate: roll 1d6 SAN loss, then check for reward
-        const sanRoll = rand(1, 6);
+        const sanRoll = rand(1, 6, c.rng);
         c.narr('system', opt.text);
         applySanLoss(s, sanRoll, { trackStats: true });
         c.narr('system', 'SAN -' + sanRoll, { isEffect: true });
@@ -147,14 +150,14 @@ export function handleUiAction(s, action, c, ctx) {
         }
         // Independent reward check
         const reward = opt.reward || {};
-        const r = Math.random();
+        const r = (c.rng ? c.rng.next() : Math.random());
         if (r < reward.clue_chance) {
           // Clue found — causal feedback
           const availableClues = (GD.clue_chains || [])
             .flatMap((x) => x.clues || [])
             .filter((x) => !hasClueId(s.clues, x.id));
           if (availableClues.length > 0) {
-            const found = pick(availableClues);
+            const found = pick(availableClues, c.rng);
             s.clues.push({ id: found.id, name: found.name || found.id });
             c.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
             if (!s.tutorialSeen.first_clue && s.clues.length === 1)
@@ -162,22 +165,20 @@ export function handleUiAction(s, action, c, ctx) {
             c.narr('system', reward.text_on_success + ' 线索：' + (found.name || found.id), {
               isSpecial: true,
             });
+            addRunMemory(
+              s,
+              '你选择继续观察，而不是移开视线。发现了「' + (found.name || found.id) + '」。',
+              'choice'
+            );
           } else {
             c.narr('system', reward.text_on_success, { isSpecial: true });
           }
           c.narr('system', '这是你继续观察才发现的东西。如果刚才选择了收手，你永远不会知道。', {
             isSpecial: true,
           });
-          addRunMemory(
-            s,
-            '你选择继续观察，而不是移开视线。发现了「' +
-              (availableClues.length > 0 ? availableClues[0]?.name || '未知' : '线索') +
-              '」。',
-            'choice'
-          );
         } else if (r < reward.clue_chance + reward.san_gain_chance) {
           // SAN recovery — no special causal text (neutral outcome)
-          const gain = rand(1, 3);
+          const gain = rand(1, 3, c.rng);
           applySanLoss(s, -gain);
           c.narr('san-recovery', '你在混乱中找到了某种秩序。SAN +' + gain);
           c.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
@@ -316,6 +317,27 @@ export function handleUiAction(s, action, c, ctx) {
     }
     case 'DELAYED_NARRATE': {
       c.narr(action.narrType || 'system', action.text, action.extra || {});
+      return s;
+    }
+    case 'USE_ITEM': {
+      const item = action.item;
+      if (!item) return s;
+      const idx = s.inventory.findIndex((i) => i.id === item.id || i.name === item.name);
+      if (idx < 0) return s;
+      const def = getItemDef(item.id, ctx);
+      if (!def) return s;
+      // Apply item effects
+      const consumed = useItemByDef(s, item, c.narr, ctx);
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'item_use' });
+      // Consume item if flagged
+      if (consumed) {
+        if (s.inventory[idx].uses > 1) {
+          s.inventory[idx].uses -= 1;
+        } else {
+          s.inventory.splice(idx, 1);
+        }
+      }
+      s.objectives = checkObjCompletion(s.objectives, s);
       return s;
     }
     default:

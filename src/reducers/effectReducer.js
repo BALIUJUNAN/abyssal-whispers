@@ -4,6 +4,7 @@
 import { clamp, rollDice, applySanLoss } from './utils.js';
 import { applyExtendedEffect } from './extendedEvents.js';
 import { incrementStat } from './achievementReducer.js';
+import { resolveClueName } from '../utils/clueNameMap.js';
 
 /**
  * Apply a list of effects to game state.
@@ -165,8 +166,16 @@ export function applyLegacyEffects(state, eff) {
   if (eff.san) applyEffects(state, [{ type: 'modify_stat', target: 'SAN', amount: eff.san }]);
   // Food
   if (eff.food) state._foodDelta = (state._foodDelta || 0) + eff.food;
-  // Mythos
-  if (eff.mythos != null) applyExtendedEffect(state, { type: 'modify_mythos', amount: eff.mythos });
+  // Mythos: SAN门控 — 只有SAN<50或轮回>=3时才能吸收神话知识
+  // 第一章前期玩家不应快速积累mythos，保持"不可知"的恐怖感
+  if (eff.mythos != null) {
+    var _canAbsorb = (state.san || 60) < 50 || (state.loopCount || 0) >= 3;
+    if (_canAbsorb) {
+      applyExtendedEffect(state, { type: 'modify_mythos', amount: eff.mythos });
+    }
+    // SAN足够高时：知识"滑过"玩家意识，不留下痕迹
+    // 不给提示——玩家不知道自己错过了什么，这本身就是恐怖
+  }
   // Humanity
   if (eff.humanity != null)
     applyExtendedEffect(state, { type: 'modify_humanity', amount: eff.humanity });

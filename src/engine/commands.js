@@ -38,7 +38,7 @@ export var stat = {
 };
 
 // === Save Commands ===
-export var save = {
+export var saveCmd = {
   game: function (state) { return { type: 'SAVE_GAME', state: state }; },
 };
 

@@ -159,6 +159,10 @@ function createRuntimeState() {
     _todayEventTypes: [],           // [runtime]
     _recentEventIds: [],            // [runtime]
     _actionIndex: 0,                // [runtime] — incremented per dispatch for deterministic RNG
+    // AP pollution: SAN/loop-dependent AP deception
+    _apLies: false,                 // [runtime] — true when displayed AP ≠ real AP
+    _apOffset: 0,                   // [runtime] — display = real + offset (player sees more than real)
+    _bellPressure: 0,               // [persisted] — days since player investigated the thirteen bells
     eventCooldowns: {},             // [persisted]
   };
 }

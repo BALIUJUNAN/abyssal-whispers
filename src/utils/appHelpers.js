@@ -7,7 +7,7 @@ import { generatePersonalityReport } from '../data/behavior_endings.js';
 // P1-A: use getSanStageFromGD instead of hardcoded SAN thresholds
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
 // P-REFACTOR: getPerceptionLevels moved to systems/sanityVisual.js
-import { getPerceptionLevels as _getPerceptionLevels } from '../systems/sanityVisual.js';
+// Re-export removed — concatenation build declares it once from sanityVisual.js
 // Explicit imports — these were previously implicit globals from the bundle scope
 import { getPhase, getAreaInfo } from '../engine/WorldTimeSystem.js';
 import { checkEnding } from '../reducers/endingReducer.js';
@@ -130,8 +130,6 @@ export function buildDeathRecap(state, deathContext = null) {
   };
 }
 
-// Re-export from sanityVisual.js (canonical implementation)
-export const getPerceptionLevels = _getPerceptionLevels;
 
 export function applyBlessing(state, blessing, narr) {
   if (!blessing) return;
@@ -290,6 +288,32 @@ export function narrDailySummary(s, narr, _startSan, _startHp, _startClues, _sta
   if (hpDelta !== 0) parts.push('体力' + (hpDelta > 0 ? '+' : '') + hpDelta);
   if (cluesFound > 0) parts.push('发现' + cluesFound + '条线索');
   if (acts.includes('EXPLORE') && cluesFound === 0) parts.push('探索未发现新线索');
+  // ── 总结污染：低 SAN 时总结开始"撒谎" ──
+  const _sanLvl = getSanStageFromGD(s.san).level;
+  if (_sanLvl >= 3 && parts.length > 2) {
+    // 随机省略一条行动记录（玩家"忘记"了自己做了什么）
+    const _omitIdx = 1 + Math.floor(Math.random() * (parts.length - 2));
+    if (_omitIdx < parts.length) parts.splice(_omitIdx, 1);
+  }
+  if (_sanLvl >= 4) {
+    // SAN 极低时，总结中加入未发生的事件
+    const _phantomParts = [
+      '你好像在某个地方停留了很久。你不记得是哪里。',
+      '有人对你说了一句话。但你想不起是谁。',
+      '你的笔记本上多了一行你不记得写过的字。',
+      '你发现袖口沾了海盐。但你今天没有去码头。',
+    ];
+    parts.push(_phantomParts[Math.floor(Math.random() * _phantomParts.length)]);
+  }
+  // 数值轻微失真
+  if (_sanLvl >= 2 && sanDelta !== 0 && Math.random() < 0.3) {
+    // 替换真实 SAN 变化为 ±1 的误差
+    const _fake = sanDelta + (Math.random() < 0.5 ? 1 : -1);
+    const _sanPart = '精神' + (_fake > 0 ? '+' : '') + _fake;
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i].startsWith('精神')) { parts[i] = _sanPart; break; }
+    }
+  }
   narr('system', '【今日总结】' + parts.join('，') + '。', { isSpecial: true });
 }
 
@@ -587,6 +611,138 @@ export function getNpcState(s, name) {
 export function setNpcState(s, name, value) {
   var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
   s.npcStates[id] = value;
+}
+
+// === Knowledge Tracking (moved from app.jsx) ===
+// === AP Pollution Display Helper ===
+// When _apLies is true, display AP with offset (player sees more than real).
+// All UI components must use this instead of state.ap directly.
+export function getDisplayedAp(state) {
+  if (state._apLies && state._apOffset) return state.ap + state._apOffset;
+  return state.ap;
+}
+
+// AP 污染下的行动点不足提示——揭示欺骗
+export function narrApInsufficient(s, narr, cost) {
+  if (s._apLies && s._apOffset > 0 && s.ap <= 0) {
+    // 真实 AP 归零但显示还有余量——揭示被欺骗
+    narr('system', '你试图行动。但你的身体不听使唤。\n\n不是疲劳。是时间本身在你不知情的情况下流逝了。\n\n——你以为你还有行动力。但你没有。', { isSpecial: true });
+    // 揭示后取消 AP 污染
+    s._apLies = false;
+    s._apOffset = 0;
+  } else {
+    narr('system', '行动点不足' + (cost ? '（需要' + cost + 'AP）' : '') + '。');
+  }
+}
+
+export function checkKnowledgeEarned(state) {
+  const k = state.retainedKnowledge;
+  if (
+    state.visitedAreas.includes('lighthouse') ||
+    state.visitedAreas.includes('catacombs_entrance')
+  ) {
+    if (!k.includes('knowledge_dark_passages')) k.push('knowledge_dark_passages');
+  }
+  if (Object.values(state.npcTrust).some((t) => t >= 3)) {
+    if (!k.includes('knowledge_npc_weaknesses')) k.push('knowledge_npc_weaknesses');
+  }
+  if (state.visitedAreas.length >= 5) {
+    if (!k.includes('knowledge_map_structure')) k.push('knowledge_map_structure');
+  }
+  if ((state.completedChains || []).length > 0) {
+    if (!k.includes('knowledge_clue_relations')) k.push('knowledge_clue_relations');
+  }
+  if (Object.values(state.npcTrust).some((t) => t >= 2)) {
+    if (!k.includes('knowledge_npc_trust_shadow')) k.push('knowledge_npc_trust_shadow');
+  }
+  // Achievement: areas explored (systems.progression)
+  if (!state.stats_run.areas_explored) state.stats_run.areas_explored = state.visitedAreas.length;
+  else
+    state.stats_run.areas_explored = Math.max(
+      state.stats_run.areas_explored,
+      state.visitedAreas.length
+    );
+}
+
+// === SAN Break-Wall Events (moved from app.jsx) ===
+// Pure state mutation: narrates and records memory. Returns side-effect descriptors for audio/timers.
+// GD passed explicitly to avoid implicit global dependency.
+export function checkBreakWallEvent(state, narr, GD) {
+  // P1-A: SSOT — only fires at reality_dissolution (level >= 4)
+  const _stage = getSanStageFromGD(state.san);
+  if (_stage.level < 4) return null;
+  if (Math.random() >= 0.1) return null;
+  const r = Math.random();
+  const fx = [
+    { type: 'AUDIO_PLAY', id: 'wall_break' },
+    { type: 'AUDIO_PLAY', id: 'safehouse_wall' },
+    { type: 'AUDIO_PLAY', id: 'bell_wrong' },
+  ];
+  if (r < 0.33) {
+    // Effect 1: Fake save message
+    narr('system', '存档完成。Day ' + state.day + ' - ' + (state.currentArea || '???'), {
+      isSpecial: true,
+    });
+    fx.push({
+      type: 'NARRATE_DELAYED',
+      delay: 3000,
+      text: '它在看着你写入这段存档。',
+      extra: { isSpecial: true },
+    });
+    addRunMemory(state, '你听见自己的名字在系统提示之外出现。', 'break_wall');
+  } else if (r < 0.66) {
+    // Effect 2: Fake error
+    narr('system', '⚠ 检测到不稳定叙事层\n正在修复……\n修复失败\n它已经知道你在读这段文字了', {
+      isSpecial: true,
+    });
+    addRunMemory(state, '现实出现了裂痕——检测到不稳定叙事层。', 'break_wall');
+  } else {
+    // Effect 3: Item description篡改
+    const items = state.inventory;
+    if (items.length > 0) {
+      const corruptedItem = pick(items);
+      const replacements = {
+        怀表: '它在计算你还剩多少时间',
+        急救包: '它不确定你是否值得被救',
+        手电筒: '光在回避你',
+        笔记本和笔: '你写的字在自行修改',
+      };
+      const corrupted = replacements[corruptedItem.name] || corruptedItem.name + '……它刚才动了？';
+      narr('system', '【' + corruptedItem.name + '】……不对。是【' + corrupted + '】', {
+        isSpecial: true,
+      });
+      addRunMemory(state, corruptedItem.name + '的描述被篡改了。', 'break_wall');
+    }
+  }
+  return fx;
+}
+
+// === Silent Event Check (moved from app.jsx) ===
+// GD passed explicitly to avoid implicit global dependency.
+export function checkSilentEvent(state, narr, location, GD) {
+  const pool = (GD.implementation_notes?.silent_events?.event_pool || []).filter((e) => {
+    if (e.location !== location) return false;
+    if (e.repeat_behavior === 'only_once' && state.triggeredSilentEvents.includes(e.id))
+      return false;
+    if (e.trigger_condition && e.trigger_condition !== 'always') {
+      if (e.trigger_condition.startsWith('day>=')) {
+        if (state.day < parseInt(e.trigger_condition.split('>=')[1])) return false;
+      }
+      if (e.trigger_condition.startsWith('corruption>=')) {
+        if ((state.safehouseCorruption || 0) < parseInt(e.trigger_condition.split('>=')[1]))
+          return false;
+      }
+    }
+    return true;
+  });
+  if (pool.length === 0) return false;
+  const evt = pick(pool);
+  state.triggeredSilentEvents.push(evt.id);
+  narr('system', evt.text);
+  if (evt.mechanical_effect?.san) {
+    state.san = clamp(state.san + evt.mechanical_effect.san, 0, state.maxSan);
+  }
+  return true;
 }
 
 // runPostReducerEffects moved to src/runtime/effectExecutor.js

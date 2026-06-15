@@ -21,8 +21,15 @@ import { checkEnding } from '../endingReducer.js';
 import { checkNPCCorruption, applyNPCCorruption } from '../npcReducer.js';
 import { resetDailyCategoryCounts } from '../extendedEvents.js';
 import { maybeGetFakeMessage, maybeInsertFalseMemory } from '../../engine/PollutionManager.js';
-import { addRunMemory, getNpcTrust, setNpcTrust } from '../../utils/appHelpers.js';
+import { addRunMemory, getNpcTrust, setNpcTrust, getNpcState, setNpcState, narrDailySummary, trackDailyBehaviorPatterns, checkKnowledgeEarned, checkBreakWallEvent, checkSilentEvent, applyDeathResolution, buildDeathRecap, narrApInsufficient } from '../../utils/appHelpers.js';
 import { hasClueId } from '../../utils/clueNameMap.js';
+import { getAreaDisplayName } from '../../utils/gameHelpers.js';
+import { getAreaSceneImage } from '../../portraitMap.js';
+import { checkForcedNarrativeHook } from '../../engine/EventEngine.js';
+import { saveGame } from '../../engine/SaveManager.js';
+import { getDayCriticalEvent, getWorldDecayNarrative, getHarborDeepOneWhisper, calculateDailyCorruption, updateAreaCorruption } from '../../systems/worldDecay.js';
+import { processDailyResources, getResourceNarrative, getSafehouseVisualStage, getSafehousePollutionEvent } from '../../systems/resourceNarrative.js';
+import { applyMetaCorruption } from '../../systems/metaCorruption.js';
 import { emit } from '../../engine/eventBus.js';
 import { maybeInjectPhantomLog } from '../../systems/textVariants.js';
 
@@ -54,7 +61,7 @@ export function _processFoodAndStarvation(s, c, ctx) {
     }
     const npcs = GD.npcs || GD.module3_npcs || [];
     npcs.forEach((npc) => {
-      if (getNpcTrust(s, npc.name) > 0 && Math.random() < GAME_BALANCE.NPC_TRUST_DECAY_CHANCE)
+      if (getNpcTrust(s, npc.name) > 0 && (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.NPC_TRUST_DECAY_CHANCE)
         setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 1));
     });
   } else {
@@ -98,7 +105,7 @@ export function _processSafehouseAndWorldDecay(s, c, ctx) {
   const visStage = getSafehouseVisualStage(s.safehouseCorruption || 0);
   const shStage = getSafehouseStage(s.safehouseCorruption, ctx);
   c.effects.push({ type: 'AUDIO_PLAY', id: visStage.sound });
-  if (visStage.atmosphere && Math.random() < 0.5)
+  if (visStage.atmosphere && (c.rng ? c.rng.next() : Math.random()) < 0.5)
     c.narr('system', visStage.atmosphere, { isSpecial: true });
   {
     const pollutionEvt = getSafehousePollutionEvent(visStage.stage);
@@ -169,12 +176,39 @@ export function _advanceDayClock(s, c, ctx) {
       c.narr('system', '雾很浓。你今天走不了太远。', { isSpecial: true });
     }
   }
+  // ── AP 污染系统：SAN 深渊吞噬行动力的可靠性 ──
+  // 第一章前期不触发（保持"可控"的假象）
+  // 触发条件：SAN stage >= 3（认知丧失）或 轮回 >= 3
+  {
+    var _sanLvl = getSanStageFromGD(s.san).level;
+    var _apPolluteChance = 0;
+    if (_sanLvl >= 4) _apPolluteChance = 0.6;
+    else if (_sanLvl >= 3) _apPolluteChance = 0.35;
+    else if (s.loopCount >= 3) _apPolluteChance = 0.25;
+    else if (s.loopCount >= 1 && _sanLvl >= 2) _apPolluteChance = 0.15;
+    if (_apPolluteChance > 0 && (c.rng ? c.rng.next() : Math.random()) < _apPolluteChance) {
+      var _offset = _sanLvl >= 4 ? rand(2, 4, c.rng) : rand(1, 2, c.rng);
+      s._apLies = true;
+      s._apOffset = _offset;
+      // 叙事暗示：不直接告诉玩家 AP 被污染了
+      var _apLiesTexts = [
+        '你数了数今天的行动力。好像比昨天多了一点。……真的吗？',
+        '你觉得自己精力充沛。但你的手在发抖。',
+        '今天的雾好像薄了一些。你能做的好像更多了。也许。',
+        '你感到一种不自然的清醒。像是有什么东西在替你计算代价。',
+      ];
+      c.narr('system', pick(_apLiesTexts, c.rng), { isSpecial: true });
+    } else {
+      s._apLies = false;
+      s._apOffset = 0;
+    }
+  }
   s.weather = getWeather(pick).name;
   s.sealState = getSealStateId(s.day, ctx);
   c.effects.push({ type: 'INCREMENT_STAT', key: 'night_survived' });
   if (s.san <= GAME_BALANCE.LOW_SAN_STAT_THRESHOLD)
     c.effects.push({ type: 'INCREMENT_STAT', key: 'low_san_days' });
-  c.effects.push({ type: 'AUDIO_PLAY', id: 'rest_generic' });
+  c.effects.push({ type: 'AUDIO_PLAY', id: rand(0, 1, c.rng) ? 'rest_alt' : 'rest_generic' });
   try {
     const phase = getPhase(s.ap, s.maxAp);
     c.effects.push({ type: 'AUDIO_AMBIENT', area: s.currentArea, phase: phase });
@@ -229,9 +263,9 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
       });
     }
   }
-  if (Math.random() < GAME_BALANCE.MOTIF_TEXT_CHANCE) {
+  if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MOTIF_TEXT_CHANCE) {
     const motifText = getMotifFlavorText(
-      pick(['fog', 'bell', 'water']),
+      pick(['fog', 'bell', 'water'], c.rng),
       s.safehouseCorruption || 0,
       ctx
     );
@@ -255,7 +289,7 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
   var _sanLvl = getSanStageFromGD(s.san).level;
   if (_sanLvl >= 4) {
     var passiveMadnessChance = _sanLvl >= 5 ? 0.5 : 0.3;
-    if (Math.random() < passiveMadnessChance) {
+    if ((c.rng ? c.rng.next() : Math.random()) < passiveMadnessChance) {
       var passiveMad = rollMadness(ctx);
       s.madnessActive = passiveMad;
       c.effects.push({ type: 'INCREMENT_STAT', key: 'madness_count' });
@@ -307,13 +341,13 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
       addRunMemory(s, dayCrit.text.split('\\n')[0], 'world_decay');
     }
   }
-  if (Math.random() < GAME_BALANCE.WORLD_DECAY_CHANCE) {
+  if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.WORLD_DECAY_CHANCE) {
     const decayText = getWorldDecayNarrative(s.day, s.safehouseCorruption || 0, s);
     if (decayText) c.narr('system', decayText);
   }
   // DESIGN_REFACTOR_NOTES.md: "Day 7后harbor_district自动增加深潜者相关模糊事件"
   // 30% chance of harbor whisper when player rested near harbor, Day 7+
-  if (s.day >= 7 && Math.random() < 0.3) {
+  if (s.day >= 7 && (c.rng ? c.rng.next() : Math.random()) < 0.3) {
     var lastArea = s._dayStartArea || s.currentArea || '';
     if (lastArea === 'harbor_district' || lastArea === 'town_center') {
       var harborWhisper = getHarborDeepOneWhisper(s.day, s.safehouseCorruption || 0, s);
@@ -333,7 +367,7 @@ export function _processNpcCorruption(s, c, ctx) {
   const sealRate = (sm?.npc_corruption_rate || 0.05) * 0.3;
   (GD.npcs || GD.module3_npcs || []).forEach((npc) => {
     if (getNpcState(s, npc.name).dead || getNpcState(s, npc.name).corrupted) return;
-    if (Math.random() < sealRate)
+    if ((c.rng ? c.rng.next() : Math.random()) < sealRate)
       setNpcState(s, npc.name, {
         ...getNpcState(s, npc.name),
         corrupted: true,
@@ -344,9 +378,9 @@ export function _processNpcCorruption(s, c, ctx) {
 
 /** Process safehouse silent events, SAN break-wall, daily resources, corruption effects. */
 export function _processNightEffects(s, c, ctx) {
-  checkSilentEvent(s, c.narr, 'safehouse');
+  checkSilentEvent(s, c.narr, 'safehouse', GD);
   {
-    const bwfx = checkBreakWallEvent(s, c.narr);
+    const bwfx = checkBreakWallEvent(s, c.narr, GD);
     if (bwfx) c.effects.push(...bwfx);
   }
   processDailyResources(s);
@@ -391,7 +425,7 @@ export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues
         var totalW = eligible.reduce(function (t, v) {
           return t + (v.weight || 1);
         }, 0);
-        var r = Math.random() * totalW;
+        var r = (c.rng ? c.rng.next() : Math.random()) * totalW;
         var chosen = eligible[0];
         for (var _vi = 0; _vi < eligible.length; _vi++) {
           r -= eligible[_vi].weight || 1;
@@ -489,11 +523,11 @@ export function handleDailyAction(s, action, c, ctx) {
     }
     case 'WORK': {
       if (s.ap < 2) {
-        c.narr('system', '行动点不足（需要2AP）。');
+        narrApInsufficient(s, c.narr, 2);
         return s;
       }
       s.ap -= 2;
-      const earned = rand(3, 12);
+      const earned = rand(3, 12, c.rng);
       s.money = (s.money || 0) + earned;
       c.bt.work_count = (c.bt.work_count || 0) + 1;
       if ((s.money || 0) > (c.bt.hoarded_money_max || 0)) c.bt.hoarded_money_max = s.money;
@@ -503,7 +537,7 @@ export function handleDailyAction(s, action, c, ctx) {
     }
     case 'BUY_FOOD': {
       if (s.ap < 1) {
-        c.narr('system', '行动点不足（需要1AP）。');
+        narrApInsufficient(s, c.narr, 1);
         return s;
       }
       const foodPrice = 3;

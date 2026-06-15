@@ -65,6 +65,8 @@ export const AUDIO_PATHS = {
   ui_log_write: 'audio/ui_log_write.wav',
   ui_save: 'audio/ui_save.wav',
   ui_error: 'audio/ui_error_soft.wav',
+  // NPC trust tier change
+  trust_tier_change: 'audio/clue_found.wav',
   // Safehouse / rest voice lines
   rest_generic: 'audio/安全屋休息 1.wav',
   rest_alt: 'audio/安全屋休息 2.wav',
@@ -104,6 +106,7 @@ export const audioManager = {
   suddenMuted: false,
   ambientEl: null,
   _volumeScale: 1,
+  _userVolumeScale: 1,
   _ambientScale: 1,
   _effectScale: 1,
   _uiScale: 1,
@@ -148,7 +151,13 @@ export const audioManager = {
       }
       el.loop = loop;
       el.volume = 0.5 * (this._volumeScale || 1) * catScale;
-      el.play().catch(() => {});
+      var self = this;
+      el.play().catch(function () {
+        // Autoplay blocked — don't overwrite area/phase already saved by playAreaAmbient
+        if (loop && !self._unlocked && !self._pendingAmbient) {
+          self._pendingAmbient = { src: src };
+        }
+      });
       return el;
     } catch (e) {
       return null;
@@ -157,6 +166,8 @@ export const audioManager = {
   playAreaAmbient(areaId, phase) {
     try {
       this.stopAmbient();
+      // Save for autoplay unlock replay
+      if (!this._unlocked) this._pendingAmbient = { area: areaId, phase: phase };
       const base = AREA_AMBIENT_MAP[areaId];
       if (!base) {
         this.ambientEl = this._play(
@@ -170,7 +181,7 @@ export const audioManager = {
       }
       const dayNightMap = { amb_town: 'amb_town', amb_harbor: 'amb_harbor' };
       if (dayNightMap[base]) {
-        const suffix = phase === 'night' || phase === 'midnight' ? '_night' : '_day';
+        const suffix = phase === 'night' || phase === 'midnight' || phase === 'evening' ? '_night' : '_day';
         const key = base + suffix;
         this.ambientEl = this._play(AUDIO_PATHS[key], true, 'ambient');
       } else {
@@ -234,5 +245,25 @@ export const audioManager = {
   setMuted(m) {
     this.muted = m;
     if (m) this.stopAmbient();
+  },
+  // Browser autoplay unlock: call on first user gesture (click/touch/keydown).
+  // Creates a silent AudioContext, resumes it, and replays pending ambient.
+  _unlocked: false,
+  _pendingAmbient: null,
+  unlock() {
+    if (this._unlocked) return;
+    this._unlocked = true;
+    try {
+      var actx = new (window.AudioContext || window.webkitAudioContext)();
+      actx.resume().catch(function () {});
+      // Browsers unlock all Audio elements after a user gesture;
+      // replay the ambient that was blocked on first load.
+      if (this._pendingAmbient) {
+        var area = this._pendingAmbient.area;
+        var phase = this._pendingAmbient.phase;
+        this._pendingAmbient = null;
+        this.playAreaAmbient(area, phase);
+      }
+    } catch (e) {}
   },
 };

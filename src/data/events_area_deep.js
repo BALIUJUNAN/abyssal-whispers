@@ -14,7 +14,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center'],
     trigger: { areas: ['town_center'], min_loop: 2, probability: 0.15, once_per_run: true },
     description:
-      '你找到了市政厅的地下室入口。门是锁着的，但锁已经生锈了。\n你用力推了一下。门开了。\n地下室里堆满了旧文件。你翻了几页——是沃切斯特的市政记录。日期从1890年开始。\n你注意到——1895年的记录突然中断了。整整一年的记录消失了。',
+      '你找到了市政厅的地下室入口。门是锁着的，但锁已经生锈了。\n你用力推了一下。门开了。\n地下室里堆满了旧文件。你翻了几页——是沃切斯特的市政记录。日期从1890年开始。\n你感觉到——1895年的记录突然中断了。整整一年的记录消失了。',
     effects: { add_clue: 'clue_area_town_hall_basement', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -31,7 +31,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center', 'missing'],
     trigger: { areas: ['town_center'], min_loop: 2, probability: 0.15, once_per_run: true },
     description:
-      '你在市政厅的档案室找到了一份失踪人口名单。名单很长。\n你数了一下——过去五年，沃切斯特有四十七人失踪。\n你注意到一个规律——失踪的人都在每月的十五号失踪。\n你看了看日历。今天是十四号。',
+      '你在市政厅的档案室找到了一份失踪人口名单。名单很长。\n你数了一下——过去五年，沃切斯特有四十七人失踪。\n你感觉到一个规律——失踪的人都在每月的十五号失踪。\n你看了看日历。今天是十四号。',
     effects: { add_clue: 'clue_area_missing_list', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -48,7 +48,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center', 'cult'],
     trigger: { areas: ['town_center'], min_loop: 3, probability: 0.12, once_per_run: true },
     description:
-      '你在教堂的密室里找到了一份名单。名单上写着「晨星会」。\n名单上有十几个名字。你认出了几个——是镇上的居民。\n名单的最后一页写着：「新成员招募中。条件：自愿献出部分意识。」\n你把名单翻过来。背面画着一个符号——和封印上的符号一样。',
+      '你在教堂的密室里找到了一份名单。纸张发黄，墨迹褪色，但某些名字你认得——是镇上的居民。\n名单最后一页写着一行字，笔迹和前面不同，像是用指甲刻上去的：\n「新成员招募中。条件：自愿。」\n你把纸翻过来。背面有一个符号。你以前没见过。但你的手指碰到它的时候，指尖麻了。像碰到了静电。',
     effects: { add_clue: 'clue_area_morning_star', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -65,7 +65,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center', 'personal'],
     trigger: { areas: ['town_center'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你在市政厅的旧档案里找到了一个熟悉的名字——你的姓氏。\n你仔细看。是一个和你同姓的人，在1893年来过沃切斯特。\n档案上写着：「调查员。来自波士顿。调查失踪案。」\n你翻到最后一页。记录写着：「调查员于1893年10月15日失踪。」\n你知道——你不是第一个来沃切斯特的调查员。',
+      '你在市政厅的旧档案里找到了一个熟悉的名字——你的姓氏。\n你凝视。是一个和你同姓的人，在1893年来过沃切斯特。\n档案上写着：「调查员。来自波士顿。调查失踪案。」\n你翻到最后一页。记录写着：「调查员于1893年10月15日失踪。」\n你不是第一个来沃切斯特的调查员。',
     effects: { add_clue: 'clue_area_family_name', san: -3, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -82,7 +82,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center', 'notice'],
     trigger: { areas: ['town_center'], min_loop: 2, probability: 0.15, once_per_run: true },
     description:
-      '你走到公告栏前。今天的公告和昨天不一样。\n你仔细看——不是内容变了，是顺序变了。像是有人重新排列过。\n你把公告一张张取下来。最底下有一张被其他公告盖住的纸。\n纸上写着一行字：「不要相信公告栏。它在说谎。」\n你把纸翻过来。背面是空白的。',
+      '你走到公告栏前。今天的公告和昨天不一样。\n你凑近了——不是内容变了，是顺序变了。像是有人重新排列过。\n你把公告一张张取下来。最底下有一张被其他公告盖住的纸。\n纸上写着一行字：「不要相信公告栏。它在说谎。」\n你把纸翻过来。背面是空白的。',
     effects: { add_clue: 'clue_area_notice_board_lie', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -99,7 +99,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center', 'library'],
     trigger: { areas: ['town_center'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你在图书馆的角落里发现了一扇隐藏的门。门后面是一间密室。\n密室里堆满了书。你翻开一本——是关于沃切斯特的历史。\n但这个版本和公开的版本不一样。这个版本提到了封印。\n书的最后一页写着：「这本书是给后来者的。如果你读到了这里——说明你已经走得很远了。',
+      '你在图书馆的角落里发现了一扇隐藏的门。门后面是一间密室。\n密室里堆满了书。你翻开一本——是关于沃切斯特的历史。\n但这个版本和公开的版本不一样。这个版本提到了那道屏障。\n书的最后一页写着：「这本书是给后来者的。如果你读到了这里——说明你已经走得很远了。',
     effects: { add_clue: 'clue_area_library_secret', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -122,7 +122,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你爬上了教堂的钟楼。钟楼很高，可以看到整个沃切斯特。\n你看着下面的城市。一切都是灰色的——屋顶、街道、海面。\n但你注意到了——灯塔的灯光是绿色的。不是正常的白光。\n你数了一下灯塔闪烁的节奏。三短。三长。三短。\nSOS。灯塔在发求救信号。',
+      '你爬上了教堂的钟楼。钟楼很高，可以看到整个沃切斯特。\n你看着下面的城市。一切都是灰色的——屋顶、街道、海面。\n但你感觉到了——灯塔的灯光是绿色的。不是正常的白光。\n你数了一下灯塔闪烁的节奏。三短。三长。三短。\nSOS。灯塔在发求救信号。',
     effects: { add_clue: 'clue_area_church_tower_view', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -158,7 +158,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center', 'photo'],
     trigger: { areas: ['town_center'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你在汤米的店铺里找到了一张老照片。照片上是沃切斯特的广场。\n照片的日期是1890年。广场上站着一群人。\n你仔细看——人群中有一个人的影子不对。影子太长了。太瘦了。\n你把照片翻过来。背面写着一行字：「它一直在这里。」',
+      '你在汤米的店铺里找到了一张老照片。照片上是沃切斯特的广场。\n照片的日期是1890年。广场上站着一群人。\n你凑近了——人群中有一个人的影子不对。影子太长了。太瘦了。\n你把照片翻过来。背面写着一行字：「它一直在这里。」',
     effects: { add_clue: 'clue_area_old_photo', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -173,13 +173,13 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你注意到广场的地面上有一道裂缝。裂缝很宽——比你上次看到的宽了十倍。\n你蹲下来。裂缝里有光。蓝色的。像封印的颜色。\n你把耳朵贴在裂缝上。敲击声停了。取而代之的是呼吸声。从裂缝里往上吹。温热的。三十六度五。\n裂缝下面有体温。裂缝下面有活的东西。',
+        '广场的地面有一道裂缝。上次来的时候，你记得它没有这么宽。\n你蹲下来，把耳朵贴上去。\n从裂缝深处传来敲击声。有节奏的。三短。三长。三短。\n你屏住呼吸。敲击声停了。\n然后——一股温热的气流从裂缝里涌上来。带着咸味。\n你站起来。裂缝比刚才宽了一点。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'town_center', 'crack'],
     trigger: { areas: ['town_center'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你注意到广场的地面上有一道裂缝。裂缝很窄，但很深。\n你蹲下来，把耳朵贴在裂缝上。你听到了声音——从下面传来的。\n是敲击声。有节奏的。三短。三长。三短。\n你知道——裂缝下面有什么东西。但你看不到。\n你站起来。裂缝比刚才宽了一点。',
+      '广场的地面上有一道裂缝。裂缝很窄，但很深。\n你蹲下来，把耳朵贴在裂缝上。你听到了声音——从下面传来的。\n是敲击声。有节奏的。三短。三长。三短。\n裂缝里涌出的气流带着体温。但你能感觉到空气在震动。\n你站起来。裂缝比刚才宽了一点。',
     effects: { add_clue: 'clue_area_square_crack', san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -196,7 +196,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center', 'shop'],
     trigger: { areas: ['town_center'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走进杂货店。店主不在。你环顾四周。\n货架的后面有一扇门。门是虚掩着的。\n你推开门。里面是一间小房间。房间里放着一些奇怪的东西——蜡烛、草药、还有一些你认不出的粉末。\n你知道——店主不只是一个普通的商人。',
+      '你走进杂货店。店主不在。你环顾四周。\n货架的后面有一扇门。门是虚掩着的。\n你推开门。里面是一间小房间。房间里放着一些奇怪的东西——蜡烛、草药、还有一些你认不出的粉末。\n店主不只是一个普通的商人。',
     effects: { add_clue: 'clue_area_shop_secret', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -223,7 +223,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你走在街上。街灯的光在闪烁。\n你停下来。街灯的光不是正常的黄色——是绿色的。\n你环顾四周。所有的街灯都是绿色的。\n你知道——在沃切斯特，绿色的灯光不是好事。\n你加快了脚步。街灯的光跟着你。',
+      '你走在街上。街灯的光在闪烁。\n你停下来。街灯的光不是正常的黄色——是绿色的。\n你环顾四周。所有的街灯都是绿色的。\n在沃切斯特，绿色的灯光不是好事。\n你加快了脚步。街灯的光跟着你。',
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -240,7 +240,7 @@ export const events = [
     tags: ['area', 'deep', 'town_center', 'graveyard'],
     trigger: { areas: ['town_center'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走进镇上的小墓地。墓碑很旧，字迹已经模糊了。\n你找到了一块墓碑。碑文写着一个名字——你认出了这个名字。\n是你的名字。\n你蹲下来仔细看。日期是1893年。\n你知道——你不是第一个来沃切斯特的调查员。但你可能是最后一个。',
+      '你走进镇上的小墓地。墓碑很旧，字迹已经模糊了。\n你找到了一块墓碑。碑文写着一个名字——你好像见过这个名字。\n是你的名字。\n你蹲下来仔细看。日期是1893年。\n你不是第一个来沃切斯特的调查员。但你可能是最后一个。',
     effects: { add_clue: 'clue_area_graveyard_name', san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -263,7 +263,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜醒来。窗外有光。\n你走到窗边。镇民们聚集在广场上。他们围成一个圆圈，手里拿着蜡烛。\n圆圈的中心站着一个人。你认出了他——是镇上的一个居民。\n他开始念诵。你听不清他在说什么。但你能感觉到——空气变得沉重了。\n你知道——镇民在进行某种仪式。',
+      '你半夜醒来。窗外有光。\n你走到窗边。镇民们聚集在广场上。他们围成一个圆圈，手里拿着蜡烛。\n圆圈的中心站着一个人。你好像见过他——是镇上的一个居民。\n他开始念诵。你听不清他在说什么。但你能感觉到——空气变得沉重了。\n镇民在进行某种仪式。',
     effects: { add_clue: 'clue_area_town_ritual', san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -296,6 +296,7 @@ export const events = [
     weight: 1,
     tier: 'normal',
     quality_tier: 'B',
+    unreliable_narration_level: 1,
     tags: ['area', 'deep', 'harbor'],
     trigger: {
       areas: ['harbor_district'],
@@ -305,7 +306,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '退潮了。你走到码头边缘。\n海床露了出来。你看到了一些东西——在泥沙里。\n是一些石板。石板上有字。你认出了其中一些——和封印上的符号一样。\n你知道——这些石板不是自然形成的。是某种建筑的一部分。\n在沃切斯特的海床下面，有一座建筑。',
+      '退潮了。你走到码头边缘。\n海床露了出来。泥沙里有一些石板——不是天然的。是切割过的。\n石板上有刻痕。你用手擦掉盐渍。刻痕的形状……你好像在别的地方见过。教堂的墙上？还是梦里？\n石板延伸向海的方向。在你看不到的深处，有更多的石板。\n沃切斯特的海床下面，有什么东西。',
     effects: { add_clue: 'clue_area_harbor_low_tide', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -322,7 +323,7 @@ export const events = [
     tags: ['area', 'deep', 'harbor', 'shipwreck'],
     trigger: { areas: ['harbor_district'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你看到远处的海面上有一个黑点。你用望远镜看——是一艘沉船。\n船身已经腐烂了，但你还能看出船的名字——「晨星号」。\n你知道——晨星号是五年前失踪的。船上有一百多人。\n你把望远镜转向码头。有人在看着你。他看到你在看他，立刻转身走了。',
+      '你看到远处的海面上有一个黑点。你用望远镜看——是一艘沉船。\n船身已经腐烂了，但你还能看出船的名字——「晨星号」。\n晨星号是五年前失踪的。船上有一百多人。\n你把望远镜转向码头。有人在看着你。他看到你在看他，立刻转身走了。',
     effects: { add_clue: 'clue_area_harbor_shipwreck', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -379,7 +380,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走到码头。一个守卫拦住了你。\n「午夜后码头禁止进入，」他说。\n你问他为什么。\n「因为——」他停住了。看着海面。\n「因为海里的东西。」\n你顺着他目光看去。海面很平静。但你注意到——海面的颜色不对。是黑色的。',
+      '你半夜走到码头。一个守卫拦住了你。\n「午夜后码头禁止进入，」他说。\n你问他为什么。\n「因为——」他停住了。看着海面。\n「因为海里的东西。」\n你顺着他目光看去。海面很平静。但你感觉到——海面的颜色不对。是黑色的。',
     effects: { add_clue: 'clue_area_harbor_midnight_ban', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -396,7 +397,7 @@ export const events = [
     tags: ['area', 'deep', 'harbor', 'warehouse'],
     trigger: { areas: ['harbor_district'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你找到了仓库的暗门。门后面是一条通道。\n通道很长，很暗。你走了很久。\n通道的尽头是一间房间。房间里放着一些箱子。\n你打开了一个箱子。里面是一些瓶子。瓶子里装着一种黑色的液体。\n你闻了闻——是铁锈和海水的味道。\n你知道——这些瓶子不是普通的货物。',
+      '你找到了仓库的暗门。门后面是一条通道。\n通道很长，很暗。你走了很久。\n通道的尽头是一间房间。房间里放着一些箱子。\n你打开了一个箱子。里面是一些瓶子。瓶子里装着一种黑色的液体。\n你闻了闻——是铁锈和海水的味道。\n这些瓶子不是普通的货物。',
     effects: { add_clue: 'clue_area_harbor_warehouse_secret', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -423,7 +424,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你站在码头边，看着灯塔。灯塔的灯光在闪烁。\n你认出了闪烁的节奏——三短。三长。三短。SOS。\n你知道——灯塔里有人在发信号。但灯塔应该是空的。\n你把目光转向灯塔的底部。你看到了一些东西——在灯塔的底部，有一个人影。\n人影在看着你。然后人影消失了。',
+      '你站在码头边，看着灯塔。灯塔的灯光在闪烁。\n你好像见过闪烁的节奏——三短。三长。三短。SOS。\n灯塔里有人在发信号。但灯塔应该是空的。\n你把目光转向灯塔的底部。有什么引起了你的注意——在灯塔的底部，有一个人影。\n人影在看着你。然后人影消失了。',
     effects: { add_clue: 'clue_area_harbor_lighthouse_signal', san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -440,7 +441,7 @@ export const events = [
     tags: ['area', 'deep', 'harbor', 'sea'],
     trigger: { areas: ['harbor_district'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走到码头边缘，低头看水。海水的颜色不对。\n不是正常的蓝色——是深绿色。像是有什么东西在水里发光。\n你用手舀了一些水。水是温热的。\n你闻了闻——是铁锈和海水的味道。\n你知道——海水的颜色不是自然的。是某种东西在影响它。',
+      '你走到码头边缘，低头看水。海水的颜色不对。\n不是正常的蓝色——是深绿色。像是有什么东西在水里发光。\n你用手舀了一些水。水是温热的。\n你闻了闻——是铁锈和海水的味道。\n海水的颜色不是自然的。是某种东西在影响它。',
     effects: { add_clue: 'clue_area_harbor_sea_color', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -457,7 +458,7 @@ export const events = [
     tags: ['area', 'deep', 'harbor', 'net'],
     trigger: { areas: ['harbor_district'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你看到一个渔民在拉渔网。渔网很重。\n渔民用力拉。渔网里有东西——不是鱼。\n是一块石板。石板上有字。你认出了其中一些——和封印上的符号一样。\n渔民看到石板，脸色变了。他把石板扔回了海里。\n「不要看，」他说，「不要问。」',
+      '你看到一个渔民在拉渔网。渔网很沉。\n渔民用力拉。渔网里有东西——不是鱼。\n是一块石板。表面布满了刻痕，排列得像文字，但不是你认识的任何语言。\n渔民看到石板，脸色变了。他把石板扔回了海里。\n「不要看，」他说。他的手在抖。\n你感觉到他的指甲缝里有蓝色的粉末。和石板上的刻痕颜色一样。',
     effects: { add_clue: 'clue_area_harbor_net_stone', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -480,7 +481,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走到码头。地面上有脚印。\n你蹲下来仔细看。脚印很大，比正常人的脚大两倍。\n脚印从海里延伸出来，走到了码头上，然后又回到了海里。\n你知道——这些脚印不是人类的。',
+      '你半夜走到码头。地面上有脚印。\n你蹲下来仔细看。脚印很大，比正常人的脚大两倍。\n脚印从海里延伸出来，走到了码头上，然后又回到了海里。\n这些脚印不是人类的。',
     effects: { add_clue: 'clue_area_harbor_footprints', san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -497,7 +498,7 @@ export const events = [
     tags: ['area', 'deep', 'harbor', 'ruins'],
     trigger: { areas: ['harbor_district'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你在码头的角落里找到了一些旧灯塔的残骸。残骸很旧，已经腐烂了。\n你翻了翻残骸。找到了一块金属板。金属板上有字。\n字是用英文写的：「灯塔建于1850年。毁于1895年。」\n你知道——现在的灯塔是重建的。但旧灯塔为什么被毁了？\n你把金属板翻过来。背面画着一个符号——和封印上的符号一样。',
+      '你在码头的角落里找到了一些旧灯塔的残骸。残骸很旧，已经腐烂了。\n你翻了翻残骸。找到了一块金属板。金属板上有字。\n字是用英文写的：「灯塔建于1850年。毁于1895年。」\n现在的灯塔是重建的。但旧灯塔为什么被毁了？\n你把金属板翻过来。背面画着一个符号——和你在别处见过的某个刻痕一样。',
     effects: { add_clue: 'clue_area_harbor_old_lighthouse', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -520,7 +521,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走到码头。海面上出现了一个漩涡。\n漩涡很大，直径大概有十米。海水在漩涡里旋转，发出低沉的声音。\n你看着漩涡。漩涡的中心是黑色的——不是海水的颜色，是纯粹的黑色。\n你知道——漩涡下面有什么东西。但你看不到。\n漩涡持续了几分钟，然后消失了。海面恢复了平静。',
+      '你半夜走到码头。海面上出现了一个漩涡。\n漩涡很大，直径大概有十米。海水在漩涡里旋转，发出低沉的声音。\n你看着漩涡。漩涡的中心是黑色的——不是海水的颜色，是纯粹的黑色。\n漩涡下面传来震动。但你能感觉到空气在震动。\n漩涡持续了几分钟，然后消失了。海面恢复了平静。',
     effects: { add_clue: 'clue_area_harbor_vortex', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -537,7 +538,7 @@ export const events = [
     tags: ['area', 'deep', 'harbor', 'legend'],
     trigger: { areas: ['harbor_district'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你找到了一个老渔民。他给你讲了一个传说。\n「很久以前，海里有东西。不是鱼——是别的什么。」\n「它们建造了沃切斯特。然后它们沉入了海底。」\n「但它们没有消失。它们一直在海里。等着。」\n老渔民看着你。\n「你知道它们在等什么吗？」\n你摇了摇头。\n「它们在等封印破碎。」',
+      '你找到了一个老渔民。他的眼睛是灰色的——不是正常的灰，是那种被海风吹了六十年的灰。\n「你问沃切斯特？」他点了一支烟。烟雾在无风的空气里纹丝不动。\n「这座城市不是人建的。」\n他看着海面。海面很平。太平了。\n「海里的东西建的。然后它们回去了。但它们没有走远。」\n他把烟蒂扔进海里。烟蒂没有漂走。它沉了下去。\n「你有没有想过——为什么沃切斯特的潮汐，永远是十三个小时一轮？」',
     effects: { add_clue: 'clue_area_harbor_legend', san: -2, mythos: 1 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
@@ -560,7 +561,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走到码头。一个守卫拦住了你。\n「你不能过去，」他说。\n你问他为什么。\n「因为——」他停住了。看着海面。\n「因为今晚是月圆之夜。海里的东西会出来。」\n你顺着他目光看去。海面很平静。但你注意到——海面的颜色不对。是黑色的。',
+      '你半夜走到码头。一个守卫拦住了你。\n「你不能过去，」他说。\n你问他为什么。\n「因为——」他停住了。看着海面。\n「因为今晚是月圆之夜。海里的东西会出来。」\n你顺着他目光看去。海面很平静。但你感觉到——海面的颜色不对。是黑色的。',
     effects: { add_clue: 'clue_area_harbor_guard', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -583,7 +584,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走到码头。海面很平静。\n你低头看水。水很清——比平时清得多。\n你看到了——在水下。是某种结构。线条很整齐，不像是自然形成的。\n你凑近看。结构变得更清晰了。像是一个建筑的轮廓。\n在沃切斯特的水面下，有一座建筑。\n你知道——这就是渔民们一直在回避的东西。',
+      '你半夜走到码头。海面很平静。\n你低头看水。水很清——比平时清得多。\n你看到了——在水下。是某种结构。线条很整齐，不像是自然形成的。\n你凑近看。结构变得更清晰了。像是一个建筑的轮廓。\n在沃切斯特的水面下，有一座建筑。\n这就是渔民们一直在回避的东西。',
     effects: { add_clue: 'clue_area_harbor_underwater_building', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -602,7 +603,7 @@ export const events = [
     tags: ['area', 'deep', 'forest'],
     trigger: { areas: ['whispering_forest'], min_loop: 2, probability: 0.15, once_per_run: true },
     description:
-      '你走过一棵老橡树。树干上有刻字。\n你仔细看——是一句话，反复刻了很多遍：「不要去灯塔。」\n字迹很旧，已经和树皮融为一体了。但你注意到——最新的刻痕旁边有你的指纹。\n你没有刻过这些字。但你的指纹确实在那里。',
+      '你走过一棵老橡树。树干上有刻字。\n你凑近了——是一句话，反复刻了很多遍：「不要去灯塔。」\n字迹很旧，已经和树皮融为一体了。但你感觉到——最新的刻痕旁边有你的指纹。\n你没有刻过这些字。但你的指纹确实在那里。',
     effects: { add_clue: 'clue_area_forest_tree_carving', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -625,7 +626,7 @@ export const events = [
       npc_alive: ['伊莱亚斯·沃德'],
     },
     description:
-      '你找到了一个地方。地面上有一片烧焦的痕迹。\n你认出了这个地方——伊莱亚斯曾经在这里崩溃过。他告诉过你。\n你蹲下来。烧焦的痕迹里有字。你用手指描摹——是封印的符号。\n你知道——伊莱亚斯在这里看到了什么。但他说他记不清了。',
+      '你走到了一个地方。地面上有一片烧焦的痕迹。\n这个地方让你想起什么——伊莱亚斯曾经在这里崩溃过。他告诉过你。\n你蹲下来。烧焦的痕迹里有字。你用手指描摹——是地下的纹路。\n伊莱亚斯在这里看到了什么。但他说他记不清了。',
     effects: { add_clue: 'clue_area_forest_elias_breakdown', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -642,7 +643,7 @@ export const events = [
     tags: ['area', 'deep', 'forest', 'altar'],
     trigger: { areas: ['whispering_forest'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你在森林深处找到了一个祭坛。祭坛是用石头砌成的。\n祭坛上放着一些东西——蜡烛、草药、还有一些你认不出的粉末。\n你知道——有人在这里进行过某种仪式。\n你把耳朵贴在祭坛上。你听到了声音——从下面传来的。是低语声。很多人的低语声。',
+      '你在森林深处找到了一个祭坛。祭坛是用石头砌成的。\n祭坛上放着一些东西——蜡烛、草药、还有一些你认不出的粉末。\n有人在这里进行过某种仪式。\n你把耳朵贴在祭坛上。你听到了声音——从下面传来的。是低语声。很多人的低语声。',
     effects: { add_clue: 'clue_area_forest_altar', san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -657,7 +658,7 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你在森林里走了很久。你确信这条路通往禁忌之林。\n但走了二十分钟后，你回到了起点。树上的标记——不是你刻的。是别人用你的刀刻的。笔迹和你的一样。但角度不对。\n你又走了一次。这次走了四十分钟回到了起点。距离变长了。但起点的位置变了。你不在你出发的地方了。你在森林的另一个位置。树木不一样了。\n你知道——你不是回到了起点。是森林把你移到了另一个地方。',
+        '你在森林里走了很久。你确信这条路通往禁忌之林。\n但走了二十分钟后，你回到了起点。树上的标记——不是你刻的。是别人用你的刀刻的。笔迹和你的一样。但角度不对。\n你又走了一次。这次走了四十分钟回到了起点。距离变长了。但起点的位置变了。你不在你出发的地方了。你在森林的另一个位置。树木不一样了。\n你不是回到了起点。是森林把你移到了另一个地方。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'forest', 'loop'],
@@ -680,7 +681,7 @@ export const events = [
     tags: ['area', 'deep', 'forest', 'letter'],
     trigger: { areas: ['whispering_forest'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你在一个树洞里找到了一封信。信封上写着你的名字。\n你打开信。信是用你的笔迹写的。\n「如果你读到这封信，说明你已经走了足够远。」\n「封印下面的东西不是邪恶的。它只是不同。」\n「做出你的选择。但要知道——每个选择都有代价。」\n信的末尾没有签名。但你知道——这是你写的。另一个你。',
+      '你在一个树洞里找到了一封信。信封上写着你的名字。\n你打开信。信是用你的笔迹写的。\n「如果你读到这封信，说明你已经走了足够远。」\n「裂隙深处的东西不是邪恶的。它只是不同。」\n「做出你的选择。但要知道——每个选择都有代价。」\n信的末尾没有签名。但这是你写的。另一个你。',
     effects: { add_clue: 'clue_area_forest_letter', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -695,13 +696,13 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你听到了森林的低语声。这次——你听清了内容。\n「门。开启。代价。血。」\n你摇了摇头。低语声变得更大了。不——是你的耳朵在变敏感。\n你听到了更多内容。低语声在说你的名字。你的真名。你从未告诉过任何人的名字。\n你知道——森林知道你是谁。森林一直在听你的心跳。',
+        '你听到了森林的低语声。这次——你听清了内容。\n「门。开启。代价。血。」\n你摇了摇头。低语声变得更大了。不——是你的耳朵在变敏感。\n你听到了更多内容。低语声在说你的名字。你的真名。你从未告诉过任何人的名字。\n森林知道你是谁。森林一直在听你的心跳。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'forest', 'whisper'],
     trigger: { areas: ['whispering_forest'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你听到了森林的低语声。但这次——你听清了内容。\n「门。开启。代价。血。」\n你摇了摇头。低语声变得模糊了。\n你知道——你刚才确实听懂了。森林在和你说话。',
+      '你听到了森林的低语声。但这次——你听清了内容。\n「门。开启。代价。血。」\n你摇了摇头。低语声变得模糊了。\n你刚才确实听懂了。森林在和你说话。',
     effects: { san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -716,13 +717,13 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你找到了一片空地。空地中央有一块石头。\n石头上刻着封印的符号。符号在发光——不是蓝绿色了。是红色的。像血。\n你把手放在石头上。石头是烫的。你把手拿开。手掌上留下了封印的符号。不是灼伤——是印上去的。像纹身。\n你知道——石头选择了你。或者——石头标记了你。',
+        '你找到了一片空地。空地中央有一块石头。\n石头上刻着地下的纹路。符号在发光——不是蓝绿色了。是红色的。像血。\n你把手放在石头上。石头是烫的。你把手拿开。手掌上留下了地下的纹路。不是灼伤——是印上去的。像纹身。\n石头选择了你。或者——石头标记了你。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'forest', 'clearing'],
     trigger: { areas: ['whispering_forest'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你找到了一片空地。空地中央有一块石头。\n石头上刻着封印的符号。符号在发光——微弱的，蓝绿色的光。\n你把手放在石头上。石头是温热的。\n你知道——这块石头不是自然形成的。是某种建筑的一部分。',
+      '你找到了一片空地。空地中央有一块石头。\n石头上刻着地下的纹路。符号在发光——微弱的，蓝绿色的光。\n你把手放在石头上。石头是温热的。\n这块石头不是自然形成的。是某种建筑的一部分。',
     effects: { add_clue: 'clue_area_forest_clearing', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -761,7 +762,7 @@ export const events = [
     tags: ['area', 'deep', 'forest', 'path'],
     trigger: { areas: ['whispering_forest'], min_loop: 3, probability: 0.08, once_per_run: true },
     description:
-      '你找到了一条小路。小路通往森林的更深处。\n你沿着小路走了很久。小路越来越窄，越来越暗。\n你停下来。回头看来时的路——路不见了。\n你转身继续走。前面的路也消失了。\n你站在森林的中间，四面八方都是树木。没有路。\n你知道——你走进了某种陷阱。',
+      '你找到了一条小路。小路通往森林的更深处。\n你沿着小路走了很久。小路越来越窄，越来越暗。\n你停下来。回头看来时的路——路不见了。\n你转身继续走。前面的路也消失了。\n你站在森林的中间，四面八方都是树木。没有路。\n你走进了某种陷阱。',
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -778,7 +779,7 @@ export const events = [
     tags: ['area', 'deep', 'forest', 'tree'],
     trigger: { areas: ['whispering_forest'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你找到了一棵古树。树干很粗，需要三个人才能合抱。\n你数了一下年轮——超过了五百年。\n你用匕首切开了一小块树皮。年轮里有字。\n你仔细看——是封印的符号。符号排列成一个圆环，和封印上的图案一样。\n你知道——这棵树不是普通的树。是封印的一部分。',
+      '一棵古树挡住了你的路。树干很粗，需要三个人才能合抱。\n你数了一下年轮——超过了五百年。\n你用匕首切开了一小块树皮。年轮里有字。\n你凑近了——是地下的纹路。符号排列成一个圆环，和那道屏障上的图案一样。\n这棵树不是普通的树。是那个图案的一部分。',
     effects: { add_clue: 'clue_area_forest_ancient_tree', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -795,7 +796,7 @@ export const events = [
     tags: ['area', 'deep', 'forest', 'offering'],
     trigger: { areas: ['whispering_forest'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你在森林里找到了一个祭坛。祭坛上放着一些东西——食物、蜡烛、还有一些你认不出的东西。\n你知道——有人在这里进行过某种仪式。\n你把耳朵贴在祭坛上。你听到了声音——从下面传来的。是低语声。很多人的低语声。\n你知道——祭坛下面有什么东西。但你看不到。',
+      '你在森林里找到了一个祭坛。祭坛上放着一些东西——食物、蜡烛、还有一些你认不出的东西。\n有人在这里进行过某种仪式。\n你把耳朵贴在祭坛上。你听到了声音——从下面传来的。是低语声。很多人的低语声。\n祭坛下面传来震动。但你能感觉到空气在震动。',
     effects: { add_clue: 'clue_area_forest_offering', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -812,7 +813,7 @@ export const events = [
     tags: ['area', 'deep', 'forest', 'roots'],
     trigger: { areas: ['whispering_forest'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你蹲下来看一棵树的树根。树根的形状不对。\n树根排列成一个图案——不是自然的生长方式，是某种有规律的排列。\n你认出了图案——是封印的一部分。\n你知道——这些树根不是自然生长的。是某种力量塑造了它们。',
+      '你蹲下来看一棵树的树根。树根的形状不对。\n树根排列成一个图案——不是自然的生长方式，是某种有规律的排列。\n图案和那个图案的一部分。\n这些树根不是自然生长的。是某种力量塑造了它们。',
     effects: { add_clue: 'clue_area_forest_roots', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -835,7 +836,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走进森林。你看到了眼睛。很多双眼睛。\n眼睛在树丛中，在草丛里，在树干上。绿色的，闪烁的。\n你知道——这些眼睛不是动物的眼睛。动物的眼睛不会那么多。\n你停下了脚步。眼睛在看着你。没有敌意。只是看着。\n然后眼睛消失了。一只一只地，像是灯泡熄灭了。',
+      '你半夜走进森林。你看到了眼睛。很多双眼睛。\n眼睛在树丛中，在草丛里，在树干上。绿色的，闪烁的。\n这些眼睛不是动物的眼睛。动物的眼睛不会那么多。\n你停下了脚步。眼睛在看着你。没有敌意。只是看着。\n然后眼睛消失了。一只一只地，像是灯泡熄灭了。',
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -852,7 +853,7 @@ export const events = [
     tags: ['area', 'deep', 'forest', 'letter', 'personal'],
     trigger: { areas: ['whispering_forest'], min_loop: 4, probability: 0.06, once_per_run: true },
     description:
-      '你在一棵古树的树洞里找到了一封信。信封上写着你的名字。\n你打开信。信是用一种你不认识的文字写的。但你读得懂。\n「亲爱的调查员：」\n「如果你读到这封信，说明你已经走了足够远。」\n「封印下面的东西不是邪恶的。它只是不同。」\n「钥匙不是用来打开封印的——是用来和它沟通的。」\n「做出你的选择。但要知道——每个选择都有代价。」\n信的末尾写着一个名字。你的名字。',
+      '你在一棵古树的树洞里找到了一封信。信封上写着你的名字。\n你打开信。信是用一种你不认识的文字写的。但你读得懂。\n「亲爱的调查员：」\n「如果你读到这封信，说明你已经走了足够远。」\n「裂隙深处的东西不是邪恶的。它只是不同。」\n「钥匙不是用来打开那道屏障的——是用来和它沟通的。」\n「做出你的选择。但要知道——每个选择都有代价。」\n信的末尾写着一个名字。你的名字。',
     effects: { add_clue: 'clue_area_forest_personal_letter', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -869,7 +870,7 @@ export const events = [
     tags: ['area', 'deep', 'forest', 'border'],
     trigger: { areas: ['whispering_forest'], min_loop: 3, probability: 0.08, once_per_run: true },
     description:
-      '你走到了森林的边界。树木突然变少了。\n你站在边界上，回头看森林。森林很密，很暗。\n你转过身，看森林的另一边。是一片空地。\n空地的中央有一块石头。石头上刻着封印的符号。\n你知道——这块石头是森林的边界标记。也是封印的一部分。',
+      '你走到了森林的边界。树木突然变少了。\n你站在边界上，回头看森林。森林很密，很暗。\n你转过身，看森林的另一边。是一片空地。\n空地的中央有一块石头。石头上刻着地下的纹路。\n这块石头是森林的边界标记。也是那个图案的一部分。',
     effects: { add_clue: 'clue_area_forest_border', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -894,7 +895,7 @@ export const events = [
       npc_alive: ['希尔达·莫里斯'],
     },
     description:
-      '你在庄园的书房里找到了一本旧日记。是希尔达的童年日记。\n你翻开了第一页。日期是1910年。希尔达八岁。\n日记里写道：「今天我在地下室发现了密室。密室里有一扇门。门后面有声音。」\n你翻到最后一页。日记里写道：「门后面的声音越来越大了。我害怕。」\n你知道——希尔达从小就和封印有联系。',
+      '你在庄园的书房里找到了一本旧日记。是希尔达的童年日记。\n你翻开了第一页。日期是1910年。希尔达八岁。\n日记里写道：「今天我在地下室发现了密室。密室里有一扇门。门后面有声音。」\n你翻到最后一页。日记里写道：「门后面的声音越来越大了。我害怕。」\n希尔达从小就和那道屏障有联系。',
     effects: { add_clue: 'clue_area_manor_hilda_diary', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -911,7 +912,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'blood'],
     trigger: { areas: ['voxchester_manor'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你在庄园的地下室里找到了一幅家族谱系图。谱系图很长。\n你仔细看——莫里斯家族的血脉可以追溯到1690年代。沃切斯特建城之前。\n你注意到——有些名字的旁边画着一个符号。和封印上的符号一样。\n你知道——莫里斯家族和封印有某种深层的联系。',
+      '你在庄园的地下室里找到了一幅家族谱系图。谱系图很长。\n你凑近了——莫里斯家族的血脉可以追溯到1690年代。沃切斯特建城之前。\n你感觉到——有些名字的旁边画着一个符号。和你在别处见过的某个刻痕一样。\n莫里斯家族和那道屏障有某种深层的联系。',
     effects: { add_clue: 'clue_area_manor_bloodline', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -928,7 +929,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'locked'],
     trigger: { areas: ['voxchester_manor'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走到了庄园二楼尽头的房间。门是锁着的。\n你试着推了一下。推不开。\n你把耳朵贴在门上。你听到了声音——从里面传来的。是敲击声。有节奏的。\n你认出了节奏——三短。三长。三短。SOS。\n你知道——房间里有人在发信号。但房间里不应该有人。',
+      '你走到了庄园二楼尽头的房间。门是锁着的。\n你试着推了一下。推不开。\n你把耳朵贴在门上。你听到了声音——从里面传来的。是敲击声。有节奏的。\n你好像见过节奏——三短。三长。三短。SOS。\n房间里有人在发信号。但房间里不应该有人。',
     effects: { add_clue: 'clue_area_manor_locked_room', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -943,13 +944,13 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你走过走廊。墙上挂着一幅画像。画像是一个男人。\n你仔细看——男人的脸在变化。不是缓慢地——是快速地。眼睛变大。下巴消失。皮肤变成灰色。\n画像变成了你。是你现在的脸。你现在的表情。恐惧。\n你转身走了。身后传来画框掉落的声音。你没有回头。',
+        '你走过走廊。墙上挂着一幅画像。画像是一个男人。\n你凑近了——男人的脸在变化。不是缓慢地——是快速地。眼睛变大。下巴消失。皮肤变成灰色。\n画像变成了你。是你现在的脸。你现在的表情。恐惧。\n你转身走了。身后传来画框掉落的声音。你没有回头。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'manor', 'portrait'],
     trigger: { areas: ['voxchester_manor'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走过走廊。墙上挂着一幅画像。画像是一个男人。\n你仔细看——男人的脸在变化。缓慢地，细微地。\n眼睛变大了一点。下巴变尖了一点。皮肤的颜色变深了一点。\n你揉了揉眼睛。画像恢复了正常。\n你知道——你刚才看到的不是幻觉。画像确实在变化。',
+      '你走过走廊。墙上挂着一幅画像。画像是一个男人。\n你凑近了——男人的脸在变化。缓慢地，细微地。\n眼睛变大了一点。下巴变尖了一点。皮肤的颜色变深了一点。\n你揉了揉眼睛。画像恢复了正常。\n你刚才看到的不是幻觉。画像确实在变化。',
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -985,7 +986,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'secret'],
     trigger: { areas: ['voxchester_manor'], min_loop: 3, probability: 0.08, once_per_run: true },
     description:
-      '你在庄园的书房里找到了一本旧书。书是用英文写的。\n你翻开了第一页。标题是《莫里斯家族史》。\n书里记载了莫里斯家族的历史。你注意到——家族的创始人不是人类。\n书的最后一页写道：「莫里斯家族的血脉来自海里。我们的使命是守护封印。」\n你知道——莫里斯家族和封印有深层的联系。',
+      '你在庄园的书房里找到了一本旧书。书是用英文写的。\n你翻开了第一页。标题是《莫里斯家族史》。\n书里记载了莫里斯家族的历史。你感觉到——家族的创始人不是人类。\n书的最后一页写道：「莫里斯家族的血脉来自海里。我们的使命是守护那道屏障。」\n莫里斯家族和那道屏障有深层的联系。',
     effects: { add_clue: 'clue_area_manor_family_secret', san: -3, mythos: 2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1008,7 +1009,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走进庄园。你听到了脚步声。\n你躲到了一根柱子后面。一个人影从你面前走过。\n人影很高，四肢的比例不对。它在巡逻。\n你知道——庄园里有守卫。但守卫不是人类。',
+      '你半夜走进庄园。你听到了脚步声。\n你躲到了一根柱子后面。一个人影从你面前走过。\n人影很高，四肢的比例不对。它在巡逻。\n庄园里有守卫。但守卫不是人类。',
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1025,7 +1026,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'diary'],
     trigger: { areas: ['voxchester_manor'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你在庄园的书房里找到了一本旧日记。日记的主人是莫里斯家族的祖先。\n你翻开了第一页。日期是1847年。\n日记的主人写道：「今天，我见到了祂们。不是在梦里——是真实的。」\n「祂们从海里来。祂们建造了封印。祂们把钥匙留在了莫里斯家族的血脉里。」\n你翻到最后一页。日记的主人写道：「我不能再写了。祂们知道我在记录。」',
+      '你在庄园的书房里找到了一本旧日记。日记的主人是莫里斯家族的祖先。\n你翻开了第一页。日期是1847年。\n日记的主人写道：「今天，我见到了祂们。不是在梦里——是真实的。」\n「祂们从海里来。祂们建造了那道屏障。祂们把钥匙留在了莫里斯家族的血脉里。」\n你翻到最后一页。日记的主人写道：「我不能再写了。祂们知道我在记录。」',
     effects: { add_clue: 'clue_area_manor_diary', san: -3, mythos: 2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1042,7 +1043,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'garden'],
     trigger: { areas: ['voxchester_manor'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走进庄园的花园。花园已经荒废了。\n你注意到——花园的植物全部枯死了。但枯死的方式不对——不是缺水，像是被什么东西吸干了水分。\n你蹲下来检查土壤。土壤是黑色的，带着铁锈和海水的味道。\n你知道——花园的土壤被污染了。被什么污染的？',
+      '你走进庄园的花园。花园已经荒废了。\n你感觉到——花园的植物全部枯死了。但枯死的方式不对——不是缺水，像是被什么东西吸干了水分。\n你蹲下来检查土壤。土壤是黑色的，带着铁锈和海水的味道。\n花园的土壤被污染了。被什么污染的？',
     effects: { add_clue: 'clue_area_manor_garden', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1063,7 +1064,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'mirror'],
     trigger: { areas: ['voxchester_manor'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走过一面镜子。镜面上有字。\n你凑近看。字是反过来的，但你认出了内容：\n「地下室。第三根柱子。」\n你伸手去摸字迹。指尖碰到镜面时，字迹消失了。\n镜面上只留下了一滴水珠。你没有看到水珠是从哪里来的。',
+      '你走过一面镜子。镜面上有字。\n你凑近看。字是反过来的，但你好像见过内容：\n「地下室。第三根柱子。」\n你伸手去摸字迹。指尖碰到镜面时，字迹消失了。\n镜面上只留下了一滴水珠。你没有看到水珠是从哪里来的。',
     effects: { add_clue: 'clue_area_manor_mirror', san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1078,7 +1079,7 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你半夜醒来。庄园里有声音。是敲击声。三短三长三短。\n你走出房间。声音从走廊的尽头传来。你沿着走廊走到尽头。声音从墙壁里传来。\n你把耳朵贴在墙上。声音停了。墙壁在你的耳朵下变得温热。\n然后——墙壁在你耳边说了两个字。是你的名字。\n你知道——墙壁知道你。墙壁一直在听你睡觉。',
+        '你半夜醒来。庄园里有声音。是敲击声。三短三长三短。\n你走出房间。声音从走廊的尽头传来。你沿着走廊走到尽头。声音从墙壁里传来。\n你把耳朵贴在墙上。声音停了。墙壁在你的耳朵下变得温热。\n然后——墙壁在你耳边说了两个字。是你的名字。\n墙壁知道你。墙壁一直在听你睡觉。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'manor', 'sound'],
@@ -1090,7 +1091,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜醒来。庄园里有声音。\n你走出房间。声音从走廊的尽头传来。\n是敲击声。有节奏的。三短。三长。三短。\n你沿着走廊走到尽头。声音从墙壁里传来。\n你把耳朵贴在墙上。声音更清晰了。是SOS。\n你知道——墙壁里有人在发信号。但墙壁里不应该有人。',
+      '你半夜醒来。庄园里有声音。\n你走出房间。声音从走廊的尽头传来。\n是敲击声。有节奏的。三短。三长。三短。\n你沿着走廊走到尽头。声音从墙壁里传来。\n你把耳朵贴在墙上。声音更清晰了。是SOS。\n墙壁里有人在发信号。但墙壁里不应该有人。',
     effects: { add_clue: 'clue_area_manor_wall_sound', san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1107,7 +1108,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'basement'],
     trigger: { areas: ['voxchester_manor'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你找到了庄园地下室的入口。入口在书房的书架后面。\n你推开了书架。书架后面是一扇门。门是锁着的。\n你试着推了一下。推不开。\n你把耳朵贴在门上。你听到了声音——从里面传来的。是低语声。很多人的低语声。\n你知道——地下室里有什么东西。但你看不到。',
+      '你找到了庄园地下室的入口。入口在书房的书架后面。\n你推开了书架。书架后面是一扇门。门是锁着的。\n你试着推了一下。推不开。\n你把耳朵贴在门上。你听到了声音——从里面传来的。是低语声。很多人的低语声。\n地下室里有什么东西。但你能感觉到空气在震动。',
     effects: { add_clue: 'clue_area_manor_basement_entrance', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1124,7 +1125,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'portrait'],
     trigger: { areas: ['voxchester_manor'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走过走廊。墙上挂着一幅画像。画像是一个女人。\n你仔细看——女人的脸很熟悉。你认出了她——是希尔达。但不是现在的希尔达。是年轻时候的希尔达。\n画像的旁边写着一行字：「莫里斯家族的守护者。」\n你知道——希尔达不是第一个守护者。',
+      '你走过走廊。墙上挂着一幅画像。画像是一个女人。\n你凑近了——女人的脸很熟悉。你好像见过她——是希尔达。但不是现在的希尔达。是年轻时候的希尔达。\n画像的旁边写着一行字：「莫里斯家族的守护者。」\n希尔达不是第一个守护者。',
     effects: { add_clue: 'clue_area_manor_portrait', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1151,7 +1152,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜醒来。庄园的钟声响了。\n你数了一下。十三下。\n然后又响了十三下。\n你等了一会儿。没有第三次。\n你知道——庄园的钟声和教堂的钟声一样。十三下。\n在沃切斯特，十三是一个特殊的数字。',
+      '你半夜醒来。庄园的钟声响了。\n你数了一下。十三下。\n然后又响了十三下。\n你等了一会儿。没有第三次。\n庄园的钟声和教堂的钟声一样。十三下。\n在沃切斯特，十三是一个特殊的数字。',
     effects: { san: -2, add_clue: 'clue_area_manor_bell' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1168,7 +1169,7 @@ export const events = [
     tags: ['area', 'deep', 'manor', 'truth'],
     trigger: { areas: ['voxchester_manor'], min_loop: 4, probability: 0.06, once_per_run: true },
     description:
-      '你在庄园的最深处找到了一间密室。密室里有一张桌子。\n桌子上放着一本厚厚的书。你翻开书——是莫里斯家族的血脉记录。\n你仔细看——血脉的源头不是人类。是某种从海里来的东西。\n书的最后一页写道：「莫里斯家族的使命是守护封印。当封印破碎时——」\n后面的字迹被划掉了。你无法辨认。',
+      '你在庄园的最深处找到了一间密室。密室里有一张桌子。\n桌子上放着一本厚厚的书。你翻开书——是莫里斯家族的血脉记录。\n你凑近了——血脉的源头不是人类。是某种从海里来的东西。\n书的最后一页写道：「莫里斯家族的使命是守护那道屏障。当屏障消散时——」\n后面的字迹被划掉了。你无法辨认。',
     effects: { add_clue: 'clue_area_manor_blood_truth', san: -4, mythos: 3 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1187,7 +1188,7 @@ export const events = [
     tags: ['area', 'deep', 'catacombs'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.15, once_per_run: true },
     description:
-      '你找到了一个石棺。石棺是空的。\n你仔细看——石棺的内壁上有字。你认出了其中一些——和封印上的符号一样。\n字排列成一个圆环。圆环的中心写着一行字：「这里曾经有人。现在没有了。」\n你知道——石棺里的人去了哪里？',
+      '你找到了一个石棺。石棺是空的。\n你凑近了——石棺的内壁上有字。有些刻痕和你在别处见过的某个刻痕一样。\n字排列成一个圆环。圆环的中心写着一行字：「这里曾经有人。现在没有了。」\n石棺里的人去了哪里？',
     effects: { add_clue: 'clue_area_catacombs_empty_coffin', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1202,13 +1203,13 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你找到了一面铜镜。铜镜很旧。你用布擦了擦。\n铜镜的表面变得清晰了。你看着铜镜——镜子里映出的不是你的脸。是很多人的脸。重叠在一起。\n你认出了其中几张脸。是沃切斯特的镇民。但他们的表情不是他们平时的表情。是恐惧。是哀求。\n你把铜镜翻过来。背面刻着一行字：「我们都在镜子里。」',
+        '你找到了一面铜镜。铜镜很旧。你用布擦了擦。\n铜镜的表面变得清晰了。你看着铜镜——镜子里映出的不是你的脸。是很多人的脸。重叠在一起。\n你好像见过其中几张脸。是沃切斯特的镇民。但他们的表情不是他们平时的表情。是恐惧。是哀求。\n你把铜镜翻过来。背面刻着一行字：「我们都在镜子里。」',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'catacombs', 'mirror'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你找到了一面铜镜。铜镜很旧，已经失去了光泽。\n你用布擦了擦。铜镜的表面变得清晰了。\n你看着铜镜。镜子里映出了你的脸。但你的脸在变化——缓慢地，细微地。\n你眨了眨眼。铜镜恢复了正常。\n你知道——铜镜不是普通的镜子。它能映出某种……真相。',
+      '你找到了一面铜镜。铜镜很旧，已经失去了光泽。\n你用布擦了擦。铜镜的表面变得清晰了。\n你看着铜镜。镜子里映出了你的脸。但你的脸在变化——缓慢地，细微地。\n你眨了眨眼。铜镜恢复了正常。\n铜镜不是普通的镜子。它能映出某种……真相。',
     effects: { add_clue: 'clue_area_catacombs_mirror', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1225,7 +1226,7 @@ export const events = [
     tags: ['area', 'deep', 'catacombs', 'footprint'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你在墓穴的地板上看到了脚印。脚印只有半截——从墙壁里延伸出来，走了几步，然后消失了。\n你蹲下来仔细看。脚印很大，比正常人的脚大两倍。\n你知道——这些脚印不是人类的。是什么东西从墙壁里走出来，然后又回到了墙壁里。',
+      '你在墓穴的地板上看到了脚印。脚印只有半截——从墙壁里延伸出来，走了几步，然后消失了。\n你蹲下来仔细看。脚印很大，比正常人的脚大两倍。\n这些脚印不是人类的。是什么东西从墙壁里走出来，然后又回到了墙壁里。',
     effects: { add_clue: 'clue_area_catacombs_footprints', san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1242,7 +1243,7 @@ export const events = [
     tags: ['area', 'deep', 'catacombs', 'inscription'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你找到了一块墓碑。碑文是用一种你不认识的文字写的。\n但你读得懂。\n碑文记载了封印的建造过程。建造者不是人类——是某种更古老的存在。\n封印不是为了保护人类。是为了把什么东西关在里面。\n你读到最后一行时，字迹开始模糊。你的鼻子流血了。',
+      '你找到了一块墓碑。碑文是用一种你不认识的文字写的。\n但你读得懂。\n碑文记载了那道屏障的建造过程。建造者不是人类——是某种更古老的存在。\n那道屏障不是为了保护人类。是为了把什么东西关在里面。\n你读到最后一行时，字迹开始模糊。你的鼻子流血了。',
     effects: { add_clue: 'clue_area_catacombs_inscription', san: -3, mythos: 2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1259,7 +1260,7 @@ export const events = [
     tags: ['area', 'deep', 'catacombs', 'wind'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你听到了风声。从墓穴的深处传来的。\n你沿着风声的方向走。风声越来越大。\n你走到了一个竖井的边缘。风从竖井里吹上来。\n你往下看。竖井很深，你看不到底。\n你知道——竖井下面有什么东西。但你看不到。',
+      '你听到了风声。从墓穴的深处传来的。\n你沿着风声的方向走。风声越来越大。\n你走到了一个竖井的边缘。风从竖井里吹上来。\n你往下看。竖井很深，你看不到底。\n竖井下面传来震动。但你能感觉到空气在震动。',
     effects: { add_clue: 'clue_area_catacombs_wind', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1313,7 +1314,7 @@ export const events = [
     tags: ['area', 'deep', 'catacombs', 'temperature'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走进墓穴。空气变冷了。\n你继续走。空气越来越冷。\n你走到了一个地方。空气突然变热了。\n你蹲下来。地面是温热的。\n你知道——地面下面有什么东西在产生热量。但你看不到。',
+      '你走进墓穴。空气变冷了。\n你继续走。空气越来越冷。\n你走到了一个地方。空气突然变热了。\n你蹲下来。地面是温热的。\n地面下面传来震动在产生热量。但你能感觉到空气在震动。',
     effects: { add_clue: 'clue_area_catacombs_temperature', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1330,7 +1331,7 @@ export const events = [
     tags: ['area', 'deep', 'catacombs', 'water'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你听到了水滴声。从墓穴的深处传来的。\n你沿着水滴声的方向走。水滴声越来越大。\n你走到了一个水池的边缘。水池很小，但很深。\n你低头看水。水是黑色的。\n你知道——水池下面有什么东西。但你看不到。',
+      '你听到了水滴声。从墓穴的深处传来的。\n你沿着水滴声的方向走。水滴声越来越大。\n你走到了一个水池的边缘。水池很小，但很深。\n你低头看水。水是黑色的。\n水池下面传来震动。但你能感觉到空气在震动。',
     effects: { add_clue: 'clue_area_catacombs_water', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1347,7 +1348,7 @@ export const events = [
     tags: ['area', 'deep', 'catacombs', 'mural'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你看到了一幅壁画。壁画上画着一群人。\n你仔细看——人群的中心站着一个不属于人类的轮廓。模糊的，但你能看出——它的四肢比例不对。\n壁画的旁边写着一行字：「祂们从海里来。」\n你知道——壁画记录了沃切斯特建城的真相。',
+      '你看到了一幅壁画。壁画上画着一群人。\n你凑近了——人群的中心站着一个不属于人类的轮廓。模糊的，但你能看出——它的四肢比例不对。\n壁画的旁边写着一行字：「祂们从海里来。」\n壁画记录了沃切斯特建城的真相。',
     effects: { add_clue: 'clue_area_catacombs_mural', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1364,7 +1365,7 @@ export const events = [
     tags: ['area', 'deep', 'catacombs', 'trap'],
     trigger: { areas: ['catacombs_entrance'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走到了一个地方。地板突然塌陷了。\n你掉了下去。不深——大概两米。但你的脚踝扭了。\n你抬头看。洞口的边缘有字。你认出了其中一些——和封印上的符号一样。\n你知道——这是一个陷阱。但陷阱不是为了杀死你——是为了把你带到下面。',
+      '你走到了一个地方。地板突然塌陷了。\n你掉了下去。不深——大概两米。但你的脚踝扭了。\n你抬头看。洞口的边缘有字。有些刻痕和你在别处见过的某个刻痕一样。\n这是一个陷阱。但陷阱不是为了杀死你——是为了把你带到下面。',
     effects: { add_clue: 'clue_area_catacombs_trap', hp: -2, san: -1, mythos: 1 },
     event_classification: '陷阱',
     normalcy_anchor: false,
@@ -1383,7 +1384,7 @@ export const events = [
     description:
       '你走到了墓穴的最深处。空气变得稠密。\n' +
       DESC.DEEP_EXPLORE_WALL_SKIN +
-      '你知道——墙壁后面有什么东西。但你看不到。\n' +
+      '墙壁后面的空气在波动。但你能感觉到空气在震动。\n' +
       DESC.WALL_HAND_REMOVE +
       '',
     effects: { add_clue: 'clue_area_catacombs_deep', san: -3, mythos: 2 },
@@ -1427,7 +1428,7 @@ export const events = [
       npc_alive: ['约书亚·布莱克'],
     },
     description:
-      '你在灯塔的地下室找到了一张旧照片。照片上是一个年轻的男人。\n你认出了他——是约书亚。年轻时候的约书亚。\n照片的背面写着一行字：「灯塔下面的秘密。」\n你知道——约书亚曾经来过灯塔。但他从来没有告诉你。',
+      '你在灯塔的地下室找到了一张旧照片。照片上是一个年轻的男人。\n你好像见过他——是约书亚。年轻时候的约书亚。\n照片的背面写着一行字：「灯塔下面的秘密。」\n约书亚曾经来过灯塔。但他从来没有告诉你。',
     effects: { add_clue: 'clue_area_lighthouse_joshua_photo', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1444,7 +1445,7 @@ export const events = [
     tags: ['area', 'deep', 'lighthouse', 'green_light'],
     trigger: { areas: ['lighthouse'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你爬到了灯塔的灯室。灯光是绿色的。\n你仔细看——灯光不是从灯泡里发出来的。是从灯泡下面的一个小孔里发出来的。\n你蹲下来。小孔里有光——绿色的，微弱的。\n你知道——绿光的源头不在灯泡里。在灯塔的下面。',
+      '你爬到了灯塔的灯室。灯光是绿色的。\n你凑近了——灯光不是从灯泡里发出来的。是从灯泡下面的一个小孔里发出来的。\n你蹲下来。小孔里有光——绿色的，微弱的。\n绿光的源头不在灯泡里。在灯塔的下面。',
     effects: { add_clue: 'clue_area_lighthouse_green_source', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1461,7 +1462,7 @@ export const events = [
     tags: ['area', 'deep', 'lighthouse', 'uniform'],
     trigger: { areas: ['lighthouse'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你在灯塔的储藏室里找到了一套守灯人制服。制服很旧，但保养得很好。\n你试了试——制服很合身。像是为你量身定做的。\n你把手伸进口袋。口袋里有一张纸条。纸条上写着一行字：\n「穿上制服。你就是守灯人了。」\n你知道——这不是巧合。',
+      '你在灯塔的储藏室里找到了一套守灯人制服。制服很旧，但保养得很好。\n你试了试——制服很合身。像是为你量身定做的。\n你把手伸进口袋。口袋里有一张纸条。纸条上写着一行字：\n「穿上制服。你就是守灯人了。」\n这不是巧合。',
     effects: { add_clue: 'clue_area_lighthouse_uniform', san: -2 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1478,7 +1479,7 @@ export const events = [
     tags: ['area', 'deep', 'lighthouse', 'well'],
     trigger: { areas: ['lighthouse'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你在灯塔的地下室找到了一口井。井很深。\n你往下看。井水是黑色的。\n你把耳朵贴在井口。你听到了声音——从下面传来的。是低语声。很多人的低语声。\n你知道——井下面有什么东西。但你看不到。',
+      '你在灯塔的地下室找到了一口井。井很深。\n你往下看。井水是黑色的。\n你把耳朵贴在井口。你听到了声音——从下面传来的。是低语声。很多人的低语声。\n井下面传来震动。但你能感觉到空气在震动。',
     effects: { add_clue: 'clue_area_lighthouse_well', san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1497,7 +1498,7 @@ export const events = [
     description:
       '你走进灯塔的地下室。地下室很大。\n' +
       DESC.SYMBOLS_RING_DOOR_HERE +
-      '\n你知道——灯塔下面有一扇门。但门通向哪里？',
+      '\n灯塔下面有一扇门。但门通向哪里？',
     effects: { add_clue: 'clue_area_lighthouse_basement', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1514,7 +1515,7 @@ export const events = [
     tags: ['area', 'deep', 'lighthouse', 'blueprint'],
     trigger: { areas: ['lighthouse'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你在灯塔的地下室找到了一张蓝图。是灯塔的建造图纸。\n但图纸上有一些不属于灯塔的结构——一个巨大的圆形房间，在灯塔正下方。\n圆形房间的中心画着一个符号。你认出了它。是封印的核心。\n图纸的角落里写着一行字：「灯塔不是灯塔。灯塔是钥匙。」',
+      '你在灯塔的地下室找到了一张蓝图。是灯塔的建造图纸。\n但图纸上有一些不属于灯塔的结构——一个巨大的圆形房间，在灯塔正下方。\n圆形房间的中心画着一个符号。你好像见过它。是最深处的东西。\n图纸的角落里写着一行字：「灯塔不是灯塔。灯塔是钥匙。」',
     effects: { add_clue: 'clue_area_lighthouse_blueprint', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1537,7 +1538,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走进灯塔。灯室里有人。\n你认出了他——是上一任守灯人。但他应该已经失踪了。\n他看到你，没有说话。只是看着你。\n然后他转身，走进了灯室的暗门。暗门关上了。\n你知道——守灯人还在灯塔里。但他不是人类了。',
+      '你半夜走进灯塔。灯室里有人。\n你好像见过他——是上一任守灯人。但他应该已经失踪了。\n他看到你，没有说话。只是看着你。\n然后他转身，走进了灯室的暗门。暗门关上了。\n守灯人还在灯塔里。但他不是人类了。',
     effects: { add_clue: 'clue_area_lighthouse_keeper', san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1554,7 +1555,7 @@ export const events = [
     tags: ['area', 'deep', 'lighthouse', 'light'],
     trigger: { areas: ['lighthouse'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你爬到了灯塔的灯室。灯光是绿色的。\n你仔细看——灯光的节奏不对。不是正常的旋转。\n灯光在闪烁。三短。三长。三短。\n你知道——灯塔在发信号。但信号是发给谁的？',
+      '你爬到了灯塔的灯室。灯光是绿色的。\n你凑近了——灯光的节奏不对。不是正常的旋转。\n灯光在闪烁。三短。三长。三短。\n灯塔在发信号。但信号是发给谁的？',
     effects: { add_clue: 'clue_area_lighthouse_signal', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1571,7 +1572,7 @@ export const events = [
     tags: ['area', 'deep', 'lighthouse', 'stairs'],
     trigger: { areas: ['lighthouse'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你爬上了灯塔的螺旋楼梯。楼梯很长。\n你数了一下——一百三十七级。比正常灯塔的楼梯多得多。\n你走到了楼梯的尽头。尽头是一扇门。门是锁着的。\n你试着推了一下。推不开。\n你知道——门后面有什么东西。但你看不到。',
+      '你爬上了灯塔的螺旋楼梯。楼梯很长。\n你数了一下——一百三十七级。比正常灯塔的楼梯多得多。\n你走到了楼梯的尽头。尽头是一扇门。门是锁着的。\n你试着推了一下。推不开。\n门后面的空气在波动。但你能感觉到空气在震动。',
     effects: { add_clue: 'clue_area_lighthouse_stairs', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1607,9 +1608,9 @@ export const events = [
     description:
       '你走到了灯塔的最深处。空气变得稠密。\n' +
       DESC.DEEP_EXPLORE_WALL_SKIN +
-      '你知道——灯塔下面有什么东西。但你看不到。\n' +
+      '灯塔下面传来震动。但你能感觉到空气在震动。\n' +
       DESC.WALL_HAND_REMOVE +
-      '\n你知道——灯塔的真相比你想象的更复杂。',
+      '\n灯塔的真相比你想象的更复杂。',
     effects: { add_clue: 'clue_area_lighthouse_truth', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1628,7 +1629,7 @@ export const events = [
     tags: ['area', 'deep', 'ruins', 'machine'],
     trigger: { areas: ['ruins_of_yith'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你找到了伊斯机器。机器很大，表面覆盖着一层金属。\n你把手放在机器上。机器是温热的。\n你知道——机器还在运作。但机器是做什么用的？',
+      '你找到了伊斯机器。机器很大，表面覆盖着一层金属。\n你把手放在机器上。机器是温热的。\n机器还在运作。但机器是做什么用的？',
     effects: { add_clue: 'clue_area_ruins_machine', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1645,7 +1646,7 @@ export const events = [
     tags: ['area', 'deep', 'ruins', 'projection'],
     trigger: { areas: ['ruins_of_yith'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '伊斯机器完全亮了起来。你看到了一段影像——\n是你自己。但不是现在的你。\n影像里的你穿着一种你不认识的衣服，站在一个你不认识的地方。周围是巨大的建筑，天空是紫色的。\n你知道——影像里的是伊斯文明的城市。',
+      '伊斯机器完全亮了起来。你看到了一段影像——\n是你自己。但不是现在的你。\n影像里的你穿着一种你不认识的衣服，站在一个你不认识的地方。周围是巨大的建筑，天空是紫色的。\n影像里的是伊斯文明的城市。',
     effects: { add_clue: 'clue_area_ruins_projection', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1662,7 +1663,7 @@ export const events = [
     tags: ['area', 'deep', 'ruins', 'archive'],
     trigger: { areas: ['ruins_of_yith'], min_loop: 3, probability: 0.08, once_per_run: true },
     description:
-      '你在伊斯遗迹的深处找到了一个档案室。档案室里有很多记录。\n你翻开一本记录。记录是用一种你不认识的文字写的。但你读得懂。\n记录记载了伊斯文明的历史。它们曾经统治过地球。然后它们离开了。\n它们留下了封印——不是为了保护人类，而是为了保护它们的遗产。',
+      '你在伊斯遗迹的深处找到了一个档案室。档案室里有很多记录。\n你翻开一本记录。记录是用一种你不认识的文字写的。但你读得懂。\n记录记载了伊斯文明的历史。它们曾经统治过地球。然后它们离开了。\n它们留下了那道屏障——不是为了保护人类，而是为了保护它们的遗产。',
     effects: { add_clue: 'clue_area_ruins_archive', san: -3, mythos: 3 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1679,7 +1680,7 @@ export const events = [
     tags: ['area', 'deep', 'ruins', 'time'],
     trigger: { areas: ['ruins_of_yith'], min_loop: 3, probability: 0.08, once_per_run: true },
     description:
-      '伊斯机器完全亮了起来。你看到了一段影像——\n是地球。几百万年前的地球。\n海里有什么东西在移动。巨大的，缓慢的，像是大陆本身在呼吸。\n然后它们来了——从星空中。它们落在地球上，建造了城市，建造了封印。\n影像的最后，它们离开了。但封印留下了。',
+      '伊斯机器完全亮了起来。你看到了一段影像——\n是地球。几百万年前的地球。\n海里有什么东西在移动。巨大的，缓慢的，像是大陆本身在呼吸。\n然后它们来了——从星空中。它们落在地球上，建造了城市，建造了那道屏障。\n影像的最后，它们离开了。但那道屏障留下了。',
     effects: { add_clue: 'clue_area_ruins_time_slice', san: -3, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1694,7 +1695,7 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你触摸伊斯遗迹的墙壁。石头里有脉络。\n脉络在你触摸的时候震动了。震动的频率——你认出来了。是你的心跳频率。但不是现在的心跳。是你上周目临终时的心跳。\n你把手拿开。脉络里流动的东西变快了。像是在追你的心跳。\n你知道——遗迹在保存你的心跳。每周目一个。它在收集你。',
+        '你触摸伊斯遗迹的墙壁。石头里有脉络。\n脉络在你触摸的时候震动了。震动的频率——你认出来了。是你的心跳频率。但不是现在的心跳。是你上周目临终时的心跳。\n你把手拿开。脉络里流动的东西变快了。像是在追你的心跳。\n遗迹在保存你的心跳。每周目一个。它在收集你。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'ruins', 'wall'],
@@ -1717,7 +1718,7 @@ export const events = [
     tags: ['area', 'deep', 'ruins', 'sound'],
     trigger: { areas: ['ruins_of_yith'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你听到了声音。从遗迹的深处传来的。\n你沿着声音的方向走。声音越来越大。\n你走到了一个房间的门口。声音从房间里传来。\n你推开门。房间里有一台机器。机器在运作。\n你知道——声音是从机器里发出来的。但机器是做什么用的？',
+      '你听到了声音。从遗迹的深处传来的。\n你沿着声音的方向走。声音越来越大。\n你走到了一个房间的门口。声音从房间里传来。\n你推开门。房间里有一台机器。机器在运作。\n声音是从机器里发出来的。但机器是做什么用的？',
     effects: { add_clue: 'clue_area_ruins_sound', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1751,7 +1752,7 @@ export const events = [
     tags: ['area', 'deep', 'ruins', 'light'],
     trigger: { areas: ['ruins_of_yith'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走进遗迹。遗迹里有光。\n你仔细看——光是从墙壁的脉络里发出来的。脉络里的东西在发光。\n你知道——遗迹的光不是普通的光。是某种能量。',
+      '你走进遗迹。遗迹里有光。\n你凑近了——光是从墙壁的脉络里发出来的。脉络里的东西在发光。\n遗迹的光不是普通的光。是某种能量。',
     effects: { add_clue: 'clue_area_ruins_light', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1768,7 +1769,7 @@ export const events = [
     tags: ['area', 'deep', 'ruins', 'truth'],
     trigger: { areas: ['ruins_of_yith'], min_loop: 4, probability: 0.06, once_per_run: true },
     description:
-      '伊斯机器完全亮了起来。你看到了一段影像——\n是地球的未来。或者过去。你无法分辨。\n影像里，沃切斯特已经不存在了。海平面升高了，城市被淹没了。\n但在水下，封印还在运作。灯塔的废墟在水面上露出一个尖端。\n影像里有一个人——站在灯塔的废墟上。你认出了那个人。\n是你。',
+      '伊斯机器完全亮了起来。你看到了一段影像——\n是地球的未来。或者过去。你无法分辨。\n影像里，沃切斯特已经不存在了。海平面升高了，城市被淹没了。\n但在水下，那道屏障还在运作。灯塔的废墟在水面上露出一个尖端。\n影像里有一个人——站在灯塔的废墟上。你好像见过那个人。\n是你。',
     effects: { add_clue: 'clue_area_ruins_truth', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1791,7 +1792,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走进遗迹。遗迹里有人。\n你认出了他——是一个伊斯人。但他应该已经离开了。\n他看到你，没有说话。只是看着你。\n然后他转身，走进了遗迹的深处。他消失了。\n你知道——遗迹里还有守护者。但守护者不是人类。',
+      '你半夜走进遗迹。遗迹里有人。\n你好像见过他——是一个伊斯人。但他应该已经离开了。\n他看到你，没有说话。只是看着你。\n然后他转身，走进了遗迹的深处。他消失了。\n遗迹里还有守护者。但守护者不是人类。',
     effects: { add_clue: 'clue_area_ruins_guardian', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1808,7 +1809,7 @@ export const events = [
     tags: ['area', 'deep', 'ruins', 'entrance'],
     trigger: { areas: ['ruins_of_yith'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走到了遗迹的入口。入口是一扇巨大的门。\n门是用一种你不认识的金属制成的。金属表面覆盖着符号。\n你试着推了一下门。门没有动。\n你知道——门需要钥匙。但钥匙是什么？',
+      '你走到了遗迹的入口。入口是一扇巨大的门。\n门是用一种你不认识的金属制成的。金属表面覆盖着符号。\n你试着推了一下门。门没有动。\n门需要钥匙。但钥匙是什么？',
     effects: { add_clue: 'clue_area_ruins_entrance', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1827,7 +1828,7 @@ export const events = [
     description:
       '你走到了遗迹的最深处。空气变得稠密。\n' +
       DESC.DEEP_EXPLORE_WALL_SKIN +
-      '你知道——遗迹下面有什么东西。但你看不到。\n' +
+      '遗迹下面传来震动。但你能感觉到空气在震动。\n' +
       DESC.WALL_HAND_REMOVE +
       '',
     effects: { add_clue: 'clue_area_ruins_secret', san: -4, mythos: 3 },
@@ -1848,7 +1849,7 @@ export const events = [
     tags: ['area', 'deep', 'grove'],
     trigger: { areas: ['forbidden_grove'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你蹲下来看一棵古树的根系。根系很长，延伸到了很远的地方。\n你沿着根系走。根系在地下形成了一个图案。\n你认出了图案——是封印的一部分。\n你知道——这些古树的根系和封印有某种联系。',
+      '你蹲下来看一棵古树的根系。根系很长，延伸到了很远的地方。\n你沿着根系走。根系在地下形成了一个图案。\n图案和那个图案的一部分。\n这些古树的根系和那道屏障有某种联系。',
     effects: { add_clue: 'clue_area_grove_roots', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1865,7 +1866,7 @@ export const events = [
     tags: ['area', 'deep', 'grove', 'letter'],
     trigger: { areas: ['forbidden_grove'], min_loop: 3, probability: 0.1, once_per_run: true },
     description:
-      '你在一棵古树的树洞里找到了一封信。信封上写着你的名字。\n你打开信。信是用一种你不认识的文字写的。但你读得懂。\n「亲爱的调查员：」\n「如果你读到这封信，说明你已经走了足够远。」\n「封印下面的东西不是邪恶的。它只是不同。」\n「钥匙不是用来打开封印的——是用来和它沟通的。」\n信的末尾写着一个名字。你的名字。',
+      '你在一棵古树的树洞里找到了一封信。信封上写着你的名字。\n你打开信。信是用一种你不认识的文字写的。但你读得懂。\n「亲爱的调查员：」\n「如果你读到这封信，说明你已经走了足够远。」\n「裂隙深处的东西不是邪恶的。它只是不同。」\n「钥匙不是用来打开那道屏障的——是用来和它沟通的。」\n信的末尾写着一个名字。你的名字。',
     effects: { add_clue: 'clue_area_grove_letter', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1916,7 +1917,7 @@ export const events = [
     tags: ['area', 'deep', 'grove', 'tree'],
     trigger: { areas: ['forbidden_grove'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你找到了一棵古树。树干很粗，需要三个人才能合抱。\n你数了一下年轮——超过了五百年。\n你用匕首切开了一小块树皮。年轮里有字。\n你仔细看——是封印的符号。符号排列成一个圆环，和封印上的图案一样。\n你知道——这棵树不是普通的树。是封印的一部分。',
+      '一棵古树挡住了你的路。树干很粗，需要三个人才能合抱。\n你数了一下年轮——超过了五百年。\n你用匕首切开了一小块树皮。年轮里有字。\n你凑近了——是地下的纹路。符号排列成一个圆环，和那道屏障上的图案一样。\n这棵树不是普通的树。是那个图案的一部分。',
     effects: { add_clue: 'clue_area_grove_ancient_tree', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -1931,13 +1932,13 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你听到了禁忌之林的低语声。这次——你听清了内容。\n「门。开启。代价。血。」\n你摇了摇头。低语声没有变模糊。它变大了。从四面八方。\n你蹲下来。低语声从地面传来。从树根传来。从你的骨头里传来。\n你知道——禁忌之林的低语不是从外面传来的。是从你体内传来的。林在你体内生长。',
+        '你听到了禁忌之林的低语声。这次——你听清了内容。\n「门。开启。代价。血。」\n你摇了摇头。低语声没有变模糊。它变大了。从四面八方。\n你蹲下来。低语声从地面传来。从树根传来。从你的骨头里传来。\n禁忌之林的低语不是从外面传来的。是从你体内传来的。林在你体内生长。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'grove', 'whisper'],
     trigger: { areas: ['forbidden_grove'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你听到了禁忌之林的低语声。但这次——你听清了内容。\n「门。开启。代价。血。」\n你摇了摇头。低语声变得模糊了。\n你知道——你刚才确实听懂了。禁忌之林在和你说话。',
+      '你听到了禁忌之林的低语声。但这次——你听清了内容。\n「门。开启。代价。血。」\n你摇了摇头。低语声变得模糊了。\n你刚才确实听懂了。禁忌之林在和你说话。',
     effects: { san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1954,7 +1955,7 @@ export const events = [
     tags: ['area', 'deep', 'grove', 'altar'],
     trigger: { areas: ['forbidden_grove'], min_loop: 3, probability: 0.08, once_per_run: true },
     description:
-      '你在禁忌之林的深处找到了一个祭坛。祭坛是用石头砌成的。\n祭坛上放着一些东西——蜡烛、草药、还有一些你认不出的粉末。\n你知道——有人在这里进行过某种仪式。\n你把耳朵贴在祭坛上。你听到了声音——从下面传来的。是低语声。很多人的低语声。',
+      '你在禁忌之林的深处找到了一个祭坛。祭坛是用石头砌成的。\n祭坛上放着一些东西——蜡烛、草药、还有一些你认不出的粉末。\n有人在这里进行过某种仪式。\n你把耳朵贴在祭坛上。你听到了声音——从下面传来的。是低语声。很多人的低语声。',
     effects: { add_clue: 'clue_area_grove_altar', san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -1988,7 +1989,7 @@ export const events = [
     tags: ['area', 'deep', 'grove', 'light'],
     trigger: { areas: ['forbidden_grove'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走进禁忌之林。禁忌之林里有光。\n你仔细看——光是从树干的脉络里发出来的。脉络里的东西在发光。\n你知道——禁忌之林的光不是普通的光。是某种能量。',
+      '你走进禁忌之林。禁忌之林里有光。\n你凑近了——光是从树干的脉络里发出来的。脉络里的东西在发光。\n禁忌之林的光不是普通的光。是某种能量。',
     effects: { add_clue: 'clue_area_grove_light', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -2011,7 +2012,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走进禁忌之林。禁忌之林里有人。\n你认出了他——是一个古老的生物。但他不是人类。\n他看到你，没有说话。只是看着你。\n然后他转身，走进了禁忌之林的深处。他消失了。\n你知道——禁忌之林里还有守护者。但守护者不是人类。',
+      '你半夜走进禁忌之林。禁忌之林里有人。\n你好像见过他——是一个古老的生物。但他不是人类。\n他看到你，没有说话。只是看着你。\n然后他转身，走进了禁忌之林的深处。他消失了。\n禁忌之林里还有守护者。但守护者不是人类。',
     effects: { add_clue: 'clue_area_grove_guardian', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -2028,7 +2029,7 @@ export const events = [
     tags: ['area', 'deep', 'grove', 'entrance'],
     trigger: { areas: ['forbidden_grove'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走到了禁忌之林的入口。入口是一扇巨大的门。\n门是用一种你不认识的木材制成的。木材表面覆盖着符号。\n你试着推了一下门。门没有动。\n你知道——门需要钥匙。但钥匙是什么？',
+      '你走到了禁忌之林的入口。入口是一扇巨大的门。\n门是用一种你不认识的木材制成的。木材表面覆盖着符号。\n你试着推了一下门。门没有动。\n门需要钥匙。但钥匙是什么？',
     effects: { add_clue: 'clue_area_grove_entrance', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -2045,7 +2046,7 @@ export const events = [
     tags: ['area', 'deep', 'grove', 'secret'],
     trigger: { areas: ['forbidden_grove'], min_loop: 4, probability: 0.06, once_per_run: true },
     description:
-      '你走到了禁忌之林的最深处。空气变得稠密。\n你感到了什么——在树木后面。是某种存在。微弱的，但确实存在。\n你把手贴在树干上。树干是软的。像皮肤。\n你知道——禁忌之林下面有什么东西。但你看不到。\n你把手移开。树干恢复了硬度。但你能感觉到——树干下面有东西在动。',
+      '你走到了禁忌之林的最深处。空气变得稠密。\n你感到了什么——在树木后面。是某种存在。微弱的，但确实存在。\n你把手贴在树干上。树干是软的。像皮肤。\n禁忌之林下面传来震动。但你能感觉到空气在震动。\n你把手移开。树干恢复了硬度。但你能感觉到——树干下面有东西在动。',
     effects: { add_clue: 'clue_area_grove_secret', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -2064,7 +2065,7 @@ export const events = [
     tags: ['area', 'deep', 'deep_catacombs'],
     trigger: { areas: ['deep_catacombs'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走到了一个竖井的边缘。竖井很深。\n你往下看。竖井里有光——绿色的，微弱的。\n你知道——竖井下面有什么东西。但你看不到。',
+      '你走到了一个竖井的边缘。竖井很深。\n你往下看。竖井里有光——绿色的，微弱的。\n竖井下面传来震动。但你能感觉到空气在震动。',
     effects: { add_clue: 'clue_area_deep_shaft', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -2081,7 +2082,7 @@ export const events = [
     tags: ['area', 'deep', 'deep_catacombs', 'footprint'],
     trigger: { areas: ['deep_catacombs'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你在深渊墓穴的地板上看到了脚印。脚印是温热的。\n你蹲下来仔细看。脚印很大，比正常人的脚大两倍。\n你知道——这些脚印不是人类的。是什么东西从墙壁里走出来，然后又回到了墙壁里。',
+      '你在深渊墓穴的地板上看到了脚印。脚印是温热的。\n你蹲下来仔细看。脚印很大，比正常人的脚大两倍。\n这些脚印不是人类的。是什么东西从墙壁里走出来，然后又回到了墙壁里。',
     effects: { add_clue: 'clue_area_deep_warm_footprints', san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -2089,7 +2090,7 @@ export const events = [
   },
   {
     id: 'area_deep_003',
-    name: '封印核心',
+    name: '那道屏障核心',
     type: 'area_deep',
     subtype: 'deep_catacombs',
     weight: 1,
@@ -2098,7 +2099,7 @@ export const events = [
     tags: ['area', 'deep', 'deep_catacombs', 'seal'],
     trigger: { areas: ['deep_catacombs'], min_loop: 3, probability: 0.08, once_per_run: true },
     description:
-      '你走到了深渊墓穴的最深处。空气变得稠密。\n你看到了封印的核心。核心是一个巨大的圆环，上面刻满了符号。\n符号在发光——绿色的，微弱的。\n你知道——封印的核心还在运作。但核心正在衰弱。',
+      '你走到了深渊墓穴的最深处。空气变得稠密。\n你看到了最深处的东西。核心是一个巨大的圆环，上面刻满了符号。\n符号在发光——绿色的，微弱的。\n最深处的东西还在运作。但核心正在衰弱。',
     effects: { add_clue: 'clue_area_deep_seal_core', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -2113,7 +2114,7 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你在深渊墓穴里喊了一声。回声传来——回声说的是不同的话。\n你喊的是「有人吗？」回声说：「你不是第一个。你是第三十七个。」\n你没有问。回声自己回答了。\n你又喊了一次。回声说：「第三十八次了。你每次都问同一个问题。」\n你知道——深渊在计数。它记得每一个来过这里的人。',
+        '你在深渊墓穴里喊了一声。回声传来——回声说的是不同的话。\n你喊的是「有人吗？」回声说：「你不是第一个。你是第三十七个。」\n你没有问。回声自己回答了。\n你又喊了一次。回声说：「第三十八次了。你每次都问同一个问题。」\n深渊在计数。它记得每一个来过这里的人。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'deep_catacombs', 'echo'],
@@ -2136,7 +2137,7 @@ export const events = [
     tags: ['area', 'deep', 'deep_catacombs', 'ending'],
     trigger: { areas: ['deep_catacombs'], min_loop: 4, probability: 0.06, once_per_run: true },
     description:
-      '你走到了深渊墓穴的最深处。你看到了一面墙。墙上写满了名字——你认出了几个。\n是其他调查员的名字。有些你见过，在失踪告示上。有些你没见过。\n每个名字旁边都有一个结局：疯狂、死亡、逃离、献祭……\n最后一个名字是你的。旁边的结局栏是空的。\n墙的底部刻着一行字：「选择你的结局。」',
+      '你走到了深渊墓穴的最深处。你看到了一面墙。墙上写满了名字——你好像见过几个。\n是其他调查员的名字。有些你见过，在失踪告示上。有些你没见过。\n每个名字旁边都有一个结局：疯狂、死亡、逃离、献祭……\n最后一个名字是你的。旁边的结局栏是空的。\n墙的底部刻着一行字：「选择你的结局。」',
     effects: { add_clue: 'clue_area_deep_ending_wall', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -2151,13 +2152,13 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你走进深渊墓穴的深处。空气变了。变稠了。\n你伸出手。空气像是有了实体。你的手指在空气中划过——你碰到了什么。不是墙壁。是皮肤。\n你缩回手。手指上有水珠。你闻了闻——是盐水。海水。\n你知道——深渊的空气不是空气。是某种生物的呼吸。你在它的肺里。',
+        '你走进深渊墓穴的深处。空气变了。变稠了。\n你伸出手。空气像是有了实体。你的手指在空气中划过——你碰到了什么。不是墙壁。是皮肤。\n你缩回手。手指上有水珠。你闻了闻——是盐水。海水。\n深渊的空气不是空气。是某种生物的呼吸。你在它的肺里。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'deep_catacombs', 'air'],
     trigger: { areas: ['deep_catacombs'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走进深渊墓穴的深处。空气变了。\n不是变冷了——是变稠了。你感到呼吸变得困难。\n你伸出手。空气像是有了实体。你的手指在空气中划过，能感到轻微的阻力。\n你知道——在深渊墓穴的深处，空气本身就是某种存在的体液。',
+      '你走进深渊墓穴的深处。空气变了。\n不是变冷了——是变稠了。你感到呼吸变得困难。\n你伸出手。空气像是有了实体。你的手指在空气中划过，能感到轻微的阻力。\n在深渊墓穴的深处，空气本身就是某种存在的体液。',
     effects: { add_clue: 'clue_area_deep_air', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -2172,13 +2173,13 @@ export const events = [
     tier: 'normal',
     distortion_variants: {
       san_low:
-        '你触摸深渊墓穴的墙壁。墙壁是软的。像皮肤。墙壁在呼吸。\n你把手贴在墙上。墙壁在你的手掌下缓慢地起伏。你感到了心跳——不是你的。是从墙壁里传来的。\n你把手拿开。墙上留下了你的手印。手印在缓慢地愈合。但愈合后——手印的位置多了一条纹路。像年轮。\n你知道——墙壁在记录你的触摸。每次触摸都留下一道痕迹。墙壁在数你来过几次。',
+        '你触摸深渊墓穴的墙壁。墙壁是软的。像皮肤。墙壁在呼吸。\n你把手贴在墙上。墙壁在你的手掌下缓慢地起伏。你感到了心跳——不是你的。是从墙壁里传来的。\n你把手拿开。墙上留下了你的手印。手印在缓慢地愈合。但愈合后——手印的位置多了一条纹路。像年轮。\n墙壁在记录你的触摸。每次触摸都留下一道痕迹。墙壁在数你来过几次。',
     },
     quality_tier: 'B',
     tags: ['area', 'deep', 'deep_catacombs', 'wall'],
     trigger: { areas: ['deep_catacombs'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你触摸深渊墓穴的墙壁。墙壁是软的。像皮肤。\n你把手贴在墙上。墙壁在呼吸。\n你知道——墙壁后面有什么东西。但你看不到。\n' +
+      '你触摸深渊墓穴的墙壁。墙壁是软的。像皮肤。\n你把手贴在墙上。墙壁在呼吸。\n墙壁后面的空气在波动。但你能感觉到空气在震动。\n' +
       DESC.WALL_HAND_REMOVE +
       '',
     effects: { add_clue: 'clue_area_deep_wall', san: -2, mythos: 1 },
@@ -2197,7 +2198,7 @@ export const events = [
     tags: ['area', 'deep', 'deep_catacombs', 'sound'],
     trigger: { areas: ['deep_catacombs'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你听到了声音。从深渊墓穴的深处传来的。\n你沿着声音的方向走。声音越来越大。\n你走到了一个房间的门口。声音从房间里传来。\n你推开门。房间里有一台机器。机器在运作。\n你知道——声音是从机器里发出来的。但机器是做什么用的？',
+      '你听到了声音。从深渊墓穴的深处传来的。\n你沿着声音的方向走。声音越来越大。\n你走到了一个房间的门口。声音从房间里传来。\n你推开门。房间里有一台机器。机器在运作。\n声音是从机器里发出来的。但机器是做什么用的？',
     effects: { add_clue: 'clue_area_deep_sound', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -2231,7 +2232,7 @@ export const events = [
     tags: ['area', 'deep', 'deep_catacombs', 'light'],
     trigger: { areas: ['deep_catacombs'], min_loop: 2, probability: 0.12, once_per_run: true },
     description:
-      '你走进深渊墓穴。深渊墓穴里有光。\n你仔细看——光是从墙壁的脉络里发出来的。脉络里的东西在发光。\n你知道——深渊墓穴的光不是普通的光。是某种能量。',
+      '你走进深渊墓穴。深渊墓穴里有光。\n你凑近了——光是从墙壁的脉络里发出来的。脉络里的东西在发光。\n深渊墓穴的光不是普通的光。是某种能量。',
     effects: { add_clue: 'clue_area_deep_light', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
@@ -2254,7 +2255,7 @@ export const events = [
       once_per_run: true,
     },
     description:
-      '你半夜走进深渊墓穴。深渊墓穴里有人。\n你认出了他——是一个古老的生物。但他不是人类。\n他看到你，没有说话。只是看着你。\n然后他转身，走进了深渊墓穴的深处。他消失了。\n你知道——深渊墓穴里还有守护者。但守护者不是人类。',
+      '你半夜走进深渊墓穴。深渊墓穴里有人。\n你好像见过他——是一个古老的生物。但他不是人类。\n他看到你，没有说话。只是看着你。\n然后他转身，走进了深渊墓穴的深处。他消失了。\n深渊墓穴里还有守护者。但守护者不是人类。',
     effects: { add_clue: 'clue_area_deep_guardian', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
@@ -2273,9 +2274,9 @@ export const events = [
     description:
       '你走到了深渊墓穴的最深处。空气变得稠密。\n' +
       DESC.DEEP_EXPLORE_WALL_SKIN +
-      '你知道——深渊墓穴下面有什么东西。但你看不到。\n' +
+      '深渊墓穴下面传来震动。但你能感觉到空气在震动。\n' +
       DESC.WALL_HAND_REMOVE +
-      '\n你知道——深渊的秘密比你想象的更复杂。',
+      '\n深渊的秘密比你想象的更复杂。',
     effects: { add_clue: 'clue_area_deep_secret', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
