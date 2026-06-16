@@ -22,6 +22,9 @@ import { applyUgcToGD } from '../utils/buildEventPool.js';
 export function initExtendedEvents(GD) {
   if (GD._extendedEventsLoaded) return GD;
 
+  // Store base event count BEFORE merging extended events (for getEventStats)
+  GD._baseEventCount = (GD.events || []).length;
+
   mergeExtendedEvents(GD, EXTENDED_EVENT_MODULES);
   const coreExtendedCount = GD._extendedEventCount; // 599
 
@@ -116,7 +119,7 @@ export function getEventStats(GD, state) {
 
   return {
     total: events.length,
-    original: events.length - extendedCount,
+    original: GD._baseEventCount || 20,
     extended: extendedCount,
     byType,
     byTier,

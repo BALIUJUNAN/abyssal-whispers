@@ -260,6 +260,14 @@ export const EVENT_BUDGET = {
   ending_aftermath: { maxPerDay: 1, minPerRun: 0, weight: 0.5 },
   silent: { maxPerDay: 3, minPerRun: 0, weight: 0.9, isAnchor: true },
   meta: { maxPerRun: 2, weight: 0.3 },
+  // Supplement event types (events_supplement.js) — pacing caps
+  '线索': { maxPerDay: 3, weight: 1.0 },
+  '调查': { maxPerDay: 2, weight: 1.0 },
+  '陷阱': { maxPerDay: 2, weight: 0.9 },
+  '怪物遭遇': { maxPerDay: 2, weight: 0.8 },
+  '超自然遭遇': { maxPerDay: 2, weight: 0.7 },
+  'NPC互动': { maxPerDay: 2, weight: 1.0 },
+  '氛围事件': { maxPerDay: 3, weight: 0.9, isAnchor: true },
 };
 
 // Types considered "abnormal" for streak tracking
@@ -664,11 +672,9 @@ export function selectEventV2(areaId, state, ctx, pick) {
   }
 
   // Step 1: Virtual 600th event check (before all normal filtering)
-  const extendedEvents =
-    GD._extendedEvents ||
-    (allEvents.length > (GD._deathEchoCount || 0)
-      ? allEvents.slice(0, allEvents.length - (GD._deathEchoCount || 0))
-      : allEvents);
+  // GD._extendedEvents is always set by mergeExtendedEvents (filtered to events with trigger only).
+  // Fallback removed: old slice logic assumed death_echo at array end, which broke after supplement/ch2plus merge.
+  const extendedEvents = GD._extendedEvents || [];
   if (shouldTriggerMissing600(state, extendedEvents) && Math.random() < 0.35) {
     const missing = createMissing600Event(state);
     commitSelectedEvent(missing, state);
