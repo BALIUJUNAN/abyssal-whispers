@@ -133,6 +133,25 @@ export function handleCoreAction(s, action, c, ctx) {
           c.narr('system', target.name + '似乎对你有一种莫名的熟悉感。');
         }
       }
+      if (s._shopRandomRare) {
+        // Grant a random rare item (from curated pool)
+        var rarePool = [
+          { id: 'deep_one_scale', name: '深海之鳞' },
+          { id: 'zar_scroll_fragment', name: '扎尔之卷碎片' },
+          { id: 'drowned_bracelet', name: '溺亡者的手镯' },
+          { id: 'lens_fragment', name: '透镜碎片' },
+          { id: 'pocket_watch', name: '怀表' },
+        ];
+        var hasIds = (s.inventory || []).map(function (i) { return i.id; });
+        var available = rarePool.filter(function (r) { return hasIds.indexOf(r.id) < 0; });
+        if (available.length > 0) {
+          var rare = c.pick(available);
+          s.inventory = s.inventory || [];
+          s.inventory.push({ id: rare.id, name: rare.name, uses: -1 });
+          c.narr('system', '你的口袋里多了一样东西——' + rare.name + '。你不记得什么时候放进去的。');
+        }
+        s._shopRandomRare = false; // consumed
+      }
       if (s.loopCount > 0) {
         fx(c.effects, audio.play('loop_restart'), audio.play('loop_memory'), audio.play('bell_memory'));
         const drt = GD.implementation_notes?.death_restart_text?.death_types;
@@ -159,6 +178,11 @@ export function handleCoreAction(s, action, c, ctx) {
             'system',
             '世界似乎比你记忆中的更加……不对劲。污染指数：' + Math.round(s.pollution * 100) + '%'
           );
+        }
+        // Death insurance: item retained from previous run
+        if (s._deathInsuranceItem) {
+          c.narr('system', '你的手里握着一样东西——' + s._deathInsuranceItem + '。你不记得是怎么保住它的。');
+          s._deathInsuranceItem = null;
         }
         // Apply loop blessings
         const bKey2 = s.loopCount <= 5 ? 'loop_' + s.loopCount : 'loop_6_plus';

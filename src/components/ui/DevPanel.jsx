@@ -198,7 +198,27 @@ export var DevPanel = memo(function DevPanel(props) {
           R('Mythos', state.mythosLevel || 0),
           R('Seal', state.sealState),
           R('Clues', (state.clues || []).length),
-          R('Light', state.lightLevel || 0)
+          R('Light', state.lightLevel || 0),
+          React.createElement('div', { style: hS }, 'Event Pool'),
+          R('Triggered', (state.triggeredEvents || []).length),
+          R('Events today', Object.values(state.categoryCountsToday || {}).reduce(function (a, b) { return a + b; }, 0)),
+          (function () {
+            try {
+              var _gd = (typeof GD !== 'undefined' && GD) || (typeof window !== 'undefined' && window.GD) || {};
+              var _total = (_gd.events || []).length;
+              var _ext = _gd._extendedEventCount || 0;
+              var _base = _gd._baseEventCount || 20;
+              var _supp = _gd._supplementEventCount || 0;
+              var _has600 = (state.triggeredEvents || []).indexOf('missing_event_600_seen') >= 0;
+              return React.createElement(React.Fragment, null,
+                R('Total pool', _total),
+                R('Base', _base),
+                R('Extended', _ext),
+                R('Supplement', _supp),
+                R('600th event', _has600 ? 'SEEN' : _ext === 599 ? 'READY' : 'LOCKED(' + _ext + ')')
+              );
+            } catch (e) { return null; }
+          })()
         )
       : null,
     tab === 'tools'

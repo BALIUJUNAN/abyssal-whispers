@@ -110,6 +110,13 @@ export function initLoopState(f, s, ctx, options = {}) {
     f.maxSan = Math.max(60, f.maxSan);
   }
   f.san = Math.min(f.san, f.maxSan);
+
+  // Apply loop shop SAN cap boost (永久+5, max 70)
+  if (f._shopSanCapBoost > 0) {
+    f.maxSan = Math.min(70, (f.maxSan || 60) + f._shopSanCapBoost);
+    f.san = Math.min(f.san, f.maxSan);
+  }
+
   // Pollution increases with each loop (§2.2: replaces SAN penalty at high loops)
   var pollutionRate = f.loopCount >= 6 ? 0.08 : 0.05;
   f.pollution = Math.min(1, (f.pollution || 0) + pollutionRate * f.loopCount);
@@ -174,10 +181,22 @@ export function initLoopState(f, s, ctx, options = {}) {
     f._shopBonusSkillPoints = 3;
   }
   if (f.purchasedShopItems.includes('shop_san_cap_boost')) {
-    f.maxSan = Math.min(70, (f.maxSan || 60) + 5);
+    f._shopSanCapBoost = (s._shopSanCapBoost || 0) + 5;
   }
   if (f.purchasedShopItems.includes('shop_death_insurance')) {
     f._shopDeathInsurance = true;
+    // Death insurance: retain one key item from previous run
+    var prevInventory = s.inventory || [];
+    if (prevInventory.length > 0) {
+      // Prefer items with 'key' or 'clue' in their id, otherwise take the first
+      var keepItem = prevInventory.find(function (i) {
+        return i.id && (i.id.includes('key') || i.id.includes('clue') || i.id.includes('artifact'));
+      }) || prevInventory[0];
+      if (keepItem && !f.inventory.some(function (i) { return i.id === keepItem.id; })) {
+        f.inventory.push(keepItem);
+        f._deathInsuranceItem = keepItem.name || keepItem.id;
+      }
+    }
   }
   if (f.purchasedShopItems.includes('shop_resistance')) {
     f._shopMythosResistance = 0.1;

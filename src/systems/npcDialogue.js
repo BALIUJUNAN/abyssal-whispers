@@ -224,13 +224,13 @@ export function getNpcFatigueEffect(npcName, loopCount, state) {
 // === Loop Inheritance: Benefits and Costs ===
 // Enhanced initLoopState additions
 
+/**
+ * @deprecated Unused — loopReducer.js has inline trust decay. Kept for reference.
+ */
 export function getLoopInheritanceCost(loopCount) {
   return {
-    // SAN max permanent decrease: -2 per loop after loop 5
     sanCapReduction: loopCount >= 5 ? Math.min(20, (loopCount - 4) * 2) : 0,
-    // NPC trust decay: -1 per 3 loops
     npcTrustDecay: loopCount >= 3 ? Math.floor(loopCount / 3) : 0,
-    // Pollution increase: +5% per loop
     pollutionIncrease: 0.05,
   };
 }
@@ -238,6 +238,9 @@ export function getLoopInheritanceCost(loopCount) {
 // === NPC Trust Decay from High Loops ===
 // NPCs become less trusting when the player keeps returning.
 
+/**
+ * @deprecated Unused — loopReducer.js has inline trust decay at line 117-123. Kept for reference.
+ */
 export function applyLoopNpcTrustDecay(state, loopCount) {
   if (loopCount < 3) return;
   var decay = Math.floor(loopCount / 3);

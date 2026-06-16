@@ -25639,6 +25639,13 @@ function initLoopState(f, s, ctx, options = {}) {
     f.maxSan = Math.max(60, f.maxSan);
   }
   f.san = Math.min(f.san, f.maxSan);
+
+  // Apply loop shop SAN cap boost (永久+5, max 70)
+  if (f._shopSanCapBoost > 0) {
+    f.maxSan = Math.min(70, (f.maxSan || 60) + f._shopSanCapBoost);
+    f.san = Math.min(f.san, f.maxSan);
+  }
+
   // Pollution increases with each loop (§2.2: replaces SAN penalty at high loops)
   var pollutionRate = f.loopCount >= 6 ? 0.08 : 0.05;
   f.pollution = Math.min(1, (f.pollution || 0) + pollutionRate * f.loopCount);
@@ -25703,10 +25710,22 @@ function initLoopState(f, s, ctx, options = {}) {
     f._shopBonusSkillPoints = 3;
   }
   if (f.purchasedShopItems.includes('shop_san_cap_boost')) {
-    f.maxSan = Math.min(70, (f.maxSan || 60) + 5);
+    f._shopSanCapBoost = (s._shopSanCapBoost || 0) + 5;
   }
   if (f.purchasedShopItems.includes('shop_death_insurance')) {
     f._shopDeathInsurance = true;
+    // Death insurance: retain one key item from previous run
+    var prevInventory = s.inventory || [];
+    if (prevInventory.length > 0) {
+      // Prefer items with 'key' or 'clue' in their id, otherwise take the first
+      var keepItem = prevInventory.find(function (i) {
+        return i.id && (i.id.includes('key') || i.id.includes('clue') || i.id.includes('artifact'));
+      }) || prevInventory[0];
+      if (keepItem && !f.inventory.some(function (i) { return i.id === keepItem.id; })) {
+        f.inventory.push(keepItem);
+        f._deathInsuranceItem = keepItem.name || keepItem.id;
+      }
+    }
   }
   if (f.purchasedShopItems.includes('shop_resistance')) {
     f._shopMythosResistance = 0.1;
@@ -32642,6 +32661,25 @@ function handleCoreAction(s, action, c, ctx) {
           c.narr('system', target.name + '似乎对你有一种莫名的熟悉感。');
         }
       }
+      if (s._shopRandomRare) {
+        // Grant a random rare item (from curated pool)
+        var rarePool = [
+          { id: 'deep_one_scale', name: '深海之鳞' },
+          { id: 'zar_scroll_fragment', name: '扎尔之卷碎片' },
+          { id: 'drowned_bracelet', name: '溺亡者的手镯' },
+          { id: 'lens_fragment', name: '透镜碎片' },
+          { id: 'pocket_watch', name: '怀表' },
+        ];
+        var hasIds = (s.inventory || []).map(function (i) { return i.id; });
+        var available = rarePool.filter(function (r) { return hasIds.indexOf(r.id) < 0; });
+        if (available.length > 0) {
+          var rare = c.pick(available);
+          s.inventory = s.inventory || [];
+          s.inventory.push({ id: rare.id, name: rare.name, uses: -1 });
+          c.narr('system', '你的口袋里多了一样东西——' + rare.name + '。你不记得什么时候放进去的。');
+        }
+        s._shopRandomRare = false; // consumed
+      }
       if (s.loopCount > 0) {
         fx(c.effects, audio.play('loop_restart'), audio.play('loop_memory'), audio.play('bell_memory'));
         const drt = GD.implementation_notes?.death_restart_text?.death_types;
@@ -32668,6 +32706,11 @@ function handleCoreAction(s, action, c, ctx) {
             'system',
             '世界似乎比你记忆中的更加……不对劲。污染指数：' + Math.round(s.pollution * 100) + '%'
           );
+        }
+        // Death insurance: item retained from previous run
+        if (s._deathInsuranceItem) {
+          c.narr('system', '你的手里握着一样东西——' + s._deathInsuranceItem + '。你不记得是怎么保住它的。');
+          s._deathInsuranceItem = null;
         }
         // Apply loop blessings
         const bKey2 = s.loopCount <= 5 ? 'loop_' + s.loopCount : 'loop_6_plus';
@@ -42664,7 +42707,27 @@ var DevPanel = memo(function DevPanel(props) {
           R('Mythos', state.mythosLevel || 0),
           R('Seal', state.sealState),
           R('Clues', (state.clues || []).length),
-          R('Light', state.lightLevel || 0)
+          R('Light', state.lightLevel || 0),
+          React.createElement('div', { style: hS }, 'Event Pool'),
+          R('Triggered', (state.triggeredEvents || []).length),
+          R('Events today', Object.values(state.categoryCountsToday || {}).reduce(function (a, b) { return a + b; }, 0)),
+          (function () {
+            try {
+              var _gd = (typeof GD !== 'undefined' && GD) || (typeof window !== 'undefined' && window.GD) || {};
+              var _total = (_gd.events || []).length;
+              var _ext = _gd._extendedEventCount || 0;
+              var _base = _gd._baseEventCount || 20;
+              var _supp = _gd._supplementEventCount || 0;
+              var _has600 = (state.triggeredEvents || []).indexOf('missing_event_600_seen') >= 0;
+              return React.createElement(React.Fragment, null,
+                R('Total pool', _total),
+                R('Base', _base),
+                R('Extended', _ext),
+                R('Supplement', _supp),
+                R('600th event', _has600 ? 'SEEN' : _ext === 599 ? 'READY' : 'LOCKED(' + _ext + ')')
+              );
+            } catch (e) { return null; }
+          })()
         )
       : null,
     tab === 'tools'
