@@ -2,6 +2,7 @@
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { applyMythosAliases, maybeCorruptNpcName } from '../systems/textVariants.js';
 import { generateNpcDialogue, isGlmAvailable } from '../systems/llmNarrative.js';
+import { getContextualLine } from '../systems/npcDialogue.js';
 
 export function NPCDialog({ npc, trust, layer, dispatch, state }) {
   const [show, setShow] = useState(false);
@@ -25,6 +26,11 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
     });
     return function () { cancelled = true; };
   }, [npc.name, trust, layer && layer.dialogue]);
+  // Contextual line (trust/san/loop/legacy-aware short dialogue)
+  const ctxLine = useMemo(() => {
+    if (!state || !npc) return null;
+    try { return getContextualLine(npc.name, state); } catch (e) { return null; }
+  }, [npc?.name, state?.san, state?.loopCount, state?.npcTrust?.[npc?.name], state?.lastDeathType]);
   // 对话分组折叠状态：交谈/帮助 默认展开，特殊 默认折叠
   const [collapsedGroups, setCollapsedGroups] = useState({
     talk: false,
@@ -169,6 +175,22 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
             }}
           >
             {layer.hint}
+          </div>
+        )}
+        {/* Contextual line (trust/san/loop/legacy-aware) */}
+        {ctxLine && !ns.corrupted && (
+          <div
+            style={{
+              marginTop: '0.3rem',
+              padding: '0.35rem 0.7rem',
+              borderLeft: '2px solid rgba(106, 74, 138, 0.3)',
+              fontSize: '0.8rem',
+              color: 'var(--text-dim)',
+              lineHeight: 1.7,
+              fontStyle: 'italic',
+            }}
+          >
+            {ctxLine.text}
           </div>
         )}
         {/* LLM 动态对话增强 */}

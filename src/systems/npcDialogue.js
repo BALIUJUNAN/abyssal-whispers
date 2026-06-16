@@ -3,6 +3,40 @@
 // Also handles NPC fatigue/boredom at high loops and loop inheritance costs.
 // DESIGN_REFACTOR_NOTES.md: infection > 50 inserts ocean/body hallucination variants.
 
+import { selectContextualLine } from '../data/npcContextualLines.js';
+
+/**
+ * Get a contextual greeting/line for an NPC based on full game state.
+ * Combines: contextual lines (trust/time/san/loop/legacy) > corruption > infection > normal.
+ * Call this to get a supplementary line shown alongside the trust_layer dialogue.
+ *
+ * @param {string} npcName - NPC display name
+ * @param {object} state - game state
+ * @returns {{ text: string, tags: string[] }|null}
+ */
+export function getContextualLine(npcName, state) {
+  // Priority 1: contextual lines (new system)
+  var ctx = selectContextualLine(npcName, state);
+  if (ctx) return ctx;
+
+  // Priority 2: corruption/infection lines (existing system)
+  var variant = getNpcDialogueVariant(npcName, 0, state);
+  if (variant === 'infection_hallucination') {
+    var infLines = NPC_INFECTION_LINES[npcName];
+    if (infLines && infLines.length > 0) {
+      return { text: infLines[Math.floor(Math.random() * infLines.length)], tags: ['infection'] };
+    }
+  }
+  if (variant === 'heavy_corruption' || variant === 'light_corruption') {
+    var corLines = (NPC_CORRUPTION_LINES[npcName] || {})[variant === 'heavy_corruption' ? 'heavy' : 'light'];
+    if (corLines && corLines.length > 0) {
+      return { text: corLines[Math.floor(Math.random() * corLines.length)], tags: ['corruption'] };
+    }
+  }
+
+  return null;
+}
+
 // === Multi-Version Dialogue Selector ===
 // Priority: infection > loop_recognition > heavy_corruption > light_corruption > normal
 

@@ -68,6 +68,7 @@ REDUCER_FILES = [
     # Meta-layer corruption (false events, false logs, save name pollution)
     'systems/metaCorruption.js',
     # Phase 7: NPC multi-version dialogue + loop inheritance
+    'data/npcContextualLines.js',      # MUST precede npcDialogue.js (selector function)
     'systems/npcDialogue.js',
     'data/events_missing_600.js',
     'data/events_omens_600.js',
