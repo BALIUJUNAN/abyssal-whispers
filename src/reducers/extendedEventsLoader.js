@@ -24,10 +24,12 @@ export function mergeExtendedEvents(GD, extendedModules) {
 
   GD.events.push(...newEvents);
 
-  // Store metadata
+  // Store metadata — _extendedEvents must contain ONLY actual events (with trigger),
+  // not item definitions or other non-event entries embedded in event files.
+  // shouldTriggerMissing600() checks _extendedEvents.length === 599.
   GD._extendedEventsLoaded = true;
-  GD._extendedEvents = [...newEvents];
-  GD._extendedEventCount = newEvents.length;
+  GD._extendedEvents = newEvents.filter((e) => e.trigger);
+  GD._extendedEventCount = GD._extendedEvents.length;
   GD._totalEventCount = GD.events.length;
 
   return GD;

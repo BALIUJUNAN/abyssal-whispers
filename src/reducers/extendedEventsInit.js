@@ -5,6 +5,7 @@ import { mergeExtendedEvents } from './extendedEventsLoader.js';
 import { EXTENDED_EVENT_MODULES, EXTENDED_EVENT_STATS } from '../data/extended_events_index.js';
 import { injectMissingEnding } from '../data/ending_missing_600.js';
 import { events as deathEchoEvents } from '../data/events_death_echo.js';
+import { events as supplementEvents } from '../data/events_supplement.js';
 import { injectBehaviorEndings } from '../data/behavior_endings.js';
 import { applyUgcToGD } from '../utils/buildEventPool.js';
 
@@ -34,6 +35,15 @@ export function initExtendedEvents(GD) {
 
   // Restore _extendedEventCount to 599 (death echo events are supplementary)
   GD._extendedEventCount = coreExtendedCount;
+
+  // Merge supplement events (后7区补充) — must NOT change _extendedEventCount
+  // so shouldTriggerMissing600's 599 check remains valid.
+  if (supplementEvents && supplementEvents.length > 0) {
+    const existingIds2 = new Set(GD.events.map((e) => e.id));
+    const newSupp = supplementEvents.filter((e) => !existingIds2.has(e.id));
+    GD.events.push(...newSupp);
+    GD._supplementEventCount = newSupp.length;
+  }
 
   // Inject hidden ending for missing_event_600
   injectMissingEnding(GD);
