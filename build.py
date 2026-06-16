@@ -72,6 +72,7 @@ REDUCER_FILES = [
     'systems/npcDialogue.js',
     'data/events_missing_600.js',
     'data/events_omens_600.js',
+    'data/events_supplement.js',      # 后7区补充事件 (+120)
     # DEPENDENCY: requires eventSystemV2.js + resourceNarrative.js (above) for weight functions
     'reducers/extendedEvents.js',
     'reducers/eventReducer.js',
