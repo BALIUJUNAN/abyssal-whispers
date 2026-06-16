@@ -160,6 +160,30 @@ export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, di
       </div>
       <div className="settings-group-title">效果</div>
       <div className="settings-row">
+        <span className="settings-label">减弱动效</span>
+        <button
+          className={'settings-toggle' + (settings.reducedMotion ? ' on' : '')}
+          onClick={() => {
+            var next = !settings.reducedMotion;
+            update('reducedMotion', next);
+            // Sync data attribute on body for CSS targeting
+            try {
+              document.body.setAttribute('data-reduced-motion', next ? 'true' : 'false');
+            } catch (e) {}
+          }}
+        />
+      </div>
+      <div
+        style={{
+          fontSize: '0.65rem',
+          color: 'var(--text-dim)',
+          marginTop: '0.2rem',
+          lineHeight: 1.4,
+        }}
+      >
+        关闭屏幕转场动画与打字机效果，减少视觉运动。
+      </div>
+      <div className="settings-row">
         <span className="settings-label">视觉抖动</span>
         <button
           className={'settings-toggle' + (settings.visualDistortion ? ' on' : '')}

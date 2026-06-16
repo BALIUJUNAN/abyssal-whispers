@@ -11,6 +11,8 @@ export function PrologueScreen({ state, dispatch }) {
   const [showHint, setShowHint] = useState(false);
   const [choiceMade, setChoiceMade] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState(null);
+  const [typewriterDone, setTypewriterDone] = useState(false);
+  const twTimerRef = useRef(null);
 
   // 前传音频：挂载时播放夜间环境音，卸载时停止
   useEffect(() => {
@@ -32,6 +34,18 @@ export function PrologueScreen({ state, dispatch }) {
     setChoiceMade(false);
     setSelectedChoice(null);
     setShowHint(false);
+    setTypewriterDone(false);
+    // Typewriter: auto-complete after duration based on first line length
+    if (twTimerRef.current) clearTimeout(twTimerRef.current);
+    var firstLine = (currentEvent && currentEvent.description) ? currentEvent.description.split('\n').find(function (l) { return l.trim(); }) || '' : '';
+    var charLen = firstLine.length;
+    var twDur = Math.min(Math.max(charLen * 50, 1500), 4000);
+    twTimerRef.current = setTimeout(function () {
+      setTypewriterDone(true);
+    }, twDur);
+    return function () {
+      if (twTimerRef.current) clearTimeout(twTimerRef.current);
+    };
   }, [prologue.currentScene]);
 
   if (!currentEvent) return null;
@@ -93,11 +107,28 @@ export function PrologueScreen({ state, dispatch }) {
 
         {/* 叙述文本 */}
         <div className="narrative-block prologue-narrative">
-          {currentEvent.description.split('\n').map((line, i) => (
-            <p key={i} className="narrative-line">
-              {line}
-            </p>
-          ))}
+          {currentEvent.description.split('\n').map((line, i) => {
+            var isFirst = i === 0 && line.trim();
+            var charLen = line.length;
+            var twSteps = Math.max(charLen, 1);
+            var twDurSec = Math.min(Math.max(charLen * 0.05, 1.5), 4);
+            return (
+              <p
+                key={i}
+                className={
+                  'narrative-line' +
+                  (isFirst && !typewriterDone ? ' typewriter' : '') +
+                  (isFirst && typewriterDone ? ' typewriter typewriter--done' : '')
+                }
+                style={isFirst ? {
+                  '--tw-steps': twSteps,
+                  '--tw-duration': twDurSec + 's',
+                } : undefined}
+              >
+                {line}
+              </p>
+            );
+          })}
         </div>
 
         {/* 教学提示 */}

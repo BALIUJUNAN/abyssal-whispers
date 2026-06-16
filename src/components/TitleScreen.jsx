@@ -14,7 +14,6 @@ export const TITLE_TAGLINES = [
 
 export function TitleScreen({ onStart, onContinue, saveExists, onSettingsOpen, onAchOpen, endingCoins, loopShopTier, loopCount, onShopPurchase }) {
   const [tagIdx, setTagIdx] = useState(0);
-  const [fading, setFading] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const particles = useMemo(
     () =>
@@ -44,11 +43,10 @@ export function TitleScreen({ onStart, onContinue, saveExists, onSettingsOpen, o
     };
   }, []);
   const handleStart = () => {
-    setFading(true);
-    setTimeout(onStart, 800);
+    onStart();
   };
   return (
-    <div className={'title-screen' + (fading ? ' fading' : '')}>
+    <div className="title-screen">
       <div className="title-bg-harbor" />
       <div className="title-bg-vignette" />
       <div className="title-fog-layer fog-1" />

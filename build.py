@@ -183,6 +183,8 @@ REDUCER_FILES = [
     # ── Dev Panel (debug tools) ──
     'systems/eventDebugger.js',      # P1-D: Event selection explainability
     'components/ui/DevPanel.jsx',    # F12 / Ctrl+Shift+D debug panel
+    'components/TransitionCanvas.jsx',  # Canvas 程序化转场效果（必须在 ScreenTransition 之前）
+    'components/ScreenTransition.jsx',  # 屏幕转场动画包装器 + Canvas + 音频联动
 ]
 
 

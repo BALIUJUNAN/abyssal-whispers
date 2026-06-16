@@ -6023,3 +6023,126 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
   background: rgba(184, 150, 58, 0.06);
   color: var(--gold2);
 }
+
+/* ==========================================================
+   Screen Transition System (Canvas exit + CSS enter)
+   Exit phase: Canvas procedural effect (TransitionCanvas.jsx)
+   Enter phase: CSS fade-in with variant-specific filter
+   ========================================================== */
+.screen-transition {
+  animation-fill-mode: both;
+  animation-timing-function: ease-out;
+  animation-duration: var(--trans-dur, 400ms);
+  min-height: 100vh;
+}
+/* Exit: no CSS animation (canvas handles it) — just hide content under canvas */
+.screen-transition--exit {
+  pointer-events: none;
+}
+/* Enter: universal fade-in (all variants) */
+.screen-transition--enter {
+  animation-name: transFadeIn;
+}
+@keyframes transFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Variant-specific enter enhancements ── */
+.screen-transition--enter.screen-transition--default {
+  animation-name: transDefaultIn;
+}
+@keyframes transDefaultIn {
+  from { opacity: 0; filter: blur(1.5px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+.screen-transition--enter.screen-transition--inkBleed {
+  animation-name: transInkBleedIn;
+}
+@keyframes transInkBleedIn {
+  from { opacity: 0; filter: blur(4px) brightness(0.5) sepia(0.3); }
+  50%  { filter: blur(2px) brightness(0.8) sepia(0.15); }
+  to   { opacity: 1; filter: blur(0) brightness(1) sepia(0); }
+}
+
+.screen-transition--enter.screen-transition--fog {
+  animation-name: transFogIn;
+}
+@keyframes transFogIn {
+  from { opacity: 0; filter: blur(6px) brightness(0.4) sepia(0.4); }
+  to   { opacity: 1; filter: blur(0) brightness(1) sepia(0); }
+}
+
+.screen-transition--enter.screen-transition--voidCircle {
+  animation-name: transVoidIn;
+}
+@keyframes transVoidIn {
+  from { opacity: 0; filter: brightness(0.2) saturate(0.5); }
+  40%  { filter: brightness(0.6) saturate(0.7); }
+  to   { opacity: 1; filter: brightness(1) saturate(1); }
+}
+
+.screen-transition--enter.screen-transition--glitchSlices {
+  animation-name: transGlitchIn;
+}
+@keyframes transGlitchIn {
+  0%   { opacity: 0; transform: translate(3px, -2px) skewX(-1deg); filter: hue-rotate(60deg) blur(3px); }
+  30%  { opacity: 0.6; transform: translate(-2px, 1px) skewX(0.5deg); filter: hue-rotate(20deg) blur(1px); }
+  60%  { opacity: 0.9; transform: translate(1px, 0) skewX(0); filter: blur(0); }
+  100% { opacity: 1; transform: translate(0) skewX(0); filter: none; }
+}
+
+/* ── Reduced motion: disable all transitions ── */
+@media (prefers-reduced-motion: reduce) {
+  .screen-transition {
+    animation: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
+body[data-reduced-motion="true"] .screen-transition {
+  animation: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+/* ==========================================================
+   Typewriter Effect — 叙事文本逐字显示
+   ========================================================== */
+.narrative-line.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--text-dim);
+  width: 0;
+  animation:
+    typewriterReveal var(--tw-duration, 2s) steps(var(--tw-steps, 40)) forwards,
+    typewriterBlink 0.75s step-end infinite;
+}
+.narrative-line.typewriter.typewriter--done {
+  width: 100%;
+  border-right-color: transparent;
+  animation: none;
+}
+@keyframes typewriterReveal {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+@keyframes typewriterBlink {
+  50% { border-right-color: transparent; }
+}
+/* Typewriter respects reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .narrative-line.typewriter {
+    width: 100%;
+    border-right-color: transparent;
+    animation: none;
+  }
+}
+body[data-reduced-motion="true"] .narrative-line.typewriter {
+  width: 100%;
+  border-right-color: transparent;
+  animation: none;
+}

@@ -173,6 +173,7 @@ import { SettingsModal, SaveLoadModal, AchievementGallery } from './components/G
 import { PrologueScreen, SurvivalGuide, CharCreation } from './components/GameScreens.jsx';
 import { AbyssPopup } from './components/SanPollutionLayer.jsx';
 import { DevPanel } from './components/ui/DevPanel.jsx';
+import { ScreenTransition } from './components/ScreenTransition.jsx';
 import {
   EndingScreen,
   GameHeader,
@@ -538,116 +539,122 @@ function App() {
 
   // SAN visual corruption: now handled by <SanPollutionLayer> component (see render below)
 
-  if (state.screen === 'title')
-    return (
-      <>
-        <TitleScreen
-          onStart={() => dispatch({ type: 'START_GAME' })}
-          saveExists={savedExists}
-          onContinue={() => {
-            uiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true });
-          }}
-          onSettingsOpen={() => uiStore.setState({ settingsOpen: true })}
-          onAchOpen={() => uiStore.setState({ achOpen: true })}
-          endingCoins={state.endingCoins || 0}
-          loopShopTier={state.loopShopTier || 0}
-          loopCount={state.loopCount || 0}
-          onShopPurchase={(item) => {
-            dispatch({ type: 'LOOP_SHOP_PURCHASE', itemId: item.id, cost: item.cost });
-          }}
-        />
-        <SettingsModal
-          open={ui.settingsOpen}
-          onClose={() => uiStore.setState({ settingsOpen: false })}
-          settings={settings}
-          onChange={handleSettingsChange}
-          onAchOpen={() => uiStore.setState({ achOpen: true })}
-          dispatch={dispatch}
-        />
-        <SaveLoadModal
-          open={ui.saveLoadOpen}
-          onClose={() => uiStore.setState({ saveLoadOpen: false })}
-          state={null}
-          onLoad={handleLoadSlot}
-          mode="load"
-          onSaved={notifySave}
-        />
-        <AchievementGallery
-          open={ui.achOpen}
-          onClose={() => uiStore.setState({ achOpen: false })}
-        />
-      </>
-    );
-  if (state.screen === 'prologue')
-    return (
-      <>
-        <PrologueScreen state={state} dispatch={dispatch} />
-      </>
-    );
-  if (state.screen === 'guide')
-    return <SurvivalGuide onContinue={() => dispatch({ type: 'DISMISS_GUIDE' })} />;
-  if (state.screen === 'creation')
-    return (
-      <CharCreation
-        state={state}
-        onRoll={() => dispatch({ type: 'ROLL_STATS' })}
-        onStart={() => dispatch({ type: 'BEGIN_ADVENTURE' })}
-        onSetDifficulty={(d) => dispatch({ type: 'SET_DIFFICULTY', difficulty: d })}
-        onSetArchetype={(id) => dispatch({ type: 'SET_ARCHETYPE', archetypeId: id })}
-      />
-    );
-  if (state.ending) return <EndingScreen ending={state.ending} state={state} dispatch={dispatch} />;
+  // ── Reduced motion: sync settings → body data attribute ──
+  useEffect(() => {
+    try {
+      document.body.setAttribute(
+        'data-reduced-motion',
+        settings.reducedMotion ? 'true' : 'false'
+      );
+    } catch (e) {}
+  }, [settings.reducedMotion]);
+
+  // ── Compute game screen vars (needed when screen === 'game') ──
   const corrLevel = getCorruptionLevel(state.san, state.loopCount);
   const areas = GD.areas || GD.module2_areas || [];
   const visualDistortion = state.accessibilityOptions?.visual_distortion;
   const allowVisualFX = visualDistortion !== false;
-  // P1-A: ALL CSS classes derived from stage object via sanityVisual.js (no hardcoded SAN numbers)
   const sanClasses = getSanStageClasses(state.san, allowVisualFX, ctx);
   const sanFeedback = getSanStageFeedback(state.san, ctx);
   const _vtClass = sanClasses.vtClass;
   const sanStageClass = sanClasses.stageClass;
   const sanClass = sanClasses.sanClass;
+
+  // ── Determine active screen key for ScreenTransition ──
+  var _screenKey = state.ending ? 'ending' : state.screen;
+
   return (
     <>
-      <DevPanel state={state} dispatch={dispatch} />
-      <SanPollutionLayer
-        san={state.san}
-        loopCount={state.loopCount}
-        corruption={state.safehouseCorruption || 0}
-        glitchPulse={state.glitchPulse || 0}
-        enabled={state.screen === 'game' && allowVisualFX}
-        intensity={settings.visualPollution ?? 50}
-        interactionPollution={settings.interactionPollution ?? 50}
-        metaPollution={settings.metaPollution ?? 50}
-      />
-      <AbyssPopup san={state.san} onSanDrain={(amt) => dispatch({ type: 'RESIST_SAN_DRAIN', amount: amt })} />
-      <div
-        className={
-          'game-root ' +
-          (corrLevel > 0 ? 'corruption-' + corrLevel + ' ' : '') +
-          sanClass +
-          sanStageClass +
-          _vtClass +
-          ' ' +
-          fontSizeClass
-        }
-      >
-        {settings?.showGuideHints !== false && (() => {
-          const _guide = getGuideStep(state, ctx);
-          return _guide ? (
-            <div className="guide-hint" style={{
-              position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
-              background: 'rgba(0,0,0,0.85)', color: '#e0d5c0', padding: '10px 24px',
-              borderRadius: 8, fontSize: 14, zIndex: 1000, maxWidth: 440, textAlign: 'center',
-              border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'none',
-              fontStyle: 'italic', letterSpacing: '0.02em', lineHeight: 1.6,
-            }}>
-              <div>{_guide.message}</div>
+      {/* Screen content wrapped in ScreenTransition for animated switching */}
+      <ScreenTransition screenKey={_screenKey} duration={800}>
+
+        {state.screen === 'title' && (
+          <TitleScreen
+            onStart={() => dispatch({ type: 'START_GAME' })}
+            saveExists={savedExists}
+            onContinue={() => {
+              uiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true });
+            }}
+            onSettingsOpen={() => uiStore.setState({ settingsOpen: true })}
+            onAchOpen={() => uiStore.setState({ achOpen: true })}
+            endingCoins={state.endingCoins || 0}
+            loopShopTier={state.loopShopTier || 0}
+            loopCount={state.loopCount || 0}
+            onShopPurchase={(item) => {
+              dispatch({ type: 'LOOP_SHOP_PURCHASE', itemId: item.id, cost: item.cost });
+            }}
+          />
+        )}
+
+        {state.screen === 'prologue' && (
+          <PrologueScreen state={state} dispatch={dispatch} />
+        )}
+
+        {state.screen === 'guide' && (
+          <SurvivalGuide onContinue={() => dispatch({ type: 'DISMISS_GUIDE' })} />
+        )}
+
+        {state.screen === 'creation' && (
+          <CharCreation
+            state={state}
+            onRoll={() => dispatch({ type: 'ROLL_STATS' })}
+            onStart={() => dispatch({ type: 'BEGIN_ADVENTURE' })}
+            onSetDifficulty={(d) => dispatch({ type: 'SET_DIFFICULTY', difficulty: d })}
+            onSetArchetype={(id) => dispatch({ type: 'SET_ARCHETYPE', archetypeId: id })}
+          />
+        )}
+
+        {state.ending && (
+          <EndingScreen ending={state.ending} state={state} dispatch={dispatch} />
+        )}
+
+        {state.screen === 'game' && !state.ending && (
+          <>
+            <DevPanel state={state} dispatch={dispatch} />
+            <SanPollutionLayer
+              san={state.san}
+              loopCount={state.loopCount}
+              corruption={state.safehouseCorruption || 0}
+              glitchPulse={state.glitchPulse || 0}
+              enabled={allowVisualFX}
+              intensity={settings.visualPollution ?? 50}
+              interactionPollution={settings.interactionPollution ?? 50}
+              metaPollution={settings.metaPollution ?? 50}
+            />
+            <AbyssPopup san={state.san} onSanDrain={(amt) => dispatch({ type: 'RESIST_SAN_DRAIN', amount: amt })} />
+            <div
+              className={
+                'game-root ' +
+                (corrLevel > 0 ? 'corruption-' + corrLevel + ' ' : '') +
+                sanClass +
+                sanStageClass +
+                _vtClass +
+                ' ' +
+                fontSizeClass
+              }
+            >
+              {settings?.showGuideHints !== false && (() => {
+                const _guide = getGuideStep(state, ctx);
+                return _guide ? (
+                  <div className="guide-hint" style={{
+                    position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
+                    background: 'rgba(0,0,0,0.85)', color: '#e0d5c0', padding: '10px 24px',
+                    borderRadius: 8, fontSize: 14, zIndex: 1000, maxWidth: 440, textAlign: 'center',
+                    border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'none',
+                    fontStyle: 'italic', letterSpacing: '0.02em', lineHeight: 1.6,
+                  }}>
+                    <div>{_guide.message}</div>
+                  </div>
+                ) : null;
+              })()}
+              <GameLayout state={state} dispatch={dispatch} areas={areas} settings={settings} />
             </div>
-          ) : null;
-        })()}
-        <GameLayout state={state} dispatch={dispatch} areas={areas} settings={settings} />
-      </div>
+          </>
+        )}
+
+      </ScreenTransition>
+
+      {/* ── Global overlays & modals (outside transition, always available) ── */}
       <SettingsModal
         open={ui.settingsOpen}
         onClose={() => uiStore.setState({ settingsOpen: false })}
@@ -659,7 +666,7 @@ function App() {
       <SaveLoadModal
         open={ui.saveLoadOpen}
         onClose={() => uiStore.setState({ saveLoadOpen: false })}
-        state={state}
+        state={state.screen === 'game' ? state : null}
         onLoad={handleLoadSlot}
         mode={ui.saveLoadMode}
         onSaved={notifySave}
