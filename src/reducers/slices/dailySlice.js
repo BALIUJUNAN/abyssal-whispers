@@ -527,6 +527,12 @@ export function handleDailyAction(s, action, c, ctx) {
         return s;
       }
       s.ap -= 2;
+      // AP 消耗音效反馈
+      if (s.ap <= 2 && s.ap > 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+      } else if (s.ap <= 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+      }
       const earned = rand(3, 12, c.rng);
       s.money = (s.money || 0) + earned;
       c.bt.work_count = (c.bt.work_count || 0) + 1;
@@ -550,6 +556,12 @@ export function handleDailyAction(s, action, c, ctx) {
         return s;
       }
       s.ap -= 1;
+      // AP 消耗音效反馈
+      if (s.ap <= 2 && s.ap > 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+      } else if (s.ap <= 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+      }
       s.money -= foodPrice;
       s.food = Math.min(s.maxFood, (s.food || 0) + 1);
       c.narr('system', '你在杂货店买了一些食物。食物 +1，金钱 -' + foodPrice);

@@ -53,9 +53,9 @@ export var NPC_IMAGE_MAP = {
 
 export var AREA_IMAGE_MAP = {
   town_center: {
-    default: '沃切斯特全景 白天.webp',
-    night: '沃切斯特全景 深夜.webp',
-    corruptionHigh: '沃切斯特全景 崩坏.webp',
+    default: '沃切斯特镇中心 白天.webp',
+    night: '沃切斯特镇中心 深夜.webp',
+    corruptionHigh: '沃切斯特镇中心 崩坏.webp',
   },
   harbor_district: {
     default: '沃切斯特码头 白天.webp',

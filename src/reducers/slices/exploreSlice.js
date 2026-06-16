@@ -407,6 +407,12 @@ export function handleExploreAction(s, action, c, ctx) {
         return s;
       }
       s.ap -= action.cost || 1;
+      // AP 消耗音效反馈
+      if (s.ap <= 2 && s.ap > 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });        // AP 紧张：轻微警告音
+      } else if (s.ap <= 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' }); // AP 耗尽：沉重提示音
+      }
       var _fromArea = s.currentArea;
       s.currentArea = target;
       if (!s.visitedAreas.includes(target)) s.visitedAreas.push(target);
@@ -529,6 +535,19 @@ export function handleExploreAction(s, action, c, ctx) {
         return s;
       }
       s.ap -= _apCost;
+      // AP 消耗音效反馈（探索后AP紧张时提醒）
+      if (s.ap <= 2 && s.ap > 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+      } else if (s.ap <= 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+      }
+      // AP 紧张时切换背景音乐到夜间氛围（营造紧迫感）
+      if (s.ap <= 3 && s.ap > 0) {
+        try {
+          var _phase = getPhase(s.ap, s.maxAp);
+          c.effects.push({ type: 'AUDIO_AMBIENT', area: s.currentArea, phase: _phase });
+        } catch (e) {}
+      }
       // Phase 1: Chapter milestone (highest priority, inline — needs c.narr)
       {
         const _milestone = checkChapterMilestone(s.day, s);

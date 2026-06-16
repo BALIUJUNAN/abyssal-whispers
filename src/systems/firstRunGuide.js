@@ -47,8 +47,8 @@ const GUIDE_STEPS = [
   },
   {
     id: 'clue_chain',
-    condition: (s) => (s.clues || []).length >= 3 && (s.discoveredConclusions || []).length === 0,
-    message: '笔记本里的几句话开始互相呼应。你还没有把它们连起来——但它们已经在等你了。',
+    condition: (s) => (s.clues || []).length >= 3 && (s.discoveredConclusions || []).length === 0 && !(s.tutorialSeen || {}).notebook_opened,
+    message: '你收集了多条线索。按 N 打开笔记本，查看线索之间的关联。',
     priority: 10,
   },
   {

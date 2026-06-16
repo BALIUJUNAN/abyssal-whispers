@@ -11,7 +11,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_587B_HTML-green)
 ![Tests](https://img.shields.io/badge/tests-285_passing-brightgreen)
-![Version](https://img.shields.io/badge/version-0.4.1-orange)
+![Version](https://img.shields.io/badge/version-0.5.1-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -84,11 +84,12 @@ npm run tauri:build
 | **音频素材**   | 53 段 (WAV + MP3) — 覆盖环境音乐 / 音效 / 中文语音                                                                          |
 | **成就**       | 20 个 — 进程 / 结局 / 挑战 / 隐藏四大类                                                                                     |
 | **存档槽位**   | 6 个 — 3 自动轮转 + 3 手动管理，JSON 导入导出                                                                               |
-| **图片素材**   | 138 张 WebP — 含 72 张独立结局 CG                                                                                           |
+| **图片素材**   | 141 张 WebP — 含 72 张独立结局 CG + 3 张镇中心专用场景图                                                                     |
 | **前传系统**   | 7 场景线性叙事 — 构建你的恐惧画像                                                                                           |
 | **SAN 系统**   | 6 阶段 × 4 维度（视觉/交互/逻辑/Meta）完整污染定义，SAN视觉精度化（稀疏恐怖，非噪声）+ AP 污染 + 不可靠总结 + Mythos 门控    |
 | **布局模式**   | 2 种 — 暗黑地牢风格全景地图 / 经典三栏面板                                                                                  |
-| **代码规模**   | 41,000+ 行 JS/JSX — 110+ 个源文件                                                                                           |
+| **AI 叙事增强**| GLM-4.7 Flash — 9 个场景动态生成，离线优先                                                                   |
+| **代码规模**   | 43,000+ 行 JS/JSX — 112+ 个源文件                                                                                           |
 | **数据校验**   | Zod Schema 735条数据全量校验                                                                                                 |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
 
@@ -231,6 +232,47 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 
 记者 / 私家侦探 / 学者 / 医生 / 退伍军人 / 通灵者
 
+### AI 叙事增强（GLM-4.7 Flash）
+
+> **可选功能** — 离线优先，需联网 + API Key，API 失败自动回退静态文本。
+
+游戏接入 [智谱 GLM-4.7 Flash](https://z.ai/) 模型，为 **9 个核心场景**提供动态叙事生成：
+
+| # | 场景 | 触发条件 | 说明 |
+|---|------|---------|------|
+| 1 | **NPC 动态对话** | 信任 ≥3 时与 NPC 对话 | 8 位 NPC 独立人设，基于信任/周目/腐蚀度动态生成对话 |
+| 2 | **SAN 文本污染** | SAN ≤25 的叙事文本（40%采样） | 将正常文本改写为"不可靠叙述"版本 |
+| 3 | **Meta 异象** | REST 后 SAN≤30（15-50%概率） | 生成独特的"系统入侵"伪消息 |
+| 4 | **事件描述增强** | signature/里程碑 或 SAN≤40 | 根据玩家状态润色事件描述 |
+| 5 | **人格反思增强** | 死亡画面（有行为标签时） | LLM 生成更深邃的行为档案附注 |
+| 6 | **存档名污染** | SAN≤20 + day 变化（50%概率） | 异步篡改最近存档的显示名 |
+| 7 | **轮回开场白** | 新轮回开始（loopCount≥1） | 根据上轮死因/线索/NPC 关系生成既视感叙事 |
+| 8 | **死亡总结增强** | 死亡画面 | 4 段叙事 LLM 重写 |
+| 9 | **死亡余韵** | 死亡画面 | 诗意的氛围描写，暗示轮回即将开始 |
+
+**架构设计**：
+
+```
+设置面板（总开关 + API Key + 4 个子功能独立控制）
+    ↓
+glmClient.js — API 封装（限流2s / 缓存5min / 超时15s / 队列串行化 / 单飞守卫）
+    ↓
+llmNarrative.js — 9 个增强函数（Prompt 工程 + 游戏状态注入）
+    ↓
+UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就绪后追加）
+```
+
+**离线优先原则**：
+
+- Reducer 层零 LLM 依赖（保持同步确定性）
+- API 不可用时自动回退到 800+ 条静态事件文本
+- 设置面板一键开关，子功能可独立控制
+- 新轮回自动清缓存
+
+**成本控制**：限流 2s 间隔 · 缓存 5min · 普通事件 30% 采样 · 高优先级 100% · 单飞守卫 · 队列串行化
+
+**成本控制**：限流 2s 间隔 · 缓存 5min · 普通事件 30% 采样 · 高优先级 100% · 单飞守卫 · 队列串行化
+
 ---
 
 ## 系统功能一览
@@ -249,11 +291,12 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 | **文本重复控制**          | 4 层污染变体：原文→微妙替换→可读腐蚀→跳过摘要，跨轮持久追踪                                        |
 | **商店系统**              | 2 家商店，NPC 信任解锁高级商品                                                                      |
 | **事件链 / 线索链**       | 顺序推进的多阶段调查，线索组合推导结论                                                              |
-| **音频系统**              | 53 段音频 — 区域环境音乐(9区×昼夜) + 技能检定音效 + 死亡叙事 + 中文语音台词 + 钟声变体              |
-| **设置面板**              | 字号/行高/字族 · 闪烁/动画/高对比度 · 视觉污染/震动/文字污染/暗角 · 5路音量/静音 · 引导/跳过已读   |
+| **音频系统**              | 53 段音频 — 区域环境音乐(9区×昼夜) + 技能检定音效 + 死亡叙事 + 中文语音台词 + 钟声变体 + AP消耗音效反馈 + 前传环境音 |
+| **笔记本系统**            | 独立浮层 UI（N 键/按钮），3 条线索链 + 5 个结论 + 线索互引标记 + 散落笔记，不影响上方数据查看          |
+| **设置面板**              | **页面缩放**(70-140%) · 字号/行高/字族 · 闪烁/动画/高对比度 · 视觉污染/震动/文字污染/暗角 · 5路音量/静音 · 引导/跳过已读 |
 | **成就系统**              | 20 个成就，进程 / 结局 / 挑战 / 隐藏四大类                                                          |
 | **多槽位存档**            | 3 自动 + 3 手动，版本迁移兼容，JSON 导入/导出                                                       |
-| **快捷键**                | `1-9` 选择 / `Space` 确认 / `M` 布局切换 / `I` 物品 / `J` 线索                                      |
+| **快捷键**                | `1-9` 选择 / `Space` 确认 / `M` 布局切换 / `I` 物品 / `J` 线索 / `N` 笔记本                            |
 | **章节转场**              | Day 4/8/15/22 沉浸式过渡动画（3D 透视旋转）                                                         |
 | **轮回继承**              | 知识碎片 / 世界污染 / NPC 跨轮记忆 / 关系网 / 死后遗产 / 技能保留(30%) / 行为计数器搬入 / 结局代币  |
 | **结局余韵**              | 每条结局附带 Afterglow 文本，满足条件后解锁（事件/物品/周目数）                                     |
@@ -280,6 +323,7 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 | **ErrorBoundary**         | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载                                     |
 | **Error Tracker**         | 测试期玩家操作追踪模块（可插拔，一行删除即可移除）                                                  |
 | **DevPanel**              | 开发者调试面板（~ / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                           |
+| **AI 叙事增强**           | GLM-4.7 Flash — 9 场景动态生成，离线优先，API 失败自动回退                                          |
 | **SAN mutation 静态检查** | `npm run lint:san` — 扫描全部 reducer，禁止直接 `s.san = clamp(san-...)`，白名单除外                 |
 
 ---
@@ -324,6 +368,8 @@ React 18 + useReducer + Immer + 双 Store (useGameStore + useUiStore)
   → SAN视觉系统 (systems/sanityVisual.js) — 精度化恐怖，稀疏触发
   → 早期钩子 (systems/earlyHooks.js) — 十三声钟入口序列 + Canvas脉冲
   → SAN SSOT — getCurrentSanStage() 统一查询，6阶段×4维度
+  → AI 叙事增强 (utils/glmClient.js + systems/llmNarrative.js)
+  │    GLM-4.7 Flash — 6场景动态生成，离线优先，UI层异步，Reducer零侵入
   → JSON 配置驱动 + Zod Schema 校验（735条数据全量）
   → 章节硬限（Chapter 1 事件池过滤 + AP压限 + Day 3强制过渡）
   → Vite 主线构建（ESM + code-split + 587字节HTML）→ dist/
@@ -435,7 +481,7 @@ COC/
 │   │   ├── objectiveReducer.js     # 任务目标（102 行）
 │   │   └── utils.js                # reducer 共用工具函数（50 行）
 │   │
-│   ├── systems/              # 20 个游戏系统（~4,200 行）
+│   ├── systems/              # 21 个游戏系统（~4,600 行）
 │   │   ├── sanityVisual.js         # SAN 视觉呈现系统（290 行）— 颜色/文本腐蚀/CSS类/Canvas参数
 │   │   ├── earlyHooks.js           # Day 1-3 感官锚点（82 行）— 十三声钟入口+区域低语
 │   │   ├── fearLens.js             # 恐惧滤镜 — 文本+NPC对话（333 行）
@@ -454,9 +500,10 @@ COC/
 │   │   ├── sanFeedback.js          # SAN 反馈分层 — 4档损失表现（~120 行）
 │   │   ├── firstLoopBalance.js     # 首轮保护 — 限制随机暴毙（~40 行）
 │   │   ├── textVariants.js         # 文本重复控制 — 4层污染变体（~150 行）
-│   │   └── gameSettings.js         # 设置系统 — 无障碍+音量+视觉控制（~100 行）
+│   │   ├── llmNarrative.js         # AI 叙事增强层（~320 行）— 9个LLM增强函数（事件/NPC/死亡/Meta/余韵/SAN腐蚀/人格反思/轮回开场/存档名污染）
+│   │   └── gameSettings.js         # 设置系统 — 无障碍+音量+视觉+LLM控制（~110 行）
 │   │
-│   ├── utils/                # 8 个工具模块（1,310 行）
+│   ├── utils/                # 9 个工具模块（1,500+ 行）
 │   │   ├── appHelpers.js           # 游戏核心辅助函数（274 行）
 │   │   ├── errorTracker.js         # 操作追踪 & 错误报告（337 行）
 │   │   ├── buildEventPool.js       # 事件池构建（130 行）
@@ -464,6 +511,7 @@ COC/
 │   │   ├── trustGates.js           # NPC 信任门控（171 行）
 │   │   ├── npcMemory.js            # NPC 跨轮记忆（75 行）
 │   │   ├── clueNameMap.js          # 线索中文名映射（47 行）
+│   │   ├── glmClient.js            # GLM-4.7 Flash API 客户端（~190 行）— 限流/缓存/超时/设置持久化
 │   │   └── uiStore.js              # 旧 UI Store 兼容层（77 行）
 │   │
 │   ├── data/                 # 38 个数据文件 — 800+ 事件
@@ -614,6 +662,8 @@ COC/
 | **AudioManager**       | `managers/`              | 144     | 53段音频管理                        | 区域环境音(昼夜)/技能检定分级/SAN损失分层              |
 | **Registry**           | `data/registry/`         | 227     | 身份注册表                          | 区域/物品/NPC 统一注册 + 名称别名双向解析              |
 | **Validators**         | `data/validators/`       | 522     | 数据验证器                          | 效果/条件/引用三层校验，构建时 + 运行时                |
+| **GLM Client**         | `utils/`                 | 190     | GLM-4.7 Flash API 客户端            | OpenAI兼容/限流2s/缓存5min/超时15s/离线回退            |
+| **LLM Narrative**      | `systems/`               | 320     | AI 叙事增强层                       | 9函数:事件文本/NPC对话/死亡总结/Meta异象/余韵/SAN腐蚀/人格反思/轮回开场/存档名污染 |
 
 ### SAN 系统架构（SSOT）
 
@@ -888,6 +938,8 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.5.1** | 2026-06-16 | **前传音频 + 笔记本 UI + 页面缩放 + AP 音效** — ①前传音频：PrologueScreen 挂载时自动播放夜间环境音（`amb_town_night`），场景切换 UI 音效，卸载时自动停止；②镇中心图片修正：`portraitMap.js` 镇中心区域映射从通用全景图改为专用「镇中心街道」系列图（白天/深夜/崩坏 3 张 WebP，已从 PNG 源转换）；③页面缩放：设置面板新增 70%-140% 缩放滑块（步进 5%），`document.documentElement.style.zoom` 应用，App 启动时自动恢复上次缩放级别；④笔记本 UI：独立 Modal 浮层（`NotebookModal` 组件），左栏「已知线索」底部 📓 按钮 + N 键快捷打开，展示 3 条线索链（港口失踪案/莫里斯家族/晨星会仪式）的找到/锁定状态 + 类型标签（表层/深层/终末）+ 线索⟷结论互引标记 + 5 个结论进度 + 散落笔记；⑤AP 消耗音效反馈：通用机制在主 reducer 层检测 AP 变化（AP ≤ 2 → `ui_error` 警告音，AP 归零 → `ui_click_forbidden` 禁止音，AP ≤ 3 → 背景音乐切换到对应时间阶段营造紧迫感），MOVE/EXPLORE/TALK_NPC/WORK/BUY_FOOD 各 action 也有独立反馈；⑥快捷键更新：N 键打开笔记本（键盘提示同步更新）；⑦图片资源：`镇中心街道 白天/深夜/崩坏.png` → `沃切斯特镇中心 xxx.webp`（平均压缩比 93%，总计 779KB） |
+| **0.5.0** | 2026-06-16 | **GLM-4.7 Flash AI 叙事增强接入** — ①新增 `glmClient.js`(190行)：GLM-4.7 Flash API 客户端，OpenAI 兼容端点，内置限流(2s)/缓存(5min)/超时(15s)/设置持久化；②新增 `llmNarrative.js`(320行)：6 个 LLM 增强函数——`enhanceEventDescription`(动态事件文本)、`generateNpcDialogue`(8NPC角色扮演对话)、`enhanceDeathSummary`(死亡4段增强)、`generateMetaCorruptionEvent`(Meta异象)、`generateAfterglow`(余韵诗意)、`generateSanCorruptedText`(SAN腐蚀叙述)；③`EnhancedNarrativeBlock` 组件：事件触发时异步调用LLM生成个性化叙事(signature/里程碑100%，普通事件SAN≤40时30%)，单飞守卫+缓存+新轮回清理；④设置面板「AI 叙事增强」分组：总开关+API Key输入+4个子功能独立控制(死亡总结/NPC对话/Meta异象/事件文本)；⑤死亡画面LLM增强：4段叙事异步加载+余韵诗意文本渐进显示；⑥离线优先架构：Reducer零LLM依赖，UI层异步调用，API失败自动回退800+条静态文本 |
 | **0.4.1** | 2026-06-15 | **"活的深渊"系统 + 事件文本感官化** — ①AP污染系统：SAN stage≥3或loop≥3时AP显示欺骗(多报1-4点)+行动偷取(20-40%概率多扣1AP)+发现揭示机制；②不可靠每日总结：SAN stage≥2数值误差/≥3省略行动/≥4追加虚假记忆；③Mythos SAN门控：SAN≥50且loop<3时mythos增益静默跳过，保持"不可知"恐怖；④事件文本感官化重写：343行改动，7个事件文件+5个NPC背景全面改写，去掉"你知道——/你注意到/你认出了"句式，"展现"替代"讲述"；⑤神话专名门控：第一周目零真名泄露，loop 2使用模糊替代("那个符号"/"地下的纹路")，loop 3+解锁专名；⑥全景地图缩放同步：热点图标随背景图一起缩放平移(viewport容器统一transform)；⑦修复6个Bug：updateSettings未定义/c.target变量遮蔽/Modal未import/3函数定义位置错误/60+处缺失ESM import/save变量名冲突 |
 | **0.4.1维护** | 2026-06-15 | **Reducer 确定性 RNG + 3 个 import 缺失 + 2 个逻辑错误** — ①修复 `coreSlice.js` 未导入 `clamp` 导致 `RESIST_SAN_DRAIN` 运行时崩溃（深渊弹窗抵抗机制）；②修复 `effectReducer.js` 未导入 `resolveClueName` 导致线索名解析静默失败（线索显示原始 ID 而非中文名）；③修复 `dailySlice.js` 未导入 `updateAreaCorruption` 导致 REST 时区域腐蚀度不更新；④修复 `npcSlice.js` `get_item` 路径将 NPC 秘密的叙事文本（如"他曾亲眼见过深潜者的祭祀"）当作线索 ID 塞入 `s.clues`，污染线索数组；⑤修复 `darkSlice.js` `CONSUME_ARCHIVE` 线索名显示 `[object Object]`（`s.clues.pop()` 返回对象时未提取 name）；⑥修复 `uiSlice.js` `GAMBLE_CHOICE` deep_investigate 路径 `addRunMemory` 引用 `availableClues[0]` 而非实际被 `pick()` 选中的线索；⑦**确定性 RNG 全面接入**：6 个 reducer slice 文件共 40+ 处 `Math.random()` / `rand()` / `pick()` 调用全部改为 `c.rng` fallback 模式（`(c.rng ? c.rng.next() : Math.random())` + `rand(min, max, c.rng)` + `pick(arr, c.rng)`），确保存档回放、确定性测试、bug 复现可靠 |
 | **0.4.0** | 2026-06-15 | **SAN精度化 + 第一章节奏 + 工程改造** — ①新建 `sanityVisual.js`(290行)：SAN视觉呈现集中化，sanReducer瘦身50%；②新建 `earlyHooks.js`(82行)：十三声钟入口序列（6秒延迟音频+Canvas脉冲）+区域氛围低语；③遗产亮点系统：NPC遗言(8人×3档24段)+运行时刻+轮回印记；④Chapter 1硬限：事件池过滤(blocked types)+AP上限5(Days 1-3)+Day 3强制过渡事件；⑤SAN精度化：AbyssPopup间隔拉长(90-180s)+抵抗微交互(3连点-1SAN)+CorruptibleChoice门控(isKeyEvent)+unreliable_narration_level字段+Canvas 3级性能降级+文本腐蚀概率下调37-60%；⑥资源对接：光源→区域描述污染+感染→NPC幻觉变体(24条)+安全屋退化加速(loop≥3+2)+码头深潜者低语(10条)+章节配置回退；⑦工程改造：eventBus.js(跨Slice通信)+commands.js(类型化effect)+Zod Schema(735条数据校验)+engine边界检查(0违规)+Content Editor(editor.html)+Vite构建优化(587B HTML/code-split/734ms)；⑧修复4个运行时Bug：ESM隐式全局/ctx参数不匹配/CSS路径错位/SAN地板值；⑨新增CHANGELOG.md+mistake.txt错误追踪 |

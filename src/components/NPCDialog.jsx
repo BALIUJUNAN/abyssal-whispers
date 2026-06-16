@@ -1,10 +1,30 @@
 // src/components/NPCDialog.jsx - NPC dialog component (extracted from GamePanels.jsx)
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { applyMythosAliases, maybeCorruptNpcName } from '../systems/textVariants.js';
+import { generateNpcDialogue, isGlmAvailable } from '../systems/llmNarrative.js';
 
 export function NPCDialog({ npc, trust, layer, dispatch, state }) {
   const [show, setShow] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
+  // LLM 动态对话：信任≥3 时异步增强
+  const [llmLine, setLlmLine] = useState(null);
+  useEffect(() => {
+    setLlmLine(null);
+    if (!layer || trust < 3) return;
+    // 检查用户设置
+    try {
+      var s = JSON.parse(localStorage.getItem('abyssal_whispers_settings') || '{}');
+      if (s.llmEnabled === false) return;
+      if (s.llmNpcDialogue === false) return;
+    } catch (e) { return; }
+    if (!isGlmAvailable()) return;
+    var cancelled = false;
+    var topic = layer.dialogue ? layer.dialogue.slice(0, 60) : '日常问候';
+    generateNpcDialogue(npc.name, topic, state || {}).then(function (text) {
+      if (!cancelled && text) setLlmLine(text);
+    });
+    return function () { cancelled = true; };
+  }, [npc.name, trust, layer && layer.dialogue]);
   // 对话分组折叠状态：交谈/帮助 默认展开，特殊 默认折叠
   const [collapsedGroups, setCollapsedGroups] = useState({
     talk: false,
@@ -149,6 +169,24 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
             }}
           >
             {layer.hint}
+          </div>
+        )}
+        {/* LLM 动态对话增强 */}
+        {llmLine && (
+          <div
+            style={{
+              marginTop: '0.2rem',
+              padding: '0.4rem 0.7rem',
+              borderLeft: '2px solid rgba(180,160,120,0.25)',
+              fontSize: '0.8rem',
+              color: 'var(--text-secondary, #a89a85)',
+              lineHeight: 1.7,
+              fontStyle: 'italic',
+              opacity: 0.9,
+              animation: 'fadeIn 0.6s ease-in',
+            }}
+          >
+            {llmLine}
           </div>
         )}
         {!show ? (

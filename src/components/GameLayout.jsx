@@ -4,6 +4,9 @@
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { InteractiveTownMap } from './InteractiveTownMap.jsx';
 import { FloatingInfoBar, NarrativeFloatingPanel } from './FloatingInfoBar.jsx';
+import { AreaPanelModal } from './AreaPanelModal.jsx';
+import { GameHeader, LeftPanel, CenterPanel, RightPanel } from './GamePanels.jsx';
+import { generateMetaCorruptionEvent, generateLoopOpening, generateCorruptedSaveName, isGlmAvailable } from '../systems/llmNarrative.js';
 
 export function GameLayout({ state, dispatch, areas, settings }) {
   const ui = uiStore();
@@ -14,7 +17,99 @@ export function GameLayout({ state, dispatch, areas, settings }) {
   // SAN/corruption/fx classes now applied by parent div.game-root in app.jsx
   // This avoids duplication and lets CSS descendant selectors work for both modes.
 
-  // M 键切换模式 — 放在这里而非子组件中，确保两种模式下都能响应
+  // 环境音初始化：进入游戏画面时确保背景音乐播放
+  // 兜底机制：effect 系统在 BEGIN_ADVENTURE/MOVE/REST 时也会触发，
+  // 但如果 effect 因浏览器自动播放限制被静默吞掉，这里提供安全网。
+  useEffect(() => {
+    try {
+      if (audioManager.muted) return;
+      var phase = getPhase(state.ap, state.maxAp);
+      audioManager.playAreaAmbient(state.currentArea || 'town_center', phase);
+    } catch (e) {}
+  }, [state.currentArea, state.day, state.audioMuted]);
+
+  // LLM 轮回开场白：新轮回开始时生成既视感叙事
+  var loopOpeningFired = useRef(false);
+  useEffect(() => {
+    if (loopOpeningFired.current) return;
+    if (!state.loopCount || state.loopCount < 1) return;
+    loopOpeningFired.current = true;
+    try {
+      var s = JSON.parse(localStorage.getItem('abyssal_whispers_settings') || '{}');
+      if (s.llmEnabled === false) return;
+    } catch (e) { return; }
+    if (!isGlmAvailable()) return;
+    generateLoopOpening(state, state.deathContext || {}).then(function (text) {
+      if (text) {
+        dispatch({
+          type: 'DELAYED_NARRATE',
+          narrType: 'system',
+          text: text,
+          extra: { isSpecial: true },
+        });
+      }
+    });
+  }, []);
+
+  // LLM Meta 异象：REST 结束（day+1）后低 SAN 有概率触发
+  var prevDayRef = useRef(state.day);
+  useEffect(() => {
+    var prevDay = prevDayRef.current;
+    prevDayRef.current = state.day;
+    // 仅在 day 真正变化时触发（REST 导致的 day++）
+    if (state.day <= prevDay) return;
+    var san = state.san || 60;
+    if (san > 30) return;
+    // SAN 越低触发概率越高：SAN≤10 → 50%，SAN≤20 → 30%，SAN≤30 → 15%
+    var chance = san <= 10 ? 0.5 : san <= 20 ? 0.3 : 0.15;
+    if (Math.random() > chance) return;
+    // 检查设置
+    try {
+      var s = JSON.parse(localStorage.getItem('abyssal_whispers_settings') || '{}');
+      if (s.llmEnabled === false) return;
+      if (s.llmMetaCorruption === false) return;
+    } catch (e) { return; }
+    if (!isGlmAvailable()) return;
+    generateMetaCorruptionEvent(state).then(function (result) {
+      if (result && result.text) {
+        dispatch({
+          type: 'DELAYED_NARRATE',
+          narrType: 'system',
+          text: (result.prefix || '[异象]') + ' ' + result.text,
+          extra: { isSpecial: true },
+        });
+      }
+    });
+  }, [state.day]);
+
+  // LLM 存档名污染：SAN ≤ 20 时异步篡改最近存档的显示名
+  useEffect(() => {
+    if (!state.day || state.day <= 1) return;
+    var san = state.san || 60;
+    if (san > 20) return;
+    try {
+      var s = JSON.parse(localStorage.getItem('abyssal_whispers_settings') || '{}');
+      if (s.llmEnabled === false) return;
+    } catch (e) { return; }
+    if (!isGlmAvailable()) return;
+    if (Math.random() > 0.5) return;
+    var area = state.currentArea || '沃切斯特';
+    var originalName = '第' + state.day + '日 · ' + area + ' · SAN:' + san;
+    generateCorruptedSaveName(originalName, state).then(function (corrupted) {
+      if (!corrupted) return;
+      try {
+        var raw = localStorage.getItem('coc_save_auto_1');
+        if (!raw) return;
+        var data = JSON.parse(raw);
+        if (data && data.meta) {
+          data.meta._corruptedName = corrupted;
+          localStorage.setItem('coc_save_auto_1', JSON.stringify(data));
+        }
+      } catch (e) { /* non-fatal */ }
+    });
+  }, [state.day]);
+
+  // M 键切换模式、N 键打开笔记本 — 放在这里而非子组件中，确保两种模式下都能响应
   useEffect(() => {
     const handler = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -23,10 +118,15 @@ export function GameLayout({ state, dispatch, areas, settings }) {
           uiMode: prev.uiMode === 'town_map' ? 'classic' : 'town_map',
         }));
       }
+      // N 键打开笔记本（两种布局模式均可用）
+      if (e.key === 'n' || e.key === 'N') {
+        try { uiStore.setState({ notebookOpen: true, notebookEverOpened: true }); } catch (err) {}
+        try { dispatch({ type: 'MARK_NOTEBOOK_OPENED' }); } catch (err) {}
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [dispatch]);
 
   // 地图模式
   if (uiMode === 'town_map') {

@@ -33,6 +33,12 @@ export function handleNpcAction(s, action, c, ctx) {
         return s;
       }
       s.ap -= 1;
+      // AP 消耗音效反馈
+      if (s.ap <= 2 && s.ap > 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+      } else if (s.ap <= 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+      }
       c.effects.push({ type: 'INCREMENT_STAT', key: 'run_npc_talks' });
       const npc = action.npc;
       const trust = getNpcTrust(s, npc.name);

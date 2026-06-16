@@ -179,6 +179,7 @@ import {
   LeftPanel,
   CenterPanel,
   RightPanel,
+  NotebookModal,
 } from './components/GamePanels.jsx';
 
 // GAME_DATA placeholder is replaced at build time by build.py.
@@ -269,6 +270,8 @@ function gameReducer(state, action) {
   _pendingEffects = [];
   return produce(state, (s) => {
     _currentFearTuning = s.fearTuning || null;
+    // AP 变化检测：记录 reducer 执行前的 AP
+    const _apBefore = s.ap;
     // Seeded RNG: create deterministic rng for this reducer run
     const _runSeed = s.runSeed || 'default';
     const _actIdx = (action.meta && action.meta._actionIndex != null) ? action.meta._actionIndex : (s._actionIndex || 0);
@@ -331,6 +334,22 @@ function gameReducer(state, action) {
           ];
           c.narr('system', pick(_stealTexts, c.rng), { isEffect: true });
         }
+      }
+    }
+    // ── AP 变化音效：通用检测（覆盖所有 action type）──
+    if (typeof _apBefore === 'number' && s.ap < _apBefore) {
+      // 仅在 AP 低到临界值时播放音效，避免频繁打扰
+      if (s.ap <= 0 && _apBefore > 0) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+      } else if (s.ap <= 2 && _apBefore > 2) {
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+      }
+      // AP 紧张时切换背景音乐到对应阶段（营造紧迫感）
+      if (s.ap <= 3 && _apBefore > 3) {
+        try {
+          var _phase = getPhase(s.ap, s.maxAp);
+          c.effects.push({ type: 'AUDIO_AMBIENT', area: s.currentArea, phase: _phase });
+        } catch (e) {}
       }
     }
     // Tag effects deterministically from action.meta.actionId (no Date.now/random in reducer)
@@ -455,6 +474,23 @@ function App() {
       dispatch({ type: 'SET_META_FIELD', field: '_metaPollution', value: 25 });
     }
   }, [settings]);
+
+  // 笔记本打开 → 同步标记引导已读（uiStore → game state）
+  useEffect(() => {
+    if (ui.notebookEverOpened && !(state.tutorialSeen || {}).notebook_opened) {
+      dispatch({ type: 'MARK_NOTEBOOK_OPENED' });
+    }
+  }, [ui.notebookEverOpened]);
+
+  // 页面缩放初始化：从设置恢复 zoom 级别
+  useEffect(() => {
+    var scale = settings.pageScale;
+    if (scale && scale !== 100) {
+      document.documentElement.style.zoom = (scale / 100).toString();
+    } else {
+      document.documentElement.style.zoom = '';
+    }
+  }, [settings.pageScale]);
 
   // Audio autoplay unlock: browsers block audio until first user gesture
   useEffect(() => {
@@ -629,6 +665,11 @@ function App() {
         onSaved={notifySave}
       />
       <AchievementGallery open={ui.achOpen} onClose={() => uiStore.setState({ achOpen: false })} />
+      <NotebookModal
+        open={!!ui.notebookOpen}
+        onClose={() => uiStore.setState({ notebookOpen: false })}
+        state={state}
+      />
       {ui.ugcOpen && (
         <Modal
           open={ui.ugcOpen}

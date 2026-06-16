@@ -33,6 +33,13 @@ export const DEFAULT_SETTINGS = {
   showGuideHints: true,    // show guide hints
   skipSeenText: false,     // skip seen text
   confirmActions: false,   // confirm critical actions
+
+  // LLM Enhancement (optional, requires API key)
+  llmEnabled: false,       // enable LLM narrative enhancement
+  llmDeathSummary: true,   // LLM-enhanced death summary
+  llmNpcDialogue: true,    // LLM-enhanced NPC dialogue
+  llmMetaCorruption: true, // LLM-generated meta corruption events
+  llmEventText: false,     // LLM-enhanced event descriptions (heavier)
 };
 
 /**
@@ -84,6 +91,8 @@ export function validateSetting(key, value) {
   };
   const validator = validators[key];
   if (validator) return { valid: true, clamped: validator(value) };
+  // Boolean settings pass through directly
+  if (typeof value === 'boolean') return { valid: true, clamped: value };
   return { valid: true, clamped: value };
 }
 

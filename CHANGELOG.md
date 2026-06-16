@@ -1,5 +1,83 @@
 # CHANGELOG
 
+## 2026-06-16 — 前传音频 + 笔记本 UI + 页面缩放 + AP 音效
+
+### 新增功能
+
+- **前传音频** (`src/components/GameScreens.jsx`)
+  - PrologueScreen 挂载时自动播放夜间环境音（`amb_town_night`），卸载时自动停止
+  - 场景切换时播放 UI 音效（`ui_panel_open`）
+  - 新增 `audioManager` import
+
+- **笔记本 UI** (`src/components/GamePanels.jsx` + `src/styles.css`)
+  - 独立 `NotebookModal` 浮层组件，不干扰上方 HP/SAN/AP 数据查看
+  - 左栏「已知线索」底部 📓 打开笔记本按钮
+  - 快捷键 N 打开笔记本（键盘提示同步更新）
+  - 展示 3 条线索链（港口失踪案/莫里斯家族/晨星会仪式）找到/锁定状态
+  - 线索类型标签（表层/深层/终末）+ 线索⟷结论互引标记
+  - 5 个结论进度 + 散落笔记 + 笔记本底部设计文本
+
+- **页面缩放** (`src/components/GameModals.jsx` + `src/app.jsx`)
+  - 设置面板新增「页面缩放」滑块（70%-140%，步进 5%）
+  - `document.documentElement.style.zoom` 应用，App 启动时自动恢复
+
+- **AP 消耗音效反馈** (`src/app.jsx` + 各 slice handler)
+  - 通用机制：主 reducer 层 AP 变化检测（AP ≤ 2 → `ui_error`，AP 归零 → `ui_click_forbidden`，AP ≤ 3 → 背景音乐切换）
+  - MOVE/EXPLORE/TALK_NPC/WORK/BUY_FOOD 各自独立 AP 音效
+
+### 修复
+
+- **镇中心图片** (`src/portraitMap.js`)
+  - `AREA_IMAGE_MAP.town_center` 从通用全景图改为专用「镇中心街道」系列
+  - `沃切斯特镇中心 白天/深夜/崩坏.webp` 从 PNG 源转换（平均压缩比 93%）
+
+### 资源
+
+- 新增 3 张 WebP 镇中心场景图（总 779KB），图片总数 141 张
+
+---
+
+## 2026-06-16 — GLM-4.7 Flash AI 叙事增强接入
+
+### 新增功能
+
+- **GLM-4.7 Flash API 客户端** (`src/utils/glmClient.js`)
+  - OpenAI-compatible endpoint via Z.ai / Zhipu AI
+  - 离线优先：所有调用可选，失败自动 fallback 到静态文本
+  - 内置限流（2s最小间隔）、5分钟响应缓存、15s超时
+  - API Key 持久化存储（localStorage）
+
+- **LLM 叙事增强层** (`src/systems/llmNarrative.js`)
+  - `enhanceDeathSummary()` — 死亡总结4段叙事 LLM 增强
+  - `generateNpcDialogue()` — 8位NPC动态对话生成（基于信任/周目/腐蚀度）
+  - `generateMetaCorruptionEvent()` — 低SAN时 LLM 生成独特伪系统消息
+  - `enhanceEventDescription()` — 事件描述动态润色
+  - `generateAfterglow()` — 死亡余韵诗意文本
+  - `generateSanCorruptedText()` — 低SAN不可靠叙述改写
+
+- **设置面板集成** (`src/components/GameModals.jsx`)
+  - 新增「AI 叙事增强」设置分组
+  - 开关、API Key 输入、子功能独立控制
+
+- **动态事件/文本生成** (`src/components/GamePanels.jsx`)
+  - `EnhancedNarrativeBlock` 组件：事件触发时异步调用 LLM 生成个性化叙事
+  - 智能触发：仅增强 signature/milestone 事件或 SAN≤40 时的事件
+  - 采样率控制：普通事件 30% 概率增强，高优先级事件 100%
+  - 单飞守卫：同一时间只发一个 LLM 请求，避免 API 洪泛
+  - 缓存 + 新轮回自动清理
+
+- **死亡画面集成** (`src/components/GamePanels.jsx`)
+  - `EndingScreen` 组件异步加载 LLM 增强文本
+  - 渐进增强：静态文本立即显示，LLM文本就绪后追加
+  - 死亡余韵（afterglow）诗意文本 LLM 生成
+
+### 工程变更
+
+- `build.py` REDUCER_FILES 新增 `utils/glmClient.js`、`systems/llmNarrative.js`
+- `gameSettings.js` 新增 LLM 相关设置项（llmEnabled, llmDeathSummary, llmNpcDialogue, llmMetaCorruption, llmEventText）
+
+---
+
 ## 2026-06-14 — SAN系统重构 + 工程改造 + 4个运行时Bug修复
 
 ### 错误记录

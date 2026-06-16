@@ -1,6 +1,7 @@
 // src/components/GameScreens.jsx - Screen components extracted from app.jsx
 // PrologueScreen, SurvivalGuide, CharCreation
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
+import { audioManager } from '../managers/AudioManager.js';
 
 export function PrologueScreen({ state, dispatch }) {
   const prologue = state.prologue;
@@ -10,6 +11,21 @@ export function PrologueScreen({ state, dispatch }) {
   const [showHint, setShowHint] = useState(false);
   const [choiceMade, setChoiceMade] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState(null);
+
+  // 前传音频：挂载时播放夜间环境音，卸载时停止
+  useEffect(() => {
+    try {
+      audioManager.playAreaAmbient('town_center', 'night');
+    } catch (e) {}
+    return () => {
+      try { audioManager.stopAmbient(); } catch (e) {}
+    };
+  }, []);
+
+  // 场景切换时播放低沉音效
+  useEffect(() => {
+    try { audioManager.playUI('panel_open'); } catch (e) {}
+  }, [prologue.currentScene]);
 
   // 当场景变化时重置
   useEffect(() => {

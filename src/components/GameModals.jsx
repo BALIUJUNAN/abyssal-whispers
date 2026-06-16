@@ -115,6 +115,32 @@ export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, di
       </div>
       <div className="settings-group-title">显示</div>
       <div className="settings-row">
+        <span className="settings-label">页面缩放</span>
+        <input
+          type="range"
+          className="settings-slider"
+          min="100"
+          max="140"
+          step="5"
+          value={settings.pageScale ?? 100}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            update('pageScale', v);
+            document.documentElement.style.zoom = (v / 100).toString();
+          }}
+        />
+        <span
+          style={{
+            fontSize: '0.7rem',
+            color: 'var(--text-dim)',
+            width: '2.5rem',
+            textAlign: 'right',
+          }}
+        >
+          {settings.pageScale ?? 100}%
+        </span>
+      </div>
+      <div className="settings-row">
         <span className="settings-label">叙事字号</span>
         <div className="font-size-group">
           {[
@@ -258,6 +284,81 @@ export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, di
       >
         无障碍选项：大幅降低视觉+交互效果，仅保留核心文字污染。
       </div>
+      {/* LLM Enhancement Settings */}
+      <div className="settings-group-title">AI 叙事增强</div>
+      <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', margin: '0 0 0.5rem', lineHeight: 1.4 }}>
+        接入 GLM-4.7 Flash API，获得动态生成的叙事文本。需联网 + API Key。
+      </div>
+      <div className="settings-row">
+        <span className="settings-label">启用 AI 增强</span>
+        <button
+          className={'settings-toggle' + (settings.llmEnabled ? ' on' : '')}
+          onClick={() => {
+            update('llmEnabled', !settings.llmEnabled);
+            // Sync to LLM settings storage
+            try {
+              var llmSettings = JSON.parse(localStorage.getItem('abyssal_whispers_llm') || '{}');
+              llmSettings.enabled = !settings.llmEnabled;
+              localStorage.setItem('abyssal_whispers_llm', JSON.stringify(llmSettings));
+            } catch (e) { /* ignore */ }
+          }}
+        />
+      </div>
+      {settings.llmEnabled && (
+        <>
+          <div className="settings-row">
+            <span className="settings-label">API Key</span>
+            <input
+              type="password"
+              className="settings-slider"
+              style={{ width: '180px', fontSize: '0.75rem' }}
+              placeholder="输入 GLM API Key"
+              defaultValue={(() => {
+                try { return JSON.parse(localStorage.getItem('abyssal_whispers_llm') || '{}').apiKey || ''; } catch (e) { return ''; }
+              })()}
+              onBlur={(e) => {
+                try {
+                  var llmSettings = JSON.parse(localStorage.getItem('abyssal_whispers_llm') || '{}');
+                  llmSettings.apiKey = e.target.value;
+                  // 不强制覆盖 enabled 状态，保持用户的开关选择
+                  localStorage.setItem('abyssal_whispers_llm', JSON.stringify(llmSettings));
+                } catch (err) { /* ignore */ }
+              }}
+            />
+          </div>
+          <div className="settings-row">
+            <span className="settings-label">死亡总结增强</span>
+            <button
+              className={'settings-toggle' + (settings.llmDeathSummary ? ' on' : '')}
+              onClick={() => update('llmDeathSummary', !settings.llmDeathSummary)}
+            />
+          </div>
+          <div className="settings-row">
+            <span className="settings-label">NPC 对话增强</span>
+            <button
+              className={'settings-toggle' + (settings.llmNpcDialogue ? ' on' : '')}
+              onClick={() => update('llmNpcDialogue', !settings.llmNpcDialogue)}
+            />
+          </div>
+          <div className="settings-row">
+            <span className="settings-label">Meta 异象增强</span>
+            <button
+              className={'settings-toggle' + (settings.llmMetaCorruption ? ' on' : '')}
+              onClick={() => update('llmMetaCorruption', !settings.llmMetaCorruption)}
+            />
+          </div>
+          <div className="settings-row">
+            <span className="settings-label">事件描述增强</span>
+            <button
+              className={'settings-toggle' + (settings.llmEventText ? ' on' : '')}
+              onClick={() => update('llmEventText', !settings.llmEventText)}
+            />
+          </div>
+          <div style={{ fontSize: '0.65rem', color: 'var(--text-dim)', margin: '0.2rem 0 0.5rem', lineHeight: 1.4 }}>
+            事件触发时动态润色描述文本。API调用更频繁，仅增强重要事件或低SAN时的事件。
+          </div>
+        </>
+      )}
       {onAchOpen && (
         <>
           <div className="settings-group-title">其他</div>
@@ -348,8 +449,8 @@ export function SaveLoadModal({ open, onClose, state, onLoad, mode, onSaved }) {
         }}
       >
         <div className="save-slot-label">{label}</div>
-        <div className="save-slot-meta">
-          第{m.day || '?'}日 · {m.area || '?'} · SAN:{m.san || '?'}
+        <div className="save-slot-meta" style={m._corruptedName ? { color: 'var(--danger2)', fontStyle: 'italic' } : undefined}>
+          {m._corruptedName || ('第' + (m.day || '?') + '日 · ' + (m.area || '?') + ' · SAN:' + (m.san || '?'))}
         </div>
         <div className="save-slot-time">{formatTime(slot.timestamp)}</div>
       </div>

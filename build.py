@@ -132,6 +132,7 @@ REDUCER_FILES = [
     # utils/uiStore.js removed — migrated to state/uiStore.js (below)
     'utils/errorTracker.js',  # Error tracker for player operation logging & bug reports
     'utils/seededRng.js',     # MUST precede initialState.js (generateRunSeed)
+    'utils/glmClient.js',     # GLM-4.7 Flash API client (must precede llmNarrative.js)
     'state/initialState.js',
     # ── Dual Store Architecture ──
     'state/uiStore.js',             # useUiStore — migrated from utils/uiStore.js (re-export)
@@ -145,6 +146,7 @@ REDUCER_FILES = [
     'systems/npcFeedback.js',         # MUST precede npcSlice.js
     'systems/firstLoopBalance.js',    # MUST precede exploreSlice.js
     'systems/sanityVisual.js',        # MUST precede appHelpers.js (getPerceptionLevels, getSanStageClasses)
+    'systems/llmNarrative.js',        # LLM narrative enhancement (optional, depends on glmClient.js)
     # gameSettings.js excluded: DEFAULT_SETTINGS already in miscReducer.js
     # Phase 2: App-level helper functions extracted from app.jsx
     'utils/appHelpers.js',

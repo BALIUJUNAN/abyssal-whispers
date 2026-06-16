@@ -216,7 +216,7 @@ export function InteractiveTownMap({ state, dispatch }) {
   // 缩放控制
   const handleWheel = useCallback((e) => {
     e.preventDefault();
-    setZoom((z) => Math.max(0.5, Math.min(2.5, z + (e.deltaY > 0 ? -0.1 : 0.1))));
+    setZoom((z) => Math.max(1, Math.min(2, z + (e.deltaY > 0 ? -0.1 : 0.1))));
   }, []);
 
   // 拖拽平移
@@ -345,11 +345,11 @@ export function InteractiveTownMap({ state, dispatch }) {
         </div>
       </div>
 
-      {/* 缩放控制 */}
+      {/* 缩放控制：100%~200%，不允许缩小到默认以下 */}
       <div className="town-map-zoom-controls">
         <button
           className="map-zoom-btn"
-          onClick={() => setZoom((z) => Math.min(2.5, z + 0.2))}
+          onClick={() => setZoom((z) => Math.min(2, z + 0.2))}
           title="放大"
         >
           +
@@ -357,7 +357,7 @@ export function InteractiveTownMap({ state, dispatch }) {
         <span className="map-zoom-level">{Math.round(zoom * 100)}%</span>
         <button
           className="map-zoom-btn"
-          onClick={() => setZoom((z) => Math.max(0.5, z - 0.2))}
+          onClick={() => setZoom((z) => Math.max(1, z - 0.2))}
           title="缩小"
         >
           −

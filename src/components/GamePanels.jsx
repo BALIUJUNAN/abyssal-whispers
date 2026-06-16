@@ -8,6 +8,7 @@ import { getPerceptionLevels } from '../systems/sanityVisual.js';
 import { NPCDialog } from './NPCDialog.jsx';
 import { CitySketchMap } from './CitySketchMap.jsx';
 import { getNpcTrust, getDisplayedAp } from '../utils/appHelpers.js';
+import { enhanceDeathSummary, generateAfterglow, enhanceEventDescription, generateSanCorruptedText, generatePersonalityReflection, generateLoopOpening, isGlmAvailable, clearGlmCache, clearGlmQueue } from '../systems/llmNarrative.js';
 
 export const LeftPanel = memo(function LeftPanel({ state }) {
   const seal = useMemo(
@@ -157,6 +158,14 @@ export const LeftPanel = memo(function LeftPanel({ state }) {
               · {typeof c === 'object' ? c.name : resolveClueName(c)}
             </div>
           ))}
+          <button
+            className="notebook-open-btn"
+            onClick={() => {
+              uiStore.setState({ notebookOpen: true, notebookEverOpened: true });
+            }}
+          >
+            📓 打开笔记本
+          </button>
         </CollapsibleSection>
       )}
       {/* 折叠：封印记录 */}
@@ -193,6 +202,119 @@ export const LeftPanel = memo(function LeftPanel({ state }) {
   );
 });
 
+// Enhanced NarrativeBlock with optional LLM dynamic text generation
+// Only enhances event-type blocks with tier >= signature, when LLM is enabled and SAN <= 40
+var _llmEnhanceQueue = new Map(); // blockId -> enhancedText cache
+var _llmInFlightId = 0;           // monotonic request ID (null = idle)
+
+function EnhancedNarrativeBlock({ block, gameState }) {
+  const [enhancedText, setEnhancedText] = useState(null);
+  const [corruptedText, setCorruptedText] = useState(null);
+
+  // LLM 事件描述增强（原有逻辑）
+  useEffect(() => {
+    // Only enhance event blocks
+    if (!block || block.type !== 'event') return;
+    // Only enhance if LLM is available
+    if (!isGlmAvailable()) return;
+    // Check settings
+    try {
+      var s = JSON.parse(localStorage.getItem('abyssal_whispers_settings') || '{}');
+      if (s.llmEnabled === false) return;
+      if (s.llmEventText === false) return;
+    } catch (e) { return; }
+
+    // Priority: only enhance signature/milestone events, or when SAN <= 40
+    var san = (gameState && gameState.san) || 60;
+    var isHighPriority = block.tier === 'signature' || block.tier === 'milestone' || block._isMilestone;
+    var isLowSan = san <= 40;
+
+    if (!isHighPriority && !isLowSan) return;
+
+    // Random sampling: only enhance ~30% of eligible events to avoid API spam
+    if (!isHighPriority && Math.random() > 0.3) return;
+
+    // Check cache
+    if (_llmEnhanceQueue.has(block.id)) {
+      setEnhancedText(_llmEnhanceQueue.get(block.id));
+      return;
+    }
+
+    // Single-flight guard: don't queue multiple concurrent calls
+    if (_llmInFlightId > 0) return;
+    var reqId = ++_llmInFlightId;
+
+    var cancelled = false;
+    var eventObj = { description: block.text, name: block.eventTitle, type: block.eventType, tier: block.tier };
+    enhanceEventDescription(eventObj, gameState || {}).then(function (text) {
+      // Only clear flight guard if this request is still the active one
+      // (clearLlmEventCache resets _llmInFlightId to 0, invalidating stale requests)
+      if (_llmInFlightId === reqId) _llmInFlightId = 0;
+      if (!cancelled && text && text.length > 20) {
+        _llmEnhanceQueue.set(block.id, text);
+        setEnhancedText(text);
+      }
+    }).catch(function () {
+      if (_llmInFlightId === reqId) _llmInFlightId = 0;
+    });
+
+    return function () { cancelled = true; };
+  }, [block && block.id]);
+
+  // LLM SAN 文本污染：SAN ≤ 25 时，非系统文本块送去 LLM 改写为不可靠叙述
+  useEffect(() => {
+    setCorruptedText(null);
+    if (!block || !block.text || block.text.length < 30) return;
+    if (block.type === 'system' || block.isEffect || block.isSpecial) return;
+    var san = (gameState && gameState.san) || 60;
+    if (san > 25) return;
+    try {
+      var s = JSON.parse(localStorage.getItem('abyssal_whispers_settings') || '{}');
+      if (s.llmEnabled === false) return;
+    } catch (e) { return; }
+    if (!isGlmAvailable()) return;
+    // 随机采样 40%，避免 API 洪泛
+    if (Math.random() > 0.4) return;
+    var cancelled = false;
+    generateSanCorruptedText(block.text, gameState || {}).then(function (text) {
+      if (!cancelled && text && text.length > 15) setCorruptedText(text);
+    });
+    return function () { cancelled = true; };
+  }, [block && block.id]);
+
+  // SAN 文本污染：用污染后的文本替代原始文本
+  var displayBlock = corruptedText ? { ...block, text: corruptedText } : block;
+
+  return (
+    <div>
+      <NarrativeBlock block={displayBlock} />
+      {enhancedText && (
+        <div style={{
+          marginTop: '0.3rem',
+          padding: '0.5rem 0.8rem',
+          borderLeft: '2px solid rgba(180, 160, 120, 0.3)',
+          fontSize: '0.9em',
+          color: 'var(--text-secondary, #a89a85)',
+          fontStyle: 'italic',
+          opacity: 0.9,
+          lineHeight: 1.7,
+          animation: 'fadeIn 0.8s ease-in',
+        }}>
+          {enhancedText}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Clear LLM cache on new loop (event cache + API response cache + pending queue)
+export function clearLlmEventCache() {
+  _llmEnhanceQueue.clear();
+  _llmInFlightId = 0; // invalidate any in-flight request (its reqId check will fail)
+  try { clearGlmCache(); } catch (e) { /* guard: module may not be loaded */ }
+  try { clearGlmQueue(); } catch (e) { /* guard: module may not be loaded */ }
+}
+
 export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
   const ref = useRef(null);
   const transitionTimer = useRef(null);
@@ -216,6 +338,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       const key = e.key;
       // 1-9: select action button (always active)
+      // N 键笔记本已移至 GameLayout.jsx（两种布局模式通用）
       if (key >= '1' && key <= '9') {
         const idx = parseInt(key) - 1;
         const btns = document.querySelectorAll('.action-area .action-btn:not(:disabled)');
@@ -338,7 +461,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
       )}
       <div className={'narrative-area' + percCls} ref={ref}>
         {state.narrative.filter(b => !isPhantomExpired(b)).map((b) => (
-          <NarrativeBlock key={b.id} block={b} />
+          <EnhancedNarrativeBlock key={b.id} block={b} gameState={state} />
         ))}
         {state.pendingEvent &&
           !state.pendingEvent.rolled &&
@@ -808,7 +931,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                 </div>
               );
             })()}
-            <div className="keyboard-hint">快捷键：1-9选择 · Space确认 · M地图 · I物品 · J线索</div>
+            <div className="keyboard-hint">快捷键：1-9选择 · Space确认 · M地图 · I物品 · J线索 · N笔记本</div>
           </div>
         )}
       {state.eventLog.length > 0 && (
@@ -1166,6 +1289,149 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
   );
 });
 
+// === 笔记本 Modal ===
+// 独立浮层，不干扰上方数据查看。按 N 键或点击按钮打开。
+export function NotebookModal({ open, onClose, state }) {
+  const chains = useMemo(() => GD.clue_chains || [], []);
+  const conclusions = useMemo(
+    () => (GD.systems?.clue_conclusion?.conclusions || []),
+    []
+  );
+  // 用 Set 加速查找
+  const clueIdSet = useMemo(() => {
+    const s = new Set();
+    (state.clues || []).forEach((c) => s.add(typeof c === 'object' ? c.id || c.name : c));
+    return s;
+  }, [state.clues]);
+  const completedChainSet = useMemo(
+    () => new Set(state.completedChains || []),
+    [state.completedChains]
+  );
+  const discoveredConcSet = useMemo(
+    () => new Set(state.discoveredConclusions || []),
+    [state.discoveredConclusions]
+  );
+
+  // 找到线索在哪些结论中被引用
+  const clueToConclusions = useMemo(() => {
+    const m = {};
+    conclusions.forEach((co) => {
+      (co.evidence_pool || []).forEach((ev) => {
+        const key = ev.source || '';
+        if (!m[key]) m[key] = [];
+        m[key].push(co);
+      });
+    });
+    return m;
+  }, [conclusions]);
+
+  if (!open) return null;
+  const totalClueCount = chains.reduce((t, ch) => t + (ch.clues?.length || 0), 0);
+  const foundCount = clueIdSet.size;
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-content notebook-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <span className="modal-title">📓 笔记本</span>
+          <button className="modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="modal-body notebook-body">
+          <div className="notebook-stats">
+            线索 {foundCount}/{totalClueCount} · 事件链 {completedChainSet.size}/{chains.length} · 结论 {discoveredConcSet.size}/{conclusions.length}
+          </div>
+
+          {/* 线索链 */}
+          {chains.map((chain) => {
+            const chainDone = completedChainSet.has(chain.id);
+            const clues = chain.clues || [];
+            const foundInChain = clues.filter((cl) => clueIdSet.has(cl.id)).length;
+            return (
+              <div key={chain.id} className={'notebook-chain' + (chainDone ? ' chain-done' : '')}>
+                <div className="notebook-chain-title">
+                  <span className="chain-icon">{chainDone ? '✓' : '◇'}</span>
+                  {chain.name}
+                  <span className="chain-count">{foundInChain}/{clues.length}</span>
+                </div>
+                <div className="notebook-chain-clues">
+                  {clues.map((cl) => {
+                    const found = clueIdSet.has(cl.id);
+                    const typeLabel = { surface: '表层', mechanism: '深层', ending: '终末' }[cl.type] || cl.type;
+                    // 这条线索被哪些结论引用
+                    const linkedConcs = clueToConclusions[cl.id] || [];
+                    return (
+                      <div key={cl.id} className={'notebook-clue' + (found ? ' clue-found' : ' clue-locked')}>
+                        <span className="clue-mark">{found ? '▪' : '◻'}</span>
+                        <span className="clue-name">{found ? cl.name : '？？？'}</span>
+                        <span className="clue-type">{typeLabel}</span>
+                        {found && linkedConcs.length > 0 && (
+                          <span className="clue-links" title={linkedConcs.map(c => c.name).join('、')}>
+                            ⟷ {linkedConcs.length}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* 结论区 */}
+          {conclusions.length > 0 && (
+            <div className="notebook-section">
+              <div className="notebook-section-title">结论</div>
+              {conclusions.map((co) => {
+                const discovered = discoveredConcSet.has(co.id);
+                const evidence = co.evidence_pool || [];
+                const matched = evidence.filter((ev) => clueIdSet.has(ev.source)).length;
+                return (
+                  <div key={co.id} className={'notebook-conclusion' + (discovered ? ' conc-discovered' : '')}>
+                    <span className="conc-mark">{discovered ? '★' : '☆'}</span>
+                    <span className="conc-name">{discovered ? co.name : '？？？'}</span>
+                    <span className="conc-progress">{matched}/{co.required_evidence_count || evidence.length}</span>
+                    {discovered && (
+                      <div className="conc-evidence">
+                        {evidence.map((ev, i) => (
+                          <div key={i} className="conc-ev-item">
+                            {clueIdSet.has(ev.source) ? '✓' : '…'} {ev.description?.slice(0, 30)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* 已收集线索（不在链中的自由线索） */}
+          {(() => {
+            const chainClueIds = new Set();
+            chains.forEach((ch) => (ch.clues || []).forEach((cl) => chainClueIds.add(cl.id)));
+            const freeClues = (state.clues || []).filter((c) => {
+              const id = typeof c === 'object' ? c.id || c.name : c;
+              return !chainClueIds.has(id);
+            });
+            if (freeClues.length === 0) return null;
+            return (
+              <div className="notebook-section">
+                <div className="notebook-section-title">散落笔记</div>
+                {freeClues.map((c, i) => (
+                  <div key={i} className="notebook-clue clue-found">
+                    <span className="clue-mark">▪</span>
+                    <span className="clue-name">{typeof c === 'object' ? c.name : resolveClueName(c)}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** 4-section death summary view */
 function DeathSummaryView({ summary }) {
   const s1 = summary.section1;
@@ -1306,6 +1572,44 @@ export function EndingScreen({ ending, state, dispatch }) {
       ? 'death-anim-mental'
       : 'death-anim-physical'
     : '';
+
+  // LLM narrative enhancement (async, optional)
+  const [llmSections, setLlmSections] = useState(null);
+  const [llmAfterglow, setLlmAfterglow] = useState(null);
+  const [llmReflection, setLlmReflection] = useState(null);
+  useEffect(() => {
+    if (!isGlmAvailable() || !ending.deathSummary) return;
+    // Respect sub-setting: llmDeathSummary
+    try {
+      var s = JSON.parse(localStorage.getItem('abyssal_whispers_settings') || '{}');
+      if (s.llmEnabled === false) return;
+      if (s.llmDeathSummary === false) return;
+    } catch (e) { return; }
+    var cancelled = false;
+    enhanceDeathSummary(state, state.deathContext || {}, ending.deathSummary).then(function (result) {
+      if (!cancelled && result) setLlmSections(result);
+    });
+    generateAfterglow(state, state.deathContext || {}).then(function (text) {
+      if (!cancelled && text) setLlmAfterglow(text);
+    });
+    return function () { cancelled = true; };
+  }, []);
+
+  // LLM 人格反思增强：用 LLM 生成更深邃的行为档案附注
+  useEffect(() => {
+    if (!isGlmAvailable()) return;
+    if (!ending.personalityReport || !ending.personalityReport.traits || ending.personalityReport.traits.length === 0) return;
+    try {
+      var s = JSON.parse(localStorage.getItem('abyssal_whispers_settings') || '{}');
+      if (s.llmEnabled === false) return;
+    } catch (e) { return; }
+    var cancelled = false;
+    generatePersonalityReflection(state, ending.personalityReport.traits).then(function (paragraphs) {
+      if (!cancelled && paragraphs && paragraphs.length > 0) setLlmReflection(paragraphs);
+    });
+    return function () { cancelled = true; };
+  }, []);
+
   return (
     <div className={'ending-screen ' + tc + ' ' + deathAnimClass}>
       <h2>{ending.name}</h2>
@@ -1555,11 +1859,36 @@ export function EndingScreen({ ending, state, dispatch }) {
           </div>
         </div>
       )}
-      <button className="btn btn-primary" onClick={() => dispatch({ type: 'NEW_GAME' })}>
+      {/* LLM 人格反思增强（异步加载） */}
+      {llmReflection && llmReflection.length > 0 && (
+        <div style={{ maxWidth: 520, margin: '0.5rem auto', textAlign: 'left', fontSize: 13, lineHeight: 1.8, color: 'var(--text-secondary, #a89a85)', padding: '0.5rem 0', borderLeft: '2px solid rgba(120,100,80,0.2)', paddingLeft: '1rem' }}>
+          <div style={{ fontSize: 11, opacity: 0.4, marginBottom: 6, letterSpacing: '0.1em' }}>✦ 档案附注 · AI</div>
+          {llmReflection.map(function (p, i) { return <p key={i} style={{ marginBottom: 6 }}>{p}</p>; })}
+        </div>
+      )}
+      <button className="btn btn-primary" onClick={() => { clearLlmEventCache(); dispatch({ type: 'NEW_GAME' }); }}>
         {state.loopCount > 0 ? '这次不一样' : '再次踏入深渊'}
       </button>
       {/* 4-section death summary */}
       {ending.deathSummary && <DeathSummaryView summary={ending.deathSummary} />}
+
+      {/* LLM-enhanced narrative (async, appears when ready) */}
+      {llmSections && (
+        <div className="llm-enhanced-summary" style={{ maxWidth: 520, margin: '1rem auto', textAlign: 'left', fontSize: 14, lineHeight: 1.8, borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '1rem' }}>
+          <div style={{ fontSize: 11, opacity: 0.4, marginBottom: 8, letterSpacing: '0.1em' }}>✦ AI 叙事增强</div>
+          {llmSections.section1 && <p style={{ marginBottom: 8 }}>{llmSections.section1}</p>}
+          {llmSections.section2 && <p style={{ marginBottom: 8 }}>{llmSections.section2}</p>}
+          {llmSections.section3 && <p style={{ marginBottom: 8 }}>{llmSections.section3}</p>}
+          {llmSections.section4 && <p style={{ marginBottom: 8 }}>{llmSections.section4}</p>}
+        </div>
+      )}
+
+      {/* LLM afterglow (poetic reflection) */}
+      {llmAfterglow && (
+        <div style={{ maxWidth: 480, margin: '1rem auto', textAlign: 'center', fontStyle: 'italic', color: 'var(--text-secondary, #a89a85)', fontSize: 13, lineHeight: 1.9, opacity: 0.85 }}>
+          {llmAfterglow}
+        </div>
+      )}
     </div>
   );
 }

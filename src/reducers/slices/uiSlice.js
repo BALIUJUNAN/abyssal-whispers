@@ -311,6 +311,10 @@ export function handleUiAction(s, action, c, ctx) {
       s.skills = initSkills();
       return s;
     }
+    case 'MARK_NOTEBOOK_OPENED': {
+      s.tutorialSeen = { ...(s.tutorialSeen || {}), notebook_opened: true };
+      return s;
+    }
     case 'SET_META_FIELD': {
       s[action.field] = action.value;
       return s;
