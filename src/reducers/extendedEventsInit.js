@@ -8,6 +8,7 @@ import { events as deathEchoEvents } from '../data/events_death_echo.js';
 import { events as supplementEvents } from '../data/events_supplement.js';
 import { injectBehaviorEndings } from '../data/behavior_endings.js';
 import { applyUgcToGD } from '../utils/buildEventPool.js';
+import { getSanStageFromGD } from './sanReducer.js';
 
 /**
  * Initialize the extended event system.

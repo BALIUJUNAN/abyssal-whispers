@@ -4,6 +4,7 @@
 // DESIGN_REFACTOR_NOTES.md: infection > 50 inserts ocean/body hallucination variants.
 
 import { selectContextualLine } from '../data/npcContextualLines.js';
+import { getSanStageFromGD } from '../reducers/sanReducer.js';
 
 /**
  * Get a contextual greeting/line for an NPC based on full game state.
