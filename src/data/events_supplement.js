@@ -1,7 +1,7 @@
 // src/data/events_supplement.js - 补充事件: 后7区事件池扩充
 // Total: 120 new events, all once_per_run
 
-export var events = [
+export var supplement_events = [
   {
     id: 'grove_clue_root_map',
     name: '根系地图',
@@ -1459,3 +1459,6 @@ export var events = [
     choices: [],
   },
 ];
+
+// Getter for bundled build (import alias stripped by build.py)
+export function getSupplementEvents() { return supplement_events; }

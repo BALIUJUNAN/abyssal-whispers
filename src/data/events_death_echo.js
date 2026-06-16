@@ -383,3 +383,6 @@ export const events = [
     choices: [],
   },
 ];
+
+// Getter for bundled build (import alias stripped by build.py)
+export function getDeathEchoEvents() { return events; }

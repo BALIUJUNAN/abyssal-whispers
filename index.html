@@ -3159,13 +3159,13 @@ function getNpcFatigueEffect(npcName, loopCount, state) {
 // === Loop Inheritance: Benefits and Costs ===
 // Enhanced initLoopState additions
 
+/**
+ * @deprecated Unused — loopReducer.js has inline trust decay. Kept for reference.
+ */
 function getLoopInheritanceCost(loopCount) {
   return {
-    // SAN max permanent decrease: -2 per loop after loop 5
     sanCapReduction: loopCount >= 5 ? Math.min(20, (loopCount - 4) * 2) : 0,
-    // NPC trust decay: -1 per 3 loops
     npcTrustDecay: loopCount >= 3 ? Math.floor(loopCount / 3) : 0,
-    // Pollution increase: +5% per loop
     pollutionIncrease: 0.05,
   };
 }
@@ -3173,6 +3173,9 @@ function getLoopInheritanceCost(loopCount) {
 // === NPC Trust Decay from High Loops ===
 // NPCs become less trusting when the player keeps returning.
 
+/**
+ * @deprecated Unused — loopReducer.js has inline trust decay at line 117-123. Kept for reference.
+ */
 function applyLoopNpcTrustDecay(state, loopCount) {
   if (loopCount < 3) return;
   var decay = Math.floor(loopCount / 3);
@@ -3444,7 +3447,7 @@ OMENS;
 // src/data/events_supplement.js - 补充事件: 后7区事件池扩充
 // Total: 120 new events, all once_per_run
 
-var events = [
+var supplement_events = [
   {
     id: 'grove_clue_root_map',
     name: '根系地图',
@@ -4902,6 +4905,9 @@ var events = [
     choices: [],
   },
 ];
+
+// Getter for bundled build (import alias stripped by build.py)
+function getSupplementEvents() { return supplement_events; }
 
 // === reducers/extendedEvents.js ===
 // src/reducers/extendedEvents.js - Extended event system for 800+ event pool
@@ -22395,6 +22401,9 @@ const _events_deathEchoEvents = [
     choices: [],
   },
 ];
+
+// Getter for bundled build (import alias stripped by build.py)
+function getDeathEchoEvents() { return events; }
 var deathEchoEvents = _events_deathEchoEvents;
 
 // === reducers/extendedEventsLoader.js ===
@@ -23690,25 +23699,30 @@ function initExtendedEvents(GD) {
   mergeExtendedEvents(GD, EXTENDED_EVENT_MODULES);
   const coreExtendedCount = GD._extendedEventCount; // 599
 
-  // Merge death echo events separately (they must NOT change _extendedEventCount)
-  if (deathEchoEvents && deathEchoEvents.length > 0) {
-    const existingIds = new Set(GD.events.map((e) => e.id));
-    const newEcho = deathEchoEvents.filter((e) => !existingIds.has(e.id));
-    GD.events.push(...newEcho);
-    GD._deathEchoCount = newEcho.length;
+  // Merge supplementary event pools (death_echo + supplement) via getter functions.
+  // Cannot use ESM import aliases here: build.py strips imports, and multiple files
+  // export `var events` causing variable shadowing in the concatenated bundle.
+  // Getter functions (getDeathEchoEvents / getSupplementEvents) are unique names.
+  const _supplementary = [
+    { getter: getDeathEchoEvents, key: '_deathEchoCount' },
+    { getter: getSupplementEvents, key: '_supplementEventCount' },
+  ];
+  for (const { getter, key } of _supplementary) {
+    try {
+      const pool = getter();
+      if (pool && pool.length > 0) {
+        const existingIds = new Set(GD.events.map((e) => e.id));
+        const newEvents = pool.filter((e) => !existingIds.has(e.id));
+        GD.events.push(...newEvents);
+        GD[key] = newEvents.length;
+      }
+    } catch (e) {
+      /* non-fatal: supplementary events are optional */
+    }
   }
 
-  // Restore _extendedEventCount to 599 (death echo events are supplementary)
+  // Restore _extendedEventCount to 599 (supplementary events are not counted)
   GD._extendedEventCount = coreExtendedCount;
-
-  // Merge supplement events (后7区补充) — must NOT change _extendedEventCount
-  // so shouldTriggerMissing600's 599 check remains valid.
-  if (supplementEvents && supplementEvents.length > 0) {
-    const existingIds2 = new Set(GD.events.map((e) => e.id));
-    const newSupp = supplementEvents.filter((e) => !existingIds2.has(e.id));
-    GD.events.push(...newSupp);
-    GD._supplementEventCount = newSupp.length;
-  }
 
   // Inject hidden ending for missing_event_600
   injectMissingEnding(GD);

@@ -4,8 +4,6 @@
 import { mergeExtendedEvents } from './extendedEventsLoader.js';
 import { EXTENDED_EVENT_MODULES, EXTENDED_EVENT_STATS } from '../data/extended_events_index.js';
 import { injectMissingEnding } from '../data/ending_missing_600.js';
-import { events as deathEchoEvents } from '../data/events_death_echo.js';
-import { events as supplementEvents } from '../data/events_supplement.js';
 import { injectBehaviorEndings } from '../data/behavior_endings.js';
 import { applyUgcToGD } from '../utils/buildEventPool.js';
 import { getSanStageFromGD } from './sanReducer.js';
@@ -29,25 +27,30 @@ export function initExtendedEvents(GD) {
   mergeExtendedEvents(GD, EXTENDED_EVENT_MODULES);
   const coreExtendedCount = GD._extendedEventCount; // 599
 
-  // Merge death echo events separately (they must NOT change _extendedEventCount)
-  if (deathEchoEvents && deathEchoEvents.length > 0) {
-    const existingIds = new Set(GD.events.map((e) => e.id));
-    const newEcho = deathEchoEvents.filter((e) => !existingIds.has(e.id));
-    GD.events.push(...newEcho);
-    GD._deathEchoCount = newEcho.length;
+  // Merge supplementary event pools (death_echo + supplement) via getter functions.
+  // Cannot use ESM import aliases here: build.py strips imports, and multiple files
+  // export `var events` causing variable shadowing in the concatenated bundle.
+  // Getter functions (getDeathEchoEvents / getSupplementEvents) are unique names.
+  const _supplementary = [
+    { getter: getDeathEchoEvents, key: '_deathEchoCount' },
+    { getter: getSupplementEvents, key: '_supplementEventCount' },
+  ];
+  for (const { getter, key } of _supplementary) {
+    try {
+      const pool = getter();
+      if (pool && pool.length > 0) {
+        const existingIds = new Set(GD.events.map((e) => e.id));
+        const newEvents = pool.filter((e) => !existingIds.has(e.id));
+        GD.events.push(...newEvents);
+        GD[key] = newEvents.length;
+      }
+    } catch (e) {
+      /* non-fatal: supplementary events are optional */
+    }
   }
 
-  // Restore _extendedEventCount to 599 (death echo events are supplementary)
+  // Restore _extendedEventCount to 599 (supplementary events are not counted)
   GD._extendedEventCount = coreExtendedCount;
-
-  // Merge supplement events (后7区补充) — must NOT change _extendedEventCount
-  // so shouldTriggerMissing600's 599 check remains valid.
-  if (supplementEvents && supplementEvents.length > 0) {
-    const existingIds2 = new Set(GD.events.map((e) => e.id));
-    const newSupp = supplementEvents.filter((e) => !existingIds2.has(e.id));
-    GD.events.push(...newSupp);
-    GD._supplementEventCount = newSupp.length;
-  }
 
   // Inject hidden ending for missing_event_600
   injectMissingEnding(GD);
