@@ -41,7 +41,10 @@ body {
   color: var(--text);
   font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
+}
+html {
+  overflow: hidden;
 }
 #root {
   min-height: 100vh;

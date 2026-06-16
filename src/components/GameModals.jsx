@@ -126,7 +126,10 @@ export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, di
           onChange={(e) => {
             const v = Number(e.target.value);
             update('pageScale', v);
-            document.documentElement.style.zoom = (v / 100).toString();
+            var BASE_ZOOM = 1.1;
+            document.documentElement.style.zoom = ((v / 100) * BASE_ZOOM).toString();
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
           }}
         />
         <span

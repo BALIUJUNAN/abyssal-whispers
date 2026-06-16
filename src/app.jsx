@@ -483,14 +483,15 @@ function App() {
     }
   }, [ui.notebookEverOpened]);
 
-  // 页面缩放初始化：从设置恢复 zoom 级别
+  // 页面缩放初始化：基础 zoom 1.1x，slider 100 = 1.1x 实际缩放
   useEffect(() => {
-    var scale = settings.pageScale;
-    if (scale && scale !== 100) {
-      document.documentElement.style.zoom = (scale / 100).toString();
-    } else {
-      document.documentElement.style.zoom = '';
-    }
+    var BASE_ZOOM = 1.1;
+    var scale = settings.pageScale ?? 100;
+    var actualZoom = (scale / 100) * BASE_ZOOM;
+    document.documentElement.style.zoom = actualZoom.toString();
+    // 防止缩放 >1 时出现滚动条
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
   }, [settings.pageScale]);
 
   // Audio autoplay unlock: browsers block audio until first user gesture
