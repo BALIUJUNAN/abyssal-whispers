@@ -11,7 +11,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_587B_HTML-green)
 ![Tests](https://img.shields.io/badge/tests-285_passing-brightgreen)
-![Version](https://img.shields.io/badge/version-0.5.1-orange)
+![Version](https://img.shields.io/badge/version-0.8.0-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -72,25 +72,26 @@ npm run tauri:build
 
 | 维度           | 数据                                                                                                                        |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **独立事件**   | 800+ 个（619 扩展事件 + 175+ JSON 事件）                                                                                    |
+| **独立事件**   | **855+ 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆） + 102 结局                        |
 | **行为结局**   | **36 条** — 由你的选择模式触发，非预设分支                                                                                  |
 | **主线结局**   | **10 条** — 封印守护者 / 希尔达抉择 / 老费舍血脉 / 第十二声钟 / 海上逃离 / 证据逃离 / 异端黎明 / 深渊吞噬 / 超越 / 循环真相 |
 | **结局余韵**   | 每条结局附带可解锁的 Afterglow 文本（条件触发）                                                                             |
 | **死亡类型**   | 16 种 — 7 种物理死亡 + 8 种精神死亡 + 1 种混合                                                                              |
-| **NPC**        | **8 位** × 5 级信任 × 4 层跨轮记忆 × 关系网 × 死后遗产                                                                      |
-| **可探索区域** | 9 个 — 从镇中心到深渊墓穴，危险度递进                                                                                       |
-| **物品**       | 79 种 — 全部有效果，含 2 家可购买商店                                                                                       |
+| **NPC**        | **8 位** × 5 级信任 × 4 层跨轮记忆 × 关系网 × 死后遗产 × **40+ 条上下文对话**（信任/时段/SAN/轮回/死亡遗产变体）             |
+| **可探索区域** | 9 个 — 从镇中心到深渊墓穴，危险度递进（45-265 事件/区域）                                                                    |
+| **物品**       | 79 种 — 全部有效果，含 2 家可购买商店 + 轮回商店 6 件永久商品                                                                |
 | **事件链**     | 7 条 — 码头暗流 / 森林深处 / 庄园迷踪 / 墓穴惊魂 / 伊斯之谜 / 灯塔真相 / 城市暗流                                           |
 | **音频素材**   | 53 段 (WAV + MP3) — 覆盖环境音乐 / 音效 / 中文语音                                                                          |
 | **成就**       | 20 个 — 进程 / 结局 / 挑战 / 隐藏四大类                                                                                     |
 | **存档槽位**   | 6 个 — 3 自动轮转 + 3 手动管理，JSON 导入导出                                                                               |
 | **图片素材**   | 141 张 WebP — 含 72 张独立结局 CG + 3 张镇中心专用场景图                                                                     |
-| **前传系统**   | 7 场景线性叙事 — 构建你的恐惧画像                                                                                           |
+| **前传系统**   | 7 场景线性叙事 — 构建你的恐惧画像 + 打字机效果                                                                               |
 | **SAN 系统**   | 6 阶段 × 4 维度（视觉/交互/逻辑/Meta）完整污染定义，SAN视觉精度化（稀疏恐怖，非噪声）+ AP 污染 + 不可靠总结 + Mythos 门控    |
 | **布局模式**   | 2 种 — 暗黑地牢风格全景地图 / 经典三栏面板                                                                                  |
+| **转场动画**   | **Canvas 程序化转场** — 噪声擦拭 / 墨汁渗透 / 虚空之环 / 故障切片 4 种效果 + 主题音效联动 + 可关闭                          |
 | **AI 叙事增强**| GLM-4.7 Flash — 9 个场景动态生成，离线优先                                                                   |
-| **代码规模**   | 43,000+ 行 JS/JSX — 112+ 个源文件                                                                                           |
-| **数据校验**   | Zod Schema 735条数据全量校验                                                                                                 |
+| **代码规模**   | 45,000+ 行 JS/JSX — 114+ 个源文件                                                                                           |
+| **数据校验**   | Zod Schema 855条数据全量校验                                                                                                 |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
@@ -325,6 +326,9 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **DevPanel**              | 开发者调试面板（~ / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                           |
 | **AI 叙事增强**           | GLM-4.7 Flash — 9 场景动态生成，离线优先，API 失败自动回退                                          |
 | **SAN mutation 静态检查** | `npm run lint:san` — 扫描全部 reducer，禁止直接 `s.san = clamp(san-...)`，白名单除外                 |
+| **屏幕转场动画**          | Canvas 程序化转场（噪声擦拭/墨汁渗透/虚空之环/故障切片）+ CSS enter + 主题音效联动 + 800ms 编排      |
+| **NPC 上下文对话**        | 8 位 NPC × 143 条条件感知对话（信任/时段/SAN/轮回/死亡遗产/物品/区域），优先未读，去重              |
+| **第 600 事件**           | 隐藏终局事件 — loop≥10 + mythos≥25 + san≤10 + 5+结局 + 终局内容 → 599→600 虚拟事件自动显现         |
 
 ---
 
@@ -392,7 +396,7 @@ COC/
 ├── assets/webp/              # 138 张 WebP 图片素材
 ├── audio/                    # 53 个音频文件（WAV + MP3）
 │
-├── src/                      # 20,456 行 JS/JSX，104 个源文件
+├── src/                      # 21,000+ 行 JS/JSX，106 个源文件
 │   ├── app.jsx               # 主入口（368 行 — 路由 + 双Store桥接 + 布局切换）
 │   ├── main.vite.jsx         # Vite 入口（加载 shim + 游戏数据 + 启动 app）
 │   ├── main.jsx              # Legacy 构建入口（Babel 环境）
@@ -449,6 +453,8 @@ COC/
 │   │   ├── ErrorBoundary.jsx       # 渲染错误捕获（222 行）
 │   │   ├── AppToast.jsx            # Toast 通知（17 行）
 │   │   ├── GameCommon.jsx          # 通用游戏 UI 片段（57 行）
+│   │   ├── ScreenTransition.jsx    # 屏幕转场编排器（118 行）— Canvas + CSS + 音频联动
+│   │   ├── TransitionCanvas.jsx    # Canvas 程序化转场引擎（197 行）— 4种像素级效果
 │   │   └── UgcImportExport.jsx     # UGC 模组导入导出（466 行）
 │   │
 │   ├── reducers/             # 21 个状态管理模块（5,283 行）
@@ -490,7 +496,7 @@ COC/
 │   │   │                           #   数据驱动 infection_risk
 │   │   ├── worldDecay.js           # 世界腐化推进（187 行）
 │   │   ├── sanVisualCorruption.js  # SAN 视觉腐化系统（152 行）
-│   │   ├── npcDialogue.js          # NPC 对话系统（128 行）
+│   │   ├── npcDialogue.js          # NPC 对话系统（128 行）— 腐败/感染/疲劳变体 + 上下文行选择器
 │   │   ├── metaCorruption.js       # Meta 层腐化（73 行）
 │   │   ├── deathSummary.js         # 死亡总结页 — 4段叙事结构（~300 行）
 │   │   │                           #   你如何死去 / 你发现了什么 / 世界变化 / 下轮目标
@@ -529,6 +535,8 @@ COC/
 │   │   ├── events_ending.js        # 结局事件（70 行）
 │   │   ├── events_death_echo.js    # 死亡回声（27 行）
 │   │   ├── events_meta.js          # Meta 叙事事件（31 行）
+│   │   ├── events_supplement.js    # 后7区补充事件（120 个，56KB）
+│   │   ├── npcContextualLines.js   # NPC 上下文对话（143 条，8 NPC × 7 类型）
 │   │   ├── extended_events_index.js # 扩展事件汇总索引（76 行）
 │   │   │
 │   │   │   ── 结局系统 ──
@@ -576,7 +584,7 @@ COC/
 │   └── vendor/                     # React 18 / ReactDOM / Babel / Immer
 │
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 9 个测试文件（272 tests）
+├── tests/                    # 9 个测试文件（285 tests）
 │   ├── test_effect_protocol.cjs       # 效果协议测试（6 tests）
 │   ├── test_game_data_protocol.cjs    # 游戏数据协议测试（10 tests）
 │   ├── test_event_system.cjs          # 事件系统测试（19 tests）
@@ -642,7 +650,7 @@ COC/
 | **AreaPanelModal**     | `components/`            | 303     | 热点功能面板                        | 行动/NPC对话/区域信息三标签页                          |
 | **useGameStore**       | `state/`                 | 90      | 游戏状态桥接                        | useSan/useDay/useHp/usePollution 等选择器钩子          |
 | **useUiStore**         | `state/`                 | 89      | UI状态管理                          | 模态框/Toast/设置/地图模式/热点状态                    |
-| **DevPanel**           | `components/ui/`         | 79      | 开发者调试面板                      | ~打开，4标签页：状态/工具/权重/性能                    |
+| **DevPanel**           | `components/ui/`         | 79      | 开发者调试面板                      | ~打开，4标签页：状态+事件池/工具/权重/性能             |
 | **死亡系统**           | `reducers/`              | 383     | 16种死亡×四段叙事                   | 标题→临终→世界处理→残留提示                            |
 | **死亡总结**           | `systems/`               | 300     | 4段叙事死亡总结                     | 死因叙事/发现/世界变化/新目标，不暴露机制               |
 | **轮回系统**           | `reducers/`              | 258     | 跨周目状态传递                      | 污染累积/SAN上限削减/技能继承30%/NPC记忆渐进           |
@@ -657,7 +665,7 @@ COC/
 | **文本变体**           | `systems/`               | 330+    | 文本重复+神话别名+疑似bug           | 4层重复控制+专名渐进渗透+幻影日志/NPC错字/幻影叙述      |
 | **前传系统**           | `reducers/`              | 195     | 7场景恐惧画像                       | 6维度心理profile/跳过保护                              |
 | **结局引擎**           | `reducers/`              | 343     | AND/OR条件解析                      | 36行为结局+10主线+隐藏+Meta打破                        |
-| **NPC系统**            | `reducers/` + `systems/` | 286+128 | 8人×5级信任×4层记忆×关系网×死后遗产 | 信任门控/腐蚀/救赎路线/NPC间关系/遗产继承              |
+| **NPC系统**            | `reducers/` + `systems/` + `data/` | 286+128+206 | 8人×5级信任×4层记忆×关系网×死后遗产×143条上下文对话 | 信任门控/腐蚀/救赎路线/NPC间关系/遗产继承/条件感知对话 |
 | **结局余韵**           | `reducers/`              | 73      | Afterglow 文本系统                  | 条件解锁(事件/物品/周目数)/轮回记录UI                  |
 | **AudioManager**       | `managers/`              | 144     | 53段音频管理                        | 区域环境音(昼夜)/技能检定分级/SAN损失分层              |
 | **Registry**           | `data/registry/`         | 227     | 身份注册表                          | 区域/物品/NPC 统一注册 + 名称别名双向解析              |
@@ -852,7 +860,7 @@ npm run mod:pack         # UGC 模组打包
 
 | 标签页      | 功能                                                                               |
 | ----------- | ---------------------------------------------------------------------------------- |
-| **STATE**   | 实时查看 SAN/HP/Day/Loop/AP/Area/Food/Money/Pollution/Corruption/Mythos/Seal/Clues |
+| **STATE**   | 实时查看 SAN/HP/Day/Loop/AP/Area/Food/Money/Pollution/Corruption/Mythos/Seal/Clues + **Event Pool**（Total/Base/Extended/Supplement/600th event 状态） |
 | **TOOLS**   | 一键 Force EXPLORE / REST / New Game / Reset Pollution / Full SAN / Full HP        |
 | **WEIGHTS** | 查看触发事件数/今日类型/异常连续/最近事件/类别预算/冷却计时                        |
 | **PERF**    | FPS 监控/State key 数量/Narrative 条目数/堆内存使用                                |
@@ -896,7 +904,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 | 维度                 | 评分       | 状态                                                                                           |
 | -------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
 | **主循环 & Reducer** | **9.5/10** | ✅ 6 slice handler + ctx 显式传参 + 引擎层独立 + 双Store架构                                   |
-| **事件系统**         | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents                            |
+| **事件系统**         | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents，855 事件 + 102 结局       |
 | **SAN 系统**         | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现                  |
 | **子系统**           | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk                          |
 | **构建流程**         | **9.5/10** | ✅ Vite 主线（ESM + HMR）；Legacy 单文件保留；verify 覆盖双构建；注释安全删除 + token 边界保护 |
@@ -909,7 +917,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 - ✅ **运行时副作用层** — `src/runtime/effectExecutor.js` post-reducer 副作用去重执行，类型分发架构
 - ✅ **双Store架构** — `useGameStore`（游戏状态选择器）+ `useUiStore`（UI状态 + 地图模式）
 - ✅ **双界面模式** — 暗黑地牢全景地图 + 经典三栏，共用 reducer，零游戏逻辑改动
-- ✅ **模块化彻底** — app.jsx 346行（原 4600 行），提取 16 个独立组件
+- ✅ **模块化彻底** — app.jsx 346行（原 4600 行），提取 18 个独立组件（含 ScreenTransition + TransitionCanvas）
 - ✅ **三层事件调度** — EventEngine 实现里程碑/行为权重/冷却衰减/累积权重二分查找
 - ✅ **污染平滑过渡** — SanPollutionLayer 基于阶段配置自动插值，2s ease 平滑过渡
 - ✅ **三滑块SAN控制** — 视觉/交互/Meta 独立可调，轻度污染模式无障碍保护
@@ -938,6 +946,10 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.8.0** | 2026-06-16 | **功能落地 + Bug 修复** — ①轮回商店 3 个购买效果修复：`shop_san_cap_boost`（SAN 上限+5）/ `shop_death_insurance`（死亡后保留 1 件关键物品）/ `shop_random_rare`（开局随机稀有物品 5 件池）之前设了字段但从未读取，现已接入 BEGIN_ADVENTURE 和 loopReducer；②DevPanel state 标签新增 Event Pool 区域：Total/Base/Extended/Supplement 条数 + 600th event 状态（SEEN/READY/LOCKED）；③修复 2 处 `getSanStageFromGD` import 缺失（extendedEventsInit.js / npcDialogue.js）；④`applyLoopNpcTrustDecay` / `getLoopInheritanceCost` 标记 @deprecated（loopReducer 有内联实现）                                                                                                                                                                                                                             |
+| **0.7.0** | 2026-06-16 | **后 7 区事件池扩充 +120 事件** — ①新增 `events_supplement.js`：120 个补充事件覆盖 7 个薄弱区域（forbidden_grove +29 / ruins_of_yith +23 / lighthouse +12 / catacombs_entrance +18 / voxchester_manor +13 / whispering_forest +14 / deep_catacombs +11）；②事件类型：线索 / 调查 / 陷阱 / 怪物遭遇 / 超自然遭遇 / NPC 互动 / humanity / meta / 氛围事件，全部 once_per_run + chapter 2+ 门控；③区域分布均衡化：最薄区域从 26 提升至 45-65；④7 种补充事件类型新增 EVENT_BUDGET（maxPerDay 2-3）；⑤修复 ch2plus 70 事件缺失 once_per_run（会导致同 run 内重复触发）；⑥修复第 600 事件逻辑：mergeExtendedEvents 中 50 个物品定义（无 trigger）被计入 _extendedEvents 导致 .length === 649 ≠ 599，现已 filter(e => e.trigger)；⑦补充事件以 supplementary 模式注入（不改变 _extendedEventCount）                                                                                              |
+| **0.6.1** | 2026-06-16 | **NPC 上下文对话系统 +143 条** — ①新增 `npcContextualLines.js`：8 位 NPC × 143 条条件感知对话；②新增 `selectContextualLine()`：信任 / 时段 / SAN / 轮回 / 死亡遗产 / 物品 / 区域条件过滤 + 优先级排序 + 已读去重；③新增 `getContextualLine()`：统一入口（上下文行 > 腐败变体 > 感染幻觉）；④NPCDialog 组件信任层对话下方显示紫色左边框上下文短句；⑤覆盖类型：greeting（信任分层 × 3 时段）/ lore / reaction / san（50/40/30/25）/ loop（2/3/5 轮回）/ silence / legacy                                                                                                                                                                                                                           |
+| **0.6.0** | 2026-06-16 | **屏幕转场动画系统** — ①新增 `ScreenTransition.jsx`：屏幕转场编排器（Canvas exit + CSS enter + 音频联动）；②新增 `TransitionCanvas.jsx`：Canvas 2D 程序化转场引擎（4 种像素级效果：noiseWipe / inkBleed / voidCircle / glitchSlices）；③重构 app.jsx：多路 if-return → ScreenTransition 包装 + 条件渲染 + modals 提取外层；④前传叙事文本第一行新增 typewriter 打字机效果（按字数自动计算时长 1.5-4s）；⑤设置面板新增「减弱动效」开关（reducedMotion）；⑥每种转场变体配专属音效（bell / breath / memory / tinnitus）；⑦双重降级：prefers-reduced-motion + body[data-reduced-motion]                                                                                                                                                  |
 | **0.5.1** | 2026-06-16 | **前传音频 + 笔记本 UI + 页面缩放 + AP 音效** — ①前传音频：PrologueScreen 挂载时自动播放夜间环境音（`amb_town_night`），场景切换 UI 音效，卸载时自动停止；②镇中心图片修正：`portraitMap.js` 镇中心区域映射从通用全景图改为专用「镇中心街道」系列图（白天/深夜/崩坏 3 张 WebP，已从 PNG 源转换）；③页面缩放：设置面板新增 70%-140% 缩放滑块（步进 5%），`document.documentElement.style.zoom` 应用，App 启动时自动恢复上次缩放级别；④笔记本 UI：独立 Modal 浮层（`NotebookModal` 组件），左栏「已知线索」底部 📓 按钮 + N 键快捷打开，展示 3 条线索链（港口失踪案/莫里斯家族/晨星会仪式）的找到/锁定状态 + 类型标签（表层/深层/终末）+ 线索⟷结论互引标记 + 5 个结论进度 + 散落笔记；⑤AP 消耗音效反馈：通用机制在主 reducer 层检测 AP 变化（AP ≤ 2 → `ui_error` 警告音，AP 归零 → `ui_click_forbidden` 禁止音，AP ≤ 3 → 背景音乐切换到对应时间阶段营造紧迫感），MOVE/EXPLORE/TALK_NPC/WORK/BUY_FOOD 各 action 也有独立反馈；⑥快捷键更新：N 键打开笔记本（键盘提示同步更新）；⑦图片资源：`镇中心街道 白天/深夜/崩坏.png` → `沃切斯特镇中心 xxx.webp`（平均压缩比 93%，总计 779KB） |
 | **0.5.0** | 2026-06-16 | **GLM-4.7 Flash AI 叙事增强接入** — ①新增 `glmClient.js`(190行)：GLM-4.7 Flash API 客户端，OpenAI 兼容端点，内置限流(2s)/缓存(5min)/超时(15s)/设置持久化；②新增 `llmNarrative.js`(320行)：6 个 LLM 增强函数——`enhanceEventDescription`(动态事件文本)、`generateNpcDialogue`(8NPC角色扮演对话)、`enhanceDeathSummary`(死亡4段增强)、`generateMetaCorruptionEvent`(Meta异象)、`generateAfterglow`(余韵诗意)、`generateSanCorruptedText`(SAN腐蚀叙述)；③`EnhancedNarrativeBlock` 组件：事件触发时异步调用LLM生成个性化叙事(signature/里程碑100%，普通事件SAN≤40时30%)，单飞守卫+缓存+新轮回清理；④设置面板「AI 叙事增强」分组：总开关+API Key输入+4个子功能独立控制(死亡总结/NPC对话/Meta异象/事件文本)；⑤死亡画面LLM增强：4段叙事异步加载+余韵诗意文本渐进显示；⑥离线优先架构：Reducer零LLM依赖，UI层异步调用，API失败自动回退800+条静态文本 |
 | **0.4.1** | 2026-06-15 | **"活的深渊"系统 + 事件文本感官化** — ①AP污染系统：SAN stage≥3或loop≥3时AP显示欺骗(多报1-4点)+行动偷取(20-40%概率多扣1AP)+发现揭示机制；②不可靠每日总结：SAN stage≥2数值误差/≥3省略行动/≥4追加虚假记忆；③Mythos SAN门控：SAN≥50且loop<3时mythos增益静默跳过，保持"不可知"恐怖；④事件文本感官化重写：343行改动，7个事件文件+5个NPC背景全面改写，去掉"你知道——/你注意到/你认出了"句式，"展现"替代"讲述"；⑤神话专名门控：第一周目零真名泄露，loop 2使用模糊替代("那个符号"/"地下的纹路")，loop 3+解锁专名；⑥全景地图缩放同步：热点图标随背景图一起缩放平移(viewport容器统一transform)；⑦修复6个Bug：updateSettings未定义/c.target变量遮蔽/Modal未import/3函数定义位置错误/60+处缺失ESM import/save变量名冲突 |
