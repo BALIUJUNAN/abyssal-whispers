@@ -53,6 +53,13 @@ export function ScreenTransition({ screenKey, children, duration }) {
   var timerRef = useRef(null);
   var rafRef = useRef(null);
 
+  // Sync children when NOT transitioning (same screen, state changed)
+  useEffect(function () {
+    if (phase === "visible" && screenKey === prevKey.current) {
+      setRenderChildren(children);
+    }
+  }, [children, phase, screenKey]);
+
   useEffect(function () {
     if (screenKey === prevKey.current) return;
     if (totalDur === 0) {
