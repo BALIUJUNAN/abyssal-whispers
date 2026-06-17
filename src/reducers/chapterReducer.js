@@ -2,6 +2,8 @@
 // DESIGN_REFACTOR_NOTES.md: Chapter 1 (Day 1-3) = thirteen bells mystery only.
 // Chapter 2 (Day 4-7) = deepening investigation. Chapter 3+ = full reveal.
 
+import { makeRand } from './utils.js';
+
 /** Fallback chapter configs when game_base.json doesn't define them. */
 var _CHAPTER_DEFAULTS = {
   chapter_1: { key: 'chapter_1', mythos_cap: 1, name: '十三声钟响', day_range: [1, 3],
@@ -57,7 +59,7 @@ export function checkChapterTransition(oldDay, newDay, ctx) {
   return t || _TRANSITION_DEFAULTS[key] || { event_text: '你感到某些东西发生了变化。', san_cost: 0, mythos_gain: 0 };
 }
 
-export function getMotifFlavorText(motifType, corruptionLevel, ctx) {
+export function getMotifFlavorText(motifType, corruptionLevel, ctx, rng) {
   const { GD } = ctx;
   const motifs = GD.systems?.motifs?.motifs;
   if (!motifs) return null;
@@ -65,12 +67,13 @@ export function getMotifFlavorText(motifType, corruptionLevel, ctx) {
   if (!motif) return null;
   const examples = motif.narrative_examples;
   if (!examples || examples.length === 0) return null;
-  if (corruptionLevel < 20 && Math.random() > 0.3) return null;
-  if (corruptionLevel < 50 && Math.random() > 0.5) return null;
-  return examples[Math.floor(Math.random() * examples.length)];
+  var _rand = makeRand(rng);
+  if (corruptionLevel < 20 && _rand() > 0.3) return null;
+  if (corruptionLevel < 50 && _rand() > 0.5) return null;
+  return examples[Math.floor(_rand() * examples.length)];
 }
 
-export function getMonsterManifestation(creatureType, day, ctx) {
+export function getMonsterManifestation(creatureType, day, ctx, rng) {
   const { GD } = ctx;
   const rules = GD.implementation_notes?.monster_presence?.creature_rules;
   if (!rules || !rules[creatureType]) return null;
@@ -78,8 +81,9 @@ export function getMonsterManifestation(creatureType, day, ctx) {
   const dist = creature.stage_distribution || {};
   const manifestations = creature.preferred_manifestations || [];
   if (manifestations.length === 0) return null;
+  var _rand = makeRand(rng);
   // Weighted stage selection
-  let r = Math.random();
+  let r = _rand();
   let stage = 'absence';
   for (const [s, w] of Object.entries(dist)) {
     r -= w;
@@ -90,12 +94,12 @@ export function getMonsterManifestation(creatureType, day, ctx) {
   }
   // Early days prefer absence/trace
   if (day <= 7 && (stage === 'full_presence' || stage === 'partial_presence')) {
-    stage = Math.random() < 0.7 ? 'trace' : 'absence';
+    stage = _rand() < 0.7 ? 'trace' : 'absence';
   }
   // Full presence only in late game
   if (stage === 'full_presence' && day < 15) stage = 'partial_presence';
   return {
     stage,
-    manifestation: manifestations[Math.floor(Math.random() * manifestations.length)],
+    manifestation: manifestations[Math.floor(_rand() * manifestations.length)],
   };
 }

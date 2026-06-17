@@ -394,6 +394,12 @@ function App() {
   // Dual store: initialize game store bridge for useGameStore/useSan/useDay selectors
   useEffect(function () {
     initGameStore(state, dispatch);
+    // 移除加载层（首帧渲染完成后）
+    var ls = document.getElementById('loading-screen');
+    if (ls) {
+      ls.classList.add('fade-out');
+      setTimeout(function () { ls.remove(); }, 700);
+    }
   }, []);
   // P0 FIX: flush effects from the module-level buffer.
   // Use a stable ref so dispatch callback doesn't need to be recreated.
@@ -489,9 +495,10 @@ function App() {
     var scale = settings.pageScale ?? 100;
     var actualZoom = (scale / 100) * BASE_ZOOM;
     document.documentElement.style.zoom = actualZoom.toString();
-    // 防止缩放 >1 时出现滚动条
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
+    // 防止缩放 >1 时出现滚动条 (clip 不创建滚动容器，不影响 fixed 定位子元素)
+    // Safari <16 不支持 clip，hidden 作为 fallback
+    document.documentElement.style.overflow = 'clip';
+    document.body.style.overflow = 'clip';
   }, [settings.pageScale]);
 
   // Audio autoplay unlock: browsers block audio until first user gesture
@@ -549,6 +556,30 @@ function App() {
       );
     } catch (e) {}
   }, [settings.reducedMotion]);
+
+  // ── 轻提示：前传结束进入正片时 ──
+  const bootHintShown = useRef(false);
+  const [bootHintVisible, setBootHintVisible] = useState(false);
+  useEffect(() => {
+    if (state.screen === 'game' && state.day === 1 && !bootHintShown.current) {
+      bootHintShown.current = true;
+      setBootHintVisible(true);
+      var t = setTimeout(function () { setBootHintVisible(false); }, 8000);
+      return function () { clearTimeout(t); };
+    }
+  }, [state.screen, state.day]);
+
+  // ── 轻提示：第一次掉 SAN ──
+  const sanHintShown = useRef(false);
+  const [sanHintVisible, setSanHintVisible] = useState(false);
+  useEffect(() => {
+    if (state.screen === 'game' && state.san < 75 && !sanHintShown.current) {
+      sanHintShown.current = true;
+      setSanHintVisible(true);
+      var t = setTimeout(function () { setSanHintVisible(false); }, 2500);
+      return function () { clearTimeout(t); };
+    }
+  }, [state.san, state.screen]);
 
   // ── Compute game screen vars (needed when screen === 'game') ──
   const corrLevel = getCorruptionLevel(state.san, state.loopCount);
@@ -694,6 +725,16 @@ function App() {
             <AppToast key={t.key} toast={t} onDismiss={() => removeUiToast(t.key)} />
           ))}
         </div>
+      )}
+
+      {/* ── 轻提示：前传结束 → 正片 ── */}
+      {bootHintVisible && state.screen === 'game' && (
+        <div className="boot-hint">按 M 切换布局 · 按 J 打开笔记本</div>
+      )}
+
+      {/* ── 轻提示：第一次掉 SAN ── */}
+      {sanHintVisible && state.screen === 'game' && (
+        <div className="san-hint">理智正在流失，世界会逐渐发生变化</div>
       )}
     </>
   );

@@ -8,6 +8,7 @@
   box-sizing: border-box;
 }
 :root {
+  /* ── 色彩 ── */
   --bg: #0a0a0f;
   --bg2: #12121a;
   --bg3: #1a1a25;
@@ -28,26 +29,183 @@
   --cyan: #4a8a8a;
   --border: #2a2a30;
   --border2: #3a3a40;
-  --narrative-font-size: 0.88rem;
-  --narrative-line-height: 2;
-  --system-font-size: 0.8rem;
-  --system-line-height: 1.75;
   --san-high: #5a8a5a;
   --san-mid: #8a8a3a;
   --san-low: #7a3a3a;
+  /* ── 字体 ── */
+  --font-base: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --font-size-title: 24px;
+  --font-size-narrative: 15px;
+  --font-size-btn: 14px;
+  --font-size-hud: 13px;
+  --font-size-dim: 12px;
+  --font-weight-title: 600;
+  --font-weight-body: 400;
+  --font-weight-btn: 500;
+  --font-weight-hud: 500;
+  --line-height-title: 1.3;
+  --line-height-body: 1.6;
+  --line-height-dim: 1.4;
+  --narrative-font-size: 0.94rem;
+  --narrative-line-height: 2;
+  --system-font-size: 0.81rem;
+  --system-line-height: 1.75;
+  /* ── 圆角 ── */
+  --radius-btn: 6px;
+  --radius-panel: 8px;
+  --radius-hud: 4px;
+  /* ── 阴影 ── */
+  --shadow-btn: 0 2px 8px rgba(0,0,0,0.6);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.8);
+  --shadow-hud: 0 1px 4px rgba(0,0,0,0.7);
+  /* ── 间距（8px 栅格）── */
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  /* ── 交互 ── */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
 }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  font-family: var(--font-base);
+  font-size: var(--font-size-narrative);
+  line-height: var(--line-height-body);
   min-height: 100vh;
-  overflow: hidden;
+  overflow: hidden; /* Safari <16 fallback */
+  overflow: clip;
 }
 html {
-  overflow: hidden;
+  overflow: hidden; /* Safari <16 fallback */
+  overflow: clip;
 }
 #root {
   min-height: 100vh;
+}
+
+/* ── 全局噪点背景（消除纯黑塑料感）── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99998;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+}
+
+/* ── 滚动条美化（窄暗灰）── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.14);
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
+/* ==========================================================
+   Loading Screen — 正在连接沃切斯特
+   ========================================================== */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  transition: opacity 0.6s ease;
+}
+#loading-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #666;
+  animation: loadingBlink 1.5s infinite step-end;
+}
+.loading-text {
+  color: #444;
+  font-size: 13px;
+  letter-spacing: 3px;
+  margin-top: 20px;
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  animation: loadingPulse 2s infinite ease-in-out;
+}
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+@keyframes loadingBlink {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+/* ==========================================================
+   轻提示 — 不打断、不弹窗、自动消失
+   ========================================================== */
+.boot-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #555;
+  font-size: var(--font-size-dim);
+  letter-spacing: 1.5px;
+  font-family: var(--font-base);
+  z-index: 100;
+  pointer-events: none;
+  animation: hintFadeIn 0.5s ease, hintFadeOut 1.5s ease 6.5s forwards;
+  white-space: nowrap;
+}
+.san-hint {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  color: #7a3a3a;
+  font-size: var(--font-size-dim);
+  letter-spacing: 1px;
+  font-family: var(--font-base);
+  z-index: 100;
+  pointer-events: none;
+  animation: hintFadeIn 0.3s ease, hintFadeOut 1s ease 1.5s forwards;
+  white-space: nowrap;
+}
+@keyframes hintFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes hintFadeOut {
+  to { opacity: 0; pointer-events: none; }
+}
+
+/* 笔记本首次引导高亮 */
+.notebook-guide-highlight {
+  animation: guideGlow 1.2s ease 0.3s;
+}
+@keyframes guideGlow {
+  0% { background: rgba(169, 130, 69, 0.12); }
+  50% { background: rgba(169, 130, 69, 0.06); }
+  100% { background: transparent; }
 }
 
 /* Global texture overlay — 档案纸张/海雾 */
@@ -313,20 +471,24 @@ body::before {
    Buttons (保留用于标题/角色创建/结局)
    ========================================================== */
 .btn {
-  background: rgba(18, 18, 26, 0.5);
+  background: #1a1a22;
   color: var(--text);
-  border: 1px solid rgba(169, 130, 69, 0.32);
-  border-radius: 4px;
-  padding: 0.6rem 1.8rem;
+  border: 1px solid #333;
+  border-radius: var(--radius-btn);
+  padding: var(--sp-1) var(--sp-2);
+  min-height: 32px;
   cursor: pointer;
-  font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-  font-size: 0.85rem;
-  transition: all 0.25s ease;
-  letter-spacing: 0.08em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-base);
+  font-size: var(--font-size-btn);
+  font-weight: var(--font-weight-btn);
+  transition: all var(--transition-fast);
+  letter-spacing: 0.06em;
+  box-shadow: var(--shadow-btn);
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(6px);
+  /* 弹窗内边框质感 */
+  box-shadow: var(--shadow-btn), inset 0 0 0 1px rgba(255,255,255,0.03);
 }
 .btn::after {
   content: '';
@@ -335,22 +497,27 @@ body::before {
   left: 0;
   right: 0;
   height: 50%;
-  background: linear-gradient(180deg, rgba(169, 130, 69, 0.04) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
   pointer-events: none;
-  border-radius: 3px 3px 0 0;
+  border-radius: var(--radius-btn) var(--radius-btn) 0 0;
 }
 .btn:hover {
-  background: rgba(22, 22, 32, 0.68);
-  border-color: rgba(201, 162, 101, 0.52);
+  background: #22222d;
+  border-color: #444;
   color: var(--text-bright);
-  box-shadow:
-    0 3px 12px rgba(0, 0, 0, 0.45),
-    0 0 10px rgba(169, 130, 69, 0.06);
   transform: translateY(-1px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.05);
 }
 .btn:active {
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  background: #16161d;
   transform: translateY(0);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 .btn-primary {
   background: rgba(42, 38, 28, 0.55);
@@ -361,9 +528,6 @@ body::before {
   background: rgba(52, 48, 34, 0.65);
   border-color: rgba(201, 162, 101, 0.65);
   color: var(--gold2);
-  box-shadow:
-    0 3px 14px rgba(0, 0, 0, 0.45),
-    0 0 14px rgba(169, 130, 69, 0.1);
 }
 .btn-danger {
   background: rgba(40, 22, 22, 0.45);
@@ -376,9 +540,9 @@ body::before {
   color: var(--danger2);
 }
 .btn-sm {
-  padding: 0.35rem 0.8rem;
-  font-size: 0.75rem;
-  border-radius: 3px;
+  padding: 4px var(--sp-1);
+  font-size: var(--font-size-dim);
+  border-radius: var(--radius-hud);
 }
 .btn:disabled {
   opacity: 0.3;
@@ -989,33 +1153,41 @@ body::before {
   text-transform: uppercase;
 }
 .narrative-block .narrative-text {
-  color: var(--text);
-  line-height: var(--narrative-line-height);
-  font-size: var(--narrative-font-size);
+  color: #c0c0c0;
+  line-height: var(--line-height-body);
+  font-size: var(--font-size-narrative);
   white-space: pre-wrap;
-  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+  font-family: var(--font-base);
   letter-spacing: 0.02em;
+}
+/* 关键叙事句高亮 */
+.narrative-block .narrative-text .key-sentence,
+.narrative-block .narrative-text strong {
+  color: #a08060;
+  font-weight: 500;
 }
 .narrative-block .event-title {
   color: var(--purple2);
-  font-size: 0.85rem;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
-  font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  font-size: var(--font-size-btn);
+  margin-bottom: 4px;
+  font-weight: var(--font-weight-btn);
+  font-family: var(--font-base);
   letter-spacing: 0.03em;
 }
 
 /* Event type labels — 档案标签/印章 */
 .narrative-block .event-type {
-  font-size: 0.68rem;
-  padding: 0.1rem 0.4rem 0.1rem 0.5rem;
+  font-size: var(--font-size-dim);
+  padding: 2px 8px 2px 10px;
   border: none;
   border-left: 3px solid;
   display: inline-block;
-  margin-bottom: 0.3rem;
-  font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  margin-bottom: 4px;
+  font-family: var(--font-base);
+  font-weight: var(--font-weight-hud);
   letter-spacing: 0.05em;
   background: transparent;
+  border-radius: 0 var(--radius-hud) var(--radius-hud) 0;
 }
 .narrative-block .event-type.正常事件 {
   color: var(--accent2);
@@ -1289,21 +1461,40 @@ body::before {
   color: var(--text);
   border: none;
   border-left: 2px solid transparent;
-  padding: 0.3rem 0.5rem;
+  padding: var(--sp-1) 10px;
   cursor: pointer;
-  font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-  font-size: 0.75rem;
-  transition: all 0.15s;
+  font-family: var(--font-base);
+  font-size: var(--font-size-btn);
+  font-weight: var(--font-weight-btn);
+  transition: all var(--transition-fast);
   text-align: left;
   position: relative;
   display: block;
   width: 100%;
+  border-radius: 0 var(--radius-hud) var(--radius-hud) 0;
+  min-height: 32px;
 }
 .action-btn:hover {
   border-left-color: var(--accent);
+  background: rgba(77, 117, 102, 0.08);
+}
+.action-btn:active {
+  background: rgba(77, 117, 102, 0.14);
+}
+.action-btn.selected {
+  border-left-color: #555;
+  background: rgba(85, 85, 85, 0.06);
+}
+.action-btn.primary-action {
+  border-left-color: var(--accent);
+  font-weight: 600;
   color: var(--text-bright);
   padding-left: 0.7rem;
   background: rgba(95, 120, 104, 0.05);
+}
+.action-btn.primary-action:hover {
+  border-left-color: var(--accent2);
+  background: rgba(95, 120, 104, 0.08);
 }
 .action-btn:active {
   padding-left: 0.8rem;
@@ -3391,18 +3582,24 @@ body::before {
 .modal-content {
   background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
   border: 1px solid var(--border2);
-  border-radius: 4px;
+  border-radius: var(--radius-panel);
   max-width: 480px;
   width: 90%;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-panel), inset 0 0 0 1px rgba(255,255,255,0.03);
+  /* 打开/关闭缩放动画 */
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.8rem 1rem;
+  padding: var(--sp-1) var(--sp-2);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
@@ -3410,9 +3607,9 @@ body::before {
   z-index: 1;
 }
 .modal-title {
-  font-size: 0.9rem;
+  font-size: var(--font-size-btn);
   color: var(--gold);
-  font-weight: 700;
+  font-weight: var(--font-weight-title);
   letter-spacing: 0.05em;
 }
 .modal-close {
@@ -6132,4 +6329,93 @@ body[data-reduced-motion="true"] .screen-transition {
 body[data-reduced-motion="true"] .narrative-line.typewriter {
   opacity: 1;
   transition: none;
+}
+
+/* ==========================================================
+   全局美术风格统一系统 — 解决 AI 画风参差不齐
+   兼容 SAN 污染 / 双界面模式，零冲突
+   ========================================================== */
+
+/* ── 1. 所有游戏图片基础统一滤镜（核心）── */
+img.game-art {
+  filter:
+    grayscale(0.12)
+    contrast(1.08)
+    brightness(0.92)
+    sepia(0.08)
+    hue-rotate(-2deg)
+    url(#global-film-grain);
+  image-rendering: auto;
+  transition: filter 0.4s ease;
+  object-fit: cover;
+}
+
+/* ── 2. NPC 立绘：加轻微锐化，消除 AI 模糊 ── */
+img.npc-portrait {
+  filter:
+    grayscale(0.12)
+    contrast(1.08)
+    brightness(0.92)
+    sepia(0.08)
+    hue-rotate(-2deg)
+    url(#soft-sharpen)
+    url(#global-film-grain);
+}
+
+/* ── 3. 场景/地图背景：加暗角，增强氛围 ── */
+img.scene-bg,
+img.town-map-bg,
+.scene-image img,
+.area-scene img {
+  filter:
+    grayscale(0.12)
+    contrast(1.08)
+    brightness(0.92)
+    sepia(0.08)
+    hue-rotate(-2deg)
+    url(#global-film-grain)
+    url(#soft-vignette);
+}
+
+/* ── 4. 结局 CG/过场：高对比度 + 强暗角 ── */
+img.ending-cg,
+.ending-screen img,
+img.cutscene-art {
+  filter:
+    grayscale(0.1)
+    contrast(1.15)
+    brightness(0.9)
+    sepia(0.05)
+    hue-rotate(-2deg)
+    url(#global-film-grain)
+    url(#strong-vignette);
+}
+
+/* ── 5. SAN 阶段兼容 ── */
+.san-stage-1 img.game-art {
+  filter:
+    grayscale(0.12)
+    contrast(1.08)
+    brightness(0.92)
+    sepia(0.08)
+    hue-rotate(-8deg)
+    saturate(0.95)
+    url(#global-film-grain);
+}
+.san-stage-2 img.game-art,
+.san-stage-3 img.game-art,
+.san-stage-4 img.game-art,
+.san-stage-5 img.game-art {
+  filter:
+    url(#global-film-grain);
+}
+
+/* ── 6. UI 面板质感（消除塑料感）── */
+.game-panel,
+.modal-content,
+.floating-hud,
+.toast-notification,
+.notebook-modal {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='ui-noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23ui-noise)' opacity='0.03'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
 }

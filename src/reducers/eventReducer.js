@@ -1,6 +1,6 @@
 // src/reducers/eventReducer.js - Event selection, skill checks, triggers
 
-import { d100 } from './utils.js';
+import { d100, makeRand } from './utils.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { checkTriggerExtended, selectEventV2 } from './extendedEvents.js';
 
@@ -37,7 +37,7 @@ export function checkTrigger(evt, state) {
 // Re-export extended trigger check for use by other modules
 
 /** @deprecated Use selectEventV2() instead. Retained as fallback when GD._extendedEventsLoaded is false. */
-export function selectEvent(areaId, state, ctx, pick) {
+export function selectEvent(areaId, state, ctx, pick, rng) {
   const { GD } = ctx;
   const allEvents = GD.events || [];
   const areas = GD.areas || [];
@@ -88,11 +88,12 @@ export function selectEvent(areaId, state, ctx, pick) {
     for (let i = 0; i < count; i++) weighted.push(e);
   });
   const untriggered = weighted.filter((e) => !state.triggeredEvents.includes(e.id));
-  const selected = untriggered.length > 0 && Math.random() < 0.6 ? untriggered : weighted;
-  return pick(selected);
+  const _rand = makeRand(rng);
+  const selected = untriggered.length > 0 && _rand() < 0.6 ? untriggered : weighted;
+  return pick(selected, rng);
 }
 
-export function doSkillCheck(skillName, threshold, state, difficulty, ctx) {
+export function doSkillCheck(skillName, threshold, state, difficulty, ctx, rng) {
   const { GD } = ctx;
   const tempBonus =
     state.tempSkillBonus && state.tempSkillBonus.skill === skillName
@@ -105,7 +106,7 @@ export function doSkillCheck(skillName, threshold, state, difficulty, ctx) {
     ? state._madnessSkillPenalty.penalty : 0;
   const madnessGlobalPenalty = state._madnessGlobalCheckPenalty || 0;
   const playerSkill = (state.skills[skillName] || 0) + tempBonus + starvePenalty + madnessSkillPenalty + madnessGlobalPenalty;
-  const roll = d100();
+  const roll = d100(rng);
   const dl = GD.core_loop?.difficulty_levels?.[difficulty] || {};
   const diffBonus = dl.skill_check_bonus || 0;
   const effectiveThreshold = Math.max(1, threshold + diffBonus);
@@ -115,13 +116,14 @@ export function doSkillCheck(skillName, threshold, state, difficulty, ctx) {
 }
 
 // SAN赌博机制：返回可用赌博选项
-export function getGambleOptions(evt, state, ctx) {
+export function getGambleOptions(evt, state, ctx, rng) {
   const { GD } = ctx;
   const gamble = GD.systems?.sanity?.sanity_gamble;
   if (!gamble || !gamble.enabled) return null;
   // Only trigger on events with SAN damage
   if (!evt.sanity_damage || evt.sanity_damage === 0) return null;
-  if (Math.random() >= (gamble.trigger_probability || 0.25)) return null;
+  var _rand = makeRand(rng);
+  if (_rand() >= (gamble.trigger_probability || 0.25)) return null;
   return gamble.options || [];
 }
 

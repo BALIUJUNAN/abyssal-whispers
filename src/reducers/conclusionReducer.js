@@ -1,5 +1,8 @@
 // src/reducers/conclusionReducer.js - Evidence-based conclusion deduction
 
+import { makeRand } from './utils.js';
+import { hasClueId } from '../utils/clueNameMap.js';
+
 /**
  * Check if a single evidence source is satisfied by current state.
  */
@@ -61,12 +64,13 @@ export function checkConclusions(state, ctx) {
 /**
  * Check if any false interpretation triggers based on state.
  */
-export function checkFalseInterpretations(state, ctx) {
+export function checkFalseInterpretations(state, ctx, rng) {
   const { GD } = ctx;
   const conclusionSystem = GD.systems?.clue_conclusion;
   if (!conclusionSystem) return [];
   const conclusions = conclusionSystem.conclusions || [];
   const results = [];
+  var _rand = makeRand(rng);
   for (const conc of conclusions) {
     if ((state.discoveredConclusions || []).includes(conc.id)) continue;
     for (const fi of conc.false_interpretations || []) {
@@ -74,7 +78,7 @@ export function checkFalseInterpretations(state, ctx) {
       const satisfied = (conc.evidence_pool || []).filter((ev) => isEvidenceSatisfied(ev, state));
       if (satisfied.length > 0 && satisfied.length < (conc.required_evidence_count || 2)) {
         // 10% chance per explore to trigger false interpretation warning
-        if (Math.random() < 0.1) {
+        if (_rand() < 0.1) {
           results.push({
             conclusion: conc.name,
             interpretation: fi.interpretation,

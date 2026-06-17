@@ -114,7 +114,8 @@ export function handleUiAction(s, action, c, ctx) {
                 evt.skill_check.threshold || 50,
                 s,
                 s.difficulty,
-                ctx
+                ctx,
+                c.rng
               );
               if (check.success) {
                 c.effects.push({ type: 'AUDIO_SKILL', id: 'success' });

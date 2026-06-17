@@ -53,7 +53,7 @@ export const LeftPanel = memo(function LeftPanel({ state }) {
       {playerImage && (
         <div className="player-portrait-container">
           <img
-            className="portrait-img player-portrait"
+            className="portrait-img player-portrait game-art"
             src={playerImage}
             alt="我"
             onError={(e) => {
@@ -1068,7 +1068,7 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
                   >
                     {npcImg && (
                       <img
-                        className="npc-portrait-thumb"
+                        className="npc-portrait-thumb game-art"
                         src={npcImg}
                         alt={n.name}
                         onError={(e) => {
@@ -1297,10 +1297,21 @@ export function NotebookModal({ open, onClose, state }) {
     () => (GD.systems?.clue_conclusion?.conclusions || []),
     []
   );
+  // 首次打开高亮：记录是否是第一次打开
+  const isFirstOpen = useRef(true);
+  const [highlightFirst, setHighlightFirst] = useState(false);
+  useEffect(() => {
+    if (open && isFirstOpen.current) {
+      isFirstOpen.current = false;
+      setHighlightFirst(true);
+      var t = setTimeout(function () { setHighlightFirst(false); }, 1500);
+      return function () { clearTimeout(t); };
+    }
+  }, [open]);
   // 用 Set 加速查找
   const clueIdSet = useMemo(() => {
     const s = new Set();
-    (state.clues || []).forEach((c) => s.add(typeof c === 'object' ? c.id || c.name : c));
+    (state.clues || []).forEach((clue) => s.add(typeof clue === 'object' ? clue.id || clue.name : clue));
     return s;
   }, [state.clues]);
   const completedChainSet = useMemo(
@@ -1341,12 +1352,12 @@ export function NotebookModal({ open, onClose, state }) {
           </div>
 
           {/* 线索链 */}
-          {chains.map((chain) => {
+          {chains.map((chain, chainIdx) => {
             const chainDone = completedChainSet.has(chain.id);
             const clues = chain.clues || [];
             const foundInChain = clues.filter((cl) => clueIdSet.has(cl.id)).length;
             return (
-              <div key={chain.id} className={'notebook-chain' + (chainDone ? ' chain-done' : '')}>
+              <div key={chain.id} className={'notebook-chain' + (chainDone ? ' chain-done' : '') + (highlightFirst && chainIdx === 0 ? ' notebook-guide-highlight' : '')}>
                 <div className="notebook-chain-title">
                   <span className="chain-icon">{chainDone ? '✓' : '◇'}</span>
                   {chain.name}
@@ -1615,7 +1626,7 @@ export function EndingScreen({ ending, state, dispatch }) {
       <h2>{ending.name}</h2>
       {endingImage && (
         <img
-          className="ending-cg"
+          className="ending-cg game-art"
           src={endingImage}
           alt={ending.name + '结局图'}
           onError={(e) => {

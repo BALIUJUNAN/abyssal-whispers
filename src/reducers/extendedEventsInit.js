@@ -7,6 +7,8 @@ import { injectMissingEnding } from '../data/ending_missing_600.js';
 import { injectBehaviorEndings } from '../data/behavior_endings.js';
 import { applyUgcToGD } from '../utils/buildEventPool.js';
 import { getSanStageFromGD } from './sanReducer.js';
+import { getDeathEchoEvents } from '../data/events_death_echo.js';
+import { getSupplementEvents } from '../data/events_supplement.js';
 
 /**
  * Initialize the extended event system.

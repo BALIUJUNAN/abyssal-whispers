@@ -7,8 +7,8 @@ export function getClueNameMap() {
   if (_cache) return _cache;
   const m = {};
   (GD.clue_chains || []).forEach((ch) => {
-    (ch.clues || []).forEach((c) => {
-      if (c.id && c.name) m[c.id] = c.name;
+    (ch.clues || []).forEach((clue) => {
+      if (clue.id && clue.name) m[clue.id] = clue.name;
     });
   });
   if (typeof PROLOGUE_EVENTS !== 'undefined' && PROLOGUE_EVENTS) {

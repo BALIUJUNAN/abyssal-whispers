@@ -250,10 +250,10 @@ export function checkEndingDataDriven(state, ctx) {
     const rawConds = ed.conditions || ed.required_conditions || [];
     const rawBlocks = ed.blocking_conds || ed.blocking_conditions || [];
     if (!rawConds || rawConds.length === 0) continue;
-    const condField = rawConds.map((c) => (typeof c === 'string' ? parseConditionString(c) : c));
-    const blockField = rawBlocks.map((c) => (typeof c === 'string' ? parseConditionString(c) : c));
-    const allMet = condField.every((c) => checkSingleCondition(state, c));
-    const blocked = blockField.length > 0 && blockField.some((c) => checkSingleCondition(state, c));
+    const condField = rawConds.map((x) => (typeof x === 'string' ? parseConditionString(x) : x));
+    const blockField = rawBlocks.map((x) => (typeof x === 'string' ? parseConditionString(x) : x));
+    const allMet = condField.every((cond) => checkSingleCondition(state, cond));
+    const blocked = blockField.length > 0 && blockField.some((cond) => checkSingleCondition(state, cond));
     if (allMet && !blocked) {
       matched.push({
         id: ed.id,

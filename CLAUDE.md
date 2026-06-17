@@ -7,13 +7,27 @@
 ## Reducer 三条铁律
 
 1. **Import 必须显式声明** — 被调用的函数必须在当前文件 import。"模块已 export" ≠ "消费方已 import"。拼接构建隐藏了所有缺失，ESM 下全部暴露。
-2. **随机性必须走 c.rng** — `rand(min, max, c.rng)` / `pick(arr, c.rng)` / `(c.rng ? c.rng.next() : Math.random())`。不允许裸 `Math.random()` 在 slice handler 中出现。
-3. **不要用 `c` 做回调参数名** — slice handler 的 `c` 是 reducer context，`.find((c) => ...)` 必然遮蔽。回调参数用 `x`、`item`、`entry`。
+2. **随机性必须走 c.rng** — reducer 工具函数用 `makeRand(rng)` 创建 `_rand`；slice handler 传入 `c.rng`。不允许裸 `Math.random()` 在 reducer 中出现。
+3. **不要用 `c` 做回调参数名** — slice handler 的 `c` 是 reducer context，`.find((c) => ...)` 必然遮蔽。回调参数用 `x`、`item`、`entry`、`cond`。
 
 ## c 与 ctx 不要混淆
 
 - `c` = reducer context（narr/effects/bt/rng），用于叙事和副作用
 - `ctx` = `{ GD }`（游戏数据），用于需要 GD 的函数（chapterReducer、objectiveReducer 等）
+
+## reducer 工具函数签名
+
+工具函数（如 `getMotifFlavorText`、`selectEvent` 等）接收 `rng` 作为可选末参：
+```js
+export function getMotifFlavorText(motifType, corruptionLevel, ctx, rng) {
+  var _rand = makeRand(rng);
+  // ...
+}
+```
+slice handler 调用时传入 `c.rng`：
+```js
+const text = getMotifFlavorText('fog', s.safehouseCorruption, ctx, c.rng);
+```
 
 ## 新增文件双注册
 
@@ -23,4 +37,15 @@
 
 - 重构后检查产物是否残留未编译 JSX（搜索 `return\s*\(\s*<[a-zA-Z]`）
 - 新增文件后运行 `python scripts/check_build_imports.py`
-- 修改后运行 `python build.py --no-babel` 确认构建成功
+- 修改后运行 `python build.py --no-babel` 确认拼接构建成功
+- 同时运行 `npm run build` 确认 Vite ESM 构建成功
+- 运行 `node tests/test_full_flow.mjs` 确认完整流程测试通过
+
+## UI/UX 规范
+
+- 笔记本快捷键：**J**（不是 N）
+- 圆角：按钮 6px、弹窗 8px、HUD 4px
+- 阴影：纯黑半透明，不用带颜色的阴影
+- 字体：`system-ui, -apple-system, sans-serif`，最小 12px
+- 间距：8px 栅格（8/16/24/32px），不用奇数
+- 图片 class：`game-art`（基础滤镜）、`npc-portrait`（锐化）、`scene-bg`（暗角）、`ending-cg`（强暗角）

@@ -109,7 +109,7 @@ export function GameLayout({ state, dispatch, areas, settings }) {
     });
   }, [state.day]);
 
-  // M 键切换模式、N 键打开笔记本 — 放在这里而非子组件中，确保两种模式下都能响应
+  // M 键切换模式、J 键打开笔记本 — 放在这里而非子组件中，确保两种模式下都能响应
   useEffect(() => {
     const handler = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -118,8 +118,8 @@ export function GameLayout({ state, dispatch, areas, settings }) {
           uiMode: prev.uiMode === 'town_map' ? 'classic' : 'town_map',
         }));
       }
-      // N 键打开笔记本（两种布局模式均可用）
-      if (e.key === 'n' || e.key === 'N') {
+      // J 键打开笔记本（两种布局模式均可用）
+      if (e.key === 'j' || e.key === 'J') {
         try { uiStore.setState({ notebookOpen: true, notebookEverOpened: true }); } catch (err) {}
         try { dispatch({ type: 'MARK_NOTEBOOK_OPENED' }); } catch (err) {}
       }

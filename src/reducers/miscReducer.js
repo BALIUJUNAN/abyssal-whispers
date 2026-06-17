@@ -1,5 +1,9 @@
 // src/reducers/miscReducer.js - Merged: safehouseReducer + itemReducer + settingsReducer
 
+import { rand, makeRand } from './utils.js';
+import { getSealState } from '../engine/WorldTimeSystem.js';
+import { getSanStageFromGD } from './sanReducer.js';
+
 // === Safehouse Degradation (was safehouseReducer.js) ===
 
 // src/reducers/safehouseReducer.js - Safehouse degradation
@@ -39,27 +43,28 @@ export function getLightLevelEffects(lightLevel, ctx) {
  * @param {object} ctx - { GD }
  * @returns {string} corrupted text
  */
-export function applyLightTextCorruption(text, lightLevel, ctx) {
+export function applyLightTextCorruption(text, lightLevel, ctx, rng) {
   if (!text || lightLevel >= 2) return text; // Stable+ light = no corruption
   var effects = getLightLevelEffects(lightLevel, ctx);
   var reliability = effects.text_reliability || 0;
   if (reliability >= 0) return text; // No corruption needed
 
+  var _rand = makeRand(rng);
   // Corruption chance based on negative reliability
   var corruptChance = Math.abs(reliability);
-  if (Math.random() >= corruptChance) return text;
+  if (_rand() >= corruptChance) return text;
 
   var chars = text.split('');
   var corrupted = 0;
   var maxCorrupt = Math.max(1, Math.floor(chars.length * 0.02));
-  var result = chars.map(function(c) {
-    if (corrupted >= maxCorrupt) return c;
-    if (Math.random() < 0.03 && c !== ' ' && c !== '\n' && c !== '，' && c !== '。') {
+  var result = chars.map(function(ch) {
+    if (corrupted >= maxCorrupt) return ch;
+    if (_rand() < 0.03 && ch !== ' ' && ch !== '\n' && ch !== '，' && ch !== '。') {
       corrupted++;
-      var replacements = ['…', '·', '?', '□', c]; // 50% keep original
-      return replacements[Math.floor(Math.random() * replacements.length)];
+      var replacements = ['…', '·', '?', '□', ch]; // 50% keep original
+      return replacements[Math.floor(_rand() * replacements.length)];
     }
-    return c;
+    return ch;
   });
   return result.join('');
 }
@@ -72,9 +77,10 @@ export function applyLightTextCorruption(text, lightLevel, ctx) {
  * @param {object} ctx - { GD }
  * @returns {boolean} true if player can detect false options
  */
-export function canDetectFalseOption(lightLevel, ctx) {
+export function canDetectFalseOption(lightLevel, ctx, rng) {
   var effects = getLightLevelEffects(lightLevel, ctx);
-  return Math.random() < (effects.false_option_detection || 0);
+  var _rand = makeRand(rng);
+  return _rand() < (effects.false_option_detection || 0);
 }
 
 export function getSafehouseStage(corruption, ctx) {
@@ -95,11 +101,11 @@ export function getSafehouseStage(corruption, ctx) {
   );
 }
 
-export function processSafehouseNight(state, ctx) {
+export function processSafehouseNight(state, ctx, rng) {
   let corruption = state.safehouseCorruption || 0;
   const sealState = getSealState(state.day, ctx);
   let accel = sealState?.global_modifier?.npc_corruption_rate || 0.05;
-  let baseGain = Math.round(accel * 10 + rand(0, 3));
+  let baseGain = Math.round(accel * 10 + rand(0, 3, rng));
   // Degradation triggers
   // P1-A: SSOT — explanation_loss (level >= 3) boosts corruption rate
   if (getSanStageFromGD(state.san).level >= 3) baseGain = Math.round(baseGain * 1.3);

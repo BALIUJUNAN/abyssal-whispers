@@ -102,7 +102,7 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
       <div className="skill-check">
         {npcImage && (
           <img
-            className="npc-portrait"
+            className="npc-portrait game-art"
             src={npcImage}
             alt={npc.name + '立绘'}
             onError={(e) => {

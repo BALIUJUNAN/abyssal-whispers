@@ -4,6 +4,8 @@
 // P0-L: Loop initialization logic extracted from NEW_GAME action in app.jsx.
 //       initLoopState() centralizes all loop carry-over and mutation logic.
 
+import { makeRand } from './utils.js';
+
 import { pick, clamp } from './utils.js';
 import { setCorruptionFlag } from './npcReducer.js';
 import { computeReincarnationDiff } from '../systems/reincarnationDiff.js';
@@ -55,9 +57,10 @@ export function checkTextQuality(text) {
  * Potentially add pollution text to event descriptions.
  * Returns modified text if pollution triggers, otherwise original.
  */
-export function getPollutionText(text, pollution) {
-  if (pollution <= 0 || Math.random() >= pollution * 0.15) return text;
-  return text + '\n\n' + pick(POLLUTION_SUFFIXES);
+export function getPollutionText(text, pollution, rng) {
+  var _rand = makeRand(rng);
+  if (pollution <= 0 || _rand() >= pollution * 0.15) return text;
+  return text + '\n\n' + pick(POLLUTION_SUFFIXES, rng);
 }
 
 // ═══════════════════════════════════════════════════════════

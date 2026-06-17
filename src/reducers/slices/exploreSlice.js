@@ -222,7 +222,7 @@ export function _selectExploreEvent(s, ctx, GD, c) {
     }
     if (evt && !alreadyCommitted) commitSelectedEvent(evt, s);
   } else {
-    evt = selectEvent(s.currentArea, s, ctx, pick);
+    evt = selectEvent(s.currentArea, s, ctx, pick, c.rng);
   }
   return { evt: evt, alreadyCommitted: alreadyCommitted };
 }
@@ -269,7 +269,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
     });
   }
   // False interpretations
-  const falseInts = checkFalseInterpretations(s, ctx);
+  const falseInts = checkFalseInterpretations(s, ctx, c.rng);
   for (const fi of falseInts)
     c.narr(
       'system',
@@ -279,7 +279,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
   // Monster manifestation
   if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MONSTER_MANIFEST_CHANCE) {
     const creature = pick(['deep_ones', 'night_gaunts', 'shoggoth'], c.rng);
-    const manifest = getMonsterManifestation(creature, s.day, ctx);
+    const manifest = getMonsterManifestation(creature, s.day, ctx, c.rng);
     if (manifest) {
       const stageNames = {
         absence: '异常',
@@ -437,7 +437,7 @@ export function handleExploreAction(s, action, c, ctx) {
         (s.lightLevel || 0) < (targetArea?.resource_pressure?.required_light_level || 0) ? 2 : 1;
       let desc = getSanTextVariant(targetArea.description, s.san, pick, ctx);
       // DESIGN_REFACTOR_NOTES.md: "光源<30%时，town_center描述轻度污染"
-      desc = applyLightTextCorruption(desc, s.lightLevel || 0, ctx);
+      desc = applyLightTextCorruption(desc, s.lightLevel || 0, ctx, c.rng);
       // Mythos name alias for area descriptions
       desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
       // Layout variants: weighted random selection based on game state
@@ -574,7 +574,7 @@ export function handleExploreAction(s, action, c, ctx) {
         }
       }
       // Progress guard (clue nudge)
-      const _guard = getForcedProgressGuard(s, ctx);
+      const _guard = getForcedProgressGuard(s, ctx, c.rng);
       if (_guard) executeForcedProgressGuard(_guard, s, c.narr);
       // Phase 2: Event selection via pure pipeline (extracted)
       const _sel = _selectExploreEvent(s, ctx, GD, c);
@@ -619,16 +619,16 @@ export function handleExploreAction(s, action, c, ctx) {
       // Only events with level 2+ get the full getSanTextVariant treatment.
       var unrelLevel = evt.unreliable_narration_level || 0;
       if (unrelLevel >= 2) {
-        evtText = getPollutionText(getSanTextVariant(evtText, s.san, pick, ctx), s.pollution || 0);
+        evtText = getPollutionText(getSanTextVariant(evtText, s.san, pick, ctx), s.pollution || 0, c.rng);
       } else if (unrelLevel === 1) {
         // Light corruption only: pollution text but no SAN-based char mutation
-        evtText = getPollutionText(evtText, s.pollution || 0);
+        evtText = getPollutionText(evtText, s.pollution || 0, c.rng);
       }
       // else: level 0 = completely clean text
       if (s.fearTuning && s.fearTuning.primary) evtText = applyFearLens(evt, evtText, s);
       evtText = applyTextHallucination(evtText, s.san, getSanStageFromGD);
       // Light source text corruption: low light causes unreliable text
-      evtText = applyLightTextCorruption(evtText, s.lightLevel || 0, ctx);
+      evtText = applyLightTextCorruption(evtText, s.lightLevel || 0, ctx, c.rng);
       evtText = applyResourceTextCorruption(evtText, s);
       // Text variant tracking: cross-loop persistent (renamed from _seenTexts)
       if (!s.seenEventTexts) s.seenEventTexts = {};
@@ -656,7 +656,7 @@ export function handleExploreAction(s, action, c, ctx) {
         s.pendingChoice = { evt, choices: evt.choices };
         return s;
       }
-      const gambleOpts = getGambleOptions(evt, s, ctx);
+      const gambleOpts = getGambleOptions(evt, s, ctx, c.rng);
       if (gambleOpts) {
         s.pendingGamble = { evt, options: gambleOpts, apSpent: 2 };
         c.narr('system', '你感到某种冲动——是就此收手，还是更深入地探究？', { isSpecial: true });
@@ -702,7 +702,8 @@ export function handleExploreAction(s, action, c, ctx) {
               evt.skill_check.threshold || 50,
               s,
               s.difficulty,
-              ctx
+              ctx,
+              c.rng
             );
             if (check.success) {
               c.effects.push({ type: 'AUDIO_SKILL', id: 'success' });
@@ -790,7 +791,7 @@ export function handleExploreAction(s, action, c, ctx) {
         return s;
       }
       c.effects.push({ type: 'AUDIO_SKILL', id: 'roll' });
-      const result = doSkillCheck(sc.skill, sc.threshold || 50, s, s.difficulty, ctx);
+      const result = doSkillCheck(sc.skill, sc.threshold || 50, s, s.difficulty, ctx, c.rng);
       s.pendingEvent = {
         ...evt,
         rolled: true,

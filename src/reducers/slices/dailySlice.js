@@ -95,7 +95,7 @@ export function _processFoodAndStarvation(s, c, ctx) {
 
 /** Process safehouse degradation, world decay, area corruption, and safehouse visual stage. */
 export function _processSafehouseAndWorldDecay(s, c, ctx) {
-  s.safehouseCorruption = processSafehouseNight(s, ctx);
+  s.safehouseCorruption = processSafehouseNight(s, ctx, c.rng);
   {
     const dailyCorr = calculateDailyCorruption(s, ctx);
     s.safehouseCorruption = Math.min(100, (s.safehouseCorruption || 0) + dailyCorr);
@@ -267,7 +267,8 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
     const motifText = getMotifFlavorText(
       pick(['fog', 'bell', 'water'], c.rng),
       s.safehouseCorruption || 0,
-      ctx
+      ctx,
+      c.rng
     );
     if (motifText) c.narr('system', motifText);
   }

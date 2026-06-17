@@ -18,7 +18,8 @@
 //   getEventWeight() uses typeof guards for optional dependencies.
 
 import { getPhase } from '../engine/WorldTimeSystem.js';
-import { clamp } from './utils.js';
+import { clamp, makeRand } from './utils.js';
+import { hasClueId } from '../utils/clueNameMap.js';
 import {
   shouldTriggerMissing600,
   createMissing600Event,
@@ -429,7 +430,7 @@ export function getEventWeight(evt, areaId, state, ctx) {
     const endings = GD.endings || [];
     const closeToEnding = endings.some((ed) => {
       if (!ed.conditions) return false;
-      const met = ed.conditions.filter((c) => checkEndingConditionQuick(state, c)).length;
+      const met = ed.conditions.filter((cond) => checkEndingConditionQuick(state, cond)).length;
       return met / ed.conditions.length >= 0.6;
     });
     if (closeToEnding) weight *= 2.0;
@@ -544,7 +545,7 @@ export function getEventWeight(evt, areaId, state, ctx) {
  * @param {function} pick - random picker (unused in optimized path, kept for API compat)
  * @returns {object|null} selected event
  */
-export function chooseWeightedEvent(candidates, areaId, state, ctx, pick) {
+export function chooseWeightedEvent(candidates, areaId, state, ctx, pick, rng) {
   if (!candidates || candidates.length === 0) return null;
   const n = candidates.length;
 
@@ -569,7 +570,8 @@ export function chooseWeightedEvent(candidates, areaId, state, ctx, pick) {
   if (total <= 0) return null;
 
   // Roll and binary search — O(log n)
-  const roll = Math.random() * total;
+  var _rand = makeRand(rng);
+  const roll = _rand() * total;
   let lo = 0,
     hi = n - 1;
   while (lo < hi) {
@@ -654,7 +656,7 @@ export function commitSelectedEvent(evt, state) {
  * @param {function} pick
  * @returns {object|null} selected event (state is mutated via commitSelectedEvent)
  */
-export function selectEventV2(areaId, state, ctx, pick) {
+export function selectEventV2(areaId, state, ctx, pick, rng) {
   const { GD } = ctx;
   const allEvents = GD.events || [];
 
@@ -663,6 +665,8 @@ export function selectEventV2(areaId, state, ctx, pick) {
   if (!state.categoryCountsRun) state.categoryCountsRun = {};
   if (!state.abnormalStreak) state.abnormalStreak = 0;
   if (!state.eventCooldowns) state.eventCooldowns = {};
+
+  var _rand = makeRand(rng);
 
   // Step 0: Omen check — light foreshadowing before event 600
   const omen = checkOmens(state);
@@ -675,7 +679,7 @@ export function selectEventV2(areaId, state, ctx, pick) {
   // GD._extendedEvents is always set by mergeExtendedEvents (filtered to events with trigger only).
   // Fallback removed: old slice logic assumed death_echo at array end, which broke after supplement/ch2plus merge.
   const extendedEvents = GD._extendedEvents || [];
-  if (shouldTriggerMissing600(state, extendedEvents) && Math.random() < 0.35) {
+  if (shouldTriggerMissing600(state, extendedEvents) && _rand() < 0.35) {
     const missing = createMissing600Event(state);
     commitSelectedEvent(missing, state);
     return missing;
@@ -691,7 +695,7 @@ export function selectEventV2(areaId, state, ctx, pick) {
     const streak = state.abnormalStreak || 0;
     if (streak >= 2) {
       const anchorChance = Math.min(0.90, 0.30 + (streak - 2) * 0.30);
-      if (Math.random() < anchorChance) {
+      if (_rand() < anchorChance) {
         const anchorEvents = allEvents.filter((e) => {
           const isAnchor = ANCHOR_TYPES.has(e.type) || e.normalcy_anchor;
           return isAnchor && checkTriggerExtended(e, state, ctx);

@@ -309,7 +309,7 @@ export function InteractiveTownMap({ state, dispatch }) {
           <img
             src={bgImage}
             alt="沃切斯特全景"
-            className="town-map-bg-image"
+            className="town-map-bg-image town-map-bg game-art"
             draggable={false}
             onError={(e) => {
               e.currentTarget.style.display = 'none';

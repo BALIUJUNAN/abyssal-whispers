@@ -247,7 +247,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
           <div className="area-panel-left">
             {sceneImage && (
               <img
-                className="area-panel-scene"
+                className="area-panel-scene scene-bg game-art"
                 src={sceneImage}
                 alt={hotspot.label}
                 onError={(e) => {
@@ -298,7 +298,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
                     <div key={npc.name} className="area-panel-npc-item">
                       {img && (
                         <img
-                          className="area-panel-npc-img"
+                          className="area-panel-npc-img npc-portrait game-art"
                           src={img}
                           alt={npc.name}
                           onError={(e) => {

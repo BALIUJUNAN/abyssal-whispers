@@ -82,7 +82,7 @@ export function handlePrologueChoice(state, choiceId) {
   const currentEvent = getPrologueEvent(prologue.currentScene);
   if (!currentEvent) return { state, narration: [], nextScene: null, completed: true };
 
-  const choice = currentEvent.choices.find((c) => c.id === choiceId);
+  const choice = currentEvent.choices.find((x) => x.id === choiceId);
   if (!choice) return { state, narration: [], nextScene: null, completed: false };
 
   // --- 开始构建新 state（不可变） ---

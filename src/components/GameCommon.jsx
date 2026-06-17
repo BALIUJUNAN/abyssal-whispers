@@ -110,7 +110,7 @@ export const NarrativeBlock = memo(function NarrativeBlock({ block }) {
       {block.eventType && <div className={'event-type ' + block.eventType}>{eventTypeLabel}</div>}
       {block.imageSrc && (
         <img
-          className="narrative-image"
+          className="narrative-image scene-bg game-art"
           src={block.imageSrc}
           alt={block.imageAlt || block.eventTitle || block.locationName || '事件插图'}
           onError={(e) => {

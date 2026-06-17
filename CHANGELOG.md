@@ -1,5 +1,103 @@
 # CHANGELOG
 
+## 2026-06-17 — Bug 修复 + 事件精修 + UI/UX 精修 + 美术统一
+
+### Bug 修复（19 个文件，+977 / -200 行）
+
+- **Import 缺失修复**（7 处）
+  - `extendedEvents.js` ← `hasClueId`（checkTriggerExtended 崩溃）
+  - `extendedEventsInit.js` ← `getDeathEchoEvents` / `getSupplementEvents`
+  - `conclusionReducer.js` ← `hasClueId`
+  - `objectiveReducer.js` ← `hasClueId`
+  - `miscReducer.js` ← `getSealState` / `getSanStageFromGD`
+  - `chapterReducer.js` ← `makeRand`
+  - `loopReducer.js` ← `makeRand`
+
+- **Reducer 20 处 Math.random() → 确定性 RNG**
+  - 新增 `makeRand(rng)` 工具函数（`utils.js`），消除 11 处重复 fallback 模式
+  - 7 个 reducer 工具函数新增 `rng` 参数：`applyLightTextCorruption` / `canDetectFalseOption` / `processSafehouseNight` / `selectEvent` / `doSkillCheck` / `getGambleOptions` / `getMotifFlavorText` / `getMonsterManifestation` / `checkFalseInterpretations` / `getPollutionText` / `getForcedProgressGuard` / `chooseWeightedEvent` / `selectEventV2`
+  - 3 个 slice 传入 `c.rng`：`exploreSlice.js`（8 处）/ `dailySlice.js`（2 处）/ `uiSlice.js`（1 处）
+
+- **回调参数遮蔽修复**（7 处）
+  - `prologueReducer.js` `.find((c) =>` → `.find((x) =>`
+  - `extendedEvents.js` `.filter((c) =>` → `.filter((cond) =>`
+  - `objectiveReducer.js` `.filter((c) =>` → `.filter((x) =>` ×2
+  - `endingReducer.js` `.map/.every/.some((c) =>` → `x` / `cond`
+  - `GamePanels.jsx` `.forEach((c) =>` → `.forEach((clue) =>`
+  - `clueNameMap.js` `.forEach((c) =>` → `.forEach((clue) =>`
+
+- **overflow: clip Safari 回退**
+  - `styles.css` / `app.jsx` — `overflow: hidden` 作为 Safari <16 fallback
+
+### 事件系统精修
+
+- **`events_supplement.js` — 120 个事件补全 3 个缺失字段**
+  - `quality_tier`：B×100, C×16（氛围事件）, A×4（meta）
+  - `normalcy_anchor`：true×25（NPC/氛围）, false×95
+  - `unreliable_narration_level`：0×93, 1×15（怪物）, 2×12（超自然）
+
+- **高级触发条件**（30 处）
+  - 怪物遭遇 `san_lte: 50`（14 个）
+  - 超自然遭遇 `san_lte: 60`（12 个）
+  - meta `min_loop: 2`（4 个）
+
+- **`hasClueId` import 修复** — `extendedEvents.js` 中 `checkTriggerExtended` 的 clue 检查不再崩溃
+
+### UI/UX 精修
+
+- **加载黑屏 → 加载态**
+  - `index.template.html` — 新增 `#loading-screen`（黑底 + 呼吸点 + "正在连接沃切斯特..."）
+  - `app.jsx` — React 首帧挂载后自动淡出并移除
+
+- **视觉精致度**
+  - CSS 变量体系：`--font-*`、`--radius-*`、`--shadow-*`、`--sp-*`、`--transition-*` 共 20+ 变量
+  - 字体统一：`system-ui, -apple-system, sans-serif`，正文 15px，按钮 14px，HUD 13px，最小 12px
+  - 圆角统一：按钮 6px、弹窗 8px、HUD 4px
+  - 阴影统一：纯黑半透明，按钮/弹窗/HUD 三档
+  - 间距统一：8px 栅格（8/16/24/32px）
+
+- **交互反馈**
+  - `.btn` 4 态补全（hover 上移 / active 下压 / disabled 灰化）
+  - `.action-btn` hover 左侧高亮条 + 选中态 `.selected`
+  - `.modal-content` 打开时 `scale(0.95)→scale(1)` 缩放动画
+  - 弹窗内边框 `inset 0 0 0 1px rgba(255,255,255,0.03)`
+
+- **1% 细节**
+  - 全局噪点背景（SVG feTurbulence，消除纯黑塑料感）
+  - 滚动条美化（5px 宽，暗灰半透明，Firefox + WebKit 双兼容）
+
+- **轻提示系统**
+  - 前传结束 → 正片：底部 "按 M 切换布局 · 按 J 打开笔记本"（8 秒自动消失）
+  - 第一次掉 SAN <75：右下角 "理智正在流失，世界会逐渐发生变化"（2.5 秒自动消失）
+  - 笔记本首次打开：第一条线索链金色微光高亮 1.5 秒
+
+- **笔记本快捷键统一** — `GameLayout.jsx` N 键 → J 键
+
+### 美术统一系统
+
+- **SVG 滤镜源**（`index.template.html`）
+  - `#global-film-grain` — 胶片颗粒，消除 AI 塑料感
+  - `#soft-vignette` — 轻暗角，场景/背景用
+  - `#strong-vignette` — 强暗角，结局 CG 用
+  - `#soft-sharpen` — 轻锐化，NPC 立绘用
+
+- **CSS 滤镜系统**（`styles.css`）
+  - `img.game-art` — 降饱和 12% + 对比度 1.08 + 压暗 0.92 + 暖调 + 颗粒
+  - `img.npc-portrait` — 基础 + 锐化
+  - `img.scene-bg` / `.town-map-bg` — 基础 + 轻暗角
+  - `img.ending-cg` — 高对比 1.15 + 强暗角
+  - `.game-panel` / `.modal-content` — UI 面板噪点质感
+
+- **组件 class 注入**（6 个组件 8 处）
+  - `NPCDialog.jsx` / `GamePanels.jsx` / `InteractiveTownMap.jsx` / `AreaPanelModal.jsx` / `GameCommon.jsx`
+
+### 测试
+
+- **完整流程测试**（`tests/test_full_flow.mjs`）— 19 组 48 项断言，覆盖所有修改过的函数调用链
+- 拼接构建 + Vite ESM 构建双通过
+
+---
+
 ## 2026-06-16 — 前传音频 + 笔记本 UI + 页面缩放 + AP 音效
 
 ### 新增功能

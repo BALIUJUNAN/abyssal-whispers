@@ -9,6 +9,13 @@ export const rand = (min, max, rng) => {
   if (rng) return rng.intBetween(min, max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
+/**
+ * 创建一个 rand() 函数，绑定到指定 rng（无 rng 时回退 Math.random）。
+ * 用于 reducer 工具函数内部，消除重复的 `rng ? rng.next.bind(rng) : Math.random` 模式。
+ * @param {object|null} rng - seeded RNG 实例（c.rng），可为 null
+ * @returns {function} () => number
+ */
+export const makeRand = (rng) => rng ? rng.next.bind(rng) : Math.random;
 export const d100 = (rng) => rand(1, 100, rng);
 export const d3 = (rng) => rand(1, 3, rng);
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));

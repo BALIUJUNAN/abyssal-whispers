@@ -9,8 +9,8 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![CI](https://github.com/BALIUJUNAN/abyssal-whispers/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
-![Build](https://img.shields.io/badge/build-Vite_587B_HTML-green)
-![Tests](https://img.shields.io/badge/tests-285_passing-brightgreen)
+![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
+![Tests](https://img.shields.io/badge/tests-48_flow_%2B_69_event-brightgreen)
 ![Version](https://img.shields.io/badge/version-0.6.0-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
@@ -72,7 +72,7 @@ npm run tauri:build
 
 | 维度           | 数据                                                                                                                        |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **独立事件**   | **855+ 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆） + 102 结局                        |
+| **独立事件**   | **855+ 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆） + 102 结局，全部含 quality_tier / trigger 条件 |
 | **行为结局**   | **36 条** — 由你的选择模式触发，非预设分支                                                                                  |
 | **主线结局**   | **10 条** — 封印守护者 / 希尔达抉择 / 老费舍血脉 / 第十二声钟 / 海上逃离 / 证据逃离 / 异端黎明 / 深渊吞噬 / 超越 / 循环真相 |
 | **结局余韵**   | 每条结局附带可解锁的 Afterglow 文本（条件触发）                                                                             |
@@ -93,6 +93,7 @@ npm run tauri:build
 | **代码规模**   | 45,000+ 行 JS/JSX — 114+ 个源文件                                                                                           |
 | **数据校验**   | Zod Schema 855条数据全量校验                                                                                                 |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
+| **测试覆盖**   | 完整流程测试 48 项（19 组）+ 事件 lint 69 项 + 拼接/Vite 双构建验证                                                          |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -947,6 +948,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **0.6.0** | 2026-06-16 | **转场动画 + NPC 对话扩充 + 事件池 + Bug 修复** — ①屏幕转场系统：新增 `ScreenTransition.jsx`（Canvas exit + CSS enter + 音频联动）+ `TransitionCanvas.jsx`（4 种程序化效果：noiseWipe / inkBleed / voidCircle / glitchSlices），重构 app.jsx 渲染架构，设置面板新增「减弱动效」开关；②NPC 上下文对话：新增 `npcContextualLines.js`（8 位 NPC × 143 条条件感知对话），`selectContextualLine()` 支持信任 / 时段 / SAN / 轮回 / 死亡遗产 / 物品 / 区域条件过滤 + 已读去重，NPCDialog 组件显示上下文短句；③后 7 区事件池扩充 +120 事件：`events_supplement.js` 覆盖 forbidden_grove / ruins_of_yith / lighthouse / catacombs_entrance / voxchester_manor / whispering_forest / deep_catacombs，区域分布从 26-56 均衡至 45-65；④第 600 事件修复：mergeExtendedEvents 中 50 个物品定义（无 trigger）被计入 _extendedEvents 导致 .length≠599，已 filter(e => e.trigger)；⑤ch2plus 70 事件补全 once_per_run；⑥轮回商店 3 个购买效果落地（SAN 上限+5 / 死亡保留物品 / 随机稀有物品）；⑦DevPanel 新增 Event Pool 区域（599/600 进度）；⑧修复 2 处 getSanStageFromGD import 缺失；⑨修复前传打字机 CSS steps(var()) 静默失败 + ScreenTransition children 缓存导致同屏更新失效；⑩页面基础缩放 110% 作为 100%，消除侧边留白 |
+| **0.6.0-stable** | 2026-06-17 | **稳定性修复 + 事件精修 + UI/UX 精修 + 美术统一** — ①修复 7 处 ESM import 缺失（extendedEvents/extendedEventsInit/conclusionReducer/objectiveReducer/miscReducer）；②Reducer 20 处 Math.random() 接入确定性 RNG，新增 `makeRand(rng)` 工具函数消除 11 处重复 fallback；③120 个 supplement 事件补全 quality_tier / normalcy_anchor / unreliable_narration_level + 30 处高级触发条件（san_lte / min_loop）；④加载黑屏→加载态（"正在连接沃切斯特..."）；⑤CSS 设计系统（圆角/阴影/间距/字体 20+ 变量）；⑥按钮 4 态补全 + 弹窗缩放动画 + 滚动条美化 + 全局噪点；⑦轻提示系统（前传结束/SAN 首掉/笔记本首次高亮）；⑧美术统一 SVG 滤镜（胶片颗粒/暗角/锐化）+ 8 处组件 class 注入；⑨笔记本快捷键统一为 J；⑩新增完整流程测试 48 项 + 拼接/Vite 双构建验证 |
 | **0.5.0** | 2026-06-16 | **GLM-4.7 Flash AI 叙事增强接入** — ①新增 `glmClient.js`(190行)：GLM-4.7 Flash API 客户端，OpenAI 兼容端点，内置限流(2s)/缓存(5min)/超时(15s)/设置持久化；②新增 `llmNarrative.js`(320行)：6 个 LLM 增强函数——`enhanceEventDescription`(动态事件文本)、`generateNpcDialogue`(8NPC角色扮演对话)、`enhanceDeathSummary`(死亡4段增强)、`generateMetaCorruptionEvent`(Meta异象)、`generateAfterglow`(余韵诗意)、`generateSanCorruptedText`(SAN腐蚀叙述)；③`EnhancedNarrativeBlock` 组件：事件触发时异步调用LLM生成个性化叙事(signature/里程碑100%，普通事件SAN≤40时30%)，单飞守卫+缓存+新轮回清理；④设置面板「AI 叙事增强」分组：总开关+API Key输入+4个子功能独立控制(死亡总结/NPC对话/Meta异象/事件文本)；⑤死亡画面LLM增强：4段叙事异步加载+余韵诗意文本渐进显示；⑥离线优先架构：Reducer零LLM依赖，UI层异步调用，API失败自动回退800+条静态文本 |
 | **0.4.1** | 2026-06-15 | **"活的深渊"系统 + 事件文本感官化** — ①AP污染系统：SAN stage≥3或loop≥3时AP显示欺骗(多报1-4点)+行动偷取(20-40%概率多扣1AP)+发现揭示机制；②不可靠每日总结：SAN stage≥2数值误差/≥3省略行动/≥4追加虚假记忆；③Mythos SAN门控：SAN≥50且loop<3时mythos增益静默跳过，保持"不可知"恐怖；④事件文本感官化重写：343行改动，7个事件文件+5个NPC背景全面改写，去掉"你知道——/你注意到/你认出了"句式，"展现"替代"讲述"；⑤神话专名门控：第一周目零真名泄露，loop 2使用模糊替代("那个符号"/"地下的纹路")，loop 3+解锁专名；⑥全景地图缩放同步：热点图标随背景图一起缩放平移(viewport容器统一transform)；⑦修复6个Bug：updateSettings未定义/c.target变量遮蔽/Modal未import/3函数定义位置错误/60+处缺失ESM import/save变量名冲突 |
 | **0.4.1维护** | 2026-06-15 | **Reducer 确定性 RNG + 3 个 import 缺失 + 2 个逻辑错误** — ①修复 `coreSlice.js` 未导入 `clamp` 导致 `RESIST_SAN_DRAIN` 运行时崩溃（深渊弹窗抵抗机制）；②修复 `effectReducer.js` 未导入 `resolveClueName` 导致线索名解析静默失败（线索显示原始 ID 而非中文名）；③修复 `dailySlice.js` 未导入 `updateAreaCorruption` 导致 REST 时区域腐蚀度不更新；④修复 `npcSlice.js` `get_item` 路径将 NPC 秘密的叙事文本（如"他曾亲眼见过深潜者的祭祀"）当作线索 ID 塞入 `s.clues`，污染线索数组；⑤修复 `darkSlice.js` `CONSUME_ARCHIVE` 线索名显示 `[object Object]`（`s.clues.pop()` 返回对象时未提取 name）；⑥修复 `uiSlice.js` `GAMBLE_CHOICE` deep_investigate 路径 `addRunMemory` 引用 `availableClues[0]` 而非实际被 `pick()` 选中的线索；⑦**确定性 RNG 全面接入**：6 个 reducer slice 文件共 40+ 处 `Math.random()` / `rand()` / `pick()` 调用全部改为 `c.rng` fallback 模式（`(c.rng ? c.rng.next() : Math.random())` + `rand(min, max, c.rng)` + `pick(arr, c.rng)`），确保存档回放、确定性测试、bug 复现可靠 |

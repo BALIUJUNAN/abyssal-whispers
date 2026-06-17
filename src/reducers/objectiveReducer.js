@@ -1,6 +1,7 @@
 // src/reducers/objectiveReducer.js - Objective generation and completion
 
-import { applySanLoss } from './utils.js';
+import { applySanLoss, makeRand } from './utils.js';
+import { hasClueId } from '../utils/clueNameMap.js';
 
 export function genObjectives(day, ctx) {
   const vs = ctx?.GD?.vertical_slice;
@@ -92,20 +93,21 @@ export const CRITICAL_PROGRESS_GUARDS = [
   },
 ];
 
-export function getForcedProgressGuard(state, ctx) {
+export function getForcedProgressGuard(state, ctx, rng) {
   const day = state.day || 1;
   const clues = state.clues || [];
   const triggered = state.triggeredEvents || [];
+  var _rand = makeRand(rng);
   for (const guard of CRITICAL_PROGRESS_GUARDS) {
     if (triggered.includes(guard.guardFlag)) continue;
     if (day > guard.deadlineDay) continue;
     if ((state.completedChains || []).includes(guard.chainId)) continue;
-    const foundCount = guard.requiredClues.filter((c) => hasClueId(clues, c)).length;
+    const foundCount = guard.requiredClues.filter((x) => hasClueId(clues, x)).length;
     if (foundCount >= guard.minCluesNeeded) continue;
     const daysUntilDeadline = guard.deadlineDay - day;
     if (daysUntilDeadline > 2) continue;
     const fireProbability = daysUntilDeadline <= 0 ? 0.9 : daysUntilDeadline === 1 ? 0.6 : 0.3;
-    if (Math.random() >= fireProbability) continue;
+    if (_rand() >= fireProbability) continue;
     return guard;
   }
   return null;
@@ -116,7 +118,7 @@ export function executeForcedProgressGuard(guard, state, narr) {
     state.triggeredEvents.push(guard.guardFlag);
   }
   narr('system', guard.fallbackNarrative, { isSpecial: true });
-  const missingClues = guard.requiredClues.filter((c) => !hasClueId(state.clues, c));
+  const missingClues = guard.requiredClues.filter((x) => !hasClueId(state.clues, x));
   if (missingClues.length > 0) {
     const hintClue = guard.fallbackClueHint || missingClues[0];
     if (!hasClueId(state.clues, hintClue)) {
