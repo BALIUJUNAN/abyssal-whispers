@@ -10,8 +10,8 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
-![Tests](https://img.shields.io/badge/tests-48_flow_%2B_69_event-brightgreen)
-![Version](https://img.shields.io/badge/version-0.6.0-orange)
+![Tests](https://img.shields.io/badge/tests-48_flow_%2B_69_event_%2B_difficulty-brightgreen)
+![Version](https://img.shields.io/badge/version-0.7.0-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -295,7 +295,7 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **事件链 / 线索链**       | 顺序推进的多阶段调查，线索组合推导结论                                                              |
 | **音频系统**              | 53 段音频 — 区域环境音乐(9区×昼夜) + 技能检定音效 + 死亡叙事 + 中文语音台词 + 钟声变体 + AP消耗音效反馈 + 前传环境音 |
 | **笔记本系统**            | 独立浮层 UI（N 键/按钮），3 条线索链 + 5 个结论 + 线索互引标记 + 散落笔记，不影响上方数据查看          |
-| **设置面板**              | **页面缩放**(70-140%) · 字号/行高/字族 · 闪烁/动画/高对比度 · 视觉污染/震动/文字污染/暗角 · 5路音量/静音 · 引导/跳过已读 |
+| **设置面板**              | **页面缩放**(70-140%) · 字号/行高/字族 · 闪烁/动画/高对比度 · 视觉污染/震动/文字污染/暗角 · 5路音量/静音 · 引导/跳过已读 · **存档/读档/成就入口** |
 | **成就系统**              | 20 个成就，进程 / 结局 / 挑战 / 隐藏四大类                                                          |
 | **多槽位存档**            | 3 自动 + 3 手动，版本迁移兼容，JSON 导入/导出                                                       |
 | **快捷键**                | `1-9` 选择 / `Space` 确认 / `M` 布局切换 / `I` 物品 / `J` 线索 / `N` 笔记本                            |
@@ -338,6 +338,62 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 🔗 **[GitHub Pages 在线版](https://baliujunan.github.io/abyssal-whispers/)** — 浏览器直接打开即可游玩
 
 > 推荐使用 Chrome / Edge 以获得最佳音频体验。移动端同样适配。
+
+### 21级难度系统
+
+游戏提供 **21级难度梯度**，从休闲体验到原汁原味的克苏鲁恐怖：
+
+| 区间 | 级别 | 存活率 | 平均天数 | 目标玩家 |
+|------|------|--------|----------|----------|
+| **基础** | Level 1-3 | 25-8% | 20-14天 | 新手/标准玩家 |
+| **进阶** | Level 4-9 | 20-6% | 19-13天 | 进阶玩家 |
+| **硬核** | Level 10-15 | 5-2% | 12-8天 | 硬核玩家 |
+| **极限** | Level 16-21 | 2-3% | 10-8天 | 受苦爱好者 |
+
+**难度特性**：
+- **Level 1 (普通)**: SAN/HP损失减少65%，前6天安全区
+- **Level 3 (噩梦)**: SAN/HP损失减少35%，前4天安全区
+- **Level 12 (专家)**: SAN/HP损失减少15%，前2天安全区
+- **Level 21 (v1原版)**: 无任何保护，原始难度
+
+**保护机制**：
+- **SAN保护**: 根据难度级别减少SAN损失
+- **HP保护**: 根据难度级别减少HP损失
+- **安全区**: 低难度前几天禁止访问高危险区域
+- **损失上限**: 限制单次/每日最大损失
+
+**测试数据** (基于1000+次模拟)：
+```
+Level  1: 存活率 23.5%, 平均 20.05天
+Level  3: 存活率 5.0%, 平均 13.40天
+Level  6: 存活率 2.5%, 平均 11.57天
+Level 12: 存活率 1.5%, 平均 8.96天
+Level 21: 存活率 1.0%, 平均 7.94天
+```
+
+**使用方法**：
+```bash
+# 运行难度测试
+node scripts/sim28balance_final.cjs --difficulty normal --runs 1000 --seed 42
+
+# 测试所有难度
+for level in 1 3 6 9 12 15 18 21; do
+  node scripts/sim28balance_21levels.cjs --level $level --runs 500 --seed 42
+done
+```
+
+**集成代码**：
+```javascript
+import { DIFFICULTY_LEVELS, getDifficultyConfig } from './config/difficulty.js';
+import { applyDifficultyToState, applyDifficultyProtection } from './state/difficultyState.js';
+
+// 应用难度到游戏状态
+const stateWithDifficulty = applyDifficultyToState(initialState, difficultyLevel);
+
+// 在处理SAN损失时
+const protectedLoss = applyDifficultyProtection(baseLoss, day, state);
+```
+
 
 ---
 
@@ -947,6 +1003,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.6.1** | 2026-06-17 | **UI 可用性修复 + 美术滤镜校准 + 设置弹窗增强** — ①前传屏幕滚动：`body { overflow: clip }` 阻止滚轮事件传递，改用 JS wheel handler 直接在容器上捕获并手动滚动，`.prologue-screen` 改为 `height:100vh; overflow-y:auto`，隐藏滚动条；②前传底部按钮遮挡：`.prologue-footer` 固定底栏 `z-index:5` 遮挡「进入沃切斯特」按钮，添加 `pointer-events: none` 穿透点击；③调查员档案滚动：新增 `.screen-scroll` 全屏滚动容器，CharCreation 包裹其中，回调 ref 绑定 wheel handler；④结局画面滚动：`.ending-screen` 改为 `height:100vh; overflow-y:auto`；⑤`.screen-transition` 从 `min-height:100vh` 改为 `height:100vh; overflow:hidden`，确保子滚动容器能正确溢出；⑥设置弹窗增强：新增 💾存档 / 📖读档 / 🏆成就 三个按钮，解决图片模式下 FloatingInfoBar 不可见时功能入口缺失；⑦SVG 暗角滤镜修复：`soft-vignette` stdDeviation 80→35、`strong-vignette` 60→28，filterRegion 200%→100%，解决大面积均匀变暗问题；⑧CSS 选择器修复：`.area-scene img` → `.area-scene > img`（直接子元素），NPC 头像（`.npc-portrait-thumb` / `.area-panel-npc-img`）加独立滤镜规则，避免场景暗角覆盖圆形头像 |
 | **0.6.0** | 2026-06-16 | **转场动画 + NPC 对话扩充 + 事件池 + Bug 修复** — ①屏幕转场系统：新增 `ScreenTransition.jsx`（Canvas exit + CSS enter + 音频联动）+ `TransitionCanvas.jsx`（4 种程序化效果：noiseWipe / inkBleed / voidCircle / glitchSlices），重构 app.jsx 渲染架构，设置面板新增「减弱动效」开关；②NPC 上下文对话：新增 `npcContextualLines.js`（8 位 NPC × 143 条条件感知对话），`selectContextualLine()` 支持信任 / 时段 / SAN / 轮回 / 死亡遗产 / 物品 / 区域条件过滤 + 已读去重，NPCDialog 组件显示上下文短句；③后 7 区事件池扩充 +120 事件：`events_supplement.js` 覆盖 forbidden_grove / ruins_of_yith / lighthouse / catacombs_entrance / voxchester_manor / whispering_forest / deep_catacombs，区域分布从 26-56 均衡至 45-65；④第 600 事件修复：mergeExtendedEvents 中 50 个物品定义（无 trigger）被计入 _extendedEvents 导致 .length≠599，已 filter(e => e.trigger)；⑤ch2plus 70 事件补全 once_per_run；⑥轮回商店 3 个购买效果落地（SAN 上限+5 / 死亡保留物品 / 随机稀有物品）；⑦DevPanel 新增 Event Pool 区域（599/600 进度）；⑧修复 2 处 getSanStageFromGD import 缺失；⑨修复前传打字机 CSS steps(var()) 静默失败 + ScreenTransition children 缓存导致同屏更新失效；⑩页面基础缩放 110% 作为 100%，消除侧边留白 |
 | **0.6.0-stable** | 2026-06-17 | **稳定性修复 + 事件精修 + UI/UX 精修 + 美术统一** — ①修复 7 处 ESM import 缺失（extendedEvents/extendedEventsInit/conclusionReducer/objectiveReducer/miscReducer）；②Reducer 20 处 Math.random() 接入确定性 RNG，新增 `makeRand(rng)` 工具函数消除 11 处重复 fallback；③120 个 supplement 事件补全 quality_tier / normalcy_anchor / unreliable_narration_level + 30 处高级触发条件（san_lte / min_loop）；④加载黑屏→加载态（"正在连接沃切斯特..."）；⑤CSS 设计系统（圆角/阴影/间距/字体 20+ 变量）；⑥按钮 4 态补全 + 弹窗缩放动画 + 滚动条美化 + 全局噪点；⑦轻提示系统（前传结束/SAN 首掉/笔记本首次高亮）；⑧美术统一 SVG 滤镜（胶片颗粒/暗角/锐化）+ 8 处组件 class 注入；⑨笔记本快捷键统一为 J；⑩新增完整流程测试 48 项 + 拼接/Vite 双构建验证 |
 | **0.5.0** | 2026-06-16 | **GLM-4.7 Flash AI 叙事增强接入** — ①新增 `glmClient.js`(190行)：GLM-4.7 Flash API 客户端，OpenAI 兼容端点，内置限流(2s)/缓存(5min)/超时(15s)/设置持久化；②新增 `llmNarrative.js`(320行)：6 个 LLM 增强函数——`enhanceEventDescription`(动态事件文本)、`generateNpcDialogue`(8NPC角色扮演对话)、`enhanceDeathSummary`(死亡4段增强)、`generateMetaCorruptionEvent`(Meta异象)、`generateAfterglow`(余韵诗意)、`generateSanCorruptedText`(SAN腐蚀叙述)；③`EnhancedNarrativeBlock` 组件：事件触发时异步调用LLM生成个性化叙事(signature/里程碑100%，普通事件SAN≤40时30%)，单飞守卫+缓存+新轮回清理；④设置面板「AI 叙事增强」分组：总开关+API Key输入+4个子功能独立控制(死亡总结/NPC对话/Meta异象/事件文本)；⑤死亡画面LLM增强：4段叙事异步加载+余韵诗意文本渐进显示；⑥离线优先架构：Reducer零LLM依赖，UI层异步调用，API失败自动回退800+条静态文本 |

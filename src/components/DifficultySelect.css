@@ -1,0 +1,144 @@
+/* 难度选择界面样式 */
+.difficulty-select {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Georgia', serif;
+}
+
+.difficulty-select h2 {
+  text-align: center;
+  color: #d4af37;
+  font-size: 28px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.difficulty-hint {
+  text-align: center;
+  color: #aaa;
+  margin-bottom: 30px;
+}
+
+.difficulty-hint strong {
+  color: #d4af37;
+}
+
+.difficulty-category {
+  margin-bottom: 25px;
+}
+
+.difficulty-category h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.difficulty-btn {
+  background: transparent;
+  border: 2px solid #555;
+  border-radius: 8px;
+  padding: 12px 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #ddd;
+}
+
+.difficulty-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.difficulty-btn.selected {
+  color: #fff;
+  font-weight: bold;
+}
+
+.difficulty-btn.hovered {
+  border-color: #d4af37;
+}
+
+.level-number {
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0.8;
+}
+
+.level-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.level-survival {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.difficulty-info {
+  min-height: 100px;
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.difficulty-tooltip h4 {
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.difficulty-tooltip p {
+  color: #aaa;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.difficulty-actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #d4af37, #b8860b);
+  color: #000;
+  border: none;
+  padding: 12px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-confirm:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+  .difficulty-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
+  
+  .difficulty-btn {
+    padding: 10px 6px;
+  }
+  
+  .level-name {
+    font-size: 14px;
+  }
+}

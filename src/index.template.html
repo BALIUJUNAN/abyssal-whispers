@@ -23,15 +23,15 @@
           <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.15 0"/>
           <feBlend mode="overlay" in="SourceGraphic" in2="noise" opacity="0.08"/>
         </filter>
-        <filter id="soft-vignette" x="-50%" y="-50%" width="200%" height="200%">
-          <feFlood flood-color="black" flood-opacity="0.25" result="dark"/>
-          <feGaussianBlur in="dark" stdDeviation="80" result="blur"/>
+        <filter id="soft-vignette" x="0" y="0" width="100%" height="100%">
+          <feFlood flood-color="black" flood-opacity="0.35" result="dark"/>
+          <feGaussianBlur in="dark" stdDeviation="35" result="blur"/>
           <feComposite in="blur" in2="SourceGraphic" operator="in" result="mask"/>
           <feBlend mode="multiply" in="SourceGraphic" in2="mask"/>
         </filter>
-        <filter id="strong-vignette" x="-50%" y="-50%" width="200%" height="200%">
-          <feFlood flood-color="black" flood-opacity="0.4" result="dark"/>
-          <feGaussianBlur in="dark" stdDeviation="60" result="blur"/>
+        <filter id="strong-vignette" x="0" y="0" width="100%" height="100%">
+          <feFlood flood-color="black" flood-opacity="0.5" result="dark"/>
+          <feGaussianBlur in="dark" stdDeviation="28" result="blur"/>
           <feComposite in="blur" in2="SourceGraphic" operator="in" result="mask"/>
           <feBlend mode="multiply" in="SourceGraphic" in2="mask"/>
         </filter>

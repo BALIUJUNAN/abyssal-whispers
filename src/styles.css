@@ -554,6 +554,17 @@ body::before {
 /* ==========================================================
    Character Creation
    ========================================================== */
+/* Full-screen scrollable wrapper (body has overflow:clip, so each screen needs its own scroller) */
+.screen-scroll {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.screen-scroll::-webkit-scrollbar {
+  display: none;
+}
 .char-creation {
   max-width: 700px;
   margin: 0 auto;
@@ -2336,11 +2347,18 @@ body::before {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 2rem;
   text-align: center;
   background: radial-gradient(ellipse at 50% 40%, rgba(15, 15, 20, 1) 0%, #000 80%);
   animation: endingFadeIn 1.5s ease-out;
+  scrollbar-width: none;
+}
+.ending-screen::-webkit-scrollbar {
+  display: none;
 }
 @keyframes endingFadeIn {
   from {
@@ -3951,12 +3969,15 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
    ========================================================== */
 .prologue-screen {
   position: relative;
-  min-height: 100vh;
-  overflow: hidden;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   background: #05070a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  scrollbar-width: none;          /* Firefox */
+}
+.prologue-screen::-webkit-scrollbar {
+  display: none;                   /* Chrome / Safari / Edge */
 }
 .prologue-bg {
   position: absolute;
@@ -4016,12 +4037,11 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
   position: relative;
   z-index: 3;
   width: min(760px, 92vw);
-  min-height: 100vh;
-  padding: 6vh 1.5rem 4vh;
+  margin: 0 auto;
+  padding: 12vh 1.5rem 14vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   text-align: center;
 }
 .prologue-kicker {
@@ -4263,6 +4283,7 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
   color: var(--text-dim);
   font-family: 'JetBrains Mono', monospace;
   z-index: 5;
+  pointer-events: none;
 }
 .prologue-footer-item {
   opacity: 0.6;
@@ -6233,7 +6254,8 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
   animation-fill-mode: both;
   animation-timing-function: ease-out;
   animation-duration: var(--trans-dur, 400ms);
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 /* Exit: no CSS animation (canvas handles it) — just hide content under canvas */
 .screen-transition--exit {
@@ -6350,8 +6372,10 @@ img.game-art {
   object-fit: cover;
 }
 
-/* ── 2. NPC 立绘：加轻微锐化，消除 AI 模糊 ── */
-img.npc-portrait {
+/* ── 2. NPC 立绘：加轻微锐化 + 圆形裁切滤镜 ── */
+img.npc-portrait,
+.npc-portrait-thumb,
+.area-panel-npc-img {
   filter:
     grayscale(0.12)
     contrast(1.08)
@@ -6366,7 +6390,8 @@ img.npc-portrait {
 img.scene-bg,
 img.town-map-bg,
 .scene-image img,
-.area-scene img {
+.area-scene > img,
+.narrative-image:not(.npc-portrait):not(.npc-portrait-thumb) {
   filter:
     grayscale(0.12)
     contrast(1.08)

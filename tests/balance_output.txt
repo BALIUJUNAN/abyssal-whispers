@@ -1,0 +1,91 @@
+=== 28-Day Balance Simulation ===
+Runs: 1000 Seed: 42 Fear: all
+Done in 0.30s
+
+=== Overall ===
+Avg days: 10.30 | Survival: 3.7%
+Avg SAN: 9.27 | Avg HP: 2.45
+Avg clues: 5.04 | Avg AP wasted: 17.09
+Deaths: HP=533, SAN=430, survived=37
+
+=== Phase Details ===
+  Day 1-7: SAN-47.00, HP-8.13, clues=3.86, AP=0.00
+  Day 8-14: SAN-7.62, HP-2.01, clues=0.83, AP=0.00
+  Day 15-21: SAN-3.11, HP-0.90, clues=0.25, AP=0.00
+  Day 22-28: SAN-1.26, HP-0.37, clues=0.10, AP=0.00
+
+=== By Fear Profile ===
+  thalassophobia: avg 11.46 days, surv 4.5% (n=200)
+  claustrophobia: avg 7.53 days, surv 0.0% (n=200)
+  nyctophobia: avg 8.80 days, surv 0.0% (n=200)
+  acrophobia: avg 14.85 days, surv 12.5% (n=200)
+  insectophobia: avg 8.88 days, surv 1.5% (n=200)
+
+=== By Profession ===
+  journalist: avg 11.46 days, surv 4.5% (n=200)
+  professor: avg 7.53 days, surv 0.0% (n=200)
+  detective: avg 8.80 days, surv 0.0% (n=200)
+  doctor: avg 14.85 days, surv 12.5% (n=200)
+  occultist: avg 8.88 days, surv 1.5% (n=200)
+
+=== By Personality ===
+  balanced: avg 11.46 days, surv 4.5% (n=200)
+  explorer: avg 7.53 days, surv 0.0% (n=200)
+  investigator: avg 8.80 days, surv 0.0% (n=200)
+  social: avg 14.85 days, surv 12.5% (n=200)
+  reckless: avg 8.88 days, surv 1.5% (n=200)
+
+=== NPC Trust ===
+  伊莱亚斯·沃德: 2.83
+  约书亚·布莱克: 2.89
+  玛莎·格雷: 2.87
+  希尔达·莫里斯: 2.91
+  埃德加·洛夫克拉夫特: 2.88
+  汤米·陈: 2.94
+  伊莎贝拉·韦伯: 2.92
+  老费舍: 2.85
+
+=== Area Visits ===
+  town_center: 1000 (100.0%)
+  catacombs_entrance: 922 (92.2%)
+  whispering_forest: 921 (92.1%)
+  voxchester_manor: 874 (87.4%)
+  deep_catacombs: 806 (80.6%)
+  ruins_of_yith: 790 (79.0%)
+  harbor_district: 779 (77.9%)
+  forbidden_grove: 564 (56.4%)
+  lighthouse: 553 (55.3%)
+
+=== SAN Curve ===
+  Day  0: 60.00 ====================
+  Day  1: 50.95 =================
+  Day  2: 39.97 =============
+  Day  3: 31.18 ==========
+  Day  4: 24.03 ========
+  Day  5: 20.80 =======
+  Day  6: 18.21 ======
+  Day  7: 15.97 =====
+  Day  8: 14.76 =====
+  Day  9: 14.27 =====
+  Day 10: 14.68 =====
+  Day 11: 14.59 =====
+  Day 12: 15.59 =====
+  Day 13: 16.81 ======
+  Day 14: 16.52 ======
+  Day 15: 16.38 =====
+  Day 16: 17.16 ======
+  Day 17: 17.43 ======
+  Day 18: 17.82 ======
+  Day 19: 17.75 ======
+  Day 20: 17.68 ======
+  Day 21: 15.78 =====
+  Day 22: 15.42 =====
+  Day 23: 16.74 ======
+  Day 24: 17.15 ======
+  Day 25: 17.81 ======
+  Day 26: 17.20 ======
+  Day 27: 17.94 ======
+  Day 28: 16.89 ======
+Report saved to tests/balance_report.json
+
+=== COMPLETE ===

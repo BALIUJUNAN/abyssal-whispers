@@ -1,0 +1,1683 @@
+{
+  "meta": {
+    "ts": "2026-06-17T14:57:41.437Z",
+    "runs": 1000,
+    "seed": 42,
+    "version": "v2_with_protection"
+  },
+  "stats": {
+    "n": 1000,
+    "overall": {
+      "avgDays": "11.50",
+      "surv": "4.6%",
+      "avgSan": "43.49",
+      "avgHp": "0.23",
+      "avgCl": "7.94",
+      "avgApW": "9.09",
+      "deaths": {
+        "HP": 952,
+        "SAN": 2,
+        "surv": 46
+      }
+    },
+    "phases": {
+      "1_7": {
+        "sl": "13.91",
+        "hl": "7.90",
+        "cl": "5.04",
+        "ap": "0.00"
+      },
+      "8_14": {
+        "sl": "9.42",
+        "hl": "3.51",
+        "cl": "1.99",
+        "ap": "0.00"
+      },
+      "15_21": {
+        "sl": "3.01",
+        "hl": "1.44",
+        "cl": "0.67",
+        "ap": "0.00"
+      },
+      "22_28": {
+        "sl": "1.00",
+        "hl": "0.49",
+        "cl": "0.24",
+        "ap": "0.00"
+      }
+    },
+    "byFear": {
+      "thalassophobia": {
+        "n": 200,
+        "avg": "13.12",
+        "surv": "5.5%"
+      },
+      "claustrophobia": {
+        "n": 200,
+        "avg": "9.30",
+        "surv": "1.0%"
+      },
+      "nyctophobia": {
+        "n": 200,
+        "avg": "9.02",
+        "surv": "0.0%"
+      },
+      "acrophobia": {
+        "n": 200,
+        "avg": "16.13",
+        "surv": "16.0%"
+      },
+      "insectophobia": {
+        "n": 200,
+        "avg": "9.93",
+        "surv": "0.5%"
+      }
+    },
+    "byProf": {
+      "journalist": {
+        "n": 200,
+        "avg": "13.12",
+        "surv": "5.5%"
+      },
+      "professor": {
+        "n": 200,
+        "avg": "9.30",
+        "surv": "1.0%"
+      },
+      "detective": {
+        "n": 200,
+        "avg": "9.02",
+        "surv": "0.0%"
+      },
+      "doctor": {
+        "n": 200,
+        "avg": "16.13",
+        "surv": "16.0%"
+      },
+      "occultist": {
+        "n": 200,
+        "avg": "9.93",
+        "surv": "0.5%"
+      }
+    },
+    "byP": {
+      "balanced": {
+        "n": 200,
+        "avg": "13.12",
+        "surv": "5.5%"
+      },
+      "explorer": {
+        "n": 200,
+        "avg": "9.30",
+        "surv": "1.0%"
+      },
+      "investigator": {
+        "n": 200,
+        "avg": "9.02",
+        "surv": "0.0%"
+      },
+      "social": {
+        "n": 200,
+        "avg": "16.13",
+        "surv": "16.0%"
+      },
+      "reckless": {
+        "n": 200,
+        "avg": "9.93",
+        "surv": "0.5%"
+      }
+    },
+    "sanCurve": [
+      {
+        "day": 0,
+        "avg": "60.00"
+      },
+      {
+        "day": 1,
+        "avg": "59.63"
+      },
+      {
+        "day": 2,
+        "avg": "58.88"
+      },
+      {
+        "day": 3,
+        "avg": "58.18"
+      },
+      {
+        "day": 4,
+        "avg": "55.31"
+      },
+      {
+        "day": 5,
+        "avg": "53.28"
+      },
+      {
+        "day": 6,
+        "avg": "51.88"
+      },
+      {
+        "day": 7,
+        "avg": "51.11"
+      },
+      {
+        "day": 8,
+        "avg": "49.94"
+      },
+      {
+        "day": 9,
+        "avg": "49.37"
+      },
+      {
+        "day": 10,
+        "avg": "48.81"
+      },
+      {
+        "day": 11,
+        "avg": "48.33"
+      },
+      {
+        "day": 12,
+        "avg": "48.96"
+      },
+      {
+        "day": 13,
+        "avg": "48.65"
+      },
+      {
+        "day": 14,
+        "avg": "48.28"
+      },
+      {
+        "day": 15,
+        "avg": "48.31"
+      },
+      {
+        "day": 16,
+        "avg": "49.16"
+      },
+      {
+        "day": 17,
+        "avg": "50.31"
+      },
+      {
+        "day": 18,
+        "avg": "52.46"
+      },
+      {
+        "day": 19,
+        "avg": "52.41"
+      },
+      {
+        "day": 20,
+        "avg": "53.28"
+      },
+      {
+        "day": 21,
+        "avg": "53.28"
+      },
+      {
+        "day": 22,
+        "avg": "55.16"
+      },
+      {
+        "day": 23,
+        "avg": "57.47"
+      },
+      {
+        "day": 24,
+        "avg": "60.38"
+      },
+      {
+        "day": 25,
+        "avg": "63.73"
+      },
+      {
+        "day": 26,
+        "avg": "64.81"
+      },
+      {
+        "day": 27,
+        "avg": "69.45"
+      },
+      {
+        "day": 28,
+        "avg": "69.61"
+      }
+    ],
+    "npcT": {
+      "汤米·陈": "2.56",
+      "希尔达·莫里斯": "2.56",
+      "埃德加·洛夫克拉夫特": "2.47",
+      "约书亚·布莱克": "2.48",
+      "老费舍": "2.68",
+      "伊莎贝拉·韦伯": "2.58",
+      "玛莎·格雷": "2.62",
+      "伊莱亚斯·沃德": "2.50"
+    },
+    "areaV": {
+      "town_center": 1000,
+      "whispering_forest": 979,
+      "voxchester_manor": 940,
+      "harbor_district": 854,
+      "catacombs_entrance": 972,
+      "forbidden_grove": 814,
+      "ruins_of_yith": 956,
+      "deep_catacombs": 933,
+      "lighthouse": 680
+    }
+  },
+  "sample": [
+    {
+      "idx": 0,
+      "fear": "thalassophobia",
+      "prof": "journalist",
+      "personality": "balanced",
+      "days": 28,
+      "death": null,
+      "san": [
+        60,
+        61,
+        61,
+        58,
+        52,
+        55,
+        57,
+        58,
+        60,
+        56,
+        53,
+        50,
+        46,
+        43,
+        32,
+        24,
+        23,
+        16,
+        17,
+        16,
+        18,
+        21,
+        31,
+        31,
+        27,
+        30,
+        21,
+        26,
+        31
+      ],
+      "apW": 7,
+      "ph": {
+        "1_7": {
+          "sl": 9,
+          "hl": 6,
+          "cl": 5,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 28,
+          "hl": 2,
+          "cl": 7,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 17,
+          "hl": 9,
+          "cl": 4,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 13,
+          "hl": 4,
+          "cl": 6,
+          "ap": 0
+        }
+      },
+      "fSan": 31,
+      "fHp": 6,
+      "fCl": 22,
+      "vis": [
+        "town_center",
+        "whispering_forest",
+        "voxchester_manor",
+        "harbor_district",
+        "catacombs_entrance",
+        "forbidden_grove",
+        "ruins_of_yith",
+        "deep_catacombs",
+        "lighthouse"
+      ],
+      "nt": {
+        "汤米·陈": 5,
+        "希尔达·莫里斯": 5,
+        "埃德加·洛夫克拉夫特": 5,
+        "约书亚·布莱克": 3,
+        "老费舍": 5,
+        "伊莎贝拉·韦伯": 5,
+        "玛莎·格雷": 2,
+        "伊莱亚斯·沃德": 3
+      }
+    },
+    {
+      "idx": 1,
+      "fear": "claustrophobia",
+      "prof": "professor",
+      "personality": "explorer",
+      "days": 9,
+      "death": "HP",
+      "san": [
+        60,
+        61,
+        56,
+        54,
+        51,
+        52,
+        47,
+        49,
+        50,
+        40
+      ],
+      "apW": 3,
+      "ph": {
+        "1_7": {
+          "sl": 15,
+          "hl": 6,
+          "cl": 4,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 10,
+          "hl": 8,
+          "cl": 2,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 40,
+      "fHp": 0,
+      "fCl": 6,
+      "vis": [
+        "town_center",
+        "catacombs_entrance",
+        "voxchester_manor",
+        "whispering_forest",
+        "forbidden_grove",
+        "ruins_of_yith",
+        "deep_catacombs",
+        "harbor_district",
+        "lighthouse"
+      ],
+      "nt": {
+        "埃德加·洛夫克拉夫特": 1,
+        "玛莎·格雷": 1,
+        "汤米·陈": 2,
+        "希尔达·莫里斯": 1,
+        "约书亚·布莱克": 2
+      }
+    },
+    {
+      "idx": 2,
+      "fear": "nyctophobia",
+      "prof": "detective",
+      "personality": "investigator",
+      "days": 5,
+      "death": "HP",
+      "san": [
+        60,
+        60,
+        61,
+        59,
+        49,
+        43
+      ],
+      "apW": 4,
+      "ph": {
+        "1_7": {
+          "sl": 18,
+          "hl": 11,
+          "cl": 7,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 43,
+      "fHp": 0,
+      "fCl": 7,
+      "vis": [
+        "town_center",
+        "voxchester_manor",
+        "catacombs_entrance",
+        "deep_catacombs",
+        "ruins_of_yith"
+      ],
+      "nt": {
+        "希尔达·莫里斯": 1,
+        "老费舍": 1,
+        "伊莱亚斯·沃德": 1,
+        "埃德加·洛夫克拉夫特": 1
+      }
+    },
+    {
+      "idx": 3,
+      "fear": "acrophobia",
+      "prof": "doctor",
+      "personality": "social",
+      "days": 7,
+      "death": "HP",
+      "san": [
+        60,
+        58,
+        56,
+        53,
+        54,
+        52,
+        49,
+        41
+      ],
+      "apW": 0,
+      "ph": {
+        "1_7": {
+          "sl": 20,
+          "hl": 11,
+          "cl": 6,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 41,
+      "fHp": 0,
+      "fCl": 6,
+      "vis": [
+        "town_center",
+        "catacombs_entrance",
+        "deep_catacombs",
+        "ruins_of_yith",
+        "whispering_forest",
+        "forbidden_grove",
+        "voxchester_manor",
+        "harbor_district",
+        "lighthouse"
+      ],
+      "nt": {
+        "玛莎·格雷": 1,
+        "约书亚·布莱克": 1,
+        "老费舍": 2,
+        "伊莎贝拉·韦伯": 1
+      }
+    },
+    {
+      "idx": 4,
+      "fear": "insectophobia",
+      "prof": "occultist",
+      "personality": "reckless",
+      "days": 7,
+      "death": "HP",
+      "san": [
+        60,
+        61,
+        62,
+        64,
+        61,
+        49,
+        47,
+        45
+      ],
+      "apW": 14,
+      "ph": {
+        "1_7": {
+          "sl": 19,
+          "hl": 11,
+          "cl": 12,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 45,
+      "fHp": 0,
+      "fCl": 12,
+      "vis": [
+        "town_center",
+        "harbor_district",
+        "lighthouse",
+        "voxchester_manor",
+        "catacombs_entrance",
+        "whispering_forest",
+        "ruins_of_yith",
+        "deep_catacombs"
+      ],
+      "nt": {
+        "约书亚·布莱克": 2,
+        "希尔达·莫里斯": 1,
+        "老费舍": 2
+      }
+    },
+    {
+      "idx": 5,
+      "fear": "thalassophobia",
+      "prof": "journalist",
+      "personality": "balanced",
+      "days": 18,
+      "death": "HP",
+      "san": [
+        60,
+        60,
+        57,
+        57,
+        58,
+        57,
+        52,
+        53,
+        55,
+        53,
+        51,
+        47,
+        44,
+        38,
+        28,
+        37,
+        33,
+        26,
+        29
+      ],
+      "apW": 0,
+      "ph": {
+        "1_7": {
+          "sl": 9,
+          "hl": 8,
+          "cl": 9,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 27,
+          "hl": 6,
+          "cl": 7,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 11,
+          "hl": 4,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 29,
+      "fHp": 0,
+      "fCl": 16,
+      "vis": [
+        "town_center",
+        "voxchester_manor",
+        "catacombs_entrance",
+        "harbor_district",
+        "whispering_forest",
+        "ruins_of_yith",
+        "forbidden_grove",
+        "lighthouse",
+        "deep_catacombs"
+      ],
+      "nt": {
+        "玛莎·格雷": 1,
+        "老费舍": 3,
+        "伊莱亚斯·沃德": 5,
+        "约书亚·布莱克": 2,
+        "汤米·陈": 4,
+        "埃德加·洛夫克拉夫特": 1,
+        "希尔达·莫里斯": 1
+      }
+    },
+    {
+      "idx": 6,
+      "fear": "claustrophobia",
+      "prof": "professor",
+      "personality": "explorer",
+      "days": 5,
+      "death": "HP",
+      "san": [
+        60,
+        58,
+        59,
+        57,
+        50,
+        45
+      ],
+      "apW": 4,
+      "ph": {
+        "1_7": {
+          "sl": 16,
+          "hl": 11,
+          "cl": 6,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 45,
+      "fHp": 0,
+      "fCl": 6,
+      "vis": [
+        "town_center",
+        "whispering_forest",
+        "ruins_of_yith",
+        "deep_catacombs",
+        "voxchester_manor",
+        "forbidden_grove"
+      ],
+      "nt": {
+        "玛莎·格雷": 1
+      }
+    },
+    {
+      "idx": 7,
+      "fear": "nyctophobia",
+      "prof": "detective",
+      "personality": "investigator",
+      "days": 4,
+      "death": "HP",
+      "san": [
+        60,
+        60,
+        59,
+        59,
+        53
+      ],
+      "apW": 5,
+      "ph": {
+        "1_7": {
+          "sl": 7,
+          "hl": 11,
+          "cl": 2,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 53,
+      "fHp": 0,
+      "fCl": 2,
+      "vis": [
+        "town_center",
+        "voxchester_manor",
+        "whispering_forest",
+        "ruins_of_yith",
+        "deep_catacombs"
+      ],
+      "nt": {
+        "伊莱亚斯·沃德": 2,
+        "汤米·陈": 1,
+        "玛莎·格雷": 2
+      }
+    },
+    {
+      "idx": 8,
+      "fear": "acrophobia",
+      "prof": "doctor",
+      "personality": "social",
+      "days": 8,
+      "death": "HP",
+      "san": [
+        60,
+        62,
+        63,
+        61,
+        64,
+        62,
+        61,
+        59,
+        60
+      ],
+      "apW": 1,
+      "ph": {
+        "1_7": {
+          "sl": 7,
+          "hl": 10,
+          "cl": 2,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 0,
+          "hl": 1,
+          "cl": 0,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 60,
+      "fHp": 0,
+      "fCl": 2,
+      "vis": [
+        "town_center",
+        "whispering_forest",
+        "ruins_of_yith",
+        "deep_catacombs",
+        "catacombs_entrance",
+        "voxchester_manor",
+        "forbidden_grove"
+      ],
+      "nt": {
+        "老费舍": 4,
+        "玛莎·格雷": 2,
+        "伊莎贝拉·韦伯": 2,
+        "约书亚·布莱克": 1,
+        "希尔达·莫里斯": 1,
+        "伊莱亚斯·沃德": 4,
+        "汤米·陈": 2
+      }
+    },
+    {
+      "idx": 9,
+      "fear": "insectophobia",
+      "prof": "occultist",
+      "personality": "reckless",
+      "days": 5,
+      "death": "HP",
+      "san": [
+        60,
+        58,
+        53,
+        52,
+        51,
+        48
+      ],
+      "apW": 11,
+      "ph": {
+        "1_7": {
+          "sl": 12,
+          "hl": 11,
+          "cl": 3,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 48,
+      "fHp": 0,
+      "fCl": 3,
+      "vis": [
+        "town_center",
+        "whispering_forest",
+        "ruins_of_yith",
+        "forbidden_grove",
+        "voxchester_manor",
+        "catacombs_entrance",
+        "harbor_district",
+        "lighthouse"
+      ],
+      "nt": {
+        "希尔达·莫里斯": 1
+      }
+    },
+    {
+      "idx": 10,
+      "fear": "thalassophobia",
+      "prof": "journalist",
+      "personality": "balanced",
+      "days": 19,
+      "death": "HP",
+      "san": [
+        60,
+        58,
+        59,
+        56,
+        56,
+        52,
+        52,
+        52,
+        42,
+        44,
+        48,
+        53,
+        51,
+        50,
+        43,
+        38,
+        31,
+        31,
+        30,
+        29
+      ],
+      "apW": 18,
+      "ph": {
+        "1_7": {
+          "sl": 9,
+          "hl": 5,
+          "cl": 5,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 20,
+          "hl": 9,
+          "cl": 6,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 14,
+          "hl": 4,
+          "cl": 5,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 29,
+      "fHp": 0,
+      "fCl": 16,
+      "vis": [
+        "town_center",
+        "whispering_forest",
+        "forbidden_grove",
+        "voxchester_manor",
+        "harbor_district",
+        "lighthouse",
+        "catacombs_entrance",
+        "deep_catacombs",
+        "ruins_of_yith"
+      ],
+      "nt": {
+        "玛莎·格雷": 3,
+        "老费舍": 3,
+        "伊莎贝拉·韦伯": 4,
+        "伊莱亚斯·沃德": 4,
+        "埃德加·洛夫克拉夫特": 2,
+        "希尔达·莫里斯": 2
+      }
+    },
+    {
+      "idx": 11,
+      "fear": "claustrophobia",
+      "prof": "professor",
+      "personality": "explorer",
+      "days": 11,
+      "death": "HP",
+      "san": [
+        60,
+        62,
+        64,
+        64,
+        62,
+        59,
+        56,
+        52,
+        49,
+        51,
+        44,
+        39
+      ],
+      "apW": 8,
+      "ph": {
+        "1_7": {
+          "sl": 12,
+          "hl": 4,
+          "cl": 8,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 15,
+          "hl": 9,
+          "cl": 3,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 39,
+      "fHp": 0,
+      "fCl": 11,
+      "vis": [
+        "town_center",
+        "catacombs_entrance",
+        "voxchester_manor",
+        "harbor_district",
+        "deep_catacombs",
+        "ruins_of_yith",
+        "whispering_forest",
+        "forbidden_grove"
+      ],
+      "nt": {
+        "埃德加·洛夫克拉夫特": 2,
+        "玛莎·格雷": 1,
+        "汤米·陈": 1,
+        "希尔达·莫里斯": 2,
+        "老费舍": 4,
+        "伊莎贝拉·韦伯": 1
+      }
+    },
+    {
+      "idx": 12,
+      "fear": "nyctophobia",
+      "prof": "detective",
+      "personality": "investigator",
+      "days": 14,
+      "death": "HP",
+      "san": [
+        60,
+        60,
+        61,
+        60,
+        52,
+        49,
+        47,
+        47,
+        51,
+        47,
+        54,
+        54,
+        65,
+        56,
+        48
+      ],
+      "apW": 5,
+      "ph": {
+        "1_7": {
+          "sl": 14,
+          "hl": 5,
+          "cl": 4,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 21,
+          "hl": 7,
+          "cl": 6,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 48,
+      "fHp": 0,
+      "fCl": 10,
+      "vis": [
+        "town_center",
+        "harbor_district",
+        "catacombs_entrance",
+        "voxchester_manor",
+        "deep_catacombs",
+        "lighthouse",
+        "whispering_forest",
+        "ruins_of_yith",
+        "forbidden_grove"
+      ],
+      "nt": {
+        "老费舍": 2,
+        "玛莎·格雷": 5,
+        "伊莱亚斯·沃德": 3,
+        "伊莎贝拉·韦伯": 2,
+        "汤米·陈": 5,
+        "希尔达·莫里斯": 1,
+        "埃德加·洛夫克拉夫特": 1
+      }
+    },
+    {
+      "idx": 13,
+      "fear": "acrophobia",
+      "prof": "doctor",
+      "personality": "social",
+      "days": 11,
+      "death": "HP",
+      "san": [
+        60,
+        54,
+        52,
+        53,
+        52,
+        52,
+        54,
+        51,
+        46,
+        49,
+        43,
+        41
+      ],
+      "apW": 1,
+      "ph": {
+        "1_7": {
+          "sl": 12,
+          "hl": 1,
+          "cl": 5,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 13,
+          "hl": 11,
+          "cl": 3,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 41,
+      "fHp": 0,
+      "fCl": 8,
+      "vis": [
+        "town_center",
+        "whispering_forest",
+        "ruins_of_yith",
+        "deep_catacombs",
+        "catacombs_entrance",
+        "voxchester_manor",
+        "harbor_district",
+        "forbidden_grove"
+      ],
+      "nt": {
+        "玛莎·格雷": 5,
+        "希尔达·莫里斯": 1,
+        "老费舍": 2,
+        "汤米·陈": 3,
+        "伊莎贝拉·韦伯": 4,
+        "伊莱亚斯·沃德": 2,
+        "约书亚·布莱克": 1
+      }
+    },
+    {
+      "idx": 14,
+      "fear": "insectophobia",
+      "prof": "occultist",
+      "personality": "reckless",
+      "days": 8,
+      "death": "HP",
+      "san": [
+        60,
+        61,
+        62,
+        59,
+        55,
+        50,
+        49,
+        45,
+        37
+      ],
+      "apW": 7,
+      "ph": {
+        "1_7": {
+          "sl": 17,
+          "hl": 11,
+          "cl": 4,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 8,
+          "hl": 2,
+          "cl": 0,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 37,
+      "fHp": 0,
+      "fCl": 4,
+      "vis": [
+        "town_center",
+        "whispering_forest",
+        "forbidden_grove",
+        "ruins_of_yith",
+        "deep_catacombs",
+        "catacombs_entrance",
+        "voxchester_manor",
+        "harbor_district"
+      ],
+      "nt": {
+        "玛莎·格雷": 1,
+        "汤米·陈": 2,
+        "埃德加·洛夫克拉夫特": 1,
+        "老费舍": 2,
+        "约书亚·布莱克": 1,
+        "希尔达·莫里斯": 1
+      }
+    },
+    {
+      "idx": 15,
+      "fear": "thalassophobia",
+      "prof": "journalist",
+      "personality": "balanced",
+      "days": 20,
+      "death": "HP",
+      "san": [
+        60,
+        58,
+        58,
+        59,
+        58,
+        53,
+        48,
+        46,
+        46,
+        43,
+        42,
+        44,
+        43,
+        42,
+        39,
+        34,
+        30,
+        29,
+        28,
+        28,
+        31
+      ],
+      "apW": 13,
+      "ph": {
+        "1_7": {
+          "sl": 15,
+          "hl": 13,
+          "cl": 5,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 9,
+          "hl": 2,
+          "cl": 6,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 11,
+          "hl": 4,
+          "cl": 6,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 31,
+      "fHp": 0,
+      "fCl": 17,
+      "vis": [
+        "town_center",
+        "harbor_district",
+        "lighthouse",
+        "whispering_forest",
+        "catacombs_entrance",
+        "voxchester_manor",
+        "ruins_of_yith",
+        "forbidden_grove",
+        "deep_catacombs"
+      ],
+      "nt": {
+        "玛莎·格雷": 5,
+        "汤米·陈": 1,
+        "约书亚·布莱克": 2,
+        "伊莱亚斯·沃德": 1,
+        "老费舍": 2,
+        "伊莎贝拉·韦伯": 3,
+        "埃德加·洛夫克拉夫特": 2,
+        "希尔达·莫里斯": 1
+      }
+    },
+    {
+      "idx": 16,
+      "fear": "claustrophobia",
+      "prof": "professor",
+      "personality": "explorer",
+      "days": 12,
+      "death": "HP",
+      "san": [
+        60,
+        60,
+        59,
+        58,
+        53,
+        47,
+        44,
+        37,
+        35,
+        31,
+        26,
+        28,
+        24
+      ],
+      "apW": 18,
+      "ph": {
+        "1_7": {
+          "sl": 23,
+          "hl": 4,
+          "cl": 3,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 15,
+          "hl": 7,
+          "cl": 5,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 24,
+      "fHp": 0,
+      "fCl": 8,
+      "vis": [
+        "town_center",
+        "whispering_forest",
+        "forbidden_grove",
+        "catacombs_entrance",
+        "voxchester_manor",
+        "harbor_district",
+        "deep_catacombs",
+        "ruins_of_yith",
+        "lighthouse"
+      ],
+      "nt": {
+        "约书亚·布莱克": 3,
+        "伊莎贝拉·韦伯": 1
+      }
+    },
+    {
+      "idx": 17,
+      "fear": "nyctophobia",
+      "prof": "detective",
+      "personality": "investigator",
+      "days": 8,
+      "death": "HP",
+      "san": [
+        60,
+        61,
+        57,
+        55,
+        53,
+        39,
+        38,
+        40,
+        36
+      ],
+      "apW": 9,
+      "ph": {
+        "1_7": {
+          "sl": 23,
+          "hl": 12,
+          "cl": 11,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 4,
+          "hl": 1,
+          "cl": 2,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 0,
+          "hl": 0,
+          "cl": 0,
+          "ap": 0
+        }
+      },
+      "fSan": 36,
+      "fHp": 0,
+      "fCl": 13,
+      "vis": [
+        "town_center",
+        "voxchester_manor",
+        "harbor_district",
+        "lighthouse",
+        "whispering_forest",
+        "catacombs_entrance",
+        "deep_catacombs"
+      ],
+      "nt": {
+        "玛莎·格雷": 2
+      }
+    },
+    {
+      "idx": 18,
+      "fear": "acrophobia",
+      "prof": "doctor",
+      "personality": "social",
+      "days": 28,
+      "death": null,
+      "san": [
+        60,
+        59,
+        55,
+        53,
+        48,
+        43,
+        42,
+        43,
+        45,
+        46,
+        46,
+        47,
+        42,
+        37,
+        37,
+        41,
+        43,
+        47,
+        45,
+        52,
+        55,
+        53,
+        50,
+        48,
+        48,
+        48,
+        45,
+        48,
+        47
+      ],
+      "apW": 0,
+      "ph": {
+        "1_7": {
+          "sl": 18,
+          "hl": 3,
+          "cl": 1,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 10,
+          "hl": 4,
+          "cl": 1,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 4,
+          "hl": 0,
+          "cl": 1,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 9,
+          "hl": 11,
+          "cl": 4,
+          "ap": 0
+        }
+      },
+      "fSan": 47,
+      "fHp": 5,
+      "fCl": 7,
+      "vis": [
+        "town_center",
+        "catacombs_entrance",
+        "deep_catacombs",
+        "voxchester_manor",
+        "whispering_forest",
+        "ruins_of_yith",
+        "forbidden_grove",
+        "harbor_district",
+        "lighthouse"
+      ],
+      "nt": {
+        "老费舍": 5,
+        "约书亚·布莱克": 5,
+        "希尔达·莫里斯": 5,
+        "埃德加·洛夫克拉夫特": 3,
+        "伊莎贝拉·韦伯": 5,
+        "伊莱亚斯·沃德": 5,
+        "玛莎·格雷": 2,
+        "汤米·陈": 4
+      }
+    },
+    {
+      "idx": 19,
+      "fear": "insectophobia",
+      "prof": "occultist",
+      "personality": "reckless",
+      "days": 22,
+      "death": "HP",
+      "san": [
+        60,
+        61,
+        62,
+        60,
+        57,
+        56,
+        54,
+        54,
+        56,
+        46,
+        48,
+        48,
+        42,
+        41,
+        43,
+        47,
+        46,
+        48,
+        44,
+        37,
+        42,
+        41,
+        40
+      ],
+      "apW": 32,
+      "ph": {
+        "1_7": {
+          "sl": 8,
+          "hl": 2,
+          "cl": 2,
+          "ap": 0
+        },
+        "8_14": {
+          "sl": 17,
+          "hl": 12,
+          "cl": 3,
+          "ap": 0
+        },
+        "15_21": {
+          "sl": 13,
+          "hl": 5,
+          "cl": 5,
+          "ap": 0
+        },
+        "22_28": {
+          "sl": 1,
+          "hl": 1,
+          "cl": 1,
+          "ap": 0
+        }
+      },
+      "fSan": 40,
+      "fHp": 0,
+      "fCl": 11,
+      "vis": [
+        "town_center",
+        "voxchester_manor",
+        "catacombs_entrance",
+        "harbor_district",
+        "whispering_forest",
+        "ruins_of_yith",
+        "lighthouse",
+        "deep_catacombs",
+        "forbidden_grove"
+      ],
+      "nt": {
+        "埃德加·洛夫克拉夫特": 1,
+        "老费舍": 4,
+        "伊莎贝拉·韦伯": 2,
+        "伊莱亚斯·沃德": 2,
+        "约书亚·布莱克": 2,
+        "希尔达·莫里斯": 1,
+        "玛莎·格雷": 1,
+        "汤米·陈": 1
+      }
+    }
+  ]
+}

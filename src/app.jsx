@@ -693,6 +693,8 @@ function App() {
         settings={settings}
         onChange={handleSettingsChange}
         onAchOpen={() => uiStore.setState({ achOpen: true })}
+        onSaveOpen={() => uiStore.setState({ saveLoadMode: 'save', saveLoadOpen: true })}
+        onLoadOpen={() => uiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true })}
         dispatch={dispatch}
       />
       <SaveLoadModal

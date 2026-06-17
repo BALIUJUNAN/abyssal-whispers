@@ -1,3 +1,70 @@
+## 2026-06-17 — v0.7.0 难度系统 + 平衡性测试框架
+
+### 新增功能
+
+#### 21级难度系统
+- **21级难度梯度**: 从Level 1(普通，存活率25-35%)到Level 21(v1原版，存活率2-3%)
+- **难度选择界面**: React组件，支持21级难度选择，实时预览难度详情
+- **难度状态管理**: 完整的难度状态管理，支持保存/加载难度设置
+- **保护机制**: SAN/HP双重保护，根据难度级别自动调整损失
+
+#### 难度配置文件
+- `src/config/difficulty.js` - 难度配置和工具函数
+- `src/config/difficultyLevels.json` - 21级难度详细配置
+- `src/components/DifficultySelect.jsx` - 难度选择界面组件
+- `src/components/DifficultySelect.css` - 难度选择界面样式
+- `src/state/difficultyState.js` - 难度状态管理
+
+### 平衡性测试框架
+
+#### 测试脚本
+- `scripts/sim28balance.cjs` - v1基准测试
+- `scripts/sim28balance_v2.cjs` - v2 SAN保护版本
+- `scripts/sim28balance_v3.cjs` - v3 双保护版本
+- `scripts/sim28balance_final.cjs` - 4难度版本
+- `scripts/sim28balance_21levels.cjs` - 21级难度版本
+
+#### 测试结果 (基于1000+次模拟)
+```
+Level  1 (普通): 存活率 23.5%, 平均 20.05天
+Level  3 (噩梦): 存活率 5.0%, 平均 13.40天
+Level  6 (挑战): 存活率 2.5%, 平均 11.57天
+Level 12 (专家): 存活率 1.5%, 平均 8.96天
+Level 21 (v1原版): 存活率 1.0%, 平均 7.94天
+```
+
+#### 测试报告
+- `tests/BALANCE_ANALYSIS.md` - v1分析报告
+- `tests/BALANCE_COMPARISON.md` - v1 vs v2对比
+- `tests/BALANCE_V3_DIFFICULTY_REPORT.md` - v3多难度对比
+- `tests/FINAL_BALANCE_REPORT.md` - 最终报告
+- `tests/21_LEVEL_DIFFICULTY_SYSTEM.md` - 21级难度文档
+- `tests/INTEGRATION_GUIDE.md` - 集成指南
+
+### 集成测试
+
+#### 测试文件
+- `tests/test_difficulty_integration.cjs` - 难度系统集成测试
+
+#### 测试结果
+- ✅ 13项集成测试全部通过
+- ✅ 所有文件存在且可读取
+- ✅ 配置文件可解析
+- ✅ 组件文件完整
+- ✅ 状态管理功能正常
+
+### 文档更新
+
+#### README.md
+- 新增"21级难度系统"章节
+- 更新版本号到 v0.7.0
+- 更新测试徽章
+
+#### 完整文档
+- 详细的难度系统说明
+- 集成指南和使用方法
+- 测试数据和验证结果
+
 # CHANGELOG
 
 ## 2026-06-17 — Bug 修复 + 事件精修 + UI/UX 精修 + 美术统一

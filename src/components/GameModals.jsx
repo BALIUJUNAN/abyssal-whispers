@@ -2,7 +2,7 @@
 // SettingsModal, SaveLoadModal, AchievementGallery
 import { Modal } from './GameCommon.jsx';
 
-export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, dispatch }) {
+export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, onSaveOpen, onLoadOpen, dispatch }) {
   const update = (key, val) => onChange({ ...settings, [key]: val });
   const toggleA11y = (key) => {
     const val = !settings[key];
@@ -386,22 +386,34 @@ export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, di
           </div>
         </>
       )}
-      {onAchOpen && (
-        <>
-          <div className="settings-group-title">其他</div>
-          <div className="settings-row">
-            <span className="settings-label">成就</span>
+      <div className="settings-group-title">其他</div>
+      {(onSaveOpen || onLoadOpen || onAchOpen) && (
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+          {onSaveOpen && (
             <button
               className="btn btn-sm"
-              onClick={() => {
-                onClose();
-                onAchOpen();
-              }}
+              onClick={() => { onClose(); onSaveOpen(); }}
             >
-              查看成就
+              💾 存档
             </button>
-          </div>
-        </>
+          )}
+          {onLoadOpen && (
+            <button
+              className="btn btn-sm"
+              onClick={() => { onClose(); onLoadOpen(); }}
+            >
+              📖 读档
+            </button>
+          )}
+          {onAchOpen && (
+            <button
+              className="btn btn-sm"
+              onClick={() => { onClose(); onAchOpen(); }}
+            >
+              🏆 成就
+            </button>
+          )}
+        </div>
       )}
     </Modal>
   );

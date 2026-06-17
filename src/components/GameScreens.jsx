@@ -12,6 +12,20 @@ export function PrologueScreen({ state, dispatch }) {
   const [choiceMade, setChoiceMade] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [typewriterReveal, setTypewriterReveal] = useState(false);
+  var scrollElRef = useRef(null);
+  function setScrollRef(el) {
+    var old = scrollElRef.current;
+    if (old && old._wh) old.removeEventListener('wheel', old._wh);
+    scrollElRef.current = el;
+    if (!el) return;
+    el._wh = function (e) {
+      if (el.scrollHeight > el.clientHeight) {
+        e.preventDefault();
+        el.scrollTop += e.deltaY;
+      }
+    };
+    el.addEventListener('wheel', el._wh, { passive: false });
+  }
 
   // 前传音频：挂载时播放夜间环境音，卸载时停止
   useEffect(() => {
@@ -87,7 +101,7 @@ export function PrologueScreen({ state, dispatch }) {
   };
 
   return (
-    <div className="prologue-screen">
+    <div className="prologue-screen" ref={setScrollRef}>
       <div className="prologue-bg" />
       <div className="prologue-vignette" />
       <div className="prologue-fog-layer fog-1" />
@@ -297,7 +311,22 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
   };
   const archetypes = GD.systems?.player?.archetypes || [];
   const selectedArch = archetypes.find((a) => a.id === state.archetype);
+  var scrollElRef = useRef(null);
+  function setScrollRef(el) {
+    var old = scrollElRef.current;
+    if (old && old._wh) old.removeEventListener('wheel', old._wh);
+    scrollElRef.current = el;
+    if (!el) return;
+    el._wh = function (e) {
+      if (el.scrollHeight > el.clientHeight) {
+        e.preventDefault();
+        el.scrollTop += e.deltaY;
+      }
+    };
+    el.addEventListener('wheel', el._wh, { passive: false });
+  }
   return (
+    <div className="screen-scroll" ref={setScrollRef}>
     <div className="char-creation">
       <h2>调查员档案</h2>
       <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
@@ -478,6 +507,7 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
           </div>
         </>
       )}
+    </div>
     </div>
   );
 }
