@@ -3,6 +3,7 @@
 import { d100, makeRand } from './utils.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { checkTriggerExtended, selectEventV2 } from './extendedEvents.js';
+import { hasClueId } from '../utils/clueNameMap.js';
 
 export function checkTrigger(evt, state) {
   const t = evt.trigger;

@@ -4,6 +4,8 @@
 // 1. Thirteenth bell entrance: delayed audio + canvas glitch pulse
 // 2. Auto-fires once per run, 6s after BEGIN_ADVENTURE (first loop only)
 
+import { audioManager } from '../managers/AudioManager.js';
+
 var _bellFired = false;
 
 /**

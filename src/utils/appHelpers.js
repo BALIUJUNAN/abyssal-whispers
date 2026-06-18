@@ -1,7 +1,7 @@
 // src/utils/appHelpers.js - Extracted from app.jsx
 // All functions use global GD, ctx, pick, clamp from bundle scope.
 
-import { clamp, pick } from '../reducers/utils.js';
+import { clamp, pick, makeRand } from '../reducers/utils.js';
 import { buildDeathSummary } from '../systems/deathSummary.js';
 import { generatePersonalityReport } from '../data/behavior_endings.js';
 // P1-A: use getSanStageFromGD instead of hardcoded SAN thresholds
@@ -131,8 +131,9 @@ export function buildDeathRecap(state, deathContext = null) {
 }
 
 
-export function applyBlessing(state, blessing, narr) {
+export function applyBlessing(state, blessing, narr, ctx) {
   if (!blessing) return;
+  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
   const eff = blessing.effect || {};
   narr('system', '【恩赐·' + blessing.name + '】' + blessing.description, { isSpecial: true });
   if (eff.type === 'unlock_knowledge' && eff.knowledge_id) {
@@ -158,7 +159,8 @@ export function applyBlessing(state, blessing, narr) {
   }
 }
 
-export function getAvailableSafehouses(state) {
+export function getAvailableSafehouses(state, ctx) {
+  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
   const alts = GD.systems?.safehouse?.relocation_rules?.alternative_safehouses || [];
   return alts.filter((sh) => {
     const npcName = sh.unlock_condition.includes('伊莱亚斯')
@@ -198,8 +200,10 @@ const _DEATH_SAN_TYPES = [
  * @param {object} s          - mutable game state
  * @param {object} deathCtx   - from resolveDeath()
  * @param {function} narr     - narrative pusher
+ * @param {object} [ctx]      - { GD } game data context
  */
-export function applyDeathResolution(s, deathCtx, narr) {
+export function applyDeathResolution(s, deathCtx, narr, ctx) {
+  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
   s.deathContext = deathCtx;
   s.lastDeathType = deathCtx.type;
   s.lastDeathMode = deathCtx.mode;
@@ -265,7 +269,8 @@ const _ACT_NAMES = {
   SWITCH_SAFEHOUSE: '更换安全屋',
 };
 
-export function narrDailySummary(s, narr, _startSan, _startHp, _startClues, _startArea) {
+export function narrDailySummary(s, narr, _startSan, _startHp, _startClues, _startArea, ctx, rng) {
+  var _rand = makeRand(rng);
   const acts = s._dayActions || [];
   const areaObj = getAreaInfo(_startArea, ctx);
   const areaName = areaObj?.name || '沃切斯特';
@@ -292,7 +297,7 @@ export function narrDailySummary(s, narr, _startSan, _startHp, _startClues, _sta
   const _sanLvl = getSanStageFromGD(s.san).level;
   if (_sanLvl >= 3 && parts.length > 2) {
     // 随机省略一条行动记录（玩家"忘记"了自己做了什么）
-    const _omitIdx = 1 + Math.floor(Math.random() * (parts.length - 2));
+    const _omitIdx = 1 + Math.floor(_rand() * (parts.length - 2));
     if (_omitIdx < parts.length) parts.splice(_omitIdx, 1);
   }
   if (_sanLvl >= 4) {
@@ -303,12 +308,12 @@ export function narrDailySummary(s, narr, _startSan, _startHp, _startClues, _sta
       '你的笔记本上多了一行你不记得写过的字。',
       '你发现袖口沾了海盐。但你今天没有去码头。',
     ];
-    parts.push(_phantomParts[Math.floor(Math.random() * _phantomParts.length)]);
+    parts.push(_phantomParts[Math.floor(_rand() * _phantomParts.length)]);
   }
   // 数值轻微失真
-  if (_sanLvl >= 2 && sanDelta !== 0 && Math.random() < 0.3) {
+  if (_sanLvl >= 2 && sanDelta !== 0 && _rand() < 0.3) {
     // 替换真实 SAN 变化为 ±1 的误差
-    const _fake = sanDelta + (Math.random() < 0.5 ? 1 : -1);
+    const _fake = sanDelta + (_rand() < 0.5 ? 1 : -1);
     const _sanPart = '精神' + (_fake > 0 ? '+' : '') + _fake;
     for (let i = 0; i < parts.length; i++) {
       if (parts[i].startsWith('精神')) { parts[i] = _sanPart; break; }
@@ -359,7 +364,7 @@ export function trackDailyBehaviorPatterns(s, bt) {
   }
 }
 
-export function checkWrongInference(state, narr) {
+export function checkWrongInference(state, narr, GD) {
   if (state.triggeredEvents.includes('wrong_inference_checked')) return;
   const wi = GD.systems?.wrong_inference?.consequences || [];
   for (const inf of wi) {
@@ -598,7 +603,7 @@ export function getNpcTrust(s, name) {
 export function setNpcTrust(s, name, value) {
   // Always write to resolved id — state naturally converges to id keys
   var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
-  s.npcTrust[id] = value;
+  s.npcTrust[id] = Math.max(0, Math.min(5, value));
 }
 export function getNpcState(s, name) {
   if (s.npcStates[name]) return s.npcStates[name];
@@ -667,12 +672,13 @@ export function checkKnowledgeEarned(state) {
 // === SAN Break-Wall Events (moved from app.jsx) ===
 // Pure state mutation: narrates and records memory. Returns side-effect descriptors for audio/timers.
 // GD passed explicitly to avoid implicit global dependency.
-export function checkBreakWallEvent(state, narr, GD) {
+export function checkBreakWallEvent(state, narr, GD, rng) {
+  var _rand = makeRand(rng);
   // P1-A: SSOT — only fires at reality_dissolution (level >= 4)
   const _stage = getSanStageFromGD(state.san);
   if (_stage.level < 4) return null;
-  if (Math.random() >= 0.1) return null;
-  const r = Math.random();
+  if (_rand() >= 0.1) return null;
+  const r = _rand();
   const fx = [
     { type: 'AUDIO_PLAY', id: 'wall_break' },
     { type: 'AUDIO_PLAY', id: 'safehouse_wall' },
@@ -700,7 +706,7 @@ export function checkBreakWallEvent(state, narr, GD) {
     // Effect 3: Item description篡改
     const items = state.inventory;
     if (items.length > 0) {
-      const corruptedItem = pick(items);
+      const corruptedItem = pick(items, rng);
       const replacements = {
         怀表: '它在计算你还剩多少时间',
         急救包: '它不确定你是否值得被救',

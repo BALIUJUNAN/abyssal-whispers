@@ -1,5 +1,7 @@
 // src/utils/trustGates.js - NPC trust gate logic (extracted from appHelpers.js)
 
+import { hasClueId } from './clueNameMap.js';
+
 export function checkTrustGate(nextTrust, s, npcName) {
   const visited = s.visitedAreas || [];
   const clues = s.clues || [];

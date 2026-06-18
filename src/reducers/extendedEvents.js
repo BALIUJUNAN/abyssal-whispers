@@ -701,7 +701,7 @@ export function selectEventV2(areaId, state, ctx, pick, rng) {
           return isAnchor && checkTriggerExtended(e, state, ctx);
         });
         if (anchorEvents.length > 0) {
-          const selected = pick(anchorEvents);
+          const selected = pick(anchorEvents, rng);
           commitSelectedEvent(selected, state);
           return selected;
         }
@@ -713,7 +713,7 @@ export function selectEventV2(areaId, state, ctx, pick, rng) {
   const candidates = getEligibleEvents(areaId, state, ctx);
   if (candidates.length === 0) return null;
 
-  const selected = chooseWeightedEvent(candidates, areaId, state, ctx, pick);
+  const selected = chooseWeightedEvent(candidates, areaId, state, ctx, pick, rng);
   if (!selected) return null;
 
   commitSelectedEvent(selected, state);

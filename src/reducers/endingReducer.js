@@ -1,5 +1,7 @@
 // src/reducers/endingReducer.js - Ending condition checking (data-driven)
 
+import { hasClueId } from '../utils/clueNameMap.js';
+
 // Map behavior ending condition variable names to state field accessors
 export const CONDITION_VAR_MAP = {
   // Behavior counters
@@ -38,6 +40,7 @@ export const CONDITION_VAR_MAP = {
     (s.behaviorTracking.self_harm_ritual_count || 0),
   work_count: (s) => s.behaviorTracking.work_count || 0,
   loop_break_attempts: (s) => s.behaviorTracking.loop_break_attempts || 0,
+  clue_finds: (s) => s.behaviorTracking.clue_finds || 0,
   harbor_visits: (s) => (s.visitedAreas || []).filter((a) => a === 'harbor_district').length,
   sea_acceptance_flags: (s) => s.behaviorTracking.sea_acceptance_flags || 0,
   // Core stats

@@ -3,6 +3,7 @@
 import { rand, makeRand } from './utils.js';
 import { getSealState } from '../engine/WorldTimeSystem.js';
 import { getSanStageFromGD } from './sanReducer.js';
+import { applyEffects } from './effectReducer.js';
 
 // === Safehouse Degradation (was safehouseReducer.js) ===
 

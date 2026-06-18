@@ -6,7 +6,7 @@
 // getSanSceneVariant, getVisualForSan, getPerceptionLevels) have moved to
 // src/systems/sanityVisual.js. Backward-compatible re-exports provided below.
 
-import { pick, getCurrentSanStage } from './utils.js';
+import { pick, getCurrentSanStage, makeRand } from './utils.js';
 import { getSealState } from '../engine/WorldTimeSystem.js';
 import {
   buildSanStagePresentation,
@@ -60,11 +60,11 @@ export function processSanLoss(base, inv, weather, day, difficulty, ctx) {
   return Math.max(0, Math.round(loss));
 }
 
-export function rollMadness(ctx) {
+export function rollMadness(ctx, rng) {
   const { GD } = ctx;
   const table =
     GD.systems?.sanity?.temporary_madness_table || GD.module5_player?.temporary_madness_table;
   if (!table || !Array.isArray(table))
     return { name: '幻觉', description: '你看到了不存在的东西。' };
-  return pick(table);
+  return pick(table, rng);
 }

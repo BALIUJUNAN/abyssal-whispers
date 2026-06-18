@@ -46,18 +46,22 @@ export var EFFECT_HANDLERS = {
   },
   BELL_ENTRANCE: function (fx, dispatch) {
     // Thirteenth bell entrance hook — see systems/earlyHooks.js
+    // Use dynamic import() for ESM compatibility (require() is CJS-only)
     try {
-      var earlyHooks = require('../../systems/earlyHooks.js');
-      earlyHooks.fireBellEntrance(dispatch);
+      import('../systems/earlyHooks.js').then(function (earlyHooks) {
+        earlyHooks.fireBellEntrance(dispatch);
+      }).catch(function () {
+        try { audioManager.playEffect('bell_entrance'); } catch (e2) {}
+      });
     } catch (e) {
-      // Fallback: just play the audio if earlyHooks unavailable
       try { audioManager.playEffect('bell_entrance'); } catch (e2) {}
     }
   },
   RESET_EARLY_HOOKS: function () {
     try {
-      var earlyHooks = require('../../systems/earlyHooks.js');
-      earlyHooks.resetEarlyHooks();
+      import('../systems/earlyHooks.js').then(function (earlyHooks) {
+        earlyHooks.resetEarlyHooks();
+      }).catch(function () {});
     } catch (e) {}
   },
 };

@@ -99,7 +99,7 @@ export function getPlayerBehaviorProfile(bt) {
         (bt.possession_accepted_count || 0) * 3 +
         (bt.sacred_desecration_count || 0) * 2
     ),
-    investigator: Math.min(10, Math.floor((bt.checks_passed || 0) / 2) + (bt.clue_finds || 0 || 0)),
+    investigator: Math.min(10, Math.floor((bt.checks_passed || 0) / 2) + (bt.clue_finds || 0)),
     survivor: Math.min(10, (bt.days_best || 0) + (bt.low_san_days || 0)),
   };
 }
@@ -401,22 +401,23 @@ export function applyBufferEnforcement(candidates, state) {
  * Checks: loop count, SAN level, fearProfile, area corruption.
  * Returns variant text string or null (use original description).
  */
-export function getDistortionVariant(evt, state) {
+export function getDistortionVariant(evt, state, rng) {
   if (!evt || !evt.distortion_variants) return null;
   var v = evt.distortion_variants;
   var san = state.san || 60;
   var loop = state.loopCount || 0;
   var corr = state.safehouseCorruption || 0;
   var fear = state.fearTuning ? state.fearTuning.primary : null;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
 
   // Priority: fearProfile-specific > loop > san_low > san_mid > corruption
-  if (fear && v['fear_' + fear] && Math.random() < 0.45) return v['fear_' + fear];
-  if (loop >= 8 && v.loop_8_plus && Math.random() < 0.4) return v.loop_8_plus;
-  if (loop >= 3 && v.loop_3_plus && Math.random() < 0.3) return v.loop_3_plus;
-  if (san <= 20 && v.san_low && Math.random() < 0.5) return v.san_low;
-  if (san <= 40 && v.san_mid && Math.random() < 0.35) return v.san_mid;
-  if (san <= 60 && v.san_high && Math.random() < 0.15) return v.san_high;
-  if (corr >= 50 && v.corruption_high && Math.random() < 0.25) return v.corruption_high;
+  if (fear && v['fear_' + fear] && _rand() < 0.45) return v['fear_' + fear];
+  if (loop >= 8 && v.loop_8_plus && _rand() < 0.4) return v.loop_8_plus;
+  if (loop >= 3 && v.loop_3_plus && _rand() < 0.3) return v.loop_3_plus;
+  if (san <= 20 && v.san_low && _rand() < 0.5) return v.san_low;
+  if (san <= 40 && v.san_mid && _rand() < 0.35) return v.san_mid;
+  if (san <= 60 && v.san_high && _rand() < 0.15) return v.san_high;
+  if (corr >= 50 && v.corruption_high && _rand() < 0.25) return v.corruption_high;
   return null;
 }
 

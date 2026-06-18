@@ -3,6 +3,8 @@
 // Player investigation patterns accelerate area-specific corruption.
 // Creates the feeling that the world is collapsing around the player.
 
+import { getSanStageFromGD } from '../reducers/sanReducer.js';
+
 // =============================================
 // SECTION 1: Daily Corruption Calculation
 // =============================================

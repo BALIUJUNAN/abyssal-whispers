@@ -219,7 +219,7 @@ export function createErrorTracker() {
      * 将报告序列化为 JSON（用于文件导出/API 发送）
      */
     toJSON() {
-      return exportReport(new Error('Manual export'), {});
+      return this.exportReport(new Error('Manual export'), {});
     },
 
     /**

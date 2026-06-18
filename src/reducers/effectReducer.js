@@ -84,6 +84,9 @@ export function applyEffects(state, effects, context) {
               ? { id: eff.clue_id, name: _resolved }
               : eff.clue_id
           );
+          if (state.behaviorTracking) {
+            state.behaviorTracking.clue_finds = (state.behaviorTracking.clue_finds || 0) + 1;
+          }
           try {
             if (typeof audioManager !== 'undefined') audioManager.playEffect('clue_found');
           } catch (e) {}

@@ -246,6 +246,7 @@ export function initLoopState(f, s, ctx, options = {}) {
     'save_delete_attempts',
     'loop_exploit_score',
     'loop_break_attempts',
+    'clue_finds',
   ];
   for (const key of BEHAVIOR_COUNTERS) {
     fBT[key] = sBT[key] || 0;
@@ -277,7 +278,7 @@ export function initLoopState(f, s, ctx, options = {}) {
   if (f.retainedKnowledge.includes('knowledge_npc_trust_shadow')) {
     const coreNpcs = (GD.npcs || []).filter((n) => n.chapter_1_availability === 'core');
     if (coreNpcs.length > 0) {
-      const target = pick(coreNpcs);
+      const target = pick(coreNpcs, null); // initLoopState 无 rng，回退 Math.random
       f.npcTrust[target.name] = 1;
     }
   }
@@ -326,7 +327,7 @@ export function initLoopState(f, s, ctx, options = {}) {
   }
 
   // ── 14) 矛盾极端检测 ──
-  if ((s.humanityScore ?? 30) >= 30 && (s.direct_kill_count || 0) >= 3) {
+  if ((s.humanityScore ?? 30) >= 30 && (sBT.direct_kill_count || 0) >= 3) {
     setCorruptionFlag(f, 'has_committed_contradictory_extremes');
   }
 

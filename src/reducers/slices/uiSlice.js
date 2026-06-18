@@ -35,7 +35,7 @@ export function handleUiAction(s, action, c, ctx) {
       // Death check after choice effects (unified via applyDeathResolution)
       {
         const deathCtx = resolveDeath(s, pc.evt, choice);
-        if (deathCtx) applyDeathResolution(s, deathCtx, c.narr);
+        if (deathCtx) applyDeathResolution(s, deathCtx, c.narr, ctx);
       }
       s.objectives = checkObjCompletion(s.objectives, s);
       c.log('选择：' + choice.label);
@@ -154,7 +154,8 @@ export function handleUiAction(s, action, c, ctx) {
         const r = (c.rng ? c.rng.next() : Math.random());
         if (r < reward.clue_chance) {
           // Clue found — causal feedback
-          const availableClues = (GD.clue_chains || [])
+          const _GD = ctx.GD;
+          const availableClues = (_GD.clue_chains || [])
             .flatMap((x) => x.clues || [])
             .filter((x) => !hasClueId(s.clues, x.id));
           if (availableClues.length > 0) {
@@ -185,7 +186,7 @@ export function handleUiAction(s, action, c, ctx) {
           c.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
         } else if (r < reward.clue_chance + reward.san_gain_chance + reward.madness_risk) {
           // Madness — causal feedback: you've been noticed
-          const mad = rollMadness(ctx);
+          const mad = rollMadness(ctx, c.rng);
           s.madnessActive = mad;
           c.narr('madness', '【临时疯狂：' + mad.name + '】' + mad.description, { madness: mad });
           c.narr('system', reward.text_on_madness, { isSpecial: true });
@@ -221,7 +222,7 @@ export function handleUiAction(s, action, c, ctx) {
       // Post-gamble: check death (unified via applyDeathResolution)
       {
         const deathCtx = resolveDeath(s, evt, null);
-        if (deathCtx) applyDeathResolution(s, deathCtx, c.narr);
+        if (deathCtx) applyDeathResolution(s, deathCtx, c.narr, ctx);
       }
       s.objectives = checkObjCompletion(s.objectives, s);
       c.log('探索(赌博)：' + evt.name);

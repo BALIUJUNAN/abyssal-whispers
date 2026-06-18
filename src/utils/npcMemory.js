@@ -1,5 +1,7 @@
 // src/utils/npcMemory.js - NPC loop memory data and logic (extracted from appHelpers.js)
 
+import { pick } from '../reducers/utils.js';
+
 // === NPC Memory Lines (extracted from TALK_NPC in app.jsx to avoid per-call allocation) ===
 export const NPC_MEMORY_LINES = {
   '玛莎·格雷': {

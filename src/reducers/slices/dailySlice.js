@@ -22,6 +22,7 @@ import { checkNPCCorruption, applyNPCCorruption } from '../npcReducer.js';
 import { resetDailyCategoryCounts } from '../extendedEvents.js';
 import { maybeGetFakeMessage, maybeInsertFalseMemory } from '../../engine/PollutionManager.js';
 import { addRunMemory, getNpcTrust, setNpcTrust, getNpcState, setNpcState, narrDailySummary, trackDailyBehaviorPatterns, checkKnowledgeEarned, checkBreakWallEvent, checkSilentEvent, applyDeathResolution, buildDeathRecap, narrApInsufficient } from '../../utils/appHelpers.js';
+import { adjustStarvationDamage } from '../../systems/firstLoopBalance.js';
 import { hasClueId } from '../../utils/clueNameMap.js';
 import { getAreaDisplayName } from '../../utils/gameHelpers.js';
 import { getAreaSceneImage } from '../../portraitMap.js';
@@ -51,14 +52,17 @@ export function _processFoodAndStarvation(s, c, ctx) {
       applySanLoss(s, 1);
       c.narr('system', '你腹中空空。胃部的抽搐让你难以集中注意力。', { isSpecial: true });
     } else if (sd === 2) {
-      s.hp = Math.max(0, s.hp - 1);
+      const dmg = adjustStarvationDamage(1, s);
+      s.hp = Math.max(0, s.hp - dmg);
       c.narr('system', '饥饿在啃噬你的意志。你的手脚开始发软，动作变得迟缓。', { isSpecial: true });
     } else {
-      s.hp = Math.max(0, s.hp - 2);
+      const dmg = adjustStarvationDamage(2, s);
+      s.hp = Math.max(0, s.hp - dmg);
       c.narr('system', '你的身体已经开始消耗自身。视线模糊，每一个动作都是折磨。', {
         isSpecial: true,
       });
     }
+    var GD = ctx.GD;
     const npcs = GD.npcs || GD.module3_npcs || [];
     npcs.forEach((npc) => {
       if (getNpcTrust(s, npc.name) > 0 && (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.NPC_TRUST_DECAY_CHANCE)
@@ -86,7 +90,8 @@ export function _processFoodAndStarvation(s, c, ctx) {
         finalText: deathText,
         residueFlag: 'death_echo_starvation',
       },
-      c.narr
+      c.narr,
+      ctx
     );
     return true;
   }
@@ -128,6 +133,7 @@ export function _processSafehouseAndWorldDecay(s, c, ctx) {
 
 /** Process safehouse recovery, long-term effects, and AP reset for new day. */
 export function _processRestRecovery(s, c, shStage, ctx) {
+  var GD = ctx.GD;
   let sanRec = shStage.available_functions?.san_recovery || 0;
   if (s.currentSafehouse !== 'main') {
     const alts = GD.systems?.safehouse?.relocation_rules?.alternative_safehouses || [];
@@ -222,6 +228,7 @@ export function _advanceDayClock(s, c, ctx) {
 
 /** Process chapter transitions, motif flavor, SAN stage AP mod. */
 export function _processChapterAndMotif(s, c, oldDay, ctx) {
+  var GD = ctx.GD;
   const oldChKey = getChapterForDay(oldDay, ctx).key;
   const chTransition = checkChapterTransition(oldDay, s.day, ctx);
   if (chTransition) {
@@ -291,7 +298,7 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
   if (_sanLvl >= 4) {
     var passiveMadnessChance = _sanLvl >= 5 ? 0.5 : 0.3;
     if ((c.rng ? c.rng.next() : Math.random()) < passiveMadnessChance) {
-      var passiveMad = rollMadness(ctx);
+      var passiveMad = rollMadness(ctx, c.rng);
       s.madnessActive = passiveMad;
       c.effects.push({ type: 'INCREMENT_STAT', key: 'madness_count' });
       c.narr('madness', '【被动疯狂检定】你的心智在低语中碎裂。\n【' + passiveMad.name + '】' + passiveMad.description, { madness: passiveMad });
@@ -321,6 +328,7 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
 
 /** Process day-specific critical events and world decay atmosphere. */
 export function _processDayCriticalAndDecay(s, c, ctx) {
+  var GD = ctx.GD;
   {
     const dayCrit = getDayCriticalEvent(s.day);
     if (dayCrit && !s.triggeredEvents.includes('day_crit_' + s.day)) {
@@ -359,6 +367,7 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
 
 /** Process NPC corruption triggers and seal-state accelerated corruption. */
 export function _processNpcCorruption(s, c, ctx) {
+  var GD = ctx.GD;
   const corruptionTriggers = checkNPCCorruption(s, ctx);
   for (const { npc, trigger } of corruptionTriggers) {
     applyNPCCorruption(s, npc, trigger, c.narr);
@@ -379,9 +388,10 @@ export function _processNpcCorruption(s, c, ctx) {
 
 /** Process safehouse silent events, SAN break-wall, daily resources, corruption effects. */
 export function _processNightEffects(s, c, ctx) {
+  var GD = ctx.GD;
   checkSilentEvent(s, c.narr, 'safehouse', GD);
   {
-    const bwfx = checkBreakWallEvent(s, c.narr, GD);
+    const bwfx = checkBreakWallEvent(s, c.narr, GD, c.rng);
     if (bwfx) c.effects.push(...bwfx);
   }
   processDailyResources(s);
@@ -403,7 +413,7 @@ export function _processNightEffects(s, c, ctx) {
 
 /** Narrate new day header, area description, forced hooks, check endings and time limit. */
 export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea, ctx) {
-  narrDailySummary(s, c.narr, _startSan, _startHp, _startClues, _startArea);
+  narrDailySummary(s, c.narr, _startSan, _startHp, _startClues, _startArea, ctx, c.rng);
   c.narr(
     'system',
     '\n═══ 第 ' + s.day + ' 天 ═══ 天气：' + s.weather + ' ═══ 封印：' + s.sealState + ' ═══'

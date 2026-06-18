@@ -9,6 +9,7 @@ import { applyUgcToGD } from '../utils/buildEventPool.js';
 import { getSanStageFromGD } from './sanReducer.js';
 import { getDeathEchoEvents } from '../data/events_death_echo.js';
 import { getSupplementEvents } from '../data/events_supplement.js';
+import { CHAPTER_MILESTONES, FORCED_NARRATIVE_HOOKS } from '../data/milestones.js';
 
 /**
  * Initialize the extended event system.
@@ -68,6 +69,12 @@ export function initExtendedEvents(GD) {
   } catch (e) {
     console.warn('[ExtendedEvents] UGC merge failed (non-fatal):', e);
   }
+
+  // Inject chapter milestones and forced narrative hooks into GD
+  // so checkChapterMilestone() and checkForcedNarrativeHook() can find them
+  // via window.GD._milestones / window.GD._hooks fallback.
+  GD._milestones = CHAPTER_MILESTONES;
+  GD._hooks = FORCED_NARRATIVE_HOOKS;
 
   return GD;
 }

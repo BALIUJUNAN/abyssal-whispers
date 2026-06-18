@@ -26,6 +26,7 @@ function _warnTrustDrop(c, npcName, oldVal, newVal) {
 }
 
 export function handleNpcAction(s, action, c, ctx) {
+  var GD = ctx.GD;
   switch (action.type) {
     case 'TALK_NPC': {
       if (s.ap < 1) {
@@ -140,6 +141,7 @@ export function handleNpcAction(s, action, c, ctx) {
       return s;
     }
     case 'NPC_RESPONSE': {
+      if (!s.pendingNpc) return s;
       const npc = s.pendingNpc.npc;
       const trust = getNpcTrust(s, npc.name);
       const choice = action.choice;

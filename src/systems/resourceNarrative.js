@@ -2,10 +2,8 @@
 // Each resource directly affects narrative text, event availability, and event pool weights.
 // Low light → descriptions become unreliable. High infection → corruption events weighted up.
 // High fatigue → truncated/fragmented text. No food → desperation events.
-//
-// BUNDLE-SCOPE DEPENDENCY (build.py REDUCER_FILES):
-//   Uses GD (global from app.jsx) and getAreaInfo (from worldReducer.js, loaded before this file).
-//   processDailyResources reads area.infection_risk from GD.areas at runtime.
+
+import { getAreaInfo } from '../engine/WorldTimeSystem.js';
 
 // =============================================
 // SECTION 1: Resource Text Corruption
@@ -191,7 +189,7 @@ export function processDailyResources(state) {
   // falls back to danger_level >= 5 for backward compatibility.
   // NOTE: lighthouse (level 5) has infection_risk=false in game data — narrative exclusion.
   var areaData =
-    typeof getAreaInfo === 'function' ? getAreaInfo(state.currentArea, { GD: GD }) : null;
+    typeof getAreaInfo === 'function' ? getAreaInfo(state.currentArea, { GD: (typeof window !== 'undefined' && window.GD) || {} }) : null;
   var isInfectious = areaData
     ? !!areaData.infection_risk
     : ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove'].indexOf(state.currentArea) >= 0;

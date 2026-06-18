@@ -210,6 +210,7 @@ function createBehaviorTrackingState() {
       save_delete_attempts: 0,
       loop_exploit_score: 0,
       loop_break_attempts: 0,
+      clue_finds: 0,
     },
   };
 }

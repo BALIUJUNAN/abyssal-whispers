@@ -4,6 +4,10 @@
 // P0-4: Migration mechanism for version-incompatible saves
 // P0-5: State filtering for persisted saves (exclude runtime UI fields)
 
+import { resolveNpcId } from '../data/registry/npcRegistry.js';
+import { migrateInventory } from '../data/registry/itemRegistry.js';
+import { TRANSIENT_STATE_KEYS } from '../state/transientKeys.js';
+
 /**
  * Save version — bump when save format changes.
  * Must match SAVE_VERSION in saveReducer.js.

@@ -194,7 +194,7 @@ export function _selectExploreEvent(s, ctx, GD, c) {
           if (!evt) evt = fearScored[fearScored.length - 1].evt;
         }
       }
-      if (!evt) evt = chooseWeightedEvent(candidates, s.currentArea, s, ctx, pick);
+      if (!evt) evt = chooseWeightedEvent(candidates, s.currentArea, s, ctx, pick, c.rng);
     }
     // Special events that bypass normal pool
     if (!evt) {
@@ -251,7 +251,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
     if (areaNarr) c.narr('system', areaNarr, { isSpecial: true });
   }
   checkChainCompletion(s, c.narr);
-  checkWrongInference(s, c.narr);
+  checkWrongInference(s, c.narr, GD);
   // Conclusions
   const newConclusions = checkConclusions(s, ctx);
   for (const conc of newConclusions) {
@@ -385,6 +385,7 @@ function _applyMadnessEffects(mad, s, c, ctx) {
 }
 
 export function handleExploreAction(s, action, c, ctx) {
+  var GD = ctx.GD;
   switch (action.type) {
     case 'MOVE': {
       if (s.ap < 1) {
@@ -612,7 +613,7 @@ export function handleExploreAction(s, action, c, ctx) {
       // SSOT guard: commitSelectedEvent writes triggeredEvents; skip if already done
       if (!s.triggeredEvents.includes(evt.id)) s.triggeredEvents.push(evt.id);
       // Phase 3: Event rendering + effects (inline — has early returns)
-      let evtText = getDistortionVariant(evt, s) || evt.description;
+      let evtText = getDistortionVariant(evt, s, c.rng) || evt.description;
       evtText = applyQualityTier(evtText, evt, s);
       // DESIGN_REFACTOR_NOTES.md: text corruption gated by unreliable_narration_level.
       // Events with level 0-1 skip SAN text corruption entirely (normal actions stay clean).
@@ -752,7 +753,7 @@ export function handleExploreAction(s, action, c, ctx) {
       }
       applyLegacyEffects(s, evt.effects);
       if (sanDmg >= GAME_BALANCE.MADNESS_TRIGGER) {
-        const mad = rollMadness(ctx);
+        const mad = rollMadness(ctx, c.rng);
         s.madnessActive = mad;
         c.effects.push({ type: 'INCREMENT_STAT', key: 'madness_count' });
         c.narr('madness', '【临时疯狂：' + mad.name + '】' + mad.description, { madness: mad });
@@ -766,7 +767,7 @@ export function handleExploreAction(s, action, c, ctx) {
       }
       {
         const deathCtx = resolveDeath(s, evt, null);
-        if (deathCtx) applyDeathResolution(s, deathCtx, c.narr);
+        if (deathCtx) applyDeathResolution(s, deathCtx, c.narr, ctx);
       }
       // Phase 4: Post-event processing (extracted)
       _postExploreProcessing(evt, s, c, GD);

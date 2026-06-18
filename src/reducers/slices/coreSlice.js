@@ -24,6 +24,7 @@ import { hasClueId } from '../../utils/clueNameMap.js';
 import { getAreaSceneImage } from '../../portraitMap.js';
 
 export function handleCoreAction(s, action, c, ctx) {
+  var GD = ctx.GD;
   switch (action.type) {
     case 'START_GAME':
       s.screen = 'prologue';
@@ -187,7 +188,7 @@ export function handleCoreAction(s, action, c, ctx) {
         // Apply loop blessings
         const bKey2 = s.loopCount <= 5 ? 'loop_' + s.loopCount : 'loop_6_plus';
         const curBlessing = GD.systems?.loop?.loop_blessings?.[bKey2];
-        if (curBlessing) applyBlessing(s, curBlessing, c.narr);
+        if (curBlessing) applyBlessing(s, curBlessing, c.narr, ctx);
         // Loop blessing + cost: atmospheric hints, never explicit numbers
         // "You feel something different but can't name it"
         {
@@ -254,7 +255,7 @@ export function handleCoreAction(s, action, c, ctx) {
       const prevSummary = buildPreviousRunSummary(s);
       const f = initialState();
       // P0-L: 全部循环搬入逻辑已提取至 loopReducer.initLoopState()
-      initLoopState(f, s, c, { prevSummary });
+      initLoopState(f, s, ctx, { prevSummary });
       clearSave();
       return f;
     }

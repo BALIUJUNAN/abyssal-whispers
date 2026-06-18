@@ -135,6 +135,7 @@ export function getSanVariant(san) {
 // P1-A: SAN thresholds derive from getSanStageFromGD (SSOT)
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
 import { getDistortedName } from '../systems/textVariants.js';
+import { hasClueId } from './clueNameMap.js';
 
 export function getCorruptionLevel(san, loopCount) {
   // SSOT: stage.level maps to corruption levels
@@ -156,7 +157,7 @@ export function isAreaUnlocked(area, state) {
   if (area.chapter_1_role === 'fully_accessible') return true;
   const day = state.day || 1;
   if (area.chapter_unlock === 'chapter_2' && day > 7) return true;
-  if (area.unlock_clue && !(state.clues || []).includes(area.unlock_clue)) return false;
+  if (area.unlock_clue && !hasClueId(state.clues || [], area.unlock_clue)) return false;
   return false;
 }
 
