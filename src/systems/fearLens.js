@@ -230,20 +230,21 @@ export function isEligibleForFearLens(event, tuning) {
  * @param {object} state - 游戏state
  * @returns {string} 追加了镜头文本的文本
  */
-export function applyFearLens(event, text, state) {
+export function applyFearLens(event, text, state, rng) {
   const tuning = state.fearTuning;
   if (!tuning || !tuning.primary) return text;
 
   // 类型过滤（硬性）
   if (!isEligibleForFearLens(event, tuning)) return text;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
 
   // 概率触发（避免每次都出现）
-  if (Math.random() > 0.3) return text;
+  if (_rand() > 0.3) return text;
 
   const lensTexts = FEAR_LENSE_TEXTS[tuning.primary];
   if (!lensTexts || lensTexts.length === 0) return text;
 
-  const lensText = lensTexts[Math.floor(Math.random() * lensTexts.length)];
+  const lensText = lensTexts[Math.floor(_rand() * lensTexts.length)];
 
   return text + '\n\n' + lensText;
 }
@@ -255,12 +256,13 @@ export function applyFearLens(event, text, state) {
  * @param {object} state - 游戏state
  * @returns {string|null} NPC台词，或null（无回应）
  */
-export function getFearNpcLine(npcName, state) {
+export function getFearNpcLine(npcName, state, rng) {
   const tuning = state.fearTuning;
   if (!tuning || !tuning.primary) return null;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
 
   // 只在特定NPC上触发，且每次对话最多一次（10%概率）
-  if (Math.random() > 0.1) return null;
+  if (_rand() > 0.1) return null;
 
   const lines = {
     老费舍: {
@@ -310,10 +312,11 @@ export function getFearNpcLine(npcName, state) {
  * @param {number} layer - 腐败层级(0-4)
  * @returns {string} 可能被污染的文本
  */
-export function applyFearCorruption(state, baseText, layer) {
+export function applyFearCorruption(state, baseText, layer, rng) {
   const tuning = state.fearTuning;
   if (!tuning || !tuning.primary || layer <= 0) return baseText;
-  if (Math.random() > 0.2) return baseText; // 20%触发率
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (_rand() > 0.2) return baseText; // 20%触发率
 
   const corruptions = {
     ocean: [
@@ -357,5 +360,5 @@ export function applyFearCorruption(state, baseText, layer) {
   const pool = corruptions[tuning.primary];
   if (!pool || pool.length === 0) return baseText;
 
-  return baseText + '\n' + pool[Math.floor(Math.random() * pool.length)];
+  return baseText + '\n' + pool[Math.floor(_rand() * pool.length)];
 }

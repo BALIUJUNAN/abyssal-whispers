@@ -6,12 +6,18 @@
  * 用法:
  *   node scripts/simulate_loops.cjs --loops 10 --seed 123
  *   node scripts/simulate_loops.cjs --loops 20 --report report.txt
+ *   node scripts/simulate_loops.cjs --loops 100 --batch 10 --progress
+ *   node scripts/simulate_loops.cjs --loops 50 --difficulty 10
  *
  * 参数:
  *   --loops N      模拟轮回次数 (默认 10)
  *   --seed  N      随机种子 (可复现)
  *   --report FILE  输出报表文件路径 (默认 stdout)
  *   --verbose      输出每轮详情
+ *   --batch N      每N轮输出一次进度 (默认不输出)
+ *   --progress     启用进度条输出
+ *   --difficulty N 模拟难度等级 1-21 (默认 1)
+ *   --json         输出JSON格式结果
  */
 const fs = require('fs');
 const path = require('path');
@@ -29,6 +35,43 @@ const MAX_LOOPS = parseInt(getArg('loops', '10'), 10);
 const SEED = getArg('seed', null);
 const REPORT_FILE = getArg('report', null);
 const VERBOSE = args.includes('--verbose');
+const BATCH_SIZE = parseInt(getArg('batch', '0'), 10);
+const PROGRESS = args.includes('--progress');
+const DIFFICULTY = parseInt(getArg('difficulty', '1'), 10);
+const JSON_OUTPUT = args.includes('--json');
+
+// ── Performance: Cache game data at module level ────
+let _cachedGD = null;
+let _cachedPath = null;
+function loadGameData() {
+  const dataPath = path.join(ROOT, 'game_base.json');
+  if (_cachedGD && _cachedPath === dataPath) return _cachedGD;
+  _cachedPath = dataPath;
+  _cachedGD = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+  return _cachedGD;
+}
+
+// ── Performance: Pre-compute loop effects table ─────
+function buildLoopEffectsTable(GD) {
+  const table = {};
+  const loopEffects = GD.systems?.loop?.loop_count_effects || {};
+  for (let i = 1; i <= 21; i++) {
+    const key = i <= 5 ? 'loop_' + i : 'loop_6_plus';
+    table[i] = loopEffects[key] || { san_cap_reduction: 0, pollution_intensity: 0 };
+  }
+  return table;
+}
+
+// ── Performance: Pre-compute pollution rules ────────
+function buildPollutionRules(GD) {
+  const rules = [];
+  for (const rule of GD.systems?.loop?.pollution_rules || []) {
+    if (rule.cumulative && rule.id === 'pollution_san_cap') {
+      rules.push(rule);
+    }
+  }
+  return rules;
+}
 
 // ── Seeded PRNG (xorshift32) ────────────────────────
 let _seed = SEED ? parseInt(SEED, 10) : Date.now();
@@ -39,14 +82,8 @@ function seededRandom() {
   return (_seed >>> 0) / 4294967296;
 }
 
-// ── Load game data ──────────────────────────────────
-let GD = {};
-try {
-  GD = JSON.parse(fs.readFileSync(path.join(ROOT, 'game_base.json'), 'utf8'));
-} catch (e) {
-  console.error('[ERROR] Cannot load game_base.json:', e.message);
-  process.exit(1);
-}
+// ── Load game data (Feature 3: cached via loadGameData) ──
+// Actual load deferred to main loop to allow graceful error handling
 
 // ── State factory ───────────────────────────────────
 function makeState(overrides) {
@@ -140,16 +177,17 @@ function makeState(overrides) {
   );
 }
 
-// ── Loop transition ─────────────────────────────────
-function simulateLoop(s) {
+// ── Loop transition (Feature 3: accepts cached data for performance) ─────────────────
+function simulateLoop(s, GD, loopEffectsTable, pollutionRules) {
   const f = makeState();
 
   f.stats_run.deaths = (s.stats_run?.deaths || 0) + (s.hp <= 0 || s.san <= 0 ? 1 : 0);
   f.stats_run.runs = (s.stats_run?.runs || 0) + 1;
 
   f.loopCount = (s.loopCount || 0) + 1;
-  const loopKey = f.loopCount <= 5 ? 'loop_' + f.loopCount : 'loop_6_plus';
-  const loopEffect = GD.systems?.loop?.loop_count_effects?.[loopKey];
+
+  // Feature 3: Use pre-computed loop effects table
+  const loopEffect = loopEffectsTable[f.loopCount] || { san_cap_reduction: 0, pollution_intensity: 0 };
   if (loopEffect) {
     f.maxSan = Math.max(10, 99 + (loopEffect.san_cap_reduction || 0));
     f.san = Math.min(f.san, f.maxSan);
@@ -165,18 +203,19 @@ function simulateLoop(s) {
 
   if (f.loopCount >= 3) {
     var trustDecay = Math.min(2, Math.floor(f.loopCount / 3));
-    for (var n of Object.keys(f.npcTrust)) {
-      if (f.npcTrust[n] > 0) f.npcTrust[n] = Math.max(0, f.npcTrust[n] - trustDecay);
+    var npcNames = Object.keys(f.npcTrust || {});
+    for (var n = 0; n < npcNames.length; n++) {
+      if (f.npcTrust[npcNames[n]] > 0) f.npcTrust[npcNames[n]] = Math.max(0, f.npcTrust[npcNames[n]] - trustDecay);
     }
   }
 
+  // Feature 3: Use pre-computed pollution rules
   if (f.pollution > 0) {
-    for (var rule of GD.systems?.loop?.pollution_rules || []) {
-      if (rule.cumulative && rule.id === 'pollution_san_cap') {
-        var sanFloor = f.loopCount >= 10 ? 50 : f.loopCount >= 4 ? 60 : 20;
-        f.maxSan = Math.max(sanFloor, f.maxSan - 5);
-        f.san = Math.min(f.san, f.maxSan);
-      }
+    for (var r = 0; r < pollutionRules.length; r++) {
+      var rule = pollutionRules[r];
+      var sanFloor = f.loopCount >= 10 ? 50 : f.loopCount >= 4 ? 60 : 20;
+      f.maxSan = Math.max(sanFloor, f.maxSan - 5);
+      f.san = Math.min(f.san, f.maxSan);
     }
   }
 
@@ -297,9 +336,37 @@ function simulateRun(s) {
 
 // ── Main simulation ─────────────────────────────────
 const lines = [];
+const startTime = Date.now();
+
+// Feature 3: Cache game data and pre-compute tables
+let GD;
+try {
+  GD = loadGameData();
+} catch (e) {
+  console.error('[ERROR] Cannot load game_base.json:', e.message);
+  process.exit(1);
+}
+const LOOP_EFFECTS_TABLE = buildLoopEffectsTable(GD);
+const POLLUTION_RULES = buildPollutionRules(GD);
+
+// Feature 3: JSON output accumulator
+const jsonResult = {
+  config: { loops: MAX_LOOPS, seed: SEED, difficulty: DIFFICULTY },
+  loopData: [],
+  summary: null,
+};
+
 function log(msg) {
   lines.push(msg);
-  if (VERBOSE) console.log(msg);
+  if (VERBOSE || PROGRESS) console.log(msg);
+}
+
+// Feature 3: Progress reporting
+function reportProgress(current, total) {
+  const pct = Math.round((current / total) * 100);
+  const bar = '█'.repeat(Math.floor(pct / 2)) + '░'.repeat(50 - Math.floor(pct / 2));
+  process.stdout.write(`\r  ${bar} ${pct}% (${current}/${total})`);
+  if (current >= total) process.stdout.write('\n');
 }
 
 log('╔══════════════════════════════════════════════════════════╗');
@@ -307,11 +374,11 @@ log('║           轮回模拟报表 / Loop Simulation Report          ║');
 log('╠══════════════════════════════════════════════════════════╣');
 log('║  生成时间: ' + new Date().toISOString().padEnd(44) + '║');
 log('║  模拟轮回: ' + String(MAX_LOOPS).padEnd(44) + '║');
+log('║  难度等级: ' + String(DIFFICULTY).padEnd(44) + '║');
 log('║  随机种子: ' + String(SEED || 'auto (' + _seed + ')').padEnd(44) + '║');
 log('╚══════════════════════════════════════════════════════════╝');
 log('');
 
-const startTime = Date.now();
 let state = makeState();
 const loopData = [];
 
@@ -326,7 +393,8 @@ for (let i = 0; i < MAX_LOOPS; i++) {
     npcTrustSum: Object.values(state.npcTrust).reduce((a, b) => a + b, 0),
   };
 
-  state = simulateLoop(state);
+  // Feature 3: Use cached loop effects table instead of GD lookup
+  state = simulateLoop(state, GD, LOOP_EFFECTS_TABLE, POLLUTION_RULES);
 
   const postLoop = {
     loopCount: state.loopCount,
@@ -356,27 +424,46 @@ for (let i = 0; i < MAX_LOOPS; i++) {
       ' │ 污染: ' +
       (postLoop.pollution * 100).toFixed(1).padStart(5) +
       '%' +
-      ' │ 神秘学: ' +
-      String(postLoop.mythosLevel).padStart(2) +
-      ' │ 代币: ' +
-      String(postLoop.endingCoins).padStart(2) +
       ' │ 结局: ' +
       (runInfo.endingReached ? '✓' : '✗')
   );
+
+  // Feature 3: Batch progress reporting
+  if (BATCH_SIZE > 0 && (i + 1) % BATCH_SIZE === 0) {
+    reportProgress(i + 1, MAX_LOOPS);
+  }
 }
 
+// Final progress
+if (BATCH_SIZE > 0) reportProgress(MAX_LOOPS, MAX_LOOPS);
+
 const elapsed = Date.now() - startTime;
+
+// Feature 3: Build JSON summary
+const avgSurvival = loopData.reduce((s, d) => s + d.survivalDays, 0) / loopData.length;
+const deathModes = { san: 0, hp: 0, hybrid: 0 };
+loopData.forEach((d) => { deathModes[d.deathMode]++; });
+const endingRate = loopData.filter((d) => d.endingReached).length / loopData.length;
+
+jsonResult.summary = {
+  avgSurvival: Math.round(avgSurvival * 10) / 10,
+  deathModes,
+  endingRate: Math.round(endingRate * 100),
+  elapsed,
+  finalState: {
+    loopCount: state.loopCount,
+    maxSan: state.maxSan,
+    san: state.san,
+    pollution: Math.round(state.pollution * 1000) / 1000,
+    endingCoins: state.endingCoins,
+    loopShopTier: state.loopShopTier,
+    npcTrust: state.npcTrust,
+  },
+};
 
 log('');
 log('── 统计摘要 / Summary ──────────────────────────────────────');
 log('');
-
-const avgSurvival = loopData.reduce((s, d) => s + d.survivalDays, 0) / loopData.length;
-const deathModes = { san: 0, hp: 0, hybrid: 0 };
-loopData.forEach((d) => {
-  deathModes[d.deathMode]++;
-});
-const endingRate = loopData.filter((d) => d.endingReached).length / loopData.length;
 
 log('  平均存活天数:    ' + avgSurvival.toFixed(1));
 log('  死因分布:');
@@ -471,3 +558,14 @@ if (REPORT_FILE) {
 
 console.log('');
 console.log('Simulation complete: ' + MAX_LOOPS + ' loops in ' + elapsed + 'ms');
+
+// Feature 3: JSON output
+if (JSON_OUTPUT) {
+  const jsonOut = JSON.stringify(jsonResult, null, 2);
+  if (REPORT_FILE) {
+    fs.writeFileSync(path.resolve(ROOT, REPORT_FILE), jsonOut, 'utf8');
+    console.log('JSON report written to: ' + REPORT_FILE);
+  } else {
+    console.log(jsonOut);
+  }
+}

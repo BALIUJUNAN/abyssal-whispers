@@ -10,7 +10,7 @@ import { getFearNpcLine } from '../../systems/fearLens.js';
 import { addRunMemory, getNpcTrust, setNpcTrust, modHumanity, getNpcState, setNpcState, narrApInsufficient } from '../../utils/appHelpers.js';
 import { computeNpcFeedback, getTrustTierInfo } from '../../systems/npcFeedback.js';
 import { getSanTextVariant } from '../sanReducer.js';
-import { getNpcDialogueVariant, NPC_CORRUPTION_LINES, getNpcFatigueEffect } from '../../systems/npcDialogue.js';
+import { getNpcDialogueVariant, NPC_CORRUPTION_LINES, getNpcFatigueEffect, getDifficultyNpcTrustMultiplier, getDifficultyNpcSuspicion, getDaySpecificLine, getWeatherLine, getSanLevelLine } from '../../systems/npcDialogue.js';
 import { handleNpcMemoryTier } from '../../utils/npcMemory.js';
 import { checkTrustGate } from '../../utils/trustGates.js';
 import { getNpcsHere } from '../../utils/gameHelpers.js';
@@ -93,6 +93,28 @@ export function handleNpcAction(s, action, c, ctx) {
             setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) + fatigue.trustModifier));
         }
       }
+      // Narrative Month: Day-specific and weather-reactive NPC lines
+      {
+        // Day milestone: key days trigger unique NPC reactions (one per day per NPC)
+        var dayLine = getDaySpecificLine(npc.name, s.day);
+        if (dayLine && (c.rng ? c.rng.next() : Math.random()) < 0.5) {
+          c.narr('system', npc.name + '突然说：' + dayLine, { isSpecial: true });
+        }
+        // Weather commentary: NPCs react to current weather
+        if (s.weather && !dayLine) {
+          var weatherLine = getWeatherLine(npc.name, s.weather);
+          if (weatherLine && (c.rng ? c.rng.next() : Math.random()) < 0.3) {
+            c.narr('system', npc.name + '说：「' + weatherLine + '」');
+          }
+        }
+        // SAN level observation: NPCs notice player's deteriorating mental state
+        if (!dayLine && !weatherLine && s.san < 40) {
+          var sanLine = getSanLevelLine(npc.name, s.san);
+          if (sanLine && (c.rng ? c.rng.next() : Math.random()) < 0.25) {
+            c.narr('system', npc.name + '看着你说：「' + sanLine + '」', { isSpecial: true });
+          }
+        }
+      }
       if (ns.corrupted) {
         const corrLoss = processSanLoss(
           2,
@@ -114,11 +136,11 @@ export function handleNpcAction(s, action, c, ctx) {
             applySanLoss(s, -1);
             const _sanRecText = getSanTextVariant(
               sanRec.description || '与' + npc.name + '交谈让你感到安慰。SAN +1',
-              s.san, pick, ctx
+              s.san, pick, ctx, c.rng
             );
             c.narr('san-recovery', _sanRecText);
           } else {
-            const _npcChatText = getSanTextVariant(sanRec.description || sanRec.normal_chat, s.san, pick, ctx);
+            const _npcChatText = getSanTextVariant(sanRec.description || sanRec.normal_chat, s.san, pick, ctx, c.rng);
             c.narr('system', _npcChatText);
           }
         } else if (trust < 3) {
@@ -131,11 +153,11 @@ export function handleNpcAction(s, action, c, ctx) {
       }
       // NPC fear line: subtle observation based on prologue fear profile
       if (s.fearTuning && s.fearTuning.primary) {
-        const fearLine = getFearNpcLine(npc.name, s);
+        const fearLine = getFearNpcLine(npc.name, s, c.rng);
         if (fearLine) c.narr('system', npc.name + '突然说："' + fearLine + '"');
       }
       // NPC 记忆渐进深化系统（数据在 appHelpers.js 模块级，避免每次 TALK_NPC 重分配）
-      handleNpcMemoryTier(s, npc, c.narr);
+      handleNpcMemoryTier(s, npc, c.narr, c.rng);
       c.log('与' + npc.name + '对话');
       if (!s.tutorialSeen.first_talk) s.tutorialSeen = { ...s.tutorialSeen, first_talk: true };
       return s;
@@ -146,6 +168,9 @@ export function handleNpcAction(s, action, c, ctx) {
       const trust = getNpcTrust(s, npc.name);
       const choice = action.choice;
       const ns = getNpcState(s, npc.name);
+      // Feature 2: Difficulty NPC modifier
+      var _trustMult = getDifficultyNpcTrustMultiplier(s.difficultyLevel);
+      var _suspicion = getDifficultyNpcSuspicion(s.difficultyLevel);
       if (choice === 'trust_up') {
         // Daily limit: each NPC can only gain trust once per day
         if (s._dailyTrustGains && s._dailyTrustGains[npc.name]) {
@@ -155,22 +180,27 @@ export function handleNpcAction(s, action, c, ctx) {
           c.narr('system', '你需要行动点来深入交谈。（需要1 AP）');
           s.pendingNpc = null;
         } else {
+          // Feature 2: High difficulty suspicion — NPC may refuse at difficulty >= 7
+          if (_suspicion > 0 && (c.rng ? c.rng.next() : Math.random()) < _suspicion * 0.15) {
+            c.narr('system', npc.name + '看着你，似乎在犹豫什么。' + (s.difficultyLevel >= 13 ? '现在不是合适的时候。' : '今天……不太方便。'));
+            s.pendingNpc = null;
+          }
           // Trust gate: levels 3/4/5 require progression conditions
-          const nextTrust = trust + 1;
-          const gate = checkTrustGate(nextTrust, s, npc.name);
-          if (gate) {
-            c.narr('system', npc.name + '似乎想对你说些什么，但犹豫了。' + gate);
+          else if (checkTrustGate(trust + 1, s, npc.name)) {
+            c.narr('system', npc.name + '似乎想对你说些什么，但犹豫了。' + checkTrustGate(trust + 1, s, npc.name));
             s.pendingNpc = null;
           } else if (ns.corrupted && (c.rng ? c.rng.next() : Math.random()) < 0.6) {
             c.narr('system', npc.name + '似乎很热情地回应你，但你隐约感到有些不对劲。');
             s.pendingNpc = null;
           } else {
             s.ap -= 1;
-            const newTrust = Math.min(5, nextTrust);
-            setNpcTrust(s, npc.name, newTrust);
+            // Feature 2: Difficulty trust multiplier — high difficulty = less trust per interaction
+            var _gain = Math.max(1, Math.round(1 * _trustMult));
+            var _newTrust = Math.min(5, trust + _gain);
+            setNpcTrust(s, npc.name, _newTrust);
             if (!s._dailyTrustGains) s._dailyTrustGains = {};
             s._dailyTrustGains[npc.name] = 'talk';
-            for (let lv = trust + 1; lv <= newTrust; lv++) {
+            for (let lv = trust + 1; lv <= _newTrust; lv++) {
               const layer = npc.trust_layers ? npc.trust_layers.find((l) => l.level === lv) : null;
               if (layer?.unlocks)
                 layer.unlocks.forEach((u) => {
@@ -181,7 +211,7 @@ export function handleNpcAction(s, action, c, ctx) {
                 });
             }
             // NPC feedback: tier change = strong, same-tier = subtle
-            const _fb = computeNpcFeedback({ [npc.name]: trust }, { [npc.name]: newTrust }, 'TALK_NPC');
+            const _fb = computeNpcFeedback({ [npc.name]: trust }, { [npc.name]: _newTrust }, 'TALK_NPC');
             for (const f of _fb) {
               if (f.tierChanged) {
                 // Cross-tier: full feedback with audio
@@ -197,9 +227,9 @@ export function handleNpcAction(s, action, c, ctx) {
             addRunMemory(s, npc.name + '开始相信你。', 'npc');
             // Keep dialog open with updated trust & layer
             const newLayer = npc.trust_layers
-              ? npc.trust_layers.find((l) => l.level === newTrust) || npc.trust_layers[0]
+              ? npc.trust_layers.find((l) => l.level === _newTrust) || npc.trust_layers[0]
               : null;
-            s.pendingNpc = { npc, trust: newTrust, layer: newLayer };
+            s.pendingNpc = { npc, trust: _newTrust, layer: newLayer };
           }
         }
       } else if (choice === 'get_item') {

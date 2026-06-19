@@ -7,8 +7,15 @@ import { isPhantomExpired } from '../systems/textVariants.js';
 import { getPerceptionLevels } from '../systems/sanityVisual.js';
 import { NPCDialog } from './NPCDialog.jsx';
 import { CitySketchMap } from './CitySketchMap.jsx';
-import { getNpcTrust, getDisplayedAp } from '../utils/appHelpers.js';
+import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
+import { getPlayerImage, getNpcImage } from '../portraitMap.js';
+import { getNpcsHere, getAreaDisplayName, isAreaUnlocked } from '../utils/gameHelpers.js';
+import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
+import { getChapterForDay } from '../reducers/chapterReducer.js';
+import { getSanStage } from '../reducers/sanReducer.js';
+import { getSafehouseStage } from '../reducers/miscReducer.js';
 import { enhanceDeathSummary, generateAfterglow, enhanceEventDescription, generateSanCorruptedText, generatePersonalityReflection, generateLoopOpening, isGlmAvailable, clearGlmCache, clearGlmQueue } from '../systems/llmNarrative.js';
+import { hasClueId, resolveClueName } from '../utils/clueNameMap.js';
 
 export const LeftPanel = memo(function LeftPanel({ state }) {
   const seal = useMemo(
@@ -20,7 +27,7 @@ export const LeftPanel = memo(function LeftPanel({ state }) {
     [state.sealState]
   );
   const shStage = useMemo(
-    () => getSafehouseStage(state.safehouseCorruption, ctx),
+    () => getSafehouseStage(state.safehouseCorruption, { GD }),
     [state.safehouseCorruption]
   );
   // 快捷键 I：滚动到随身物件
@@ -397,7 +404,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
     };
   }, [state.transition, dispatch]);
-  const conn = useMemo(() => getConnectedAreas(state.currentArea, ctx), [state.currentArea]);
+  const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD }), [state.currentArea]);
   const npcs = useMemo(
     () => getNpcsHere(state),
     [state.day, state.currentArea, state.npcStates, state.npcTrust]
@@ -450,7 +457,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
               <div className="transition-chapter-label">— 章节 —</div>
               <div className="transition-chapter-name">
                 {(() => {
-                  const ch = getChapterForDay(state.day, ctx);
+                  const ch = getChapterForDay(state.day, { GD });
                   return ch?.name || '未知章节';
                 })()}
               </div>
@@ -970,7 +977,7 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
   }, []);
   const areas = GD.areas || GD.module2_areas || [];
   const npcs = GD.npcs || GD.module3_npcs || [];
-  const conn = useMemo(() => getConnectedAreas(state.currentArea, ctx), [state.currentArea]);
+  const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD }), [state.currentArea]);
   const inProgressConclusions = useMemo(() => {
     return (GD.systems?.clue_conclusion?.conclusions || [])
       .filter((c) => !(state.discoveredConclusions || []).includes(c.id))
@@ -1661,6 +1668,33 @@ export function EndingScreen({ ending, state, dispatch }) {
           ))}
         </div>
       )}
+      {/* Data-driven afterglow: narrative fragments unlocked by meeting conditions */}
+      {ending.afterglow && ending.afterglow.texts && ending.afterglow.texts.length > 0 && (() => {
+        // Check unlock condition
+        var cond = ending.afterglow.unlock_condition;
+        var unlocked = true;
+        if (cond) {
+          if (cond.startsWith('has_triggered_event:')) {
+            var evtId = cond.split(':')[1];
+            unlocked = (state.everTriggeredEvents || []).indexOf(evtId) >= 0 || (state.triggeredEvents || []).indexOf(evtId) >= 0;
+          } else if (cond.startsWith('has_item:')) {
+            var itemId = cond.split(':')[1];
+            unlocked = (state.inventory || []).some(function(it) { return it.id === itemId; });
+          } else if (cond.startsWith('previous_ending_count:')) {
+            var needed = parseInt(cond.split(':')[1], 10);
+            unlocked = (state.previousEndings || []).length >= needed;
+          }
+        }
+        if (!unlocked) return null;
+        return (
+          <div style={{ maxWidth: 500, margin: '1rem auto', textAlign: 'center', fontSize: 13, lineHeight: 2, color: 'var(--text-secondary, #a89a85)', opacity: 0.8, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem' }}>
+            <div style={{ fontSize: 11, opacity: 0.5, marginBottom: 10, letterSpacing: '0.15em' }}>— 余 韵 —</div>
+            {ending.afterglow.texts.map(function(t, i) {
+              return <p key={i} style={{ marginBottom: 8, fontStyle: 'italic' }}>{t}</p>;
+            })}
+          </div>
+        );
+      })()}
       {isFirstDeath && (
         <div className="tutorial-hint" style={{ maxWidth: '500px', margin: '0 auto 1rem' }}>
           死亡不是终点。你的部分知识会在下一轮保留。点击"再次踏入深渊"开始新的轮回。
@@ -1907,7 +1941,7 @@ export function EndingScreen({ ending, state, dispatch }) {
 export function GameHeader({ state, dispatch, areas, onSettingsOpen, onUgcOpen, onSaveOpen }) {
   const area = areas.find((a) => a.id === state.currentArea);
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
-  const sanStage = getSanStage(state.san, ctx);
+  const sanStage = getSanStage(state.san, { GD });
   const sanClass =
     state.san >= 80
       ? 'stable'

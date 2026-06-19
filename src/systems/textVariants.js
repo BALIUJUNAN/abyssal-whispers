@@ -1,7 +1,91 @@
 // src/systems/textVariants.js — Control text repetition across loops
 // Readability always comes before flair.
 // P1-A: SAN thresholds use getSanStageFromGD (SSOT)
+// Feature 1: Difficulty-based text adjustments (第八轮深化)
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
+
+// ═══════════════════════════════════════════════════════
+// Feature 4: Mod difficulty hooks — custom text swaps registry
+// ═══════════════════════════════════════════════════════
+
+var _customTextSwaps = [];
+
+/**
+ * Register custom text swaps from mods (called by mod loader at startup).
+ * @param {Array<[string, string]>} swaps - array of [from, to] pairs
+ */
+export function registerModTextSwaps(swaps) {
+  if (Array.isArray(swaps)) {
+    _customTextSwaps.push(...swaps);
+  }
+}
+
+/**
+ * Clear mod text swaps (called when mods are unloaded).
+ */
+export function clearModTextSwaps() {
+  _customTextSwaps = [];
+}
+
+const DIFFICULTY_TEXT_SWAPS = [
+  ['也许', '也许吧'], ['可能', '说不定'], ['似乎', '好像'],
+  ['好像', '也许'], ['一些', '些许'], ['东西', '存在'],
+  ['地方', '位置'], ['感觉', '确信'], ['注意', '记住'],
+];
+
+/**
+ * Get text modification settings based on difficulty level.
+ * @param {number} difficultyLevel - 1-21
+ * @returns {{ corruptionBoost: number, hintSuppression: number, vocabShift: boolean }}
+ */
+export function getDifficultyTextSettings(difficultyLevel) {
+  if (!difficultyLevel || difficultyLevel <= 3) return { corruptionBoost: 1.0, hintSuppression: 0, vocabShift: false };
+  if (difficultyLevel <= 9) return { corruptionBoost: 1.2, hintSuppression: 0.15, vocabShift: false };
+  if (difficultyLevel <= 15) return { corruptionBoost: 1.5, hintSuppression: 0.35, vocabShift: true };
+  return { corruptionBoost: 2.0, hintSuppression: 0.55, vocabShift: true };
+}
+
+/**
+ * Merge base difficulty text settings with mod overrides (Feature 4).
+ * @param {number} difficultyLevel
+ * @param {{ textCorruptionBoost?: number }} modModifiers - from getModDifficultyModifiers()
+ * @returns {{ corruptionBoost: number, hintSuppression: number, vocabShift: boolean }}
+ */
+export function getMergedTextSettings(difficultyLevel, modModifiers) {
+  const base = getDifficultyTextSettings(difficultyLevel);
+  if (!modModifiers) return base;
+  return {
+    corruptionBoost: base.corruptionBoost * (modModifiers.textCorruptionBoost || 1),
+    hintSuppression: base.hintSuppression,
+    vocabShift: base.vocabShift || modModifiers.textCorruptionBoost > 1,
+  };
+}
+
+/**
+ * Apply difficulty-based vocabulary shift — replaces neutral words with more ambiguous ones.
+ * Only triggers at difficulty >= 10. Also applies mod-registered swaps.
+ */
+function _applyVocabShift(text, difficultyLevel) {
+  if (!text || difficultyLevel < 10) return text;
+  var result = text;
+  // Base difficulty swaps
+  for (const [from, to] of DIFFICULTY_TEXT_SWAPS) {
+    if (result.includes(from)) {
+      result = result.replace(from, to);
+      break;
+    }
+  }
+  // Feature 4: Apply mod custom swaps (after base swap)
+  if (_customTextSwaps.length > 0) {
+    for (const [from, to] of _customTextSwaps) {
+      if (result.includes(from)) {
+        result = result.replace(from, to);
+        break;
+      }
+    }
+  }
+  return result;
+}
 //
 // Tier 1 (seen=0):  Normal text. Always show.
 // Tier 2 (seen=1):  Subtle hint of looping — one word shifts, a familiar unease.
@@ -15,31 +99,43 @@ import { getSanStageFromGD } from '../reducers/sanReducer.js';
  * @param {number} pollution  - current pollution (0-1)
  * @param {number} loopCount  - current loop count
  * @param {object} seenMap    - { textId: timesSeen } mutable tracking map
+ * @param {number} [difficultyLevel] - 1-21, optional difficulty modifier
  * @returns {{ text, action, tier }} action: 'show' | 'variant' | 'skip'
  */
-export function getTrackedText(textId, baseText, pollution, loopCount, seenMap) {
+export function getTrackedText(textId, baseText, pollution, loopCount, seenMap, difficultyLevel) {
+  const settings = getDifficultyTextSettings(difficultyLevel);
   const seen = seenMap[textId] || 0;
   seenMap[textId] = seen + 1;
 
-  // Tier 1: first time — always show full text
-  if (seen === 0) return { text: baseText, action: 'show', tier: 1 };
+  // Difficulty hint suppression: raise pollution threshold for variant tiers
+  const tier2PollutionReq = Math.max(0.2, settings.hintSuppression + 0.2);
+  const tier3PollutionReq = Math.max(0.15, settings.hintSuppression + 0.15);
 
-  // Tier 2: second time — subtle looping hint (only if pollution present)
-  if (seen === 1 && pollution >= 0.2) {
-    return { text: _applySubtleShift(baseText), action: 'variant', tier: 2 };
+  // Tier 1: first time — always show full text (with optional vocab shift)
+  if (seen === 0) return { text: _applyVocabShift(baseText, difficultyLevel), action: 'show', tier: 1 };
+
+  // Tier 2: second time — subtle looping hint (suppressed at high difficulty)
+  if (seen === 1 && pollution >= tier2PollutionReq) {
+    return { text: _applyVocabShift(_applySubtleShift(baseText), difficultyLevel), action: 'variant', tier: 2 };
   }
 
-  // Tier 3: third time — readable corruption (requires some pollution)
-  if (seen === 2 && pollution >= 0.15) {
-    return { text: _applyReadableCorruption(baseText, pollution), action: 'variant', tier: 3 };
+  // Tier 3: third time — readable corruption (boosted at high difficulty)
+  if (seen === 2 && pollution >= tier3PollutionReq) {
+    var corrText = _applyReadableCorruption(baseText, pollution * settings.corruptionBoost);
+    return { text: _applyVocabShift(corrText, difficultyLevel), action: 'variant', tier: 3 };
   }
 
-  // Tier 4: fourth+ time — skip with summary
+  // Tier 4: fourth+ time — skip with summary (suppressed at high difficulty: lower threshold)
   if (seen >= 3) {
+    if (settings.hintSuppression >= 0.35 && seen === 3 && pollution < 0.3) {
+      // At difficulty >= 16, even seen=3 may still show (harder = more repetition before skipping)
+      return { text: _applyReadableCorruption(baseText, pollution * settings.corruptionBoost * 0.5), action: 'variant', tier: 3 };
+    }
     return { text: _buildSummary(baseText), action: 'skip', tier: 4 };
   }
 
-  return { text: baseText, action: 'show', tier: 1 };
+  // Fallback: show text (difficulty suppressed the variant)
+  return { text: _applyVocabShift(baseText, difficultyLevel), action: 'show', tier: 1 };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -130,13 +226,14 @@ export function createSeenTextMap() { return {}; }
  * Phantom entries carry a `_phantomExpiry` timestamp — render code should skip
  * them once expired. No setTimeout (Immer state is frozen after reducer).
  */
-export function maybeInjectPhantomLog(logArray, san, loopCount) {
+export function maybeInjectPhantomLog(logArray, san, loopCount, rng) {
   if (!logArray || logArray.length === 0) return;
   // Only trigger at low SAN or high loop — never in normal play
   // P1-A: SSOT — explanation_loss (level >= 3) or loop >= 2
   if (getSanStageFromGD(san).level < 3 && loopCount < 2) return;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
   const chance = Math.min(0.005, (60 - san) * 0.0001 + loopCount * 0.001);
-  if (Math.random() >= chance) return;
+  if (_rand() >= chance) return;
   const phantomTexts = [
     '你走进了一个你不记得存在的房间。',
     '有人在你身后关上了门。',
@@ -147,9 +244,9 @@ export function maybeInjectPhantomLog(logArray, san, loopCount) {
   ];
   logArray.push({
     day: logArray[logArray.length - 1]?.day || 1,
-    text: phantomTexts[Math.floor(Math.random() * phantomTexts.length)],
+    text: phantomTexts[Math.floor(_rand() * phantomTexts.length)],
     _phantom: true,
-    _phantomExpiry: Date.now() + 8000 + Math.floor(Math.random() * 4000),
+    _phantomExpiry: Date.now() + 8000 + Math.floor(_rand() * 4000),
   });
 }
 
@@ -188,10 +285,11 @@ export function maybeCorruptNpcName(name, san, loopCount) {
  * expired phantom entries. No setTimeout (Immer state is frozen after reducer).
  * Probability: 0.3% per narrative push at low SAN.
  */
-export function maybeInjectPhantomNarrative(narrArray, san) {
+export function maybeInjectPhantomNarrative(narrArray, san, rng) {
   // P1-A: SSOT — explanation_loss (level >= 3)
   if (getSanStageFromGD(san).level < 3) return;
-  if (Math.random() >= 0.003) return;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (_rand() >= 0.003) return;
   const phantomLines = [
     '你刚才说了什么？',
     '——不，你没有说话。',
@@ -200,11 +298,11 @@ export function maybeInjectPhantomNarrative(narrArray, san) {
     '你确定你在这里吗？',
   ];
   narrArray.push({
-    id: Date.now() + Math.random(),
+    id: Date.now() + _rand(),
     type: 'system',
-    text: phantomLines[Math.floor(Math.random() * phantomLines.length)],
+    text: phantomLines[Math.floor(_rand() * phantomLines.length)],
     _phantom: true,
-    _phantomExpiry: Date.now() + 5000 + Math.floor(Math.random() * 3000),
+    _phantomExpiry: Date.now() + 5000 + Math.floor(_rand() * 3000),
   });
 }
 

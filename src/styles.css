@@ -569,6 +569,7 @@ body::before {
   max-width: 700px;
   margin: 0 auto;
   padding: 2rem;
+  padding-bottom: 6rem; /* 确保全屏模式下底部按钮不被截断 */
 }
 .char-creation h2 {
   color: var(--gold);
@@ -1099,7 +1100,7 @@ body::before {
   border: 3px solid rgba(20, 18, 15, 0.9);
   border-radius: 1px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  filter: sepia(0.18) contrast(1.04) brightness(0.92);
+  /* filter 由 img.game-art 统一管理 */
 }
 
 /* Clues */
@@ -1247,7 +1248,7 @@ body::before {
   border-radius: 1px;
   background: var(--bg2);
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
-  filter: sepia(0.18) contrast(1.04) brightness(0.92);
+  /* filter 由 img.game-art 统一管理 */
   transform: rotate(-0.15deg);
 }
 .npc-portrait {
@@ -1260,7 +1261,7 @@ body::before {
   border-radius: 1px;
   background: var(--bg);
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
-  filter: sepia(0.2) contrast(1.05) brightness(0.9);
+  /* filter 由 img.game-art / img.npc-portrait 统一管理 */
   transform: rotate(0.2deg);
 }
 
@@ -6255,7 +6256,7 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
   animation-timing-function: ease-out;
   animation-duration: var(--trans-dur, 400ms);
   height: 100vh;
-  overflow: hidden;
+  overflow: clip; /* clip 不会截断子元素的滚动条，hidden 会 */
 }
 /* Exit: no CSS animation (canvas handles it) — just hide content under canvas */
 .screen-transition--exit {
@@ -6358,21 +6359,20 @@ body[data-reduced-motion="true"] .narrative-line.typewriter {
    兼容 SAN 污染 / 双界面模式，零冲突
    ========================================================== */
 
-/* ── 1. 所有游戏图片基础统一滤镜（核心）── */
+/* ── 1. 所有游戏图片基础统一滤镜（核心，纯 CSS 无 SVG）── */
 img.game-art {
   filter:
     grayscale(0.12)
     contrast(1.08)
     brightness(0.92)
     sepia(0.08)
-    hue-rotate(-2deg)
-    url(#global-film-grain);
+    hue-rotate(-2deg);
   image-rendering: auto;
   transition: filter 0.4s ease;
   object-fit: cover;
 }
 
-/* ── 2. NPC 立绘：加轻微锐化 + 圆形裁切滤镜 ── */
+/* ── 2. NPC 立绘/头像：统一纯 CSS 滤镜 ── */
 img.npc-portrait,
 .npc-portrait-thumb,
 .area-panel-npc-img {
@@ -6381,12 +6381,10 @@ img.npc-portrait,
     contrast(1.08)
     brightness(0.92)
     sepia(0.08)
-    hue-rotate(-2deg)
-    url(#soft-sharpen)
-    url(#global-film-grain);
+    hue-rotate(-2deg);
 }
 
-/* ── 3. 场景/地图背景：加暗角，增强氛围 ── */
+/* ── 3. 场景/地图背景：统一纯 CSS 滤镜 ── */
 img.scene-bg,
 img.town-map-bg,
 .scene-image img,
@@ -6397,12 +6395,10 @@ img.town-map-bg,
     contrast(1.08)
     brightness(0.92)
     sepia(0.08)
-    hue-rotate(-2deg)
-    url(#global-film-grain)
-    url(#soft-vignette);
+    hue-rotate(-2deg);
 }
 
-/* ── 4. 结局 CG/过场：高对比度 + 强暗角 ── */
+/* ── 4. 结局 CG/过场：高对比度 ── */
 img.ending-cg,
 .ending-screen img,
 img.cutscene-art {
@@ -6411,9 +6407,7 @@ img.cutscene-art {
     contrast(1.15)
     brightness(0.9)
     sepia(0.05)
-    hue-rotate(-2deg)
-    url(#global-film-grain)
-    url(#strong-vignette);
+    hue-rotate(-2deg);
 }
 
 /* ── 5. SAN 阶段兼容 ── */
@@ -6424,15 +6418,18 @@ img.cutscene-art {
     brightness(0.92)
     sepia(0.08)
     hue-rotate(-8deg)
-    saturate(0.95)
-    url(#global-film-grain);
+    saturate(0.95);
 }
 .san-stage-2 img.game-art,
 .san-stage-3 img.game-art,
 .san-stage-4 img.game-art,
 .san-stage-5 img.game-art {
   filter:
-    url(#global-film-grain);
+    grayscale(0.2)
+    contrast(1.1)
+    brightness(0.85)
+    sepia(0.1)
+    hue-rotate(-5deg);
 }
 
 /* ── 6. UI 面板质感（消除塑料感）── */

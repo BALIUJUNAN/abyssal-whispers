@@ -7,6 +7,7 @@ import { FloatingInfoBar, NarrativeFloatingPanel } from './FloatingInfoBar.jsx';
 import { AreaPanelModal } from './AreaPanelModal.jsx';
 import { GameHeader, LeftPanel, CenterPanel, RightPanel } from './GamePanels.jsx';
 import { generateMetaCorruptionEvent, generateLoopOpening, generateCorruptedSaveName, isGlmAvailable } from '../systems/llmNarrative.js';
+import { getPhase } from '../engine/WorldTimeSystem.js';
 
 export function GameLayout({ state, dispatch, areas, settings }) {
   const ui = uiStore();
@@ -109,7 +110,7 @@ export function GameLayout({ state, dispatch, areas, settings }) {
     });
   }, [state.day]);
 
-  // M 键切换模式、J 键打开笔记本 — 放在这里而非子组件中，确保两种模式下都能响应
+  // M 键切换模式、N 键打开笔记本、J 键线索、I 键物品 — 放在这里确保两种模式下都能响应
   useEffect(() => {
     const handler = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -118,10 +119,18 @@ export function GameLayout({ state, dispatch, areas, settings }) {
           uiMode: prev.uiMode === 'town_map' ? 'classic' : 'town_map',
         }));
       }
-      // J 键打开笔记本（两种布局模式均可用）
-      if (e.key === 'j' || e.key === 'J') {
+      // N 键打开笔记本
+      if (e.key === 'n' || e.key === 'N') {
         try { uiStore.setState({ notebookOpen: true, notebookEverOpened: true }); } catch (err) {}
         try { dispatch({ type: 'MARK_NOTEBOOK_OPENED' }); } catch (err) {}
+      }
+      // J 键切换到线索标签
+      if (e.key === 'j' || e.key === 'J') {
+        window.dispatchEvent(new Event('kbd:showClues'));
+      }
+      // I 键滚动到物品栏
+      if (e.key === 'i' || e.key === 'I') {
+        window.dispatchEvent(new Event('kbd:showInventory'));
       }
     };
     window.addEventListener('keydown', handler);

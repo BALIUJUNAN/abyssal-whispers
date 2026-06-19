@@ -53,6 +53,7 @@ REDUCER_FILES = [
     'reducers/utils.js',
     # ── Balance constants (must precede all slice files) ──
     'state/gameConstants.js',
+    'utils/clueNameMap.js',   # MUST precede reducers that import it (extendedEvents, eventReducer, endingReducer, effectReducer, objectiveReducer, conclusionReducer)
     # ── Engine Layer (consolidated core systems) ──
     # engine/WorldTimeSystem.js replaces reducers/worldReducer.js
     'engine/WorldTimeSystem.js',
@@ -96,6 +97,7 @@ REDUCER_FILES = [
     'data/ugcSchema.js',
     'reducers/ugcReducer.js',
     'utils/buildEventPool.js',
+    'data/milestones.js',             # MUST precede extendedEventsInit.js (CHAPTER_MILESTONES)
     'reducers/extendedEventsInit.js',
     'reducers/achievementReducer.js',  # MUST precede effectReducer.js (imported by it)
     'reducers/effectReducer.js',
@@ -127,7 +129,6 @@ REDUCER_FILES = [
     'managers/AudioManager.js',
     # Game utilities (must precede app.jsx)
     'systems/textVariants.js',        # MUST precede gameHelpers.js (getDistortedName)
-    'utils/clueNameMap.js',
     'utils/gameHelpers.js',
     'utils/trustGates.js',          # NPC trust gate logic (extracted from appHelpers.js)
     'utils/npcMemory.js',           # NPC loop memory data (extracted from appHelpers.js)
@@ -152,6 +153,9 @@ REDUCER_FILES = [
     # gameSettings.js excluded: DEFAULT_SETTINGS already in miscReducer.js
     # Phase 2: App-level helper functions extracted from app.jsx
     'utils/appHelpers.js',
+    # ── 21级难度系统 ──
+    'config/difficulty.js',            # DIFFICULTY_LEVELS (must precede difficultyState.js, GameScreens.jsx)
+    'state/difficultyState.js',        # applyDifficultyToState (must precede coreSlice.js)
     # Phase 3: GameReducer slice handlers (extracted from app.jsx)
     'engine/commands.js',            # MUST precede coreSlice.js (audio, hooks, fx)
     'reducers/slices/coreSlice.js',

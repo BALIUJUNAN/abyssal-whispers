@@ -16,11 +16,23 @@ import { getSanStageFromGD } from '../reducers/sanReducer.js';
  * @returns {{ text: string, tags: string[] }|null}
  */
 export function getContextualLine(npcName, state) {
-  // Priority 1: contextual lines (new system)
+  // Priority 1: day-specific lines (key milestone days)
+  if (state.day) {
+    var dayLine = getDaySpecificLine(npcName, state.day);
+    if (dayLine) return { text: dayLine, tags: ['day_milestone'] };
+  }
+
+  // Priority 2: weather-reactive lines
+  if (state.weather) {
+    var weatherLine = getWeatherLine(npcName, state.weather);
+    if (weatherLine) return { text: weatherLine, tags: ['weather'] };
+  }
+
+  // Priority 3: contextual lines (trust/time/san/loop/legacy)
   var ctx = selectContextualLine(npcName, state);
   if (ctx) return ctx;
 
-  // Priority 2: corruption/infection lines (existing system)
+  // Priority 4: corruption/infection lines (existing system)
   var variant = getNpcDialogueVariant(npcName, 0, state);
   if (variant === 'infection_hallucination') {
     var infLines = NPC_INFECTION_LINES[npcName];
@@ -36,6 +48,47 @@ export function getContextualLine(npcName, state) {
   }
 
   return null;
+}
+
+export function getDaySpecificLine(npcName, day) {
+  var dayData = NPC_DAY_SPECIFIC_LINES[npcName];
+  if (!dayData) return null;
+  // Check exact day match first, then nearest lower key
+  if (dayData[day]) return dayData[day];
+  // Find the nearest milestone day <= current day
+  var keys = Object.keys(dayData).map(Number).sort((a, b) => b - a);
+  for (var i = 0; i < keys.length; i++) {
+    if (keys[i] <= day) return dayData[keys[i]];
+  }
+  return null;
+}
+
+export function getWeatherLine(npcName, weather) {
+  var weatherData = NPC_WEATHER_LINES[npcName];
+  if (!weatherData || !weatherData[weather]) return null;
+  return weatherData[weather];
+}
+
+/**
+ * Get NPC observation line based on player's SAN level.
+ * NPCs notice and comment on the player's deteriorating mental state.
+ * Returns the highest-tier line the player qualifies for, or null.
+ */
+export function getSanLevelLine(npcName, san) {
+  var sanData = NPC_SAN_LEVEL_LINES[npcName];
+  if (!sanData) return null;
+  // SAN stages: mild_erosion [55-74] → t1, perception_shift [40-54] → t2,
+  //   explanation_loss [25-39] → t3, reality_dissolution [10-24] → t4, narrative_death [1-9] → t5
+  var applicableTier = null;
+  if (san <= 10 && sanData[5]) applicableTier = 5;
+  else if (san <= 25 && sanData[4]) applicableTier = 4;
+  else if (san <= 39 && sanData[3]) applicableTier = 3;
+  else if (san <= 54 && sanData[2]) applicableTier = 2;
+  else if (san <= 74 && sanData[1]) applicableTier = 1;
+  if (!applicableTier) return null;
+  var lines = sanData[applicableTier];
+  if (!lines || lines.length === 0) return null;
+  return lines[Math.floor(Math.random() * lines.length)];
 }
 
 // === Multi-Version Dialogue Selector ===
@@ -221,6 +274,185 @@ export function getNpcFatigueEffect(npcName, loopCount, state) {
   return null;
 }
 
+// === Day-Specific NPC Greetings ===
+// Key days trigger unique NPC reactions. These are injected during TALK_NPC.
+// NOT the same as corruption variants — these are atmospheric context lines.
+
+export var NPC_DAY_SPECIFIC_LINES = {
+  '玛莎·格雷': {
+    1: '第一天。你看起来很紧张。喝一杯吧。这里的酒……至少还是酒。',
+    7: '今天是第七天。你有没有觉得什么不一样了？不只是钟声。是空气。',
+    14: '第十四天。你看起来比上周更累了。上周你来的时候还没这样。',
+    21: '第二十一天。你还在。我不知道是该感到惊讶还是……别的什么。',
+    28: '今天是最后一天了。无论发生什么——你活下来了。不是吗？',
+  },
+  老费舍: {
+    1: '新面孔。海记得你。不是今天——是你以后会变成的样子。',
+    7: '第七天了。你闻到了吗？海水味比昨天近了。',
+    14: '灯塔亮了。你看到了吧？它已经三年没有亮过了。',
+    21: '海底的东西醒着。我能感觉到。你也该能。',
+    28: '最后一天。你知道的，码头在涨潮。今天过后，栈桥可能就没了。',
+  },
+  '希尔达·莫里斯': {
+    1: '欢迎来到沃切斯特。这个镇的墙壁比你想象的薄。',
+    7: '走廊里的画像今天一直在看你。比平时更用力。',
+    14: '地下室的门今天锁不上了。我没有动锁。你自己注意。',
+    21: '庄园的花园里开了一种花。不是这个季节的花。我查了——它不属于任何已知的植物分类。',
+    28: '最后一天。我把窗帘拉上了。不是因为外面有什么——是因为里面有什么在往外看。',
+  },
+  '伊莎贝拉·韦伯': {
+    1: '你看起来很困惑。这很正常。沃切斯特会让所有人困惑。',
+    7: '教堂的钟……你听到了吗？十四下。每一次钟响，空气里的东西就更浓一点。',
+    14: '灯塔的光……你不觉得那光有问题吗？它在移动。不是扫射——是在搜索。',
+    21: '封印的声音……像呼吸。像有人在你的胸腔里呼吸。你感觉到了吗？',
+    28: '最后一天。教堂的门今天开了。不是我去开的。但钥匙在我口袋里。我确定我昨天锁了门。',
+  },
+  '约书亚·布莱克': {
+    1: '新来的。小心码头。晚上不要去。',
+    7: '今天别去镇北边。有些东西……爬出来了。',
+    14: '灯塔的光让我整晚没睡。它不像光。像某种东西在盯着这个镇。',
+    21: '地下有声音。我能听到。从教堂的方向。你听不到吗？',
+    28: '最后一天了。枪我擦过了。放在枕头底下。我不知道有没有用。但至少让我的手有事可做。',
+  },
+  '伊莱亚斯·沃德': {
+    1: '新的样本。不，不是样本——是变量。我的理论需要一个观察对象。欢迎。',
+    7: '第七天。钟声。我数了——十四下加上一个无法归类的频率。存在数学上不可能的声音。',
+    14: '灯塔的光……用分光仪测量的话，它的波长不在可见光谱内。至少不完全在。',
+    21: '封印的呼吸频率和人类的心跳不同步。差0.3次每分钟。但如果你仔细听——你会觉得它在和你的心跳同步。',
+    28: '最后一天。我的笔记写完了。我留了一页空白——给你。如果你活下来的话。写点什么。我需要知道外面是什么。',
+  },
+  '汤米·陈': {
+    1: '新面孔！我刚来的时候也和你一样——困惑， looking up at everything。',
+    7: '今天拍的照片洗出来……边缘有奇怪的反光。不是镜头的问题。镜头是干净的。',
+    14: '灯塔的光……我拍了。放大后……你确定那是光吗？',
+    21: '你注意到没有，你照片里的背景和你记忆中不太一样了。有些建筑在照片里更旧了。更破旧了。',
+    28: '最后一天了。我把相机交给你。里面有你这些天的照片。每一张都很真实。但你仔细看——有些照片里，你不在取景框里。但你知道你在场。',
+  },
+  '埃德加·洛夫克拉夫特': {
+    1: '新的声音。每一个来到沃切斯特的人都是一个新的声音。有些声音被记住了。有些……被吃掉了。',
+    7: '钟声。十四下。我数了。每一下都有不同的回响。像每一个回声都是独立存在的。在讲述自己的故事。',
+    14: '灯塔的光。它有一种语法。你花足够长的时间看它，你会发现它在写什么。它在写这个镇的名字。但这个镇的名字不在任何地图上。',
+    21: '封印在呼吸。你有没有注意到——当它呼气的时候，你也在呼气？同步了。你被同化了。不是身体——是节律。',
+    28: '最后一天。我写完了。不——是它写完了。我只是一支笔。最后一页送给你。但看完之后，不要再翻。有些故事一旦读完，就再也回不去了。',
+  },
+};
+
+// === Weather-Reactive NPC Dialogue ===
+// NPCs comment on current weather conditions.
+
+export var NPC_WEATHER_LINES = {
+  '玛莎·格雷': {
+    fog: '雾比昨天大了。你出门的时候小心点。雾里的沃切斯特……不是同一个地方。',
+    rain: '雨大了。雾也大了。你今天最好别去码头。雾里的码头比任何时候都远。',
+    storm: '暴风雨来了。酒馆的门在晃。不是风的问题。门从里面被推。',
+    clear: '难得晴天。但沃切斯特的晴天也有问题。雾散了，但阴影还在。',
+  },
+  老费舍: {
+    fog: '雾里什么都看不见。但海里能看见你。记住这一点。',
+    rain: '雨水带着盐味。海在靠近。盐味越重——它离得越近。',
+    storm: '暴风雨天的码头是最危险的。不——是暴风雨天的码头后面最危险。',
+    clear: '晴天。但海面太安静了。比暴风雨还安静。这种安静有问题。',
+  },
+  '希尔达·莫里斯': {
+    fog: '庄园在雾里看起来不一样了。有些窗户在雾里亮着灯。但今天没有人开过灯。',
+    rain: '雨水从地下室渗上来了。不是普通的水——比普通的水更重。更冷。',
+    storm: '庄园的老墙在暴风雨里会发出声音。像有人在隔壁说话。你知道隔壁没有人。',
+    clear: '晴天。走廊的画像今天表情很平静。太平静了。像是它们在等什么。',
+  },
+  '伊莎贝拉·韦伯': {
+    fog: '雾进入教堂了。蜡烛的火焰在雾里变成蓝色。这是不好的预兆。',
+    rain: '雨水带着盐分。教堂的十字架今天锈得更快了。盐在腐蚀它。',
+    storm: '暴风雨中教堂的钟自己响了。没有人碰它。钟绳断了三个小时了。',
+    clear: '晴天。教堂里却弥漫着一层薄雾。门关着。窗户关着。雾从哪里进来的？',
+  },
+  '约书亚·布莱克': {
+    fog: '雾里别走镇北边。雾里的东西……不是人的东西。我知道，因为我见过。',
+    rain: '雨水把脚印冲掉了。但有些东西留下了痕迹。比脚印更深。',
+    storm: '暴风雨里灯塔的光还在。暴风雨前我看了一眼。光在移动。不是机器能做的移动方式。',
+    clear: '晴天。但镇北的阴影比别处长。长到你走过去的时候，感觉像走了一个小时。实际上只走了五分钟。',
+  },
+  '伊莱亚斯·沃德': {
+    fog: '雾的密度有一个异常峰值。超出气象模型的预测范围。它在聚集。有意图地聚集。',
+    rain: '雨水样本异常。pH值偏低。含盐量偏高。不是海水——但接近某种古老海水的化学特征。',
+    storm: '暴风雨的电磁波频谱有一个规律性的脉冲。频率和教堂的钟声一致。不是巧合——是调谐。',
+    clear: '晴天的大气折射率异常。远处的东西看起来比实际更近。沃切斯特在拉近距离。',
+  },
+  '汤米·陈': {
+    fog: '雾太厚了，相机对不上焦。但你知道什么？我拍了几张。放大后……雾里有轮廓。在看我。',
+    rain: '雨把地面打湿了。反光里有些东西不该在那里。我用袖子擦了擦镜头。不是镜头的问题。',
+    storm: '暴风雨里我的相机在自动拍摄。我设置了延时。但我没有设成在暴风雨里拍。它自己拍的。',
+    clear: '晴天。拍了一张教堂的照片。放大看钟楼。钟楼上面的天空……比别的地方暗。不是云的暗。是别的什么。',
+  },
+  '埃德加·洛夫克拉夫特': {
+    fog: '雾有记忆。你走进去的时候，它会记住你。然后在你出来的时候……还给你一个不一样的版本。',
+    rain: '雨水的声音在变化。不是雨声。是一种语言。一种你听不懂但你越来越能听懂的语言。',
+    storm: '暴风雨的声音像一支交响乐。但不是人类作曲的。在暴风雨的最低频段，有一种旋律。它在循环。',
+    clear: '晴天。但影子在颤抖。不是因为风——是因为它们的内容在变化。每一个影子都是未写完的故事。',
+  },
+};
+
+// === SAN-Level NPC Observations ===
+// NPCs notice and comment on the player's deteriorating mental state.
+
+export var NPC_SAN_LEVEL_LINES = {
+  '玛莎·格雷': {
+    1: '你今天看起来……和平常不太一样。是雾的关系吗？',
+    2: '你刚才点了两遍一样的酒。你没有注意到。',
+    3: '你今天看起来……不太好。要坐一会儿吗？酒我请了。',
+    4: '你的眼睛在飘。你在听什么声音吗？这里没有声音。只有酒瓶的声音。',
+    5: '你不记得我是谁了吗？没关系。明天你也不会记得今天发生过什么。',
+  },
+  老费舍: {
+    1: '你今天话比较少。海上的事不顺？',
+    2: '你走路的时候好像……在看什么东西。但周围什么都没有。',
+    3: '你看起来像是很久没睡了。海不会等你的。',
+    4: '你在和什么人说话吗？我听到你在自言自语。',
+    5: '你的眼神空了一秒。不是眨眼——是更深的什么东西。海在看着你。你也在看着海。',
+  },
+  '希尔达·莫里斯': {
+    1: '你今天进门的时候犹豫了一下。是对这里不习惯了吗？',
+    2: '走廊的画像……你今天看了它们两次。上一次你看了多久？',
+    3: '你看起来很疲惫。走廊的画像今天比昨天更关注你。',
+    4: '你刚才走的时候撞了墙。你没有注意到吗？墙没有动。是你走歪了。',
+    5: '你今天的记忆……很薄。像是水写在纸上。我能从你的眼神里看出来。',
+  },
+  '伊莎贝拉·韦伯': {
+    1: '你今天进教堂的时候……在门口站了很久。在等什么吗？',
+    2: '你手上的伤口。你记得是怎么弄的吗？',
+    3: '你的手在抖。教堂里的圣水可以帮你。不是治病——是让你清醒一会儿。',
+    4: '你刚才问我同一个问题两次。两次我给了你不同的答案。你都没有注意到。',
+    5: '你盯着十字架看了很久。你能看到它在动吗？不是光线的问题。它在呼吸。',
+  },
+  '约书亚·布莱克': {
+    1: '你今天看起来比昨天警觉。发现了什么？',
+    2: '你刚才检查了三次出口。你很紧张。',
+    3: '你看起来像三天没睡了。还是三天没活了？',
+    4: '你刚才在笑。没有人在说话。我不知道你在笑什么。但我不想知道。',
+    5: '你认不出我了吗？没关系。你的世界里现在有很多你不认识的东西。',
+  },
+  '伊莱亚斯·沃德': {
+    1: '你的步态参数有0.3秒的异常延迟。不是疲劳——是别的什么。',
+    2: '你今天描述事件时，时间顺序出现了微小的错位。你自己注意到了吗？',
+    3: '你的反应时间今天增加了0.8秒。认知偏差在扩大。需要记录。',
+    4: '你在叙述中存在矛盾。你所说的和你的行为不符。这不是谎言——是你真的相信了两件矛盾的事。',
+    5: '你的存在正在变得不可靠。不是因为你疯了——是因为你在被改写。由什么改写？我正在研究。',
+  },
+  '汤米·陈': {
+    1: '你今天拍的照片……焦点有点飘。不是镜头的问题。是你的手在抖。',
+    2: '你刚才看着空白的墙壁笑了。我不知道你在看什么。但我想知道。',
+    3: '你今天拍的照片……你确定那些是你拍的吗？你手里拿相机的时候眼神是空的。',
+    4: '你刚才在看一面没有镜子的墙。看了十秒钟。我不知道你在看什么。',
+    5: '你的记忆中有断层。不是遗忘——是缺失。有些天从你的叙述里完全消失了。',
+  },
+  '埃德加·洛夫克拉夫特': {
+    1: '你今天叙述的时候……用了一些词。那些词不在你昨天的词汇表里。',
+    2: '你刚才描述了一个不存在的地方。你相信它是存在的。',
+    3: '你的叙述出现了裂隙。不是谎言的裂隙——是现实的裂隙。你在叙述一些你没有经历的事。',
+    4: '你今天的叙述和昨天的叙述矛盾了。不是细节的矛盾——是根本事件的矛盾。你记得你昨天在码头吗？你的叙述说你记得。但你昨天在这里。',
+    5: '你不再是一个叙述者了。你是一个被叙述的东西。由这个镇，由这个时间，由某个比你更大的故事在叙述你。',
+  },
+};
+
 // === Loop Inheritance: Benefits and Costs ===
 // Enhanced initLoopState additions
 
@@ -254,4 +486,34 @@ export function applyLoopNpcTrustDecay(state, loopCount) {
       state.npcTrust[name] = Math.max(0, current - Math.min(decay, 2));
     }
   }
+}
+
+// ═══════════════════════════════════════════════════════
+// Feature 2: Difficulty-based NPC behavior
+// Higher difficulty = NPCs are more guarded, trust gains are reduced
+// ═══════════════════════════════════════════════════════
+
+/**
+ * Get NPC trust gain multiplier based on difficulty.
+ * Level 1-3: 1.0 (normal)
+ * Level 4-9: 0.8
+ * Level 10-15: 0.6
+ * Level 16-21: 0.4
+ */
+export function getDifficultyNpcTrustMultiplier(difficultyLevel) {
+  if (!difficultyLevel || difficultyLevel <= 3) return 1.0;
+  if (difficultyLevel <= 9) return 0.8;
+  if (difficultyLevel <= 15) return 0.6;
+  return 0.4;
+}
+
+/**
+ * Get NPC suspicion threshold modifier based on difficulty.
+ * Higher difficulty = NPCs are more likely to refuse trust escalation.
+ * Returns extra trust gate requirement (0-2).
+ */
+export function getDifficultyNpcSuspicion(difficultyLevel) {
+  if (!difficultyLevel || difficultyLevel <= 6) return 0;
+  if (difficultyLevel <= 12) return 1;
+  return 2;
 }

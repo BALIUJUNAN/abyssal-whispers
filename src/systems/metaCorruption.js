@@ -57,26 +57,27 @@ export function applyMetaCorruption(s, c, intensity) {
   if (_stage.level < 3 || s.loopCount < 1) return;
   var I = Math.max(0, Math.min(100, intensity || 50)) / 100;
   var chance = META_CORRUPTION_CHANCE * I * Math.max(0, 1 - _stage.level / 5);
-  if (Math.random() >= chance) return;
+  var _rand = c.rng ? c.rng.next.bind(c.rng) : Math.random;
+  if (_rand() >= chance) return;
 
-  var roll = Math.random();
+  var roll = _rand();
   if (roll < 0.45) {
     // False event: inject unsettling narrative
-    var evt = FALSE_EVENTS[Math.floor(Math.random() * FALSE_EVENTS.length)];
+    var evt = FALSE_EVENTS[Math.floor(_rand() * FALSE_EVENTS.length)];
     c.narr('system', (evt.prefix ? evt.prefix + ' ' : '') + evt.text, {
       isSpecial: true,
       isEffect: true,
     });
   } else if (roll < 0.75) {
     // False log entry
-    var logText = FALSE_LOGS[Math.floor(Math.random() * FALSE_LOGS.length)];
+    var logText = FALSE_LOGS[Math.floor(_rand() * FALSE_LOGS.length)];
     c.log(logText);
   } else {
     // Save name pollution: set a flag for the save/load modal to read
     if (!s._savePollution) s._savePollution = {};
     s._savePollution.name =
-      SAVE_POLLUTION_NAMES[Math.floor(Math.random() * SAVE_POLLUTION_NAMES.length)];
-    s._savePollution.until = s.day + 1 + Math.floor(Math.random() * 2);
+      SAVE_POLLUTION_NAMES[Math.floor(_rand() * SAVE_POLLUTION_NAMES.length)];
+    s._savePollution.until = s.day + 1 + Math.floor(_rand() * 2);
     c.narr('system', '你感觉有什么东西在你存档的间隙中注视着。', { isSpecial: true });
   }
 }

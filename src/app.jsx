@@ -122,7 +122,6 @@ import {
   maybeGetFakeMessage,
   getChoiceDelay,
   maybeInsertFalseMemory,
-  corruptEventWeights,
 } from './engine/PollutionManager.js';
 
 // ── Engine & runtime ──
@@ -171,7 +170,7 @@ import { TitleScreen } from './components/TitleScreen.jsx';
 import { AppToast } from './components/AppToast.jsx';
 import { SettingsModal, SaveLoadModal, AchievementGallery } from './components/GameModals.jsx';
 import { PrologueScreen, SurvivalGuide, CharCreation } from './components/GameScreens.jsx';
-import { AbyssPopup } from './components/SanPollutionLayer.jsx';
+import { SanPollutionLayer, AbyssPopup } from './components/SanPollutionLayer.jsx';
 import { DevPanel } from './components/ui/DevPanel.jsx';
 import { ScreenTransition } from './components/ScreenTransition.jsx';
 import {
@@ -200,14 +199,15 @@ if (typeof window !== 'undefined') {
 
 // checkKnowledgeEarned moved to src/utils/appHelpers.js
 
-function getCorruptedSystemText(baseText, layer) {
+function getCorruptedSystemText(baseText, layer, rng) {
   // Fear lens corruption: prologue-derived fear-specific UI corruption
   // Applied before generic corruption
   if (layer > 0 && _currentFearTuning && _currentFearTuning.primary) {
-    const fearCorrupted = applyFearCorruption({ fearTuning: _currentFearTuning }, baseText, layer);
+    const fearCorrupted = applyFearCorruption({ fearTuning: _currentFearTuning }, baseText, layer, rng);
     if (fearCorrupted !== baseText) return fearCorrupted;
   }
-  if (layer <= 0 || Math.random() > 0.3) return baseText;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (layer <= 0 || _rand() > 0.3) return baseText;
   const corruptions = GD.systems?.ui_corruption?.layers;
   if (!corruptions) return baseText;
   const layerKey =
@@ -218,16 +218,16 @@ function getCorruptedSystemText(baseText, layer) {
   const layerData = corruptions[layerKey];
   if (!layerData) return baseText;
   // Occasionally return a corrupted example instead
-  if (layer >= 3 && Math.random() < 0.15) {
+  if (layer >= 3 && _rand() < 0.15) {
     const ex = layerData.examples;
     if (ex) {
       const keys = Object.keys(ex);
-      return ex[keys[Math.floor(Math.random() * keys.length)]] || baseText;
+      return ex[keys[Math.floor(_rand() * keys.length)]] || baseText;
     }
   }
   // Layer 1-2: append mild suffix
-  if (layer === 1 && Math.random() < 0.4) return baseText + '（你确定吗？）';
-  if (layer === 2 && Math.random() < 0.3) return baseText + ' / ' + baseText;
+  if (layer === 1 && _rand() < 0.4) return baseText + '（你确定吗？）';
+  if (layer === 2 && _rand() < 0.3) return baseText + ' / ' + baseText;
   return baseText;
 }
 
@@ -277,7 +277,7 @@ function gameReducer(state, action) {
     const _runSeed = s.runSeed || 'default';
     const _actIdx = (action.meta && action.meta._actionIndex != null) ? action.meta._actionIndex : (s._actionIndex || 0);
     const _rng = createSeededRng(_runSeed, _actIdx);
-    const c = buildReducerCtx(s, { rng: _rng, now: action.meta?.now }, getCorruptedSystemText);
+    const c = buildReducerCtx(s, { rng: _rng, now: action.meta?.now }, (t, l) => getCorruptedSystemText(t, l, _rng));
     // Increment action index for next dispatch
     s._actionIndex = _actIdx + 1;
     // Daily action tracking for behavior endings

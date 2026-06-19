@@ -238,7 +238,7 @@ export function handleUiAction(s, action, c, ctx) {
       s.clues = [];
       s.narrative = [
         {
-          id: Date.now(),
+          id: c.now(),
           type: 'system',
           text: '这不是沃切斯特的第一份档案。',
           isSpecial: true,

@@ -264,4 +264,62 @@ export function getAllInstalledEventIds(store) {
   return ids;
 }
 
+// ────────────────────────────────────────────────
+// SECTION 4: Difficulty Mod Hooks (Feature 4)
+// ────────────────────────────────────────────────
+
+/**
+ * Get difficulty modifiers from all enabled mods for a given difficulty level.
+ * Merges modifiers from all enabled mods that have difficulty_modifiers defined.
+ * @param {number} difficultyLevel - current game difficulty (1-21)
+ * @returns {{ textCorruptionBoost: number, npcTrustMultiplier: number, customSwaps: string[][] }}
+ */
+export function getModDifficultyModifiers(difficultyLevel) {
+  const mods = getEnabledMods();
+  var totalCorruptionBoost = 1.0;
+  var totalNpcTrustMult = 1.0;
+  var allSwaps = [];
+
+  for (const mod of mods) {
+    const dm = mod.difficulty_modifiers;
+    if (!dm) continue;
+    // Check if this mod's difficulty range includes current level
+    if (difficultyLevel < (dm.min_difficulty || 1)) continue;
+    if (difficultyLevel > (dm.max_difficulty || 21)) continue;
+    // Apply modifiers (multiplicative for boost, additive for others)
+    if (typeof dm.text_corruption_boost === 'number') {
+      totalCorruptionBoost *= dm.text_corruption_boost;
+    }
+    if (typeof dm.npc_trust_multiplier === 'number') {
+      totalNpcTrustMult *= dm.npc_trust_multiplier;
+    }
+    if (Array.isArray(dm.custom_text_swaps)) {
+      allSwaps.push(...dm.custom_text_swaps);
+    }
+  }
+
+  return {
+    textCorruptionBoost: Math.min(5, totalCorruptionBoost),
+    npcTrustMultiplier: Math.max(0, Math.min(2, totalNpcTrustMult)),
+    customSwaps: allSwaps.slice(0, 50), // Cap at 50 swap pairs
+  };
+}
+
+/**
+ * Check if any enabled mod provides difficulty hooks for the given level.
+ * @param {number} difficultyLevel
+ * @returns {boolean}
+ */
+export function hasModDifficultyHooks(difficultyLevel) {
+  const mods = getEnabledMods();
+  for (const mod of mods) {
+    const dm = mod.difficulty_modifiers;
+    if (!dm) continue;
+    if (difficultyLevel >= (dm.min_difficulty || 1) && difficultyLevel <= (dm.max_difficulty || 21)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Re-export for convenience

@@ -7,6 +7,8 @@
 //   - 可点击热点（区域 + NPC + 建筑）带 hover 光晕
 //   - 点击热点弹出 AreaPanelModal（功能面板）
 //   - 浮动信息栏覆盖在地图上方
+import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
+import { getVisibleHotspots, getHotspotState, isHotspotUnlocked } from '../data/townHotspots.js';
 
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
@@ -98,8 +100,7 @@ export const MapPaths = memo(function MapPaths({ hotspots, state }) {
         if (!visibleIds.has(from) || !visibleIds.has(to)) return null;
 
         // 路径状态
-        const conn =
-          typeof getConnectedAreas === 'function' ? getConnectedAreas(state.currentArea, ctx) : [];
+        const conn = [];
         const isActive =
           (from === state.currentArea && conn.includes(to)) ||
           (to === state.currentArea && conn.includes(from));
@@ -186,7 +187,7 @@ export function InteractiveTownMap({ state, dispatch }) {
           uiStore.setState({ activeHotspot: hotspot, activePanel: 'area_actions' });
         } else {
           // 不在该区域 → 执行 MOVE action
-          const conn = getConnectedAreas(state.currentArea, ctx);
+          const conn = getConnectedAreas(state.currentArea, { GD });
           if (conn.includes(hotspot.areaId) && isHotspotUnlocked(hotspot, state) && state.ap >= 1) {
             dispatch({ type: 'MOVE', areaId: hotspot.areaId });
             // 移动后打开该区域面板

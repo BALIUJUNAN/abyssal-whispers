@@ -3,6 +3,8 @@ const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { applyMythosAliases, maybeCorruptNpcName } from '../systems/textVariants.js';
 import { generateNpcDialogue, isGlmAvailable } from '../systems/llmNarrative.js';
 import { getContextualLine } from '../systems/npcDialogue.js';
+import { getChoiceDelay } from '../engine/PollutionManager.js';
+import { getNpcImage } from '../portraitMap.js';
 
 export function NPCDialog({ npc, trust, layer, dispatch, state }) {
   const [show, setShow] = useState(false);

@@ -78,19 +78,11 @@ export function buildSanStagePresentation(stage) {
 // --------------------------------------------
 
 /** @private Stage lookup via getCurrentSanStage (SSOT from utils.js) */
+import { getCurrentSanStage } from '../reducers/utils.js';
+
 function _getStage(san, ctx) {
-  try {
-    var utils = require('../reducers/utils.js');
-    return utils.getCurrentSanStage(san, ctx);
-  } catch (e) {
-    var GD = ctx.GD || (typeof window !== 'undefined' && window.GD) || {};
-    var stages = (GD.systems && GD.systems.sanity && GD.systems.sanity.san_stages) || [];
-    if (san <= 0) return { id: 'death', level: 6 };
-    for (var i = 0; i < stages.length; i++) {
-      if (san >= stages[i].range[0] && san <= stages[i].range[1]) return stages[i];
-    }
-    return stages[0] || { id: 'stable', level: 0 };
-  }
+  // Use the SSOT function directly (ESM import, no require)
+  return getCurrentSanStage(san, ctx);
 }
 
 function _pick(arr) {
@@ -107,7 +99,7 @@ function _pick(arr) {
  * @param {object} ctx       - { GD }
  * @returns {string} possibly corrupted text
  */
-export function getSanTextVariant(baseText, san, pickFn, ctx) {
+export function getSanTextVariant(baseText, san, pickFn, ctx, rng) {
   var stage = _getStage(san, ctx || { GD: {} });
   var textMod = TEXT_MOD_MAP[stage.id] || '';
   if (!textMod) return baseText;
@@ -115,6 +107,8 @@ export function getSanTextVariant(baseText, san, pickFn, ctx) {
   // DESIGN_REFACTOR_NOTES.md: "降低中后期触发频率" — precise horror, not noise.
   // Each tier is deliberately rarer than the last. The player should feel unease,
   // not habituation. If every text is corrupted, nothing is corrupted.
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  var _pick = pickFn || _pick;
 
   if (level >= 5) {
     // narrative_death: char-level corruption — still unsettling, but 60% → 35% append
@@ -122,27 +116,27 @@ export function getSanTextVariant(baseText, san, pickFn, ctx) {
     var words = baseText.split('');
     var corrupted = words
       .map(function (c, i) {
-        return Math.random() < charChance ? (pickFn || _pick)(['…', '·', '?', '□', c, c]) : c;
+        return _rand() < charChance ? _pick(['…', '·', '?', '□', c, c]) : c;
       })
       .join('');
-    return corrupted + (Math.random() < 0.35 ? '\n\n—— ' + textMod : '');
+    return corrupted + (_rand() < 0.35 ? '\n\n—— ' + textMod : '');
   }
   if (level >= 4) {
     // reality_dissolution: 60% max → 25% max. Should feel like a crack, not a flood.
     var chance4 = Math.max(0.03, (25 - san) / 25 * 0.25);
-    return baseText + (Math.random() < chance4 ? '\n\n' + textMod : '');
+    return baseText + (_rand() < chance4 ? '\n\n' + textMod : '');
   }
   if (level >= 3) {
     // explanation_loss: 30% max → 12% max. A whisper, not a shout.
     var chance3 = Math.max(0.015, (40 - san) / 40 * 0.12);
-    return baseText + (Math.random() < chance3 ? '\n\n—— 你眨了眨眼。' + textMod : '');
+    return baseText + (_rand() < chance3 ? '\n\n—— 你眨了眨眼。' + textMod : '');
   }
   if (level >= 2) {
     // perception_shift: 8% max → 5% max. Barely perceptible.
     var chance2 = Math.max(0.01, (55 - san) / 55 * 0.05);
-    if (Math.random() < chance2) {
+    if (_rand() < chance2) {
       var whispers = ['……你确定吗？', '（远处有什么在动。）', '（你没有看错。）', '（不，你可能看错了。）'];
-      return baseText + '\n\n' + whispers[Math.floor(Math.random() * whispers.length)];
+      return baseText + '\n\n' + whispers[Math.floor(_rand() * whispers.length)];
     }
   }
   return baseText;
@@ -197,13 +191,15 @@ export function getVisualForSan(san) {
   if (stages.length === 0) {
     return { sat: 0, vig: 0, scan: 0, noise: 0, barrel: 0, chroma: 0, rot: 0, shadow: false, tremble: false, glow: false, level: 0 };
   }
-  var curIdx = findSanStageIndex(san, stages);
+  // Defensive: clamp san to valid range [0, 100]
+  var safeSan = typeof san === 'number' && !isNaN(san) ? Math.max(0, Math.min(100, san)) : 0;
+  var curIdx = findSanStageIndex(safeSan, stages);
   if (curIdx < 0) curIdx = 0;
   if (curIdx >= stages.length) curIdx = stages.length - 1;
   var cur = stages[curIdx];
   var curVis = cur.visual || _CLEAN_VIS;
   var _stableMin = stages[0] && stages[0].range ? stages[0].range[0] : 75;
-  if (curIdx >= stages.length - 1 || san >= _stableMin) {
+  if (curIdx >= stages.length - 1 || safeSan >= _stableMin) {
     return {
       sat: curVis.saturation || 0, vig: curVis.vignette || 0,
       scan: curVis.scanline || 0, noise: curVis.noise || 0,
@@ -213,7 +209,7 @@ export function getVisualForSan(san) {
     };
   }
   var rangeSize = cur.range[1] - cur.range[0];
-  var blend = rangeSize > 0 ? Math.max(0, Math.min(1, (cur.range[1] - san) / rangeSize)) : 0;
+  var blend = rangeSize > 0 ? Math.max(0, Math.min(1, (cur.range[1] - safeSan) / rangeSize)) : 0;
   var next = stages[curIdx + 1];
   var nextVis = next.visual || _CLEAN_VIS;
   return {

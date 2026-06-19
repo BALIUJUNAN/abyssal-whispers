@@ -242,12 +242,12 @@ export function isHotspotUnlocked(hotspot, state) {
   return true;
 }
 
-export function getHotspotState(hotspot, state) {
+export function getHotspotState(hotspot, state, ctx) {
   if (hotspot.type !== 'area') return 'available';
   if (state.currentArea === hotspot.areaId) return 'current';
   if (!isHotspotUnlocked(hotspot, state)) return 'locked';
   const conn =
-    typeof getConnectedAreas === 'function' ? getConnectedAreas(state.currentArea, ctx) : [];
+    ctx && typeof getConnectedAreas === 'function' ? getConnectedAreas(state.currentArea, ctx) : [];
   if (conn.includes(hotspot.areaId)) return 'reachable';
   if (state.visitedAreas.includes(hotspot.areaId)) return 'visited';
   return 'known';

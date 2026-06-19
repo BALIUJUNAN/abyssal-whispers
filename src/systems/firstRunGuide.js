@@ -19,7 +19,7 @@ const GUIDE_STEPS = [
   },
   {
     id: 'first_clue',
-    condition: (s) => (s.clues || []).length >= 1 && (s.clues || []).length < 3 && s.day <= 5,
+    condition: (s) => (s.clues || []).length >= 1 && (s.clues || []).length < 3 && s.day <= 5 && !(s.tutorialSeen || {}).notebook_opened,
     message: '笔记本上多了一行字。你不确定是自己写的还是它自己出现的。还有更多要看的地方。',
     priority: 8,
   },

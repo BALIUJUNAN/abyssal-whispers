@@ -59,17 +59,19 @@ function renderInkBleed(ctx, w, h, p, seed) {
     var dist = maxR * p * (0.8 + 0.4 * noise2d(b, seed, 42));
     var bx = cx + Math.cos(angle) * dist;
     var by = cy + Math.sin(angle) * dist;
-    var radius = maxR * p * (0.4 + 0.6 * noise2d(b + 100, seed, 42));
+    var radius = maxR * p * (0.6 + 0.6 * noise2d(b + 100, seed, 42));
     var grad = ctx.createRadialGradient(bx, by, 0, bx, by, radius);
-    grad.addColorStop(0, "rgba(8, 8, 15, " + (0.9 * p) + ")");
-    grad.addColorStop(0.6, "rgba(15, 10, 25, " + (0.6 * p) + ")");
+    grad.addColorStop(0, "rgba(8, 8, 15, " + (p) + ")");
+    grad.addColorStop(0.6, "rgba(15, 10, 25, " + (0.8 * p) + ")");
     grad.addColorStop(1, "rgba(0, 0, 0, 0)");
     ctx.fillStyle = grad;
     ctx.beginPath(); ctx.arc(bx, by, radius, 0, Math.PI * 2); ctx.fill();
   }
-  var cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * p * 0.8);
-  cg.addColorStop(0, "rgba(8, 8, 15, " + (p * 0.7) + ")");
-  cg.addColorStop(1, "rgba(8, 8, 15, " + (p * 0.3) + ")");
+  // 全屏覆盖层，确保完全遮挡
+  var cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * p);
+  cg.addColorStop(0, "rgba(8, 8, 15, " + (p * 0.9) + ")");
+  cg.addColorStop(0.7, "rgba(8, 8, 15, " + (p * 0.8) + ")");
+  cg.addColorStop(1, "rgba(8, 8, 15, " + (p * 0.6) + ")");
   ctx.fillStyle = cg; ctx.fillRect(0, 0, w, h);
 }
 // --- Void Circle: expanding darkness ring with chromatic aberration ---

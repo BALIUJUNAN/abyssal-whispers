@@ -22,13 +22,14 @@ import { checkNPCCorruption, applyNPCCorruption } from '../npcReducer.js';
 import { resetDailyCategoryCounts } from '../extendedEvents.js';
 import { maybeGetFakeMessage, maybeInsertFalseMemory } from '../../engine/PollutionManager.js';
 import { addRunMemory, getNpcTrust, setNpcTrust, getNpcState, setNpcState, narrDailySummary, trackDailyBehaviorPatterns, checkKnowledgeEarned, checkBreakWallEvent, checkSilentEvent, applyDeathResolution, buildDeathRecap, narrApInsufficient } from '../../utils/appHelpers.js';
-import { adjustStarvationDamage } from '../../systems/firstLoopBalance.js';
+import { adjustStarvationDamage, getSanFloor } from '../../systems/firstLoopBalance.js';
 import { hasClueId } from '../../utils/clueNameMap.js';
 import { getAreaDisplayName } from '../../utils/gameHelpers.js';
 import { getAreaSceneImage } from '../../portraitMap.js';
 import { checkForcedNarrativeHook } from '../../engine/EventEngine.js';
 import { saveGame } from '../../engine/SaveManager.js';
 import { getDayCriticalEvent, getWorldDecayNarrative, getHarborDeepOneWhisper, calculateDailyCorruption, updateAreaCorruption } from '../../systems/worldDecay.js';
+import { triggerDayCriticalSurge, triggerSanLossFlash } from '../../systems/sanVisualCorruption.js';
 import { processDailyResources, getResourceNarrative, getSafehouseVisualStage, getSafehousePollutionEvent } from '../../systems/resourceNarrative.js';
 import { applyMetaCorruption } from '../../systems/metaCorruption.js';
 import { emit } from '../../engine/eventBus.js';
@@ -106,14 +107,14 @@ export function _processSafehouseAndWorldDecay(s, c, ctx) {
     s.safehouseCorruption = Math.min(100, (s.safehouseCorruption || 0) + dailyCorr);
     s.pollution = Math.min(1, (s.pollution || 0) + dailyCorr * 0.003);
   }
-  if (typeof updateAreaCorruption === 'function') updateAreaCorruption(s, ctx);
+  updateAreaCorruption(s, ctx);
   const visStage = getSafehouseVisualStage(s.safehouseCorruption || 0);
   const shStage = getSafehouseStage(s.safehouseCorruption, ctx);
   c.effects.push({ type: 'AUDIO_PLAY', id: visStage.sound });
   if (visStage.atmosphere && (c.rng ? c.rng.next() : Math.random()) < 0.5)
     c.narr('system', visStage.atmosphere, { isSpecial: true });
   {
-    const pollutionEvt = getSafehousePollutionEvent(visStage.stage);
+    const pollutionEvt = getSafehousePollutionEvent(visStage.stage, null, c.rng);
     if (pollutionEvt) {
       c.narr('system', '【安全屋】' + pollutionEvt.text, { isSpecial: true });
       if (pollutionEvt.sanCost > 0) {
@@ -209,7 +210,7 @@ export function _advanceDayClock(s, c, ctx) {
       s._apOffset = 0;
     }
   }
-  s.weather = getWeather(pick).name;
+  s.weather = getWeather(c.rng).name;
   s.sealState = getSealStateId(s.day, ctx);
   c.effects.push({ type: 'INCREMENT_STAT', key: 'night_survived' });
   if (s.san <= GAME_BALANCE.LOW_SAN_STAT_THRESHOLD)
@@ -333,6 +334,10 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
     const dayCrit = getDayCriticalEvent(s.day);
     if (dayCrit && !s.triggeredEvents.includes('day_crit_' + s.day)) {
       s.triggeredEvents.push('day_crit_' + s.day);
+      // Narrative Month: Trigger visual surge for critical days
+      if (s.day === 7 || s.day === 14 || s.day === 21 || s.day === 28 || s.day === 5 || s.day === 15 || s.day === 20 || s.day === 25) {
+        triggerDayCriticalSurge(s.day, s.san);
+      }
       c.narr('event', dayCrit.text, {
         eventTitle: '第 ' + s.day + ' 天',
         eventType: 'milestone',
@@ -340,6 +345,8 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
       });
       if (dayCrit.sanCost > 0) {
         applySanLoss(s, dayCrit.sanCost);
+        // Narrative Month: Screen flash proportional to SAN loss
+        triggerSanLossFlash(dayCrit.sanCost);
         c.narr('system', 'SAN -' + dayCrit.sanCost, { isEffect: true });
       }
       if (dayCrit.corruptionGain > 0)
@@ -349,6 +356,11 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
         );
       addRunMemory(s, dayCrit.text.split('\\n')[0], 'world_decay');
     }
+  }
+  // Loop 2-3 graduated protection: enforce SAN floor
+  var sanFloor = getSanFloor(s);
+  if (sanFloor > 0 && s.san < sanFloor) {
+    s.san = sanFloor;
   }
   if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.WORLD_DECAY_CHANCE) {
     const decayText = getWorldDecayNarrative(s.day, s.safehouseCorruption || 0, s);
@@ -394,20 +406,20 @@ export function _processNightEffects(s, c, ctx) {
     const bwfx = checkBreakWallEvent(s, c.narr, GD, c.rng);
     if (bwfx) c.effects.push(...bwfx);
   }
-  processDailyResources(s);
+  processDailyResources(s, c.rng);
   {
-    const resNarr = getResourceNarrative(s);
+    const resNarr = getResourceNarrative(s, c.rng);
     if (resNarr) c.narr('system', resNarr, { isSpecial: true });
   }
   {
-    const fakeMsg = maybeGetFakeMessage(s.san, s.loopCount, getSanStageFromGD);
+    const fakeMsg = maybeGetFakeMessage(s.san, s.loopCount, getSanStageFromGD, c.rng);
     if (fakeMsg)
       c.narr('system', fakeMsg, {
         isSpecial: true,
         madness: { name: '幻觉', description: '你看到了不存在的东西。' },
       });
   }
-  maybeInsertFalseMemory(c.narr, s.san, s.loopCount, s.day);
+  maybeInsertFalseMemory(c.narr, s.san, s.loopCount, s.day, getSanStageFromGD, c.rng);
   applyMetaCorruption(s, c, s._visualPollution);
 }
 
@@ -529,7 +541,7 @@ export function handleDailyAction(s, action, c, ctx) {
       _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea, ctx);
       _processRestBookkeeping(s, c, ctx);
       // "Suspected bug" — phantom log entry (0.5% at low SAN/high loop)
-      maybeInjectPhantomLog(s.eventLog, s.san, s.loopCount);
+      maybeInjectPhantomLog(s.eventLog, s.san, s.loopCount, c.rng);
       return s;
     }
     case 'WORK': {

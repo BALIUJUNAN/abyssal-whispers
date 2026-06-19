@@ -47,7 +47,7 @@ import { checkOmens } from '../../data/events_omens_600.js';
 import { applyFearLens, getFearEventWeightModifier } from '../../systems/fearLens.js';
 import { applyTextHallucination } from '../../engine/PollutionManager.js';
 import { addRunMemory, setNpcTrust, getNpcState, setNpcState, checkWrongInference, applyDeathResolution, checkSilentEvent, narrApInsufficient } from '../../utils/appHelpers.js';
-import { adjustSanLossForFirstLoop, shouldBlockLethalEvent } from '../../systems/firstLoopBalance.js';
+import { adjustSanLossForFirstLoop, adjustSanLossForLoop23, getSanFloor, shouldBlockLethalEvent } from '../../systems/firstLoopBalance.js';
 import { getTrackedText, createSeenTextMap, applyMythosAliases, maybeInjectPhantomNarrative } from '../../systems/textVariants.js';
 import { getLightLevelEffects, applyLightTextCorruption } from '../miscReducer.js';
 import { checkChainCompletion, isAreaUnlocked, getAreaDisplayName } from '../../utils/gameHelpers.js';
@@ -199,7 +199,7 @@ export function _selectExploreEvent(s, ctx, GD, c) {
     // Special events that bypass normal pool
     if (!evt) {
       const allEvts = GD.events || [];
-      const omen = checkOmens(s);
+      const omen = checkOmens(s, c.rng);
       if (omen) {
         evt = omen;
         commitSelectedEvent(omen, s);
@@ -246,10 +246,8 @@ export function _postExploreProcessing(evt, s, c, GD) {
     }
   }
   // Area corruption narrative
-  if (typeof getAreaCorruptionNarrative === 'function') {
-    const areaNarr = getAreaCorruptionNarrative(s.currentArea, s);
-    if (areaNarr) c.narr('system', areaNarr, { isSpecial: true });
-  }
+  const areaNarr = getAreaCorruptionNarrative(s.currentArea, s, c.rng);
+  if (areaNarr) c.narr('system', areaNarr, { isSpecial: true });
   checkChainCompletion(s, c.narr);
   checkWrongInference(s, c.narr, GD);
   // Conclusions
@@ -436,7 +434,7 @@ export function handleExploreAction(s, action, c, ctx) {
       // Light level affects text corruption (P2-1)
       const lightCorrPenalty =
         (s.lightLevel || 0) < (targetArea?.resource_pressure?.required_light_level || 0) ? 2 : 1;
-      let desc = getSanTextVariant(targetArea.description, s.san, pick, ctx);
+      let desc = getSanTextVariant(targetArea.description, s.san, pick, ctx, c.rng);
       // DESIGN_REFACTOR_NOTES.md: "光源<30%时，town_center描述轻度污染"
       desc = applyLightTextCorruption(desc, s.lightLevel || 0, ctx, c.rng);
       // Mythos name alias for area descriptions
@@ -470,7 +468,7 @@ export function handleExploreAction(s, action, c, ctx) {
       if (lightCorrPenalty > 1 && (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.LIGHT_CORRUPTION_CHANCE)
         desc += '\n\n光线不足。你不确定自己看到的是不是真的。';
       // Phase 6: Resource-based text corruption on area descriptions
-      desc = applyResourceTextCorruption(desc, s);
+      desc = applyResourceTextCorruption(desc, s, c.rng);
       // Area CSS class for atmospheric effects
       var areaCssClass = 'area-scene-' + target;
       c.narr('location', desc, {
@@ -493,7 +491,7 @@ export function handleExploreAction(s, action, c, ctx) {
         (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MICRO_EVENT_CHANCE
       ) {
         const me = pick(targetArea.micro_events, c.rng);
-        const meText = getSanTextVariant(me.description, s.san, pick, ctx);
+        const meText = getSanTextVariant(me.description, s.san, pick, ctx, c.rng);
         c.narr('system', meText, { type: '微事件' });
         if (me.effect)
           Object.entries(me.effect).forEach(([k, v]) => {
@@ -519,10 +517,8 @@ export function handleExploreAction(s, action, c, ctx) {
         if (sceneText) c.narr('system', sceneText);
       }
       // Phase 6: Area corruption narrative on arrival
-      if (typeof getAreaCorruptionNarrative === 'function') {
-        const areaNarr = getAreaCorruptionNarrative(target, s);
-        if (areaNarr) c.narr('system', areaNarr, { isSpecial: true });
-      }
+      const areaNarr = getAreaCorruptionNarrative(target, s, c.rng);
+      if (areaNarr) c.narr('system', areaNarr, { isSpecial: true });
       s.objectives = checkObjCompletion(s.objectives, s);
       s.transition = 'move';
       c.log('前往' + displayName);
@@ -561,7 +557,7 @@ export function handleExploreAction(s, action, c, ctx) {
             isSpecial: true,
           });
           if (_milestoneEvt.sanity_damage > 0) {
-            const _adjDmg = adjustSanLossForFirstLoop(_milestoneEvt.sanity_damage, s);
+            const _adjDmg = adjustSanLossForLoop23(_milestoneEvt.sanity_damage, s);
             applySanLoss(s, _adjDmg);
             c.narr('system', 'SAN -' + _adjDmg, { isEffect: true });
           }
@@ -620,20 +616,20 @@ export function handleExploreAction(s, action, c, ctx) {
       // Only events with level 2+ get the full getSanTextVariant treatment.
       var unrelLevel = evt.unreliable_narration_level || 0;
       if (unrelLevel >= 2) {
-        evtText = getPollutionText(getSanTextVariant(evtText, s.san, pick, ctx), s.pollution || 0, c.rng);
+        evtText = getPollutionText(getSanTextVariant(evtText, s.san, pick, ctx, c.rng), s.pollution || 0, c.rng);
       } else if (unrelLevel === 1) {
         // Light corruption only: pollution text but no SAN-based char mutation
         evtText = getPollutionText(evtText, s.pollution || 0, c.rng);
       }
       // else: level 0 = completely clean text
-      if (s.fearTuning && s.fearTuning.primary) evtText = applyFearLens(evt, evtText, s);
-      evtText = applyTextHallucination(evtText, s.san, getSanStageFromGD);
+      if (s.fearTuning && s.fearTuning.primary) evtText = applyFearLens(evt, evtText, s, c.rng);
+      evtText = applyTextHallucination(evtText, s.san, getSanStageFromGD, c.rng);
       // Light source text corruption: low light causes unreliable text
       evtText = applyLightTextCorruption(evtText, s.lightLevel || 0, ctx, c.rng);
-      evtText = applyResourceTextCorruption(evtText, s);
+      evtText = applyResourceTextCorruption(evtText, s, c.rng);
       // Text variant tracking: cross-loop persistent (renamed from _seenTexts)
       if (!s.seenEventTexts) s.seenEventTexts = {};
-      const _tvResult = getTrackedText(evt.id, evtText, s.pollution || 0, s.loopCount || 0, s.seenEventTexts);
+      const _tvResult = getTrackedText(evt.id, evtText, s.pollution || 0, s.loopCount || 0, s.seenEventTexts, s.difficultyLevel);
       if (_tvResult.action !== 'skip') evtText = _tvResult.text;
       // Mythos name alias: replace true names with chapter-appropriate aliases
       evtText = applyMythosAliases(evtText, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
@@ -686,7 +682,7 @@ export function handleExploreAction(s, action, c, ctx) {
           s.difficulty,
           ctx
         );
-        sanDmg = adjustSanLossForFirstLoop(sanDmg, s);
+        sanDmg = adjustSanLossForLoop23(sanDmg, s);
         // Loop shop mythos resistance: reduce mythos-type SAN damage
         if (s._shopMythosResistance > 0) {
           const isMythosEvent = (evt.type === 'mythos' || evt.event_classification === '神秘事件'
@@ -780,7 +776,7 @@ export function handleExploreAction(s, action, c, ctx) {
         }
       }
       // "Suspected bug" — phantom narrative line (0.3% at low SAN)
-      maybeInjectPhantomNarrative(s.narrative, s.san);
+      maybeInjectPhantomNarrative(s.narrative, s.san, c.rng);
       return s;
     }
     case 'DO_SKILL_CHECK': {

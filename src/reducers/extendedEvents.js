@@ -481,6 +481,16 @@ export function getEventWeight(evt, areaId, state, ctx) {
     weight *= getAreaCorruptionMultiplier(evt, state);
   }
 
+  // Narrative Month: Day-of-cycle weight — critical days escalate horror
+  if (typeof getDayCycleWeightMultiplier === 'function') {
+    weight *= getDayCycleWeightMultiplier(evt, state);
+  }
+
+  // Narrative Month: Time-of-day weight — midnight boosts horror
+  if (typeof getTimeOfDayWeightMultiplier === 'function') {
+    weight *= getTimeOfDayWeightMultiplier(evt, state);
+  }
+
   // Phase 6: Resource-bound weight modifier (light/infection/fatigue/food)
   if (typeof getResourceEventWeightModifier === 'function') {
     weight *= getResourceEventWeightModifier(evt, state);
@@ -669,7 +679,7 @@ export function selectEventV2(areaId, state, ctx, pick, rng) {
   var _rand = makeRand(rng);
 
   // Step 0: Omen check — light foreshadowing before event 600
-  const omen = checkOmens(state);
+  const omen = checkOmens(state, rng);
   if (omen) {
     commitSelectedEvent(omen, state);
     return omen;

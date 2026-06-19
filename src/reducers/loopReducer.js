@@ -10,6 +10,119 @@ import { pick, clamp } from './utils.js';
 import { setCorruptionFlag } from './npcReducer.js';
 import { computeReincarnationDiff } from '../systems/reincarnationDiff.js';
 
+// Parse loop_memory_effect text and apply mechanical bonuses.
+// Maps narrative descriptions to game-state changes.
+function applyLoopMemoryEffects(f, s, ctx) {
+  var GD = ctx.GD;
+  var effect = s.ending?.loop_memory_effect;
+  if (!effect || typeof effect !== 'string') return;
+
+  var rng = makeRand(null);
+
+  // Pattern: "NPC名字 trust+X" or "所有NPC trust+X" → boost that NPC's trust
+  var npcTrustMatch = effect.match(/([一-鿿·NPC\s]+?)\s*信任\+(\d+)/g);
+  if (npcTrustMatch) {
+    npcTrustMatch.forEach(function (m) {
+      var nameMatch = m.match(/([一-鿿·\sNPC]+)/);
+      var valMatch = m.match(/\+(\d+)/);
+      if (nameMatch && valMatch) {
+        var npcName = nameMatch[1].trim();
+        var boost = parseInt(valMatch[1], 10);
+        // Handle "所有NPC" → boost all core NPCs
+        if (npcName === '所有NPC' || npcName === '所有 npc') {
+          (GD.npcs || []).filter(function (n) { return n.chapter_1_availability === 'core'; }).forEach(function (npc) {
+            f.npcTrust[npc.name] = Math.min(5, (f.npcTrust[npc.name] || 0) + boost);
+          });
+        } else {
+          // Find matching NPC in GD
+          var npc = (GD.npcs || []).find(function (n) { return n.name === npcName; });
+          if (npc) {
+            f.npcTrust[npc.name] = Math.min(5, (f.npcTrust[npc.name] || 0) + boost);
+          }
+        }
+      }
+    });
+  }
+
+  // Pattern: "NPC名字 腐化-X" → reduce that NPC's corruption
+  var npcCorruptMatch = effect.match(/([一-鿿·]+)\s*腐化-(\d+)/);
+  if (npcCorruptMatch) {
+    var npcName2 = npcCorruptMatch[1];
+    var corruptReduction = parseInt(npcCorruptMatch[2], 10);
+    var npc2 = (GD.npcs || []).find(function (n) { return n.name === npcName2; });
+    if (npc2 && f.npcStates) {
+      var ns = f.npcStates[npc2.name] || { corruption: 0 };
+      ns.corruption = Math.max(0, (ns.corruption || 0) - corruptReduction);
+      f.npcStates[npc2.name] = ns;
+    }
+  }
+
+  // Pattern: "SAN上限-X" or "maxSan-X" → reduce maxSan
+  var sanCapMatch = effect.match(/SAN上限[-–](\d+)|maxSan[-–](\d+)/);
+  if (sanCapMatch) {
+    var reduction = parseInt(sanCapMatch[1] || sanCapMatch[2], 10);
+    f.maxSan = Math.max(20, (f.maxSan || 60) - reduction);
+    f.san = Math.min(f.san, f.maxSan);
+  }
+
+  // Pattern: "SAN+X" → boost current SAN
+  var sanBoostMatch = effect.match(/SAN\+(\d+)/);
+  if (sanBoostMatch) {
+    var sanBoost = parseInt(sanBoostMatch[1], 10);
+    f.san = Math.min(f.maxSan, (f.san || 60) + sanBoost);
+  }
+
+  // Pattern: "全属性+5" → boost all core stats
+  var allStatMatch = effect.match(/全属性\+(\d+)/);
+  if (allStatMatch) {
+    var statBoost = parseInt(allStatMatch[1], 10);
+    ['str', 'con', 'siz', 'dex', 'app', 'int', 'pow', 'edu'].forEach(function (stat) {
+      if (f.stats && f.stats[stat] != null) {
+        f.stats[stat] = (f.stats[stat] || 0) + statBoost;
+      }
+    });
+  }
+
+  // Pattern: "神秘学+X" or "mythos+X" → boost mythos
+  var mythosMatch = effect.match(/神秘学\+(\d+)|mythos\+(\d+)/);
+  if (mythosMatch) {
+    var mythosBoost = parseInt(mythosMatch[1] || mythosMatch[2], 10);
+    f.mythosLevel = (f.mythosLevel || 0) + mythosBoost;
+  }
+
+  // Pattern: "boat key" or "船只钥匙" → add starting item
+  if (effect.includes('boat key') || effect.includes('船只钥匙') || effect.includes('escape key')) {
+    var hasKey = f.inventory.some(function (i) { return i.id === 'escape_boat_key'; });
+    if (!hasKey) {
+      f.inventory.push({ id: 'escape_boat_key', name: '船只钥匙', type: 'key_item' });
+    }
+  }
+
+  // Pattern: "可以选择堕落者起始角色" → unlock fallen archetype
+  if (effect.includes('堕落者') || effect.includes('Fallen One')) {
+    f._availableArchetypes = f._availableArchetypes || [];
+    if (!f._availableArchetypes.includes('fallen')) {
+      f._availableArchetypes.push('fallen');
+    }
+  }
+
+  // Pattern: "下一轮为最终轮回" → set final loop flag
+  if (effect.includes('最终轮回')) {
+    f._isFinalLoop = true;
+  }
+
+  // Pattern: "携带全部轮回记忆" → boost knowledge carryover
+  if (effect.includes('全部轮回记忆') || effect.includes('完整记忆')) {
+    f._fullMemoryCarryover = true;
+  }
+
+  // Pattern: "初始腐化-X" → reduce starting corruption
+  var corruptionMatch = effect.match(/初始腐化[-–](\d+)/);
+  if (corruptionMatch) {
+    f.safehouseCorruption = Math.max(0, (f.safehouseCorruption || 0) - parseInt(corruptionMatch[1], 10));
+  }
+}
+
 /**
  * Get the loop count effects for a given loop number.
  */
@@ -80,6 +193,7 @@ export function getPollutionText(text, pollution, rng) {
 export function initLoopState(f, s, ctx, options = {}) {
   const { GD } = ctx;
   const { prevSummary } = options;
+  var rng = options?.rng || null;
 
   // ── 1) 运行统计 ──
   f.stats_run.deaths = s.stats_run.deaths + (s.hp <= 0 || s.san <= 0 ? 1 : 0);
@@ -123,19 +237,27 @@ export function initLoopState(f, s, ctx, options = {}) {
   // Pollution increases with each loop (§2.2: replaces SAN penalty at high loops)
   var pollutionRate = f.loopCount >= 6 ? 0.08 : 0.05;
   f.pollution = Math.min(1, (f.pollution || 0) + pollutionRate * f.loopCount);
-  // NPC trust decay: NPCs become wary of returning players
+  // NPC trust: high trust (4+) partially persists, low trust decays
   if (f.loopCount >= 3) {
     var trustDecay = Math.min(2, Math.floor(f.loopCount / 3));
     var npcNames = Object.keys(f.npcTrust || {});
     for (var _ni = 0; _ni < npcNames.length; _ni++) {
       var _cur = f.npcTrust[npcNames[_ni]] || 0;
-      if (_cur > 0) f.npcTrust[npcNames[_ni]] = Math.max(0, _cur - trustDecay);
+      if (_cur >= 4) {
+        // High trust: persist 50-70% (decreases slightly per loop)
+        var persistRate = Math.max(0.4, 0.7 - (f.loopCount - 3) * 0.05);
+        f.npcTrust[npcNames[_ni]] = Math.max(3, Math.round(_cur * persistRate));
+      } else if (_cur > 0) {
+        // Low trust: decays normally
+        f.npcTrust[npcNames[_ni]] = Math.max(0, _cur - trustDecay);
+      }
     }
   }
 
-  // ── 3) 技能保留（30%） ──
+  // ── 3) 技能保留（按轮回数缩放） ──
   if (f.loopCount > 1) {
-    const retainRate = 0.3;
+    // Loop 1: 30%, Loop 2: 40%, Loop 3: 50%, Loop 4+: 60%
+    var retainRate = f.loopCount <= 2 ? 0.3 : f.loopCount <= 3 ? 0.4 : f.loopCount <= 4 ? 0.5 : 0.6;
     Object.entries(s.skills).forEach(([k, v]) => {
       if (v > 0) f.skills[k] = Math.max(f.skills[k] || 0, Math.floor(v * retainRate));
     });
@@ -278,9 +400,50 @@ export function initLoopState(f, s, ctx, options = {}) {
   if (f.retainedKnowledge.includes('knowledge_npc_trust_shadow')) {
     const coreNpcs = (GD.npcs || []).filter((n) => n.chapter_1_availability === 'core');
     if (coreNpcs.length > 0) {
-      const target = pick(coreNpcs, null); // initLoopState 无 rng，回退 Math.random
+      const target = pick(coreNpcs, rng);
       f.npcTrust[target.name] = 1;
     }
+  }
+
+  // ── 11) 轮回记忆效应（来自上一轮结局的 loop_memory_effect） ──
+  applyLoopMemoryEffects(f, s, ctx);
+
+  // ── 11b) 封印知识持久化 ──
+  // What the player learned about the seal persists across loops
+  f._sealKnowledge = { ...(s._sealKnowledge || {}) };
+  // Track which rituals were attempted (success or failure)
+  if (s.triggeredEvents) {
+    s.triggeredEvents.forEach(function (evtId) {
+      if (evtId.startsWith('seal_ritual_') || evtId.startsWith('seal_attempt_')) {
+        f._sealKnowledge.attemptedRituals = f._sealKnowledge.attemptedRituals || [];
+        if (!f._sealKnowledge.attemptedRituals.includes(evtId)) {
+          f._sealKnowledge.attemptedRituals.push(evtId);
+        }
+      }
+      // Track NPC involvement in seal rituals
+      if (evtId.includes('hilda') && evtId.includes('seal')) {
+        f._sealKnowledge.hildaInvolved = true;
+      }
+      if (evtId.includes('fisher') && evtId.includes('seal')) {
+        f._sealKnowledge.fisherInvolved = true;
+      }
+      if (evtId.includes('isabella') && evtId.includes('seal')) {
+        f._sealKnowledge.isabellaInvolved = true;
+      }
+    });
+  }
+  // Seal knowledge unlocks special dialogue/events in new loop
+  if (f._sealKnowledge.attemptedRituals && f._sealKnowledge.attemptedRituals.length > 0) {
+    f.retainedKnowledge.push('knowledge_seal_attempted');
+  }
+  if (f._sealKnowledge.hildaInvolved) {
+    f.retainedKnowledge.push('knowledge_seal_hilda');
+  }
+  if (f._sealKnowledge.fisherInvolved) {
+    f.retainedKnowledge.push('knowledge_seal_fisher');
+  }
+  if (f._sealKnowledge.isabellaInvolved) {
+    f.retainedKnowledge.push('knowledge_seal_isabella');
   }
 
   // ── 12) 历史记录搬入（带截断上限） ──

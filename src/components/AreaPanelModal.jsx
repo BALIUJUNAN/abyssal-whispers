@@ -9,6 +9,12 @@
 const { useState, useEffect, useMemo, useCallback, memo } = React;
 import { NPCDialog } from './NPCDialog.jsx';
 import { getNpcTrust, getDisplayedAp } from '../utils/appHelpers.js';
+import { getNpcsHere, getAreaDisplayName } from '../utils/gameHelpers.js';
+import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
+import { getSafehouseStage } from '../reducers/miscReducer.js';
+import { getAreaSceneImage, getNpcImage } from '../portraitMap.js';
+import { getPhase } from '../engine/WorldTimeSystem.js';
+import { isAreaUnlocked } from '../utils/gameHelpers.js';
 
 export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   const [tab, setTab] = useState('actions'); // 'actions' | 'info' | 'npc'
@@ -37,7 +43,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   // 该区域的连接区域
   const conn = useMemo(() => {
     if (!hotspot.areaId) return [];
-    return getConnectedAreas(hotspot.areaId, ctx);
+    return getConnectedAreas(hotspot.areaId, { GD });
   }, [hotspot.areaId, state.currentArea]);
 
   // 可用行动列表
@@ -210,7 +216,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   // 计算安全屋阶段信息（如果是酒馆）
   const shStage = useMemo(() => {
     if (hotspot.id !== 'tavern') return null;
-    return getSafehouseStage(state.safehouseCorruption, ctx);
+    return getSafehouseStage(state.safehouseCorruption, { GD });
   }, [hotspot.id, state.safehouseCorruption]);
 
   return (
@@ -298,7 +304,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
                     <div key={npc.name} className="area-panel-npc-item">
                       {img && (
                         <img
-                          className="area-panel-npc-img npc-portrait game-art"
+                          className="area-panel-npc-img game-art"
                           src={img}
                           alt={npc.name}
                           onError={(e) => {

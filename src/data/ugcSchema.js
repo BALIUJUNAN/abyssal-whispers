@@ -429,9 +429,62 @@ export function validateEvent(raw, index = 0) {
     }
   }
 
-  // ── Step 7: Build sanitized output (only allowed fields) ──
+  // ── Step 7: Difficulty modifiers validation (Feature 4) ──
+  if (raw.difficulty_modifiers && typeof raw.difficulty_modifiers === 'object') {
+    const dm = raw.difficulty_modifiers;
+    // Validate min_difficulty / max_difficulty range
+    if (typeof dm.min_difficulty === 'number') {
+      if (dm.min_difficulty < 1 || dm.min_difficulty > 21) {
+        errors.push(`${prefix}.difficulty_modifiers.min_difficulty: must be 1-21`);
+      }
+    }
+    if (typeof dm.max_difficulty === 'number') {
+      if (dm.max_difficulty < 1 || dm.max_difficulty > 21) {
+        errors.push(`${prefix}.difficulty_modifiers.max_difficulty: must be 1-21`);
+      }
+    }
+    if (dm.min_difficulty && dm.max_difficulty && dm.min_difficulty > dm.max_difficulty) {
+      errors.push(`${prefix}.difficulty_modifiers: min_difficulty > max_difficulty`);
+    }
+    // Validate text_corruption_boost
+    if (typeof dm.text_corruption_boost === 'number') {
+      if (dm.text_corruption_boost < 0 || dm.text_corruption_boost > 5) {
+        errors.push(`${prefix}.difficulty_modifiers.text_corruption_boost: must be 0-5`);
+      }
+    }
+    // Validate npc_trust_multiplier
+    if (typeof dm.npc_trust_multiplier === 'number') {
+      if (dm.npc_trust_multiplier < 0 || dm.npc_trust_multiplier > 2) {
+        errors.push(`${prefix}.difficulty_modifiers.npc_trust_multiplier: must be 0-2`);
+      }
+    }
+    // Validate custom_text_swaps
+    if (dm.custom_text_swaps && !Array.isArray(dm.custom_text_swaps)) {
+      errors.push(`${prefix}.difficulty_modifiers.custom_text_swaps: must be array`);
+    }
+    if (dm.custom_text_swaps && Array.isArray(dm.custom_text_swaps)) {
+      if (dm.custom_text_swaps.length > 20) {
+        errors.push(`${prefix}.difficulty_modifiers.custom_text_swaps: max 20 entries`);
+      }
+    }
+  }
+
+  // ── Step 8: Build sanitized output (only allowed fields) ──
   if (errors.length > 0) {
     return { valid: false, errors, sanitized: null };
+  }
+
+  // Feature 4: Sanitize difficulty_modifiers if present
+  var sanitizedDifficultyModifiers = null;
+  if (raw.difficulty_modifiers && typeof raw.difficulty_modifiers === 'object') {
+    const dm = raw.difficulty_modifiers;
+    sanitizedDifficultyModifiers = {
+      min_difficulty: typeof dm.min_difficulty === 'number' ? dm.min_difficulty : 1,
+      max_difficulty: typeof dm.max_difficulty === 'number' ? dm.max_difficulty : 21,
+      text_corruption_boost: typeof dm.text_corruption_boost === 'number' ? Math.max(0, Math.min(5, dm.text_corruption_boost)) : 1,
+      npc_trust_multiplier: typeof dm.npc_trust_multiplier === 'number' ? Math.max(0, Math.min(2, dm.npc_trust_multiplier)) : 1,
+      custom_text_swaps: Array.isArray(dm.custom_text_swaps) ? dm.custom_text_swaps.slice(0, 20) : [],
+    };
   }
 
   const sanitized = {
@@ -448,6 +501,8 @@ export function validateEvent(raw, index = 0) {
     choices: sanitizeChoices(raw.choices),
     // Marker for rendering layer
     source: 'ugc',
+    // Feature 4: Difficulty modifiers for mod hooks
+    difficulty_modifiers: sanitizedDifficultyModifiers,
   };
 
   return { valid: true, errors: [], sanitized };

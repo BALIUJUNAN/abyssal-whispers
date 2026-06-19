@@ -277,6 +277,7 @@ export function getFearProfileMultiplier(evt, state) {
 export function getSanWeightMultiplier(evt, state) {
   var san = state.san || 60;
   var isBuffer = evt.normalcy_anchor || false;
+  var evtType = evt.type || evt.event_classification || '';
 
   // Use stage-based event_weight if available (SSOT from game_base.json san_stages)
   // getSanStage is defined in sanReducer.js; use typeof guard for bundle ordering
@@ -285,18 +286,31 @@ export function getSanWeightMultiplier(evt, state) {
       var stage = getSanStage(san, { GD: typeof GD !== 'undefined' ? GD : {} });
       if (stage && stage.event_weight) {
         var ew = stage.event_weight;
-        return isBuffer ? (ew.buffer_boost || 1.0) : (ew.horror_penalty || 1.0);
+        if (isBuffer) return ew.buffer_boost || 1.0;
+        // Level 5+ type overlay (merged from corruptEventWeights)
+        // 对具体事件类型做差异化修正，替代一刀切的 horror_penalty
+        if (stage.level >= 5) {
+          if (['超自然遭遇', '怪物遭遇', 'mythos', 'meta'].includes(evtType)) return 1.8;
+          if (['正常事件', 'NPC对话', '氛围事件'].includes(evtType)) return 0.4;
+        }
+        return ew.horror_penalty || 1.0;
       }
     } catch (e) { /* fallback to hardcoded */ }
   }
 
-  // P1-A fallback: stage-based multipliers (no hardcoded SAN numbers)
+  // P1-A fallback: stage-based multipliers with type overlay
   var _slvl;
   try { _slvl = (typeof getSanStageFromGD === 'function') ? getSanStageFromGD(san).level : -1; } catch (e) { _slvl = -1; }
   if (_slvl >= 0) {
     var _buf = { 6: 0.3, 5: 0.4, 4: 0.6, 3: 0.7, 2: 0.8, 1: 1.0, 0: 1.3 };
     var _hor = { 6: 2.0, 5: 1.8, 4: 1.3, 3: 1.3, 2: 1.15, 1: 1.0, 0: 0.8 };
-    return isBuffer ? (_buf[_slvl] || 1.0) : (_hor[_slvl] || 1.0);
+    if (isBuffer) return _buf[_slvl] || 1.0;
+    // Level 5+ type overlay (merged from corruptEventWeights)
+    if (_slvl >= 5) {
+      if (['超自然遭遇', '怪物遭遇', 'mythos', 'meta'].includes(evtType)) return 1.8;
+      if (['正常事件', 'NPC对话', '氛围事件'].includes(evtType)) return 0.4;
+    }
+    return _hor[_slvl] || 1.0;
   }
   // Ultimate fallback if getSanStageFromGD unavailable (should not happen)
   if (isBuffer) {
@@ -463,4 +477,88 @@ export function _getFearTags() {
     knowledge: ['mythos', 'book', 'forbidden', 'library', 'truth', 'clue', 'archive'],
     morality: ['humanity', 'food_choice', 'sacrifice', 'children', 'npc_help', 'redemption'],
   };
+}
+
+// =============================================
+// SECTION 9: Day-of-Cycle Weight Multiplier
+// =============================================
+
+/**
+ * On critical days (7/14/21/28), boost horror/supernatural events and penalize normal events.
+ * Creates the feeling that the world is "accelerating" toward the chapter event.
+ *
+ * Day 7/14/21: +40% horror, -20% normal (approaching chapter event)
+ * Day 28: +60% horror, -30% normal (final descent)
+ * Day 5/15/20/25: +20% horror (mid-point tension)
+ */
+export function getDayCycleWeightMultiplier(evt, state) {
+  var day = state.day || 1;
+  var cat = evt.type || evt.event_classification || '';
+  var isHorror = ['超自然遭遇', '怪物遭遇', 'mythos', 'meta', 'loop_locked', '神秘事件', '氛围事件', 'silent'].indexOf(cat) >= 0;
+  var isNormal = ['正常事件', 'NPC对话'].indexOf(cat) >= 0;
+
+  // Chapter event days — major escalation
+  if (day === 7 || day === 14 || day === 21) {
+    if (isHorror) return 1.4;
+    if (isNormal) return 0.8;
+    return 1.1;
+  }
+  // Day 28 — final descent, all horror boosted
+  if (day === 28) {
+    if (isHorror) return 1.6;
+    if (isNormal) return 0.7;
+    return 1.0;
+  }
+  // Mid-point tension days
+  if (day === 5 || day === 15 || day === 20 || day === 25) {
+    if (isHorror) return 1.2;
+    if (isNormal) return 0.9;
+    return 1.05;
+  }
+  // Day 1-3: calm start, slight penalty on horror to ease player in
+  if (day <= 3 && isHorror) return 0.85;
+
+  return 1.0;
+}
+
+// =============================================
+// SECTION 10: Time-of-Day Weight Multiplier
+// =============================================
+
+/**
+ * Time-of-day affects event selection.
+ * Midnight hours (22:00-04:00) boost horror/silent events and penalize normal ones.
+ * Daytime (08:00-18:00) slightly favors normal/buffer events.
+ *
+ * Reads state.hour (0-23) or falls back to no modifier.
+ */
+export function getTimeOfDayWeightMultiplier(evt, state) {
+  var hour = state.hour;
+  if (hour == null) return 1.0; // No time data = no modifier
+
+  var cat = evt.type || evt.event_classification || '';
+  var isHorror = ['超自然遭遇', '怪物遭遇', 'mythos', 'meta', 'loop_locked', '神秘事件', 'silent'].indexOf(cat) >= 0;
+  var isNormal = ['正常事件', 'NPC对话', '氛围事件'].indexOf(cat) >= 0;
+  var isBuffer = evt.normalcy_anchor || false;
+
+  // Midnight window (22:00-04:00) — horror hour
+  var isMidnight = hour >= 22 || hour <= 4;
+  // Late night (20:00-22:00, 04:00-06:00) — transition
+  var isLateNight = (hour >= 20 && hour < 22) || (hour > 4 && hour <= 6);
+  // Daytime (08:00-18:00) — relative calm
+  var isDaytime = hour >= 8 && hour < 18;
+
+  if (isMidnight) {
+    if (isHorror) return 1.4;
+    if (isNormal || isBuffer) return 0.6;
+    return 1.0;
+  }
+  if (isLateNight) {
+    if (isHorror) return 1.2;
+    if (isNormal) return 0.85;
+    return 1.0;
+  }
+  if (isDaytime && isBuffer) return 1.15;
+
+  return 1.0;
 }

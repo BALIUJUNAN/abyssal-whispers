@@ -44,13 +44,14 @@ export const HALLUCINATION_PAIRS = [
  * @param {number} san
  * @param {function} [getStage] — injected stage lookup (optional)
  */
-export function applyTextHallucination(text, san, getStage) {
+export function applyTextHallucination(text, san, getStage, rng) {
   if (!text) return text;
   var stage = _stage(san, getStage);
   if (stage.level < 2) return text;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
   var chance = Math.max(0, 55 - san) / 200;
-  if (Math.random() > chance) return text;
-  var pair = HALLUCINATION_PAIRS[Math.floor(Math.random() * HALLUCINATION_PAIRS.length)];
+  if (_rand() > chance) return text;
+  var pair = HALLUCINATION_PAIRS[Math.floor(_rand() * HALLUCINATION_PAIRS.length)];
   var idx = text.indexOf(pair[0]);
   if (idx < 0) return text;
   return text.slice(0, idx) + pair[1] + text.slice(idx + pair[0].length);
@@ -76,13 +77,14 @@ export const FAKE_SYSTEM_MESSAGES = [
  * @param {function} [getStage] — injected stage lookup
  * @returns {string|null}
  */
-export function maybeGetFakeMessage(san, loopCount, getStage) {
+export function maybeGetFakeMessage(san, loopCount, getStage, rng) {
   var stage = _stage(san, getStage);
   if (stage.level < 4) return null;
   if (loopCount < 2 && stage.level < 5) return null;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
   var chance = 0.03 + ((24 - san) / 24) * 0.09;
-  if (Math.random() > chance) return null;
-  return FAKE_SYSTEM_MESSAGES[Math.floor(Math.random() * FAKE_SYSTEM_MESSAGES.length)];
+  if (_rand() > chance) return null;
+  return FAKE_SYSTEM_MESSAGES[Math.floor(_rand() * FAKE_SYSTEM_MESSAGES.length)];
 }
 
 // === Choice Delay Corruption ===
@@ -118,11 +120,12 @@ export const FALSE_MEMORIES = [
  * @param {number} day
  * @param {function} [getStage] — injected stage lookup
  */
-export function maybeInsertFalseMemory(narr, san, loopCount, day, getStage) {
+export function maybeInsertFalseMemory(narr, san, loopCount, day, getStage, rng) {
   var stage = _stage(san, getStage);
   if (stage.level < 3 || loopCount < 2) return;
-  if (Math.random() > 0.07) return;
-  var text = FALSE_MEMORIES[Math.floor(Math.random() * FALSE_MEMORIES.length)];
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (_rand() > 0.07) return;
+  var text = FALSE_MEMORIES[Math.floor(_rand() * FALSE_MEMORIES.length)];
   text = text.replace('{day}', String(Math.max(1, day - 1)));
   narr('system', text, {
     isSpecial: true,
@@ -130,32 +133,3 @@ export function maybeInsertFalseMemory(narr, san, loopCount, day, getStage) {
   });
 }
 
-// === Event Weight Corruption ===
-// Activates at stage.level >= 2 (perception_shift)
-/**
- * @param {Array} candidates
- * @param {number} san
- * @param {function} [getStage] — injected stage lookup
- * @returns {Array}
- */
-export function corruptEventWeights(candidates, san, getStage) {
-  var stage = _stage(san, getStage);
-  if (stage.level < 2 || !candidates || candidates.length === 0) return candidates;
-  return candidates.map(function (item) {
-    let w = item.weight || 1;
-    const evt = item.event || item;
-    const type = evt.type || evt.event_classification || '';
-    // SSOT: level 5 (narrative_death) — extreme corruption
-    if (stage.level >= 5) {
-      if (['超自然遭遇', '怪物遭遇', 'mythos', 'meta'].includes(type)) w *= 1.8;
-      if (['正常事件', 'NPC对话', '氛围事件'].includes(type)) w *= 0.4;
-      w *= 0.5 + Math.random() * 1.5; // jitter
-    }
-    // SSOT: level 3-4 (explanation_loss/reality_dissolution)
-    else if (stage.level >= 3) {
-      if (['超自然遭遇', '怪物遭遇', 'mythos'].includes(type)) w *= 1.3;
-      if (['正常事件', '氛围事件'].includes(type)) w *= 0.7;
-    }
-    return { ...item, weight: Math.max(0.01, w) };
-  });
-}

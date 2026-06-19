@@ -8,6 +8,7 @@ import { initialState } from '../../state/initialState.js';
 import { initPrologueState } from '../prologueReducer.js';
 import { genObjectives } from '../objectiveReducer.js';
 import { getChapterForDay } from '../chapterReducer.js';
+import { applyDifficultyToState } from '../../state/difficultyState.js';
 import { initLoopState } from '../loopReducer.js';
 import { buildPreviousRunSummary } from '../extendedEvents.js';
 import { ensureExtendedState } from '../extendedEventsLoader.js';
@@ -32,9 +33,13 @@ export function handleCoreAction(s, action, c, ctx) {
       s.fearTuning = null;
       s.skills = initSkills();
       return s;
-    case 'SET_DIFFICULTY':
-      s.difficulty = action.difficulty;
+    case 'SET_DIFFICULTY': {
+      const lv = action.difficulty;
+      s.difficultyLevel = lv;
+      // 向后兼容：映射到旧的字符串key供 game_base.json 的 difficulty_levels 查表
+      s.difficulty = lv <= 1 ? 'normal' : lv <= 2 ? 'hard' : 'nightmare';
       return s;
+    }
     case 'SET_ARCHETYPE':
       s.archetype = action.archetypeId;
       return s;
@@ -103,6 +108,9 @@ export function handleCoreAction(s, action, c, ctx) {
     }
     case 'BEGIN_ADVENTURE': {
       s.screen = 'game';
+      // 应用21级难度设置
+      const diffLv = s.difficultyLevel || 1;
+      Object.assign(s, applyDifficultyToState(s, diffLv));
       s.objectives = genObjectives(1, ctx);
       // Typed commands (src/engine/commands.js) — replaces raw effect objects
       fx(c.effects, audio.play('begin'), audio.ambient(s.currentArea || 'town_center', 'morning'));
@@ -254,8 +262,11 @@ export function handleCoreAction(s, action, c, ctx) {
       // Build previous run summary before reset (extended events system)
       const prevSummary = buildPreviousRunSummary(s);
       const f = initialState();
+      // 保留难度设置（循环不重置难度）
+      f.difficulty = s.difficulty;
+      f.difficultyLevel = s.difficultyLevel;
       // P0-L: 全部循环搬入逻辑已提取至 loopReducer.initLoopState()
-      initLoopState(f, s, ctx, { prevSummary });
+      initLoopState(f, s, ctx, { prevSummary, rng: c.rng });
       clearSave();
       return f;
     }
@@ -269,7 +280,7 @@ export function handleCoreAction(s, action, c, ctx) {
       }
       s.screen = 'game';
       s.transition = null;
-      s.narrative = [{ id: Date.now(), type: 'system', text: '—— 你从存档中醒来。' }];
+      s.narrative = [{ id: c.now(), type: 'system', text: '—— 你从存档中醒来。' }];
       ensureExtendedState(s);
       return s;
     }

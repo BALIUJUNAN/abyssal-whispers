@@ -113,6 +113,60 @@ export const NPC_MEMORY_LINES = {
       '（他桌上放着一份手稿。标题是《论沃切斯特的第十三次钟声》。作者栏是空白的——但笔迹是你的。）',
       '（他把你带到了一面镜子前。镜子里的你穿着不同年代的衣服。他问："你看到了几个自己？"）',
     ],
+    t5: [
+      '（他推开了一扇你从未见过的门。门后面是他的实验室——但实验室里的设备你在上一轮见过。）',
+      '（他看着你，眼神里有了一种新的东西。是希望。是不该有的希望。）"你记得了吗？上一次的结论。"',
+    ],
+  },
+  '汤米·陈': {
+    t1: [
+      '你……你好。你是新来的吧？相机里的影像会骗人，但你的眼神不会。',
+      '你看起来……很上镜。不是褒义。是某种意义上的。',
+      '你的照片里有些东西我解释不了。但你来了就好。有人能一起看了。',
+    ],
+    t2: [
+      '你上次拍的那些照片……有些已经洗不出来了。全是雾。但你的照片里没有雾。',
+      '你上次说要帮我调查镇北边。你没有回来。今天来了就好。',
+      '我相机里的你的照片在变化。不是 aging——是 Something else。但你看起来没有变。',
+    ],
+    t3: [
+      '你是我见过的最持久的被摄对象。不是因为你好看——是因为你一直在。',
+      '你上次提到的那条巷子……我今天去了。和你描述的不一样。更窄了。更深了。',
+      '我的相机今天自己开了一下。拍了一张空白的照片。但查看的时候——有你。背对着镜头。在走远。',
+    ],
+    t4: [
+      '（他把相机递给你。屏幕上是你——但不是现在的你。是很多个你。重叠在一起。每一个都朝着不同的方向走。）',
+      '（他翻出最早的那批照片。第一张是你。但拍摄日期不是你来沃切斯特的第一天。是更早。）"你自己看看。"',
+    ],
+    t5: [
+      '（他给你看一组照片。同一个场景。同一个你。但每一次的背景都不一样。像你在不同的时间里走过同一条路。）"你记得这些地方吗？"',
+      '（他不再拍照了。他把相机放在桌上。推向你。"你比我更需要它。它里面有你所有轮回的记忆。我拍下来了。"）',
+    ],
+  },
+  '埃德加·洛夫克拉夫特': {
+    t1: [
+      '你看起来……有故事。沃切斯特的每个人都有自己的故事。但你的故事……在自行生长。',
+      '你是新来的？不。你看起来像是读完了这个镇的所有书之后才来的。',
+      '你的眼神里有某种东西……不——是你的眼神在变成某种东西。',
+    ],
+    t2: [
+      '你上次提到的那个意象……我把它写进了新章节。然后我发现——我很久以前就写过它。',
+      '你看起来像是读了一本还没有写出来的书。我能从你叙述的缝隙里看到未写的内容。',
+      '你的叙述和我记忆中的不吻合。但不是你在撒谎——是你真的经历了不同的版本。',
+    ],
+    t3: [
+      '你现在是我的合作者了——在你的叙述里。在你的真实经历里。两者似乎越来越接近了。',
+      '你提到的那些地点……有些在地图上不存在。但你在叙述中描述得如此精确——像你真的去过。',
+      '我开始在你的叙述里寻找线索。不是故事的线索——是沃切斯特本身的线索。你在替我调查它。',
+    ],
+    t4: [
+      '（他把手稿推给你。标题是《沃切斯特调查日志》。作者是你的名字。但你确定你没有写过它。）"你的叙述和我的记录在融合。"',
+      '（他的眼神变了。不是恐惧。是一种你无法命名的东西。也许那就是这个镇的真正名字。）"你开始和我看到一样的东西了。"',
+    ],
+    t5: [
+      '（他不再写新的内容了。他把所有手稿——包括你带来的那些——装进了一个箱子里。箱子上刻着一个螺旋。）"故事写完了。现在轮到你了。你将成为下一个书写它的人。"',
+      '（他第一次在写作时停下来看着你。不是因为被干扰——是因为他看到了什么在你的叙述里。一个他从未写过的词。而你说了出来。）"你在替我写。你一直都在。"',
+    ],
   },
 };
 
@@ -120,13 +174,17 @@ export const NPC_MEMORY_LINES = {
  * Handle NPC memory tier logic for loop >= 3. Returns lines to narrate or null.
  * Also mutates state for loop 10+ behavior memory.
  */
-export function handleNpcMemoryTier(s, npc, narr) {
+export function handleNpcMemoryTier(s, npc, narr, rng) {
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
   const loop = s.loopCount;
   if (loop < 3) return;
   const npcLines = NPC_MEMORY_LINES[npc.name];
   if (!npcLines) return;
   let tier, probability;
-  if (loop >= 10) {
+  if (loop >= 15) {
+    tier = 't5';
+    probability = 0.7;
+  } else if (loop >= 10) {
     tier = 't4';
     probability = 1.0;
   } else if (loop >= 8) {
@@ -139,8 +197,8 @@ export function handleNpcMemoryTier(s, npc, narr) {
     tier = 't1';
     probability = 0.25;
   }
-  if (npcLines[tier] && Math.random() < probability) {
-    narr('system', npc.name + '突然说："' + pick(npcLines[tier]) + '"');
+  if (npcLines[tier] && _rand() < probability) {
+    narr('system', npc.name + '突然说："' + pick(npcLines[tier], rng) + '"');
   }
   // Loop 10+：NPC 行为变化（信任回响）
   if (loop >= 10 && npcLines.t4) {
@@ -152,6 +210,21 @@ export function handleNpcMemoryTier(s, npc, narr) {
       if (currentTrust < 3) {
         s.npcTrust = { ...s.npcTrust, [npc.name]: Math.min(3, currentTrust + 1) };
         narr('system', '（' + npc.name + '看着你，像是在确认什么。信任度悄然提升。）', {
+          isSpecial: true,
+        });
+      }
+    }
+  }
+  // Loop 15+：第二次信任回响——更高信任解锁
+  if (loop >= 15 && npcLines.t5) {
+    const behaviorMemory = s._npcBehaviorMemory || {};
+    if (!behaviorMemory[npc.name + '_t5']) {
+      if (!s._npcBehaviorMemory) s._npcBehaviorMemory = {};
+      s._npcBehaviorMemory = { ...s._npcBehaviorMemory, [npc.name + '_t5']: true };
+      const currentTrust = s.npcTrust[npc.name] || 0;
+      if (currentTrust >= 3 && currentTrust < 5) {
+        s.npcTrust = { ...s.npcTrust, [npc.name]: Math.min(5, currentTrust + 1) };
+        narr('system', '（' + npc.name + '看着你，眼神里多了一层东西——不是困惑，是某种更深的理解。）', {
           isSpecial: true,
         });
       }

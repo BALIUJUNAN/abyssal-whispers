@@ -10,8 +10,8 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
-![Tests](https://img.shields.io/badge/tests-48_flow_%2B_69_event_%2B_difficulty-brightgreen)
-![Version](https://img.shields.io/badge/version-0.7.0-orange)
+![Tests](https://img.shields.io/badge/tests-285_flow_%2B_events_%2B_difficulty-brightgreen)
+![Version](https://img.shields.io/badge/version-0.7.1-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -230,6 +230,30 @@ SAN 是玩家与现实之间的契约强度。它不是一个数字——是玩�
 
 每次轮回更难：SAN 上限削减（loop5+ 每周 -2），世界污染加深，NPC 逐步识别你是重复访客。
 
+### Day-of-Cycle 事件权重
+
+关键日期(第 7/14/21/28 天)事件权重动态调整，营造"世界加速崩塌"的节奏感：
+
+| 日期类型 | 超自然/怪物事件 | 日常/NPC/氛围事件 |
+|----------|----------------|------------------|
+| 普通日期 | ×1.0 | ×1.0 |
+| **关键日期** (7/14/21/28) | **×1.8** | **×0.4** |
+
+此外 SAN stage 5+ 时叠加类型差异化修正：超自然遭遇 ×1.8，日常事件 ×0.4——双重机制确保高侵蚀时恐怖密度持续攀升。
+
+### NPC 对话深化
+
+8 位 NPC 对话系统扩展至三层优先级：
+
+| 优先级 | 触发条件 | 触发概率 | 内容类型 |
+|--------|---------|---------|---------|
+| P1 | 日期里程碑 (Day 1-28) | 50% | NPC 对关键日期的独特反应 |
+| P2 | 当前天气变化 | 30% | NPC 对 5 种天气的个性化评论 |
+| P3 | 信任/时段/SAN/轮回 (原有) | 条件触发 | 上下文感知对话 |
+| P4 | 腐化/感染变体 (原有) | 条件触发 | 疾病/疯狂影响下的对话 |
+
+**SAN 观察系统**：SAN < 40 时 NPC 注意到玩家精神状态恶化，触发关心/警告台词（25% 概率，`isSpecial: true` 高亮显示）。
+
 ### 6 种起始职业
 
 记者 / 私家侦探 / 学者 / 医生 / 退伍军人 / 通灵者
@@ -273,8 +297,6 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 
 **成本控制**：限流 2s 间隔 · 缓存 5min · 普通事件 30% 采样 · 高优先级 100% · 单飞守卫 · 队列串行化
 
-**成本控制**：限流 2s 间隔 · 缓存 5min · 普通事件 30% 采样 · 高优先级 100% · 单飞守卫 · 队列串行化
-
 ---
 
 ## 系统功能一览
@@ -289,7 +311,7 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **轮回差异提示**          | 每次新周目开始时展示跨轮变化：SAN上限/污染/NPC信任/技能/商店/恩赐                                   |
 | **叙事引导**              | 前30分钟氛围式引导（非手游教程），受 `showGuideHints` 设置控制                                      |
 | **NPC 关系反馈**          | 6 级信任分层（敌意→忠诚），跨级触发脉冲+音效，同级轻提示                                           |
-| **首轮保护**              | 前3天屏蔽致命事件，SAN损失上限5，饥饿伤害减半，怪物遭遇率×0.3                                      |
+| **首轮保护**              | Loop 0-3 渐进保护：L0 前3天屏蔽致命/SAN上限5/饥饿减半/怪物×0.3 → L2 前2天安全/SAN上限7/致命屏蔽/怪物×0.5 → L3 前1天安全/SAN上限9/致命解除/怪物×0.7 |
 | **文本重复控制**          | 4 层污染变体：原文→微妙替换→可读腐蚀→跳过摘要，跨轮持久追踪                                        |
 | **商店系统**              | 2 家商店，NPC 信任解锁高级商品                                                                      |
 | **事件链 / 线索链**       | 顺序推进的多阶段调查，线索组合推导结论                                                              |
@@ -300,7 +322,8 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **多槽位存档**            | 3 自动 + 3 手动，版本迁移兼容，JSON 导入/导出                                                       |
 | **快捷键**                | `1-9` 选择 / `Space` 确认 / `M` 布局切换 / `I` 物品 / `J` 线索 / `N` 笔记本                            |
 | **章节转场**              | Day 4/8/15/22 沉浸式过渡动画（3D 透视旋转）                                                         |
-| **轮回继承**              | 知识碎片 / 世界污染 / NPC 跨轮记忆 / 关系网 / 死后遗产 / 技能保留(30%) / 行为计数器搬入 / 结局代币  |
+| **轮回记忆效应机械化**    | 结局 `loop_memory_effect` 叙事文本自动解析为机械效果（NPC信任+/腐化-/SAN上限/全属性+/神秘学+/物品/角色解锁/封印知识），10+种模式正则匹配，`applyLoopMemoryEffects()` 实现 |
+| **封印知识持久化**        | 追踪封印仪式参与记录(Hilda/Fisher/Isabella)，跨轮解锁特殊对话和事件                                                                  |
 | **结局余韵**              | 每条结局附带 Afterglow 文本，满足条件后解锁（事件/物品/周目数）                                     |
 | **NPC 关系网**            | NPC 间动态关系（ally/enemy/relative），跨循环保留，影响对话与事件                                   |
 | **NPC 死后遗产**          | NPC 死亡后留下物品/知识/任务，玩家可领取继承                                                        |
@@ -328,7 +351,18 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **AI 叙事增强**           | GLM-4.7 Flash — 9 场景动态生成，离线优先，API 失败自动回退                                          |
 | **SAN mutation 静态检查** | `npm run lint:san` — 扫描全部 reducer，禁止直接 `s.san = clamp(san-...)`，白名单除外                 |
 | **屏幕转场动画**          | Canvas 程序化转场（噪声擦拭/墨汁渗透/虚空之环/故障切片）+ CSS enter + 主题音效联动 + 800ms 编排      |
-| **NPC 上下文对话**        | 8 位 NPC × 143 条条件感知对话（信任/时段/SAN/轮回/死亡遗产/物品/区域），优先未读，去重              |
+| **NPC 上下文对话**        | 8 位 NPC × 143+ 条条件感知对话（信任/时段/SAN/轮回/死亡遗产/物品/区域/日期里程碑/天气反应），优先未读，去重              |
+| **Day-of-Cycle 事件权重** | 关键日期(7/14/21/28)超自然事件×1.8、日常事件×0.4，营造"世界加速崩塌"节奏感                                                           |
+| **轮回记忆效应机械化**    | `applyLoopMemoryEffects()` 解析结局 `loop_memory_effect` 文本，自动应用 NPC 信任/腐化/SAN/属性/物品/角色解锁等机械效果                   |
+| **NPC 日期里程碑对话**    | 关键日期(1-28天)触发 NPC 独特反应，每 NPC 每日期一条，50% 概率触发                                                                     |
+| **NPC 天气反应对话**      | 8 位 NPC 对 5 种天气(晴/阴/雨/雾/血月)各有独立台词，30% 概率触发                                                                       |
+| **NPC SAN 观察对话**      | SAN < 40 时 NPC 注意到玩家精神状态恶化，25% 概率触发关心/警告台词                                                                      |
+| **Loop 2-3 渐进保护**     | Loop 2(SAN损失上限7/安全区2天/致命屏蔽) → Loop 3(SAN损失上限9/安全区1天/致命解除)，渐进过渡桥梁                              |
+| **Day-Critical SAN 脉冲** | 关键日期触发视觉脉冲(surge 1.8×/final 2.2×)，SAN 损失闪光反馈，增强日期紧迫感                                                          |
+| **难度模组 Hooks**        | UGC 模组可注入 `difficulty_modifiers`(text_corruption_boost/npc_trust_multiplier/custom_text_swaps)，Zod Schema 全量校验                |
+| **NPC 记忆 Tier 5**       | 汤米·陈 + 埃德加·洛夫克拉夫特新增 Tier 5 跨轮记忆(实验室/相机记忆/时间线重叠)，8 NPC 全部覆盖到 T5                              |
+| **模拟器性能增强**        | `simulate_loops.cjs` 新增 --difficulty/--batch/--progress/--json 参数，游戏数据模块级缓存，循环效果表预计算                               |
+| **SanPollutionLayer 缓存**| `getVisualForSan` 结果 useRef 缓存，仅 SAN 变化时重算，减少 Canvas 渲染开销                                                           |
 | **第 600 事件**           | 隐藏终局事件 — loop≥10 + mythos≥25 + san≤10 + 5+结局 + 终局内容 → 599→600 虚拟事件自动显现         |
 
 ---
@@ -422,16 +456,22 @@ React 18 + useReducer + Immer + 双 Store (useGameStore + useUiStore)
   → 引擎层 (src/engine/) — 独立npm包，零游戏导入，DI注入
   │    EventEngine / PollutionManager / WorldTimeSystem / SaveManager
   │    commands.js (类型化effect工厂) / eventBus.js (跨Slice通信)
+  │    EventEngine Section 9: Day-of-Cycle权重(关键日期超自然×1.8/日常×0.4)
   → 运行时层 (src/runtime/) — post-reducer 副作用执行器（类型分发+去重）
   → 模块化 Reducer（6个slice handler + ctx显式传参）
+  │    loopReducer: applyLoopMemoryEffects() 结局记忆效应机械化 + 封印知识持久化
+  │    exploreSlice: Loop 2-3 渐进保护 (adjustSanLossForLoop23/getSanFloor)
   → AP 污染系统 — SAN门控AP欺骗+偷取+揭示（utils/appHelpers.js）
   → Mythos SAN 门控 — SAN≥50时mythos增益静默跳过（reducers/effectReducer.js）
-  → SAN视觉系统 (systems/sanityVisual.js) — 精度化恐怖，稀疏触发
+  → SAN视觉系统 (systems/sanityVisual.js + sanVisualCorruption.js) — 精度化恐怖 + Day-Critical脉冲
   → 早期钩子 (systems/earlyHooks.js) — 十三声钟入口序列 + Canvas脉冲
   → SAN SSOT — getCurrentSanStage() 统一查询，6阶段×4维度
   → AI 叙事增强 (utils/glmClient.js + systems/llmNarrative.js)
-  │    GLM-4.7 Flash — 6场景动态生成，离线优先，UI层异步，Reducer零侵入
-  → JSON 配置驱动 + Zod Schema 校验（735条数据全量）
+  │    GLM-4.7 Flash — 9 场景动态生成，离线优先，UI层异步，Reducer零侵入
+  → NPC对话深化 (systems/npcDialogue.js) — 日期里程碑/天气反应/SAN观察三层扩展
+  → 难度系统 (state/difficultyState.js + config/difficulty.js) — 21级梯度 + 模组Hooks
+  → 首轮保护 (systems/firstLoopBalance.js) — Loop 2-3渐进桥梁 (SAN上限/安全区/致命屏蔽)
+  → JSON 配置驱动 + Zod Schema 校验（855条数据全量 + difficulty_modifiers校验）
   → 章节硬限（Chapter 1 事件池过滤 + AP压限 + Day 3强制过渡）
   → Vite 主线构建（ESM + code-split + 587字节HTML）→ dist/
   → Tauri v2 打包 → 原生桌面应用
@@ -453,7 +493,11 @@ COC/
 ├── assets/webp/              # 138 张 WebP 图片素材
 ├── audio/                    # 53 个音频文件（WAV + MP3）
 │
-├── src/                      # 21,000+ 行 JS/JSX，106 个源文件
+├── src/                      # 21,000+ 行 JS/JSX，106+ 个源文件
+│   ├── config/               # 集中化配置
+│   │   ├── difficulty.js         # 21级难度 DIFFICULTY_LEVELS 配置
+│   │   └── difficultyLevels.json # 难度参数 JSON（安全区/SAN保护/HP保护/损失上限）
+│   │
 │   ├── app.jsx               # 主入口（368 行 — 路由 + 双Store桥接 + 布局切换）
 │   ├── main.vite.jsx         # Vite 入口（加载 shim + 游戏数据 + 启动 app）
 │   ├── main.jsx              # Legacy 构建入口（Babel 环境）
@@ -476,11 +520,12 @@ COC/
 │   │                               #   AUDIO_PLAY / SAVE_GAME / INCREMENT_STAT 等
 │   │                               #   按 _fxId 去重，类型分发（EFFECT_HANDLERS map）
 │   │
-│   ├── state/                # 5 个状态模块 — 双 Store 架构 + 平衡常量
+│   ├── state/                # 6 个状态模块 — 双 Store 架构 + 难度状态 + 平衡常量
 │   │   ├── gameStore.js            # useGameStore + 选择器钩子（90 行）
 │   │   ├── uiStore.js              # useUiStore（模态/Toast/设置/地图模式状态）（89 行）
 │   │   ├── initialState.js         # 游戏初始状态定义（72 行）
 │   │   ├── gameConstants.js        # GAME_BALANCE 集中化平衡常量（40 行）
+│   │   ├── difficultyState.js      # 21级难度 applyDifficultyToState（~60 行）
 │   │   └── transientKeys.js        # 临时状态键定义（23 行）
 │   │
 │   ├── components/           # 16 个 UI 组件（2,895 行）
@@ -514,13 +559,13 @@ COC/
 │   │   ├── TransitionCanvas.jsx    # Canvas 程序化转场引擎（197 行）— 4种像素级效果
 │   │   └── UgcImportExport.jsx     # UGC 模组导入导出（466 行）
 │   │
-│   ├── reducers/             # 21 个状态管理模块（5,283 行）
+│   ├── reducers/             # 21 个状态管理模块（5,500+ 行）
 │   │   ├── slices/                 # 6 个 slice handler（ctx 显式传参）
 │   │   │   ├── coreSlice.js        # START_GAME / NEW_GAME / CONTINUE_GAME（115 行）
 │   │   │   ├── exploreSlice.js     # MOVE / EXPLORE / DO_SKILL_CHECK（368 行）
 │   │   │   │                       #   EXPLORE 分解为 3 子阶段
-│   │   │   ├── npcSlice.js         # TALK_NPC / NPC_RESPONSE（287 行）
-│   │   │   ├── dailySlice.js       # REST / WORK / BUY_FOOD（218 行）
+│   │   │   ├── npcSlice.js         # TALK_NPC / NPC_RESPONSE（~350 行）— 日期/天气/SAN观察对话
+│   │   │   ├── dailySlice.js       # REST / WORK / BUY_FOOD（~250 行）— Day-Critical脉冲触发
 │   │   │   ├── darkSlice.js        # SELF_HARM / DESECRATE / BREAK_SEAL（71 行）
 │   │   │   └── uiSlice.js          # CHOICE_SELECT / GAMBLE_CHOICE / PROLOGUE（200 行）
 │   │   │
@@ -530,7 +575,7 @@ COC/
 │   │   ├── extendedEventsLoader.js # 扩展事件加载与合并（205 行）
 │   │   ├── deathSystem.js          # 16 种死亡 × 四段叙事（383 行）
 │   │   ├── endingReducer.js        # 结局判定与触发（343 行）
-│   │   ├── loopReducer.js          # 轮回/周目切换逻辑（258 行）
+│   │   ├── loopReducer.js          # 轮回/周目切换 + 记忆效应机械化（~390 行）
 │   │   ├── effectReducer.js        # 效果应用（185 行）
 │   │   ├── prologueReducer.js      # 前传系统（195 行）
 │   │   ├── sanReducer.js           # SAN 游戏逻辑（70 行）— 扣分/疯狂 + re-export展示层
@@ -544,16 +589,16 @@ COC/
 │   │   ├── objectiveReducer.js     # 任务目标（102 行）
 │   │   └── utils.js                # reducer 共用工具函数（50 行）
 │   │
-│   ├── systems/              # 21 个游戏系统（~4,600 行）
+│   ├── systems/              # 22 个游戏系统（~4,800 行）
 │   │   ├── sanityVisual.js         # SAN 视觉呈现系统（290 行）— 颜色/文本腐蚀/CSS类/Canvas参数
 │   │   ├── earlyHooks.js           # Day 1-3 感官锚点（82 行）— 十三声钟入口+区域低语
 │   │   ├── fearLens.js             # 恐惧滤镜 — 文本+NPC对话（333 行）
 │   │   ├── fearProfile.js          # 恐惧画像系统（111 行）
 │   │   ├── resourceNarrative.js    # 资源-叙事绑定（271 行）
 │   │   │                           #   数据驱动 infection_risk
-│   │   ├── worldDecay.js           # 世界腐化推进（187 行）
-│   │   ├── sanVisualCorruption.js  # SAN 视觉腐化系统（152 行）
-│   │   ├── npcDialogue.js          # NPC 对话系统（128 行）— 腐败/感染/疲劳变体 + 上下文行选择器
+│   │   ├── worldDecay.js           # 世界腐化推进（~540 行）— Day 1-2 新叙事 + 确定性RNG
+│   │   ├── sanVisualCorruption.js  # SAN 视觉腐化触发器（35 行）— surge/flash脉冲，渲染移至组件层
+│   │   ├── npcDialogue.js          # NPC 对话系统（~400 行）— 日期里程碑/天气反应/SAN观察三层扩展
 │   │   ├── metaCorruption.js       # Meta 层腐化（73 行）
 │   │   ├── deathSummary.js         # 死亡总结页 — 4段叙事结构（~300 行）
 │   │   │                           #   你如何死去 / 你发现了什么 / 世界变化 / 下轮目标
@@ -561,23 +606,23 @@ COC/
 │   │   ├── firstRunGuide.js        # 前30分钟叙事引导 — 氛围式提示（~80 行）
 │   │   ├── npcFeedback.js          # NPC 关系反馈 — 6级信任分层（~100 行）
 │   │   ├── sanFeedback.js          # SAN 反馈分层 — 4档损失表现（~120 行）
-│   │   ├── firstLoopBalance.js     # 首轮保护 — 限制随机暴毙（~40 行）
-│   │   ├── textVariants.js         # 文本重复控制 — 4层污染变体（~150 行）
+│   │   ├── firstLoopBalance.js     # 首轮+二三轮保护（~140 行）— Loop 2-3渐进桥梁
+│   │   ├── textVariants.js         # 文本重复控制 — 4层污染变体 + 难度文本替换（~230 行）
 │   │   ├── llmNarrative.js         # AI 叙事增强层（~320 行）— 9个LLM增强函数（事件/NPC/死亡/Meta/余韵/SAN腐蚀/人格反思/轮回开场/存档名污染）
 │   │   └── gameSettings.js         # 设置系统 — 无障碍+音量+视觉+LLM控制（~110 行）
 │   │
-│   ├── utils/                # 9 个工具模块（1,500+ 行）
+│   ├── utils/                # 9 个工具模块（1,600+ 行）
 │   │   ├── appHelpers.js           # 游戏核心辅助函数（274 行）
 │   │   ├── errorTracker.js         # 操作追踪 & 错误报告（337 行）
 │   │   ├── buildEventPool.js       # 事件池构建（130 行）
 │   │   ├── gameHelpers.js          # 游戏辅助工具（122 行）
 │   │   ├── trustGates.js           # NPC 信任门控（171 行）
-│   │   ├── npcMemory.js            # NPC 跨轮记忆（75 行）
+│   │   ├── npcMemory.js            # NPC 跨轮记忆（~130 行）— Tier 5新增(汤米·陈/洛夫克拉夫特)
 │   │   ├── clueNameMap.js          # 线索中文名映射（47 行）
 │   │   ├── glmClient.js            # GLM-4.7 Flash API 客户端（~190 行）— 限流/缓存/超时/设置持久化
 │   │   └── uiStore.js              # 旧 UI Store 兼容层（77 行）
 │   │
-│   ├── data/                 # 38 个数据文件 — 800+ 事件
+│   ├── data/                 # 38+ 个数据文件 — 855+ 事件 + 结局余韵 + loop_memory_effect
 │   │   │
 │   │   │   ── 扩展事件（619 个，9 个方向） ──
 │   │   ├── events_loop.js          # 轮回锁定事件（701 行）
@@ -669,7 +714,7 @@ COC/
 │
 ├── scripts/
 │   ├── report_references.cjs       # 引用关系分析脚本
-│   ├── simulate_loops.cjs          # 轮回批量模拟器（--loops N --seed N）
+│   ├── simulate_loops.cjs          # 轮回批量模拟器（--loops/--difficulty/--batch/--progress/--json）
 │   ├── lint_san_mutations.cjs      # SAN mutation 静态检查（禁止直接 clamp）
 │   ├── lint_engine_boundary.cjs    # 引擎边界检查（零游戏导入）
 │   ├── validate_data.cjs           # Zod Schema 数据校验 CLI
@@ -694,13 +739,13 @@ COC/
 
 | 模块                   | 路径                     | 行数    | 职责                                | 关键特性                                               |
 | ---------------------- | ------------------------ | ------- | ----------------------------------- | ------------------------------------------------------ |
-| **EventEngine**        | `engine/`                | 373     | 三层加权事件选择                    | 行为画像/冷却衰减/缓冲执行/恐惧权重/累积权重二分查找   |
-| **PollutionManager**   | `engine/`                | 98      | SAN+逻辑+视觉污染                   | 文本幻觉/虚假消息/虚假记忆/权重腐蚀（SSOT阈值）        |
-| **WorldTimeSystem**    | `engine/`                | 97      | 世界状态/封印/天气                  | 5阶段封印状态机/区域名称扭曲/安全屋退化                |
+| **EventEngine**        | `engine/`                | 373+    | 三层加权 + Day-of-Cycle权重         | 行为画像/冷却衰减/缓冲执行/恐惧权重/关键日期超自然×1.8 |
+| **PollutionManager**   | `engine/`                | 98      | SAN+逻辑+视觉污染                   | 文本幻觉/虚假消息/虚假记忆/权重腐蚀 + 确定性RNG        |
+| **WorldTimeSystem**    | `engine/`                | 97      | 世界状态/封印/天气                  | 5阶段封印状态机/区域名称扭曲/安全屋退化 + 确定性RNG    |
 | **SaveManager**        | `engine/`                | 190     | 存档系统+版本迁移                   | 6槽位/字段过滤/旧格式兼容/JSON导入导出                 |
 | **effectExecutor**     | `runtime/`               | 45      | post-reducer 副作用                 | EFFECT_HANDLERS 类型分发 / \_fxId 去重                 |
 | **SAN SSOT**           | `state/` + JSON          | —       | 统一SAN阶段配置                     | `getCurrentSanStage()` 全局查询，6阶段×4维度，零硬编码 |
-| **SanPollutionLayer**  | `components/`            | 194     | 6阶段渐进腐化                       | CSS动画+Canvas渲染+CorruptibleChoice+AbyssPopup        |
+| **SanPollutionLayer**  | `components/`            | 194     | 6阶段渐进腐化 + Day-Critical脉冲    | CSS动画+Canvas渲染+useRef缓存+CorruptibleChoice+AbyssPopup |
 | **GameLayout**         | `components/`            | 90      | 布局模式切换                        | 全景地图/经典模式双入口，M键切换                       |
 | **InteractiveTownMap** | `components/`            | 339     | 全景城镇地图                        | 暗黑地牢风格/9热点/hover光晕/污染变体背景              |
 | **FloatingInfoBar**    | `components/`            | 140     | 浮动 HUD                            | 位置/时间/SAN/HP/AP/封印/天气全状态                    |
@@ -710,7 +755,7 @@ COC/
 | **DevPanel**           | `components/ui/`         | 79      | 开发者调试面板                      | ~打开，4标签页：状态+事件池/工具/权重/性能             |
 | **死亡系统**           | `reducers/`              | 383     | 16种死亡×四段叙事                   | 标题→临终→世界处理→残留提示                            |
 | **死亡总结**           | `systems/`               | 300     | 4段叙事死亡总结                     | 死因叙事/发现/世界变化/新目标，不暴露机制               |
-| **轮回系统**           | `reducers/`              | 258     | 跨周目状态传递                      | 污染累积/SAN上限削减/技能继承30%/NPC记忆渐进           |
+| **轮回系统**           | `reducers/`              | 390+    | 跨周目状态传递 + 记忆效应机械化     | 污染累积/SAN上限削减/技能继承30%-60%阶梯/NPC信任高值持久/封印知识追踪/loop_memory_effect解析 |
 | **轮回差异**           | `systems/`               | 100     | 跨轮变化对比                        | SAN/污染/NPC/技能/商店/恩赐变化列表                    |
 | **applySanLoss**       | `reducers/utils.js`      | 25      | SAN 扣减统一入口                    | 统计追踪/音频推送/_lastSanLoss UI反馈                  |
 | **AP 污染**            | `utils/appHelpers.js`    | 30      | AP 显示欺骗+偷取+揭示               | getDisplayedAp/narrApInsufficient，SAN门控触发          |
@@ -718,11 +763,17 @@ COC/
 | **叙事引导**           | `systems/`               | 80      | 前30分钟氛围式提示                  | 8条环境叙事，受设置控制，不打破第四面墙                 |
 | **NPC 反馈**           | `systems/`               | 100     | 信任变化分层反馈                    | 6级信任/跨级脉冲+音效/同级轻提示                       |
 | **SAN 反馈**           | `systems/`               | 120     | SAN 损失4档表现                     | minor/moderate/severe/critical 各有独立音效+屏幕特效    |
-| **首轮保护**           | `systems/`               | 40      | 防止首轮随机暴毙                    | 前3天屏蔽致命/SAN上限5/饥饿减半/怪物率×0.3             |
-| **文本变体**           | `systems/`               | 330+    | 文本重复+神话别名+疑似bug           | 4层重复控制+专名渐进渗透+幻影日志/NPC错字/幻影叙述      |
+| **首轮保护**           | `systems/`               | 140     | Loop 0-3渐进保护                    | L0:3天安全/SAN上限5/L2:2天安全/SAN上限7/L3:1天安全/SAN上限9/致命事件渐进解除 |
+| **Day-of-Cycle权重**    | `engine/EventEngine`     | ~87     | 关键日期事件权重乘数                 | 7/14/21/28天超自然×1.8/日常×0.4 + SAN stage 5+类型差异化 |
+| **轮回记忆效应**        | `reducers/loopReducer`   | ~113    | 结局loop_memory_effect文本解析       | 10+正则模式(NPC信任/腐化/SAN/属性/物品/角色/封印知识) |
+| **NPC对话深化**         | `systems/npcDialogue`    | ~400    | 三层扩展对话系统                    | 日期里程碑(1-28天×8NPC)/天气反应(5天气×8NPC)/SAN观察(SAN<40) |
+| **难度模组Hooks**       | `reducers/ugcReducer`    | ~62     | UGC模组难度修饰符                   | text_corruption_boost/npc_trust_multiplier/custom_text_swaps + Zod校验 |
+| **Day-Critical脉冲**    | `systems/sanVisualCorruption` | ~130 | SAN视觉腐化触发器                   | 关键日期surge(1.8×/2.2×) + SAN损失flash + SanPollutionLayer缓存 |
+| **模拟器增强**         | `scripts/simulate_loops` | ~166    | 批量轮回模拟                        | --difficulty/--batch/--progress/--json + 数据缓存 + 预计算 |
+| **文本变体**           | `systems/`               | 230+    | 文本重复+神话别名+难度文本替换+模组  | 4层重复控制+专名渐进渗透+难度词汇替换+模组custom_text_swaps+幻影日志/NPC错字/幻影叙述 |
 | **前传系统**           | `reducers/`              | 195     | 7场景恐惧画像                       | 6维度心理profile/跳过保护                              |
 | **结局引擎**           | `reducers/`              | 343     | AND/OR条件解析                      | 36行为结局+10主线+隐藏+Meta打破                        |
-| **NPC系统**            | `reducers/` + `systems/` + `data/` | 286+128+206 | 8人×5级信任×4层记忆×关系网×死后遗产×143条上下文对话 | 信任门控/腐蚀/救赎路线/NPC间关系/遗产继承/条件感知对话 |
+| **NPC系统**            | `reducers/` + `systems/` + `data/` | 350+400+206 | 8人×5级信任×5层记忆×关系网×死后遗产×200+条三层对话 | 信任门控/腐蚀/救赎路线/NPC间关系/遗产继承/日期里程碑/天气反应/SAN观察/条件感知对话 |
 | **结局余韵**           | `reducers/`              | 73      | Afterglow 文本系统                  | 条件解锁(事件/物品/周目数)/轮回记录UI                  |
 | **AudioManager**       | `managers/`              | 144     | 53段音频管理                        | 区域环境音(昼夜)/技能检定分级/SAN损失分层              |
 | **Registry**           | `data/registry/`         | 227     | 身份注册表                          | 区域/物品/NPC 统一注册 + 名称别名双向解析              |
@@ -879,14 +930,14 @@ npm run tauri:build      # 桌面版构建（需要 Rust）
 # ── 验证 ──────────────────────────────────────────────
 
 npm run verify           # 完整验证（测试 + Vite 构建 + Legacy 构建）
-npm test                 # 全部测试（272 tests / 9 suites）
+npm test                 # 全部测试（285 tests / 9 suites）
 npm run format:check     # 代码格式检查（Prettier）
 
 # ── 轮回系统测试 ─────────────────────────────────────
 
 npm run test:reinc       # 轮回核心+场景测试（102 tests）
 npm run test:reinc:sim   # 玩家行为模拟器（5人格×8轮报表）
-npm run simulate:loops   # 批量轮回模拟（默认 10 轮）
+npm run simulate:loops   # 批量轮回模拟（--difficulty/--batch/--progress/--json 参数）
 
 # ── Legacy 路线（兼容保留，不推荐新开发使用） ─────────
 
@@ -899,7 +950,7 @@ python build.py --analyze # 包体积分析
 npm run format           # 格式化全部源文件（Prettier）
 npm run lint:san         # SAN mutation 静态检查（禁止直接 clamp）
 npm run lint:engine      # 引擎边界检查（src/engine/ 零游戏导入）
-npm run lint:schema      # Zod Schema 数据校验（735条数据全量）
+npm run lint:schema      # Zod Schema 数据校验（855条数据 + difficulty_modifiers全量）
 npm run lint:events      # 扩展事件 lint
 npm run test:missing600  # 第 600 号事件测试
 npm run mod:validate     # UGC 模组校验
@@ -950,6 +1001,7 @@ node tests/test_reincarnation_player_sim.cjs --verbose --loops 10 --personality 
 ```bash
 node scripts/simulate_loops.cjs --loops 20 --seed 42 --verbose
 node scripts/simulate_loops.cjs --loops 50 --report report.txt
+node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progress --json
 ```
 
 ---
@@ -970,12 +1022,12 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 ### 架构优势
 
 - ✅ **SAN SSOT** — `getCurrentSanStage()` 统一查询，6阶段×4维度配置，修改JSON即全局生效
-- ✅ **引擎层独立** — `src/engine/` 4个引擎模块（758行），核心逻辑与UI完全解耦
+- ✅ **引擎层独立** — `src/engine/` 4个引擎模块（758行），核心逻辑与UI完全解耦 + 确定性RNG
 - ✅ **运行时副作用层** — `src/runtime/effectExecutor.js` post-reducer 副作用去重执行，类型分发架构
 - ✅ **双Store架构** — `useGameStore`（游戏状态选择器）+ `useUiStore`（UI状态 + 地图模式）
 - ✅ **双界面模式** — 暗黑地牢全景地图 + 经典三栏，共用 reducer，零游戏逻辑改动
 - ✅ **模块化彻底** — app.jsx 346行（原 4600 行），提取 18 个独立组件（含 ScreenTransition + TransitionCanvas）
-- ✅ **三层事件调度** — EventEngine 实现里程碑/行为权重/冷却衰减/累积权重二分查找
+- ✅ **四层事件调度** — EventEngine 实现里程碑/行为权重/冷却衰减/累积权重二分查找 + Day-of-Cycle权重(关键日期×1.8/0.4)
 - ✅ **污染平滑过渡** — SanPollutionLayer 基于阶段配置自动插值，2s ease 平滑过渡
 - ✅ **三滑块SAN控制** — 视觉/交互/Meta 独立可调，轻度污染模式无障碍保护
 - ✅ **数据驱动设计** — 新增事件无需改reducer代码，只需添加JSON条目；危险区域用 `infection_risk` 标志
@@ -992,7 +1044,13 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 - ✅ **死亡总结4段叙事** — 死因叙事先行（不暴露机制）→ 发现回顾 → 世界变化 → 新目标建议，`DeathSummaryView` 组件直接渲染
 - ✅ **轮回差异提示** — `computeReincarnationDiff()` 在 `initLoopState` 末尾自动生成，存入 `f.reincarnationDiff`
 - ✅ **NPC 反馈分层** — 跨级触发脉冲+音效，同级轻文本，信任降级有警告，避免 UI 噪音
-- ✅ **首轮保护** — `shouldBlockLethalEvent` + `adjustSanLossForFirstLoop` 接入 exploreSlice 事件筛选和伤害计算
+- ✅ **首轮保护** — `shouldBlockLethalEvent` + `adjustSanLossForFirstLoop` + `adjustSanLossForLoop23` 接入 exploreSlice 事件筛选和伤害计算（Loop 0-3 渐进桥梁）
+- ✅ **Day-of-Cycle权重** — `EventEngine.js` Section 9，关键日期(7/14/21/28)超自然事件×1.8/日常事件×0.4 + SAN stage 5+ 类型差异化修正
+- ✅ **轮回记忆效应机械化** — `applyLoopMemoryEffects()` 解析 `loop_memory_effect` 叙事文本为10+种机械效果（NPC信任/腐化/SAN/属性/物品/角色/封印知识）
+- ✅ **NPC 对话三层扩展** — `npcDialogue.js` 日期里程碑(1-28天×8NPC) + 天气反应(5天气×8NPC) + SAN观察(SAN<40关心玩家)
+- ✅ **难度模组 Hooks** — `textVariants.js`/`ugcReducer.js` 难度文本替换 + 模组 difficulty_modifiers（text_corruption_boost/npc_trust_multiplier/custom_text_swaps）
+- ✅ **SanPollutionLayer 缓存** — `getVisualForSan` useRef 缓存，仅 SAN 变化时重算 Canvas 参数，减少渲染开销
+- ✅ **封印知识持久化** — `initLoopState` 追踪封印仪式参与(Hilda/Fisher/Isabella)，跨轮解锁特殊对话和事件
 - ✅ **文本重复控制** — `getTrackedText` 4 层分级，`seenEventTexts` 跨轮持久化（loopReducer 搬入）
 - ✅ **体验链测试** — `test_player_experience_loop.cjs` 25 个测试覆盖完整玩家旅程：引导→NPC→SAN→死亡→总结→轮回→差异
 - ✅ **结局可达性测试** — `test_ending_reachability.cjs` 验证 10-15 轮内普通玩家可达多个结局方向
@@ -1004,6 +1062,7 @@ node scripts/simulate_loops.cjs --loops 50 --report report.txt
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **0.7.0** | 2026-06-17 | **21级难度系统 + 平衡性测试框架** — ①新增21级难度梯度：从Level 1(普通,SAN/HP损失-65%,前6天安全区)到Level 21(原版无保护)，覆盖休闲→标准→进阶→硬核→极限五个区间；②难度保护机制：SAN保护/HP保护/安全区/损失上限四维防护，`getDifficultyConfig()` 统一配置；③平衡性测试框架：`sim28balance_21levels.cjs` 支持单级/全级批量模拟(1000+次)，输出存活率/平均天数/死因分布；④集成代码：`difficulty.js`(配置) + `difficultyState.js`(状态应用) + `applyDifficultyProtection()`(运行时防护)；⑤测试数据：Level 1存活率23.5%/20天 → Level 21存活率1.0%/7.9天，符合预期递减曲线；⑥确定性RNG全面接入：6个slice handler 40+处`Math.random()`改为`c.rng`fallback模式，新增`makeRand(rng)`工具函数；⑦ctx参数传递完善：`applyDeathResolution`/`narrDailySummary`/`rollMadness`等核心函数添加游戏数据上下文；⑧构建顺序修复：`miscReducer.js`移至`effectReducer.js`之后加载；⑨饥饿伤害接入首轮保护：`adjustStarvationDamage()`减少低难度前期饥饿惩罚 |
+| **0.7.1** | 2026-06-19 | **轮回记忆机械化 + Day-of-Cycle权重 + NPC对话深化 + 性能优化** — ①轮回记忆效应机械化：`applyLoopMemoryEffects()` 解析结局`loop_memory_effect`叙事文本，自动应用NPC信任+/腐化-/SAN上下限/全属性+/神秘学+/物品/角色解锁/封印知识持久化(10+种模式)；②Loop 2-3渐进保护：`firstLoopBalance.js`新增Loop 2( SAN上限7/安全区2天/致命屏蔽)和Loop 3(SAN上限9/安全区1天/致命解除)，技能保留30%→40%→50%→60%阶梯；③Day-of-Cycle事件权重：`EventEngine.js` Section 9新增关键日期(7/14/21/28)超自然×1.8/日常×0.4 + SAN stage 5+类型差异化修正(超自然1.8/日常0.4)；④NPC对话三扩展：日期里程碑对话(1-28天×8NPC)、天气反应对话(5天气×8NPC)、SAN观察对话(SAN<40时NPC关心玩家)；⑤SanVisualCorruption重构：Canvas渲染移至`SanPollutionLayer`组件，此文件改为surge/flash触发器(关键日期脉冲×1.8/×2.2)；⑥难度模组Hooks：`textVariants.js`/`ugcReducer.js`新增`difficulty_modifiers`(文本腐蚀/NPC信任/自定义替换)，Zod Schema全量校验；⑦NPC记忆Tier 5：汤米·陈+埃德加·洛夫克拉夫特新增T5跨轮记忆(实验室/相机/时间线重叠)；⑧封印知识持久化：`initLoopState`追踪封印仪式参与记录(Hilda/Fisher/Isabella)，跨轮解锁特殊对话；⑨确定性RNG扩展：`PollutionManager`/`fearLens`/`worldDecay`/`getWeather`等系统接入`rng`参数；⑩模拟器增强：`simulate_loops.cjs`新增`--difficulty/--batch/--progress/--json`参数+游戏数据模块级缓存+循环效果表预计算；⑪性能优化：`SanPollutionLayer` `getVisualForSan` useRef缓存，仅SAN变化时重算；⑫游戏数据扩展：4个结局新增`afterglow`余韵文本(老费舍救赎/伊莎贝拉第十二声钟/深渊吞噬/循环真相)，5个`loop_memory_effect`机械化映射 |
 | **0.6.1** | 2026-06-17 | **UI 可用性修复 + 美术滤镜校准 + 设置弹窗增强** — ①前传屏幕滚动：`body { overflow: clip }` 阻止滚轮事件传递，改用 JS wheel handler 直接在容器上捕获并手动滚动，`.prologue-screen` 改为 `height:100vh; overflow-y:auto`，隐藏滚动条；②前传底部按钮遮挡：`.prologue-footer` 固定底栏 `z-index:5` 遮挡「进入沃切斯特」按钮，添加 `pointer-events: none` 穿透点击；③调查员档案滚动：新增 `.screen-scroll` 全屏滚动容器，CharCreation 包裹其中，回调 ref 绑定 wheel handler；④结局画面滚动：`.ending-screen` 改为 `height:100vh; overflow-y:auto`；⑤`.screen-transition` 从 `min-height:100vh` 改为 `height:100vh; overflow:hidden`，确保子滚动容器能正确溢出；⑥设置弹窗增强：新增 💾存档 / 📖读档 / 🏆成就 三个按钮，解决图片模式下 FloatingInfoBar 不可见时功能入口缺失；⑦SVG 暗角滤镜修复：`soft-vignette` stdDeviation 80→35、`strong-vignette` 60→28，filterRegion 200%→100%，解决大面积均匀变暗问题；⑧CSS 选择器修复：`.area-scene img` → `.area-scene > img`（直接子元素），NPC 头像（`.npc-portrait-thumb` / `.area-panel-npc-img`）加独立滤镜规则，避免场景暗角覆盖圆形头像 |
 | **0.6.0** | 2026-06-16 | **转场动画 + NPC 对话扩充 + 事件池 + Bug 修复** — ①屏幕转场系统：新增 `ScreenTransition.jsx`（Canvas exit + CSS enter + 音频联动）+ `TransitionCanvas.jsx`（4 种程序化效果：noiseWipe / inkBleed / voidCircle / glitchSlices），重构 app.jsx 渲染架构，设置面板新增「减弱动效」开关；②NPC 上下文对话：新增 `npcContextualLines.js`（8 位 NPC × 143 条条件感知对话），`selectContextualLine()` 支持信任 / 时段 / SAN / 轮回 / 死亡遗产 / 物品 / 区域条件过滤 + 已读去重，NPCDialog 组件显示上下文短句；③后 7 区事件池扩充 +120 事件：`events_supplement.js` 覆盖 forbidden_grove / ruins_of_yith / lighthouse / catacombs_entrance / voxchester_manor / whispering_forest / deep_catacombs，区域分布从 26-56 均衡至 45-65；④第 600 事件修复：mergeExtendedEvents 中 50 个物品定义（无 trigger）被计入 _extendedEvents 导致 .length≠599，已 filter(e => e.trigger)；⑤ch2plus 70 事件补全 once_per_run；⑥轮回商店 3 个购买效果落地（SAN 上限+5 / 死亡保留物品 / 随机稀有物品）；⑦DevPanel 新增 Event Pool 区域（599/600 进度）；⑧修复 2 处 getSanStageFromGD import 缺失；⑨修复前传打字机 CSS steps(var()) 静默失败 + ScreenTransition children 缓存导致同屏更新失效；⑩页面基础缩放 110% 作为 100%，消除侧边留白 |
 | **0.6.0-stable** | 2026-06-17 | **稳定性修复 + 事件精修 + UI/UX 精修 + 美术统一** — ①修复 7 处 ESM import 缺失（extendedEvents/extendedEventsInit/conclusionReducer/objectiveReducer/miscReducer）；②Reducer 20 处 Math.random() 接入确定性 RNG，新增 `makeRand(rng)` 工具函数消除 11 处重复 fallback；③120 个 supplement 事件补全 quality_tier / normalcy_anchor / unreliable_narration_level + 30 处高级触发条件（san_lte / min_loop）；④加载黑屏→加载态（"正在连接沃切斯特..."）；⑤CSS 设计系统（圆角/阴影/间距/字体 20+ 变量）；⑥按钮 4 态补全 + 弹窗缩放动画 + 滚动条美化 + 全局噪点；⑦轻提示系统（前传结束/SAN 首掉/笔记本首次高亮）；⑧美术统一 SVG 滤镜（胶片颗粒/暗角/锐化）+ 8 处组件 class 注入；⑨笔记本快捷键统一为 J；⑩新增完整流程测试 48 项 + 拼接/Vite 双构建验证 |

@@ -5,13 +5,16 @@ const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { NarrativeBlock } from './GameCommon.jsx';
 import { NPCDialog } from './NPCDialog.jsx';
 import { getDisplayedAp } from '../utils/appHelpers.js';
+import { getAreaDisplayName } from '../utils/gameHelpers.js';
+import { getSanStage } from '../reducers/sanReducer.js';
+import { resolveClueName } from '../utils/clueNameMap.js';
 
 export function FloatingInfoBar({ state, dispatch }) {
   const [clueOpen, setClueOpen] = useState(false);
   const areas = GD.areas || GD.module2_areas || [];
   const area = areas.find((a) => a.id === state.currentArea);
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
-  const sanStage = getSanStage(state.san, ctx);
+  const sanStage = getSanStage(state.san, { GD });
   const sanClass =
     state.san >= 80
       ? 'stable'

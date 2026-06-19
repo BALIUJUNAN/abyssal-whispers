@@ -267,6 +267,8 @@ export function checkEndingDataDriven(state, ctx) {
         humanityTier,
         priority: ed.priority || 0,
         override_category: ed.override_category || 'main',
+        afterglow: ed.afterglow || null,
+        loop_memory_effect: ed.loop_memory_effect || null,
       });
     }
   }

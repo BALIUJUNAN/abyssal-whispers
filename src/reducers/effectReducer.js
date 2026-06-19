@@ -77,8 +77,7 @@ export function applyEffects(state, effects, context) {
           (c) => (typeof c === 'string' ? c : c.id) === eff.clue_id
         );
         if (!_clueExists) {
-          const _resolved =
-            typeof resolveClueName === 'function' ? resolveClueName(eff.clue_id) : null;
+          const _resolved = resolveClueName(eff.clue_id);
           state.clues.push(
             _resolved && _resolved !== eff.clue_id
               ? { id: eff.clue_id, name: _resolved }
@@ -195,7 +194,7 @@ export function applyLegacyEffects(state, eff) {
     for (const cid of clues) {
       if (typeof cid === 'string') {
         if (!state.clues.some((c) => (typeof c === 'string' ? c : c.id) === cid)) {
-          const resolved = typeof resolveClueName === 'function' ? resolveClueName(cid) : cid;
+          const resolved = resolveClueName(cid);
           state.clues.push(resolved && resolved !== cid ? { id: cid, name: resolved } : cid);
         }
       } else if (cid && cid.id) {

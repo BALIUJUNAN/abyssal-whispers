@@ -47,6 +47,16 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
   var enabled = props.enabled,
     intensity = props.intensity;
   var canvasRef = useRef(null);
+  // Cache getVisualForSan result — only recalculate when san changes
+  var cachedSan = useRef(san);
+  var cachedVisual = useRef(null);
+  var getCachedVisual = useCallback(function (currentSan) {
+    if (currentSan !== cachedSan.current || !cachedVisual.current) {
+      cachedSan.current = currentSan;
+      cachedVisual.current = getVisualForSan(currentSan);
+    }
+    return cachedVisual.current;
+  }, []);
   var st = useRef({
     cR: 0,
     cG: 0,
@@ -120,7 +130,7 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
         var w = window.innerWidth,
           h = window.innerHeight;
         ctx.clearRect(0, 0, w, h);
-        var V = getVisualForSan(san);
+        var V = getCachedVisual(san);
         var corF = Math.min(1, (corruption || 0) / 80) * I;
         var totalI = Math.abs(V.sat) + V.vig + V.scan + V.noise + V.barrel + V.chroma + V.rot;
         if (totalI < 0.5 && corF < 0.01) {
@@ -259,7 +269,7 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
     [san, loopCount, corruption, enabled, I, reducedMotion, glitchPulse]
   );
   if (!enabled || reducedMotion) return null;
-  var V = getVisualForSan(san);
+  var V = getCachedVisual(san);
   var tier =
     V.level >= 4
       ? 'spl-extreme'
@@ -305,7 +315,7 @@ export var CorruptibleChoice = memo(function (props) {
   var hoverRef = useRef(false),
     tickRef = useRef(null),
     decayRef = useRef(null);
-  var V = getVisualForSan(san);
+  var V = getVisualForSan(san); // This is called once per render, not in animation loop — OK
   // DESIGN_REFACTOR_NOTES.md: "选项自改写只在关键事件触发，普通行动保持轻度"
   // Non-key events: cap at level 2 (visual flicker only, no text rewriting)
   var maxCorruption = isKeyEvent ? 100 : (V.level >= 3 ? 20 : 0);
@@ -446,7 +456,7 @@ export function AbyssPopup(props) {
   var timerRef = useRef(null);
   useEffect(
     function () {
-      var _slvl = getVisualForSan(san).level || 0;
+      var _slvl = getVisualForSan(san).level || 0; // Called once per effect, not in animation loop — OK
       if (_slvl < 3) {
         setVisible(false);
         return;

@@ -37,10 +37,11 @@ export function getSealStateId(day, ctx) {
 
 /**
  * Get random weather for a new day.
- * @param {function} pick - pick(array) function
+ * @param {function|null} rng - seeded RNG (c.rng), falls back to Math.random
  * @returns {{ name: string, w: number }}
  */
-export function getWeather(pick) {
+export function getWeather(rng) {
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
   var ws = [
     { name: '晴天', w: 3 },
     { name: '阴天', w: 4 },
@@ -48,7 +49,7 @@ export function getWeather(pick) {
     { name: '大雾', w: 2 },
     { name: '血月', w: 1 },
   ];
-  var r = Math.random() * ws.reduce(function (s, x) { return s + x.w; }, 0);
+  var r = _rand() * ws.reduce(function (s, x) { return s + x.w; }, 0);
   for (var i = 0; i < ws.length; i++) {
     r -= ws[i].w;
     if (r <= 0) return ws[i];

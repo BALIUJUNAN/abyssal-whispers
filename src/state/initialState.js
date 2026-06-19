@@ -39,7 +39,8 @@ function createCharacterState() {
       return { id: idMap[item.name] || item.name, name: item.name, uses: item.uses };
     }),
     clues: [],                      // [persisted]
-    difficulty: 'normal',           // [persisted]
+    difficulty: 'normal',           // [persisted] 向后兼容字符串key
+    difficultyLevel: 1,             // [persisted] 21级难度 1-21
   };
 }
 

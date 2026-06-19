@@ -2,6 +2,8 @@
 // PrologueScreen, SurvivalGuide, CharCreation
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { audioManager } from '../managers/AudioManager.js';
+import { DIFFICULTY_LEVELS } from '../config/difficulty.js';
+import { getPrologueEvent, getPrologueSceneOrder } from '../reducers/prologueReducer.js';
 
 export function PrologueScreen({ state, dispatch }) {
   const prologue = state.prologue;
@@ -303,14 +305,11 @@ export function SurvivalGuide({ onContinue }) {
 export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArchetype }) {
   const s = state.stats;
   const rolled = s.STR !== 50;
-  const diffs = GD.core_loop?.difficulty_levels || { normal: {}, hard: {}, nightmare: {} };
-  const diffInfo = {
-    normal: '标准难度，适合初次游玩',
-    hard: 'SAN损失×1.5，检定难度-10',
-    nightmare: 'SAN损失×2，检定难度-20',
-  };
   const archetypes = GD.systems?.player?.archetypes || [];
   const selectedArch = archetypes.find((a) => a.id === state.archetype);
+  const diffLevel = state.difficultyLevel || 1;
+  const [showAdvanced, setShowAdvanced] = useState(diffLevel > 3);
+  const diffConfig = DIFFICULTY_LEVELS[diffLevel] || DIFFICULTY_LEVELS[1];
   var scrollElRef = useRef(null);
   function setScrollRef(el) {
     var old = scrollElRef.current;
@@ -325,6 +324,12 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
     };
     el.addEventListener('wheel', el._wh, { passive: false });
   }
+  function getDiffColor(level) {
+    if (level <= 3) return 'var(--accent)';     // 绿
+    if (level <= 9) return 'var(--gold)';        // 橙
+    if (level <= 15) return 'var(--danger)';     // 红
+    return 'var(--purple)';                      // 紫
+  }
   return (
     <div className="screen-scroll" ref={setScrollRef}>
     <div className="char-creation">
@@ -333,22 +338,67 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
         <div style={{ color: 'var(--text-dim)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
           难度选择
         </div>
+        {/* 基础3级 */}
         <div
-          style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '1rem' }}
+          style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '0.5rem' }}
         >
-          {Object.keys(diffs).map((d) => (
+          {[1, 2, 3].map((lv) => (
             <button
-              key={d}
-              className={'btn btn-sm' + (state.difficulty === d ? ' btn-primary' : '')}
-              onClick={() => onSetDifficulty(d)}
-              title={diffInfo[d]}
+              key={lv}
+              className={'btn btn-sm' + (diffLevel === lv ? ' btn-primary' : '')}
+              onClick={() => onSetDifficulty(lv)}
+              title={DIFFICULTY_LEVELS[lv]?.description}
             >
-              {d === 'normal' ? '普通' : d === 'hard' ? '困难' : '噩梦'}
+              {DIFFICULTY_LEVELS[lv]?.name}
             </button>
           ))}
         </div>
-        <div style={{ color: 'var(--text-dim)', fontSize: '0.7rem', marginBottom: '1rem' }}>
-          {diffInfo[state.difficulty]}
+        {/* 解锁进阶难度按钮 */}
+        {!showAdvanced && (
+          <button
+            className="btn btn-sm"
+            style={{ fontSize: '0.65rem', opacity: 0.7, marginBottom: '0.5rem' }}
+            onClick={() => setShowAdvanced(true)}
+          >
+            ▼ 解锁进阶难度
+          </button>
+        )}
+        {/* 进阶难度 4-21 */}
+        {showAdvanced && (
+          <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', justifyContent: 'center', marginBottom: '0.3rem' }}>
+              {Object.keys(DIFFICULTY_LEVELS).map(Number).filter(lv => lv > 3).map((lv) => (
+                <button
+                  key={lv}
+                  className={'btn btn-sm' + (diffLevel === lv ? ' btn-primary' : '')}
+                  onClick={() => onSetDifficulty(lv)}
+                  title={DIFFICULTY_LEVELS[lv]?.description}
+                  style={{
+                    fontSize: '0.6rem',
+                    padding: '0.2rem 0.4rem',
+                    minWidth: '2.2rem',
+                    borderColor: diffLevel === lv ? getDiffColor(lv) : undefined,
+                  }}
+                >
+                  {lv}
+                </button>
+              ))}
+            </div>
+            <button
+              className="btn btn-sm"
+              style={{ fontSize: '0.6rem', opacity: 0.5 }}
+              onClick={() => setShowAdvanced(false)}
+            >
+              ▲ 收起
+            </button>
+          </div>
+        )}
+        {/* 当前难度信息 */}
+        <div style={{ color: getDiffColor(diffLevel), fontSize: '0.7rem', marginBottom: '0.5rem' }}>
+          Lv.{diffLevel} {diffConfig.name} — {diffConfig.description}
+        </div>
+        <div style={{ color: 'var(--text-dim)', fontSize: '0.6rem' }}>
+          预期存活率 {diffConfig.survival} · 平均存活 {diffConfig.days} 天
         </div>
       </div>
       {archetypes.length > 0 && (

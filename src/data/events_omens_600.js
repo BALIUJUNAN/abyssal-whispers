@@ -81,7 +81,8 @@ export const OMENS = [
  * @param {object} state
  * @returns {object|null} omen event or null
  */
-export function checkOmens(state) {
+export function checkOmens(state, rng) {
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
   const loop = state.loopCount || 0;
   const mythos = state.mythosLevel || 0;
   const endings = (state.previousEndings || []).length;
@@ -94,7 +95,7 @@ export function checkOmens(state) {
   if (available.length === 0) return null;
 
   // 15% chance per eligible explore to show an omen
-  if (Math.random() > 0.15) return null;
+  if (_rand() > 0.15) return null;
 
   return available[0]; // return oldest unseen omen first
 }

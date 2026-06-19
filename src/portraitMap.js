@@ -386,8 +386,3 @@ function getEndingCgImage(endingId) {
   if (!filename) return null;
   return filename.indexOf('assets/') === 0 ? filename : ENDING_CG_BASE + filename;
 }
-
-function getEndingPrelude(endingType) {
-  var pool = ENDING_TYPEWRITER_PRELUDE[endingType] || ENDING_TYPEWRITER_PRELUDE.bad;
-  return pool[Math.floor(Math.random() * pool.length)];
-}

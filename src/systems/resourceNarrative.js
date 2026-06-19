@@ -27,7 +27,7 @@ export function getResourceTextCorruptionChance(state) {
   return Math.min(0.6, chance);
 }
 
-export function getResourceNarrative(state) {
+export function getResourceNarrative(state, rng) {
   var texts = [];
   var food = state.food || 0;
   var light = state.lightLevel || 0;
@@ -40,7 +40,8 @@ export function getResourceNarrative(state) {
   if (fatigue >= 8) texts.push('你试图集中注意力。但思绪像雾一样散开了。');
   else if (fatigue >= 5) texts.push('你的眼皮很重。有些字你看不清了。');
   if (texts.length === 0) return null;
-  return texts[Math.floor(Math.random() * texts.length)];
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  return texts[Math.floor(_rand() * texts.length)];
 }
 
 /**
@@ -50,24 +51,26 @@ export function getResourceNarrative(state) {
  * High fatigue: text truncated (memory failure).
  * No food: desperation insertions.
  */
-export function applyResourceTextCorruption(text, state) {
+export function applyResourceTextCorruption(text, state, rng) {
   if (!text) return text;
   var chance = getResourceTextCorruptionChance(state);
-  if (chance <= 0 || Math.random() > chance) return text;
+  if (chance <= 0) return text;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (_rand() > chance) return text;
   var light = state.lightLevel || 0;
   var infection = state.infection || 0;
   var fatigue = state.fatigue || 0;
   var food = state.food || 0;
   // Light = 0: characters become unreadable blocks
-  if (light === 0 && Math.random() < 0.5) {
+  if (light === 0 && _rand() < 0.5) {
     var chars = text.split('');
     for (var i = 0; i < chars.length; i++) {
-      if (Math.random() < 0.08) chars[i] = '■';
+      if (_rand() < 0.08) chars[i] = '■';
     }
     return chars.join('');
   }
   // Light = 1: occasional word replacement (unreliable perception)
-  if (light === 1 && Math.random() < 0.3) {
+  if (light === 1 && _rand() < 0.3) {
     var unreliablePairs = [
       ['看到了', '以为你看到了'],
       ['听到了', '可能是'],
@@ -76,12 +79,12 @@ export function applyResourceTextCorruption(text, state) {
       ['存在', '似乎'],
     ];
     var t = text;
-    var pair = unreliablePairs[Math.floor(Math.random() * unreliablePairs.length)];
+    var pair = unreliablePairs[Math.floor(_rand() * unreliablePairs.length)];
     if (t.includes(pair[0])) t = t.replace(pair[0], pair[1]);
     return t;
   }
   // Infection >= 4: sensory intrusion
-  if (infection >= 4 && Math.random() < 0.35) {
+  if (infection >= 4 && _rand() < 0.35) {
     var suffixes = [
       '\n（你听到海浪声。但这里没有海。）',
       '\n（你的皮肤在发痒。不是蚊子。是别的什么。）',
@@ -89,15 +92,15 @@ export function applyResourceTextCorruption(text, state) {
       '\n（你的手指甲下面有沙子。你今天没有碰过沙子。）',
     ];
     if (infection >= 7) suffixes.push('\n（你低头看了一眼。你的影子比你矮了一截。）');
-    return text + suffixes[Math.floor(Math.random() * suffixes.length)];
+    return text + suffixes[Math.floor(_rand() * suffixes.length)];
   }
   // Fatigue >= 8: memory failure — text gets truncated
-  if (fatigue >= 8 && Math.random() < 0.35) {
-    var cut = Math.floor(text.length * (0.5 + Math.random() * 0.3));
+  if (fatigue >= 8 && _rand() < 0.35) {
+    var cut = Math.floor(text.length * (0.5 + _rand() * 0.3));
     return text.slice(0, cut) + '……你想不起来了。';
   }
   // No food: desperation perception
-  if (food === 0 && Math.random() < 0.2) {
+  if (food === 0 && _rand() < 0.2) {
     return text + '\n（你的胃在叫。声音比你预想的大。）';
   }
   return text;
@@ -171,7 +174,7 @@ export function getResourceEventWeightModifier(evt, state) {
 // SECTION 3: Daily Resource Processing
 // =============================================
 
-export function processDailyResources(state) {
+export function processDailyResources(state, rng) {
   // Declare food BEFORE use to avoid var-hoisting shadowing the starvation check
   var food = state.food || 0;
   var actions = state._dayActions || [];
@@ -182,14 +185,17 @@ export function processDailyResources(state) {
   var corruptedNpcs = Object.values(state.npcStates || {}).filter(function (ns) {
     return ns.corrupted && !ns.dead;
   }).length;
-  if (corruptedNpcs > 0 && Math.random() < 0.15 * corruptedNpcs) {
-    state.infection = Math.min(state.maxInfection || 10, (state.infection || 0) + 1);
+  if (corruptedNpcs > 0) {
+    var _rand = rng ? rng.next.bind(rng) : Math.random;
+    if (_rand() < 0.15 * corruptedNpcs) {
+      state.infection = Math.min(state.maxInfection || 10, (state.infection || 0) + 1);
+    }
   }
   // Dangerous area infection: driven by area.infection_risk flag (from game data),
   // falls back to danger_level >= 5 for backward compatibility.
   // NOTE: lighthouse (level 5) has infection_risk=false in game data — narrative exclusion.
   var areaData =
-    typeof getAreaInfo === 'function' ? getAreaInfo(state.currentArea, { GD: (typeof window !== 'undefined' && window.GD) || {} }) : null;
+    getAreaInfo(state.currentArea, { GD: (typeof window !== 'undefined' && window.GD) || {} });
   var isInfectious = areaData
     ? !!areaData.infection_risk
     : ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove'].indexOf(state.currentArea) >= 0;
@@ -348,13 +354,14 @@ export function getSafehouseVisualStage(corruption) {
  * @param {number} eventChanceOverride - override chance (optional)
  * @returns {object|null} pollution event or null
  */
-export function getSafehousePollutionEvent(stage, eventChanceOverride) {
+export function getSafehousePollutionEvent(stage, eventChanceOverride, rng) {
   var stageData = SAFEHOUSE_STAGES[Math.min(stage, SAFEHOUSE_STAGES.length - 1)];
   var chance = eventChanceOverride != null ? eventChanceOverride : stageData.eventChance;
-  if (Math.random() >= chance) return null;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (_rand() >= chance) return null;
   var eligible = SAFEHOUSE_POLLUTION_EVENTS.filter(function (e) {
     return stage >= e.minStage && stage <= e.maxStage;
   });
   if (eligible.length === 0) return null;
-  return eligible[Math.floor(Math.random() * eligible.length)];
+  return eligible[Math.floor(_rand() * eligible.length)];
 }
