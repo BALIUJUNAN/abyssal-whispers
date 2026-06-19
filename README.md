@@ -11,7 +11,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
 ![Tests](https://img.shields.io/badge/tests-285_flow_%2B_events_%2B_difficulty-brightgreen)
-![Version](https://img.shields.io/badge/version-0.7.1-orange)
+![Version](https://img.shields.io/badge/version-0.8.0-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -373,59 +373,68 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 
 > 推荐使用 Chrome / Edge 以获得最佳音频体验。移动端同样适配。
 
-### 21级难度系统
+### 13 级难度系统
 
-游戏提供 **21级难度梯度**，从休闲体验到原汁原味的克苏鲁恐怖：
+游戏提供 **13 级难度梯度**，从休闲体验到原汁原味的克苏鲁恐怖，每级均有独立的中文名称与完整参数配置：
 
-| 区间 | 级别 | 存活率 | 平均天数 | 目标玩家 |
-|------|------|--------|----------|----------|
-| **基础** | Level 1-3 | 25-8% | 20-14天 | 新手/标准玩家 |
-| **进阶** | Level 4-9 | 20-6% | 19-13天 | 进阶玩家 |
-| **硬核** | Level 10-15 | 5-2% | 12-8天 | 硬核玩家 |
-| **极限** | Level 16-21 | 2-3% | 10-8天 | 受苦爱好者 |
+| 区间 | 级别 | 名称 | 存活率 | 平均天数 | 目标玩家 |
+|------|------|------|--------|----------|----------|
+| **基础** | Level 1 | 薄雾 | 35-45% | 22-24天 | 新手 |
+| | Level 2 | 潮声 | 25-35% | 20-22天 | 新手 |
+| | Level 3 | 初访 | 20-25% | 19-21天 | 标准玩家 |
+| **进阶** | Level 4 | 低语 | 15-20% | 17-19天 | 进阶玩家 |
+| | Level 5 | 湿痕 | 12-15% | 16-18天 | 进阶玩家 |
+| | Level 6 | 失名 | 10-12% | 15-17天 | 进阶玩家 |
+| **硬核** | Level 7 | 曲径 | 8-10% | 14-16天 | 硬核玩家 |
+| | Level 8 | 螺旋 | 6-8% | 13-15天 | 硬核玩家 |
+| | Level 9 | 地鸣 | 5-6% | 12-14天 | 硬核玩家 |
+| **传说** | Level 10 | 影随 | 4-5% | 11-13天 | 极限玩家 |
+| | Level 11 | 海蚀 | 3-4% | 10-12天 | 极限玩家 |
+| | Level 12 | 门开 | 2-3% | 9-11天 | 极限玩家 |
+| **终极** | Level 13 | 归渊 | <1% | 8-10天 | 第十三声钟 |
 
-**难度特性**：
-- **Level 1 (普通)**: SAN/HP损失减少65%，前6天安全区
-- **Level 3 (噩梦)**: SAN/HP损失减少35%，前4天安全区
-- **Level 12 (专家)**: SAN/HP损失减少15%，前2天安全区
-- **Level 21 (v1原版)**: 无任何保护，原始难度
+**难度分级**：
+
+| 级别 | 钟相 | 起始食物 | 起始AP | 负面事件权重 | 特殊机制 |
+|------|------|---------|--------|-------------|---------|
+| 1-3 | 昼钟 | 3 | 12 | ×1.0 | 新手保护期 |
+| 4-6 | 雾钟 | 2 | 10 | ×1.2 | 资源紧张 |
+| 7-9 | 昏钟 | 1 | 8 | ×1.5 | 系统性压力 |
+| 10-12 | 夜钟 | 0 | 6 | ×2.0 | 极限压迫 |
+| 13 | 第十三声 | 0 | 4 | ×3.0 | 现实扭曲 + 隐藏结局解锁 |
 
 **保护机制**：
-- **SAN保护**: 根据难度级别减少SAN损失
-- **HP保护**: 根据难度级别减少HP损失
-- **安全区**: 低难度前几天禁止访问高危险区域
-- **损失上限**: 限制单次/每日最大损失
+- **SAN保护**: 根据难度级别和游戏天数减少SAN损失（Day 1-3 最高保护，Day 22-28 无保护）
+- **HP保护**: 同 SAN 保护，按难度×天数阶梯衰减
+- **安全区**: 低难度限制可访问区域范围（Level 1-3: 6/5/4 区 → Level 13: 0 区）
+- **损失上限**: 每次/每日最大 SAN/HP 损失限制
+- **SAN继承**: Level 13 特有 — 轮回时继承 10% SAN（上限 20），开启"第十三声"钟响
 
-**测试数据** (基于1000+次模拟)：
-```
-Level  1: 存活率 23.5%, 平均 20.05天
-Level  3: 存活率 5.0%, 平均 13.40天
-Level  6: 存活率 2.5%, 平均 11.57天
-Level 12: 存活率 1.5%, 平均 8.96天
-Level 21: 存活率 1.0%, 平均 7.94天
-```
+**数据驱动**：所有 13 级参数存储于 `difficultyLevels.json`，`difficultyLevels.js` 自动生成，`difficultyState.js` 运行时应用。
 
 **使用方法**：
 ```bash
 # 运行难度测试
-node scripts/sim28balance_final.cjs --difficulty normal --runs 1000 --seed 42
+node scripts/simulate_loops.cjs --loops 100 --seed 42 --verbose
 
-# 测试所有难度
-for level in 1 3 6 9 12 15 18 21; do
-  node scripts/sim28balance_21levels.cjs --level $level --runs 500 --seed 42
-done
+# 测试特定难度
+node scripts/simulate_loops.cjs --difficulty 13 --loops 50 --report report.txt
 ```
 
 **集成代码**：
 ```javascript
-import { DIFFICULTY_LEVELS, getDifficultyConfig } from './config/difficulty.js';
-import { applyDifficultyToState, applyDifficultyProtection } from './state/difficultyState.js';
+import { DIFFICULTY_LEVELS_RAW } from './config/difficultyLevels.js';
+import { getDifficultyConfig, getPhaseProtection } from './config/difficulty.js';
+import { applyDifficultyToState } from './state/difficultyState.js';
+
+// 获取难度配置（按级别查表）
+const config = getDifficultyConfig(7); // Level 7: 曲径
 
 // 应用难度到游戏状态
-const stateWithDifficulty = applyDifficultyToState(initialState, difficultyLevel);
+const stateWithDifficulty = applyDifficultyToState(initialState, 7);
 
-// 在处理SAN损失时
-const protectedLoss = applyDifficultyProtection(baseLoss, day, state);
+// 按阶段查询保护（Day-based）
+const protection = getPhaseProtection(7, 5); // Level 7, Day 5
 ```
 
 
@@ -453,7 +462,8 @@ Copyright © 2024-2026 BALIUJUNAN. All Rights Reserved.
 
 ```
 React 18 + useReducer + Immer + 双 Store (useGameStore + useUiStore)
-  → 引擎层 (src/engine/) — 独立npm包，零游戏导入，DI注入
+  → Zustand 响应式子层 (src/state/useGameStore.js) — useReducer 之上的选择器桥接
+  → 引擎层 (src/engine/) — TypeScript strict 模式，独立npm包，零游戏导入，DI注入
   │    EventEngine / PollutionManager / WorldTimeSystem / SaveManager
   │    commands.js (类型化effect工厂) / eventBus.js (跨Slice通信)
   │    EventEngine Section 9: Day-of-Cycle权重(关键日期超自然×1.8/日常×0.4)
@@ -495,8 +505,9 @@ COC/
 │
 ├── src/                      # 21,000+ 行 JS/JSX，106+ 个源文件
 │   ├── config/               # 集中化配置
-│   │   ├── difficulty.js         # 21级难度 DIFFICULTY_LEVELS 配置
-│   │   └── difficultyLevels.json # 难度参数 JSON（安全区/SAN保护/HP保护/损失上限）
+│   │   ├── difficulty.js         # 难度 DIFFICULTY_LEVELS 配置（13 级梯度）
+│   │   ├── difficultyLevels.js   # 难度参数 JS（自动生成，21级全量参数）
+│   │   └── difficultyLevels.json # 难度参数 JSON 权威数据源
 │   │
 │   ├── app.jsx               # 主入口（368 行 — 路由 + 双Store桥接 + 布局切换）
 │   ├── main.vite.jsx         # Vite 入口（加载 shim + 游戏数据 + 启动 app）
@@ -506,27 +517,30 @@ COC/
 │   ├── portraitMap.js        # 图片路径映射（379 行，ESM export）
 │   ├── index.template.html   # Legacy 构建模板（__INLINE_CSS__ / __INLINE_JS__ 占位符）
 │   │
-│   ├── engine/               # 6 个引擎模块（1,077 行）— 独立npm包，零游戏导入
-│   │   ├── EventEngine.js          # 统一三层加权事件选择（465 行）
-│   │   ├── PollutionManager.js     # SAN+逻辑+视觉污染（161 行，DI注入getStage）
-│   │   ├── WorldTimeSystem.js      # 世界状态/封印/天气（86 行，纯引擎）
-│   │   ├── SaveManager.js          # 存档系统+版本迁移（224 行，DI注入migration）
-│   │   ├── commands.js             # 类型化effect命令工厂（68 行）
-│   │   ├── eventBus.js             # 跨Slice类型化事件总线（73 行）
-│   │   └── ENGINE_CONTRACT.md      # 引擎边界规则文档
+│   ├── engine/               # 引擎模块（TypeScript 迁移中）
+│   │   ├── EventEngine.ts        # 统一三层加权事件选择（TypeScript，465 行）
+│   │   │                           #   interface 类型定义 + strict 模式
+│   │   ├── PollutionManager.ts   # SAN+逻辑+视觉污染（TypeScript，DI注入getStage）
+│   │   ├── SaveManager.ts        # 存档系统+版本迁移（TypeScript，224 行）
+│   │   ├── WorldTimeSystem.js    # 世界状态/封印/天气（86 行，纯引擎）
+│   │   ├── commands.js           # 类型化effect命令工厂（68 行）
+│   │   ├── eventBus.js           # 跨Slice通信（73 行）
+│   │   └── ENGINE_CONTRACT.md    # 引擎边界规则文档
 │   │
 │   ├── runtime/              # 运行时副作用层
 │   │   └── effectExecutor.js       # post-reducer 副作用执行器（45 行）
 │   │                               #   AUDIO_PLAY / SAVE_GAME / INCREMENT_STAT 等
 │   │                               #   按 _fxId 去重，类型分发（EFFECT_HANDLERS map）
 │   │
-│   ├── state/                # 6 个状态模块 — 双 Store 架构 + 难度状态 + 平衡常量
-│   │   ├── gameStore.js            # useGameStore + 选择器钩子（90 行）
-│   │   ├── uiStore.js              # useUiStore（模态/Toast/设置/地图模式状态）（89 行）
-│   │   ├── initialState.js         # 游戏初始状态定义（72 行）
-│   │   ├── gameConstants.js        # GAME_BALANCE 集中化平衡常量（40 行）
-│   │   ├── difficultyState.js      # 21级难度 applyDifficultyToState（~60 行）
-│   │   └── transientKeys.js        # 临时状态键定义（23 行）
+│   ├── state/                # 状态层 — 双 Store 架构 + Zustand 响应式层 + 难度状态
+│   │   ├── useGameStore.js       # Zustand 响应式子层（~40 行）— useReducer 之上的选择器桥接
+│   │   │                           #   useSan/useDay/useHp/usePollution 等选择器钩子
+│   │   ├── gameStore.js          # 旧 Zustand 兼容层（90 行）
+│   │   ├── uiStore.js             # useUiStore（模态/Toast/设置/地图模式状态）（89 行）
+│   │   ├── initialState.js        # 游戏初始状态定义（72 行）
+│   │   ├── gameConstants.js       # GAME_BALANCE 集中化平衡常量（40 行）
+│   │   ├── difficultyState.js     # 难度 applyDifficultyToState（~60 行）
+│   │   └── transientKeys.js       # 临时状态键定义（23 行）
 │   │
 │   ├── components/           # 16 个 UI 组件（2,895 行）
 │   │   ├── ui/DevPanel.jsx         # 开发者调试面板（79 行，~ 打开）
@@ -739,8 +753,10 @@ COC/
 
 | 模块                   | 路径                     | 行数    | 职责                                | 关键特性                                               |
 | ---------------------- | ------------------------ | ------- | ----------------------------------- | ------------------------------------------------------ |
-| **EventEngine**        | `engine/`                | 373+    | 三层加权 + Day-of-Cycle权重         | 行为画像/冷却衰减/缓冲执行/恐惧权重/关键日期超自然×1.8 |
-| **PollutionManager**   | `engine/`                | 98      | SAN+逻辑+视觉污染                   | 文本幻觉/虚假消息/虚假记忆/权重腐蚀 + 确定性RNG        |
+| **EventEngine**        | `engine/`                | 465+    | 三层加权 + Day-of-Cycle权重         | TypeScript strict 模式；behavior画像/冷却衰减/缓冲执行/恐惧权重/关键日期超自然×1.8 |
+| **PollutionManager**   | `engine/`                | 161     | SAN+逻辑+视觉污染                   | TypeScript；文本幻觉/虚假消息/虚假记忆/权重腐蚀 + 确定性RNG        |
+| **SaveManager**        | `engine/`                | 224     | 存档系统+版本迁移                   | TypeScript；6槽位/字段过滤/旧格式兼容/JSON导入导出                 |
+| **useGameStore**       | `state/`                 | ~40     | Zustand 响应式子层                   | useReducer 之上的选择器桥接层，useSan/useDay/useHp 等钩子           |
 | **WorldTimeSystem**    | `engine/`                | 97      | 世界状态/封印/天气                  | 5阶段封印状态机/区域名称扭曲/安全屋退化 + 确定性RNG    |
 | **SaveManager**        | `engine/`                | 190     | 存档系统+版本迁移                   | 6槽位/字段过滤/旧格式兼容/JSON导入导出                 |
 | **effectExecutor**     | `runtime/`               | 45      | post-reducer 副作用                 | EFFECT_HANDLERS 类型分发 / \_fxId 去重                 |
@@ -1061,7 +1077,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0.7.0** | 2026-06-17 | **21级难度系统 + 平衡性测试框架** — ①新增21级难度梯度：从Level 1(普通,SAN/HP损失-65%,前6天安全区)到Level 21(原版无保护)，覆盖休闲→标准→进阶→硬核→极限五个区间；②难度保护机制：SAN保护/HP保护/安全区/损失上限四维防护，`getDifficultyConfig()` 统一配置；③平衡性测试框架：`sim28balance_21levels.cjs` 支持单级/全级批量模拟(1000+次)，输出存活率/平均天数/死因分布；④集成代码：`difficulty.js`(配置) + `difficultyState.js`(状态应用) + `applyDifficultyProtection()`(运行时防护)；⑤测试数据：Level 1存活率23.5%/20天 → Level 21存活率1.0%/7.9天，符合预期递减曲线；⑥确定性RNG全面接入：6个slice handler 40+处`Math.random()`改为`c.rng`fallback模式，新增`makeRand(rng)`工具函数；⑦ctx参数传递完善：`applyDeathResolution`/`narrDailySummary`/`rollMadness`等核心函数添加游戏数据上下文；⑧构建顺序修复：`miscReducer.js`移至`effectReducer.js`之后加载；⑨饥饿伤害接入首轮保护：`adjustStarvationDamage()`减少低难度前期饥饿惩罚 |
+| **0.8.0** | 2026-06-20 | **TypeScript 迁移 + 架构升级** — ①引擎层 TypeScript 迁移：`EventEngine.ts`/`PollutionManager.ts`/`SaveManager.ts` 采用 TypeScript strict 模式，新增 interface 类型定义（GameDataGlobal/BehaviorTracking/Milestone 等），`tsconfig.json` 配置 ES2022 + bundler 模块解析 + `@/*` 路径别名；②Zustand 响应式子层：新增 `useGameStore.js` 作为 useReducer 之上的选择器桥接层，`useSan/useDay/useHp/usePollution` 等钩子实现细粒度订阅，消除不必要的全 state re-render；③难度数据重构：`difficultyLevels.js` 从 JSON 自动生成（13 级全量参数），`difficulty.js` 改为从 JS import + 查表，消除两套并行数据源；④构建系统兼容：`build.py` 新增 `resolve_json_imports()` 处理 JSON import inline，tsconfig `allowJs: true` 确保 JS/TS 混编过渡期兼容 |
 | **0.7.1** | 2026-06-19 | **轮回记忆机械化 + Day-of-Cycle权重 + NPC对话深化 + 性能优化** — ①轮回记忆效应机械化：`applyLoopMemoryEffects()` 解析结局`loop_memory_effect`叙事文本，自动应用NPC信任+/腐化-/SAN上下限/全属性+/神秘学+/物品/角色解锁/封印知识持久化(10+种模式)；②Loop 2-3渐进保护：`firstLoopBalance.js`新增Loop 2( SAN上限7/安全区2天/致命屏蔽)和Loop 3(SAN上限9/安全区1天/致命解除)，技能保留30%→40%→50%→60%阶梯；③Day-of-Cycle事件权重：`EventEngine.js` Section 9新增关键日期(7/14/21/28)超自然×1.8/日常×0.4 + SAN stage 5+类型差异化修正(超自然1.8/日常0.4)；④NPC对话三扩展：日期里程碑对话(1-28天×8NPC)、天气反应对话(5天气×8NPC)、SAN观察对话(SAN<40时NPC关心玩家)；⑤SanVisualCorruption重构：Canvas渲染移至`SanPollutionLayer`组件，此文件改为surge/flash触发器(关键日期脉冲×1.8/×2.2)；⑥难度模组Hooks：`textVariants.js`/`ugcReducer.js`新增`difficulty_modifiers`(文本腐蚀/NPC信任/自定义替换)，Zod Schema全量校验；⑦NPC记忆Tier 5：汤米·陈+埃德加·洛夫克拉夫特新增T5跨轮记忆(实验室/相机/时间线重叠)；⑧封印知识持久化：`initLoopState`追踪封印仪式参与记录(Hilda/Fisher/Isabella)，跨轮解锁特殊对话；⑨确定性RNG扩展：`PollutionManager`/`fearLens`/`worldDecay`/`getWeather`等系统接入`rng`参数；⑩模拟器增强：`simulate_loops.cjs`新增`--difficulty/--batch/--progress/--json`参数+游戏数据模块级缓存+循环效果表预计算；⑪性能优化：`SanPollutionLayer` `getVisualForSan` useRef缓存，仅SAN变化时重算；⑫游戏数据扩展：4个结局新增`afterglow`余韵文本(老费舍救赎/伊莎贝拉第十二声钟/深渊吞噬/循环真相)，5个`loop_memory_effect`机械化映射 |
 | **0.6.1** | 2026-06-17 | **UI 可用性修复 + 美术滤镜校准 + 设置弹窗增强** — ①前传屏幕滚动：`body { overflow: clip }` 阻止滚轮事件传递，改用 JS wheel handler 直接在容器上捕获并手动滚动，`.prologue-screen` 改为 `height:100vh; overflow-y:auto`，隐藏滚动条；②前传底部按钮遮挡：`.prologue-footer` 固定底栏 `z-index:5` 遮挡「进入沃切斯特」按钮，添加 `pointer-events: none` 穿透点击；③调查员档案滚动：新增 `.screen-scroll` 全屏滚动容器，CharCreation 包裹其中，回调 ref 绑定 wheel handler；④结局画面滚动：`.ending-screen` 改为 `height:100vh; overflow-y:auto`；⑤`.screen-transition` 从 `min-height:100vh` 改为 `height:100vh; overflow:hidden`，确保子滚动容器能正确溢出；⑥设置弹窗增强：新增 💾存档 / 📖读档 / 🏆成就 三个按钮，解决图片模式下 FloatingInfoBar 不可见时功能入口缺失；⑦SVG 暗角滤镜修复：`soft-vignette` stdDeviation 80→35、`strong-vignette` 60→28，filterRegion 200%→100%，解决大面积均匀变暗问题；⑧CSS 选择器修复：`.area-scene img` → `.area-scene > img`（直接子元素），NPC 头像（`.npc-portrait-thumb` / `.area-panel-npc-img`）加独立滤镜规则，避免场景暗角覆盖圆形头像 |
 | **0.6.0** | 2026-06-16 | **转场动画 + NPC 对话扩充 + 事件池 + Bug 修复** — ①屏幕转场系统：新增 `ScreenTransition.jsx`（Canvas exit + CSS enter + 音频联动）+ `TransitionCanvas.jsx`（4 种程序化效果：noiseWipe / inkBleed / voidCircle / glitchSlices），重构 app.jsx 渲染架构，设置面板新增「减弱动效」开关；②NPC 上下文对话：新增 `npcContextualLines.js`（8 位 NPC × 143 条条件感知对话），`selectContextualLine()` 支持信任 / 时段 / SAN / 轮回 / 死亡遗产 / 物品 / 区域条件过滤 + 已读去重，NPCDialog 组件显示上下文短句；③后 7 区事件池扩充 +120 事件：`events_supplement.js` 覆盖 forbidden_grove / ruins_of_yith / lighthouse / catacombs_entrance / voxchester_manor / whispering_forest / deep_catacombs，区域分布从 26-56 均衡至 45-65；④第 600 事件修复：mergeExtendedEvents 中 50 个物品定义（无 trigger）被计入 _extendedEvents 导致 .length≠599，已 filter(e => e.trigger)；⑤ch2plus 70 事件补全 once_per_run；⑥轮回商店 3 个购买效果落地（SAN 上限+5 / 死亡保留物品 / 随机稀有物品）；⑦DevPanel 新增 Event Pool 区域（599/600 进度）；⑧修复 2 处 getSanStageFromGD import 缺失；⑨修复前传打字机 CSS steps(var()) 静默失败 + ScreenTransition children 缓存导致同屏更新失效；⑩页面基础缩放 110% 作为 100%，消除侧边留白 |
