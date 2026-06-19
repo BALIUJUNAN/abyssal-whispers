@@ -506,7 +506,7 @@ COC/
 ├── src/                      # 21,000+ 行 JS/JSX，106+ 个源文件
 │   ├── config/               # 集中化配置
 │   │   ├── difficulty.js         # 难度 DIFFICULTY_LEVELS 配置（13 级梯度）
-│   │   ├── difficultyLevels.js   # 难度参数 JS（自动生成，21级全量参数）
+│   │   ├── difficultyLevels.js   # 难度参数 JS（自动生成，13级全量参数）
 │   │   └── difficultyLevels.json # 难度参数 JSON 权威数据源
 │   │
 │   ├── app.jsx               # 主入口（368 行 — 路由 + 双Store桥接 + 布局切换）
