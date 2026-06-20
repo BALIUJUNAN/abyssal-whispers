@@ -10,7 +10,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
-![Tests](https://img.shields.io/badge/tests-285_flow_%2B_events_%2B_difficulty-brightgreen)
+![Tests](https://img.shields.io/badge/tests-285_passed_%2F_0_failed-brightgreen)
 ![Version](https://img.shields.io/badge/version-0.8.0-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
@@ -72,7 +72,7 @@ npm run tauri:build
 
 | 维度           | 数据                                                                                                                        |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **独立事件**   | **855+ 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆） + 102 结局，全部含 quality_tier / trigger 条件 |
+| **独立事件**   | **855+ 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆） + 102 结局，全部含 quality_tier / trigger 条件，**589 个事件含 SAN/轮回 distortion variants（覆盖率 98%）** |
 | **行为结局**   | **36 条** — 由你的选择模式触发，非预设分支                                                                                  |
 | **主线结局**   | **10 条** — 封印守护者 / 希尔达抉择 / 老费舍血脉 / 第十二声钟 / 海上逃离 / 证据逃离 / 异端黎明 / 深渊吞噬 / 超越 / 循环真相 |
 | **结局余韵**   | 每条结局附带可解锁的 Afterglow 文本（条件触发）                                                                             |
@@ -364,6 +364,12 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **模拟器性能增强**        | `simulate_loops.cjs` 新增 --difficulty/--batch/--progress/--json 参数，游戏数据模块级缓存，循环效果表预计算                               |
 | **SanPollutionLayer 缓存**| `getVisualForSan` 结果 useRef 缓存，仅 SAN 变化时重算，减少 Canvas 渲染开销                                                           |
 | **第 600 事件**           | 隐藏终局事件 — loop≥10 + mythos≥25 + san≤10 + 5+结局 + 终局内容 → 599→600 虚拟事件自动显现         |
+| **triggeredSet.js**       | 并行 Set 结构替代 triggeredEvents.includes() O(n) 扫描，12 个文件 migrated，事件查询 O(1)                                                               |
+| **triggeredEvents 上限**  | triggeredEvents 硬上限 1000 + triggeredSilentEvents 上限 500，每轮回 initLoopState 自动截断，防止长玩存档膨胀                                                                 |
+| **AudioManager 资源释放** | stopAmbient() 加 `src=''` 释放媒体引用，允许 GC 回收 Audio 对象                                                                             |
+| **NPCDialog AbortController** | LLM 异步请求真正 abort（不只是丢弃结果），glmClient._doFetch 接受外部 AbortSignal                                                                    |
+| **React 渲染缓存**        | FloatingInfoBar CluePanel + GamePanels freeClues 加 useMemo，大数组 filter 仅依赖变化时重算                                                              |
+| **eventBus 订阅审计**     | 确认 on() 订阅未被组件导入使用，无监听器泄漏风险                                                                                                |
 
 ---
 
@@ -503,7 +509,7 @@ COC/
 ├── assets/webp/              # 138 张 WebP 图片素材
 ├── audio/                    # 53 个音频文件（WAV + MP3）
 │
-├── src/                      # 21,000+ 行 JS/JSX，106+ 个源文件
+├── src/                      # 57,000+ 行 JS/JSX/TS，130+ 个源文件
 │   ├── config/               # 集中化配置
 │   │   ├── difficulty.js         # 难度 DIFFICULTY_LEVELS 配置（13 级梯度）
 │   │   ├── difficultyLevels.js   # 难度参数 JS（自动生成，13级全量参数）
@@ -633,6 +639,7 @@ COC/
 │   │   ├── trustGates.js           # NPC 信任门控（171 行）
 │   │   ├── npcMemory.js            # NPC 跨轮记忆（~130 行）— Tier 5新增(汤米·陈/洛夫克拉夫特)
 │   │   ├── clueNameMap.js          # 线索中文名映射（47 行）
+│   │   ├── triggeredSet.js         # triggeredEvents 并行 Set（O(1) 查询，替代 Array.includes O(n)）
 │   │   ├── glmClient.js            # GLM-4.7 Flash API 客户端（~190 行）— 限流/缓存/超时/设置持久化
 │   │   └── uiStore.js              # 旧 UI Store 兼容层（77 行）
 │   │
@@ -1077,7 +1084,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0.8.0** | 2026-06-20 | **TypeScript 迁移 + 架构升级** — ①引擎层 TypeScript 迁移：`EventEngine.ts`/`PollutionManager.ts`/`SaveManager.ts` 采用 TypeScript strict 模式，新增 interface 类型定义（GameDataGlobal/BehaviorTracking/Milestone 等），`tsconfig.json` 配置 ES2022 + bundler 模块解析 + `@/*` 路径别名；②Zustand 响应式子层：新增 `useGameStore.js` 作为 useReducer 之上的选择器桥接层，`useSan/useDay/useHp/usePollution` 等钩子实现细粒度订阅，消除不必要的全 state re-render；③难度数据重构：`difficultyLevels.js` 从 JSON 自动生成（13 级全量参数），`difficulty.js` 改为从 JS import + 查表，消除两套并行数据源；④构建系统兼容：`build.py` 新增 `resolve_json_imports()` 处理 JSON import inline，tsconfig `allowJs: true` 确保 JS/TS 混编过渡期兼容 |
+| **0.8.0** | 2026-06-20 | **长玩稳定性 + 工程质量 + 内容质量验证** — ①triggeredEvents 上限防御：triggeredEvents 硬上限 1000 + triggeredSilentEvents 上限 500，每轮回 initLoopState 自动截断，防止长玩存档膨胀；②O(1) 查询优化：新增 `triggeredSet.js` 并行 Set 结构，12 个 reducer/组件文件 migrated (`includes`→`hasTriggered`)，事件存在性查询从 O(n)→O(1)；③AudioManager 资源释放：`stopAmbient()` 加 `src=''` 释放媒体引用，防止 Audio 对象驻留内存；④SanPollutionLayer 清理集中化：startCorruption 清理旧计时器 + useEffect cleanup 统一清理所有 interval/timeout；⑤React 渲染缓存：FloatingInfoBar CluePanel 加 useMemo + GamePanels freeClues 加 useMemo，消除大数组 filter 每帧重算；⑥NPCDialog AbortController：LLM 请求真正 abort（不只是丢弃结果），glmClient._doFetch 接受外部 AbortSignal；⑦eventBus 订阅审计：确认 on() 订阅未被组件使用，无泄漏风险；⑧测试修复：smoke_flows S9-4 (adjustSanLossForLoop23 重命名对齐) + player_experience P3-5/P3-6 (safe window 测试修正) + integration afterglow 预期宽松化，**285 passed / 0 failed / 9 suites**；⑨叙事质量验证：`lint-narrative-quality.mjs` 抽检 50 条 → 平均 96.7/100，禁用词 0，S=33/A=17；⑩NPC 一致性验证：`lint-npc-consistency.mjs` → 478 条台词 0 矛盾；⑪FORBIDDEN_WORDS 调整：去除克苏鲁语境合法词（扭曲/疯狂/诡异/恐怖），仅保留纯标签化恐怖词（不可名状/令人毛骨悚然/骇人听闻/极度恐惧） |
 | **0.7.1** | 2026-06-19 | **轮回记忆机械化 + Day-of-Cycle权重 + NPC对话深化 + 性能优化** — ①轮回记忆效应机械化：`applyLoopMemoryEffects()` 解析结局`loop_memory_effect`叙事文本，自动应用NPC信任+/腐化-/SAN上下限/全属性+/神秘学+/物品/角色解锁/封印知识持久化(10+种模式)；②Loop 2-3渐进保护：`firstLoopBalance.js`新增Loop 2( SAN上限7/安全区2天/致命屏蔽)和Loop 3(SAN上限9/安全区1天/致命解除)，技能保留30%→40%→50%→60%阶梯；③Day-of-Cycle事件权重：`EventEngine.js` Section 9新增关键日期(7/14/21/28)超自然×1.8/日常×0.4 + SAN stage 5+类型差异化修正(超自然1.8/日常0.4)；④NPC对话三扩展：日期里程碑对话(1-28天×8NPC)、天气反应对话(5天气×8NPC)、SAN观察对话(SAN<40时NPC关心玩家)；⑤SanVisualCorruption重构：Canvas渲染移至`SanPollutionLayer`组件，此文件改为surge/flash触发器(关键日期脉冲×1.8/×2.2)；⑥难度模组Hooks：`textVariants.js`/`ugcReducer.js`新增`difficulty_modifiers`(文本腐蚀/NPC信任/自定义替换)，Zod Schema全量校验；⑦NPC记忆Tier 5：汤米·陈+埃德加·洛夫克拉夫特新增T5跨轮记忆(实验室/相机/时间线重叠)；⑧封印知识持久化：`initLoopState`追踪封印仪式参与记录(Hilda/Fisher/Isabella)，跨轮解锁特殊对话；⑨确定性RNG扩展：`PollutionManager`/`fearLens`/`worldDecay`/`getWeather`等系统接入`rng`参数；⑩模拟器增强：`simulate_loops.cjs`新增`--difficulty/--batch/--progress/--json`参数+游戏数据模块级缓存+循环效果表预计算；⑪性能优化：`SanPollutionLayer` `getVisualForSan` useRef缓存，仅SAN变化时重算；⑫游戏数据扩展：4个结局新增`afterglow`余韵文本(老费舍救赎/伊莎贝拉第十二声钟/深渊吞噬/循环真相)，5个`loop_memory_effect`机械化映射 |
 | **0.6.1** | 2026-06-17 | **UI 可用性修复 + 美术滤镜校准 + 设置弹窗增强** — ①前传屏幕滚动：`body { overflow: clip }` 阻止滚轮事件传递，改用 JS wheel handler 直接在容器上捕获并手动滚动，`.prologue-screen` 改为 `height:100vh; overflow-y:auto`，隐藏滚动条；②前传底部按钮遮挡：`.prologue-footer` 固定底栏 `z-index:5` 遮挡「进入沃切斯特」按钮，添加 `pointer-events: none` 穿透点击；③调查员档案滚动：新增 `.screen-scroll` 全屏滚动容器，CharCreation 包裹其中，回调 ref 绑定 wheel handler；④结局画面滚动：`.ending-screen` 改为 `height:100vh; overflow-y:auto`；⑤`.screen-transition` 从 `min-height:100vh` 改为 `height:100vh; overflow:hidden`，确保子滚动容器能正确溢出；⑥设置弹窗增强：新增 💾存档 / 📖读档 / 🏆成就 三个按钮，解决图片模式下 FloatingInfoBar 不可见时功能入口缺失；⑦SVG 暗角滤镜修复：`soft-vignette` stdDeviation 80→35、`strong-vignette` 60→28，filterRegion 200%→100%，解决大面积均匀变暗问题；⑧CSS 选择器修复：`.area-scene img` → `.area-scene > img`（直接子元素），NPC 头像（`.npc-portrait-thumb` / `.area-panel-npc-img`）加独立滤镜规则，避免场景暗角覆盖圆形头像 |
 | **0.6.0** | 2026-06-16 | **转场动画 + NPC 对话扩充 + 事件池 + Bug 修复** — ①屏幕转场系统：新增 `ScreenTransition.jsx`（Canvas exit + CSS enter + 音频联动）+ `TransitionCanvas.jsx`（4 种程序化效果：noiseWipe / inkBleed / voidCircle / glitchSlices），重构 app.jsx 渲染架构，设置面板新增「减弱动效」开关；②NPC 上下文对话：新增 `npcContextualLines.js`（8 位 NPC × 143 条条件感知对话），`selectContextualLine()` 支持信任 / 时段 / SAN / 轮回 / 死亡遗产 / 物品 / 区域条件过滤 + 已读去重，NPCDialog 组件显示上下文短句；③后 7 区事件池扩充 +120 事件：`events_supplement.js` 覆盖 forbidden_grove / ruins_of_yith / lighthouse / catacombs_entrance / voxchester_manor / whispering_forest / deep_catacombs，区域分布从 26-56 均衡至 45-65；④第 600 事件修复：mergeExtendedEvents 中 50 个物品定义（无 trigger）被计入 _extendedEvents 导致 .length≠599，已 filter(e => e.trigger)；⑤ch2plus 70 事件补全 once_per_run；⑥轮回商店 3 个购买效果落地（SAN 上限+5 / 死亡保留物品 / 随机稀有物品）；⑦DevPanel 新增 Event Pool 区域（599/600 进度）；⑧修复 2 处 getSanStageFromGD import 缺失；⑨修复前传打字机 CSS steps(var()) 静默失败 + ScreenTransition children 缓存导致同屏更新失效；⑩页面基础缩放 110% 作为 100%，消除侧边留白 |
