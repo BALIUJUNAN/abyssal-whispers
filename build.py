@@ -54,12 +54,17 @@ REDUCER_FILES = [
     # ── Balance constants (must precede all slice files) ──
     'state/gameConstants.js',
     'utils/clueNameMap.js',   # MUST precede reducers that import it (extendedEvents, eventReducer, endingReducer, effectReducer, objectiveReducer, conclusionReducer)
+    'utils/triggeredSet.js',  # MUST precede reducers that import it (eventReducer, extendedEvents, endingReducer, effectReducer, npcReducer, objectiveReducer, dailySlice, exploreSlice, appHelpers)
     # ── Engine Layer (consolidated core systems) ──
     # engine/WorldTimeSystem.js replaces reducers/worldReducer.js
     'engine/WorldTimeSystem.js',
     'reducers/sanReducer.js',
-    # engine/EventEngine.js replaces systems/eventSystemV2.js (3-layer weighted selection)
+    # engine/EventEngine.js — 3-layer weighted selection (JS for build.py)
     'engine/EventEngine.js',
+    # ── 难度配置 (必须 precedes 所有使用 difficulty 的 reducer) ──
+    'config/difficultyLevels.js',  # difficulty data (JSON inlined by resolve_json_imports)
+    'config/difficulty.js',            # difficulty accessor functions
+    # engine/EventEngine.ts — TypeScript source (noEmit, type-check only via tsc)
     # Phase 5: World decay and corruption advancement
     'systems/worldDecay.js',
     # Phase 6: Resource-narrative binding + safehouse visual stages
@@ -74,6 +79,7 @@ REDUCER_FILES = [
     'data/events_missing_600.js',
     'data/events_omens_600.js',
     'data/events_supplement.js',      # 后7区补充事件 (+120)
+    'data/events_ch2plus.js',         # Ch2+ 章节事件，从 game_ch2plus.json 迁移 (+70)
     # DEPENDENCY: requires eventSystemV2.js + resourceNarrative.js (above) for weight functions
     'reducers/extendedEvents.js',
     'reducers/eventReducer.js',
@@ -96,6 +102,8 @@ REDUCER_FILES = [
     # UGC system (must precede extendedEventsInit.js)
     'data/ugcSchema.js',
     'reducers/ugcReducer.js',
+    # Game utilities (must precede buildEventPool.js and app.jsx)
+    'systems/textVariants.js',        # MUST precede gameHelpers.js (getDistortedName) and buildEventPool.js
     'utils/buildEventPool.js',
     'data/milestones.js',             # MUST precede extendedEventsInit.js (CHAPTER_MILESTONES)
     'reducers/extendedEventsInit.js',
@@ -128,7 +136,6 @@ REDUCER_FILES = [
     # Audio system
     'managers/AudioManager.js',
     # Game utilities (must precede app.jsx)
-    'systems/textVariants.js',        # MUST precede gameHelpers.js (getDistortedName)
     'utils/gameHelpers.js',
     'utils/trustGates.js',          # NPC trust gate logic (extracted from appHelpers.js)
     'utils/npcMemory.js',           # NPC loop memory data (extracted from appHelpers.js)
@@ -139,7 +146,6 @@ REDUCER_FILES = [
     'state/initialState.js',
     # ── Dual Store Architecture ──
     'state/uiStore.js',             # useUiStore — migrated from utils/uiStore.js (re-export)
-    'state/gameStore.js',           # useGameStore — game state bridge (selector hooks)
     # ── Runtime: post-reducer effect execution ──
     'runtime/effectExecutor.js',
     # Phase 2: System modules (must precede appHelpers.js and slices)
@@ -153,8 +159,6 @@ REDUCER_FILES = [
     # gameSettings.js excluded: DEFAULT_SETTINGS already in miscReducer.js
     # Phase 2: App-level helper functions extracted from app.jsx
     'utils/appHelpers.js',
-    # ── 21级难度系统 ──
-    'config/difficulty.js',            # DIFFICULTY_LEVELS (must precede difficultyState.js, GameScreens.jsx)
     'state/difficultyState.js',        # applyDifficultyToState (must precede coreSlice.js)
     # Phase 3: GameReducer slice handlers (extracted from app.jsx)
     'engine/commands.js',            # MUST precede coreSlice.js (audio, hooks, fx)
@@ -166,6 +170,13 @@ REDUCER_FILES = [
     'reducers/slices/dailySlice.js',
     'reducers/slices/darkSlice.js',
     'reducers/slices/uiSlice.js',
+    'reducers/slices/systemSlice.js',   # Cross-cutting: AP, tracking (must precede gameReducer.js)
+    # ── Slice composition (must precede gameReducer.js) ──
+    'engine/combineSlices.js',        # createSlice + combineSlices tool
+    # ── Dual Store Architecture (after slice handlers — gameReducer imports slices) ──
+    'engine/gameReducer.js',        # Game reducer factory (must precede useGameStore.js)
+    'state/useGameStore.js',        # Zustand game store (reactive selectors, imports gameReducer.js)
+    'state/gameStore.js',           # Legacy facade — delegates to useGameStore.js
     # Phase 2: UI components extracted from app.jsx
     'components/SanPollutionLayer.jsx',  # Unified SAN visual corruption canvas + CorruptibleChoice
     'components/GameCommon.jsx',     # StatBar, Modal, CollapsibleSection, NarrativeBlock
@@ -265,6 +276,28 @@ def strip_es_modules(code):
     return code
 
 
+def resolve_json_imports(code, src_dir):
+    """Inline JSON imports: replace `import X from './foo.json'` with
+    `const X = { ... };` containing the parsed JSON data.
+
+    Must run before strip_es_modules so the import line is replaced,
+    not simply deleted.
+    """
+    import json
+    for m in re.finditer(r"^\s*import\s+(\w+)\s+from\s+['\"]([^'\"]+\.json)['\"];?\s*$", code, re.MULTILINE):
+        var_name = m.group(1)
+        rel_path = m.group(2)
+        abs_path = os.path.normpath(os.path.join(src_dir, rel_path))
+        if os.path.exists(abs_path):
+            with open(abs_path, 'r', encoding='utf-8') as jf:
+                data = json.load(jf)
+            json_js = 'const ' + var_name + ' = ' + json.dumps(data, ensure_ascii=False) + ';\n'
+            code = code[:m.start()] + json_js + code[m.end():]
+        else:
+            print(f'  WARNING: JSON import not found: {abs_path}')
+    return code
+
+
 # Data files that export 'const events' and need unique names to avoid collision.
 # Maps filename -> global variable name used by importing code.
 DATA_FILE_EVENTS_ALIAS = {
@@ -298,9 +331,11 @@ def bundle_reducers():
         path = os.path.join(SRC, fname)
         if os.path.exists(path):
             code = read_file(path)
+            file_dir = os.path.dirname(path)
             if fname in DATA_FILE_EVENTS_ALIAS:
                 code = process_events_data_file(code, DATA_FILE_EVENTS_ALIAS[fname])
             else:
+                code = resolve_json_imports(code, file_dir)
                 code = strip_es_modules(code)
             parts.append(f'// === {fname} ===\n{code}')
             print(f'  Bundled: {fname} ({len(code)} bytes)')

@@ -54,6 +54,8 @@ import {
   exportSave,
   importSave,
   configureSaveManager,
+  enforceSaveFormatFreeze,
+  validateSaveFormat,
 } from './engine/SaveManager.js';
 import {
   loadAchievements,
@@ -117,12 +119,6 @@ import {
   getFearNpcLine,
   applyFearCorruption,
 } from './systems/fearLens.js';
-import {
-  applyTextHallucination,
-  maybeGetFakeMessage,
-  getChoiceDelay,
-  maybeInsertFalseMemory,
-} from './engine/PollutionManager.js';
 
 // ── Engine & runtime ──
 import { recordActionHistory } from './engine/EventEngine.js';
@@ -146,10 +142,14 @@ import { SAVE_VERSION, migrateSaveData, toPersistedState } from './reducers/save
 // ── Engine DI: inject save migration into SaveManager (breaks engine → reducers/ dep) ──
 configureSaveManager({ SAVE_VERSION, migrateSaveData, toPersistedState });
 
+// ── Save format freeze ──
+// Enforces the frozen save format spec at startup.
+// Any structural drift will be logged to console for developers.
+enforceSaveFormatFreeze();
+
 // ── State stores ──
-import { initGameStore, updateGameStore } from './state/gameStore.js';
-import { uiStore, getSettings, addUiToast, removeUiToast, notifySave, updateSettings } from './state/uiStore.js';
-import { initialState } from './state/initialState.js';
+import { seedGameStore, getRawState, getDispatch } from './state/useGameStore.js';
+import { uiStore, useUiStore, getSettings, addUiToast, removeUiToast, notifySave, updateSettings } from './state/uiStore.js';
 
 // ── Components ──
 import { UgcPanel } from './components/UgcImportExport.jsx';
@@ -185,7 +185,7 @@ import {
 // GAME_DATA placeholder is replaced at build time by build.py.
 // In Vite, __GAME_DATA__ is set on window by main.vite.jsx before this module loads.
 
-const { useState, useReducer, useEffect, useLayoutEffect, useRef, useMemo, useCallback, memo } = React;
+const { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback, memo } = React;
 
 const GD = initExtendedEvents(__GAME_DATA__);
 const ctx = { GD };
@@ -258,168 +258,67 @@ let _currentFearTuning = null;
  * @param {function} narr - narrative function
  */
 
-// === REDUCER (Immer) ===
-// Immer draft: all direct mutations (s.xxx = ..., .push(), .pop()) are safe.
-// Slice handlers receive (draft, action, c) and return draft if handled, null otherwise.
-// P0 FIX: effects are collected into a module-level buffer and flushed by the
-// dispatch wrapper AFTER the reducer returns. This avoids relying on useReducer's
-// return value (which is undefined) and avoids the early-return bug where
-// `if (r) return` skipped the _effects assignment when a slice handled the action.
-var _pendingEffects = [];
+// === STATE: Zustand bridge (was useReducer + gameReducer) ===
+// State lives in useGameStore (Zustand + immer). Slice handlers still produce()
+// internally — no changes to reducer logic. Effects flushed via store dispatch.
 
-function gameReducer(state, action) {
-  _pendingEffects = [];
-  return produce(state, (s) => {
-    _currentFearTuning = s.fearTuning || null;
-    // AP 变化检测：记录 reducer 执行前的 AP
-    const _apBefore = s.ap;
-    // Seeded RNG: create deterministic rng for this reducer run
-    const _runSeed = s.runSeed || 'default';
-    const _actIdx = (action.meta && action.meta._actionIndex != null) ? action.meta._actionIndex : (s._actionIndex || 0);
-    const _rng = createSeededRng(_runSeed, _actIdx);
-    const c = buildReducerCtx(s, { rng: _rng, now: action.meta?.now }, (t, l) => getCorruptedSystemText(t, l, _rng));
-    // Increment action index for next dispatch
-    s._actionIndex = _actIdx + 1;
-    // Daily action tracking for behavior endings
-    const trackableTypes = [
-      'MOVE',
-      'EXPLORE',
-      'TALK_NPC',
-      'USE_ITEM',
-      'SWITCH_SAFEHOUSE',
-      'REST',
-      'GAMBLE_CHOICE',
-      'DO_SKILL_CHECK',
-      'NPC_RESPONSE',
-      'WORK',
-      'PREACH',
-      'ATTACK',
-      'BUY_FOOD',
-    ];
-    if (trackableTypes.includes(action.type) && action.type !== 'REST') {
-      s._dayActions.push(action.type === 'NPC_RESPONSE' ? action.choice || 'talk' : action.type);
+// ── App component ──
+// State sourced from useGameStore (Zustand). dispatch calls createGameReducer
+// internally → patches Zustand draft → flushEffectsBuffer.
+
+var _storeSeeded = false;
+
+function useAppState() {
+  return React.useSyncExternalStore(
+    useGameStore.subscribe,
+    function () {
+      if (!_storeSeeded) return PLACEHOLDER_STATE;
+      return useGameStore.getState();
+    },
+    function () {
+      if (!_storeSeeded) return PLACEHOLDER_STATE;
+      return useGameStore.getState();
     }
-    // Phase 5: Behavioral profiling — record action history for event selection
-    if (typeof recordActionHistory === 'function') recordActionHistory(s, action.type);
-    // Track food/money hoarding
-    if ((s.food || 0) > (c.bt.hoarded_food_max || 0)) c.bt.hoarded_food_max = s.food;
-    if ((s.money || 0) > (c.bt.hoarded_money_max || 0)) c.bt.hoarded_money_max = s.money;
-    // Dispatch to slice handlers (first handler that returns s wins, but
-    // effects are always flushed — no early return that skips effect collection)
-    let handled = false;
-    if (!handled) { const r = handleCoreAction(s, action, c, ctx); if (r) handled = true; }
-    if (!handled) { const r = handleExploreAction(s, action, c, ctx); if (r) handled = true; }
-    if (!handled) { const r = handleNpcAction(s, action, c, ctx); if (r) handled = true; }
-    if (!handled) { const r = handleDailyAction(s, action, c, ctx); if (r) handled = true; }
-    if (!handled) { const r = handleDarkAction(s, action, c, ctx); if (r) handled = true; }
-    if (!handled) { const r = handleUiAction(s, action, c, ctx); if (r) handled = true; }
-    if (!handled) {
-      c.track?.('unknown_action', action.type);
-    }
-    // ── AP 偷取：污染状态下行动有概率多扣 1 AP ──
-    // 玩家看到的 AP 比实际多，但行动消耗的是真实 AP
-    // 当真实 AP 耗尽而显示 AP 还有剩余时，玩家发现被欺骗
-    if (s._apLies && s._apOffset > 0) {
-      const _apActions = ['MOVE', 'EXPLORE', 'TALK_NPC', 'WORK', 'BUY_FOOD', 'NPC_RESPONSE',
-        'SELF_HARM', 'SPREAD_PROPHECY', 'CONSUME_ARCHIVE', 'SELF_SACRIFICE', 'DESECRATE', 'BREAK_SEAL'];
-      if (_apActions.includes(action.type) && s.ap > 0) {
-        const _stealChance = s._apOffset >= 3 ? 0.4 : 0.2;
-        if (c.rng.next() < _stealChance) {
-          s.ap = Math.max(0, s.ap - 1);
-          // AP 偷取时的叙事暗示
-          const _stealTexts = [
-            '你好像忘了什么。不是记忆——是时间。',
-            '你低头看了一眼表。指针跳了一格。你确定刚才没有那么久。',
-            '你的脚步比你预期的慢了一些。不是疲劳——是空间本身变厚了。',
-            '你做了那个动作。但代价比你想象的多了一点。',
-          ];
-          c.narr('system', pick(_stealTexts, c.rng), { isEffect: true });
-        }
-      }
-    }
-    // ── AP 变化音效：通用检测（覆盖所有 action type）──
-    if (typeof _apBefore === 'number' && s.ap < _apBefore) {
-      // 仅在 AP 低到临界值时播放音效，避免频繁打扰
-      if (s.ap <= 0 && _apBefore > 0) {
-        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
-      } else if (s.ap <= 2 && _apBefore > 2) {
-        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
-      }
-      // AP 紧张时切换背景音乐到对应阶段（营造紧迫感）
-      if (s.ap <= 3 && _apBefore > 3) {
-        try {
-          var _phase = getPhase(s.ap, s.maxAp);
-          c.effects.push({ type: 'AUDIO_AMBIENT', area: s.currentArea, phase: _phase });
-        } catch (e) {}
-      }
-    }
-    // Tag effects deterministically from action.meta.actionId (no Date.now/random in reducer)
-    if (c.effects.length > 0) {
-      const batchId = action.meta?.actionId || 'anon';
-      c.effects.forEach((fx, i) => {
-        fx._fxId = batchId + '_' + i;
-      });
-    }
-    _pendingEffects = c.effects;
-  });
+  );
 }
 
+var PLACEHOLDER_STATE = {
+  day: 1, san: 60, hp: 10, ap: 0, maxAp: 12, screen: 'title', loopCount: 0,
+  safehouseCorruption: 0, pollution: 0, money: 0, food: 0, currentArea: '',
+  inventory: [], clues: [], _actionIndex: 0, _apLies: false, _apOffset: 0,
+  ending: null, endingCoins: 0, loopShopTier: 0, visitedAreas: [],
+};
+
 function App() {
-  const [state, rawDispatch] = useReducer(gameReducer, null, initialState);
-  /* [TRACKER-DISPATCH] 包装 dispatch — 自动记录每步操作 */
-  const stateRef = useRef(state);
+  var state = useAppState();
+  var stateRef = React.useRef(state);
   stateRef.current = state;
-  // P0 FIX: flushPendingEffects reads from the module-level _pendingEffects buffer
-  // populated by gameReducer, instead of relying on rawDispatch return value (which is
-  // undefined for useReducer). Effects are flushed synchronously after the state update.
-  const flushRef = useRef(function () {});
-  const dispatch = useCallback((action) => {
-    // Attach deterministic actionId for effect dedup (keeps reducer pure)
-    if (!action.meta) action.meta = {};
-    if (!action.meta.actionId)
-      action.meta.actionId = Date.now() + '_' + Math.random().toString(16).slice(2, 6);
-    // Seeded RNG: inject runSeed and actionIndex into action meta
-    // so reducer can create deterministic rng = createSeededRng(runSeed, actionIndex)
-    var currentState = stateRef.current;
-    if (!action.meta.now) action.meta.now = Date.now();
-    action.meta._actionIndex = (currentState._actionIndex || 0);
-    errorTracker.record(action, currentState);
-    // Run the reducer. _pendingEffects is now populated by gameReducer.
-    rawDispatch(action);
-    // Flush post-reducer side effects from the module-level buffer.
-    // flushRef.current is updated by useLayoutEffect to always point to
-    // the latest flush function (stable across renders).
-    flushRef.current();
-  }, []);
-  // Dual store: initialize game store bridge for useGameStore/useSan/useDay selectors
-  useEffect(function () {
-    initGameStore(state, dispatch);
-    // 移除加载层（首帧渲染完成后）
+  // Seed Zustand store on mount (after GD is available at module level)
+  React.useEffect(function () {
+    seedGameStore(GD, getRawState().dispatch);
+    _storeSeeded = true;
+    // 移除加载层
     var ls = document.getElementById('loading-screen');
     if (ls) {
       ls.classList.add('fade-out');
       setTimeout(function () { ls.remove(); }, 700);
     }
   }, []);
-  // P0 FIX: flush effects from the module-level buffer.
-  // Use a stable ref so dispatch callback doesn't need to be recreated.
-  flushRef.current = function () {
-    if (_pendingEffects.length > 0) {
-      var effects = _pendingEffects;
-      _pendingEffects = [];
-      try {
-        runPostReducerEffects(effects, dispatch);
-      } catch (e) { /* effect errors are non-fatal */ }
-    }
-  };
-  // P0 FIX: updateGameStore moved from render body to useLayoutEffect.
-  // Calling listeners (via useSyncExternalStore) during render causes
-  // "Cannot update during render" warnings in StrictMode / concurrent mode.
-  useLayoutEffect(function () {
-    updateGameStore(state);
-  }, [state]);
+  /* [TRACKER-DISPATCH] 包装 dispatch — 自动记录每步操作 */
+  var dispatch = React.useCallback(function (action) {
+    if (!action.meta) action.meta = {};
+    if (!action.meta.actionId)
+      action.meta.actionId = Date.now() + '_' + Math.random().toString(16).slice(2, 6);
+    var currentState = stateRef.current;
+    if (!action.meta.now) action.meta.now = Date.now();
+    action.meta._actionIndex = (currentState._actionIndex || 0);
+    errorTracker.record(action, currentState);
+    // Zustand store dispatch: reducer → patch draft → flushEffects
+    getDispatch()(action);
+  }, []);
+
   // UI state from external store (replaces 7 useState calls)
-  const ui = uiStore();
+  const ui = useUiStore();
   const settings = ui.settings || getSettings();
   const savedExists = useMemo(() => hasSave(), [ui.saveTick]);
 
@@ -557,6 +456,28 @@ function App() {
     } catch (e) {}
   }, [settings.reducedMotion]);
 
+  // Level 13 (十三钟响): periodic reality distortion glitch pulses
+  const l13IntervalRef = useRef(null);
+  useEffect(function () {
+    if (state._level13GlitchScheduled && state.screen === 'game' && !l13IntervalRef.current) {
+      l13IntervalRef.current = setInterval(function () {
+        if (Math.random() < 0.5) {
+          dispatch({ type: 'GLITCH_PULSE', strength: 3 + Math.floor(Math.random() * 5) });
+        }
+      }, 15000 + Math.floor(Math.random() * 10000));
+    }
+    if (!state._level13GlitchScheduled && l13IntervalRef.current) {
+      clearInterval(l13IntervalRef.current);
+      l13IntervalRef.current = null;
+    }
+    return function () {
+      if (l13IntervalRef.current) {
+        clearInterval(l13IntervalRef.current);
+        l13IntervalRef.current = null;
+      }
+    };
+  }, [state._level13GlitchScheduled, state.screen]);
+
   // ── 轻提示：前传结束进入正片时 ──
   const bootHintShown = useRef(false);
   const [bootHintVisible, setBootHintVisible] = useState(false);
@@ -605,10 +526,10 @@ function App() {
             onStart={() => dispatch({ type: 'START_GAME' })}
             saveExists={savedExists}
             onContinue={() => {
-              uiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true });
+              useUiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true });
             }}
-            onSettingsOpen={() => uiStore.setState({ settingsOpen: true })}
-            onAchOpen={() => uiStore.setState({ achOpen: true })}
+            onSettingsOpen={() => useUiStore.setState({ settingsOpen: true })}
+            onAchOpen={() => useUiStore.setState({ achOpen: true })}
             endingCoins={state.endingCoins || 0}
             loopShopTier={state.loopShopTier || 0}
             loopCount={state.loopCount || 0}
@@ -689,36 +610,36 @@ function App() {
       {/* ── Global overlays & modals (outside transition, always available) ── */}
       <SettingsModal
         open={ui.settingsOpen}
-        onClose={() => uiStore.setState({ settingsOpen: false })}
+        onClose={() => useUiStore.setState({ settingsOpen: false })}
         settings={settings}
         onChange={handleSettingsChange}
-        onAchOpen={() => uiStore.setState({ achOpen: true })}
-        onSaveOpen={() => uiStore.setState({ saveLoadMode: 'save', saveLoadOpen: true })}
-        onLoadOpen={() => uiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true })}
+        onAchOpen={() => useUiStore.setState({ achOpen: true })}
+        onSaveOpen={() => useUiStore.setState({ saveLoadMode: 'save', saveLoadOpen: true })}
+        onLoadOpen={() => useUiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true })}
         dispatch={dispatch}
       />
       <SaveLoadModal
         open={ui.saveLoadOpen}
-        onClose={() => uiStore.setState({ saveLoadOpen: false })}
+        onClose={() => useUiStore.setState({ saveLoadOpen: false })}
         state={state.screen === 'game' ? state : null}
         onLoad={handleLoadSlot}
         mode={ui.saveLoadMode}
         onSaved={notifySave}
       />
-      <AchievementGallery open={ui.achOpen} onClose={() => uiStore.setState({ achOpen: false })} />
+      <AchievementGallery open={ui.achOpen} onClose={() => useUiStore.setState({ achOpen: false })} />
       <NotebookModal
         open={!!ui.notebookOpen}
-        onClose={() => uiStore.setState({ notebookOpen: false })}
+        onClose={() => useUiStore.setState({ notebookOpen: false })}
         state={state}
       />
       {ui.ugcOpen && (
         <Modal
           open={ui.ugcOpen}
-          onClose={() => uiStore.setState({ ugcOpen: false })}
+          onClose={() => useUiStore.setState({ ugcOpen: false })}
           title="模组管理"
           width="720px"
         >
-          <UgcPanel onClose={() => uiStore.setState({ ugcOpen: false })} GD={GD} />
+          <UgcPanel onClose={() => useUiStore.setState({ ugcOpen: false })} GD={GD} />
         </Modal>
       )}
       {ui.toasts.length > 0 && (

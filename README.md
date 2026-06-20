@@ -11,7 +11,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
 ![Tests](https://img.shields.io/badge/tests-285_passed_%2F_0_failed-brightgreen)
-![Version](https://img.shields.io/badge/version-0.8.0-orange)
+![Version](https://img.shields.io/badge/version-0.9.0-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -467,26 +467,21 @@ Copyright © 2024-2026 BALIUJUNAN. All Rights Reserved.
 ### 整体架构
 
 ```
-React 18 + useReducer + Immer + 双 Store (useGameStore + useUiStore)
-  → Zustand 响应式子层 (src/state/useGameStore.js) — useReducer 之上的选择器桥接
+React 18 + Zustand + Immer middleware + combineSlices 声明式切片
+  → useGameStore (Zustand + immer) — 唯一游戏状态源，桥接 createGameReducer
+  → gameReducer.js — 纯调度入口（102行），combineSlices 组合切片
+  → combineSlices.js — createSlice 工厂 + rootReducer 组合器，before/after 三阶段执行
+  → systemSlice — cross-cutting hooks（AP追踪/偷取/音效），before/after 包裹所有 domain action
+  → 6 个 legacy slice handler（core/explore/npc/daily/dark/ui）— 即将迁移为 createSlice 声明式
   → 引擎层 (src/engine/) — TypeScript strict 模式，独立npm包，零游戏导入，DI注入
   │    EventEngine / PollutionManager / WorldTimeSystem / SaveManager
   │    commands.js (类型化effect工厂) / eventBus.js (跨Slice通信)
   │    EventEngine Section 9: Day-of-Cycle权重(关键日期超自然×1.8/日常×0.4)
   → 运行时层 (src/runtime/) — post-reducer 副作用执行器（类型分发+去重）
-  → 模块化 Reducer（6个slice handler + ctx显式传参）
-  │    loopReducer: applyLoopMemoryEffects() 结局记忆效应机械化 + 封印知识持久化
-  │    exploreSlice: Loop 2-3 渐进保护 (adjustSanLossForLoop23/getSanFloor)
-  → AP 污染系统 — SAN门控AP欺骗+偷取+揭示（utils/appHelpers.js）
-  → Mythos SAN 门控 — SAN≥50时mythos增益静默跳过（reducers/effectReducer.js）
-  → SAN视觉系统 (systems/sanityVisual.js + sanVisualCorruption.js) — 精度化恐怖 + Day-Critical脉冲
-  → 早期钩子 (systems/earlyHooks.js) — 十三声钟入口序列 + Canvas脉冲
-  → SAN SSOT — getCurrentSanStage() 统一查询，6阶段×4维度
   → AI 叙事增强 (utils/glmClient.js + systems/llmNarrative.js)
   │    GLM-4.7 Flash — 9 场景动态生成，离线优先，UI层异步，Reducer零侵入
   → NPC对话深化 (systems/npcDialogue.js) — 日期里程碑/天气反应/SAN观察三层扩展
-  → 难度系统 (state/difficultyState.js + config/difficulty.js) — 21级梯度 + 模组Hooks
-  → 首轮保护 (systems/firstLoopBalance.js) — Loop 2-3渐进桥梁 (SAN上限/安全区/致命屏蔽)
+  → 难度系统 (state/difficultyState.js + config/difficulty.js) — 13级梯度 + 模组Hooks
   → JSON 配置驱动 + Zod Schema 校验（855条数据全量 + difficulty_modifiers校验）
   → 章节硬限（Chapter 1 事件池过滤 + AP压限 + Day 3强制过渡）
   → Vite 主线构建（ESM + code-split + 587字节HTML）→ dist/
@@ -515,7 +510,7 @@ COC/
 │   │   ├── difficultyLevels.js   # 难度参数 JS（自动生成，13级全量参数）
 │   │   └── difficultyLevels.json # 难度参数 JSON 权威数据源
 │   │
-│   ├── app.jsx               # 主入口（368 行 — 路由 + 双Store桥接 + 布局切换）
+│   ├── app.jsx               # 主入口（670 行 — 路由 + Zustand桥接 + 布局切换）
 │   ├── main.vite.jsx         # Vite 入口（加载 shim + 游戏数据 + 启动 app）
 │   ├── main.jsx              # Legacy 构建入口（Babel 环境）
 │   ├── vite-compat-shim.jsx  # Vite 兼容层（54 模块 globalThis 桥接）
@@ -524,11 +519,15 @@ COC/
 │   ├── index.template.html   # Legacy 构建模板（__INLINE_CSS__ / __INLINE_JS__ 占位符）
 │   │
 │   ├── engine/               # 引擎模块（TypeScript 迁移中）
+│   │   ├── gameReducer.js        # 游戏 Reducer 调度入口（102 行）
+│   │   │                           #   combineSlices 组合 6 个 domain slice + systemSlice
+│   │   ├── combineSlices.js      # createSlice 工厂 + rootReducer 组合器（220 行）
+│   │   │                           #   before/after 三阶段执行 + JSDoc 类型 + 错误隔离
 │   │   ├── EventEngine.ts        # 统一三层加权事件选择（TypeScript，465 行）
 │   │   │                           #   interface 类型定义 + strict 模式
 │   │   ├── PollutionManager.ts   # SAN+逻辑+视觉污染（TypeScript，DI注入getStage）
 │   │   ├── SaveManager.ts        # 存档系统+版本迁移（TypeScript，224 行）
-│   │   ├── WorldTimeSystem.js    # 世界状态/封印/天气（86 行，纯引擎）
+│   │   ├── WorldTimeSystem.js    # 世界状态/封印/天气（97 行，纯引擎）
 │   │   ├── commands.js           # 类型化effect命令工厂（68 行）
 │   │   ├── eventBus.js           # 跨Slice通信（73 行）
 │   │   └── ENGINE_CONTRACT.md    # 引擎边界规则文档
@@ -538,10 +537,11 @@ COC/
 │   │                               #   AUDIO_PLAY / SAVE_GAME / INCREMENT_STAT 等
 │   │                               #   按 _fxId 去重，类型分发（EFFECT_HANDLERS map）
 │   │
-│   ├── state/                # 状态层 — 双 Store 架构 + Zustand 响应式层 + 难度状态
-│   │   ├── useGameStore.js       # Zustand 响应式子层（~40 行）— useReducer 之上的选择器桥接
-│   │   │                           #   useSan/useDay/useHp/usePollution 等选择器钩子
-│   │   ├── gameStore.js          # 旧 Zustand 兼容层（90 行）
+│   ├── state/                # 状态层 — Zustand + Immer + combineSlices 声明式切片
+│   │   ├── useGameStore.js       # Zustand + Immer 桥接层（143 行）
+│   │   │                           #   dispatch → createGameReducer → patch draft → flushEffects
+│   │   │                           #   seedState / getRawState / getDispatch / useSan 等选择器
+│   │   ├── gameStore.js          # 旧 Zustand 兼容 facade（14 行）— 委托 useGameStore.js
 │   │   ├── uiStore.js             # useUiStore（模态/Toast/设置/地图模式状态）（89 行）
 │   │   ├── initialState.js        # 游戏初始状态定义（72 行）
 │   │   ├── gameConstants.js       # GAME_BALANCE 集中化平衡常量（40 行）
@@ -580,8 +580,11 @@ COC/
 │   │   └── UgcImportExport.jsx     # UGC 模组导入导出（466 行）
 │   │
 │   ├── reducers/             # 21 个状态管理模块（5,500+ 行）
-│   │   ├── slices/                 # 6 个 slice handler（ctx 显式传参）
-│   │   │   ├── coreSlice.js        # START_GAME / NEW_GAME / CONTINUE_GAME（115 行）
+│   │   ├── slices/                 # 6 个 legacy slice + 1 个 systemSlice
+│   │   │   ├── systemSlice.js     # Cross-cutting hooks（95 行）— before/after 三阶段
+│   │   │   │                      #   before: tracking/profiling/hoarding + _apBefore 标记
+│   │   │   │                      #   after: AP 偷取检测 + AP 变化音效
+│   │   │   ├── coreSlice.js        # START_GAME / NEW_GAME / CONTINUE_GAME（~150 行）
 │   │   │   ├── exploreSlice.js     # MOVE / EXPLORE / DO_SKILL_CHECK（368 行）
 │   │   │   │                       #   EXPLORE 分解为 3 子阶段
 │   │   │   ├── npcSlice.js         # TALK_NPC / NPC_RESPONSE（~350 行）— 日期/天气/SAN观察对话
@@ -763,17 +766,18 @@ COC/
 | **EventEngine**        | `engine/`                | 465+    | 三层加权 + Day-of-Cycle权重         | TypeScript strict 模式；behavior画像/冷却衰减/缓冲执行/恐惧权重/关键日期超自然×1.8 |
 | **PollutionManager**   | `engine/`                | 161     | SAN+逻辑+视觉污染                   | TypeScript；文本幻觉/虚假消息/虚假记忆/权重腐蚀 + 确定性RNG        |
 | **SaveManager**        | `engine/`                | 224     | 存档系统+版本迁移                   | TypeScript；6槽位/字段过滤/旧格式兼容/JSON导入导出                 |
-| **useGameStore**       | `state/`                 | ~40     | Zustand 响应式子层                   | useReducer 之上的选择器桥接层，useSan/useDay/useHp 等钩子           |
-| **WorldTimeSystem**    | `engine/`                | 97      | 世界状态/封印/天气                  | 5阶段封印状态机/区域名称扭曲/安全屋退化 + 确定性RNG    |
-| **SaveManager**        | `engine/`                | 190     | 存档系统+版本迁移                   | 6槽位/字段过滤/旧格式兼容/JSON导入导出                 |
-| **effectExecutor**     | `runtime/`               | 45      | post-reducer 副作用                 | EFFECT_HANDLERS 类型分发 / \_fxId 去重                 |
-| **SAN SSOT**           | `state/` + JSON          | —       | 统一SAN阶段配置                     | `getCurrentSanStage()` 全局查询，6阶段×4维度，零硬编码 |
-| **SanPollutionLayer**  | `components/`            | 194     | 6阶段渐进腐化 + Day-Critical脉冲    | CSS动画+Canvas渲染+useRef缓存+CorruptibleChoice+AbyssPopup |
-| **GameLayout**         | `components/`            | 90      | 布局模式切换                        | 全景地图/经典模式双入口，M键切换                       |
-| **InteractiveTownMap** | `components/`            | 339     | 全景城镇地图                        | 暗黑地牢风格/9热点/hover光晕/污染变体背景              |
-| **FloatingInfoBar**    | `components/`            | 140     | 浮动 HUD                            | 位置/时间/SAN/HP/AP/封印/天气全状态                    |
-| **AreaPanelModal**     | `components/`            | 303     | 热点功能面板                        | 行动/NPC对话/区域信息三标签页                          |
-| **useGameStore**       | `state/`                 | 90      | 游戏状态桥接                        | useSan/useDay/useHp/usePollution 等选择器钩子          |
+| **useGameStore**       | `state/`                 | 143    | Zustand + Immer 桥接层   | dispatch → createGameReducer → patch draft → flushEffects |
+| **gameStore**          | `state/`                 | 14     | 旧 Zustand 兼容 facade  | 委托 useGameStore.js                                       |
+| **useUiStore**         | `state/`                 | 89     | UI状态管理               | 模态框/Toast/设置/地图模式/热点状态                        |
+| **WorldTimeSystem**    | `engine/`                | 97     | 世界状态/封印/天气       | 5阶段封印状态机/区域名称扭曲/安全屋退化 + 确定性RNG       |
+| **SaveManager**        | `engine/`                | 224     | 存档系统+版本迁移        | TypeScript；6槽位/字段过滤/旧格式兼容/JSON导入导出        |
+| **effectExecutor**     | `runtime/`               | 45      | post-reducer 副作用      | EFFECT_HANDLERS 类型分发 / \_fxId 去重                    |
+| **SAN SSOT**           | `state/` + JSON          | —       | 统一SAN阶段配置          | `getCurrentSanStage()` 全局查询，6阶段×4维度，零硬编码    |
+| **SanPollutionLayer**  | `components/`            | 194     | 6阶段渐进腐化 + Day-Critical脉冲 | CSS动画+Canvas渲染+useRef缓存+CorruptibleChoice+AbyssPopup |
+| **GameLayout**         | `components/`            | 90      | 布局模式切换             | 全景地图/经典模式双入口，M键切换                          |
+| **InteractiveTownMap** | `components/`            | 339     | 全景城镇地图             | 暗黑地牢风格/9热点/hover光晕/污染变体背景                 |
+| **FloatingInfoBar**    | `components/`            | 140     | 浮动 HUD                 | 位置/时间/SAN/HP/AP/封印/天气全状态                       |
+| **AreaPanelModal**     | `components/`            | 303     | 热点功能面板             | 行动/NPC对话/区域信息三标签页                             |
 | **useUiStore**         | `state/`                 | 89      | UI状态管理                          | 模态框/Toast/设置/地图模式/热点状态                    |
 | **DevPanel**           | `components/ui/`         | 79      | 开发者调试面板                      | ~打开，4标签页：状态+事件池/工具/权重/性能             |
 | **死亡系统**           | `reducers/`              | 383     | 16种死亡×四段叙事                   | 标题→临终→世界处理→残留提示                            |
@@ -1035,7 +1039,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 维度                 | 评分       | 状态                                                                                           |
 | -------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
-| **主循环 & Reducer** | **9.5/10** | ✅ 6 slice handler + ctx 显式传参 + 引擎层独立 + 双Store架构                                   |
+| **主循环 & Reducer** | **9.5/10** | ✅ 6 legacy slice + systemSlice before/after hooks + combineSlices 组合器 + Zustand+Immer 桥接层 |
 | **事件系统**         | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents，855 事件 + 102 结局       |
 | **SAN 系统**         | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现                  |
 | **子系统**           | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk                          |
@@ -1044,12 +1048,15 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 ### 架构优势
 
+- ✅ **Zustand + Immer 桥接** — useReducer + gameReducer 完整迁移到 Zustand store，dispatch 时序不变（reducer → patch draft → flushEffects），切片逻辑零改动
+- ✅ **combineSlices 声明式切片** — createSlice 工厂 + before/after 三阶段执行，6 个 legacy slice 共存，后续逐个迁移为声明式
+- ✅ **systemSlice cross-cutting** — AP tracking/profiling/hoarding (before) + AP steal/audio (after) 统一管理，gameReducer 从 194 行瘦身至 102 行纯调度
+- ✅ **错误隔离** — 钩子/处理器各自 try/catch，单点失败不阻塞 action 链路
+- ✅ **JSDoc 类型注解** — SliceConfig/SliceReducer/BeforeHook/AfterHook 四个 typedef，对齐未来 TS 迁移
 - ✅ **SAN SSOT** — `getCurrentSanStage()` 统一查询，6阶段×4维度配置，修改JSON即全局生效
 - ✅ **引擎层独立** — `src/engine/` 4个引擎模块（758行），核心逻辑与UI完全解耦 + 确定性RNG
 - ✅ **运行时副作用层** — `src/runtime/effectExecutor.js` post-reducer 副作用去重执行，类型分发架构
-- ✅ **双Store架构** — `useGameStore`（游戏状态选择器）+ `useUiStore`（UI状态 + 地图模式）
 - ✅ **双界面模式** — 暗黑地牢全景地图 + 经典三栏，共用 reducer，零游戏逻辑改动
-- ✅ **模块化彻底** — app.jsx 346行（原 4600 行），提取 18 个独立组件（含 ScreenTransition + TransitionCanvas）
 - ✅ **四层事件调度** — EventEngine 实现里程碑/行为权重/冷却衰减/累积权重二分查找 + Day-of-Cycle权重(关键日期×1.8/0.4)
 - ✅ **污染平滑过渡** — SanPollutionLayer 基于阶段配置自动插值，2s ease 平滑过渡
 - ✅ **三滑块SAN控制** — 视觉/交互/Meta 独立可调，轻度污染模式无障碍保护
@@ -1084,6 +1091,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.9.0** | 2026-06-21 | **状态管理架构升级：Zustand + Immer 桥接 + combineSlices 声明式切片** — ①Step 1 桥接层：将 useReducer + gameReducer 桥接至 Zustand + Immer middleware，状态从模块级变量迁移到 Zustand store，dispatch 时序严格保持（reducer → patch draft → flushEffects），所有切片逻辑零改动；②Step 2 切片组合：新建 `combineSlices.js`（220行）createSlice 工厂 + rootReducer 组合器，支持 before/after 三阶段执行（systemSlice 的 tracking/AP/audio），JSDoc 类型注解对齐未来 TS 迁移，钩子错误隔离（单钩子抛错不阻塞 action 链路）；③gameReducer.js 从 194 行瘦身至 102 行纯调度入口；④新建 systemSlice（95行）将 hoarding tracking / recordActionHistory / AP steal / AP audio 四类 cross-cutting 逻辑从主 reducer 内联迁移到 before/after hooks；⑤新增 `resetVisualCorruption()` 修复 NEW_GAME 时 surge/flash 残留；⑥构建验证：check_build_imports 270 imports 0 errors + Vite build 1.13s + 全测试套件 285 passed；⑦`__SLICE_DEBUG__` 开发环境钩子执行日志（before/业务/after 时序追踪） |
 | **0.8.0** | 2026-06-20 | **长玩稳定性 + 工程质量 + 内容质量验证** — ①triggeredEvents 上限防御：triggeredEvents 硬上限 1000 + triggeredSilentEvents 上限 500，每轮回 initLoopState 自动截断，防止长玩存档膨胀；②O(1) 查询优化：新增 `triggeredSet.js` 并行 Set 结构，12 个 reducer/组件文件 migrated (`includes`→`hasTriggered`)，事件存在性查询从 O(n)→O(1)；③AudioManager 资源释放：`stopAmbient()` 加 `src=''` 释放媒体引用，防止 Audio 对象驻留内存；④SanPollutionLayer 清理集中化：startCorruption 清理旧计时器 + useEffect cleanup 统一清理所有 interval/timeout；⑤React 渲染缓存：FloatingInfoBar CluePanel 加 useMemo + GamePanels freeClues 加 useMemo，消除大数组 filter 每帧重算；⑥NPCDialog AbortController：LLM 请求真正 abort（不只是丢弃结果），glmClient._doFetch 接受外部 AbortSignal；⑦eventBus 订阅审计：确认 on() 订阅未被组件使用，无泄漏风险；⑧测试修复：smoke_flows S9-4 (adjustSanLossForLoop23 重命名对齐) + player_experience P3-5/P3-6 (safe window 测试修正) + integration afterglow 预期宽松化，**285 passed / 0 failed / 9 suites**；⑨叙事质量验证：`lint-narrative-quality.mjs` 抽检 50 条 → 平均 96.7/100，禁用词 0，S=33/A=17；⑩NPC 一致性验证：`lint-npc-consistency.mjs` → 478 条台词 0 矛盾；⑪FORBIDDEN_WORDS 调整：去除克苏鲁语境合法词（扭曲/疯狂/诡异/恐怖），仅保留纯标签化恐怖词（不可名状/令人毛骨悚然/骇人听闻/极度恐惧） |
 | **0.7.1** | 2026-06-19 | **轮回记忆机械化 + Day-of-Cycle权重 + NPC对话深化 + 性能优化** — ①轮回记忆效应机械化：`applyLoopMemoryEffects()` 解析结局`loop_memory_effect`叙事文本，自动应用NPC信任+/腐化-/SAN上下限/全属性+/神秘学+/物品/角色解锁/封印知识持久化(10+种模式)；②Loop 2-3渐进保护：`firstLoopBalance.js`新增Loop 2( SAN上限7/安全区2天/致命屏蔽)和Loop 3(SAN上限9/安全区1天/致命解除)，技能保留30%→40%→50%→60%阶梯；③Day-of-Cycle事件权重：`EventEngine.js` Section 9新增关键日期(7/14/21/28)超自然×1.8/日常×0.4 + SAN stage 5+类型差异化修正(超自然1.8/日常0.4)；④NPC对话三扩展：日期里程碑对话(1-28天×8NPC)、天气反应对话(5天气×8NPC)、SAN观察对话(SAN<40时NPC关心玩家)；⑤SanVisualCorruption重构：Canvas渲染移至`SanPollutionLayer`组件，此文件改为surge/flash触发器(关键日期脉冲×1.8/×2.2)；⑥难度模组Hooks：`textVariants.js`/`ugcReducer.js`新增`difficulty_modifiers`(文本腐蚀/NPC信任/自定义替换)，Zod Schema全量校验；⑦NPC记忆Tier 5：汤米·陈+埃德加·洛夫克拉夫特新增T5跨轮记忆(实验室/相机/时间线重叠)；⑧封印知识持久化：`initLoopState`追踪封印仪式参与记录(Hilda/Fisher/Isabella)，跨轮解锁特殊对话；⑨确定性RNG扩展：`PollutionManager`/`fearLens`/`worldDecay`/`getWeather`等系统接入`rng`参数；⑩模拟器增强：`simulate_loops.cjs`新增`--difficulty/--batch/--progress/--json`参数+游戏数据模块级缓存+循环效果表预计算；⑪性能优化：`SanPollutionLayer` `getVisualForSan` useRef缓存，仅SAN变化时重算；⑫游戏数据扩展：4个结局新增`afterglow`余韵文本(老费舍救赎/伊莎贝拉第十二声钟/深渊吞噬/循环真相)，5个`loop_memory_effect`机械化映射 |
 | **0.6.1** | 2026-06-17 | **UI 可用性修复 + 美术滤镜校准 + 设置弹窗增强** — ①前传屏幕滚动：`body { overflow: clip }` 阻止滚轮事件传递，改用 JS wheel handler 直接在容器上捕获并手动滚动，`.prologue-screen` 改为 `height:100vh; overflow-y:auto`，隐藏滚动条；②前传底部按钮遮挡：`.prologue-footer` 固定底栏 `z-index:5` 遮挡「进入沃切斯特」按钮，添加 `pointer-events: none` 穿透点击；③调查员档案滚动：新增 `.screen-scroll` 全屏滚动容器，CharCreation 包裹其中，回调 ref 绑定 wheel handler；④结局画面滚动：`.ending-screen` 改为 `height:100vh; overflow-y:auto`；⑤`.screen-transition` 从 `min-height:100vh` 改为 `height:100vh; overflow:hidden`，确保子滚动容器能正确溢出；⑥设置弹窗增强：新增 💾存档 / 📖读档 / 🏆成就 三个按钮，解决图片模式下 FloatingInfoBar 不可见时功能入口缺失；⑦SVG 暗角滤镜修复：`soft-vignette` stdDeviation 80→35、`strong-vignette` 60→28，filterRegion 200%→100%，解决大面积均匀变暗问题；⑧CSS 选择器修复：`.area-scene img` → `.area-scene > img`（直接子元素），NPC 头像（`.npc-portrait-thumb` / `.area-panel-npc-img`）加独立滤镜规则，避免场景暗角覆盖圆形头像 |

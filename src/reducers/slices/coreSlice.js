@@ -4,6 +4,7 @@
 import { rollDice, clamp } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { audio, hooks, fx } from '../../engine/commands.js';
+import { resetVisualCorruption } from '../../systems/sanVisualCorruption.js';
 import { initialState } from '../../state/initialState.js';
 import { initPrologueState } from '../prologueReducer.js';
 import { genObjectives } from '../objectiveReducer.js';
@@ -13,6 +14,7 @@ import { initLoopState } from '../loopReducer.js';
 import { buildPreviousRunSummary } from '../extendedEvents.js';
 import { ensureExtendedState } from '../extendedEventsLoader.js';
 import { clearSave } from '../../engine/SaveManager.js';
+import { rebuildTriggeredSet, rebuildSilentSet } from '../../utils/triggeredSet.js';
 import {
   addRunMemory,
   getNpcTrust,
@@ -108,9 +110,16 @@ export function handleCoreAction(s, action, c, ctx) {
     }
     case 'BEGIN_ADVENTURE': {
       s.screen = 'game';
-      // 应用21级难度设置
+      // 应用13级难度设置
       const diffLv = s.difficultyLevel || 1;
       Object.assign(s, applyDifficultyToState(s, diffLv));
+      // 难度起始资源：覆盖初始 food / AP
+      if (s.difficultyStartingFood !== undefined) {
+        s.food = s.difficultyStartingFood;
+      }
+      if (s.difficultyStartingAp !== undefined) {
+        s.ap = s.difficultyStartingAp;
+      }
       s.objectives = genObjectives(1, ctx);
       // Typed commands (src/engine/commands.js) — replaces raw effect objects
       fx(c.effects, audio.play('begin'), audio.ambient(s.currentArea || 'town_center', 'morning'));
@@ -224,8 +233,9 @@ export function handleCoreAction(s, action, c, ctx) {
         c.narr(block.type, block.text, { locationName: block.locationName })
       );
       // P2: Day 1 unskippable opening cut — "那一刀"
-      if (!s.triggeredEvents.includes('evt_day1_opening_cut')) {
+      if (!hasTriggered(s, 'evt_day1_opening_cut')) {
         s.triggeredEvents.push('evt_day1_opening_cut');
+        syncTriggeredSet(s, 'evt_day1_opening_cut');
         const cutText =
           '公告栏最下面有一张新的失踪告示。\n纸面干燥，边缘还没有卷起。\n\n照片里的人低着头，外套领口沾着海盐。\n\n你认出那件外套。\n\n你低头看了一眼自己。\n同一颗纽扣，缺了一半。\n\n告示下方写着：\n失踪时间：今天傍晚。';
         c.narr('event', cutText, {
@@ -249,6 +259,16 @@ export function handleCoreAction(s, action, c, ctx) {
       if (s.loopCount <= 0) {
         c.effects.push(hooks.bellEntrance());
       }
+      // Level 13: schedule periodic reality distortion glitch pulses
+      if (s.difficultyLevel === 13 && !s._level13GlitchInterval) {
+        // Interval is stored on state; cleared on NEW_GAME or death
+        s._level13GlitchScheduled = true;
+      }
+      // Level 13 SAN inheritance narrative
+      if (s._inheritanceNarrative && s.loopCount > 1) {
+        c.narr('system', s._inheritanceNarrative, { isSpecial: true });
+        delete s._inheritanceNarrative;
+      }
       return s;
     }
     case 'NEW_GAME': {
@@ -258,7 +278,15 @@ export function handleCoreAction(s, action, c, ctx) {
       c.effects.push({ type: 'INCREMENT_STAT', key: 'total_runs' });
       // Reset early hooks so the thirteenth bell fires on the next BEGIN_ADVENTURE
       c.effects.push(hooks.reset());
+      // Reset visual corruption state (surge/flash from previous run)
+      resetVisualCorruption();
       if (s.hp <= 0 || s.san <= 0) c.effects.push({ type: 'INCREMENT_STAT', key: 'total_deaths' });
+      // Level 13: clear any running glitch interval from previous run
+      if (s._level13GlitchInterval) {
+        clearInterval(s._level13GlitchInterval);
+        s._level13GlitchInterval = null;
+      }
+      s._level13GlitchScheduled = false;
       // Build previous run summary before reset (extended events system)
       const prevSummary = buildPreviousRunSummary(s);
       const f = initialState();
@@ -273,6 +301,7 @@ export function handleCoreAction(s, action, c, ctx) {
     case 'CONTINUE_GAME': {
       // Copy saved state fields onto the Immer draft (mutate, don't replace)
       const saved = action.savedState;
+      const oldDiffLevel = saved?.difficultyLevel;
       if (saved && typeof saved === 'object') {
         Object.keys(saved).forEach((k) => {
           s[k] = saved[k];
@@ -282,6 +311,18 @@ export function handleCoreAction(s, action, c, ctx) {
       s.transition = null;
       s.narrative = [{ id: c.now(), type: 'system', text: '—— 你从存档中醒来。' }];
       ensureExtendedState(s);
+      rebuildTriggeredSet(s);
+      rebuildSilentSet(s);
+      // 难度系统迁移提示：旧存档 difficultyLevel > 13 已自动 clamp
+      if (s._difficultyMigrated && oldDiffLevel && oldDiffLevel > 13) {
+        s.narrative.push({
+          id: c.now() + '_diff_mig',
+          type: 'system',
+          text: '【系统】难度系统已重构为13级。你的难度设置（原Lv.' + oldDiffLevel + '）已自动调整至Lv.' + (s.difficultyLevel || 13) + '。',
+          isSpecial: true,
+        });
+        delete s._difficultyMigrated;
+      }
       return s;
     }
     case 'LOOP_SHOP_PURCHASE': {
