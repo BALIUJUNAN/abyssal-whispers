@@ -11,7 +11,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
 ![Tests](https://img.shields.io/badge/tests-285_passed_%2F_0_failed-brightgreen)
-![Version](https://img.shields.io/badge/version-0.9.1-orange)
+![Version](https://img.shields.io/badge/version-0.9.2-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -585,7 +585,8 @@ COC/
 │   │   │   ├── systemSlice.js     # Cross-cutting hooks（95 行）— before/after 三阶段
 │   │   │   │                      #   before: tracking/profiling/hoarding + _apBefore 标记
 │   │   │   │                      #   after: AP 偷取检测 + AP 变化音效
-│   │   │   ├── coreSlice.js        # START_GAME / NEW_GAME / CONTINUE_GAME（~150 行）
+│   │   │   ├── coreSlice.js        # START_GAME / NEW_GAME / CONTINUE_GAME / SET_DIFFICULTY 等（~150 行）
+│   │   │   ├── adventureSlice.js   # BEGIN_ADVENTURE（~250 行）— 从 coreSlice 提取
 │   │   │   ├── exploreSlice.js     # MOVE / EXPLORE / DO_SKILL_CHECK（368 行）
 │   │   │   │                       #   EXPLORE 分解为 3 子阶段
 │   │   │   ├── npcSlice.js         # TALK_NPC / NPC_RESPONSE（~350 行）— 日期/天气/SAN观察对话
@@ -1176,6 +1177,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.9.2** | 2026-06-21 | **Effects 传递架构修复 + BEGIN_ADVENTURE 切片提取** — ①`flushEffectsBuffer()` 从"轮询 Zustand state._effects"改为"显式接收 effects 参数"，消除 gameReducer → Zustand → flushEffectsBuffer 的循环读取，修复 effects 在并发 dispatch 下可能丢失或读到 stale batch 的问题；②`useGameStore.js` 移除 `sliceEffects` 中间变量（每个 slice handler 后赋值 `c.effects`），改为直接在 produce 末尾 `c.effects.slice()` → `effectsToFlush`，再显式传给 `flushEffectsBuffer(effectsToFlush)`；③`BEGIN_ADVENTURE` handler 从 `coreSlice.js` 提取为独立 `adventureSlice.js`（~250行），`gameReducer.js` 新增 `adventureSlice` 路由分支；④`test_effect_protocol.cjs` Test 9 更新为引用 `adventureSlice.js` + 验证 typed commands (`audio.play/audio.ambient`) |
 | **0.9.1** | 2026-06-21 | **Mod 生态增强 + CI/CD 流水线** — ①Mod 扩展类型：支持 5 种实体（事件/NPC/物品/区域/结局），Schema 校验 + 自动 ID 冲突前缀 + GD 注入 + 注册表同步；②可视化事件编辑器：5 标签页表单（基础/触发/效果/选项/预览），实时验证，一键保存为 Mod；③Dev Mode 热重载：开发者模式切换 + 刷新按钮，无需重启游戏即可重载 Mod；④CI/CD 流水线：PR Quality Gate + Main CI + Preview Deploy（GitHub Pages）+ Release（自动 changelog + GitHub Release）；⑤构建修复：`hasClueId` re-export 缺失导致 Vite build 失败 |
 | **0.9.0** | 2026-06-21 | **状态管理架构升级：Zustand + Immer 桥接 + combineSlices 声明式切片** — ①Step 1 桥接层：将 useReducer + gameReducer 桥接至 Zustand + Immer middleware，状态从模块级变量迁移到 Zustand store，dispatch 时序严格保持（reducer → patch draft → flushEffects），所有切片逻辑零改动；②Step 2 切片组合：新建 `combineSlices.js`（220行）createSlice 工厂 + rootReducer 组合器，支持 before/after 三阶段执行（systemSlice 的 tracking/AP/audio），JSDoc 类型注解对齐未来 TS 迁移，钩子错误隔离（单钩子抛错不阻塞 action 链路）；③gameReducer.js 从 194 行瘦身至 102 行纯调度入口；④新建 systemSlice（95行）将 hoarding tracking / recordActionHistory / AP steal / AP audio 四类 cross-cutting 逻辑从主 reducer 内联迁移到 before/after hooks；⑤新增 `resetVisualCorruption()` 修复 NEW_GAME 时 surge/flash 残留；⑥构建验证：check_build_imports 270 imports 0 errors + Vite build 1.13s + 全测试套件 285 passed；⑦`__SLICE_DEBUG__` 开发环境钩子执行日志（before/业务/after 时序追踪） |
 | **0.8.0** | 2026-06-20 | **长玩稳定性 + 工程质量 + 内容质量验证** — ①triggeredEvents 上限防御：triggeredEvents 硬上限 1000 + triggeredSilentEvents 上限 500，每轮回 initLoopState 自动截断，防止长玩存档膨胀；②O(1) 查询优化：新增 `triggeredSet.js` 并行 Set 结构，12 个 reducer/组件文件 migrated (`includes`→`hasTriggered`)，事件存在性查询从 O(n)→O(1)；③AudioManager 资源释放：`stopAmbient()` 加 `src=''` 释放媒体引用，防止 Audio 对象驻留内存；④SanPollutionLayer 清理集中化：startCorruption 清理旧计时器 + useEffect cleanup 统一清理所有 interval/timeout；⑤React 渲染缓存：FloatingInfoBar CluePanel 加 useMemo + GamePanels freeClues 加 useMemo，消除大数组 filter 每帧重算；⑥NPCDialog AbortController：LLM 请求真正 abort（不只是丢弃结果），glmClient._doFetch 接受外部 AbortSignal；⑦eventBus 订阅审计：确认 on() 订阅未被组件使用，无泄漏风险；⑧测试修复：smoke_flows S9-4 (adjustSanLossForLoop23 重命名对齐) + player_experience P3-5/P3-6 (safe window 测试修正) + integration afterglow 预期宽松化，**285 passed / 0 failed / 9 suites**；⑨叙事质量验证：`lint-narrative-quality.mjs` 抽检 50 条 → 平均 96.7/100，禁用词 0，S=33/A=17；⑩NPC 一致性验证：`lint-npc-consistency.mjs` → 478 条台词 0 矛盾；⑪FORBIDDEN_WORDS 调整：去除克苏鲁语境合法词（扭曲/疯狂/诡异/恐怖），仅保留纯标签化恐怖词（不可名状/令人毛骨悚然/骇人听闻/极度恐惧） |

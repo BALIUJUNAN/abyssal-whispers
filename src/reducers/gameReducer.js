@@ -18,20 +18,16 @@ export function clearEffectsBuffer() { _pendingEffects = []; }
 var _effectsDispatch = null;
 export function setEffectsDispatch(dispatch) { _effectsDispatch = dispatch; }
 
-export function flushEffectsBuffer() {
-  // Read effects from Zustand state (set by useGameStore.dispatch)
-  // Falls back to module-level _pendingEffects for backward compat
-  var effects = _pendingEffects;
-  if (useGameStore && typeof useGameStore.getState === 'function') {
-    var stateEffects = useGameStore.getState()._effects;
-    if (stateEffects && stateEffects.length > 0) effects = stateEffects;
-  }
-  if (!effects || effects.length === 0) return;
+export function flushEffectsBuffer(effects) {
+  // Prefer the explicit effect batch from useGameStore.dispatch.
+  // Falls back to module-level _pendingEffects for legacy callers.
+  var batch = effects && effects.length > 0 ? effects : _pendingEffects;
+  if (!batch || batch.length === 0) return;
   _pendingEffects = [];
   import('../runtime/effectExecutor.js')
     .then(function (mod) {
       if (mod && typeof mod.runPostReducerEffects === 'function' && typeof _effectsDispatch === 'function') {
-        mod.runPostReducerEffects(effects, _effectsDispatch);
+        mod.runPostReducerEffects(batch, _effectsDispatch);
       }
     })
     .catch(function () { /* effectExecutor not yet available */ });

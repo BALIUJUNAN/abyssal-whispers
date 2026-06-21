@@ -252,19 +252,19 @@ test('NARRATE_DELAYED defers dispatch via setTimeout', function () {
 
 // Test 9: BEGIN_ADVENTURE produces expected effect types (structural check)
 test('BEGIN_ADVENTURE action produces AUDIO_PLAY + AUDIO_AMBIENT effects', function () {
-  // Read coreSlice to verify it pushes the right effects
-  var coreSlicePath = path.join(SRC, 'reducers', 'slices', 'coreSlice.js');
-  var content = fs.readFileSync(coreSlicePath, 'utf8');
+  // Read the actual BEGIN_ADVENTURE handler location after the slice extraction
+  var adventureSlicePath = path.join(SRC, 'reducers', 'slices', 'adventureSlice.js');
+  var content = fs.readFileSync(adventureSlicePath, 'utf8');
 
-  // Find the BEGIN_ADVENTURE case
   var beginIdx = content.indexOf("case 'BEGIN_ADVENTURE'");
   assert.ok(beginIdx > 0, 'BEGIN_ADVENTURE case should exist');
-  var endIdx = content.indexOf("case 'NEW_GAME'", beginIdx);
+  var endIdx = content.indexOf("case 'DEFAULT'", beginIdx);
+  if (endIdx === -1) endIdx = content.length;
   var beginBlock = content.slice(beginIdx, endIdx);
 
-  // Verify it pushes AUDIO_PLAY effects (either raw objects or via commands.js audio.play/audio.ambient)
-  var hasAudioPlay = beginBlock.includes("type: 'AUDIO_PLAY'") || beginBlock.includes('audio.play(') || beginBlock.includes('audio.ambient(');
-  var hasAudioAmbient = beginBlock.includes("type: 'AUDIO_AMBIENT'") || beginBlock.includes('audio.ambient(');
+  // Verify it pushes AUDIO_PLAY effects through the typed command helpers
+  var hasAudioPlay = beginBlock.includes("audio.play('begin')") || beginBlock.includes("type: 'AUDIO_PLAY'");
+  var hasAudioAmbient = beginBlock.includes("audio.ambient(") || beginBlock.includes("type: 'AUDIO_AMBIENT'");
   assert.ok(hasAudioPlay, 'Should push AUDIO_PLAY effect (direct or via commands.js)');
   assert.ok(hasAudioAmbient, 'Should push AUDIO_AMBIENT effect (direct or via commands.js)');
 

@@ -124,7 +124,8 @@ export var useGameStore = create(
             }
           : function (t) { return t; };
 
-        return set(function (draft) {
+        var effectsToFlush = [];
+        set(function (draft) {
           // Build RNG for this dispatch
           var runSeed = draft.runSeed || 'default';
           var actIdx = action.meta && action.meta._actionIndex != null
@@ -140,32 +141,26 @@ export var useGameStore = create(
           // systemSlice.before runs for ALL actions
           systemSlice.before && systemSlice.before(draft, action, c, ctx);
 
-          var sliceEffects = [];
-
           // ── Route to migrated slice actions (draft mutation, no double produce) ──
           var actionType = action.type;
 
           // dailySlice: REST, WORK, BUY_FOOD
           if (actionType === 'REST' || actionType === 'WORK' || actionType === 'BUY_FOOD') {
             handleDailyAction(draft, action, c, ctx);
-            sliceEffects = c.effects;
           }
           // exploreSlice: MOVE, EXPLORE, DO_SKILL_CHECK
           else if (actionType === 'MOVE' || actionType === 'EXPLORE' || actionType === 'DO_SKILL_CHECK') {
             handleExploreAction(draft, action, c, ctx);
-            sliceEffects = c.effects;
           }
           // npcSlice: TALK_NPC, NPC_RESPONSE
           else if (actionType === 'TALK_NPC' || actionType === 'NPC_RESPONSE') {
             handleNpcAction(draft, action, c, ctx);
-            sliceEffects = c.effects;
           }
           // darkSlice: SELF_HARM, SPREAD_PROPHECY, CONSUME_ARCHIVE, SELF_SACRIFICE, DESECRATE, BREAK_SEAL
           else if (actionType === 'SELF_HARM' || actionType === 'SPREAD_PROPHECY'
             || actionType === 'CONSUME_ARCHIVE' || actionType === 'SELF_SACRIFICE'
             || actionType === 'DESECRATE' || actionType === 'BREAK_SEAL') {
             handleDarkAction(draft, action, c, ctx);
-            sliceEffects = c.effects;
           }
           // coreSlice: START_GAME, SET_DIFFICULTY, SET_ARCHETYPE, ROLL_STATS, SWITCH_SAFEHOUSE, GLITCH_PULSE, RESIST_SAN_DRAIN
           else if (actionType === 'START_GAME' || actionType === 'SET_DIFFICULTY'
@@ -173,18 +168,15 @@ export var useGameStore = create(
             || actionType === 'SWITCH_SAFEHOUSE' || actionType === 'GLITCH_PULSE'
             || actionType === 'GLITCH_PULSE_CLEAR' || actionType === 'RESIST_SAN_DRAIN') {
             handleCoreAction(draft, action, c, ctx);
-            sliceEffects = c.effects;
           }
           // adventureSlice: BEGIN_ADVENTURE
           else if (actionType === 'BEGIN_ADVENTURE') {
             handleAdventureAction(draft, action, c, ctx);
-            sliceEffects = c.effects;
           }
           // loopSlice: NEW_GAME, CONTINUE_GAME, LOOP_SHOP_PURCHASE
           else if (actionType === 'NEW_GAME' || actionType === 'CONTINUE_GAME'
             || actionType === 'LOOP_SHOP_PURCHASE') {
             handleLoopAction(draft, action, c, ctx);
-            sliceEffects = c.effects;
           }
           // uiSlice: CHOICE_SELECT, DISMISS_PENDING, CLEAR_TRANSITION, AUDIO_MUTE_TOGGLE, etc.
           else if (actionType === 'CHOICE_SELECT'
@@ -204,7 +196,6 @@ export var useGameStore = create(
             || actionType === 'USE_ITEM'
           ) {
             handleUiAction(draft, action, c, ctx);
-            sliceEffects = c.effects;
           }
           // Unhandled action types are silently ignored (all domain actions covered above)
 
@@ -213,16 +204,13 @@ export var useGameStore = create(
           systemSlice.after && systemSlice.after(draft, action, c, ctx);
 
           // ── Collect all effects ──
-          var allEffects = sliceEffects || [];
-          // Include effects from systemSlice.after (pushed to c.effects)
-          if (c.effects && c.effects.length > 0) {
-            allEffects = allEffects.concat(c.effects);
-          }
+          var allEffects = c.effects ? c.effects.slice() : [];
           draft._effects = allEffects;
+          effectsToFlush = allEffects;
         });
 
         // Flush side effects after state update
-        flushEffectsBuffer();
+        flushEffectsBuffer(effectsToFlush);
       },
 
       // ══════════════════════════════════════════════════════════
