@@ -35,14 +35,14 @@ const DIFFICULTY_TEXT_SWAPS = [
 
 /**
  * Get text modification settings based on difficulty level.
- * @param {number} difficultyLevel - 1-21
+ * @param {number} difficultyLevel - 1-13
  * @returns {{ corruptionBoost: number, hintSuppression: number, vocabShift: boolean }}
  */
 export function getDifficultyTextSettings(difficultyLevel) {
   if (!difficultyLevel || difficultyLevel <= 3) return { corruptionBoost: 1.0, hintSuppression: 0, vocabShift: false };
-  if (difficultyLevel <= 9) return { corruptionBoost: 1.2, hintSuppression: 0.15, vocabShift: false };
-  if (difficultyLevel <= 15) return { corruptionBoost: 1.5, hintSuppression: 0.35, vocabShift: true };
-  return { corruptionBoost: 2.0, hintSuppression: 0.55, vocabShift: true };
+  if (difficultyLevel <= 6) return { corruptionBoost: 1.2, hintSuppression: 0.10, vocabShift: false };
+  if (difficultyLevel <= 9) return { corruptionBoost: 1.5, hintSuppression: 0.25, vocabShift: false };
+  return { corruptionBoost: 2.0, hintSuppression: 0.40, vocabShift: true };
 }
 
 /**
@@ -99,7 +99,7 @@ function _applyVocabShift(text, difficultyLevel) {
  * @param {number} pollution  - current pollution (0-1)
  * @param {number} loopCount  - current loop count
  * @param {object} seenMap    - { textId: timesSeen } mutable tracking map
- * @param {number} [difficultyLevel] - 1-21, optional difficulty modifier
+ * @param {number} [difficultyLevel] - 1-13, optional difficulty modifier
  * @returns {{ text, action, tier }} action: 'show' | 'variant' | 'skip'
  */
 export function getTrackedText(textId, baseText, pollution, loopCount, seenMap, difficultyLevel) {
@@ -128,7 +128,7 @@ export function getTrackedText(textId, baseText, pollution, loopCount, seenMap, 
   // Tier 4: fourth+ time — skip with summary (suppressed at high difficulty: lower threshold)
   if (seen >= 3) {
     if (settings.hintSuppression >= 0.35 && seen === 3 && pollution < 0.3) {
-      // At difficulty >= 16, even seen=3 may still show (harder = more repetition before skipping)
+      // At difficulty >= 10 (夜钟+), even seen=3 may still show
       return { text: _applyReadableCorruption(baseText, pollution * settings.corruptionBoost * 0.5), action: 'variant', tier: 3 };
     }
     return { text: _buildSummary(baseText), action: 'skip', tier: 4 };
@@ -452,12 +452,47 @@ export function getDistortedName(area, state) {
   if (!alts) return area.name;
 
   var idx;
-  if (stage.level >= 6) idx = 0;
-  else if (stage.level >= 5) idx = Math.random() < 0.6 ? 0 : 1;
-  else if (stage.level >= 4) idx = Math.random() < 0.6 ? 0 : 1;
-  else if (stage.level >= 3) idx = Math.random() < 0.5 ? 1 : 2;
-  else if (stage.level >= 2) idx = Math.random() < 0.5 ? 3 : 1;
-  else idx = 3;
+  if (stage.level >= 6) idx = 0;                            // narrative_death: always most distorted
+  else if (stage.level >= 5) idx = Math.random() < 0.6 ? 0 : 1;  // reality_dissolution
+  else if (stage.level >= 4) idx = Math.random() < 0.4 ? 1 : 2;  // cognitive_fog: milder
+  else if (stage.level >= 3) idx = Math.random() < 0.5 ? 1 : 2;  // explanation_loss
+  else if (stage.level >= 2) idx = Math.random() < 0.5 ? 3 : 1;  // perception_shift
+  else idx = 3;                                                    // stable/mild: normal
 
   return alts[idx] || area.name;
+}
+
+// ═══════════════════════════════════════════════════════
+// Level 13 (十三钟响): Reality distortion text effects
+// ═══════════════════════════════════════════════════════
+
+/**
+ * Apply level 13 reality distortion to event text.
+ * 15% chance of distortion: character substitution, word swap, append corruption, doubling.
+ * CJK-safe — only replaces common CJK characters.
+ *
+ * @param {string} text
+ * @param {number} difficultyLevel
+ * @param {function} [rng]
+ * @returns {string}
+ */
+export function applyLevel13RealityDistortion(text, difficultyLevel, rng) {
+  if (difficultyLevel !== 13) return text;
+  if (!text || text.length < 2) return text;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (_rand() >= 0.15) return text;
+
+  var distortions = [
+    function(t) { return t.replace(/的/g, 'の').replace(/了/g, 'ㄟ'); },
+    function(t) { return t.replace('安全屋', '安qué屋').replace('钟声', '钟█声'); },
+    function(t) { return t + '\n\n……等一下。你刚才看到的是这样吗？'; },
+    function(t) {
+      var result = '';
+      for (var i = 0; i < t.length; i++) {
+        result += i % 7 === 0 ? t[i] + t[i] : t[i];
+      }
+      return result;
+    },
+  ];
+  return distortions[Math.floor(_rand() * distortions.length)](text);
 }

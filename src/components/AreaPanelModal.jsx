@@ -8,7 +8,7 @@
 
 const { useState, useEffect, useMemo, useCallback, memo } = React;
 import { NPCDialog } from './NPCDialog.jsx';
-import { getNpcTrust, getDisplayedAp } from '../utils/appHelpers.js';
+import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
 import { getNpcsHere, getAreaDisplayName } from '../utils/gameHelpers.js';
 import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
 import { getSafehouseStage } from '../reducers/miscReducer.js';

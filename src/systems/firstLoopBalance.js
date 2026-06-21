@@ -38,29 +38,10 @@ export function isInSafeWindow(state) {
   return (state.loopCount || 0) === 0 && (state.day || 1) <= PROTECTION_CONFIG.safeDayCount;
 }
 
-export function isLoop2Protected(state) {
-  return (state.loopCount || 0) === 1;
-}
-
-export function isLoop3Protected(state) {
-  return (state.loopCount || 0) === 2;
-}
-
-export function getLoopProtectionLevel(state) {
-  var loop = state.loopCount || 0;
-  if (loop === 0) return 'first';
-  if (loop === 1) return 'loop2';
-  if (loop === 2) return 'loop3';
-  return 'none';
-}
-
-export function adjustSanLossForFirstLoop(rawLoss, state) {
-  if (!isFirstLoopProtected(state)) return rawLoss;
-  return Math.min(rawLoss, PROTECTION_CONFIG.maxSanLossFirstLoop);
-}
-
 export function adjustSanLossForLoop23(rawLoss, state) {
   var loop = state.loopCount || 0;
+  // Loop 0 = first loop (original adjustSanLossForFirstLoop behavior)
+  if (loop === 0) return Math.min(rawLoss, PROTECTION_CONFIG.maxSanLossFirstLoop);
   if (loop === 1) return Math.min(rawLoss, GRADUATED_CONFIG.loop2.maxSanLoss);
   if (loop === 2) return Math.min(rawLoss, GRADUATED_CONFIG.loop3.maxSanLoss);
   return rawLoss;
@@ -103,6 +84,7 @@ export function adjustMonsterChance(rawChance, state) {
 }
 
 export function shouldBlockLethalEvent(event, state) {
+  // Safe window (first loop, days 1-3): block ALL events to give player breathing room
   if (isInSafeWindow(state)) return true;
   // Loop 2 still blocks instant-death events (but not loop 3)
   if ((state.loopCount || 0) === 1 && event) {

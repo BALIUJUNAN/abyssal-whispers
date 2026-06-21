@@ -1,0 +1,163 @@
+{
+  "id": "difficulty_expert_mode",
+  "name": "难度曲线：专家模式",
+  "author": "官方示例",
+  "version": "1.0.0",
+  "compatibility": ">=0.8.0",
+  "description": "专家模式难度调整。在难度 8 级以上生效，增强文本腐化效果、降低NPC信任获取、增加SAN消耗。适合喜欢高难度和沉浸式克苏鲁体验的玩家。附带3个专家模式专属事件。",
+  "difficulty_modifiers": {
+    "min_difficulty": 8,
+    "max_difficulty": 21,
+    "text_corruption_boost": 2.0,
+    "npc_trust_multiplier": 0.3,
+    "custom_text_swaps": [
+      { "find": "安全的", "replace": "虚假的安全" },
+      { "find": "暂时的", "replace": "极度短暂的" },
+      { "find": "你可以休息", "replace": "你无法真正休息" },
+      { "find": "也许没事", "replace": "也许只是还没暴露" },
+      { "find": "一些", "replace": "太多" },
+      { "find": "有人", "replace": "也许有人" }
+    ]
+  },
+  "events": [
+    {
+      "id": "expert_survival_001",
+      "name": "生存专家的法则",
+      "type": "resource_pressure",
+      "subtype": "expert_tip",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "B",
+      "tags": ["ugc", "expert_mode", "resource", "survival", "mod_expert"],
+      "trigger": {
+        "areas": ["town_center"],
+        "probability": 0.1,
+        "once_per_run": true,
+        "min_loop": 1,
+        "food_lte": 2
+      },
+      "description": "你在镇中心的旧书摊旁遇到了一个老人。\n\n他的眼神锐利得像一把刀。穿着破旧但整洁的外套。\n\n「你看起来很紧张，」他说。「食物不够了？」\n\n你点了点头。\n\n他笑了笑，从书堆下面拿出了一本皱巴巴的小册子。\n\n「我有一个清单。在沃切斯特活过三十天的法则。你想不想听？」\n\n他翻开了第一页。上面的字迹歪歪扭扭，像是用左手写的：\n\n「法则一：不要信任任何不闪烁的东西。」\n「法则二：当食物少于两份时，不要在任何地方停留超过一小时。」\n「法则三： lighthouse keeper 说的话，只信一半。」\n「法则四：安全屋不是安全的。」\n\n他合上了册子。\n\n「想听后面的吗？那就再给我一些食物。」",
+      "effects": {
+        "add_clue": { "id": "clue_expert_survival_rules", "name": "沃切斯特生存法则" },
+        "add_run_memory": "一个老人给了你一部分「沃切斯特生存法则」。后面的内容需要食物才能获得。"
+      },
+      "choices": [
+        {
+          "id": "expert_001_feed",
+          "label": "给老人一份食物",
+          "text": "你递给他一份食物。\n\n他接过食物的速度快得不太正常——像是怕你改变主意。\n\n他迅速翻到了下一页：\n\n「法则五：不要看水太久。水里有东西也在看你。」\n「法则六：你听到的声音不一定来自耳朵。」\n「法则七：如果 SAN 低于三十，不要做任何决定。等。」\n「法则八：endings 不是结局。是另一种形式的开始。」\n\n他合上了册子，把整本塞给了你。\n\n「 you will need it. 沃切斯特不会因为你是新手就对你温柔。」\n\n他走远了。走得很快。\n\n你低头翻看册子的封面。上面写着：\n\n「生存手册——第三版。作者已死。」",
+          "effects": {
+            "food": -1,
+            "add_clue": { "id": "clue_expert_full_rules", "name": "完整的沃切斯特生存法则" },
+            "add_run_memory": "你给老人一份食物换来了完整的生存法则。作者已经死了。"
+          }
+        },
+        {
+          "id": "expert_001_decline",
+          "label": "不交换食物",
+          "text": "老人耸了耸肩。\n\n「你的选择。但记住——在沃切斯特，信息和食物一样是生存资源。」\n\n他把册子塞回了书堆下面。\n\n「祝你活过第一天。」\n\n他的语气不像是祝福。像是预言。\n\n你转身离开时，听到了他低声说了一句话：\n\n「大多数人连第一天都活不过。」",
+          "effects": {
+            "add_run_memory": "你拒绝了老人交换食物的提议。他说大多数人活不过第一天。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "expert_ritual_002",
+      "name": "地下墓穴的仪式痕迹",
+      "type": "area_deep",
+      "subtype": "catacombs",
+      "weight": 0.8,
+      "tier": "rare",
+      "quality_tier": "A",
+      "tags": ["ugc", "expert_mode", "catacombs", "ritual", "mod_expert"],
+      "trigger": {
+        "areas": ["catacombs_entrance", "deep_catacombs"],
+        "probability": 0.15,
+        "once_per_run": true,
+        "min_loop": 2
+      },
+      "description": "地下墓穴的深处有一个房间。不是墓穴——更像是一个仪式室。\n\n房间的墙壁上刻满了和你之前见过的符号完全不同的符号。这些符号更古老、更……饥饿。\n\n房间中央有一个石台。石台上放着一本打开的书。书的页面已经碳化了，但还能辨认出内容。\n\n文字是拉丁文。但你能看懂——像是某种古老的语言直接进入了你的意识：\n\n「他们从下面来。从我们站的这个地方的下面。」\n「门不是被建造的。门是被打开的。」\n「每一次打开，它们就离我们更近一些。」\n\n最后一段：\n\n「唯一的办法——在它们完全出来之前，把门永远封上。」\n\n页面的边缘有烧焦的痕迹。像是有人试图用火销毁这些信息。\n\n但火只烧掉了边缘。中间的内容还在。",
+      "effects": {
+        "san": -2,
+        "mythos": 3,
+        "add_clue": { "id": "clue_expert_ritual_room", "name": "地下墓穴的仪式室" }
+      },
+      "choices": [
+        {
+          "id": "expert_002_take_page",
+          "label": "撕下碳化的书页",
+          "text": "你伸手去撕那页碳化的纸。\n\n纸脆得像干树叶。你只用了一点力就撕下来了。\n\n但你撕下来的那页纸的边缘——在燃烧。\n\n不是明火。是某种看不见的火焰。纸的边缘以你肉眼可见的速度变成灰烬。\n\n你赶紧把它塞进了口袋。\n\n灰烬仍然在蔓延。但在口袋里——灰烬停了。\n\n好像纸的燃烧是因为暴露在空气中。一旦隔绝了空气，它就安全了。\n\n希望如此。",
+          "effects": {
+            "add_item": { "id": "item_expert_burned_page", "name": "碳化的仪式书页", "uses": 1 },
+            "add_clue": { "id": "clue_expert_seal_method", "name": "封门的方法" }
+          }
+        },
+        {
+          "id": "expert_002_seal",
+          "label": "尝试封上房间",
+          "text": "你环顾四周，试图找到什么可以用来封上这个房间的东西。\n\n墙上有一块松动的石头。你把石头搬到了门口。\n\n石头放好的那一刻，你感觉房间里的空气变轻了。像是某种重量从房间里消失了。\n\n但你也听到了——从石头的另一边传来了一声低沉的叹息。\n\n不是人的叹息。\n\n你快速离开了房间。身后传来了石头摩擦石头的声响。\n像是有什么东西在试图推开你放的那块石头。\n\n你加快了脚步。一直走到墓穴入口才停下来喘气。",
+          "effects": {
+            "add_clue": { "id": "clue_expert_room_sealed", "name": "被暂时封上的仪式室" },
+            "add_flag": "flag_expert_sealed_room",
+            "humanity": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "expert_omen_003",
+      "name": "专家模式的预兆",
+      "type": "ending_omen",
+      "subtype": "expert",
+      "weight": 0.6,
+      "tier": "epic",
+      "quality_tier": "S",
+      "tags": ["ugc", "expert_mode", "omen", "meta", "mod_expert"],
+      "trigger": {
+        "areas": ["town_center", "harbor_district", "catacombs_entrance"],
+        "probability": 0.08,
+        "once_ever": true,
+        "min_loop": 3,
+        "san_lte": 40
+      },
+      "description": "世界变得薄了。\n\n不是你的感知变得敏感了——是世界本身。像一层纸被水浸湿，开始透明化。\n\n你看到了：\n\n\\- 墙壁后面有几何体\n\\- 街道的地面上有巨大的脚印\n\\- 月亮上有一个洞\n\\- 天空中的云在按照某种规则排列\n\n一个声音在你的意识中说：\n\n「难度提高。现实层正在变薄。」\n\n「好消息：你能看到更多。」\n\n「坏消息：它们也能看到你。」\n\n\\*\\*\\*\n\n世界重新变厚了。\n\n但有些东西留了下来。月亮上的那个洞还在。\n\n你今晚睡不着了。",
+      "effects": {
+        "san": -3,
+        "mythos": 2,
+        "add_clue": { "id": "clue_expert_reality_thin", "name": "现实变薄的预兆" }
+      },
+      "choices": [
+        {
+          "id": "expert_003_accept",
+          "label": "接受这个变化",
+          "text": "你深吸一口气。\n\n世界变薄就变薄吧。\n\n至少现在你能看到真相。\n\n你握紧了手中的物品——不管那是什么——继续前进。\n\n黑暗中的东西也在看着你。\n\n但现在你们能互相看见了。\n\n这也许是好事。也许是坏事。\n\n但至少——\n\n是公平的。",
+          "effects": {
+            "san": -1,
+            "add_flag": "flag_expert_reality_accepted",
+            "add_run_memory": "你接受了现实变薄的事实。你能看到更多——但它们也能看到你。"
+          }
+        },
+        {
+          "id": "expert_003_deny",
+          "label": "拒绝——试图 ignore",
+          "text": "你闭上了眼睛。\n\n如果我看不见，它们就看不见我。\n\n你对自己说。\n\n但你忘了——你关闭的是视觉。它们不需要视觉。\n\n你感觉到了一种注视。从你的正前方。从你的背后。从你的上方。\n\n你睁开眼睛。一切似乎恢复正常了。\n\n但月亮上的那个洞——\n\n它变大了。",
+          "effects": {
+            "san": -2,
+            "add_clue": { "id": "clue_expert_hole_grows", "name": "月亮上的洞变大了" }
+          }
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "tags": ["difficulty", "expert", "hardcore", "text_corruption", "mod_expert"],
+    "difficulty_range": "8-21",
+    "key_features": [
+      "2x 文本腐化强度",
+      "NPC 信任增长降至 30%",
+      "6 条全局文本替换",
+      "3 个专家模式专属事件"
+    ]
+  }
+}

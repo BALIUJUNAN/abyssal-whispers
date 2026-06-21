@@ -2,6 +2,7 @@
 
 import { applySanLoss, makeRand } from './utils.js';
 import { hasClueId } from '../utils/clueNameMap.js';
+import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
 
 export function genObjectives(day, ctx) {
   const vs = ctx?.GD?.vertical_slice;
@@ -114,8 +115,9 @@ export function getForcedProgressGuard(state, ctx, rng) {
 }
 
 export function executeForcedProgressGuard(guard, state, narr) {
-  if (!state.triggeredEvents.includes(guard.guardFlag)) {
+  if (!hasTriggered(state, guard.guardFlag)) {
     state.triggeredEvents.push(guard.guardFlag);
+    syncTriggeredSet(state, guard.guardFlag);
   }
   narr('system', guard.fallbackNarrative, { isSpecial: true });
   const missingClues = guard.requiredClues.filter((x) => !hasClueId(state.clues, x));

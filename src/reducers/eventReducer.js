@@ -4,6 +4,7 @@ import { d100, makeRand } from './utils.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { checkTriggerExtended, selectEventV2 } from './extendedEvents.js';
 import { hasClueId } from '../utils/clueNameMap.js';
+import { hasTriggered } from '../utils/triggeredSet.js';
 
 export function checkTrigger(evt, state) {
   const t = evt.trigger;
@@ -14,6 +15,31 @@ export function checkTrigger(evt, state) {
     if (!t.time_phase.includes(phase)) return false;
   }
   if (t.chapter && state.day <= 7 && t.chapter > 1) return false;
+
+  // ── 资源条件（food_lte / money_lte / starvation_day_gte）──
+  if (t.food_lte !== undefined && (state.food || 0) > t.food_lte) return false;
+  if (t.money_lte !== undefined && (state.money || 0) > t.money_lte) return false;
+  if (t.starvation_day_gte !== undefined && (state.starvationDays || 0) < t.starvation_day_gte) return false;
+
+  // ── NPC 条件（npc_alive / npc_trust_gte）──
+  if (t.npc_alive && t.npc_alive.length > 0) {
+    for (const npcName of t.npc_alive) {
+      if (state.npcStates?.[npcName]?.dead) return false;
+    }
+  }
+  if (t.npc_trust_gte) {
+    for (const [npcName, minTrust] of Object.entries(t.npc_trust_gte)) {
+      if ((state.npcTrust?.[npcName] || 0) < minTrust) return false;
+    }
+  }
+
+  // ── 旗帜条件（requires_flags）──
+  if (t.requires_flags && t.requires_flags.length > 0) {
+    for (const flag of t.requires_flags) {
+      if (!hasTriggered(state, flag)) return false;
+    }
+  }
+
   if (t.requires && t.requires.length > 0) {
     for (const req of t.requires) {
       if (req.startsWith('san_below_')) {
@@ -22,14 +48,14 @@ export function checkTrigger(evt, state) {
       } else if (req.startsWith('san_above_')) {
         const threshold = parseInt(req.replace('san_above_', ''));
         if (state.san < threshold) return false;
-      } else if (!hasClueId(state.clues, req) && !state.triggeredEvents.includes(req)) {
+      } else if (!hasClueId(state.clues, req) && !hasTriggered(state, req)) {
         return false;
       }
     }
   }
   if (t.forbidden_flags && t.forbidden_flags.length > 0) {
     for (const ff of t.forbidden_flags) {
-      if (hasClueId(state.clues, ff) || state.triggeredEvents.includes(ff)) return false;
+      if (hasClueId(state.clues, ff) || hasTriggered(state, ff)) return false;
     }
   }
   return true;
@@ -88,7 +114,7 @@ export function selectEvent(areaId, state, ctx, pick, rng) {
     const count = Math.max(1, Math.round(prob * 10 * lightPenalty));
     for (let i = 0; i < count; i++) weighted.push(e);
   });
-  const untriggered = weighted.filter((e) => !state.triggeredEvents.includes(e.id));
+  const untriggered = weighted.filter((e) => !hasTriggered(state, e.id));
   const _rand = makeRand(rng);
   const selected = untriggered.length > 0 && _rand() < 0.6 ? untriggered : weighted;
   return pick(selected, rng);

@@ -1,6 +1,8 @@
 // src/reducers/deathSystem.js - Death context resolution, typing, and text generation
 // Provides resolveDeath / inferDeathType / getDeathText for unified death handling.
 
+import { selectDeathNarrative } from '../systems/deathAttribution.js';
+
 // =============================================
 // Death type catalog
 // =============================================
@@ -46,7 +48,7 @@ export const ALL_DEATH_TYPES = { ...HP_DEATH_TYPES, ...SAN_DEATH_TYPES, ...HYBRI
  * @param {object|null} sourceChoice - the choice within the event (if any)
  * @returns {object|null} death context
  */
-export function resolveDeath(state, sourceEvent = null, sourceChoice = null) {
+export function resolveDeath(state, sourceEvent = null, sourceChoice = null, rng = null) {
   const hpDead = state.hp <= 0;
   const sanDead = state.san <= 0;
   if (!hpDead && !sanDead) return null;
@@ -57,6 +59,9 @@ export function resolveDeath(state, sourceEvent = null, sourceChoice = null) {
 
   const type = inferDeathType(state, sourceEvent, sourceChoice, mode);
 
+  // Select attribution narrative variant
+  var attrNarrative = selectDeathNarrative(mode, type, state, sourceEvent, rng);
+
   const result = {
     mode,
     type,
@@ -66,6 +71,11 @@ export function resolveDeath(state, sourceEvent = null, sourceChoice = null) {
     sourceEventId: sourceEvent?.id || null,
     sourceEventName: sourceEvent?.name || null,
     finalText: getDeathText(mode, type, state, sourceEvent),
+    attributionNarrative: attrNarrative || null,
+    attributionCategory: attrNarrative?.category || null,
+    attributionHint: attrNarrative?.categoryLabel
+      ? '[' + attrNarrative.categoryLabel + '] '
+      : '',
     residueFlag: `death_echo_${type}`,
     lastDeathType: type,
     lastDeathMode: mode,

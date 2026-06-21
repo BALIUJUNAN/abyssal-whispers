@@ -1,95 +1,103 @@
-// src/state/uiStore.js - UI State Store (Zustand-like pattern)
-// Migrated from src/utils/uiStore.js
-// Manages: modals, toasts, settings, temporary UI state
-// Uses useSyncExternalStore for React 18 compatibility.
+// src/state/uiStore.js — UI State Store (Zustand)
+// Migrated from custom useSyncExternalStore implementation to zustand/create.
+// Manages: modals, toasts, settings, temporary UI state.
 //
-// This is the "useUiStore" half of the dual-store architecture.
-// Game state (useGameStore) lives in state/gameStore.js (currently useReducer).
+// Primary API: useUiStore() — React hook for components
+// Legacy API: uiStore.setState() / uiStore.getState() — for non-hook contexts
+// Named exports: getSettings, updateSettings, addUiToast, removeUiToast, notifySave
 
-// src/utils/uiStore.js - External UI store (Zustand-like pattern)
-// Replaces useState for all non-gameplay UI state: modals, toasts, settings.
-// Works with flat bundle + global React. No npm dependency.
+import { create } from 'zustand';
+import { loadSettings, saveSettings } from '../reducers/miscReducer.js';
 
-const _useSyncExternalStore = React.useSyncExternalStore;
+// ── Named exports (for import { getSettings } from '../state/uiStore.js') ──
+// These delegate to the Zustand store. Defined as real functions so
+// Vite/Rolldown can resolve the imports.
 
-export function createUiStore(initialState) {
-  let state = typeof initialState === 'function' ? initialState() : { ...initialState };
-  const listeners = new Set();
-  function getState() {
-    return state;
-  }
-  function setState(partial) {
-    const next = typeof partial === 'function' ? partial(state) : partial;
-    if (next === state) return;
-    state = { ...state, ...next };
-    listeners.forEach((fn) => fn());
-  }
-  function subscribe(listener) {
-    listeners.add(listener);
-    return () => listeners.delete(listener);
-  }
-  function useStore(selector) {
-    const sel = selector || ((s) => s);
-    return _useSyncExternalStore(
-      subscribe,
-      () => sel(getState()),
-      () => sel(getState())
-    );
-  }
-  useStore.getState = getState;
-  useStore.setState = setState;
-  useStore.subscribe = subscribe;
-  return useStore;
+export function getSettings() {
+  return useUiStore.getState().getSettings();
 }
 
-// === UI Store ===
-export const uiStore = createUiStore({
+export function updateSettings(newSettings) {
+  useUiStore.getState().updateSettings(newSettings);
+}
+
+export function addUiToast(toast) {
+  useUiStore.getState().addToast(toast);
+}
+
+export function removeUiToast(key) {
+  useUiStore.getState().removeToast(key);
+}
+
+export function notifySave(msg, type) {
+  useUiStore.getState().notifySave(msg, type);
+}
+
+// ── Store definition ──
+
+export const useUiStore = create((set, get) => ({
   toasts: [],
   settingsOpen: false,
   saveLoadOpen: false,
   saveLoadMode: 'save',
   achOpen: false,
   ugcOpen: false,
-  settings: null, // loaded lazily via loadSettings()
+  notebookOpen: false,
+  notebookEverOpened: false,
+  settings: null,
   saveTick: 0,
-  // ── 暗黑地牢风格地图模式 ──
-  uiMode: 'town_map', // 'town_map' | 'classic' — 地图模式 vs 经典模式
-  activeHotspot: null, // 当前激活的热点 { id, type, data, ... }
-  activePanel: null, // 当前面板类型: 'area_actions' | 'explore' | 'talk' | null
-});
+  uiMode: 'town_map',
+  activeHotspot: null,
+  activePanel: null,
 
-// Lazy-load settings on first access
-export function getSettings() {
-  const s = uiStore.getState();
-  if (s.settings === null) {
-    uiStore.setState({ settings: loadSettings() });
-    return uiStore.getState().settings;
-  }
-  return s.settings;
-}
+  setState: (partial) => {
+    const next = typeof partial === 'function' ? partial(get()) : partial;
+    set(next);
+  },
 
-export function updateSettings(newSettings) {
-  saveSettings(newSettings);
-  uiStore.setState({ settings: newSettings });
-}
+  getSettings: () => {
+    const s = get();
+    if (s.settings === null) {
+      set({ settings: loadSettings() });
+    }
+    return get().settings;
+  },
 
-export function addUiToast(toast) {
-  uiStore.setState((s) => ({
-    toasts: [...s.toasts, { ...toast, key: Date.now() }],
-  }));
-}
+  updateSettings: (newSettings) => {
+    saveSettings(newSettings);
+    set({ settings: newSettings });
+  },
 
-export function removeUiToast(key) {
-  uiStore.setState((s) => ({
+  addToast: (toast) => set((s) => ({
+    toasts: [...s.toasts, { ...toast, key: Date.now() + '_' + Math.random().toString(36).slice(2, 6) }],
+  })),
+
+  removeToast: (key) => set((s) => ({
     toasts: s.toasts.filter((t) => t.key !== key),
-  }));
+  })),
+
+  notifySave: (msg, type) => {
+    set((s) => ({ saveTick: s.saveTick + 1 }));
+    get().addToast({
+      id: 'save_' + Date.now(),
+      type: type || 'save',
+      def: { icon: type === 'load' ? '📖' : '💾', name: msg || '已存档', desc: '' },
+    });
+  },
+}));
+
+// ── Legacy compatibility ──
+// Old code calls: const ui = uiStore(); uiStore.setState({...}); uiStore.getState()
+// These delegate to the Zustand store. Works from both React and non-React contexts.
+
+export function uiStore() {
+  return useUiStore.getState();
 }
 
-export function notifySave(msg, type) {
-  uiStore.setState((s) => ({ saveTick: s.saveTick + 1 }));
-  addUiToast({
-    id: 'save_' + Date.now(),
-    type: type || 'save',
-    def: { icon: type === 'load' ? '📖' : '💾', name: msg || '已存档', desc: '' },
-  });
-}
+uiStore.setState = function (partial) {
+  return useUiStore.setState(partial);
+};
+
+uiStore.getState = function () {
+  return useUiStore.getState();
+};

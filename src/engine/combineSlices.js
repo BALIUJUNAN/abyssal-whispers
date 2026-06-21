@@ -138,6 +138,17 @@ export function combineSlices(slices) {
     var GD = ctx.GD;
 
     return function rootReducer(state, action, c) {
+      // ── Initialize state with slice defaults if empty ──
+      // Mutates state in-place (Immer draft safe) to fill missing fields.
+      if (state && typeof state === 'object') {
+        var initKeys = Object.keys(mergedInit);
+        for (var k = 0; k < initKeys.length; k++) {
+          if (!(initKeys[k] in state)) {
+            state[initKeys[k]] = mergedInit[initKeys[k]];
+          }
+        }
+      }
+
       // ── Phase 1: beforeDispatch hooks ──
       _runHook(beforeHooks, 'before', state, action, c, ctx);
 

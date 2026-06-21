@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import { renameSync, existsSync, cpSync, mkdirSync } from 'fs';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
 // Dev-only plugin: redirect / to /dev.html so Vite processes dev.html
 // (with @vitejs/plugin-react preamble injection) instead of root index.html
@@ -71,7 +72,14 @@ function finalizeBuildPlugin() {
 }
 
 export default defineConfig({
-  plugins: [react(), devHtmlPlugin(), finalizeBuildPlugin()],
+  plugins: [
+    react(),
+    devHtmlPlugin(),
+    viteSingleFile({  // Build-only: merge all chunks into single HTML
+      enable: false,  // Disabled during dev (HMR needs separate chunks)
+    }),
+    finalizeBuildPlugin(),
+  ],
   base: './',
   root: '.',
   publicDir: 'assets',

@@ -2,24 +2,30 @@
 // All functions use global GD, ctx, pick, clamp from bundle scope.
 
 import { clamp, pick, makeRand } from '../reducers/utils.js';
+import { hasClueId } from './clueNameMap.js';
+export { hasClueId };
 import { buildDeathSummary } from '../systems/deathSummary.js';
+import { hasTriggered, syncTriggeredSet } from './triggeredSet.js';
 import { generatePersonalityReport } from '../data/behavior_endings.js';
 // P1-A: use getSanStageFromGD instead of hardcoded SAN thresholds
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
+import { captureNpcEcho } from '../reducers/npcReducer.js';
 // P-REFACTOR: getPerceptionLevels moved to systems/sanityVisual.js
 // Re-export removed — concatenation build declares it once from sanityVisual.js
 // Explicit imports — these were previously implicit globals from the bundle scope
 import { getPhase, getAreaInfo } from '../engine/WorldTimeSystem.js';
 import { checkEnding } from '../reducers/endingReducer.js';
+import { generateDeathFragments, decayDeathFragments } from '../systems/deathLegacies.js';
+import { getDeathCountMetaEvent } from '../data/events_death_count_meta.js';
 import { audioManager } from '../managers/AudioManager.js';
 
 export function getUICorruptionLayer(san, loopCount, safehouseCorruption) {
-  // P1-A: SAN thresholds derive from stage.level (SSOT)
+  // P1-A: SAN thresholds derive from stage.level (SSOT, 7 stages)
   // safehouseCorruption thresholds remain explicit (not part of san_stages)
   const stage = getSanStageFromGD(san);
   if (safehouseCorruption >= 80 || stage.level >= 5) return 4; // hostile — 濒死 / 极度腐化
-  if (safehouseCorruption >= 60 || stage.level >= 4) return 3; // contradictory — 现实崩解
-  if (loopCount >= 3 || stage.level >= 3) return 2; // repetitive — 认知丧失
+  if (safehouseCorruption >= 60 || stage.level >= 3) return 3; // contradictory — 现实崩解/认知迷雾
+  if (loopCount >= 3 || stage.level >= 2) return 2; // repetitive — 感知偏移
   if (safehouseCorruption >= 20 || stage.level >= 1) return 1; // fogged — 轻度侵蚀
   return 0; // clean — 理智
 }
@@ -256,6 +262,24 @@ export function applyDeathResolution(s, deathCtx, narr, ctx) {
   }
   addRunMemory(s, deathCtx.finalText.split('\n')[0], 'death');
   if (!s.tutorialSeen.first_death) s.tutorialSeen = { ...s.tutorialSeen, first_death: true };
+
+  // ── Death fragments: narrative legacy across loops ──
+  generateDeathFragments(s, deathCtx, null);
+
+  // ── Death count meta: check if threshold crossed ──
+  var totalDeaths = s.stats_run?.deaths || 0;
+  if (totalDeaths > 0) {
+    var metaCheck = getDeathCountMetaEvent(totalDeaths);
+    if (metaCheck && !s.metaEventFlags?.[metaCheck.seenFlag]) {
+      // Store pending meta event for BEGIN_ADVENTURE to display
+      if (!s.metaEventFlags) s.metaEventFlags = {};
+      s.metaEventFlags[metaCheck.seenFlag] = true;
+      s._pendingDeathCountMeta = {
+        event: metaCheck.event,
+        threshold: metaCheck.threshold,
+      };
+    }
+  }
 }
 
 // === Daily Summary Card (extracted from REST case in app.jsx) ===
@@ -365,16 +389,17 @@ export function trackDailyBehaviorPatterns(s, bt) {
 }
 
 export function checkWrongInference(state, narr, GD) {
-  if (state.triggeredEvents.includes('wrong_inference_checked')) return;
+  if (hasTriggered(state, 'wrong_inference_checked')) return;
   const wi = GD.systems?.wrong_inference?.consequences || [];
   for (const inf of wi) {
     if (
       inf.id === 'wrong_lighthouse_destroy' &&
       state.visitedAreas.includes('lighthouse') &&
-      state.triggeredEvents.includes('evt_lighthouse_light') &&
+      hasTriggered(state, 'evt_lighthouse_light') &&
       !hasClueId(state.clues, 'clue_2_2')
     ) {
       state.triggeredEvents.push('wrong_inference_checked');
+      syncTriggeredSet(state, 'wrong_inference_checked');
       narr('system', '【错误推断】你开始怀疑灯塔是邪恶的源头。也许破坏它能解决问题……', {
         isSpecial: true,
       });
@@ -616,6 +641,8 @@ export function getNpcState(s, name) {
 export function setNpcState(s, name, value) {
   var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
   s.npcStates[id] = value;
+  // Capture echo for next loop if NPC just died
+  if (value.dead) captureNpcEcho(s, id);
 }
 
 // === Knowledge Tracking (moved from app.jsx) ===
@@ -674,9 +701,9 @@ export function checkKnowledgeEarned(state) {
 // GD passed explicitly to avoid implicit global dependency.
 export function checkBreakWallEvent(state, narr, GD, rng) {
   var _rand = makeRand(rng);
-  // P1-A: SSOT — only fires at reality_dissolution (level >= 4)
+  // P1-A: SSOT — only fires at reality_dissolution (level >= 5)
   const _stage = getSanStageFromGD(state.san);
-  if (_stage.level < 4) return null;
+  if (_stage.level < 5) return null;
   if (_rand() >= 0.1) return null;
   const r = _rand();
   const fx = [

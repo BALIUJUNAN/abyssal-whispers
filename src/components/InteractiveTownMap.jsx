@@ -8,6 +8,7 @@
 //   - 点击热点弹出 AreaPanelModal（功能面板）
 //   - 浮动信息栏覆盖在地图上方
 import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
+import { uiStore } from '../state/uiStore.js';
 import { getVisibleHotspots, getHotspotState, isHotspotUnlocked } from '../data/townHotspots.js';
 
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;

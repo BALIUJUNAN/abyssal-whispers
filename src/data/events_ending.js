@@ -25,6 +25,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_seal_crack', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -48,6 +55,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_lighthouse_call', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -71,6 +85,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_escape', san: -1 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -94,6 +115,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_sacrifice', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -117,6 +145,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_transcendence', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -140,6 +175,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_madness', san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -164,6 +206,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_heresy', san: -2, mythos: 1 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -187,6 +236,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_abyss', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -210,6 +266,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_truth', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -227,6 +290,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_fate', san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -250,6 +320,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_seal_call', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -274,6 +351,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_blood_call', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -297,6 +381,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_sea_call', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -320,6 +411,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_time', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -337,6 +435,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_ending', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -354,6 +459,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_choice', san: -2 },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -371,6 +483,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_seal_omen', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -388,6 +507,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_lighthouse_omen', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -405,6 +531,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_abyss_omen', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -422,6 +555,13 @@ export const events = [
     effects: { add_clue: 'clue_ending_omen_fate_omen', san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '封印的符号在你眼中扭曲了。你分不清是符号在动还是你的视线在晃。\n光从裂缝里渗出来，不是白色的——是暗红色的。\n你用手去碰。皮肤感到一阵灼热。你收回了手。手指上没有伤口。',
+      san_mid: '封印的符号还在那里。但你注意到——光在闪烁。\n频率和你心跳不一样。你数了三下。第四下的节奏变了。\n像是有什么东西在符号后面呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
 
@@ -449,6 +589,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_keeper', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -472,6 +618,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_escape', san: -1 },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -495,6 +647,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_madness', san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -518,6 +676,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_transcendence', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -541,6 +705,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_heresy', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -564,6 +734,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_hilda', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -587,6 +763,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_fisher', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -610,6 +792,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_isabella', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -633,6 +821,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_evidence', san: -1 },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -656,6 +850,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_loop_truth', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -679,6 +879,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_keeper_memory', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -702,6 +908,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_escape_memory', san: -1 },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -725,6 +937,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_madness_memory', san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -748,6 +966,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_transcendence_memory', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -771,6 +995,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_heresy_memory', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -794,6 +1024,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_hilda_memory', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -817,6 +1053,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_fisher_memory', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -840,6 +1082,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_isabella_memory', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -863,6 +1111,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_evidence_memory', san: -1 },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
   {
@@ -886,6 +1140,12 @@ export const events = [
     effects: { add_clue: 'clue_ending_aftermath_loop_truth_memory', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你走过的地方留下了痕迹。不是脚印——是记忆的裂痕。\n你回头看的时候，发现刚才走过的路已经不一样了。\n不是风景变了。是你对那段路的记忆被替换了。\n你记得你走的路，但你知道那不是你走的路。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于你。\n它来自某个做出了不同选择的、另一个你。\n你站在一个十字路口。左边的路通向光明但虚假的终点。\n右边的路通向黑暗但真实的深渊。你选择了哪条？\n不——你不记得了。',
+    },
     choices: [],
   },
 
@@ -913,6 +1173,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_timeline', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -936,6 +1204,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_npc', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -959,6 +1235,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_item', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -982,6 +1266,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_death', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1005,6 +1297,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_sacrifice', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1028,6 +1328,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_truth', san: -5, mythos: 4 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1051,6 +1359,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_choice', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1074,6 +1390,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_fate', san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1097,6 +1421,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_seal', san: -5, mythos: 4 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1120,6 +1452,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_lighthouse', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1144,6 +1484,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_sea', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1167,6 +1515,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_manor', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1190,6 +1546,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_forest', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1213,6 +1577,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_catacombs', san: -4, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -1236,6 +1608,14 @@ export const events = [
     effects: { add_clue: 'clue_ending_cross_all', san: -5, mythos: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '所有的结局在你脑中重叠。你同时经历了每一个结局——\n超越者的冷光、深渊的黑暗、逃离的曙光。\n它们在你意识里交错，像是所有可能的你同时在呼吸。\n你感到无数个自己在不同的时间线上死去和重生。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
 ];

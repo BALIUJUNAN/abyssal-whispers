@@ -40,10 +40,39 @@ const text = getMotifFlavorText('fog', s.safehouseCorruption, ctx, c.rng);
 - 修改后运行 `python build.py --no-babel` 确认拼接构建成功
 - 同时运行 `npm run build` 确认 Vite ESM 构建成功
 - 运行 `node tests/test_full_flow.mjs` 确认完整流程测试通过
+- **事件迭代后**：运行 `npm run lint:narrative` 抽检叙事质量（随机 50 条，按风格指南打分），确保禁用词为零、平均分不低于 60
+- **NPC 台词修改后**：运行 `npm run lint:npc` 校验对话一致性，确保无时间线/数字/状态矛盾
+
+## 内容质量校验
+
+### 叙事质量抽检 (`npm run lint:narrative`)
+
+- **脚本**：`scripts/lint-narrative-quality.mjs`
+- **触发时机**：新增/修改事件后，每次迭代必跑
+- **检查内容**：随机抽 50 条事件，按 6 维度打分（禁用词/感官细节/冷静叙述/对话控制/抽象判断/句式控制）
+- **通过标准**：禁用词 = 0，平均分 ≥ 60
+- **风格指南来源**：`src/data/game_base.json § design_intent.text_style`
+
+### NPC 对话一致性校验 (`npm run lint:npc`)
+
+- **脚本**：`scripts/lint-npc-consistency.mjs`
+- **触发时机**：新增/修改 NPC 台词后必跑
+- **检查内容**：
+  1. **时间线矛盾** — "没见过你" vs "上次见过你"；"没去过X" vs "在X..."
+  2. **跨角色地点矛盾** — A 说 B 在某处 vs B 注册位置
+  3. **状态自相矛盾** — 同一 NPC 同时说"没事"和"不舒服"
+  4. **数字矛盾** — 同一单位数字冲突（排除历史年份引用）
+  5. **死后发言** — NPC 明确说自己已死但又有存活行为台词
+- **通过标准**：无 TIMELINE/NUMERIC/STATE 硬矛盾
+- **数据来源**：`src/data/npcContextualLines.js` + `src/systems/npcDialogue.js` + `src/utils/npcMemory.js` + `src/data/game_base.json`
+
+### 自动化建议
+
+两个脚本均可集成到 CI（`.github/workflows/ci.yml`），作为 advisory 或 blocking check。默认 `--strict` 模式会因任意矛盾而失败，适合 CI 使用。
 
 ## UI/UX 规范
 
-- 笔记本快捷键：**J**（不是 N）
+- 快捷键：**N** 打开笔记本、**J** 切换线索面板、**I** 滚动到物品栏、**M** 切换地图/经典模式
 - 圆角：按钮 6px、弹窗 8px、HUD 4px
 - 阴影：纯黑半透明，不用带颜色的阴影
 - 字体：`system-ui, -apple-system, sans-serif`，最小 12px

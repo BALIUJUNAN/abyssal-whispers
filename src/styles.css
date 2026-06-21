@@ -745,11 +745,18 @@ body::before {
 .header-status-pill.mental.stable {
   color: var(--san-high);
 }
+.header-status-pill.mental.fogged {
+  color: var(--san-mid);
+}
 .header-status-pill.mental.tense {
   color: var(--accent2);
 }
 .header-status-pill.mental.shaken {
-  color: var(--san-mid);
+  color: var(--san-low);
+}
+.header-status-pill.mental.dissolving {
+  color: var(--danger2);
+  border-color: rgba(116, 52, 52, 0.2);
 }
 .header-status-pill.mental.critical,
 .header-status-pill.mental.abyssal {
@@ -3809,6 +3816,9 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
   color: var(--text);
   border-color: var(--accent);
 }
+.save-io-btn-text {
+  border-style: dashed;
+}
 
 /* NPC confirm dialog */
 .npc-confirm {
@@ -4937,6 +4947,385 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
   vertical-align: middle;
 }
 
+/* ── Enhanced UGC: Example Gallery ── */
+.ugc-example-gallery {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(160, 148, 128, 0.1);
+}
+.ugc-example-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+.ugc-example-title {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+.ugc-example-toggle {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+}
+.ugc-example-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ugc-example-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(160, 148, 128, 0.08);
+  border-radius: 3px;
+  background: rgba(30, 28, 24, 0.4);
+  transition: background 0.2s;
+}
+.ugc-example-card:hover {
+  background: rgba(40, 38, 34, 0.6);
+}
+.ugc-example-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+.ugc-example-info {
+  flex: 1;
+  min-width: 0;
+}
+.ugc-example-name {
+  font-size: 0.8rem;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+.ugc-example-desc {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 0.3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ugc-example-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.ugc-example-difficulty {
+  font-size: 0.58rem;
+  color: rgba(220, 180, 80, 0.7);
+  font-family: 'JetBrains Mono', monospace;
+}
+.ugc-example-count {
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+.ugc-example-tag {
+  font-size: 0.55rem;
+  padding: 0.05rem 0.25rem;
+  border-radius: 2px;
+  background: rgba(160, 148, 128, 0.08);
+  color: rgba(160, 148, 128, 0.5);
+  font-family: 'JetBrains Mono', monospace;
+}
+.ugc-example-install {
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 0.62rem;
+  padding: 0.25rem 0.6rem;
+}
+.ugc-example-install.installed {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Mod description in list card ── */
+.ugc-mod-desc {
+  font-size: 0.65rem;
+  color: rgba(160, 148, 128, 0.5);
+  line-height: 1.4;
+  margin-bottom: 0.2rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Dev Mode ── */
+.ugc-dev-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+.ugc-dev-toggle input {
+  accent-color: var(--accent);
+  width: 13px;
+  height: 13px;
+}
+.ugc-dev-refresh {
+  font-size: 0.7rem;
+  cursor: pointer;
+  background: rgba(80, 160, 200, 0.08);
+  border: 1px solid rgba(80, 160, 200, 0.25);
+  color: rgba(140, 200, 230, 0.85);
+  padding: 0.25rem 0.65rem;
+  border-radius: 2px;
+  animation: devPulse 2.5s ease-in-out infinite;
+}
+.ugc-dev-refresh:hover {
+  background: rgba(80, 160, 200, 0.16);
+}
+@keyframes devPulse {
+  0%, 100% { border-color: rgba(80, 160, 200, 0.25); }
+  50% { border-color: rgba(80, 160, 200, 0.55); }
+}
+.ugc-detail-section {
+  margin-top: 0.5rem;
+}
+.ugc-detail-section h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+.ugc-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.68rem;
+  border-bottom: 1px solid rgba(160, 148, 128, 0.05);
+}
+.ugc-detail-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: rgba(160, 148, 128, 0.4);
+  min-width: 120px;
+}
+.ugc-detail-type {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  background: rgba(160, 148, 128, 0.06);
+  padding: 0.05rem 0.3rem;
+  border-radius: 2px;
+}
+
+/* ── Event Editor ── */
+.ugc-event-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.ugc-editor-tabs {
+  display: flex;
+  gap: 0.15rem;
+  border-bottom: 1px solid rgba(160, 148, 128, 0.12);
+  flex-wrap: wrap;
+}
+.ugc-editor-tab {
+  font-size: 0.68rem;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.ugc-editor-tab:hover {
+  color: var(--text);
+}
+.ugc-editor-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.ugc-editor-tab-content {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-right: 0.3rem;
+}
+.ugc-editor-section {
+  margin-bottom: 0.6rem;
+}
+.ugc-editor-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  align-items: center;
+}
+.ugc-editor-row label {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  min-width: 56px;
+  flex-shrink: 0;
+}
+.ugc-editor-row input,
+.ugc-editor-row select,
+.ugc-editor-row textarea {
+  flex: 1;
+  background: rgba(20, 18, 14, 0.6);
+  border: 1px solid rgba(160, 148, 128, 0.15);
+  color: var(--text);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.72rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 2px;
+}
+.ugc-editor-row textarea {
+  resize: vertical;
+  min-height: 50px;
+  font-size: 0.68rem;
+}
+.ugc-editor-hint {
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  margin-left: 0.3rem;
+}
+.ugc-tag-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  flex: 1;
+  align-items: center;
+}
+.ugc-tag-chip {
+  font-size: 0.6rem;
+  background: rgba(160, 148, 128, 0.08);
+  border: 1px solid rgba(160, 148, 128, 0.18);
+  padding: 0.12rem 0.45rem;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.ugc-tag-x {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.ugc-tag-x:hover {
+  color: #c88;
+}
+.ugc-effect-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+.ugc-choice-card {
+  border: 1px solid rgba(160, 148, 128, 0.1);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 2px;
+}
+.ugc-choice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+.ugc-btn-xs {
+  font-size: 0.62rem;
+  cursor: pointer;
+  background: none;
+  border: 1px solid rgba(160, 148, 128, 0.18);
+  color: var(--text-dim);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+.ugc-btn-xs:hover {
+  border-color: rgba(160, 148, 128, 0.35);
+  color: var(--text);
+}
+.ugc-btn-danger-xs {
+  font-size: 0.62rem;
+  cursor: pointer;
+  background: none;
+  border: 1px solid rgba(200, 120, 120, 0.2);
+  color: rgba(200, 140, 140, 0.7);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+.ugc-btn-danger-xs:hover {
+  color: #f66;
+  border-color: rgba(200, 120, 120, 0.4);
+}
+.ugc-add-btn {
+  font-size: 0.65rem;
+  cursor: pointer;
+  background: none;
+  border: 1px dashed rgba(160, 148, 128, 0.2);
+  color: var(--text-dim);
+  padding: 0.3rem 0.6rem;
+  border-radius: 2px;
+  margin-top: 0.2rem;
+}
+.ugc-add-btn:hover {
+  border-color: rgba(160, 148, 128, 0.4);
+  color: var(--text);
+}
+.ugc-editor-preview {
+  background: rgba(10, 9, 7, 0.7);
+  border: 1px solid rgba(160, 148, 128, 0.1);
+  padding: 0.6rem;
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: #8af;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.ugc-val-badge {
+  font-size: 0.68rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 2px;
+  margin-bottom: 0.6rem;
+}
+.ugc-val-badge.pass {
+  background: rgba(80, 180, 100, 0.1);
+  color: rgba(120, 210, 140, 0.9);
+  border: 1px solid rgba(80, 180, 100, 0.18);
+}
+.ugc-val-badge.fail {
+  background: rgba(200, 80, 80, 0.1);
+  color: rgba(230, 120, 120, 0.9);
+  border: 1px solid rgba(200, 80, 80, 0.18);
+}
+.ugc-val-err {
+  font-size: 0.63rem;
+  color: #c88;
+  padding: 0.1rem 0;
+}
+.ugc-editor-footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(160, 148, 128, 0.08);
+}
+@media (max-width: 700px) {
+  .ugc-editor-row {
+    flex-wrap: wrap;
+  }
+  .ugc-editor-row label {
+    min-width: 100%;
+  }
+}
+
 /* ==========================================================
    Town Map Mode — 暗黑地牢风格互动城镇地图
    ========================================================== */
@@ -5444,17 +5833,26 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
 .finfo-bar.san .finfo-bar-fill {
   background: var(--san-high);
 }
-.finfo-bar.san.tense .finfo-bar-fill {
+.finfo-bar.san.fogged .finfo-bar-fill {
   background: var(--san-mid);
 }
-.finfo-bar.san.shaken .finfo-bar-fill {
+.finfo-bar.san.tense .finfo-bar-fill {
   background: var(--san-low);
 }
-.finfo-bar.san.critical .finfo-bar-fill {
+.finfo-bar.san.shaken .finfo-bar-fill {
   background: var(--danger2);
+  opacity: 0.8;
+}
+.finfo-bar.san.dissolving .finfo-bar-fill {
+  background: var(--danger);
+  animation: sanBarPulse 2s ease-in-out infinite;
+}
+.finfo-bar.san.critical .finfo-bar-fill {
+  background: var(--danger);
+  animation: sanBarPulse 1.8s ease-in-out infinite;
 }
 .finfo-bar.san.abyssal .finfo-bar-fill {
-  background: var(--danger);
+  background: #4a1010;
   animation: sanBarPulse 1.5s ease-in-out infinite;
 }
 @keyframes sanBarPulse {

@@ -2,14 +2,20 @@
 // Call this once after GD is loaded, before the first render
 
 import { mergeExtendedEvents } from './extendedEventsLoader.js';
-import { EXTENDED_EVENT_MODULES, EXTENDED_EVENT_STATS } from '../data/extended_events_index.js';
+import { EXTENDED_EVENT_MODULES, EXTENDED_EVENT_STATS, CH2PLUS_EVENTS } from '../data/extended_events_index.js';
+import { hasTriggered } from '../utils/triggeredSet.js';
 import { injectMissingEnding } from '../data/ending_missing_600.js';
 import { injectBehaviorEndings } from '../data/behavior_endings.js';
+import { injectFearEndings } from '../data/events_fear_endings.js';
+import { events_legendary } from '../data/events_legendary.js';
 import { applyUgcToGD } from '../utils/buildEventPool.js';
 import { getSanStageFromGD } from './sanReducer.js';
 import { getDeathEchoEvents } from '../data/events_death_echo.js';
 import { getSupplementEvents } from '../data/events_supplement.js';
 import { CHAPTER_MILESTONES, FORCED_NARRATIVE_HOOKS } from '../data/milestones.js';
+import { getDeathMetaEvents } from '../data/events_death_meta.js';
+import { generateDeathFragments, checkDeathTruthAssembly } from '../data/events_death_meta.js';
+import { getEventRarityWeight, checkLegendaryTrigger, checkSecretTrigger, getRarityHint } from '../systems/eventRarity.js';
 
 /**
  * Initialize the extended event system.
@@ -30,13 +36,20 @@ export function initExtendedEvents(GD) {
   mergeExtendedEvents(GD, EXTENDED_EVENT_MODULES);
   const coreExtendedCount = GD._extendedEventCount; // 599
 
-  // Merge supplementary event pools (death_echo + supplement) via getter functions.
-  // Cannot use ESM import aliases here: build.py strips imports, and multiple files
-  // export `var events` causing variable shadowing in the concatenated bundle.
-  // Getter functions (getDeathEchoEvents / getSupplementEvents) are unique names.
+  // Merge Ch2+ events (from events_ch2plus.js, migrated from game_ch2plus.json)
+  // These are NOT counted in the 599 — they're supplementary chapter 2+ content.
+  if (CH2PLUS_EVENTS && CH2PLUS_EVENTS.length > 0) {
+    const existingIds = new Set(GD.events.map((e) => e.id));
+    const newCh2plus = CH2PLUS_EVENTS.filter((e) => !existingIds.has(e.id));
+    GD.events.push(...newCh2plus);
+    GD._ch2plusEventCount = newCh2plus.length;
+  }
+
+  // Merge supplementary event pools (death_echo + supplement + death_meta)
   const _supplementary = [
     { getter: getDeathEchoEvents, key: '_deathEchoCount' },
     { getter: getSupplementEvents, key: '_supplementEventCount' },
+    { getter: getDeathMetaEvents, key: '_deathMetaEventCount' },
   ];
   for (const { getter, key } of _supplementary) {
     try {
@@ -60,6 +73,19 @@ export function initExtendedEvents(GD) {
 
   // Inject behavior endings into GD.endings
   injectBehaviorEndings(GD);
+
+  // Inject fear profile exclusive endings into GD.endings
+  injectFearEndings(GD);
+
+  // Merge legendary events into GD.events (rarity: legendary)
+  // These are gated by checkLegendaryTrigger() in eventRarity.js,
+  // so they only appear when hidden conditions are met.
+  if (events_legendary && events_legendary.length > 0) {
+    const existingIds = new Set(GD.events.map((e) => e.id));
+    const newLegendary = events_legendary.filter((e) => !existingIds.has(e.id));
+    GD.events.push(...newLegendary);
+    GD._legendaryEventCount = newLegendary.length;
+  }
 
   // UGC Layer: Merge enabled UGC mods into the event pool
   // This is a no-op if no mods are installed.
@@ -90,7 +116,7 @@ export function initExtendedEvents(GD) {
 export function getEventStats(GD, state) {
   const events = GD.events || [];
   const extendedCount = GD._extendedEventCount || 0;
-  const hasSeen600 = (state?.triggeredEvents || []).includes('missing_event_600_seen');
+  const hasSeen600 = hasTriggered(state, 'missing_event_600_seen');
 
   const byType = {};
   const byTier = {};

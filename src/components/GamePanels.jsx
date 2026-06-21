@@ -7,6 +7,7 @@ import { isPhantomExpired } from '../systems/textVariants.js';
 import { getPerceptionLevels } from '../systems/sanityVisual.js';
 import { NPCDialog } from './NPCDialog.jsx';
 import { CitySketchMap } from './CitySketchMap.jsx';
+import { NarrativeVirtualList, useVirtualList } from './VirtualList.jsx';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
 import { getPlayerImage, getNpcImage } from '../portraitMap.js';
 import { getNpcsHere, getAreaDisplayName, isAreaUnlocked } from '../utils/gameHelpers.js';
@@ -16,6 +17,7 @@ import { getSanStage } from '../reducers/sanReducer.js';
 import { getSafehouseStage } from '../reducers/miscReducer.js';
 import { enhanceDeathSummary, generateAfterglow, enhanceEventDescription, generateSanCorruptedText, generatePersonalityReflection, generateLoopOpening, isGlmAvailable, clearGlmCache, clearGlmQueue } from '../systems/llmNarrative.js';
 import { hasClueId, resolveClueName } from '../utils/clueNameMap.js';
+import { uiStore } from '../state/uiStore.js';
 
 export const LeftPanel = memo(function LeftPanel({ state }) {
   const seal = useMemo(
@@ -323,16 +325,23 @@ export function clearLlmEventCache() {
 }
 
 export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
-  const ref = useRef(null);
   const transitionTimer = useRef(null);
   const [forbiddenOpen, setForbiddenOpen] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
   // 操作分组折叠状态
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const toggleActionGroup = (g) => setCollapsedGroups((prev) => ({ ...prev, [g]: !prev[g] }));
-  useEffect(() => {
-    if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
-  }, [state.narrative.length]);
+
+  // Virtual scroll for narrative (50+ items)
+  var narrativeBlocks = state.narrative.filter(function (b) { return !isPhantomExpired(b); });
+  var vl = useVirtualList({
+    items: narrativeBlocks,
+    rowHeight: 72,
+    overscan: 6,
+    threshold: 50,
+    maxHeight: 480,
+    autoScroll: true,
+  });
   // Keyboard shortcuts: 1-9, Space, Enter, M, I, J
   useEffect(() => {
     const isPending =
@@ -466,10 +475,14 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
           )}
         </div>
       )}
-      <div className={'narrative-area' + percCls} ref={ref}>
-        {state.narrative.filter(b => !isPhantomExpired(b)).map((b) => (
-          <EnhancedNarrativeBlock key={b.id} block={b} gameState={state} />
-        ))}
+      <div className={'narrative-area' + percCls} ref={vl.containerRef} onScroll={vl.handleScroll}>
+        {vl.useVirtual
+          ? vl.visibleItems.map(function ({ item, index }) {
+              return <EnhancedNarrativeBlock key={item.id} block={item} gameState={state} />;
+            })
+          : narrativeBlocks.map(function (b) {
+              return <EnhancedNarrativeBlock key={b.id} block={b} gameState={state} />;
+            })}
         {state.pendingEvent &&
           !state.pendingEvent.rolled &&
           state.pendingEvent.effects?.skill_check && (
@@ -948,13 +961,11 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
             <span>事件日志 ({state.eventLog.length})</span>
           </div>
           {logOpen && (
-            <div className="event-log-body">
-              {state.eventLog.filter(l => !isPhantomExpired(l)).slice(-8).map((l, i) => (
-                <div key={i} className="log-entry">
-                  <span className="log-day">[Day {l.day}]</span> {l.text}
-                </div>
-              ))}
-            </div>
+            <NarrativeVirtualList
+              entries={state.eventLog.filter(l => !isPhantomExpired(l))}
+              maxHeight={240}
+              autoScroll={false}
+            />
           )}
         </div>
       )}
@@ -963,6 +974,13 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
 });
 
 export const RightPanel = memo(function RightPanel({ state, dispatch }) {
+  // ── Fine-grained selector pattern (v0.9.0) ──
+  // For panels needing few state fields, prefer individual selectors:
+  //   import { useCurrentArea, useDiscoveredConclusions } from '../state/selectors.js';
+  //   const currentArea = useCurrentArea();  // re-renders ONLY on area change
+  // RightPanel uses many fields (currentArea, npcTrust, discoveredConclusions, etc.)
+  // so it receives state as prop from GameLayout. Sub-components should use fine-grained
+  // selectors independently.
   const [tab, setTab] = useState('map');
   // 快捷键事件监听：M切换地图，J切换线索
   useEffect(() => {
@@ -1423,7 +1441,7 @@ export function NotebookModal({ open, onClose, state }) {
           )}
 
           {/* 已收集线索（不在链中的自由线索） */}
-          {(() => {
+          {useMemo(() => {
             const chainClueIds = new Set();
             chains.forEach((ch) => (ch.clues || []).forEach((cl) => chainClueIds.add(cl.id)));
             const freeClues = (state.clues || []).filter((c) => {
@@ -1442,7 +1460,7 @@ export function NotebookModal({ open, onClose, state }) {
                 ))}
               </div>
             );
-          })()}
+          }, [chains, state.clues])}
 
         </div>
       </div>
@@ -1943,15 +1961,19 @@ export function GameHeader({ state, dispatch, areas, onSettingsOpen, onUgcOpen, 
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
   const sanStage = getSanStage(state.san, { GD });
   const sanClass =
-    state.san >= 80
+    state.san >= 75
       ? 'stable'
       : state.san >= 60
-        ? 'tense'
-        : state.san >= 40
-          ? 'shaken'
-          : state.san >= 20
-            ? 'critical'
-            : 'abyssal';
+        ? 'fogged'
+        : state.san >= 50
+          ? 'tense'
+          : state.san >= 40
+            ? 'shaken'
+            : state.san >= 30
+              ? 'dissolving'
+              : state.san >= 15
+                ? 'critical'
+                : 'abyssal';
   const sealLabel =
     state.sealState === 'intact'
       ? '完整'

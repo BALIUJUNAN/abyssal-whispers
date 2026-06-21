@@ -10,6 +10,7 @@ import { events as areaDeepEvents } from './events_area_deep.js';
 import { events as endingEvents } from './events_ending.js';
 import { events as silentEvents } from './events_silent.js';
 import { events as metaEvents } from './events_meta.js';
+import { events as ch2plusEvents } from './events_ch2plus.js';
 
 // 按方向分类的事件模块
 export const EXTENDED_EVENT_MODULES = {
@@ -22,9 +23,10 @@ export const EXTENDED_EVENT_MODULES = {
   ending: { events: endingEvents, count: endingEvents.length },
   silent: { events: silentEvents, count: silentEvents.length },
   meta: { events: metaEvents, count: metaEvents.length },
+  ch2plus: { events: ch2plusEvents, count: ch2plusEvents.length },
 };
 
-// 合并所有新增事件
+// 合并所有核心扩展事件（599 个，第600事件触发器依赖此数量）
 export const ALL_EXTENDED_EVENTS = [
   ...loopEvents,
   ...humanityEvents,
@@ -36,6 +38,10 @@ export const ALL_EXTENDED_EVENTS = [
   ...silentEvents,
   ...metaEvents,
 ];
+
+// Ch2+ 章节事件（从 game_ch2plus.json 迁移，70 个）
+// 不计入 599 — 通过 EXTENDED_EVENT_MODULES.ch2plus 独立管理
+export const CH2PLUS_EVENTS = ch2plusEvents;
 
 // 统计信息
 export const EXTENDED_EVENT_STATS = {

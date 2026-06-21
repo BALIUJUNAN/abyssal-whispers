@@ -1583,7 +1583,7 @@
           ],
           "level": 0,
           "ap_modifier": 0,
-          "description": "世界按你理解的方式运转。几乎无污染。",
+          "description": "心智清晰。现实的边界稳固。你能区分内心与外界的差异。",
           "visual_tier": "clean",
           "event_weight": {
             "buffer_boost": 1.3,
@@ -1601,7 +1601,7 @@
             "text_shadow": false,
             "text_tremble": false,
             "glow": false,
-            "description": "背景饱和度极轻微下降，保持最高沉浸感。"
+            "description": "无视觉污染。微冷色调，轻微饱和衰减。"
           },
           "interaction": {
             "button_delay_ms": 0,
@@ -1610,7 +1610,7 @@
             "option_glitch": false,
             "phantom_options": false,
             "cursor_corrupt": false,
-            "description": "无交互污染。"
+            "description": "无交互污染"
           },
           "logic": {
             "text_hallucination": false,
@@ -1618,33 +1618,33 @@
             "false_memories": false,
             "weight_corruption": false,
             "event_distortion_level": 0,
-            "description": "无逻辑污染。"
+            "description": "无逻辑污染，事件完全正常"
           },
           "meta": {
             "save_corrupt": false,
             "title_corrupt": false,
             "system_fake_errors": false,
             "fourth_wall_break": false,
-            "description": "无Meta污染。"
+            "description": "无Meta效果"
           }
         },
         {
           "id": "mild_erosion",
           "name": "轻度侵蚀",
           "range": [
-            55,
+            60,
             74
           ],
           "level": 1,
           "ap_modifier": 0,
-          "description": "隐约不安。文字偶尔出现极轻微阴影。",
+          "description": "边缘开始模糊。你偶尔不确定自己是否记得某个细节，但无所谓。",
           "visual_tier": "fogged",
           "event_weight": {
-            "buffer_boost": 1,
-            "horror_penalty": 1
+            "buffer_boost": 1.0,
+            "horror_penalty": 1.0
           },
           "pollution_effects": [
-            "侦查-5"
+            "视觉-5"
           ],
           "visual": {
             "saturation": -8,
@@ -1652,12 +1652,12 @@
             "scanline": 0,
             "noise": 0,
             "barrel_distortion": 0,
-            "chromatic_aberration": 0,
+            "chromatic_aberration": 0.3,
             "rotation": 0,
             "text_shadow": true,
             "text_tremble": false,
             "glow": false,
-            "description": "文字偶尔出现极轻微阴影与抖动。轻微色偏。背景极缓慢呼吸效果。"
+            "description": "微冷色调+轻微色偏。文字阴影初现。"
           },
           "interaction": {
             "button_delay_ms": 30,
@@ -1666,7 +1666,7 @@
             "option_glitch": false,
             "phantom_options": false,
             "cursor_corrupt": false,
-            "description": "按钮响应极轻微延迟。"
+            "description": "按钮延迟轻微增加（30ms），近乎不可察觉"
           },
           "logic": {
             "text_hallucination": false,
@@ -1674,34 +1674,34 @@
             "false_memories": false,
             "weight_corruption": false,
             "event_distortion_level": 0,
-            "description": "事件描述中开始出现零星异常词汇。"
+            "description": "无逻辑异常，但污染累积开始"
           },
           "meta": {
             "save_corrupt": false,
             "title_corrupt": false,
             "system_fake_errors": false,
             "fourth_wall_break": false,
-            "description": "无Meta污染。"
+            "description": "无Meta效果"
           }
         },
         {
           "id": "perception_shift",
           "name": "感知偏移",
           "range": [
-            40,
-            54
+            50,
+            59
           ],
           "level": 2,
           "ap_modifier": 0,
-          "description": "明显不安。叙事文本持续颤抖。",
+          "description": "你注意到事物之间的间隙在扩大。有些声音似乎来自不存在的地方。",
           "visual_tier": "flickering",
           "event_weight": {
             "buffer_boost": 0.8,
             "horror_penalty": 1.15
           },
           "pollution_effects": [
-            "文本幻觉",
-            "每5天10%假事件"
+            "视觉-10",
+            "每5-10%概率触发微事件"
           ],
           "visual": {
             "saturation": -15,
@@ -1714,7 +1714,7 @@
             "text_shadow": true,
             "text_tremble": true,
             "glow": true,
-            "description": "叙事文本持续轻微颤抖。区域名称出现轻微泛光。Canvas扫描线与暗角开始出现。"
+            "description": "色偏增强。文字开始轻微抖动+微光。扫描线+噪点初现。"
           },
           "interaction": {
             "button_delay_ms": 80,
@@ -1723,7 +1723,7 @@
             "option_glitch": false,
             "phantom_options": false,
             "cursor_corrupt": false,
-            "description": "按钮响应轻微延迟。"
+            "description": "按钮延迟增至80ms。可感知但还不会误操作。"
           },
           "logic": {
             "text_hallucination": true,
@@ -1731,37 +1731,37 @@
             "false_memories": false,
             "weight_corruption": true,
             "event_distortion_level": 1,
-            "description": "恐怖/异常事件权重轻度上升。文本关键词偶尔被替换。"
+            "description": "文本幻觉激活（词替换）。事件权重开始微偏。"
           },
           "meta": {
             "save_corrupt": false,
             "title_corrupt": false,
             "system_fake_errors": false,
             "fourth_wall_break": false,
-            "description": "无Meta污染。"
+            "description": "无Meta效果"
           }
         },
         {
           "id": "explanation_loss",
-          "name": "解释权动摇",
+          "name": "解释丧失",
           "range": [
-            25,
-            39
+            40,
+            49
           ],
           "level": 3,
-          "ap_modifier": -3,
-          "description": "界面开始对抗你。选项文字缓慢自改写。",
+          "ap_modifier": -1,
+          "description": "你开始怀疑自己看到的东西。每次选择都像是隔着一层毛玻璃。",
           "visual_tier": "hostile",
           "event_weight": {
             "buffer_boost": 0.7,
             "horror_penalty": 1.3
           },
           "pollution_effects": [
-            "AP-3",
-            "权重腐蚀",
-            "虚假记忆",
-            "社交检定-10",
-            "存档名轻度污染"
+            "AP-1",
+            "虚假记忆插入",
+            "选项文字改写",
+            "NPC记忆偏差",
+            "任务状态模糊化"
           ],
           "visual": {
             "saturation": -25,
@@ -1774,7 +1774,7 @@
             "text_shadow": true,
             "text_tremble": true,
             "glow": true,
-            "description": "Canvas扫描线+噪点增强。轻微barrel distortion+色差。"
+            "description": "扫描线加重+色差增强。文字抖动。轻微barrel distortion。"
           },
           "interaction": {
             "button_delay_ms": 150,
@@ -1783,7 +1783,7 @@
             "option_glitch": true,
             "phantom_options": false,
             "cursor_corrupt": false,
-            "description": "选项文字开始缓慢自改写。Hover 600ms后出现轻度扭曲。存档名称轻度污染。"
+            "description": "选项开始被改写。Hover 600ms后触发扰动。虚假记忆层激活。"
           },
           "logic": {
             "text_hallucination": true,
@@ -1791,38 +1791,98 @@
             "false_memories": true,
             "weight_corruption": true,
             "event_distortion_level": 2,
-            "description": "开始出现少量幻觉事件。虚假记忆注入。权重腐蚀激活。"
+            "description": "虚假记忆插入。选项文字改写。NPC记忆偏差加剧。"
           },
           "meta": {
             "save_corrupt": true,
             "title_corrupt": false,
             "system_fake_errors": false,
             "fourth_wall_break": false,
-            "description": "存档名称轻度污染。"
+            "description": "存档名开始出现轻微污染"
+          }
+        },
+        {
+          "id": "cognitive_fog",
+          "name": "认知迷雾",
+          "range": [
+            30,
+            39
+          ],
+          "level": 4,
+          "ap_modifier": -1,
+          "description": "你的思维被一层浓雾包裹。探索事件开始出现看起来有收益、实则扣资源的虚假选项。",
+          "visual_tier": "hostile",
+          "event_weight": {
+            "buffer_boost": 0.6,
+            "horror_penalty": 1.4
+          },
+          "pollution_effects": [
+            "AP-1(累计-2)",
+            "探索虚假选项",
+            "NPC信任伪造准备",
+            "认知偏差-15",
+            "负面事件权重提升"
+          ],
+          "visual": {
+            "saturation": -30,
+            "vignette": 0.2,
+            "scanline": 0.7,
+            "noise": 0.18,
+            "barrel_distortion": 0.02,
+            "chromatic_aberration": 2.0,
+            "rotation": 0.1,
+            "text_shadow": true,
+            "text_tremble": true,
+            "glow": true,
+            "description": "雾化视觉效果。文字和界面整体模糊。屏幕轻微旋转。"
+          },
+          "interaction": {
+            "button_delay_ms": 200,
+            "hover_corrupt_ms": 800,
+            "option_rewrite": true,
+            "option_glitch": true,
+            "phantom_options": false,
+            "cursor_corrupt": false,
+            "description": "虚假选项出现（探索事件25%）。按钮延迟200ms，Hover扰动800ms。"
+          },
+          "logic": {
+            "text_hallucination": true,
+            "fake_messages": false,
+            "false_memories": true,
+            "weight_corruption": true,
+            "event_distortion_level": 2,
+            "description": "虚假探索选项启动（25%概率）。NPC对话信任伪造准备。"
+          },
+          "meta": {
+            "save_corrupt": true,
+            "title_corrupt": false,
+            "system_fake_errors": false,
+            "fourth_wall_break": false,
+            "description": "存档污染加剧。系统提示开始掺假。"
           }
         },
         {
           "id": "reality_dissolution",
-          "name": "现实侵蚀",
+          "name": "现实溶解",
           "range": [
-            10,
-            24
+            15,
+            29
           ],
-          "level": 4,
-          "ap_modifier": -6,
-          "description": "惊悚与怀疑。虚假事件概率显著上升。",
+          "level": 5,
+          "ap_modifier": -1,
+          "description": "你不再确定哪些是真实发生的。NPC的信任提示可能是编造的。你感觉有人在偷你的行动力。",
           "visual_tier": "extreme",
           "event_weight": {
-            "buffer_boost": 0.6,
-            "horror_penalty": 1.3
+            "buffer_boost": 0.5,
+            "horror_penalty": 1.5
           },
           "pollution_effects": [
-            "AP-6",
-            "虚假消息",
-            "权重剧烈腐蚀",
-            "检定-15",
-            "SAN破壁事件",
-            "日志注入"
+            "AP-1(累计-3)",
+            "强制AP偷取(30%概率)",
+            "NPC虚假信任(40%概率)",
+            "负面事件权重x1.5",
+            "幻觉系统消息",
+            "关键信息遗忘"
           ],
           "visual": {
             "saturation": -40,
@@ -1835,16 +1895,16 @@
             "text_shadow": true,
             "text_tremble": true,
             "glow": true,
-            "description": "画面轻微barrel distortion+色差。噪点与扫描线强烈。画面偶尔轻微旋转。"
+            "description": "重度视觉扭曲。色差+barrel distortion+旋转。Canvas撕裂效果激活。"
           },
           "interaction": {
             "button_delay_ms": 250,
-            "hover_corrupt_ms": 800,
+            "hover_corrupt_ms": 1000,
             "option_rewrite": true,
             "option_glitch": true,
             "phantom_options": false,
             "cursor_corrupt": true,
-            "description": "Hover 800-1200ms后逐渐腐化。UI大幅对抗（按钮随机闪烁、文字错位）。"
+            "description": "虚假选项50%概率。NPC虚假信任40%概率。按钮延迟250ms，Hover扰动1000ms。UI随机偏移。"
           },
           "logic": {
             "text_hallucination": true,
@@ -1852,42 +1912,43 @@
             "false_memories": true,
             "weight_corruption": true,
             "event_distortion_level": 3,
-            "description": "虚假事件概率显著上升。日志系统注入上一周目扭曲记忆。"
+            "description": "虚假系统消息。NPC信任伪造触发。负面事件权重x1.5。强制AP偷取30%概率。"
           },
           "meta": {
             "save_corrupt": true,
             "title_corrupt": false,
-            "system_fake_errors": false,
+            "system_fake_errors": true,
             "fourth_wall_break": false,
-            "description": "存档名污染加深。"
+            "description": "存档名深度污染。假系统错误消息。"
           }
         },
         {
           "id": "narrative_death",
-          "name": "现实崩解",
+          "name": "叙事死亡",
           "range": [
             1,
-            9
+            14
           ],
-          "level": 5,
-          "ap_modifier": 0,
-          "description": "彻底失控与恐惧。第四面墙完全破裂。",
+          "level": 6,
+          "ap_modifier": -1,
+          "description": "你已不在这个世界里。所有的界面、所有的对话、所有的选择——都是虚构的。你只是在看着它们发生。",
           "visual_tier": "extreme",
           "event_weight": {
             "buffer_boost": 0.4,
             "horror_penalty": 1.8
           },
           "pollution_effects": [
-            "强制结局判定",
-            "完全疯狂",
-            "伪造系统通知",
-            "物品篡改",
-            "Meta文本"
+            "AP全面崩溃",
+            "强制AP偷取(60%概率/次-2)",
+            "虚假信任提示(80%概率)",
+            "负面事件权重x2.0",
+            "假游戏结束画面",
+            "Meta叙事接管"
           ],
           "visual": {
             "saturation": -60,
             "vignette": 0.4,
-            "scanline": 1,
+            "scanline": 1.0,
             "noise": 0.4,
             "barrel_distortion": 0.06,
             "chromatic_aberration": 5,
@@ -1895,7 +1956,7 @@
             "text_shadow": true,
             "text_tremble": true,
             "glow": true,
-            "description": "画面强烈扭曲+随机字符替换+缓慢旋转。色差与噪点极端。"
+            "description": "叙事死亡层。全面视觉接管。Canvas撕裂+色差爆炸+旋转。标题污染。"
           },
           "interaction": {
             "button_delay_ms": 350,
@@ -1904,7 +1965,7 @@
             "option_glitch": true,
             "phantom_options": true,
             "cursor_corrupt": true,
-            "description": "出现不存在的选项（点击后消失并扣SAN）。鼠标指针偶尔被污染。"
+            "description": "虚假选项70%概率。NPC虚假信任80%概率。按钮延迟350ms。UI全面不可信。假结局画面。"
           },
           "logic": {
             "text_hallucination": true,
@@ -1912,14 +1973,14 @@
             "false_memories": true,
             "weight_corruption": true,
             "event_distortion_level": 4,
-            "description": "全部逻辑污染激活。"
+            "description": "全面逻辑接管。虚假系统全面接管。假结局触发。Meta叙事直接介入。"
           },
           "meta": {
             "save_corrupt": true,
             "title_corrupt": true,
             "system_fake_errors": true,
             "fourth_wall_break": true,
-            "description": "伪造系统通知与错误弹窗。物品/存档/设置界面被篡改。Meta文本直接对玩家说话。"
+            "description": "存档名彻底污染。标题腐败。假系统通知。第四面墙完全打破。"
           }
         }
       ],

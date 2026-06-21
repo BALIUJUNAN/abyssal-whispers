@@ -10,7 +10,7 @@ export function handleDarkAction(s, action, c, ctx) {
     case 'SELF_HARM': {
       if (s.ap < 2) {
         c.narr('system', '行动点不足。');
-        return s;
+        return null;
       }
       s.ap -= 2;
       c.bt.self_harm_ritual_count = (c.bt.self_harm_ritual_count || 0) + 1;
@@ -33,12 +33,12 @@ export function handleDarkAction(s, action, c, ctx) {
         c.narr('system', '符号在皮肤下微微发光，然后暗了下去。');
         c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
       }
-      return s;
+      return null;
     }
     case 'SPREAD_PROPHECY': {
       if (s.ap < 2) {
         c.narr('system', '行动点不足。');
-        return s;
+        return null;
       }
       s.ap -= 2;
       c.bt.prophecy_spread_count = (c.bt.prophecy_spread_count || 0) + 1;
@@ -52,16 +52,16 @@ export function handleDarkAction(s, action, c, ctx) {
           sanLoss,
         { isSpecial: true }
       );
-      return s;
+      return null;
     }
     case 'CONSUME_ARCHIVE': {
       if (s.ap < 2) {
         c.narr('system', '行动点不足。');
-        return s;
+        return null;
       }
       if (!s.clues || s.clues.length === 0) {
         c.narr('system', '你没有可以吞噬的档案。');
-        return s;
+        return null;
       }
       s.ap -= 2;
       c.bt.archive_consumed_count = (c.bt.archive_consumed_count || 0) + 1;
@@ -76,12 +76,12 @@ export function handleDarkAction(s, action, c, ctx) {
           '」永远消失了。克苏鲁神话 +1',
         { isSpecial: true }
       );
-      return s;
+      return null;
     }
     case 'SELF_SACRIFICE': {
       if (s.ap < 3) {
         c.narr('system', '行动点不足（需要3AP）。');
-        return s;
+        return null;
       }
       s.ap -= 3;
       c.bt.self_sacrifice_for_power = (c.bt.self_sacrifice_for_power || 0) + 1;
@@ -105,17 +105,17 @@ export function handleDarkAction(s, action, c, ctx) {
           '，SAN上限永久 -5，克苏鲁神话 +3',
         { isSpecial: true }
       );
-      return s;
+      return null;
     }
     case 'DESECRATE': {
       if (s.ap < 2) {
         c.narr('system', '行动点不足。');
-        return s;
+        return null;
       }
       const desecrateAreas = ['town_center', 'harbor_district'];
       if (!desecrateAreas.includes(s.currentArea)) {
         c.narr('system', '这里没有可以亵渎的圣地。');
-        return s;
+        return null;
       }
       s.ap -= 2;
       c.bt.sacred_desecration_count = (c.bt.sacred_desecration_count || 0) + 1;
@@ -129,16 +129,16 @@ export function handleDarkAction(s, action, c, ctx) {
         { isSpecial: true }
       );
       if (s.currentArea === 'town_center') s.safehouseCorruption = (s.safehouseCorruption || 0) + 2;
-      return s;
+      return null;
     }
     case 'BREAK_SEAL': {
       if (s.ap < 3) {
         c.narr('system', '行动点不足（需要3AP）。');
-        return s;
+        return null;
       }
       if (!['catacombs_entrance', 'deep_catacombs', 'ruins_of_yith'].includes(s.currentArea)) {
         c.narr('system', '这里没有封印可以破坏。');
-        return s;
+        return null;
       }
       s.ap -= 3;
       setCorruptionFlag(s, 'seal_desecrated');
@@ -158,7 +158,7 @@ export function handleDarkAction(s, action, c, ctx) {
           sanLoss,
         { isSpecial: true }
       );
-      return s;
+      return null;
     }
     default:
       return null;

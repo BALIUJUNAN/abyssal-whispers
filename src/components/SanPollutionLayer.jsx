@@ -1,291 +1,23 @@
-// src/components/SanPollutionLayer.jsx - SAN visual corruption (SSOT, 6 stages)
-// Visual parameter computation delegated to systems/sanityVisual.js
-const { useEffect, useRef, useCallback, useState, memo } = React;
-// P2-4: Adaptive FPS — 3-tier performance system
-// Tier 0 (normal): all effects, 15fps cap
-// Tier 1 (degraded): skip barrel distortion + noise, 12fps cap
-// Tier 2 (critical): CSS-only fallback, 8fps cap
-export const FPS_CAP_DEFAULT = 15;
-export const FPS_CAP_DEGRADED = 12;
-export const FPS_CAP_LOW = 8;
-var _currentFpsCap = FPS_CAP_DEFAULT;
-var FRAME_MS = 1000 / _currentFpsCap;
-var _perfTier = 0; // 0=normal, 1=degraded (skip expensive effects), 2=critical (CSS-only)
-const LERP = 0.06;
-export function lerp(a, b, t) {
-  return a + (b - a) * t;
-}
-var _noise = null;
-export function getNoise(w, h) {
-  if (_noise && _noise.width === w && _noise.height === h) return _noise;
-  _noise = document.createElement('canvas');
-  _noise.width = w;
-  _noise.height = h;
-  var nc = _noise.getContext('2d');
-  var id = nc.createImageData(w, h);
-  var d = id.data;
-  for (var i = 0; i < d.length; i += 4) {
-    var v = Math.random() * 255;
-    d[i] = d[i + 1] = d[i + 2] = v;
-    d[i + 3] = 18;
-  }
-  nc.putImageData(id, 0, 0);
-  return _noise;
-}
+// src/components/SanPollutionLayer.jsx - SAN visual corruption (re-exports from SanPollutionLayers.jsx)
+// CorruptibleChoice, AbyssPopup, and injected CSS live here for backward compatibility.
+// The canvas renderer was split into SanPollutionLayers.jsx for layered activation.
 
-// getVisualForSan moved to systems/sanityVisual.js (SSOT)
-// Re-export for backward compat; canvas renderer uses the canonical version.
 import { getVisualForSan } from '../systems/sanityVisual.js';
+import { tickVisualCorruption, getSurgeMultiplier, getFlashAlpha } from '../systems/sanVisualCorruption.js';
 export { getVisualForSan };
 
-// === Canvas Renderer ===
-export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
-  var san = props.san,
-    loopCount = props.loopCount,
-    corruption = props.corruption,
-    glitchPulse = props.glitchPulse || 0;
-  var enabled = props.enabled,
-    intensity = props.intensity;
-  var canvasRef = useRef(null);
-  // Cache getVisualForSan result — only recalculate when san changes
-  var cachedSan = useRef(san);
-  var cachedVisual = useRef(null);
-  var getCachedVisual = useCallback(function (currentSan) {
-    if (currentSan !== cachedSan.current || !cachedVisual.current) {
-      cachedSan.current = currentSan;
-      cachedVisual.current = getVisualForSan(currentSan);
-    }
-    return cachedVisual.current;
-  }, []);
-  var st = useRef({
-    cR: 0,
-    cG: 0,
-    cB: 0,
-    cA: 0,
-    scanA: 0,
-    tearP: 0,
-    noiseA: 0,
-    vigA: 0,
-    chromaA: 0,
-    barrelS: 0,
-    rotA: 0,
-    lastT: 0,
-    raf: 0,
-  });
-  var I = Math.max(0, Math.min(100, intensity != null ? intensity : 50)) / 100;
-  // P2-4: prefers-reduced-motion — disable canvas effects entirely for accessibility
-  var _prm = useState(function () {
-    return typeof window !== 'undefined' &&
-      window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  });
-  var reducedMotion = _prm[0];
-  // P2-4: Monitor FPS and auto-degrade if performance is poor
-  var fpsMon = useRef({ frames: 0, lastCheck: 0, avgFps: 60 });
-  var resize = useCallback(function () {
-    var c = canvasRef.current;
-    if (!c) return;
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    c.width = window.innerWidth * dpr;
-    c.height = window.innerHeight * dpr;
-    c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
-  }, []);
-  useEffect(
-    function () {
-      resize();
-      window.addEventListener('resize', resize);
-      return function () {
-        window.removeEventListener('resize', resize);
-      };
-    },
-    [resize]
-  );
-  useEffect(
-    function () {
-      var canvas = canvasRef.current;
-      if (!canvas || !enabled || reducedMotion) return;
-      var ctx = canvas.getContext('2d');
-      var s = st.current;
-      var alive = true;
-      function frame(now) {
-        if (!alive) return;
-        s.raf = requestAnimationFrame(frame);
-        if (now - s.lastT < FRAME_MS) return;
-        s.lastT = now;
-        // P2-4: FPS monitoring — auto-degrade to FPS_CAP_LOW if avg FPS < 10
-        var fm = fpsMon.current;
-        fm.frames++;
-        if (now - fm.lastCheck > 3000) {
-          fm.avgFps = Math.round((fm.frames * 1000) / (now - fm.lastCheck));
-          fm.frames = 0;
-          fm.lastCheck = now;
-          // 3-tier performance degrade: skip expensive effects at low FPS
-          if (fm.avgFps < 10) {
-            if (_perfTier !== 2) { _perfTier = 2; _currentFpsCap = FPS_CAP_LOW; FRAME_MS = 1000 / _currentFpsCap; }
-          } else if (fm.avgFps < 20) {
-            if (_perfTier !== 1) { _perfTier = 1; _currentFpsCap = FPS_CAP_DEGRADED; FRAME_MS = 1000 / _currentFpsCap; }
-          } else {
-            if (_perfTier !== 0) { _perfTier = 0; _currentFpsCap = FPS_CAP_DEFAULT; FRAME_MS = 1000 / _currentFpsCap; }
-          }
-        }
-        var w = window.innerWidth,
-          h = window.innerHeight;
-        ctx.clearRect(0, 0, w, h);
-        var V = getCachedVisual(san);
-        var corF = Math.min(1, (corruption || 0) / 80) * I;
-        var totalI = Math.abs(V.sat) + V.vig + V.scan + V.noise + V.barrel + V.chroma + V.rot;
-        if (totalI < 0.5 && corF < 0.01) {
-          if (canvas.style.opacity !== '0') canvas.style.opacity = '0';
-          canvas.style.filter = 'none';
-          return;
-        }
-        if (canvas.style.opacity !== '1') canvas.style.opacity = '1';
-        // Color shift
-        var colorI = Math.max(0, -V.sat / 60) * I;
-        s.cR = lerp(s.cR, 20 + colorI * 50, LERP);
-        s.cG = lerp(s.cG, colorI * 2, LERP);
-        s.cB = lerp(s.cB, 8 + colorI * 25, LERP);
-        s.cA = lerp(s.cA, colorI * 0.08 + corF * 0.03, LERP);
-        if (s.cA > 0.003) {
-          ctx.fillStyle =
-            'rgba(' +
-            (s.cR | 0) +
-            ',' +
-            (s.cG | 0) +
-            ',' +
-            (s.cB | 0) +
-            ',' +
-            s.cA.toFixed(3) +
-            ')';
-          ctx.fillRect(0, 0, w, h);
-        }
-        // Noise (skip at perf tier 1+ — expensive drawImage)
-        if (_perfTier < 1) {
-          var targetNoise = (V.noise * I + corF * 0.02) * (1 + 0.3 * Math.sin(now * 0.002));
-          s.noiseA = lerp(s.noiseA, targetNoise, LERP);
-          if (s.noiseA > 0.003) {
-            ctx.globalAlpha = s.noiseA;
-            ctx.drawImage(getNoise(w | 0, h | 0), 0, 0, w, h);
-            ctx.globalAlpha = 1;
-          }
-        }
-        // Scanlines
-        var targetScan = V.scan * 0.12 * I;
-        s.scanA = lerp(s.scanA, targetScan, LERP);
-        if (s.scanA > 0.003) {
-          ctx.strokeStyle = 'rgba(0,0,0,' + s.scanA.toFixed(4) + ')';
-          ctx.lineWidth = 0.8;
-          var off = (now * 0.015) % 4;
-          for (var y = off; y < h; y += 2.5) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(w, y);
-            ctx.stroke();
-          }
-        }
-        // Vignette
-        var targetVig = V.vig * I * (1 + 0.3 * Math.sin(now * 0.001));
-        s.vigA = lerp(s.vigA, targetVig + corF * 0.05, LERP);
-        if (s.vigA > 0.01) {
-          var vigR = V.level >= 4 ? 0.1 : 0.25;
-          var g = ctx.createRadialGradient(w / 2, h / 2, w * vigR, w / 2, h / 2, w * 0.68);
-          g.addColorStop(0, 'rgba(0,0,0,0)');
-          g.addColorStop(1, 'rgba(12,0,8,' + s.vigA.toFixed(3) + ')');
-          ctx.fillStyle = g;
-          ctx.fillRect(0, 0, w, h);
-        }
-        // Chromatic aberration
-        var targetChroma = V.chroma * 0.015 * I;
-        s.chromaA = lerp(s.chromaA, targetChroma, LERP);
-        if (s.chromaA > 0.005) {
-          var edgeW = Math.min(0.2, 0.08 + V.chroma * 0.02) * w;
-          var cr = ctx.createLinearGradient(0, 0, edgeW, 0);
-          cr.addColorStop(0, 'rgba(180,20,30,' + s.chromaA.toFixed(3) + ')');
-          cr.addColorStop(1, 'rgba(180,20,30,0)');
-          ctx.fillStyle = cr;
-          ctx.fillRect(0, 0, edgeW, h);
-          var cb = ctx.createLinearGradient(w - edgeW, 0, w, 0);
-          cb.addColorStop(0, 'rgba(30,40,180,0)');
-          cb.addColorStop(1, 'rgba(30,40,180,' + s.chromaA.toFixed(3) + ')');
-          ctx.fillStyle = cb;
-          ctx.fillRect(w - edgeW, 0, edgeW, h);
-        }
-        // Barrel + rotation (skip CSS filter/transform at perf tier 1+)
-        s.barrelS = lerp(s.barrelS, V.barrel * I, LERP);
-        s.rotA = lerp(s.rotA, V.rot * I, LERP);
-        var breathPulse = 1 + 0.004 * Math.sin(now * 0.0008) * (V.level >= 3 ? 1 : 0);
-        var blurAmt = s.barrelS > 0.02 ? s.barrelS * 8 : 0;
-        var rotDeg = s.rotA * Math.sin(now * 0.0003) * 0.5;
-        if (_perfTier < 1) {
-          canvas.style.filter = blurAmt > 0.02 ? 'blur(' + blurAmt.toFixed(1) + 'px) ' : '';
-          canvas.style.transform =
-            'scale(' + breathPulse.toFixed(4) + ') rotate(' + rotDeg.toFixed(2) + 'deg)';
-        } else {
-          canvas.style.filter = 'none';
-          canvas.style.transform = 'none';
-        }
-        // Glitch pulse overlay (early hooks / thirteenth bell entrance)
-        if (glitchPulse > 0) {
-          var gpI = glitchPulse / 10; // 0..1
-          var gpBlur = 1 + gpI * 4;
-          var gpHue = Math.sin(now * 0.01) * 15 * gpI;
-          var gpSat = 1 + gpI * 0.6;
-          canvas.style.filter += 'blur(' + gpBlur.toFixed(1) + 'px) hue-rotate(' + gpHue.toFixed(0) + 'deg) saturate(' + gpSat.toFixed(2) + ')';
-          canvas.style.opacity = '1';
-          // Draw a red-purple flash overlay
-          ctx.fillStyle = 'rgba(120, 10, 30, ' + (gpI * 0.12).toFixed(3) + ')';
-          ctx.fillRect(0, 0, w, h);
-          // Horizontal tear lines
-          for (var gt = 0; gt < 3 * gpI; gt++) {
-            var gtY = Math.random() * h;
-            var gtH = 1 + Math.random() * 3 * gpI;
-            var gtShift = (Math.random() - 0.5) * 30 * gpI;
-            try {
-              var gtData = ctx.getImageData(0, gtY | 0, w | 0, gtH | 0);
-              ctx.putImageData(gtData, gtShift | 0, gtY | 0);
-            } catch (e) {}
-          }
-        }
-        // Screen tears (level>=4, skip at perf tier 2 — expensive getImageData)
-        if (V.level >= 4 && _perfTier < 2) {
-          var tearProb = (V.level >= 5 ? 0.18 : 0.06) * I;
-          s.tearP = lerp(s.tearP, tearProb, LERP);
-          if (Math.random() < s.tearP) {
-            var sy = Math.random() * h,
-              sh = 1 + Math.random() * 8;
-            var sx = (Math.random() - 0.5) * 20 * I;
-            try {
-              var id = ctx.getImageData(0, sy | 0, w | 0, sh | 0);
-              ctx.putImageData(id, sx | 0, sy | 0);
-            } catch (e) {}
-          }
-        }
-      }
-      s.raf = requestAnimationFrame(frame);
-      return function () {
-        alive = false;
-        cancelAnimationFrame(s.raf);
-      };
-    },
-    [san, loopCount, corruption, enabled, I, reducedMotion, glitchPulse]
-  );
-  if (!enabled || reducedMotion) return null;
-  var V = getCachedVisual(san);
-  var tier =
-    V.level >= 4
-      ? 'spl-extreme'
-      : V.level >= 3
-        ? 'spl-hostile'
-        : V.level >= 2
-          ? 'spl-mid'
-          : V.level >= 1
-            ? 'spl-low'
-            : '';
-  return React.createElement('canvas', {
-    ref: canvasRef,
-    className: 'san-pollution-layer ' + tier,
-    'aria-hidden': 'true',
-  });
-});
+// Re-export the layered renderer (defined in SanPollutionLayers.jsx)
+export {
+  SanPollutionLayer,
+  FPS_CAP_DEFAULT,
+  FPS_CAP_DEGRADED,
+  FPS_CAP_LOW,
+  getPerfTier,
+  getFrameMs,
+  lerp,
+  getNoise,
+  clearNoiseCache,
+} from './SanPollutionLayers.jsx';
 
 // === CorruptibleChoice: stage-aware hover corruption ===
 var _CG = '█▓▒░▄▀▌▐■▬▲▼●○☼★';
@@ -318,16 +50,27 @@ export var CorruptibleChoice = memo(function (props) {
   var V = getVisualForSan(san); // This is called once per render, not in animation loop — OK
   // DESIGN_REFACTOR_NOTES.md: "选项自改写只在关键事件触发，普通行动保持轻度"
   // Non-key events: cap at level 2 (visual flicker only, no text rewriting)
-  var maxCorruption = isKeyEvent ? 100 : (V.level >= 3 ? 20 : 0);
+  // Level 4 (cognitive_fog): minor option distrust for non-key events
+  var maxCorruption = isKeyEvent ? 100 : (V.level >= 4 ? 20 : 0);
   var active = V.level >= 1 && !disabled && maxCorruption > 0;
   // Key events get faster corruption; non-key events get slow, subtle flicker
   var hoverDelay = isKeyEvent
-    ? (V.level >= 5 ? 400 : V.level >= 4 ? 800 : V.level >= 3 ? 600 : V.level >= 2 ? 1200 : 0)
-    : (V.level >= 4 ? 2000 : V.level >= 3 ? 3000 : 0);
+    ? (V.level >= 6 ? 300 : V.level >= 5 ? 400 : V.level >= 4 ? 800 : V.level >= 3 ? 600 : V.level >= 2 ? 1200 : 0)
+    : (V.level >= 5 ? 2000 : V.level >= 4 ? 3000 : 0);
   var startCorruption = useCallback(
     function () {
       if (!active || hoverDelay <= 0) return;
       hoverRef.current = true;
+      // 清理旧计时器（防止快速 hover 切换产生堆积）
+      if (tickRef.current) {
+        clearTimeout(tickRef.current);
+        clearInterval(tickRef.current);
+        tickRef.current = null;
+      }
+      if (decayRef.current) {
+        clearInterval(decayRef.current);
+        decayRef.current = null;
+      }
       var delay = hoverDelay + Math.random() * 200;
       tickRef.current = setTimeout(function () {
         setLevel(Math.min(maxCorruption, 10));
@@ -338,7 +81,7 @@ export var CorruptibleChoice = memo(function (props) {
         }, 200);
       }, delay);
     },
-    [active, hoverDelay]
+    [active, hoverDelay, maxCorruption]
   );
   var stopCorruption = useCallback(function () {
     hoverRef.current = false;
@@ -346,6 +89,10 @@ export var CorruptibleChoice = memo(function (props) {
       clearTimeout(tickRef.current);
       clearInterval(tickRef.current);
       tickRef.current = null;
+    }
+    if (decayRef.current) {
+      clearInterval(decayRef.current);
+      decayRef.current = null;
     }
     decayRef.current = setInterval(function () {
       setLevel(function (p) {
@@ -358,13 +105,18 @@ export var CorruptibleChoice = memo(function (props) {
       });
     }, 150);
   }, []);
+  // 集中清理：组件卸载或重新渲染时清理所有计时器
   useEffect(function () {
     return function () {
       if (tickRef.current) {
         clearTimeout(tickRef.current);
         clearInterval(tickRef.current);
+        tickRef.current = null;
       }
-      if (decayRef.current) clearInterval(decayRef.current);
+      if (decayRef.current) {
+        clearInterval(decayRef.current);
+        decayRef.current = null;
+      }
     };
   }, []);
   var text = children;
@@ -397,9 +149,11 @@ export var CorruptibleChoice = memo(function (props) {
         ? 'cc-corrupted'
         : level >= 10
           ? 'cc-early'
-          : level > 0
-            ? 'cc-hovering'
-            : '';
+          : level > 0 && V.level >= 4
+            ? 'cc-fog'
+            : level > 0
+              ? 'cc-hovering'
+              : '';
   var cls = (className || '') + (stage ? ' ' + stage : '');
   return React.createElement(
     'button',
@@ -417,9 +171,9 @@ export var CorruptibleChoice = memo(function (props) {
 
 // === AbyssPopup ===
 // DESIGN_REFACTOR_NOTES.md: "降低中后期触发频率" — precise horror, not noise.
-// Level 3 (explanation_loss, SAN 25-39): 90-150s interval
-// Level 4 (reality_dissolution, SAN 10-24): 120-180s interval
-// Level 5 (narrative_death, SAN 1-9): 30-60s + resist micro-interaction
+// Level 3 (explanation_loss, SAN 40-49): 90-150s interval
+// Level 5 (reality_dissolution, SAN 15-29): 120-180s interval
+// Level 6 (narrative_death, SAN 1-14): 30-60s + resist micro-interaction
 var _AM = [
   '你确定你在控制这个角色吗？',
   '它在看着你读这段文字。',
@@ -524,7 +278,7 @@ export function AbyssPopup(props) {
   );
 }
 
-// === Injected CSS: 6 stage progressive effects ===
+// === Injected CSS: 7 stage progressive effects ===
 if (typeof document !== 'undefined' && !document.getElementById('spl-css')) {
   var _css = document.createElement('style');
   _css.id = 'spl-css';
@@ -535,36 +289,44 @@ if (typeof document !== 'undefined' && !document.getElementById('spl-css')) {
     '.san-pollution-layer.spl-mid{opacity:0.8}',
     '.san-pollution-layer.spl-hostile{opacity:0.9}',
     '.san-pollution-layer.spl-extreme{opacity:1}',
-    // Stage 1: mild_erosion [55,74] — shadow + cold hue + breathing
+    // Stage 1: mild_erosion [60,74] — shadow + cold hue + breathing
     '.san-stage-1 .narrative-block,.san-stage-1 .event-text{animation:splMildShadow 10s ease-in-out infinite}',
     '.san-stage-1 .game-layout{filter:hue-rotate(-8deg) saturate(0.95);animation:splBreath 30s ease-in-out infinite}',
     '@keyframes splMildShadow{0%,85%,100%{text-shadow:none}88%{text-shadow:0 0 2px rgba(100,120,160,0.15)}92%{text-shadow:0 1px 1px rgba(100,120,160,0.1)}}',
     '@keyframes splBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.003)}}',
-    // Stage 2: perception_shift [40,54] — tremble + glow
+    // Stage 2: perception_shift [50,59] — tremble + glow
     '.san-stage-2 .narrative-block,.san-stage-2 .event-text{animation:splTremble 0.15s ease-in-out infinite}',
     '.san-stage-2 .game-layout{filter:hue-rotate(-12deg) saturate(0.85)}',
     '.san-stage-2 .area-name,.san-stage-2 .event-title{animation:splGlow 3s ease-in-out infinite}',
     '@keyframes splTremble{0%,100%{transform:translate(0,0)}25%{transform:translate(0.5px,-0.5px)}50%{transform:translate(-0.5px,0.5px)}75%{transform:translate(0.5px,0.5px)}}',
     '@keyframes splGlow{0%,100%{text-shadow:none;opacity:1}50%{text-shadow:0 0 6px rgba(160,140,200,0.2);opacity:0.95}}',
-    // Stage 3: explanation_loss [25,39] — strong tremble + barrel
+    // Stage 3: explanation_loss [40,49] — strong tremble + barrel
     '.san-stage-3 .game-layout{filter:hue-rotate(-15deg) saturate(0.75)}',
     '.san-stage-3 .narrative-block,.san-stage-3 .event-text{animation:splTrembleStrong 0.12s ease-in-out infinite}',
     '@keyframes splTrembleStrong{0%,100%{transform:translate(0,0)}25%{transform:translate(1px,-1px)}50%{transform:translate(-1px,0.5px)}75%{transform:translate(0.5px,1px)}}',
-    // Stage 4: reality_dissolution [10,24] — button flicker + displacement
-    '.san-stage-4 .game-layout{filter:hue-rotate(-18deg) saturate(0.6)}',
-    '.san-stage-4 .action-btn{animation:splFlicker 4s ease-in-out infinite}',
-    '.san-stage-4 .action-btn:nth-child(2n){animation-delay:1.3s}',
-    '.san-stage-4 .action-btn:nth-child(3n){animation-delay:2.7s}',
+    // Stage 4: cognitive_fog [30,39] — fog overlay + option distrust
+    '.san-stage-4 .game-layout{filter:hue-rotate(-16deg) saturate(0.7) blur(0.3px)}',
+    '.san-stage-4 .narrative-block,.san-stage-4 .event-text{animation:splFog 8s ease-in-out infinite}',
+    '.san-stage-4 .action-btn{opacity:0.9;transition:opacity 0.5s}',
+    '@keyframes splFog{0%,100%{opacity:1}50%{opacity:0.85}}',
+    // Stage 5: reality_dissolution [15,29] — button flicker + displacement
+    '.san-stage-5 .game-layout{filter:hue-rotate(-18deg) saturate(0.6)}',
+    '.san-stage-5 .action-btn{animation:splFlicker 4s ease-in-out infinite}',
+    '.san-stage-5 .action-btn:nth-child(2n){animation-delay:1.3s}',
+    '.san-stage-5 .action-btn:nth-child(3n){animation-delay:2.7s}',
     '@keyframes splFlicker{0%,92%,100%{opacity:1;transform:translate(0,0)}93%{opacity:0.7;transform:translate(1px,0)}95%{opacity:1;transform:translate(-1px,0)}97%{opacity:0.8;transform:translate(0,1px)}}',
-    // Stage 5: narrative_death [1,9] — extreme everything + cursor
-    '.san-stage-5 .game-layout{filter:hue-rotate(-22deg) saturate(0.4) contrast(1.1)}',
-    '.san-stage-5 .action-btn{animation:splFlicker 2s ease-in-out infinite,splTrembleStrong 0.1s ease-in-out infinite;cursor:crosshair}',
-    '.san-stage-5 .narrative-block{animation:splTrembleStrong 0.08s ease-in-out infinite}',
+    // Stage 6: narrative_death [1,14] — extreme everything + cursor + screen tear
+    '.san-stage-6 .game-layout{filter:hue-rotate(-22deg) saturate(0.4) contrast(1.1)}',
+    '.san-stage-6 .action-btn{animation:splFlicker 2s ease-in-out infinite,splTrembleStrong 0.1s ease-in-out infinite;cursor:crosshair}',
+    '.san-stage-6 .narrative-block{animation:splTrembleStrong 0.08s ease-in-out infinite}',
     // CorruptibleChoice
     '.cc-hovering{opacity:0.92!important;transition:opacity 0.3s}',
     '.cc-early{color:var(--text)!important;opacity:0.88!important;text-shadow:0 0 4px rgba(180,30,30,0.3)}',
     '.cc-corrupted{color:var(--danger2)!important;font-style:italic;opacity:0.82!important;text-shadow:0 0 8px rgba(180,30,30,0.4);animation:ccFlicker 0.6s ease-in-out infinite}',
     '.cc-abyss{color:#6a1b1b!important;font-style:italic;opacity:0.75!important;text-shadow:0 0 12px rgba(180,30,30,0.6);animation:ccAbyss 0.4s ease-in-out infinite;letter-spacing:0.05em}',
+    // Cognitive fog choice style (stage 4)
+    '.cc-fog{color:var(--danger2)!important;opacity:0.88!important;text-shadow:0 0 3px rgba(180,30,30,0.2);animation:ccFog 6s ease-in-out infinite}',
+    '@keyframes ccFog{0%,100%{text-shadow:0 0 3px rgba(180,30,30,0.2)}50%{text-shadow:0 0 6px rgba(180,30,30,0.35)}}',
     '@keyframes ccFlicker{0%,100%{opacity:0.82}50%{opacity:0.62}}',
     '@keyframes ccAbyss{0%,100%{opacity:0.75;transform:translateX(0)}25%{opacity:0.6;transform:translateX(-1px)}75%{opacity:0.65;transform:translateX(1px)}}',
     // Abyss popup

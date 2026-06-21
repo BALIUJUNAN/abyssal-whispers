@@ -238,6 +238,7 @@ export const audioManager = {
       if (this.ambientEl) {
         this.ambientEl.pause();
         this.ambientEl.currentTime = 0;
+        this.ambientEl.src = '';  // 释放媒体资源引用，允许 GC 回收 Audio 对象
         this.ambientEl = null;
       }
     } catch (e) {}

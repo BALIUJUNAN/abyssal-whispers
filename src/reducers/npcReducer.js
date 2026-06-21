@@ -1,6 +1,8 @@
 // src/reducers/npcReducer.js - NPC trigger-based corruption
 // §1: NPC relationship web + post-death legacy system
 
+import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
+
 /**
  * Check if any NPC corruption triggers are satisfied.
  * Returns list of {npc, trigger} pairs ready to fire.
@@ -14,7 +16,7 @@ export function checkNPCCorruption(state, ctx) {
     if (state.npcStates[npc.name]?.dead) continue;
     const triggers = npc.corruption_triggers || [];
     for (const t of triggers) {
-      if (state.triggeredEvents.includes(t.trigger)) {
+      if (hasTriggered(state, t.trigger)) {
         triggered.push({ npc, trigger: t });
         break; // One trigger per NPC per check
       }
@@ -45,8 +47,9 @@ export function applyNPCCorruption(state, npc, trigger, narr) {
  * Mark a corruption trigger flag (called from NPC_RESPONSE or other actions).
  */
 export function setCorruptionFlag(state, triggerId) {
-  if (!state.triggeredEvents.includes(triggerId)) {
+  if (!hasTriggered(state, triggerId)) {
     state.triggeredEvents.push(triggerId);
+    syncTriggeredSet(state, triggerId);
   }
 }
 
@@ -99,6 +102,7 @@ export function getNpcConnections(state, npcName) {
 
 /**
  * When an NPC dies, register their legacy for the player to inherit.
+ * Also captures an "echo" for the next loop — their area will feel subtly emptier.
  * @param {object} state - game state
  * @param {string} npcName - dead NPC name
  * @param {object} legacy - { items: [], knowledge: [], quest: string }
@@ -111,6 +115,47 @@ export function registerNpcLegacy(state, npcName, legacy) {
     legacy: legacy,
     legacyClaimed: false,
   };
+  // Capture echo for next loop (runtime only, not persisted)
+  captureNpcEcho(state, npcName);
+}
+
+/**
+ * Record that an NPC death will create an environmental echo in the next loop.
+ * The echo is a subtle description change in the NPC's primary area —
+ * never mentions the NPC's name, never explains the cause.
+ * @param {object} state - game state
+ * @param {string} npcName - dead NPC name
+ */
+const NPC_AREA_MAP = {
+  '老费舍': 'harbor_district',
+  '玛莎·格雷': 'harbor_district',
+  '伊莱亚斯·沃德': 'town_center',
+  '汤米·陈': 'town_center',
+  '希尔达·莫里斯': 'voxchester_manor',
+  '伊莎贝拉·韦伯': 'town_center',
+  '约书亚·布莱克': 'harbor_district',
+  '埃德加·洛夫克拉夫特': 'town_center',
+};
+export function captureNpcEcho(state, npcName) {
+  var area = NPC_AREA_MAP[npcName];
+  if (!area) return;
+  if (!state._loopEchoesPending) state._loopEchoesPending = new Set();
+  state._loopEchoesPending.add(area);
+}
+
+/**
+ * Transfer pending echoes into loopEchoes for the next loop.
+ * Called by loopReducer during loop transition.
+ * @param {object} fromState - current loop state
+ * @param {object} toState - next loop state
+ */
+export function transferLoopEchoes(fromState, toState) {
+  if (!fromState._loopEchoesPending || fromState._loopEchoesPending.size === 0) {
+    toState.loopEchoes = toState.loopEchoes || { deadNpcAreas: [] };
+    return;
+  }
+  var areas = [...fromState._loopEchoesPending];
+  toState.loopEchoes = { deadNpcAreas: areas };
 }
 
 /**
@@ -151,8 +196,9 @@ export function claimNpcLegacy(state, npcName, narr) {
 
   // Trigger quest
   const questTrigger = legacy.quest || null;
-  if (questTrigger && !state.triggeredEvents.includes(questTrigger)) {
+  if (questTrigger && !hasTriggered(state, questTrigger)) {
     state.triggeredEvents.push(questTrigger);
+    syncTriggeredSet(state, questTrigger);
   }
 
   if (narr) {

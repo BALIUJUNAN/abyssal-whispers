@@ -38,9 +38,9 @@ var COLOR_MAP = {
   mild_erosion: 'var(--san-high)',
   perception_shift: 'var(--san-mid)',
   explanation_loss: 'var(--danger2)',
+  cognitive_fog: 'var(--danger2)',
   reality_dissolution: 'var(--danger)',
-  narrative_death: 'var(--danger2)',
-  death: 'var(--danger2)',
+  narrative_death: 'var(--danger)',
 };
 
 var TEXT_MOD_MAP = {
@@ -48,9 +48,9 @@ var TEXT_MOD_MAP = {
   mild_erosion: '',
   perception_shift: '你感到一阵轻微的不安。远处传来什么东西倒塌的声音。',
   explanation_loss: '你的注意力难以集中。某些声音听起来像在叫你的名字。角落里的阴影似乎在移动。',
+  cognitive_fog: '你的思维被一层雾包裹。有些选择看起来是有利的——但你不太确定。',
   reality_dissolution: '你的手在发抖。你不确定脚下是地面还是深渊。有人在你耳边低语——不，是很多人的声音，重叠在一起。',
-  narrative_death: '你的视野在融化，墙壁在呼吸。一切都不是你认识的样子。',
-  death: '',
+  narrative_death: '你的视野在融化，墙壁在呼吸。一切都不是你认识的样子。你不再确定什么是真实发生的，什么是你的想象。',
 };
 
 /**
@@ -110,9 +110,9 @@ export function getSanTextVariant(baseText, san, pickFn, ctx, rng) {
   var _rand = rng ? rng.next.bind(rng) : Math.random;
   var _pick = pickFn || _pick;
 
-  if (level >= 5) {
-    // narrative_death: char-level corruption — still unsettling, but 60% → 35% append
-    var charChance = Math.max(0.005, Math.min(0.03, (10 - san) * 0.003));
+  if (level >= 6) {
+    // narrative_death: full text corruption — char-level + append
+    var charChance = Math.max(0.005, Math.min(0.03, (14 - san) * 0.003));
     var words = baseText.split('');
     var corrupted = words
       .map(function (c, i) {
@@ -121,10 +121,15 @@ export function getSanTextVariant(baseText, san, pickFn, ctx, rng) {
       .join('');
     return corrupted + (_rand() < 0.35 ? '\n\n—— ' + textMod : '');
   }
+  if (level >= 5) {
+    // reality_dissolution: heavier corruption, 35% max chance
+    var chance5 = Math.max(0.03, (29 - san) / 29 * 0.35);
+    return baseText + (_rand() < chance5 ? '\n\n—— ' + textMod : '');
+  }
   if (level >= 4) {
-    // reality_dissolution: 60% max → 25% max. Should feel like a crack, not a flood.
-    var chance4 = Math.max(0.03, (25 - san) / 25 * 0.25);
-    return baseText + (_rand() < chance4 ? '\n\n' + textMod : '');
+    // cognitive_fog: subtle whisper, 15% max chance
+    var chance4 = Math.max(0.015, (39 - san) / 39 * 0.15);
+    return baseText + (_rand() < chance4 ? '\n\n—— 你眨了眨眼。' + textMod : '');
   }
   if (level >= 3) {
     // explanation_loss: 30% max → 12% max. A whisper, not a shout.
@@ -162,10 +167,11 @@ export function getSanSceneVariant(sceneKey, san, ctx) {
   if (!variants) return null;
   var stage = _getStage(san, ctx);
   var level = stage.level || 0;
-  if (level >= 4) return variants.san_low || variants.normal_text;
-  if (level >= 3) return variants.san_mid || variants.normal_text;
+  if (level >= 5) return variants.san_low || variants.normal_text;
+  if (level >= 4) return variants.san_mid || variants.san_low || variants.normal_text;
+  if (level >= 3) return variants.san_high || variants.san_mid || variants.normal_text;
   if (level >= 2) return variants.subtle_wrong_text || variants.normal_text;
-  return variants.san_high || variants.normal_text;
+  return variants.normal_text;
 }
 
 // --------------------------------------------
@@ -246,7 +252,7 @@ export function getSanStageClasses(san, allowVisualFX, ctx) {
   var level = presentation.level || 0;
   var vtClass = allowVisualFX && presentation.visual_tier && presentation.visual_tier !== 'clean'
     ? ' visual-' + presentation.visual_tier : '';
-  var stageClass = allowVisualFX && level >= 1 ? ' san-stage-' + Math.min(level, 5) : '';
+  var stageClass = allowVisualFX && level >= 1 ? ' san-stage-' + Math.min(level, 6) : '';
   var sanClass = '';
   if (allowVisualFX) {
     if (level >= 5) sanClass = ' san-fracture san-death';

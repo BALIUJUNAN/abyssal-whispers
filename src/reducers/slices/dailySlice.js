@@ -523,73 +523,73 @@ export function _processRestBookkeeping(s, c, ctx) {
 
 // ── Main handler ────────────────────────────────────────────────────
 
-export function handleDailyAction(s, action, c, ctx) {
+export function handleDailyAction(draft, action, ctx) {
   switch (action.type) {
     case 'REST': {
-      const _startSan = s.san,
-        _startHp = s.hp,
-        _startClues = (s.clues || []).length,
-        _startArea = s._dayStartArea || s.currentArea;
-      if (_processFoodAndStarvation(s, c, ctx)) return s; // player died
-      const shStage = _processSafehouseAndWorldDecay(s, c, ctx);
-      _processRestRecovery(s, c, shStage, ctx);
-      const oldDay = _advanceDayClock(s, c, ctx);
-      _processChapterAndMotif(s, c, oldDay, ctx);
-      _processDayCriticalAndDecay(s, c, ctx);
-      _processNpcCorruption(s, c, ctx);
-      _processNightEffects(s, c, ctx);
-      _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea, ctx);
-      _processRestBookkeeping(s, c, ctx);
+      const _startSan = draft.san,
+        _startHp = draft.hp,
+        _startClues = (draft.clues || []).length,
+        _startArea = draft._dayStartArea || draft.currentArea;
+      if (_processFoodAndStarvation(draft, ctx, ctx)) return null; // player died
+      const shStage = _processSafehouseAndWorldDecay(draft, ctx, ctx);
+      _processRestRecovery(draft, ctx, shStage, ctx);
+      const oldDay = _advanceDayClock(draft, ctx, ctx);
+      _processChapterAndMotif(draft, ctx, oldDay, ctx);
+      _processDayCriticalAndDecay(draft, ctx, ctx);
+      _processNpcCorruption(draft, ctx, ctx);
+      _processNightEffects(draft, ctx, ctx);
+      _processDayOpenAndEndings(draft, ctx, _startSan, _startHp, _startClues, _startArea, ctx);
+      _processRestBookkeeping(draft, ctx, ctx);
       // "Suspected bug" — phantom log entry (0.5% at low SAN/high loop)
-      maybeInjectPhantomLog(s.eventLog, s.san, s.loopCount, c.rng);
-      return s;
+      maybeInjectPhantomLog(draft.eventLog, draft.san, draft.loopCount, ctx.rng);
+      return null;
     }
     case 'WORK': {
-      if (s.ap < 2) {
-        narrApInsufficient(s, c.narr, 2);
-        return s;
+      if (draft.ap < 2) {
+        narrApInsufficient(draft, ctx.narr, 2);
+        return null;
       }
-      s.ap -= 2;
+      draft.ap -= 2;
       // AP 消耗音效反馈
-      if (s.ap <= 2 && s.ap > 0) {
-        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
-      } else if (s.ap <= 0) {
-        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+      if (draft.ap <= 2 && draft.ap > 0) {
+        ctx.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+      } else if (draft.ap <= 0) {
+        ctx.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
       }
-      const earned = rand(3, 12, c.rng);
-      s.money = (s.money || 0) + earned;
-      c.bt.work_count = (c.bt.work_count || 0) + 1;
-      if ((s.money || 0) > (c.bt.hoarded_money_max || 0)) c.bt.hoarded_money_max = s.money;
-      c.narr('system', '你在码头帮了半天工。报酬微薄，但至少口袋里多了几枚硬币。金钱 +' + earned);
-      c.log('打工挣钱');
-      return s;
+      const earned = rand(3, 12, ctx.rng);
+      draft.money = (draft.money || 0) + earned;
+      ctx.bt.work_count = (ctx.bt.work_count || 0) + 1;
+      if ((draft.money || 0) > (ctx.bt.hoarded_money_max || 0)) ctx.bt.hoarded_money_max = draft.money;
+      ctx.narr('system', '你在码头帮了半天工。报酬微薄，但至少口袋里多了几枚硬币。金钱 +' + earned);
+      ctx.log('打工挣钱');
+      return null;
     }
     case 'BUY_FOOD': {
-      if (s.ap < 1) {
-        narrApInsufficient(s, c.narr, 1);
-        return s;
+      if (draft.ap < 1) {
+        narrApInsufficient(draft, ctx.narr, 1);
+        return null;
       }
       const foodPrice = 3;
-      if ((s.money || 0) < foodPrice) {
-        c.narr('system', '你的钱不够。购买食物需要 ' + foodPrice + ' 金钱。');
-        return s;
+      if ((draft.money || 0) < foodPrice) {
+        ctx.narr('system', '你的钱不够。购买食物需要 ' + foodPrice + ' 金钱。');
+        return null;
       }
-      if ((s.food || 0) >= (s.maxFood || 5)) {
-        c.narr('system', '你的食物已经满了。');
-        return s;
+      if ((draft.food || 0) >= (draft.maxFood || 5)) {
+        ctx.narr('system', '你的食物已经满了。');
+        return null;
       }
-      s.ap -= 1;
+      draft.ap -= 1;
       // AP 消耗音效反馈
-      if (s.ap <= 2 && s.ap > 0) {
-        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
-      } else if (s.ap <= 0) {
-        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+      if (draft.ap <= 2 && draft.ap > 0) {
+        ctx.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+      } else if (draft.ap <= 0) {
+        ctx.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
       }
-      s.money -= foodPrice;
-      s.food = Math.min(s.maxFood, (s.food || 0) + 1);
-      c.narr('system', '你在杂货店买了一些食物。食物 +1，金钱 -' + foodPrice);
-      c.log('购买食物');
-      return s;
+      draft.money -= foodPrice;
+      draft.food = Math.min(draft.maxFood, (draft.food || 0) + 1);
+      ctx.narr('system', '你在杂货店买了一些食物。食物 +1，金钱 -' + foodPrice);
+      ctx.log('购买食物');
+      return null;
     }
     default:
       return null;

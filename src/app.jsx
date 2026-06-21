@@ -5,6 +5,17 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { produce } from 'immer';
 
+// Granular Zustand selectors — replaces useSyncExternalStore(getState())
+import {
+  useAppGameData,
+  useSan,
+  useSanStageClasses,
+  useDay,
+  useLoopCount,
+  useCurrentArea,
+} from './state/selectors.js';
+import { useScreen, getDispatch, seedGameStore } from './state/useGameStore.js';
+
 // ── Core reducers & systems ──
 import { rand, d100, d3, clamp, pick, rollDice, shuffle } from './reducers/utils.js';
 import {
@@ -17,7 +28,6 @@ import {
 } from './engine/WorldTimeSystem.js';
 import { getDistortedName } from './systems/textVariants.js';
 import {
-  getSanStageFromGD,
   getSanTextVariant,
   getSanSceneVariant,
   processSanLoss,
@@ -103,8 +113,7 @@ import { checkOmens } from './data/events_omens_600.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
 import { resolveDeath } from './reducers/deathSystem.js';
 import { getGuideStep } from './systems/firstRunGuide.js';
-import { getSanLossPresentation, getSanStageFeedback } from './systems/sanFeedback.js';
-import { getSanStageClasses } from './systems/sanityVisual.js';
+import { getSanLossPresentation } from './systems/sanFeedback.js';
 import { PROLOGUE_EVENTS } from './data/prologue_events.js';
 import {
   initPrologueState,
@@ -148,8 +157,11 @@ configureSaveManager({ SAVE_VERSION, migrateSaveData, toPersistedState });
 enforceSaveFormatFreeze();
 
 // ── State stores ──
-import { seedGameStore, getRawState, getDispatch } from './state/useGameStore.js';
 import { uiStore, useUiStore, getSettings, addUiToast, removeUiToast, notifySave, updateSettings } from './state/uiStore.js';
+import { useSanVisual, useSanLevel, useNpcTrust, useEventLogLength } from './state/selectors.js';
+
+// ── Event side effects (must be imported once to activate handlers) ──
+import './runtime/eventSideEffects.js';
 
 // ── Components ──
 import { UgcPanel } from './components/UgcImportExport.jsx';
@@ -258,44 +270,27 @@ let _currentFearTuning = null;
  * @param {function} narr - narrative function
  */
 
-// === STATE: Zustand bridge (was useReducer + gameReducer) ===
-// State lives in useGameStore (Zustand + immer). Slice handlers still produce()
-// internally — no changes to reducer logic. Effects flushed via store dispatch.
-
-// ── App component ──
-// State sourced from useGameStore (Zustand). dispatch calls createGameReducer
-// internally → patches Zustand draft → flushEffectsBuffer.
+// === STATE: Zustand granular selectors (Step 3 — no full-state subscription) ===
+// State lives in useGameStore (Zustand + immer). Components subscribe via granular selectors.
+// App uses useAppGameData() for game screen; individual components use their own selectors.
 
 var _storeSeeded = false;
 
-function useAppState() {
-  return React.useSyncExternalStore(
-    useGameStore.subscribe,
-    function () {
-      if (!_storeSeeded) return PLACEHOLDER_STATE;
-      return useGameStore.getState();
-    },
-    function () {
-      if (!_storeSeeded) return PLACEHOLDER_STATE;
-      return useGameStore.getState();
-    }
-  );
-}
-
-var PLACEHOLDER_STATE = {
-  day: 1, san: 60, hp: 10, ap: 0, maxAp: 12, screen: 'title', loopCount: 0,
-  safehouseCorruption: 0, pollution: 0, money: 0, food: 0, currentArea: '',
-  inventory: [], clues: [], _actionIndex: 0, _apLies: false, _apOffset: 0,
-  ending: null, endingCoins: 0, loopShopTier: 0, visitedAreas: [],
-};
-
 function App() {
-  var state = useAppState();
-  var stateRef = React.useRef(state);
-  stateRef.current = state;
+  // Granular subscriptions — each hook re-renders only when its slice changes
+  var screen = useScreen();
+  var day = useDay();
+  var loopCount = useLoopCount();
+  var san = useSan();
+  var currentArea = useCurrentArea();
+  var sanStage = useSanStageClasses(true);
+  var game = useAppGameData(); // combined: hp, ap, inventory, narrative, etc.
+
+  var stateRef = React.useRef(game);
+  stateRef.current = game;
   // Seed Zustand store on mount (after GD is available at module level)
   React.useEffect(function () {
-    seedGameStore(GD, getRawState().dispatch);
+    seedGameStore(GD);
     _storeSeeded = true;
     // 移除加载层
     var ls = document.getElementById('loading-screen');
@@ -325,7 +320,7 @@ function App() {
   // Achievement checking
   useEffect(() => {
     const achData = loadAchievements();
-    const newUnlocks = checkAchievements(state, achData.unlocked, achData.stats);
+    const newUnlocks = checkAchievements(game, achData.unlocked, achData.stats);
     if (newUnlocks.length > 0) {
       achData.unlocked.push(...newUnlocks);
       saveAchievements(achData);
@@ -334,7 +329,7 @@ function App() {
         if (def) addUiToast({ id, def, type: 'achievement' });
       });
     }
-  }, [state.day, state.ending, state.visitedAreas?.length, state.clues?.length]);
+  }, [day, game.ending, (game.visitedAreas || []).length, (game.clues || []).length]);
 
   useEffect(() => {
     migrateOldSave();
@@ -383,7 +378,7 @@ function App() {
 
   // 笔记本打开 → 同步标记引导已读（uiStore → game state）
   useEffect(() => {
-    if (ui.notebookEverOpened && !(state.tutorialSeen || {}).notebook_opened) {
+    if (ui.notebookEverOpened && !(game.tutorialSeen || {}).notebook_opened) {
       dispatch({ type: 'MARK_NOTEBOOK_OPENED' });
     }
   }, [ui.notebookEverOpened]);
@@ -428,21 +423,21 @@ function App() {
   // 结局CG预加载：SAN < 30 时静默预加载，暗示结局临近
   // P1-A: SSOT — preload ending CGs at explanation_loss (level >= 3)
   useEffect(() => {
-    if (state.screen === 'game' && getSanStageFromGD(state.san).level >= 3) preloadEndingCGs();
-  }, [state.san, state.screen]);
+    if (screen === 'game' && sanStage.level >= 3) preloadEndingCGs();
+  }, [san, screen]);
 
   // Lazy-load ch2+ game data (web mode only — skipped if already merged at build time)
   // Chapter-gated: load ch2+ at day 5, meta at day 10 (reduces initial load)
   useEffect(() => {
-    if (state.screen !== 'game') return;
+    if (screen !== 'game') return;
     if (!GD._extendedEventsLoaded) return;
     try {
-      if (state.day >= 5) loadChapterData(GD, 'ch2plus', 'game_ch2plus.json');
-      if (state.day >= 10) loadChapterData(GD, 'meta', 'game_meta.json');
+      if (day >= 5) loadChapterData(GD, 'ch2plus', 'game_ch2plus.json');
+      if (day >= 10) loadChapterData(GD, 'meta', 'game_meta.json');
     } catch (e) {
       /* non-fatal: game continues with existing data */
     }
-  }, [state.day, state.screen]);
+  }, [day, screen]);
 
   // SAN visual corruption: now handled by <SanPollutionLayer> component (see render below)
 
@@ -459,14 +454,14 @@ function App() {
   // Level 13 (十三钟响): periodic reality distortion glitch pulses
   const l13IntervalRef = useRef(null);
   useEffect(function () {
-    if (state._level13GlitchScheduled && state.screen === 'game' && !l13IntervalRef.current) {
+    if (game._level13GlitchScheduled && screen === 'game' && !l13IntervalRef.current) {
       l13IntervalRef.current = setInterval(function () {
         if (Math.random() < 0.5) {
           dispatch({ type: 'GLITCH_PULSE', strength: 3 + Math.floor(Math.random() * 5) });
         }
       }, 15000 + Math.floor(Math.random() * 10000));
     }
-    if (!state._level13GlitchScheduled && l13IntervalRef.current) {
+    if (!game._level13GlitchScheduled && l13IntervalRef.current) {
       clearInterval(l13IntervalRef.current);
       l13IntervalRef.current = null;
     }
@@ -476,52 +471,52 @@ function App() {
         l13IntervalRef.current = null;
       }
     };
-  }, [state._level13GlitchScheduled, state.screen]);
+  }, [game._level13GlitchScheduled, screen]);
 
   // ── 轻提示：前传结束进入正片时 ──
   const bootHintShown = useRef(false);
   const [bootHintVisible, setBootHintVisible] = useState(false);
   useEffect(() => {
-    if (state.screen === 'game' && state.day === 1 && !bootHintShown.current) {
+    if (screen === 'game' && day === 1 && !bootHintShown.current) {
       bootHintShown.current = true;
       setBootHintVisible(true);
       var t = setTimeout(function () { setBootHintVisible(false); }, 8000);
       return function () { clearTimeout(t); };
     }
-  }, [state.screen, state.day]);
+  }, [screen, day]);
 
   // ── 轻提示：第一次掉 SAN ──
   const sanHintShown = useRef(false);
   const [sanHintVisible, setSanHintVisible] = useState(false);
   useEffect(() => {
-    if (state.screen === 'game' && state.san < 75 && !sanHintShown.current) {
+    if (screen === 'game' && san < 75 && !sanHintShown.current) {
       sanHintShown.current = true;
       setSanHintVisible(true);
       var t = setTimeout(function () { setSanHintVisible(false); }, 2500);
       return function () { clearTimeout(t); };
     }
-  }, [state.san, state.screen]);
+  }, [san, screen]);
 
   // ── Compute game screen vars (needed when screen === 'game') ──
-  const corrLevel = getCorruptionLevel(state.san, state.loopCount);
+  const corrLevel = getCorruptionLevel(san, loopCount);
   const areas = GD.areas || GD.module2_areas || [];
-  const visualDistortion = state.accessibilityOptions?.visual_distortion;
+  const visualDistortion = game.accessibilityOptions?.visual_distortion;
   const allowVisualFX = visualDistortion !== false;
-  const sanClasses = getSanStageClasses(state.san, allowVisualFX, ctx);
-  const sanFeedback = getSanStageFeedback(state.san, ctx);
+  const sanClasses = sanStage; // already computed by useSanStageClasses
+  const sanFeedback = getSanStageFeedback(san, ctx);
   const _vtClass = sanClasses.vtClass;
   const sanStageClass = sanClasses.stageClass;
   const sanClass = sanClasses.sanClass;
 
   // ── Determine active screen key for ScreenTransition ──
-  var _screenKey = state.ending ? 'ending' : state.screen;
+  var _screenKey = game.ending ? 'ending' : screen;
 
   return (
     <>
       {/* Screen content wrapped in ScreenTransition for animated switching */}
       <ScreenTransition screenKey={_screenKey} duration={800}>
 
-        {state.screen === 'title' && (
+        {screen === 'title' && (
           <TitleScreen
             onStart={() => dispatch({ type: 'START_GAME' })}
             saveExists={savedExists}
@@ -530,26 +525,26 @@ function App() {
             }}
             onSettingsOpen={() => useUiStore.setState({ settingsOpen: true })}
             onAchOpen={() => useUiStore.setState({ achOpen: true })}
-            endingCoins={state.endingCoins || 0}
-            loopShopTier={state.loopShopTier || 0}
-            loopCount={state.loopCount || 0}
+            endingCoins={game.endingCoins || 0}
+            loopShopTier={game.loopShopTier || 0}
+            loopCount={loopCount || 0}
             onShopPurchase={(item) => {
               dispatch({ type: 'LOOP_SHOP_PURCHASE', itemId: item.id, cost: item.cost });
             }}
           />
         )}
 
-        {state.screen === 'prologue' && (
-          <PrologueScreen state={state} dispatch={dispatch} />
+        {screen === 'prologue' && (
+          <PrologueScreen state={game} dispatch={dispatch} />
         )}
 
-        {state.screen === 'guide' && (
+        {screen === 'guide' && (
           <SurvivalGuide onContinue={() => dispatch({ type: 'DISMISS_GUIDE' })} />
         )}
 
-        {state.screen === 'creation' && (
+        {screen === 'creation' && (
           <CharCreation
-            state={state}
+            state={game}
             onRoll={() => dispatch({ type: 'ROLL_STATS' })}
             onStart={() => dispatch({ type: 'BEGIN_ADVENTURE' })}
             onSetDifficulty={(d) => dispatch({ type: 'SET_DIFFICULTY', difficulty: d })}
@@ -557,24 +552,24 @@ function App() {
           />
         )}
 
-        {state.ending && (
-          <EndingScreen ending={state.ending} state={state} dispatch={dispatch} />
+        {game.ending && (
+          <EndingScreen ending={game.ending} state={game} dispatch={dispatch} />
         )}
 
-        {state.screen === 'game' && !state.ending && (
+        {screen === 'game' && !game.ending && (
           <>
-            <DevPanel state={state} dispatch={dispatch} />
+            <DevPanel state={game} dispatch={dispatch} />
             <SanPollutionLayer
-              san={state.san}
-              loopCount={state.loopCount}
-              corruption={state.safehouseCorruption || 0}
-              glitchPulse={state.glitchPulse || 0}
+              san={san}
+              loopCount={loopCount}
+              corruption={game.safehouseCorruption || 0}
+              glitchPulse={game.glitchPulse || 0}
               enabled={allowVisualFX}
               intensity={settings.visualPollution ?? 50}
               interactionPollution={settings.interactionPollution ?? 50}
               metaPollution={settings.metaPollution ?? 50}
             />
-            <AbyssPopup san={state.san} onSanDrain={(amt) => dispatch({ type: 'RESIST_SAN_DRAIN', amount: amt })} />
+            <AbyssPopup san={san} onSanDrain={(amt) => dispatch({ type: 'RESIST_SAN_DRAIN', amount: amt })} />
             <div
               className={
                 'game-root ' +
@@ -587,7 +582,7 @@ function App() {
               }
             >
               {settings?.showGuideHints !== false && (() => {
-                const _guide = getGuideStep(state, ctx);
+                const _guide = getGuideStep(game, ctx);
                 return _guide ? (
                   <div className="guide-hint" style={{
                     position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
@@ -600,7 +595,7 @@ function App() {
                   </div>
                 ) : null;
               })()}
-              <GameLayout state={state} dispatch={dispatch} areas={areas} settings={settings} />
+              <GameLayout state={game} dispatch={dispatch} areas={areas} settings={settings} />
             </div>
           </>
         )}
@@ -621,7 +616,7 @@ function App() {
       <SaveLoadModal
         open={ui.saveLoadOpen}
         onClose={() => useUiStore.setState({ saveLoadOpen: false })}
-        state={state.screen === 'game' ? state : null}
+        state={screen === 'game' ? game : null}
         onLoad={handleLoadSlot}
         mode={ui.saveLoadMode}
         onSaved={notifySave}
@@ -630,7 +625,7 @@ function App() {
       <NotebookModal
         open={!!ui.notebookOpen}
         onClose={() => useUiStore.setState({ notebookOpen: false })}
-        state={state}
+        state={game}
       />
       {ui.ugcOpen && (
         <Modal
@@ -651,12 +646,12 @@ function App() {
       )}
 
       {/* ── 轻提示：前传结束 → 正片 ── */}
-      {bootHintVisible && state.screen === 'game' && (
+      {bootHintVisible && screen === 'game' && (
         <div className="boot-hint">按 M 切换布局 · 按 J 打开笔记本</div>
       )}
 
       {/* ── 轻提示：第一次掉 SAN ── */}
-      {sanHintVisible && state.screen === 'game' && (
+      {sanHintVisible && screen === 'game' && (
         <div className="san-hint">理智正在流失，世界会逐渐发生变化</div>
       )}
     </>

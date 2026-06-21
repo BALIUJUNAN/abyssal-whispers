@@ -1,6 +1,7 @@
 // src/components/NPCDialog.jsx - NPC dialog component (extracted from GamePanels.jsx)
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { applyMythosAliases, maybeCorruptNpcName } from '../systems/textVariants.js';
+import { applyTextFragmentation } from '../systems/textFragmentation.js';
 import { generateNpcDialogue, isGlmAvailable } from '../systems/llmNarrative.js';
 import { getContextualLine } from '../systems/npcDialogue.js';
 import { getChoiceDelay } from '../engine/PollutionManager.js';
@@ -21,12 +22,13 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
       if (s.llmNpcDialogue === false) return;
     } catch (e) { return; }
     if (!isGlmAvailable()) return;
-    var cancelled = false;
+    // P2: AbortController — 组件卸载时真正取消 LLM 请求，不只是丢弃结果
+    var abortCtrl = new AbortController();
     var topic = layer.dialogue ? layer.dialogue.slice(0, 60) : '日常问候';
-    generateNpcDialogue(npc.name, topic, state || {}).then(function (text) {
-      if (!cancelled && text) setLlmLine(text);
-    });
-    return function () { cancelled = true; };
+    generateNpcDialogue(npc.name, topic, state || {}, abortCtrl.signal).then(function (text) {
+      if (text) setLlmLine(text);
+    }).catch(function () { /* abort 导致的拒绝静默处理 */ });
+    return function () { abortCtrl.abort(); };
   }, [npc.name, trust, layer && layer.dialogue]);
   // Contextual line (trust/san/loop/legacy-aware short dialogue)
   const ctxLine = useMemo(() => {
@@ -162,6 +164,16 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
               let dlgText = layer.dialogue;
               if (state && dlgText && typeof GD !== 'undefined') {
                 dlgText = applyMythosAliases(dlgText, state.currentChapter || 'chapter_1', state.mythosLevel || 0, { GD });
+              }
+              // ── Text Fragmentation: SAN-driven text degradation ──
+              // NPC dialogue becomes unreliable at low SAN — words cross out, vanish.
+              // The NPC seems fine. The text is the thing that's wrong.
+              if (state && dlgText) {
+                dlgText = applyTextFragmentation(dlgText, state.san || 60, null, {
+                  isCritical: false,
+                  loopCount: state.loopCount || 0,
+                  difficultyLevel: state.difficultyLevel || 1,
+                });
               }
               return dlgText;
             })()}

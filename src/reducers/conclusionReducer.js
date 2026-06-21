@@ -2,13 +2,14 @@
 
 import { makeRand } from './utils.js';
 import { hasClueId } from '../utils/clueNameMap.js';
+import { hasTriggered } from '../utils/triggeredSet.js';
 
 /**
  * Check if a single evidence source is satisfied by current state.
  */
 export function isEvidenceSatisfied(ev, state) {
   // Direct event trigger
-  if (ev.source && state.triggeredEvents.includes(ev.source)) return true;
+  if (ev.source && hasTriggered(state, ev.source)) return true;
   // NPC trust requirement: "玛莎·格雷 trust>=4"
   const trustMatch = ev.source && ev.source.match(/^(.+?)\s+trust>=(\d+)$/);
   if (trustMatch) {

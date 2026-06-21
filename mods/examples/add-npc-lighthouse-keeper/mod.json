@@ -1,0 +1,266 @@
+{
+  "id": "add_npc_lighthouse_keeper",
+  "name": "新增NPC：老灯塔看守人",
+  "author": "官方示例",
+  "version": "1.0.0",
+  "compatibility": ">=0.8.0",
+  "description": "在雾港码头区新增一位神秘NPC——老灯塔看守人。包含6个事件：初次相遇、帮助修灯、发现真相、道德抉择、结局分支。演示NPC事件链、flag任务系统和线索推进。",
+  "events": [
+    {
+      "id": "lh_keeper_001",
+      "name": "熄灭的灯塔",
+      "type": "area_deep",
+      "subtype": "harbor",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "A",
+      "tags": ["ugc", "npc", "lighthouse", "harbor", "quest_start", "mod_lh_keeper"],
+      "trigger": {
+        "areas": ["harbor_district"],
+        "probability": 0.18,
+        "once_per_run": true,
+        "min_loop": 1,
+        "time_phase": ["evening", "midnight"]
+      },
+      "description": "你在码头尽头看到了灯塔。\n灯塔已经三年没有亮过了——但 schedule 上它今晚应该亮。\n\n灯塔看守人坐在台阶上，手里攥着一盏煤油灯。他的大衣上沾满了海盐和白絮状的东西。\n他的眼睛在黑暗中亮得不太正常——不是反光，是某种更本质的亮度。\n\n「 lighthouse 已经三年没有亮过了，」他说。\n「从那个东西上岸的那天起。」\n\n他没有看你，但你知道他在对你说话。",
+      "effects": {
+        "san": -1,
+        "add_clue": { "id": "clue_lh_green_light", "name": "灯塔的绿光" },
+        "add_flag": "flag_met_lighthouse_keeper"
+      },
+      "choices": [
+        {
+          "id": "lh_001_ask",
+          "label": "询问详细经过",
+          "text": "他沉默了很久。煤油灯的火苗在他掌心边缘跳动。\n\n「三年前的一个午夜，」他开始说，「灯塔的光突然变成了绿色。不是折射——是光本身变成了绿色。持续了整整七分钟。然后熄了。」\n\n他抬起手，掌心有一道愈合的伤疤。\n\n「我伸手去碰那道光。它把我推开了。我摔在台阶上。然后灯就灭了。一直到现在。」\n\n码头尽头传来了一声悠长的水声。像是有什么东西在水下呼吸。",
+          "effects": {
+            "add_clue": { "id": "clue_lh_keeper_scar", "name": "看守人手心的伤疤" },
+            "add_run_memory": "灯塔看守人手心有一道伤疤——来自三年前触碰绿光。"
+          }
+        },
+        {
+          "id": "lh_001_help",
+          "label": "提出帮忙修灯",
+          "text": "他第一次看向了你。\n\n他的眼睛不是人类的颜色——或者说，不是你现在这个维度能定义的颜色。\n像是把整个夜晚倒映在了虹膜上。\n\n「修灯？」他重复了一遍。嘴角动了动，不知道是不是微笑。\n「 lighthouse 的灯不是坏了。是被关掉了。从里面。」\n\n他重新看向海面。\n\n「但如果你真的想帮忙——灯塔顶部有一面镜子。三年前被什么东西砸裂了。你能找到它吗？」",
+          "effects": {
+            "add_flag": "flag_lh_quest_started",
+            "add_run_memory": "灯塔看守人让你去灯塔顶部找被砸裂的镜子。"
+          }
+        },
+        {
+          "id": "lh_001_leave",
+          "label": " leave 不深究",
+          "text": "你转身离开了。身后没有声音。\n\n走了很远之后你回头看了一眼——灯塔看守人还坐在那里。煤油灯的光没有移动。\n\n码头的另一端，你看到了一只海鸟落在了灯塔的尖顶上。\n海鸟没有飞走。灯塔尖顶上的海鸟。\n\n你加快了脚步。",
+          "effects": {
+            "san": -2,
+            "add_flag": "flag_lh_met_but_left"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lh_keeper_002",
+      "name": "灯塔顶部的镜子",
+      "type": "area_deep",
+      "subtype": "harbor",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "A",
+      "tags": ["ugc", "npc", "lighthouse", "harbor", "quest_chain", "mod_lh_keeper"],
+      "trigger": {
+        "areas": ["harbor_district"],
+        "probability": 0.2,
+        "once_per_run": true,
+        "requires_flags": ["flag_lh_quest_started"],
+        "forbidden_flags": ["flag_lh_mirror_found"]
+      },
+      "description": "灯塔的螺旋楼梯有七十七级。你数了。\n每一级都有一道划痕——不是磨损的痕迹，是被什么尖锐的东西刻意刻出来的。\n\n你到达顶部时，灯塔的灯室已经空了。透镜还在，但框架裂了一道从顶部到底部的缝隙。\n一面铜镜靠在角落的墙上。镜面已经氧化成了深绿色，但你还能看到自己的倒影。\n\n倒影在动。\n\n你没有动。",
+      "effects": {
+        "san": -2,
+        "add_clue": { "id": "clue_lh_cracked_mirror", "name": "灯塔顶部的铜镜" },
+        "add_flag": "flag_lh_mirror_found"
+      },
+      "choices": [
+        {
+          "id": "lh_002_examine",
+          "label": "仔细检查镜子",
+          "text": "你蹲下来观察镜面。裂痕不是从外部破坏的——是从内部炸开的。\n像是有什么东西在镜子里面试图出来。\n\n镜子的背面刻着一行小字。你辨认了很久：\n\n「勿照真理。真理会照你。」\n\n你站起来的时候，镜面映出的你已经站在了楼梯口——而你还在灯室里。",
+          "effects": {
+            "add_clue": { "id": "clue_lh_mirror_inscription", "name": "镜子背面的铭文" },
+            "san": -1
+          }
+        },
+        {
+          "id": "lh_002_take",
+          "label": "带走镜子",
+          "text": "你伸手去拿镜子。\n\n手指碰到铜面的那一刻，整个灯塔摇晃了一下。不是地震——灯塔本身在颤抖。\n\n你抓紧了镜子。它很沉，像握着一块从深海里打捞上来的金属。\n\n下楼的时候，你总觉得有人在你的肩膀上呼吸。\n每下一级阶梯，呼吸声就重一分。",
+          "effects": {
+            "add_item": { "id": "item_lh_cracked_mirror", "name": "裂开的铜镜", "uses": 1 },
+            "add_run_memory": "你从灯塔顶部带走了一面裂开的铜镜。背面刻着「勿照真理」。"
+          }
+        },
+        {
+          "id": "lh_002_leave_mirror",
+          "label": " leave 镜子",
+          "text": "你决定不碰它。\n\n转身下楼的时候，身后传来了清脆的碎裂声。你回头——镜子碎了。\n不是掉在地上碎的，是自己碎的。碎片在空中停了一秒，然后像雪花一样落了下来。\n\n碎片落地时，每一片都映出了你的脸。\n但那些脸的表情各不相同。有的在哭，有的在笑，有的——在尖叫。",
+          "effects": {
+            "add_clue": { "id": "clue_lh_mirror_shattered", "name": "自行碎裂的铜镜" },
+            "san": -2
+          }
+        }
+      ]
+    },
+    {
+      "id": "lh_keeper_003",
+      "name": "看守人的真相",
+      "type": "npc_cross",
+      "subtype": "lighthouse",
+      "weight": 1,
+      "tier": "rare",
+      "quality_tier": "S",
+      "tags": ["ugc", "npc", "lighthouse", "harbor", "quest_chain", "mod_lh_keeper"],
+      "trigger": {
+        "areas": ["harbor_district"],
+        "probability": 0.25,
+        "once_per_run": true,
+        "requires_flags": ["flag_lh_mirror_found"],
+        "time_phase": ["evening"]
+      },
+      "description": "你回到码头时，灯塔看守人已经不坐在台阶上了。\n\n他在灯塔的根部等你。煤油灯的光在他身后投下了一个不正常的影子——那影子有六个触手。\n\n「你拿到了镜子，」他说。不是疑问句。\n\n他接过你手里的铜镜。他的手指碰到铜面的瞬间，镜子的裂痕发出了微弱的绿光。\n\n「谢谢你。三年来，你是第一个帮我到这里的人。」\n\n他沉默了一秒。\n\n「我不是人类。至少——不完全是。我是灯塔的守护者。灯塔的灯灭了，是因为灯里面的东西醒了。它把我困在了灯塔外面。」\n\n他看向海面。\n\n「但它还没有完全醒。如果你能在彻底醒来之前把灯重新点亮——我能重新把它关回去。」",
+      "effects": {
+        "add_clue": { "id": "clue_lh_keeper_truth", "name": "灯塔看守人的真实身份" },
+        "add_run_memory": "灯塔看守人承认自己不是人类，是灯塔的守护者。灯塔里面有某种东西正在苏醒。"
+      },
+      "choices": [
+        {
+          "id": "lh_003_agree",
+          "label": "同意帮忙重新点亮灯塔",
+          "text": "他点了点头。绿光从他的眼睛里退去了——短暂地。\n\n「灯塔顶部有一个灯室。灯已经被熄灭了。你需要用这盏煤油灯去点燃它。」\n\n他把煤油灯递给你。灯很温暖。温暖得不太正常——像是握着一个小型的太阳。\n\n「但是有一件事你要知道。当你点亮灯的时候——灯塔里面的东西会看见你。它会试图阻止你。」\n\n他顿了顿。\n\n「还有一件事。那道光会让你看到——一些不该看的东西。你的精神可能承受不住。但这是唯一的方法。」",
+          "effects": {
+            "add_flag": "flag_lh_quest_accepted",
+            "add_item": { "id": "item_lh_oil_lamp", "name": "看守人的煤油灯", "uses": 1 },
+            "add_run_memory": "你答应了灯塔看守人，要去灯塔顶部重新点亮灯塔。他给了你一盏煤油灯。"
+          }
+        },
+        {
+          "id": "lh_003_refuse",
+          "label": "拒绝——这太危险了",
+          "text": "他的表情没有变化。\n\n「我理解，」他说。「不是每个人都能承受那种光。」\n\n他把煤油灯放在地上。火苗安静地燃烧着。\n\n「但 lighthouse 熄灭得越久，里面的东西就越强。等到它完全醒来——不只是灯塔。是整个海岸。整个镇。」\n\n他重新看向海面。\n\n「如果你改变主意了。灯塔的台阶还在。我还在。」\n\n他不再是坐在台阶上了——他站在灯塔的根部，像一根生了根的柱子。你不知道他站在那里多久了。",
+          "effects": {
+            "add_flag": "flag_lh_quest_refused",
+            "add_run_memory": "你拒绝了灯塔看守人的请求。但他说如果你改变主意，灯塔的入口还在。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lh_keeper_004",
+      "name": "重新点亮灯塔",
+      "type": "area_deep",
+      "subtype": "harbor",
+      "weight": 0.7,
+      "tier": "rare",
+      "quality_tier": "S",
+      "tags": ["ugc", "npc", "lighthouse", "harbor", "quest_climax", "mod_lh_keeper"],
+      "trigger": {
+        "areas": ["harbor_district"],
+        "probability": 0.2,
+        "once_per_run": true,
+        "requires_flags": ["flag_lh_quest_accepted"],
+        "forbidden_flags": ["flag_lh_lighthouse_lit"]
+      },
+      "description": "七十七级台阶。你数了。\n每一级的划痕都比上一次更深。\n\n你到达灯室时，里面的空气粘稠得像某种有机体。灯芯已经碳化了——但还能用。\n\n你点燃了灯。\n\n\\*\\*\\*\n\n光。\n\n不是普通的灯光。那道光从每一个维度向外扩展。你看到了——\n\n\\- 灯塔的墙壁变成了某种半透明的膜\n\\- 外面是无穷无尽的水\n\\- 水下面有一个东西。巨大。古老。比你所能想象的任何东西都古老。\n\\- 它在看你。\n\n你惨叫了一声。或者你以为自己叫了——在水里，声音传不出去。\n\n但那道光把它推回去了。推回了灯塔的深处。\n\n\\*\\*\\*\n\n你醒来时躺在灯室的地板上。灯已经亮了。绿光透过透镜照向大海。\n\n灯塔下面的看守人在喊你的名字。",
+      "effects": {
+        "san": -4,
+        "hp": -1,
+        "add_flag": "flag_lh_lighthouse_lit",
+        "add_clue": { "id": "clue_lh_light_inside", "name": "灯塔深处的存在" }
+      },
+      "choices": [
+        {
+          "id": "lh_004_descend",
+          "label": "下楼见看守人",
+          "text": "你扶着墙壁一步一步往下走。七十七级台阶现在看起来比刚才多了一倍。\n\n看守人站在灯塔的根部。他的影子现在只有正常的形状了。\n\n「你做到了，」他说。声音里有一种你没有听过的情绪。\n\n他抬头看着灯塔的绿光。光在他的眼睛里映出了形状。\n\n「它又被关回去了。但不是 forever。 lighthouse 的灯不会永远亮下去。总有一天它会再次熄灭。」\n\n他递给你一样东西。\n\n「拿着这个。下一次，如果你准备好了——它会指引你。」\n\n那是一块冰冷的石头。上面刻着你笔记本上见过的那种符号。",
+          "effects": {
+            "add_item": { "id": "item_lh_ward_stone", "name": "灯塔守护石", "uses": 1 },
+            "add_clue": { "id": "clue_lh_ward_stone", "name": "看守人给的石头" },
+            "add_run_memory": "你成功重新点亮了灯塔。看守人给了你一块刻有符号的石头作为信物。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lh_keeper_005",
+      "name": "看守人的告别",
+      "type": "area_deep",
+      "subtype": "harbor",
+      "weight": 0.8,
+      "tier": "rare",
+      "quality_tier": "A",
+      "tags": ["ugc", "npc", "lighthouse", "harbor", "quest_end", "mod_lh_keeper"],
+      "trigger": {
+        "areas": ["harbor_district"],
+        "probability": 0.3,
+        "once_per_run": true,
+        "requires_flags": ["flag_lh_lighthouse_lit"],
+        "time_phase": ["midnight"]
+      },
+      "description": "灯塔的绿光照亮了整个码头。\n\n看守人不在台阶上了。\n\n你沿着灯塔的墙壁走，看到了一道影子正沿着墙壁往上爬——不是爬上去的，是灯塔的光把它拉上去的。\n\n它在灯室里。那是看守人。\n\n他的身体正在变成光。不是被烧毁——是转化。像冰融化成水，像水蒸发成蒸汽。\n\n「 lighthouse 需要一位守护者，」他的声音从光中传出来。不是从空气中——是从光本身。\n「灯塔亮的时候，守护者就会被吸进去。变成光的一部分。」\n\n他的脸在光中最后一次浮现。\n\n「 you did well。 lighthouse 现在安全了。暂时的。」\n\n光吞没了他。没有痛苦。没有挣扎。\n就像一个人终于回到了自己的床上。\n\n灯塔的绿光稳定地照向大海。\n你在台阶上坐了很久。\n煤油灯还在地上。火苗已经熄了。",
+      "effects": {
+        "san": -2,
+        "humanity": 5,
+        "add_clue": { "id": "clue_lh_keeper_fate", "name": "看守人的命运" },
+        "add_run_memory": "灯塔看守人化作了灯塔的光。他永远成为了灯塔的一部分。"
+      },
+      "choices": [
+        {
+          "id": "lh_005_take_lamp",
+          "label": "捡起地上的煤油灯",
+          "text": "你捡起了那盏煤油灯。\n\n灯已经冷了。但当你握住手柄的那一刻——你感觉灯里面有什么东西在回应你。\n不是火。是一种更古老的温度。\n\n你把它放进了口袋。\n\n lighthouse 的绿光在你的背后照着。你没有回头。\n你不需要回头。你已经知道那里有什么。\n\n从今天起，你就是下一个知道真相的人。\n\n而真相——\n\n总是沉重的。",
+          "effects": {
+            "add_item": { "id": "item_lh_cold_lamp", "name": "熄灭的煤油灯", "uses": 1 },
+            "add_clue": { "id": "clue_lh_next_guardian", "name": "下一任守护者的暗示" }
+          }
+        },
+        {
+          "id": "lh_005_leave_lamp",
+          "label": "把灯留在原地",
+          "text": "你 leave 了煤油灯。\n\n海风把它吹灭了。最后一缕烟飘向大海。\n\n lighthouse 的绿光稳定地旋转着。不需要灯油。不需要灯芯。\n\n它现在自己燃烧着——燃烧着一个灵魂。\n\n你转身走向镇中心。身后，绿光把海面染成了一种不属于这个世界的颜色。\n\n你握紧了口袋里的手。\n空的。\n\n但你知道—— lighthouse 记住了你。",
+          "effects": {
+            "add_clue": { "id": "clue_lh_remembered", "name": "灯塔记住了你" },
+            "san": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "lh_keeper_006",
+      "name": "码头上的回声",
+      "type": "silent",
+      "subtype": "lighthouse",
+      "weight": 0.5,
+      "tier": "normal",
+      "quality_tier": "B",
+      "tags": ["ugc", "lighthouse", "harbor", "atmosphere", "echo", "mod_lh_keeper"],
+      "trigger": {
+        "areas": ["harbor_district"],
+        "probability": 0.1,
+        "once_ever": true,
+        "requires_flags": ["flag_lh_lighthouse_lit"],
+        "time_phase": ["midnight"]
+      },
+      "description": "你在午夜回到码头。灯塔的绿光从海面上反射回来，让整个码头沉浸在一种不属于任何已知光谱的颜色中。\n\n没有看守人。没有煤油灯。\n\n但是——\n\n你听到了歌声。不是从灯塔传出来的。是从灯塔的影子里。\n\n歌词你听不懂。语言你也不认识。但旋律让你想哭。\n\n你不知道那首歌是什么。\n\n但 lighthouse 知道。\n\n你转身离开了。 lighthouse 的歌跟着你走了很远。\n直到你听不见的时候——它还在你脑子里响着。",
+      "effects": {
+        "san": -1,
+        "add_clue": { "id": "clue_lh_song", "name": "灯塔的歌" }
+      },
+      "choices": []
+    }
+  ],
+  "metadata": {
+    "tags": ["npc", "quest", "harbor", "lighthouse", "story-rich"],
+    "estimated_playtime": "20-30 min",
+    "quest_type": "linear_chain",
+    "quest_length": "6 events"
+  }
+}

@@ -19,6 +19,13 @@ export const events = [
     effects: { san: -1, mythos: 1 },
     event_classification: '轻微异常',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -36,6 +43,13 @@ export const events = [
     effects: { san: -1 },
     event_classification: '轻微异常',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -53,6 +67,13 @@ export const events = [
     effects: { san: -1, add_clue: 'clue_loop_letter' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -75,6 +96,13 @@ export const events = [
     effects: { san: -1 },
     event_classification: '轻微异常',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -97,6 +125,13 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -114,6 +149,13 @@ export const events = [
     effects: { san: -1, add_clue: 'clue_loop_newspaper' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -137,6 +179,13 @@ export const events = [
     effects: { san: -1 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '目光在你脸上多停了一秒。不是久到可疑——是刚好让你注意到。\n那句熟悉的话没有说出口。取而代之的是一个更安全的问题。\n但你看到了——那半秒的停顿里，他们在重新评估你。\n不是用眼睛看，是用记忆核对。',
+      loop_8_plus: '他已经不问了。\n只是递东西的时候，手停在了半空中——\n不是犹豫，是在确认。确认你是你，不是另一个长得像你的人。\n确认后他什么也没说。但你知道——\n那种停顿本身比任何追问都沉重。',
+      san_low: '他们的表情在变化。不是恐惧——是另一种更复杂的东西。\n像是看着一个从很久以前就认识的人，\n但又不确定这个人是不是从那个时代来的。\n他们的视线在你身上停留。然后移开。\n移开的时候轻轻叹了一口气。\n那口气里有一半是如释重负——另一半是悲伤。',
+      false_memory: '你觉得他们好像要对你说什么——\n一个关于上一次循环的名字、一个约定、一个没有兑现的承诺。\n但他们停住了。\n不是忘记了。是选择了不说。\n也许有些东西说出来会让现在的你承担不属于你的重量。\n所以他们只是沉默地看着你。\n那种沉默里有你想不起来的故事。',
+    },
     choices: [],
   },
   {
@@ -160,6 +209,13 @@ export const events = [
     effects: { san: -1 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '目光在你脸上多停了一秒。不是久到可疑——是刚好让你注意到。\n那句熟悉的话没有说出口。取而代之的是一个更安全的问题。\n但你看到了——那半秒的停顿里，他们在重新评估你。\n不是用眼睛看，是用记忆核对。',
+      loop_8_plus: '他已经不问了。\n只是递东西的时候，手停在了半空中——\n不是犹豫，是在确认。确认你是你，不是另一个长得像你的人。\n确认后他什么也没说。但你知道——\n那种停顿本身比任何追问都沉重。',
+      san_low: '他们的表情在变化。不是恐惧——是另一种更复杂的东西。\n像是看着一个从很久以前就认识的人，\n但又不确定这个人是不是从那个时代来的。\n他们的视线在你身上停留。然后移开。\n移开的时候轻轻叹了一口气。\n那口气里有一半是如释重负——另一半是悲伤。',
+      false_memory: '你觉得他们好像要对你说什么——\n一个关于上一次循环的名字、一个约定、一个没有兑现的承诺。\n但他们停住了。\n不是忘记了。是选择了不说。\n也许有些东西说出来会让现在的你承担不属于你的重量。\n所以他们只是沉默地看着你。\n那种沉默里有你想不起来的故事。',
+    },
     choices: [],
   },
   {
@@ -183,6 +239,13 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -200,6 +263,13 @@ export const events = [
     effects: { san: -1, add_clue: 'clue_loop_map_marks' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -223,6 +293,13 @@ export const events = [
     effects: { san: -1 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '目光在你脸上多停了一秒。不是久到可疑——是刚好让你注意到。\n那句熟悉的话没有说出口。取而代之的是一个更安全的问题。\n但你看到了——那半秒的停顿里，他们在重新评估你。\n不是用眼睛看，是用记忆核对。',
+      loop_8_plus: '他已经不问了。\n只是递东西的时候，手停在了半空中——\n不是犹豫，是在确认。确认你是你，不是另一个长得像你的人。\n确认后他什么也没说。但你知道——\n那种停顿本身比任何追问都沉重。',
+      san_low: '他们的表情在变化。不是恐惧——是另一种更复杂的东西。\n像是看着一个从很久以前就认识的人，\n但又不确定这个人是不是从那个时代来的。\n他们的视线在你身上停留。然后移开。\n移开的时候轻轻叹了一口气。\n那口气里有一半是如释重负——另一半是悲伤。',
+      false_memory: '你觉得他们好像要对你说什么——\n一个关于上一次循环的名字、一个约定、一个没有兑现的承诺。\n但他们停住了。\n不是忘记了。是选择了不说。\n也许有些东西说出来会让现在的你承担不属于你的重量。\n所以他们只是沉默地看着你。\n那种沉默里有你想不起来的故事。',
+    },
     choices: [],
   },
   {
@@ -246,6 +323,13 @@ export const events = [
     effects: { san: -1 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '目光在你脸上多停了一秒。不是久到可疑——是刚好让你注意到。\n那句熟悉的话没有说出口。取而代之的是一个更安全的问题。\n但你看到了——那半秒的停顿里，他们在重新评估你。\n不是用眼睛看，是用记忆核对。',
+      loop_8_plus: '他已经不问了。\n只是递东西的时候，手停在了半空中——\n不是犹豫，是在确认。确认你是你，不是另一个长得像你的人。\n确认后他什么也没说。但你知道——\n那种停顿本身比任何追问都沉重。',
+      san_low: '他们的表情在变化。不是恐惧——是另一种更复杂的东西。\n像是看着一个从很久以前就认识的人，\n但又不确定这个人是不是从那个时代来的。\n他们的视线在你身上停留。然后移开。\n移开的时候轻轻叹了一口气。\n那口气里有一半是如释重负——另一半是悲伤。',
+      false_memory: '你觉得他们好像要对你说什么——\n一个关于上一次循环的名字、一个约定、一个没有兑现的承诺。\n但他们停住了。\n不是忘记了。是选择了不说。\n也许有些东西说出来会让现在的你承担不属于你的重量。\n所以他们只是沉默地看着你。\n那种沉默里有你想不起来的故事。',
+    },
     choices: [],
   },
   {
@@ -263,6 +347,13 @@ export const events = [
     effects: { san: -1 },
     event_classification: '轻微异常',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -280,6 +371,13 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -303,6 +401,13 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_loop_photo_boat' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '目光在你脸上多停了一秒。不是久到可疑——是刚好让你注意到。\n那句熟悉的话没有说出口。取而代之的是一个更安全的问题。\n但你看到了——那半秒的停顿里，他们在重新评估你。\n不是用眼睛看，是用记忆核对。',
+      loop_8_plus: '他已经不问了。\n只是递东西的时候，手停在了半空中——\n不是犹豫，是在确认。确认你是你，不是另一个长得像你的人。\n确认后他什么也没说。但你知道——\n那种停顿本身比任何追问都沉重。',
+      san_low: '他们的表情在变化。不是恐惧——是另一种更复杂的东西。\n像是看着一个从很久以前就认识的人，\n但又不确定这个人是不是从那个时代来的。\n他们的视线在你身上停留。然后移开。\n移开的时候轻轻叹了一口气。\n那口气里有一半是如释重负——另一半是悲伤。',
+      false_memory: '你觉得他们好像要对你说什么——\n一个关于上一次循环的名字、一个约定、一个没有兑现的承诺。\n但他们停住了。\n不是忘记了。是选择了不说。\n也许有些东西说出来会让现在的你承担不属于你的重量。\n所以他们只是沉默地看着你。\n那种沉默里有你想不起来的故事。',
+    },
     choices: [],
   },
   {
@@ -326,6 +431,13 @@ export const events = [
     effects: { san: -1, add_clue: 'clue_loop_bell' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -348,6 +460,13 @@ export const events = [
     effects: { san: -1, add_clue: 'clue_loop_wall_writing' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -370,6 +489,13 @@ export const events = [
     effects: { san: -1, hp: -1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -387,6 +513,13 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -404,6 +537,13 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_loop_missing_posters' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '你太熟悉这一幕了。不是记忆——是肌肉记忆。\n你的身体先于你的意识做出了反应。\n你知道接下来会发生什么。你知道声音从哪个方向来。\n你知道墙上的字写的是什么。你知道地图上的标记指向哪里。\n你甚至知道——这次你会不会选择走同一条路。',
+      loop_8_plus: '你在这个循环里太久了。\n每一个细微的细节都刻在了你的意识里。\n你能预判每一个声音、每一个阴影、每一个不该存在的东西。\n世界在重复。但你不再是被动地重复——\n你开始注意到那些\'幕后\'的东西。那些推动循环的力量。\n它们也在注意你。',
+      san_low: '现实的边缘在溶解。\n你看到的东西、听到的声音——它们开始重叠。\n现在的你和上一轮的你同时存在于同一个场景里。\n你分不清哪个是真实的。\n也许都不真实。也许都真实。\n你捏了一下手背。疼。但你知道——\n这个疼可能也是循环的一部分。',
+      false_memory: '你记得一个场景。\n但你知道这个记忆不属于现在的循环。\n它来自更早的某个循环——在那个循环里，\n你在这里做出了一个不同的选择。\n你试图回忆那个选择。\n但你看到的只是一个剪影：\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
 
@@ -431,6 +571,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_rock' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -454,6 +600,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_blood' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -477,6 +629,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_blade' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -500,6 +658,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_candle' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -523,6 +687,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_lighthouse_marks' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -546,6 +716,12 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_memory_notebook_copy', mythos: 2 },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -569,6 +745,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_knot_photo' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -592,6 +774,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_door_number' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -615,6 +803,12 @@ export const events = [
     effects: { san: -3, mythos: 2, add_clue: 'clue_memory_abyss_voice' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -638,6 +832,12 @@ export const events = [
     effects: { san: -3, mythos: 3, add_clue: 'clue_memory_yith_projection' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -661,6 +861,12 @@ export const events = [
     effects: { san: -2, mythos: 2, add_clue: 'clue_memory_grove_symbol' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -678,6 +884,12 @@ export const events = [
     effects: { san: -1, add_clue: 'clue_memory_safehouse_mark' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -701,6 +913,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_ritual_notes', mythos: 1 },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -724,6 +942,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_water_reflection' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -741,6 +965,12 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_memory_dusty_footprints' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '记忆像潮水一样涌来——但不是你的记忆。\n是另一个你的记忆。在另一个时间线里。\n你看到一个场景：同一个地方，同一个人，但做出了不同的选择。\n那个你看到了你。你们对视了一秒。然后他转过了头。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
 
@@ -768,6 +998,11 @@ export const events = [
     effects: { san: -2, npc_trust: { '玛莎·格雷': -1 } },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -791,6 +1026,11 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_contradiction_elias_prophecy' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -814,6 +1054,11 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_contradiction_tommy_photos' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -837,6 +1082,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_contradiction_hilda_wait' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -860,6 +1110,11 @@ export const events = [
     effects: { san: -2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -883,6 +1138,11 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_contradiction_isabella_warn' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -906,6 +1166,11 @@ export const events = [
     effects: { san: -2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -929,6 +1194,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_contradiction_edgar_manuscript', mythos: 2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -951,6 +1221,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_contradiction_date' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -968,6 +1243,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_contradiction_double' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -991,6 +1271,11 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_contradiction_unfinished' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -1008,6 +1293,11 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_contradiction_map' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
 
@@ -1035,6 +1325,12 @@ export const events = [
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1058,6 +1354,12 @@ export const events = [
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1081,6 +1383,12 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_wall_whisper' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1104,6 +1412,12 @@ export const events = [
     effects: { san: -4 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1121,6 +1435,12 @@ export const events = [
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1138,6 +1458,12 @@ export const events = [
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1155,6 +1481,12 @@ export const events = [
     effects: { san: -3, hp: -1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1172,6 +1504,12 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_wall_text' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1189,6 +1527,12 @@ export const events = [
     effects: { san: -3, safehouseCorruption: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
   {
@@ -1212,6 +1556,12 @@ export const events = [
     effects: { san: -4 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '墙壁在变化。不是砖块在移动——是墙壁后面的东西在变。\n你把手放在墙上。你能感觉到后面有东西。\n它在呼吸。和你呼吸的节奏不一样——慢了整整一拍。\n你收回了手。掌心里留下了一个湿的印子。不是汗。',
+    },
     choices: [],
   },
 
@@ -1233,6 +1583,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_correction_redacted', mythos: 2 },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '世界在\'修正\'自己。\n你看到了不协调的地方——上一轮里发生过的事，现在痕迹消失了。\n墙壁上的字被抹掉了。地上的脚印被填平了。\n有人在清理你的痕迹。但清理得不够仔细。\n还有一些残留——那些清理者来不及清除的东西。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1250,6 +1605,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_correction_path' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '世界在\'修正\'自己。\n你看到了不协调的地方——上一轮里发生过的事，现在痕迹消失了。\n墙壁上的字被抹掉了。地上的脚印被填平了。\n有人在清理你的痕迹。但清理得不够仔细。\n还有一些残留——那些清理者来不及清除的东西。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1272,6 +1632,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_correction_memory' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '世界在\'修正\'自己。\n你看到了不协调的地方——上一轮里发生过的事，现在痕迹消失了。\n墙壁上的字被抹掉了。地上的脚印被填平了。\n有人在清理你的痕迹。但清理得不够仔细。\n还有一些残留——那些清理者来不及清除的东西。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1289,6 +1654,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_correction_replaced' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '世界在\'修正\'自己。\n你看到了不协调的地方——上一轮里发生过的事，现在痕迹消失了。\n墙壁上的字被抹掉了。地上的脚印被填平了。\n有人在清理你的痕迹。但清理得不够仔细。\n还有一些残留——那些清理者来不及清除的东西。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1306,6 +1676,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_correction_calendar' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '世界在\'修正\'自己。\n你看到了不协调的地方——上一轮里发生过的事，现在痕迹消失了。\n墙壁上的字被抹掉了。地上的脚印被填平了。\n有人在清理你的痕迹。但清理得不够仔细。\n还有一些残留——那些清理者来不及清除的东西。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1323,6 +1698,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_correction_room' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '世界在\'修正\'自己。\n你看到了不协调的地方——上一轮里发生过的事，现在痕迹消失了。\n墙壁上的字被抹掉了。地上的脚印被填平了。\n有人在清理你的痕迹。但清理得不够仔细。\n还有一些残留——那些清理者来不及清除的东西。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1340,6 +1720,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_correction_tombstone' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '世界在\'修正\'自己。\n你看到了不协调的地方——上一轮里发生过的事，现在痕迹消失了。\n墙壁上的字被抹掉了。地上的脚印被填平了。\n有人在清理你的痕迹。但清理得不够仔细。\n还有一些残留——那些清理者来不及清除的东西。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1357,6 +1742,11 @@ export const events = [
     effects: { san: -3, add_clue: 'clue_correction_history', mythos: 2 },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      loop_3_plus: '世界在\'修正\'自己。\n你看到了不协调的地方——上一轮里发生过的事，现在痕迹消失了。\n墙壁上的字被抹掉了。地上的脚印被填平了。\n有人在清理你的痕迹。但清理得不够仔细。\n还有一些残留——那些清理者来不及清除的东西。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
 
@@ -1378,6 +1768,12 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_endpoint_tombstone' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_mid: '你走到了一个你以前从未到过的地方。\n或者说——你以前到过，但每次都走开了。\n这一次你没有。你站在这里。面前是一扇门。\n门上写着你的名字。但不是用墨水写的——\n是用某种更持久的东西刻上去的。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1395,6 +1791,12 @@ export const events = [
     effects: { san: -4, add_clue: 'clue_endpoint_countdown' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_mid: '你走到了一个你以前从未到过的地方。\n或者说——你以前到过，但每次都走开了。\n这一次你没有。你站在这里。面前是一扇门。\n门上写着你的名字。但不是用墨水写的——\n是用某种更持久的东西刻上去的。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1412,6 +1814,12 @@ export const events = [
     effects: { san: -5, mythos: 3, add_clue: 'clue_endpoint_mirror' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_mid: '你走到了一个你以前从未到过的地方。\n或者说——你以前到过，但每次都走开了。\n这一次你没有。你站在这里。面前是一扇门。\n门上写着你的名字。但不是用墨水写的——\n是用某种更持久的东西刻上去的。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1429,6 +1837,12 @@ export const events = [
     effects: { san: -5, mythos: 3, add_clue: 'clue_endpoint_final_wall' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_mid: '你走到了一个你以前从未到过的地方。\n或者说——你以前到过，但每次都走开了。\n这一次你没有。你站在这里。面前是一扇门。\n门上写着你的名字。但不是用墨水写的——\n是用某种更持久的东西刻上去的。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1451,6 +1865,12 @@ export const events = [
     },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_mid: '你走到了一个你以前从未到过的地方。\n或者说——你以前到过，但每次都走开了。\n这一次你没有。你站在这里。面前是一扇门。\n门上写着你的名字。但不是用墨水写的——\n是用某种更持久的东西刻上去的。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
 
@@ -1480,6 +1900,12 @@ export const events = [
     effects: { san: -3, mythos: 2, add_clue: 'clue_deep_loop_counter' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '时间的层次在你面前展开了。\n你能看到过去、现在、未来——不是线性的，是交织在一起的。\n你看到了无数个自己。每一个都在做出不同的选择。\n每一个都在走向不同的结局。但每一个都在经历同样的痛苦。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1504,6 +1930,12 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_deep_all_endings_echo' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '时间的层次在你面前展开了。\n你能看到过去、现在、未来——不是线性的，是交织在一起的。\n你看到了无数个自己。每一个都在做出不同的选择。\n每一个都在走向不同的结局。但每一个都在经历同样的痛苦。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1527,6 +1959,12 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_deep_wochester_memory' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '时间的层次在你面前展开了。\n你能看到过去、现在、未来——不是线性的，是交织在一起的。\n你看到了无数个自己。每一个都在做出不同的选择。\n每一个都在走向不同的结局。但每一个都在经历同样的痛苦。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1550,6 +1988,12 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_deep_final_loop_omen' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+      san_low: '时间的层次在你面前展开了。\n你能看到过去、现在、未来——不是线性的，是交织在一起的。\n你看到了无数个自己。每一个都在做出不同的选择。\n每一个都在走向不同的结局。但每一个都在经历同样的痛苦。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
 ];

@@ -12,6 +12,7 @@
 
 import { ensureExtendedState } from '../reducers/extendedEventsLoader.js';
 import { generateRunSeed } from '../utils/seededRng.js';
+import { STARTING_STATE, STAT_DEFAULTS, STAT_NAMES, STARTING_ITEM_ID_MAP } from './gameConstants.js';
 
 /**
  * Character attributes — stats, HP, SAN, skills, inventory.
@@ -19,28 +20,22 @@ import { generateRunSeed } from '../utils/seededRng.js';
  */
 function createCharacterState() {
   return {
-    stats: { STR: 50, CON: 55, DEX: 55, APP: 50, POW: 60, INT: 65, SIZ: 60, EDU: 70 },
-    hp: 11,                         // [persisted]
-    maxHp: 11,                      // [derived] — cached from (CON+SIZ)/10
-    san: 60,                        // [persisted]
-    maxSan: 60,                     // [persisted]
-    luck: 50,                       // [persisted]
-    mp: 12,                         // [persisted]
-    skills: {},                     // [persisted]
-    archetype: null,                // [persisted]
-    tempSkillBonus: null,           // [runtime]
+    stats: { ...STAT_DEFAULTS },
+    hp: STARTING_STATE.HP,
+    maxHp: STARTING_STATE.MAX_HP,
+    san: STARTING_STATE.SAN,
+    maxSan: STARTING_STATE.MAX_SAN,
+    luck: STARTING_STATE.LUCK,
+    mp: STARTING_STATE.MP,
+    skills: {},
+    archetype: null,
+    tempSkillBonus: null,
     inventory: (GD.systems?.player?.starting_items?.starting_items || []).map((item) => {
-      const idMap = {
-        手电筒: 'flashlight',
-        笔记本和笔: 'notebook',
-        急救包: 'first_aid_kit',
-        怀表: 'pocket_watch',
-      };
-      return { id: idMap[item.name] || item.name, name: item.name, uses: item.uses };
+      return { id: STARTING_ITEM_ID_MAP[item.name] || item.name, name: item.name, uses: item.uses };
     }),
-    clues: [],                      // [persisted]
-    difficulty: 'normal',           // [persisted] 向后兼容字符串key
-    difficultyLevel: 1,             // [persisted] 21级难度 1-21
+    clues: [],
+    difficulty: 'normal',
+    difficultyLevel: STARTING_STATE.DIFFICULTY_LEVEL,
   };
 }
 
@@ -50,26 +45,27 @@ function createCharacterState() {
  */
 function createWorldState() {
   return {
-    currentArea: 'town_center',     // [persisted]
-    visitedAreas: ['town_center'],  // [persisted]
-    npcTrust: {},                   // [persisted]
-    npcStates: {},                  // [persisted]
-    npcRelations: {},               // [persisted]
-    sealState: 'intact',            // [persisted]
-    weather: '阴天',                // [persisted]
-    safehouseCorruption: 0,         // [persisted]
-    currentSafehouse: 'main',       // [persisted]
-    harborRiskReduction: 0,         // [persisted]
-    areaNameCache: {},              // [runtime] — rebuilt on load
-    retainedKnowledge: [],          // [persisted]
-    lastVisitedDates: {},           // [persisted]
-    lastDeathType: null,            // [persisted]
-    mythosLevel: 0,                 // [persisted]
-    currentChapter: 'chapter_1',    // [persisted]
-    humanityScore: 50,              // [persisted]
-    discoveredConclusions: [],      // [persisted]
-    activeBlessings: [],            // [persisted]
-    pollution: 0,                   // [persisted]
+    currentArea: STARTING_STATE.CURRENT_AREA,
+    visitedAreas: [STARTING_STATE.CURRENT_AREA],
+    npcTrust: {},
+    npcStates: {},
+    npcRelations: {},
+    sealState: STARTING_STATE.SEAL_STATE,
+    weather: STARTING_STATE.WEATHER,
+    safehouseCorruption: 0,
+    currentSafehouse: STARTING_STATE.CURRENT_SAFEHOUSE,
+    harborRiskReduction: 0,
+    areaNameCache: {},
+    retainedKnowledge: [],
+    lastVisitedDates: {},
+    lastDeathType: null,
+    mythosLevel: 0,
+    currentChapter: STARTING_STATE.CURRENT_CHAPTER,
+    humanityScore: STARTING_STATE.HUMANITY,
+    discoveredConclusions: [],
+    activeBlessings: [],
+    pollution: 0,
+    loopEchoes: { deadNpcAreas: [] },
   };
 }
 
@@ -79,18 +75,24 @@ function createWorldState() {
  */
 function createProgressState() {
   return {
-    day: 1,                         // [persisted]
-    ap: 12,                         // [persisted]
-    maxAp: 12,                      // [persisted]
-    objectives: [],                 // [persisted]
-    completedChains: [],            // [persisted]
-    triggeredEvents: [],            // [persisted]
-    triggeredSilentEvents: [],      // [persisted]
-    seenEventTexts: {},             // [persisted]
-    longTermEffects: [],            // [persisted]
-    madnessActive: null,            // [persisted]
-    ch1IntroComplete: false,        // [persisted]
-    stats_run: {                    // [persisted]
+    day: STARTING_STATE.DAY,
+    ap: STARTING_STATE.AP,
+    maxAp: STARTING_STATE.MAX_AP,
+    objectives: [],
+    completedChains: [],
+    triggeredEvents: [],
+    triggeredSilentEvents: [],
+    _triggeredSet: null,
+    _silentSet: null,
+    seenEventTexts: {},
+    longTermEffects: [],
+    madnessActive: null,
+    sanityCollapseCount: 0,
+    ch1IntroComplete: false,
+    deathLegacies: [],
+    deathFragments: [],
+    metaEventFlags: {},
+    stats_run: {
       deaths: 0,
       runs: 1,
       checks_passed: 0,
@@ -109,15 +111,15 @@ function createProgressState() {
  */
 function createResourceState() {
   return {
-    food: 3,                        // [persisted]
-    maxFood: 5,                     // [persisted]
-    lightLevel: 2,                  // [persisted]
-    starvationDays: 0,              // [persisted]
-    infection: 0,                   // [persisted]
-    maxInfection: 10,               // [persisted]
-    fatigue: 0,                     // [persisted]
-    maxFatigue: 10,                 // [persisted]
-    money: 0,                       // [persisted]
+    food: STARTING_STATE.FOOD,
+    maxFood: STARTING_STATE.MAX_FOOD,
+    lightLevel: STARTING_STATE.LIGHT_LEVEL,
+    starvationDays: 0,
+    infection: 0,
+    maxInfection: STARTING_STATE.MAX_INFECTION,
+    fatigue: 0,
+    maxFatigue: STARTING_STATE.MAX_FATIGUE,
+    money: STARTING_STATE.MONEY,
   };
 }
 
@@ -171,6 +173,7 @@ function createRuntimeState() {
 /**
  * Behavior tracking — detailed counters for behavior-dependent endings.
  * All [persisted] — drives ending resolution across loops.
+ * v0.9.0: Added moral choice tracking (mercy, selfless actions, promises, etc.)
  */
 function createBehaviorTrackingState() {
   return {
@@ -212,6 +215,21 @@ function createBehaviorTrackingState() {
       loop_exploit_score: 0,
       loop_break_attempts: 0,
       clue_finds: 0,
+      // v0.9.0: Moral choice tracking (hidden from player)
+      mercy_shown_count: 0,
+      selfless_actions: 0,
+      promises_kept: 0,
+      truths_told: 0,
+      npc_saved_from_danger: 0,
+      donated_money_total: 0,
+      refused_bribes: 0,
+      accepted_bribes: 0,
+      warned_npcs_count: 0,
+      // Moral dilemma tracking
+      _dilemmaChoices: [],
+      _dilemmaUsageCount: {},
+      _scheduledEffects: [],
+      _carriedMoralWeight: 0,
     },
   };
 }

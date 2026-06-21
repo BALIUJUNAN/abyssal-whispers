@@ -208,9 +208,13 @@ export function exportMod(modId) {
   const exportData = {
     id: mod.id,
     name: mod.name,
-    author: mod.author,
-    version: mod.version,
-    events: mod.events,
+    author: mod.author || '',
+    version: mod.version || '1.0.0',
+    events: mod.events || [],
+    npcs: mod.npcs || [],
+    items: mod.items || [],
+    areas: mod.areas || [],
+    endings: mod.endings || [],
     metadata: mod.metadata || {},
     createdAt: mod.createdAt,
   };
@@ -239,11 +243,19 @@ export function getModStats() {
   const mods = getAllMods();
   const enabled = mods.filter((m) => m.enabled !== false);
   const totalEvents = enabled.reduce((sum, m) => sum + (m.events?.length || 0), 0);
+  const totalNpcs = enabled.reduce((sum, m) => sum + (m.npcs?.length || 0), 0);
+  const totalItems = enabled.reduce((sum, m) => sum + (m.items?.length || 0), 0);
+  const totalAreas = enabled.reduce((sum, m) => sum + (m.areas?.length || 0), 0);
+  const totalEndings = enabled.reduce((sum, m) => sum + (m.endings?.length || 0), 0);
   return {
     totalMods: mods.length,
     enabledMods: enabled.length,
     disabledMods: mods.length - enabled.length,
     totalUgcEvents: totalEvents,
+    totalUgcNpcs: totalNpcs,
+    totalUgcItems: totalItems,
+    totalUgcAreas: totalAreas,
+    totalUgcEndings: totalEndings,
   };
 }
 

@@ -1,0 +1,654 @@
+// Auto-generated from difficultyLevels.json — DO NOT EDIT
+// Run: python scripts/gen_difficulty_js.py
+
+export const DIFFICULTY_LEVELS_RAW = {
+  "1": {
+    "name": "薄雾",
+    "description": "刚接触不可知之物，一切尚存善意",
+    "phase": 1,
+    "phase_label": "昼钟",
+    "category": "beginner",
+    "starting_food": 3,
+    "starting_ap": 12,
+    "work_income_min": 3,
+    "food_price": 3,
+    "negative_event_weight": 1.0,
+    "san_protection": {
+      "day_1_3": 0.35,
+      "day_4_7": 0.55,
+      "day_8_14": 0.75,
+      "day_15_21": 0.85,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.35,
+      "day_4_7": 0.55,
+      "day_8_14": 0.75,
+      "day_15_21": 0.85,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 3,
+    "max_san_per_day": 8,
+    "max_hp_per_action": 2,
+    "max_hp_per_day": 4,
+    "explore_san_chance": 0.1,
+    "explore_danger_mult": 0.03,
+    "monster_hp_chance": 0.06,
+    "monster_hp_max": 3,
+    "rest_san_recovery": 3,
+    "talk_san_recovery": {
+      "chance": 0.4,
+      "min": 1,
+      "max": 3
+    },
+    "day_recovery": {
+      "interval": 2,
+      "san": 1,
+      "hp": 1
+    },
+    "safe_zone_restriction": 6,
+    "unlocks": [],
+    "expected_survival": "35-45%",
+    "expected_days": "22-24"
+  },
+  "2": {
+    "name": "潮声",
+    "description": "开始感受到世界的重量",
+    "phase": 1,
+    "phase_label": "昼钟",
+    "category": "beginner",
+    "starting_food": 3,
+    "starting_ap": 12,
+    "work_income_min": 3,
+    "food_price": 3,
+    "negative_event_weight": 1.0,
+    "san_protection": {
+      "day_1_3": 0.5,
+      "day_4_7": 0.7,
+      "day_8_14": 0.85,
+      "day_15_21": 0.95,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.5,
+      "day_4_7": 0.7,
+      "day_8_14": 0.85,
+      "day_15_21": 0.95,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 4,
+    "max_san_per_day": 10,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 5,
+    "explore_san_chance": 0.15,
+    "explore_danger_mult": 0.05,
+    "monster_hp_chance": 0.1,
+    "monster_hp_max": 3,
+    "rest_san_recovery": 2,
+    "talk_san_recovery": {
+      "chance": 0.35,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 3,
+      "san": 1,
+      "hp": 1
+    },
+    "safe_zone_restriction": 5,
+    "unlocks": [],
+    "expected_survival": "25-35%",
+    "expected_days": "20-22"
+  },
+  "3": {
+    "name": "初访",
+    "description": "标准体验，适合大多数玩家",
+    "phase": 1,
+    "phase_label": "昼钟",
+    "category": "beginner",
+    "starting_food": 3,
+    "starting_ap": 12,
+    "work_income_min": 3,
+    "food_price": 3,
+    "negative_event_weight": 1.0,
+    "san_protection": {
+      "day_1_3": 0.65,
+      "day_4_7": 0.8,
+      "day_8_14": 0.9,
+      "day_15_21": 0.95,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.65,
+      "day_4_7": 0.8,
+      "day_8_14": 0.9,
+      "day_15_21": 0.95,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.2,
+    "explore_danger_mult": 0.07,
+    "monster_hp_chance": 0.12,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 1,
+    "talk_san_recovery": {
+      "chance": 0.3,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 4,
+    "unlocks": [],
+    "expected_survival": "20-25%",
+    "expected_days": "19-21"
+  },
+  "4": {
+    "name": "低语",
+    "description": "资源开始紧张，容错降低",
+    "phase": 2,
+    "phase_label": "雾钟",
+    "category": "challenge",
+    "starting_food": 2,
+    "starting_ap": 10,
+    "work_income_min": 2,
+    "food_price": 3,
+    "negative_event_weight": 1.2,
+    "san_protection": {
+      "day_1_3": 0.72,
+      "day_4_7": 0.84,
+      "day_8_14": 0.92,
+      "day_15_21": 0.96,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.72,
+      "day_4_7": 0.84,
+      "day_8_14": 0.92,
+      "day_15_21": 0.96,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.22,
+    "explore_danger_mult": 0.08,
+    "monster_hp_chance": 0.13,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 1,
+    "talk_san_recovery": {
+      "chance": 0.3,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 4,
+    "unlocks": [],
+    "expected_survival": "15-20%",
+    "expected_days": "17-19"
+  },
+  "5": {
+    "name": "湿痕",
+    "description": "每份资源都要精打细算",
+    "phase": 2,
+    "phase_label": "雾钟",
+    "category": "challenge",
+    "starting_food": 2,
+    "starting_ap": 10,
+    "work_income_min": 2,
+    "food_price": 3,
+    "negative_event_weight": 1.2,
+    "san_protection": {
+      "day_1_3": 0.76,
+      "day_4_7": 0.87,
+      "day_8_14": 0.94,
+      "day_15_21": 0.97,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.76,
+      "day_4_7": 0.87,
+      "day_8_14": 0.94,
+      "day_15_21": 0.97,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.23,
+    "explore_danger_mult": 0.08,
+    "monster_hp_chance": 0.13,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 1,
+    "talk_san_recovery": {
+      "chance": 0.3,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 4,
+    "unlocks": [],
+    "expected_survival": "12-15%",
+    "expected_days": "16-18"
+  },
+  "6": {
+    "name": "失名",
+    "description": "进入真正的生存考验",
+    "phase": 2,
+    "phase_label": "雾钟",
+    "category": "challenge",
+    "starting_food": 2,
+    "starting_ap": 10,
+    "work_income_min": 2,
+    "food_price": 3,
+    "negative_event_weight": 1.2,
+    "san_protection": {
+      "day_1_3": 0.79,
+      "day_4_7": 0.89,
+      "day_8_14": 0.95,
+      "day_15_21": 0.98,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.79,
+      "day_4_7": 0.89,
+      "day_8_14": 0.95,
+      "day_15_21": 0.98,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.23,
+    "explore_danger_mult": 0.09,
+    "monster_hp_chance": 0.14,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 1,
+    "talk_san_recovery": {
+      "chance": 0.29,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 3,
+    "unlocks": [],
+    "expected_survival": "10-12%",
+    "expected_days": "15-17"
+  },
+  "7": {
+    "name": "曲径",
+    "description": "食物和收入同时承压",
+    "phase": 3,
+    "phase_label": "昏钟",
+    "category": "hardcore",
+    "starting_food": 1,
+    "starting_ap": 8,
+    "work_income_min": 1,
+    "food_price": 4,
+    "negative_event_weight": 1.5,
+    "san_protection": {
+      "day_1_3": 0.83,
+      "day_4_7": 0.92,
+      "day_8_14": 0.96,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.83,
+      "day_4_7": 0.92,
+      "day_8_14": 0.96,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.24,
+    "explore_danger_mult": 0.09,
+    "monster_hp_chance": 0.14,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 1,
+    "talk_san_recovery": {
+      "chance": 0.29,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 3,
+    "unlocks": [],
+    "expected_survival": "8-10%",
+    "expected_days": "14-16"
+  },
+  "8": {
+    "name": "螺旋",
+    "description": "中等硬核，系统性压力全面上升",
+    "phase": 3,
+    "phase_label": "昏钟",
+    "category": "hardcore",
+    "starting_food": 1,
+    "starting_ap": 8,
+    "work_income_min": 1,
+    "food_price": 4,
+    "negative_event_weight": 1.5,
+    "san_protection": {
+      "day_1_3": 0.85,
+      "day_4_7": 0.93,
+      "day_8_14": 0.97,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.85,
+      "day_4_7": 0.93,
+      "day_8_14": 0.97,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.25,
+    "explore_danger_mult": 0.1,
+    "monster_hp_chance": 0.14,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 1,
+    "talk_san_recovery": {
+      "chance": 0.28,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 2,
+    "unlocks": [],
+    "expected_survival": "6-8%",
+    "expected_days": "13-15"
+  },
+  "9": {
+    "name": "地鸣",
+    "description": "硬核玩家的底线",
+    "phase": 3,
+    "phase_label": "昏钟",
+    "category": "hardcore",
+    "starting_food": 1,
+    "starting_ap": 8,
+    "work_income_min": 1,
+    "food_price": 4,
+    "negative_event_weight": 1.5,
+    "san_protection": {
+      "day_1_3": 0.87,
+      "day_4_7": 0.94,
+      "day_8_14": 0.97,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.87,
+      "day_4_7": 0.94,
+      "day_8_14": 0.97,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.25,
+    "explore_danger_mult": 0.1,
+    "monster_hp_chance": 0.15,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 0,
+    "talk_san_recovery": {
+      "chance": 0.28,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 2,
+    "unlocks": [],
+    "expected_survival": "5-6%",
+    "expected_days": "12-14"
+  },
+  "10": {
+    "name": "影随",
+    "description": "负面事件密度显著增加",
+    "phase": 4,
+    "phase_label": "夜钟",
+    "category": "legend",
+    "starting_food": 0,
+    "starting_ap": 6,
+    "work_income_min": 0,
+    "food_price": 5,
+    "negative_event_weight": 2.0,
+    "san_protection": {
+      "day_1_3": 0.89,
+      "day_4_7": 0.95,
+      "day_8_14": 0.98,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.89,
+      "day_4_7": 0.95,
+      "day_8_14": 0.98,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.26,
+    "explore_danger_mult": 0.1,
+    "monster_hp_chance": 0.14,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 0,
+    "talk_san_recovery": {
+      "chance": 0.27,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 1,
+    "unlocks": [],
+    "expected_survival": "4-5%",
+    "expected_days": "11-13"
+  },
+  "11": {
+    "name": "海蚀",
+    "description": "接近极限的系统性压迫",
+    "phase": 4,
+    "phase_label": "夜钟",
+    "category": "legend",
+    "starting_food": 0,
+    "starting_ap": 6,
+    "work_income_min": 0,
+    "food_price": 5,
+    "negative_event_weight": 2.0,
+    "san_protection": {
+      "day_1_3": 0.9,
+      "day_4_7": 0.96,
+      "day_8_14": 0.98,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.9,
+      "day_4_7": 0.96,
+      "day_8_14": 0.98,
+      "day_15_21": 0.99,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.27,
+    "explore_danger_mult": 0.1,
+    "monster_hp_chance": 0.15,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 0,
+    "talk_san_recovery": {
+      "chance": 0.27,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 1,
+    "unlocks": [],
+    "expected_survival": "3-4%",
+    "expected_days": "10-12"
+  },
+  "12": {
+    "name": "门开",
+    "description": "传说之上的领域",
+    "phase": 4,
+    "phase_label": "夜钟",
+    "category": "legend",
+    "starting_food": 0,
+    "starting_ap": 6,
+    "work_income_min": 0,
+    "food_price": 5,
+    "negative_event_weight": 2.0,
+    "san_protection": {
+      "day_1_3": 0.92,
+      "day_4_7": 0.97,
+      "day_8_14": 0.99,
+      "day_15_21": 1.0,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 0.92,
+      "day_4_7": 0.97,
+      "day_8_14": 0.99,
+      "day_15_21": 1.0,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.27,
+    "explore_danger_mult": 0.1,
+    "monster_hp_chance": 0.15,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 0,
+    "talk_san_recovery": {
+      "chance": 0.26,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 0,
+    "unlocks": [],
+    "expected_survival": "2-3%",
+    "expected_days": "9-11"
+  },
+  "13": {
+    "name": "归渊",
+    "description": "第十三声钟响——全部维度拉满，现实本身开始松动",
+    "phase": 5,
+    "phase_label": "第十三声",
+    "phase_name": "十三钟响",
+    "category": "ultimate",
+    "starting_food": 0,
+    "starting_ap": 4,
+    "work_income_min": 0,
+    "food_price": 6,
+    "negative_event_weight": 3.0,
+    "san_protection": {
+      "day_1_3": 1.0,
+      "day_4_7": 1.0,
+      "day_8_14": 1.0,
+      "day_15_21": 1.0,
+      "day_22_28": 1
+    },
+    "hp_protection": {
+      "day_1_3": 1.0,
+      "day_4_7": 1.0,
+      "day_8_14": 1.0,
+      "day_15_21": 1.0,
+      "day_22_28": 1
+    },
+    "max_san_per_action": 5,
+    "max_san_per_day": 12,
+    "max_hp_per_action": 3,
+    "max_hp_per_day": 6,
+    "explore_san_chance": 0.3,
+    "explore_danger_mult": 0.1,
+    "monster_hp_chance": 0.15,
+    "monster_hp_max": 4,
+    "rest_san_recovery": 0,
+    "talk_san_recovery": {
+      "chance": 0.25,
+      "min": 1,
+      "max": 2
+    },
+    "day_recovery": {
+      "interval": 4,
+      "san": 1,
+      "hp": 0
+    },
+    "safe_zone_restriction": 0,
+    "unlocks": [
+      "modifier_slot_1",
+      "modifier_slot_2",
+      "modifier_slot_3"
+    ],
+    "expected_survival": "<1%",
+    "expected_days": "8-10",
+    "special": {
+      "san_inheritance_rate": 0.1,
+      "san_inheritance_cap": 20,
+      "midnight_bell_enabled": true,
+      "reality_distortion": true,
+      "hidden_ending_unlock": "ending_thirteenth_bell"
+    }
+  }
+};

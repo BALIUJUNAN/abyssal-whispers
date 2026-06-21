@@ -71,6 +71,8 @@ REDUCER_FILES = [
     'systems/resourceNarrative.js',
     # engine/PollutionManager.js replaces systems/logicCorruption.js (SAN + logic corruption)
     'engine/PollutionManager.js',
+    # SAN consequence chain: fake options, fake trust hints, AP steal, event weight shift
+    'systems/sanConsequenceChain.js',
     # Meta-layer corruption (false events, false logs, save name pollution)
     'systems/metaCorruption.js',
     # Phase 7: NPC multi-version dialogue + loop inheritance
@@ -81,6 +83,7 @@ REDUCER_FILES = [
     'data/events_supplement.js',      # 后7区补充事件 (+120)
     'data/events_ch2plus.js',         # Ch2+ 章节事件，从 game_ch2plus.json 迁移 (+70)
     # DEPENDENCY: requires eventSystemV2.js + resourceNarrative.js (above) for weight functions
+    'systems/eventRarity.js',         # MUST precede extendedEvents.js (getEventRarityWeight)
     'reducers/extendedEvents.js',
     'reducers/eventReducer.js',
     'data/descriptionTemplates.js',  # MUST be before events_*.js files that import DESC
@@ -96,6 +99,10 @@ REDUCER_FILES = [
     'data/extended_events_index.js',
     'data/ending_missing_600.js',
     'reducers/endingReducer.js',       # MUST precede behavior_endings.js
+    'data/npcRelationshipWeb.js',      # NPC relationship network (moral choice engine)
+    'systems/implicitEndingSystem.js', # Implicit ending triggers (depends on endingReducer)
+    'systems/fearMoralModifier.js',    # Fear → moral pressure mapping (depends on implicitEndingSystem)
+    'systems/moralChoiceEngine.js',    # Moral choice integration (depends on fearMoralModifier)
     'data/behavior_endings.js',
     'data/events_death_echo.js',
     'reducers/extendedEventsLoader.js',
@@ -106,8 +113,13 @@ REDUCER_FILES = [
     'systems/textVariants.js',        # MUST precede gameHelpers.js (getDistortedName) and buildEventPool.js
     'utils/buildEventPool.js',
     'data/milestones.js',             # MUST precede extendedEventsInit.js (CHAPTER_MILESTONES)
+    'data/events_legendary.js',      # MUST precede extendedEventsInit.js (legendary event pool)
+    'data/events_fear_endings.js',   # MUST precede extendedEventsInit.js (fear endings injection)
+    'data/events_death_meta.js',     # MUST precede extendedEventsInit.js (death meta events)
+    'data/events_death_count_meta.js',  # MUST precede extendedEventsInit.js (death count meta events)
     'reducers/extendedEventsInit.js',
     'reducers/achievementReducer.js',  # MUST precede effectReducer.js (imported by it)
+    'systems/resourceFraud.js',       # MUST precede effectReducer.js (getResourceFraudState)
     'reducers/effectReducer.js',
     'reducers/miscReducer.js',       # Merged: safehouseReducer + itemReducer + settingsReducer (after effectReducer)
     'reducers/objectiveReducer.js',
@@ -121,9 +133,12 @@ REDUCER_FILES = [
     'engine/SaveManager.js',
     'reducers/npcReducer.js',          # MUST precede loopReducer.js (imported by it)
     'systems/reincarnationDiff.js',  # MUST precede loopReducer.js
+    'systems/deathLegacies.js',       # MUST precede loopReducer.js + coreSlice.js (death legacy system)
     'reducers/loopReducer.js',
     'reducers/chapterReducer.js',
     'reducers/conclusionReducer.js',
+    'data/deathAttributionNarratives.js',  # MUST precede deathSystem.js (narrative pool data)
+    'systems/deathAttribution.js',  # MUST precede deathSystem.js (attribution selector)
     'reducers/deathSystem.js',
     # Prologue system
     'data/prologue_events.js',
@@ -162,9 +177,13 @@ REDUCER_FILES = [
     'state/difficultyState.js',        # applyDifficultyToState (must precede coreSlice.js)
     # Phase 3: GameReducer slice handlers (extracted from app.jsx)
     'engine/commands.js',            # MUST precede coreSlice.js (audio, hooks, fx)
-    'reducers/slices/coreSlice.js',
+    'reducers/slices/coreSlice.js',  # Core setup: START_GAME, SET_DIFFICULTY, ROLL_STATS, SWITCH_SAFEHOUSE
+    'reducers/slices/adventureSlice.js',  # BEGIN_ADVENTURE (depends on coreSlice + difficultyState)
+    'reducers/slices/loopSlice.js',       # NEW_GAME, CONTINUE_GAME, LOOP_SHOP_PURCHASE
     'engine/eventBus.js',              # MUST precede exploreSlice.js, dailySlice.js
+    'runtime/eventSideEffects.js',    # MUST follow eventBus.js — side effect handlers
     'systems/earlyHooks.js',           # MUST precede exploreSlice.js
+    'systems/textFragmentation.js',    # MUST precede exploreSlice.js + NPCDialog.jsx (applyTextFragmentation)
     'reducers/slices/exploreSlice.js',
     'reducers/slices/npcSlice.js',
     'reducers/slices/dailySlice.js',
@@ -174,14 +193,18 @@ REDUCER_FILES = [
     # ── Slice composition (must precede gameReducer.js) ──
     'engine/combineSlices.js',        # createSlice + combineSlices tool
     # ── Dual Store Architecture (after slice handlers — gameReducer imports slices) ──
-    'engine/gameReducer.js',        # Game reducer factory (must precede useGameStore.js)
+    'reducers/gameReducer.js',     # Game reducer factory (must precede useGameStore.js)
+    'engine/engineCore.js',         # Pure JS engine core (no React dep, for simulation)
+    'engine/zustandDevTools.js',   # Zustand devtools middleware (must precede useGameStore.js)
     'state/useGameStore.js',        # Zustand game store (reactive selectors, imports gameReducer.js)
+    'state/selectors.js',            # Fine-grained selectors for Zustand (imports useGameStore)
     'state/gameStore.js',           # Legacy facade — delegates to useGameStore.js
     # Phase 2: UI components extracted from app.jsx
+    'components/SanPollutionLayers.jsx', # SAN canvas layers (precedes SanPollutionLayer.jsx)
     'components/SanPollutionLayer.jsx',  # Unified SAN visual corruption canvas + CorruptibleChoice
     'components/GameCommon.jsx',     # StatBar, Modal, CollapsibleSection, NarrativeBlock
     'components/GameScreens.jsx',    # PrologueScreen, SurvivalGuide, CharCreation
-    'data/mapConstants.js',          # Map layout/edges/zones (extracted from appHelpers.js)
+    'components/VirtualList.jsx',    # Virtual scrolling list (must precede GamePanels.jsx)
     'components/NPCDialog.jsx',      # NPC dialog sub-component (extracted from GamePanels.jsx)
     'components/CitySketchMap.jsx',  # City sketch map sub-component (extracted from GamePanels.jsx)
     'components/GamePanels.jsx',     # LeftPanel, CenterPanel, RightPanel, EndingScreen, GameHeader
@@ -190,8 +213,10 @@ REDUCER_FILES = [
     'components/TitleScreen.jsx',
     'components/AppToast.jsx',
     # UGC UI component
+    'components/UgcEventEditor.jsx',       # MUST precede UgcImportExport.jsx
     'components/UgcImportExport.jsx',
     # ── 暗黑地牢风格城镇地图系统 ──
+    'data/mapConstants.js',          # Map layout/edges/zones (must precede townHotspots.js)
     'data/townHotspots.js',           # 热点数据结构（区域 + 建筑 + NPC点）
     'components/InteractiveTownMap.jsx',  # 互动城镇全景地图（主界面）
     'components/AreaPanelModal.jsx',      # 热点功能面板（点击后弹出）

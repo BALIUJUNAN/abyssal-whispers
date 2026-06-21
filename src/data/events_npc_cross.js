@@ -26,6 +26,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '支持玛莎',
@@ -71,6 +77,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_strange_text' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '告诉他们你见过',
@@ -108,6 +120,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_seal_secret' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '请求她们告诉你',
@@ -146,6 +164,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_sea_below' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '问他们知道什么',
@@ -184,6 +208,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '支持埃德加',
@@ -229,6 +259,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '答应',
@@ -267,6 +303,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_manor_photo' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '告诉他们你的发现',
@@ -304,6 +346,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_black_sea' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '告诉他们你知道的',
@@ -341,6 +389,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '想知道',
@@ -382,6 +436,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_seal_records' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '帮忙翻译',
@@ -420,6 +480,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '听',
@@ -458,6 +524,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_tommy_joshua_trade' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '追问',
@@ -496,6 +568,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_elias_martha_rhythm' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '问他们在讨论什么',
@@ -534,6 +612,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '加入',
@@ -572,6 +656,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_bar_text' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '仔细看照片',
@@ -610,6 +700,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_black_sea_meaning' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '告诉他们你知道的',
@@ -648,6 +744,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_pacific_deep' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '听',
@@ -686,6 +788,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_missing_sailors' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '告诉他们你的猜测',
@@ -723,6 +831,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_green_light' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '问他们灯塔的光',
@@ -761,6 +875,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '他们的对话听起来很远。你努力集中注意力才能跟上。\n声音像是隔着一层水。你看到他们的嘴在动，但声音到达时已经扭曲了。\n你点了点头。你其实没听清他们在说什么。',
+      san_mid: '对话进行的时候，你注意到了一些奇怪的事情。\n他们说话的方式——像在传递某种暗号。\n每一个停顿、每一个眼神交换都不是偶然的。\n你觉得他们知道一些你不知道的事情。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '答应',
@@ -803,6 +923,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '想知道',
@@ -841,6 +966,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '问他是谁',
@@ -879,6 +1009,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '偷看',
@@ -920,6 +1055,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '告诉他真相',
@@ -960,6 +1100,11 @@ export const events = [
     effects: { npc_trust: { '玛莎·格雷': 1 }, add_clue: 'clue_npc_cross_joshua_martha' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -983,6 +1128,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_manor_photos_secret' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1006,6 +1156,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '想知道',
@@ -1044,6 +1199,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_shell_symbol' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1067,6 +1227,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '去过',
@@ -1105,6 +1270,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_hilda_mother' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1128,6 +1298,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_ritual_records' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1151,6 +1326,11 @@ export const events = [
     effects: { npc_trust: { '玛莎·格雷': 1 }, add_clue: 'clue_npc_cross_joshua_identity' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1174,6 +1354,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_manor_basement' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1197,6 +1382,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_warehouse_key' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1220,6 +1410,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_seal_history' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '秘密的重量压在了对话上。每一句话都有两层含义。\n你注意到有人在观察——不是观察对话内容，而是观察说话的人的表情。\n秘密不只是藏在话语里。它藏在停顿里、在 Blick 里、在话语说出口之前的那一秒里。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
 
@@ -1247,6 +1442,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [
       {
         label: '听',
@@ -1287,6 +1488,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_three_blood' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [],
   },
   {
@@ -1310,6 +1517,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_sea_world', mythos: 2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [],
   },
   {
@@ -1333,6 +1546,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [
       {
         label: '答应',
@@ -1374,6 +1593,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [],
   },
   {
@@ -1397,6 +1622,12 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_morris_full_truth', mythos: 3, san: -3 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [],
   },
   {
@@ -1420,6 +1651,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [
       {
         label: '听',
@@ -1460,6 +1697,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [
       {
         label: '帮助他们',
@@ -1499,6 +1742,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [
       {
         label: '答应',
@@ -1539,6 +1788,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '三角关系在恶化。每一个眼神、每一次停顿都充满了未说出口的东西。\n你觉得自己在三个人的目光之间被撕裂。\n每个人的表情你都读不懂——不是因为他们掩饰得好，而是因为你的大脑无法处理这么多的信号。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      corruption_high: '空气中有一种紧张感——像是暴风雨前的最后一刻。\n三方的利益在碰撞。你知道任何一方获胜都不一定是好事。\n你感到自己站在了一个引爆点的边缘。',
+    },
     choices: [
       {
         label: '一起面对',
@@ -1590,6 +1845,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1618,6 +1879,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1642,6 +1909,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [
       {
         label: '想知道',
@@ -1685,6 +1958,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1713,6 +1992,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1741,6 +2026,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1769,6 +2060,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1793,6 +2090,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [
       {
         label: '愿意',
@@ -1835,6 +2138,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1863,6 +2172,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
   {
@@ -1887,6 +2202,12 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [
       {
         label: '愿意',
@@ -1930,6 +2251,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '某个人的缺席像一块空洞。在画面里你能看到那个位置——\n但那里什么都没有。不是空的——是被抹除的。\n其他人在谈论那个人，但他们的表情像是在谈论一个不存在的人。\n你不知道他们是不是忘记了——还是故意不提。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记得一个场景。但你知道这个记忆不属于现在的你——\n它来自某个更早的循环。\n记忆中的你已经站在这里了，做出了一些选择。\n你试图回忆那些选择。但你只能看到一个剪影——\n一个正在做出你不知道是什么选择的、你自己。',
+    },
     choices: [],
   },
 
@@ -1958,6 +2285,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_lighthouse_team', san: -2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '团队的行动在展开。但协调出现了裂痕。\n每个人的步调不一致。有人快了。有人慢了。\n你注意到一个细节——有人在看手表。不是一次。是三次。\n他们的时间表和你看到的不一样。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -1982,6 +2314,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_catacombs_team', san: -2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '团队的行动在展开。但协调出现了裂痕。\n每个人的步调不一致。有人快了。有人慢了。\n你注意到一个细节——有人在看手表。不是一次。是三次。\n他们的时间表和你看到的不一样。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -2006,6 +2343,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_manor_team', san: -2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '团队的行动在展开。但协调出现了裂痕。\n每个人的步调不一致。有人快了。有人慢了。\n你注意到一个细节——有人在看手表。不是一次。是三次。\n他们的时间表和你看到的不一样。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -2030,6 +2372,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_forest_team', san: -2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '团队的行动在展开。但协调出现了裂痕。\n每个人的步调不一致。有人快了。有人慢了。\n你注意到一个细节——有人在看手表。不是一次。是三次。\n他们的时间表和你看到的不一样。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -2054,6 +2401,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_harbor_patrol', san: -1 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '团队的行动在展开。但协调出现了裂痕。\n每个人的步调不一致。有人快了。有人慢了。\n你注意到一个细节——有人在看手表。不是一次。是三次。\n他们的时间表和你看到的不一样。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -2078,6 +2430,11 @@ export const events = [
     effects: { add_clue: 'clue_npc_cross_ruins_team', san: -3, mythos: 2 },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '团队的行动在展开。但协调出现了裂痕。\n每个人的步调不一致。有人快了。有人慢了。\n你注意到一个细节——有人在看手表。不是一次。是三次。\n他们的时间表和你看到的不一样。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -2107,6 +2464,11 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '团队的行动在展开。但协调出现了裂痕。\n每个人的步调不一致。有人快了。有人慢了。\n你注意到一个细节——有人在看手表。不是一次。是三次。\n他们的时间表和你看到的不一样。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -2144,6 +2506,11 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '团队的行动在展开。但协调出现了裂痕。\n每个人的步调不一致。有人快了。有人慢了。\n你注意到一个细节——有人在看手表。不是一次。是三次。\n他们的时间表和你看到的不一样。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
 
@@ -2173,6 +2540,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '遗产的重量压了下来。不是物质的——是记忆的。\n你继承了某个人的知识、某个人的诅咒、某个人的未完之事。\n它们在你身上发酵。你不知道自己能承受多少。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记起了一个不属于你的故事。\n一个来自前一个循环的某人的记忆——\n那个人把这些托付给了你。但你不知道那个人是谁。\n你只知道你需要完成一些你不知道是什么的事。',
+    },
     choices: [
       {
         label: '去地下室',
@@ -2210,6 +2583,12 @@ export const events = [
     effects: { add_clue: 'clue_legacy_fisher_chart', san: -2, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '遗产的重量压了下来。不是物质的——是记忆的。\n你继承了某个人的知识、某个人的诅咒、某个人的未完之事。\n它们在你身上发酵。你不知道自己能承受多少。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记起了一个不属于你的故事。\n一个来自前一个循环的某人的记忆——\n那个人把这些托付给了你。但你不知道那个人是谁。\n你只知道你需要完成一些你不知道是什么的事。',
+    },
     choices: [],
   },
   {
@@ -2232,6 +2611,12 @@ export const events = [
     effects: { add_clue: 'clue_legacy_elias_research', san: -3, mythos: 2 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '遗产的重量压了下来。不是物质的——是记忆的。\n你继承了某个人的知识、某个人的诅咒、某个人的未完之事。\n它们在你身上发酵。你不知道自己能承受多少。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记起了一个不属于你的故事。\n一个来自前一个循环的某人的记忆——\n那个人把这些托付给了你。但你不知道那个人是谁。\n你只知道你需要完成一些你不知道是什么的事。',
+    },
     choices: [],
   },
   {
@@ -2255,6 +2640,12 @@ export const events = [
     effects: { san: -2, mythos: 2, add_clue: 'clue_legacy_hilda_guardian' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '遗产的重量压了下来。不是物质的——是记忆的。\n你继承了某个人的知识、某个人的诅咒、某个人的未完之事。\n它们在你身上发酵。你不知道自己能承受多少。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      false_memory: '你记起了一个不属于你的故事。\n一个来自前一个循环的某人的记忆——\n那个人把这些托付给了你。但你不知道那个人是谁。\n你只知道你需要完成一些你不知道是什么的事。',
+    },
     choices: [
       {
         label: '触摸那道屏障',
@@ -2293,6 +2684,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '网络在收紧。每一条线都连到了不同的节点。\n你突然看到了全局——不是从正面，而是从背面。\n所有的关系、交易、背叛——它们连成了一个图案。\n你站在图案的中心。你也是其中的一条线。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '支持玛莎，阻止老费舍出海',
@@ -2339,6 +2735,11 @@ export const events = [
     effects: { add_clue: 'clue_web_seal_anchors' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '网络在收紧。每一条线都连到了不同的节点。\n你突然看到了全局——不是从正面，而是从背面。\n所有的关系、交易、背叛——它们连成了一个图案。\n你站在图案的中心。你也是其中的一条线。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '答应帮忙',
@@ -2377,6 +2778,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '网络在收紧。每一条线都连到了不同的节点。\n你突然看到了全局——不是从正面，而是从背面。\n所有的关系、交易、背叛——它们连成了一个图案。\n你站在图案的中心。你也是其中的一条线。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '帮汤米说话',
@@ -2425,6 +2831,11 @@ export const events = [
     effects: { san: -4, mythos: 2, add_clue: 'clue_web_mass_betrayal' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '网络在收紧。每一条线都连到了不同的节点。\n你突然看到了全局——不是从正面，而是从背面。\n所有的关系、交易、背叛——它们连成了一个图案。\n你站在图案的中心。你也是其中的一条线。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
 
@@ -2453,6 +2864,11 @@ export const events = [
     effects: { add_clue: 'clue_team_lighthouse_lower' },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '小队的氛围变了。不是外部的威胁——是内部的。\n信任在裂开。你能看到那些裂缝——细微的、几乎不可见的。\n但你知道裂缝会扩大。你知道它们最终会断开什么。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '一起下去',
@@ -2498,6 +2914,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '小队的氛围变了。不是外部的威胁——是内部的。\n信任在裂开。你能看到那些裂缝——细微的、几乎不可见的。\n但你知道裂缝会扩大。你知道它们最终会断开什么。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '一起进入',

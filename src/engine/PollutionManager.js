@@ -1,24 +1,7 @@
 // src/engine/PollutionManager.js - Logic-level SAN corruption
 // ENGINE CONTRACT: Zero game-specific imports. Stage lookup is injected.
-// Callers pass getStage(san) → { level, id, ... } via parameter or use defaultGD.
-
-/**
- * @private Default stage getter using window.GD (fallback when caller doesn't inject).
- * This is the ONLY place in this file that touches game data — and it's a last resort.
- */
-function _defaultGetStage(san) {
-  var GD = (typeof window !== 'undefined' && window.GD) || {};
-  var stages = (GD.systems && GD.systems.sanity && GD.systems.sanity.san_stages) || [];
-  if (san <= 0) return { id: 'death', level: 6 };
-  for (var i = 0; i < stages.length; i++) {
-    if (san >= stages[i].range[0] && san <= stages[i].range[1]) return stages[i];
-  }
-  return stages[0] || { id: 'stable', level: 0 };
-}
-
-function _stage(san, getStage) {
-  return (getStage || _defaultGetStage)(san);
-}
+// Callers pass getStage(san) → { level, id, ... } as the second parameter.
+// No window.GD fallback — the engine never reaches outside its contract.
 
 // === Text Hallucination ===
 // Activates at stage.level >= 2 (perception_shift)
@@ -46,7 +29,7 @@ export const HALLUCINATION_PAIRS = [
  */
 export function applyTextHallucination(text, san, getStage, rng) {
   if (!text) return text;
-  var stage = _stage(san, getStage);
+  var stage = getStage ? getStage(san) : { level: 0, id: 'stable' };
   if (stage.level < 2) return text;
   var _rand = rng ? rng.next.bind(rng) : Math.random;
   var chance = Math.max(0, 55 - san) / 200;
@@ -58,7 +41,7 @@ export function applyTextHallucination(text, san, getStage, rng) {
 }
 
 // === Fake Event Injection ===
-// Activates at stage.level >= 4 (reality_dissolution, SAN 10-24)
+// Activates at stage.level >= 5 (reality_dissolution, SAN 15-29)
 export const FAKE_SYSTEM_MESSAGES = [
   '你记得这个地方。但你确定你没有来过。',
   '有人在你身后。你回头——没有人。但椅子的角度变了。',
@@ -78,11 +61,11 @@ export const FAKE_SYSTEM_MESSAGES = [
  * @returns {string|null}
  */
 export function maybeGetFakeMessage(san, loopCount, getStage, rng) {
-  var stage = _stage(san, getStage);
-  if (stage.level < 4) return null;
-  if (loopCount < 2 && stage.level < 5) return null;
+  var stage = getStage ? getStage(san) : { level: 0, id: 'stable' };
+  if (stage.level < 5) return null; // reality_dissolution+
+  if (loopCount < 2 && stage.level < 6) return null; // narrative_death bypasses loop req
   var _rand = rng ? rng.next.bind(rng) : Math.random;
-  var chance = 0.03 + ((24 - san) / 24) * 0.09;
+  var chance = 0.03 + ((29 - san) / 29) * 0.09;
   if (_rand() > chance) return null;
   return FAKE_SYSTEM_MESSAGES[Math.floor(_rand() * FAKE_SYSTEM_MESSAGES.length)];
 }
@@ -95,13 +78,13 @@ export function maybeGetFakeMessage(san, loopCount, getStage, rng) {
  * @returns {number} delay in ms
  */
 export function getChoiceDelay(san, getStage) {
-  var stage = _stage(san, getStage);
+  var stage = getStage ? getStage(san) : { level: 0, id: 'stable' };
   if (stage.level < 1) return 0;
   return Math.floor(((75 - san) / 75) * 350);
 }
 
 // === False Memory Insertion ===
-// Activates at stage.level >= 3 (explanation_loss, SAN 25-39) + loop >= 2
+// Activates at stage.level >= 3 (explanation_loss, SAN 40-49) + loop >= 2
 export const FALSE_MEMORIES = [
   '你记得第 {day} 天你去过码头。但你的笔记本上没有记录。',
   '有人在你耳边说了什么。你转过头——没有人。但你记得那句话。',
@@ -121,7 +104,7 @@ export const FALSE_MEMORIES = [
  * @param {function} [getStage] — injected stage lookup
  */
 export function maybeInsertFalseMemory(narr, san, loopCount, day, getStage, rng) {
-  var stage = _stage(san, getStage);
+  var stage = getStage ? getStage(san) : { level: 0, id: 'stable' };
   if (stage.level < 3 || loopCount < 2) return;
   var _rand = rng ? rng.next.bind(rng) : Math.random;
   if (_rand() > 0.07) return;

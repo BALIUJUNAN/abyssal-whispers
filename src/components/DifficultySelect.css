@@ -133,12 +133,32 @@
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 8px;
   }
-  
+
   .difficulty-btn {
     padding: 10px 6px;
   }
-  
+
   .level-name {
     font-size: 14px;
   }
+}
+
+/* 第十三声（归渊）特殊脉冲动画 */
+.difficulty-btn.ultimate {
+  border-width: 2px;
+  animation: ultimateGlow 3s ease-in-out infinite;
+}
+
+.difficulty-btn.ultimate.selected {
+  animation: ultimatePulse 2s ease-in-out infinite;
+}
+
+@keyframes ultimateGlow {
+  0%, 100% { box-shadow: 0 0 5px rgba(26, 26, 46, 0.4); }
+  50%      { box-shadow: 0 0 15px rgba(26, 26, 46, 0.7); }
+}
+
+@keyframes ultimatePulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(26, 26, 46, 0.5); border-color: #1A1A2E; }
+  50%      { box-shadow: 0 0 20px rgba(26, 26, 46, 0.9), 0 0 40px rgba(212, 175, 55, 0.3); border-color: #d4af37; }
 }

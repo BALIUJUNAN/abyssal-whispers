@@ -23,7 +23,7 @@ const { getGuideStep } = require(path.join(ROOT, 'src/systems/firstRunGuide.js')
 const { computeNpcFeedback, getTrustTierInfo } = require(path.join(ROOT, 'src/systems/npcFeedback.js'));
 const { getSanLossPresentation, getSanStageFeedback } = require(path.join(ROOT, 'src/systems/sanFeedback.js'));
 const { getTrackedText, createSeenTextMap } = require(path.join(ROOT, 'src/systems/textVariants.js'));
-const { adjustSanLossForFirstLoop, shouldBlockLethalEvent } = require(path.join(ROOT, 'src/systems/firstLoopBalance.js'));
+const { adjustSanLossForLoop23, shouldBlockLethalEvent } = require(path.join(ROOT, 'src/systems/firstLoopBalance.js'));
 const { DEFAULT_SETTINGS } = require(path.join(ROOT, 'src/systems/gameSettings.js'));
 
 function mkState(overrides) {
@@ -109,14 +109,18 @@ test('P3-4: critical loss = critical tier', () => {
 });
 
 test('P3-5: first loop caps SAN loss at 5', () => {
-  assert.strictEqual(adjustSanLossForFirstLoop(15, mkState()), 5);
-  assert.strictEqual(adjustSanLossForFirstLoop(3, mkState()), 3);
+  assert.strictEqual(adjustSanLossForLoop23(15, mkState()), 5);
+  assert.strictEqual(adjustSanLossForLoop23(3, mkState()), 3);
 });
 
 test('P3-6: safe window blocks lethal events', () => {
+  // Safe window (loop 0, days 1-3) blocks ALL events — new player protection
   const s = mkState({ loopCount: 0, day: 2 });
-  assert.ok(shouldBlockLethalEvent({ sanity_damage: 15 }, s));
-  assert.ok(!shouldBlockLethalEvent({ sanity_damage: 3 }, s));
+  assert.ok(shouldBlockLethalEvent({ sanity_damage: 15, tags: ['lethal'] }, s), 'lethal event blocked');
+  assert.ok(shouldBlockLethalEvent({ sanity_damage: 3 }, s), 'non-lethal also blocked in safe window');
+  // Outside safe window, only tagged lethal events blocked
+  const s2 = mkState({ loopCount: 0, day: 5 });
+  assert.ok(!shouldBlockLethalEvent({ sanity_damage: 3 }, s2), 'non-lethal not blocked outside safe window');
 });
 
 // ── Phase 4: Low SAN ──

@@ -15,6 +15,10 @@ import { handleNpcMemoryTier } from '../../utils/npcMemory.js';
 import { checkTrustGate } from '../../utils/trustGates.js';
 import { getNpcsHere } from '../../utils/gameHelpers.js';
 import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
+import { getFakeTrustHint, shouldShowFakeTrustHint } from '../../systems/sanConsequenceChain.js';
+import { getSanStageFromGD } from '../sanReducer.js';
+// v0.9.0: Moral choice engine — reputation propagation + moral tracking
+import { processNpcMoralChoice } from '../../systems/moralChoiceEngine.js';
 
 /** Light trust-drop warning — only narrates, no audio. Used for significant drops. */
 function _warnTrustDrop(c, npcName, oldVal, newVal) {
@@ -31,7 +35,7 @@ export function handleNpcAction(s, action, c, ctx) {
     case 'TALK_NPC': {
       if (s.ap < 1) {
         narrApInsufficient(s, c.narr, 1);
-        return s;
+        return null;
       }
       s.ap -= 1;
       // AP 消耗音效反馈
@@ -160,10 +164,10 @@ export function handleNpcAction(s, action, c, ctx) {
       handleNpcMemoryTier(s, npc, c.narr, c.rng);
       c.log('与' + npc.name + '对话');
       if (!s.tutorialSeen.first_talk) s.tutorialSeen = { ...s.tutorialSeen, first_talk: true };
-      return s;
+      return null;
     }
     case 'NPC_RESPONSE': {
-      if (!s.pendingNpc) return s;
+      if (!s.pendingNpc) return null;
       const npc = s.pendingNpc.npc;
       const trust = getNpcTrust(s, npc.name);
       const choice = action.choice;
@@ -193,9 +197,24 @@ export function handleNpcAction(s, action, c, ctx) {
             c.narr('system', npc.name + '似乎很热情地回应你，但你隐约感到有些不对劲。');
             s.pendingNpc = null;
           } else {
+            // SAN consequence: level 5+ may show fake trust hint (trust doesn't actually increase)
+            var _sanStage = getSanStageFromGD(s.san);
+            var _fakeTrustHint = _sanStage.level >= 5 ? getFakeTrustHint(npc.name, _sanStage.level, c.rng) : null;
+            if (_fakeTrustHint) {
+              // Show fake trust gain message; deduct AP but don't actually increase trust
+              s.ap -= 1;
+              if (!s._dailyTrustGains) s._dailyTrustGains = {};
+              s._dailyTrustGains[npc.name] = 'talk';
+              c.narr('system', _fakeTrustHint.text, { isEffect: true });
+              c.narr('system', npc.name + '似乎更放松了一些。（你感觉是这样。）', { isEffect: true });
+              // Flag for systemSlice.after to apply AP steal consequence
+              s._pendingSanConsequence = { type: 'fake_trust', npc: npc.name };
+              s.pendingNpc = null;
+              return null;
+            }
             s.ap -= 1;
             // Feature 2: Difficulty trust multiplier — high difficulty = less trust per interaction
-            var _gain = Math.max(1, Math.round(1 * _trustMult));
+            var _gain = Math.max(0, Math.round(1 * _trustMult));
             var _newTrust = Math.min(5, trust + _gain);
             setNpcTrust(s, npc.name, _newTrust);
             if (!s._dailyTrustGains) s._dailyTrustGains = {};
@@ -332,7 +351,7 @@ export function handleNpcAction(s, action, c, ctx) {
         if (s.ap < 2) {
           c.narr('system', '行动点不足（需要2AP）。');
           s.pendingNpc = null;
-          return s;
+          return null;
         }
         s.ap -= 2;
         c.effects.push({ type: 'INCREMENT_STAT', key: 'run_combat' });
@@ -414,7 +433,7 @@ export function handleNpcAction(s, action, c, ctx) {
         if (s.ap < 2) {
           c.narr('system', '行动点不足（需要2AP）。');
           s.pendingNpc = null;
-          return s;
+          return null;
         }
         s.ap -= 2;
         const socialSkill = s.skills['话术'] || s.skills['心理学'] || 25;
@@ -456,7 +475,7 @@ export function handleNpcAction(s, action, c, ctx) {
         if (s.ap < 1) {
           c.narr('system', '行动点不足。');
           s.pendingNpc = null;
-          return s;
+          return null;
         }
         s.ap -= 1;
         c.bt.npc_as_resource_count = (c.bt.npc_as_resource_count || 0) + 1;
@@ -474,7 +493,7 @@ export function handleNpcAction(s, action, c, ctx) {
         if (s.ap < 1) {
           c.narr('system', '行动点不足。');
           s.pendingNpc = null;
-          return s;
+          return null;
         }
         s.ap -= 1;
         c.bt.betrayed_high_trust_npcs = (c.bt.betrayed_high_trust_npcs || 0) + 1;
@@ -497,7 +516,7 @@ export function handleNpcAction(s, action, c, ctx) {
         if (s.ap < 2) {
           c.narr('system', '行动点不足。');
           s.pendingNpc = null;
-          return s;
+          return null;
         }
         s.ap -= 2;
         c.bt.forbidden_intimacy_flags = (c.bt.forbidden_intimacy_flags || 0) + 1;
@@ -519,7 +538,7 @@ export function handleNpcAction(s, action, c, ctx) {
         if (s.ap < 2) {
           c.narr('system', '行动点不足（需要2AP）。');
           s.pendingNpc = null;
-          return s;
+          return null;
         }
         s.ap -= 2;
         const cultSkill = s.skills['神秘学'] || s.skills['话术'] || 20;
@@ -559,7 +578,20 @@ export function handleNpcAction(s, action, c, ctx) {
         }
         s.pendingNpc = null;
       }
-      return s;
+
+      // v0.9.0: Moral choice engine integration
+      // Reputation propagation through NPC relationship network + moral tracking
+      if (choice && choice !== 'leave') {
+        try {
+          var _moralResult = processNpcMoralChoice(s, npc.name, choice, ctx);
+          // Silent propagation — no narrative feedback, the effects just happen
+          // This is intentional: the player feels consequences without being told "X happened because you did Y"
+        } catch (e) {
+          // Moral choice engine is optional — if it fails, the base game continues
+        }
+      }
+
+      return null;
     }
     default:
       return null;

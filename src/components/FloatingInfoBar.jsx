@@ -3,11 +3,14 @@
 // 设计参考：Darkest Dungeon 的顶部/底部状态栏
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { NarrativeBlock } from './GameCommon.jsx';
+import { uiStore } from '../state/uiStore.js';
 import { NPCDialog } from './NPCDialog.jsx';
 import { getDisplayedAp } from '../utils/appHelpers.js';
 import { getAreaDisplayName } from '../utils/gameHelpers.js';
 import { getSanStage } from '../reducers/sanReducer.js';
 import { resolveClueName } from '../utils/clueNameMap.js';
+// v0.9.0: Fine-grained selectors for components that don't need full state
+import { useSanLevel, useEventLog, useCurrentArea, usePollution } from '../state/selectors.js';
 
 export function FloatingInfoBar({ state, dispatch }) {
   const [clueOpen, setClueOpen] = useState(false);
@@ -16,15 +19,19 @@ export function FloatingInfoBar({ state, dispatch }) {
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
   const sanStage = getSanStage(state.san, { GD });
   const sanClass =
-    state.san >= 80
+    state.san >= 75
       ? 'stable'
       : state.san >= 60
-        ? 'tense'
-        : state.san >= 40
-          ? 'shaken'
-          : state.san >= 20
-            ? 'critical'
-            : 'abyssal';
+        ? 'fogged'
+        : state.san >= 50
+          ? 'tense'
+          : state.san >= 40
+            ? 'shaken'
+            : state.san >= 30
+              ? 'dissolving'
+              : state.san >= 15
+                ? 'critical'
+                : 'abyssal';
   const sealLabel =
     state.sealState === 'intact'
       ? '完整'
@@ -161,12 +168,18 @@ export function FloatingInfoBar({ state, dispatch }) {
 
 // === 线索弹出面板 ===
 function CluePanel({ state, onClose }) {
-  var inProgress = (GD.systems?.clue_conclusion?.conclusions || [])
-    .filter(function (c) {
-      if ((state.discoveredConclusions || []).includes(c.id)) return false;
-      var req = c.required_clue_ids || c.required_clues || [];
-      return req.length > 0 && req.some(function (id) { return (state.clues || []).some(function (cl) { return (typeof cl === 'object' ? cl.id : cl) === id; }); });
-    });
+  var inProgress = useMemo(function () {
+    return (GD.systems?.clue_conclusion?.conclusions || [])
+      .filter(function (c) {
+        if ((state.discoveredConclusions || []).includes(c.id)) return false;
+        var req = c.required_clue_ids || c.required_clues || [];
+        return req.length > 0 && req.some(function (id) {
+          return (state.clues || []).some(function (cl) {
+            return (typeof cl === 'object' ? cl.id : cl) === id;
+          });
+        });
+      });
+  }, [state.discoveredConclusions, state.clues]);
 
   return (
     <div className="clue-panel-overlay" onClick={onClose}>

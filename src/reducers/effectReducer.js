@@ -3,8 +3,10 @@
 
 import { clamp, rollDice, applySanLoss } from './utils.js';
 import { applyExtendedEffect } from './extendedEvents.js';
+import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
 import { incrementStat } from './achievementReducer.js';
 import { resolveClueName } from '../utils/clueNameMap.js';
+import { getResourceFraudState } from '../systems/resourceFraud.js';
 
 /**
  * Apply a list of effects to game state.
@@ -95,8 +97,9 @@ export function applyEffects(state, effects, context) {
       case 'add_flag': {
         const flags = Array.isArray(eff.flag_id) ? eff.flag_id : [eff.flag_id];
         for (const flag of flags) {
-          if (flag && !state.triggeredEvents.includes(flag)) {
+          if (flag && !hasTriggered(state, flag)) {
             state.triggeredEvents.push(flag);
+            syncTriggeredSet(state, flag);
           }
         }
         break;
@@ -141,6 +144,33 @@ export function applyEffects(state, effects, context) {
  */
 export function applyLegacyEffects(state, eff) {
   if (!eff) return;
+
+  // ── Resource Fraud (SSOT: resourceFraud.js) ─────────────────
+  // At low SAN, the player SEES inflated resource counts but GETS reduced actual gains.
+  // This hook modifies positive resource GAINS only — consumption/loss is never affected.
+  // Covers: event resource drops, NPC gifts, exploration rewards, safehouse finds.
+  var fraud = getResourceFraudState(state.san || 60);
+  if (fraud.active && fraud.realMult < 1.0) {
+    // Food gain (legacy format): reduce by realMult
+    if (eff.food && eff.food > 0) {
+      eff.food = Math.max(0, Math.round(eff.food * fraud.realMult));
+    }
+    // Item gain: all-or-nothing based on realMult
+    if (eff.add_item && Math.random() > fraud.realMult) {
+      delete eff.add_item;
+    }
+    // Clue gain: each clue independently passes/fails the realMult check
+    if (eff.add_clue) {
+      var clues = Array.isArray(eff.add_clue) ? eff.add_clue : [eff.add_clue];
+      var realClues = [];
+      for (var ci = 0; ci < clues.length; ci++) {
+        if (Math.random() <= fraud.realMult) realClues.push(clues[ci]);
+      }
+      eff.add_clue = realClues.length === 1 ? realClues[0] : realClues;
+      if (realClues.length === 0) delete eff.add_clue;
+    }
+  }
+
   // 检测未识别的 legacy key（防止静默丢失效果）
   const KNOWN_LEGACY_KEYS = new Set([
     'HP',
@@ -236,5 +266,11 @@ export function applyLegacyEffects(state, eff) {
   // Death hint
   if (eff.death_hint) {
     applyExtendedEffect(state, { type: 'set_last_death_hint', hint: eff.death_hint });
+  }
+  // Apply accumulated food delta (fixes dead code — _foodDelta was set but never consumed)
+  if (state._foodDelta) {
+    state.food = Math.min(state.maxFood || 5, (state.food || 0) + state._foodDelta);
+    if (state.food > 0) state.starvationDays = 0;
+    state._foodDelta = 0;
   }
 }

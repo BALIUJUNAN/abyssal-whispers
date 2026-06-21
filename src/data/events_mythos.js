@@ -19,6 +19,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_hidden_door', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -36,6 +41,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_wall_text', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -53,6 +63,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_symbol', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -74,6 +89,11 @@ export const events = [
     },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -91,6 +111,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_hidden_photo', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -108,6 +133,11 @@ export const events = [
     effects: { san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -131,6 +161,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_underwater_structure', san: -2, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -148,6 +183,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_tree_seal', san: -1, mythos: 1 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -165,6 +205,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_mirror_text', san: -1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -182,6 +227,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_hidden_path', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -204,6 +254,11 @@ export const events = [
     effects: { san: -2, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -221,6 +276,11 @@ export const events = [
     effects: { add_clue: 'clue_mythos_light_code', san: -1 },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -238,6 +298,11 @@ export const events = [
     effects: { san: -2, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -260,6 +325,11 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -283,6 +353,11 @@ export const events = [
     effects: { san: -2, mythos: 2, add_clue: 'clue_mythos_forest_words' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -305,6 +380,11 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -327,6 +407,11 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_mythos_warm_stone' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -344,6 +429,11 @@ export const events = [
     effects: { san: -1, add_clue: 'clue_mythos_clock_13' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -361,6 +451,11 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_mythos_wall_sos' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
   {
@@ -378,6 +473,11 @@ export const events = [
     effects: { san: -3, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [],
   },
 
@@ -399,6 +499,13 @@ export const events = [
     effects: { san: -3, mythos: 3, add_clue: 'clue_mythos_full_seal' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -421,6 +528,13 @@ export const events = [
     effects: { san: -4, mythos: 3, hp: -1, add_clue: 'clue_mythos_seal_truth' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -444,6 +558,13 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_mythos_voxchester_truth' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -461,6 +582,13 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_mythos_morris_truth' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -478,6 +606,13 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_mythos_lighthouse_blueprint' },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -495,6 +630,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_yith_archive' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -512,6 +654,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_deep_truth' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -535,6 +684,13 @@ export const events = [
     effects: { san: -3, mythos: 3, add_clue: 'clue_mythos_ritual_manual' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -552,6 +708,13 @@ export const events = [
     effects: { san: -3, mythos: 2, add_clue: 'clue_mythos_old_photo' },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -575,6 +738,13 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_mythos_morris_bloodline' },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -592,6 +762,13 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_mythos_keeper_diary' },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -614,6 +791,13 @@ export const events = [
     effects: { san: -5, mythos: 3, add_clue: 'clue_mythos_seal_cost' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -631,6 +815,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_is_origin' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -653,6 +844,13 @@ export const events = [
     },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -670,6 +868,13 @@ export const events = [
     effects: { san: -4, mythos: 4, add_clue: 'clue_mythos_letter_to_self' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。\n文字在向边缘退去，像是什么东西从纸的背面把它们推开了。\n你凑得更近。纸的背面什么都没有。但你能感觉到——\n有什么东西正从纸的背面看着你。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
 
@@ -697,6 +902,13 @@ export const events = [
     effects: { san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -720,6 +932,13 @@ export const events = [
     effects: { san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -743,6 +962,13 @@ export const events = [
     effects: { san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -766,6 +992,13 @@ export const events = [
     effects: { san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -789,6 +1022,13 @@ export const events = [
     effects: { san: -4, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -812,6 +1052,13 @@ export const events = [
     effects: { san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -835,6 +1082,13 @@ export const events = [
     effects: { san: -4, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -858,6 +1112,13 @@ export const events = [
     effects: { san: -5, mythos: 3, hp: -1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -881,6 +1142,13 @@ export const events = [
     effects: { san: -4, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -904,6 +1172,13 @@ export const events = [
     effects: { san: -3, mythos: 1 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -927,6 +1202,13 @@ export const events = [
     effects: { san: -4, mythos: 2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
   {
@@ -950,6 +1232,13 @@ export const events = [
     effects: { san: -5, mythos: 3, hp: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '知识在回流。不是从外部进入——是从你的内部涌出。\n你学到的那些名字、那些符号——它们在反噬你。\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\n你咬了一下舌头。疼。这是你唯一确定的东西。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_body: '你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\n你摸了摸它——不疼，不痒。但触感不对。\n你把它划破了。没有血。是淡蓝色的液体。像海水。',
+    },
     choices: [],
   },
 
@@ -971,6 +1260,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_first_contact' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你盯着那个符号看了太久。它开始在你的视野边缘扩散。\n不是因为它变大了——是因为你的眼睛在重新排列它。\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\n你闭上了眼睛。但符号在你的眼睑后面跳动。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [
       {
         label: '继续',
@@ -999,6 +1295,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_past_life' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你盯着那个符号看了太久。它开始在你的视野边缘扩散。\n不是因为它变大了——是因为你的眼睛在重新排列它。\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\n你闭上了眼睛。但符号在你的眼睑后面跳动。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1016,6 +1319,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_blood_call' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你盯着那个符号看了太久。它开始在你的视野边缘扩散。\n不是因为它变大了——是因为你的眼睛在重新排列它。\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\n你闭上了眼睛。但符号在你的眼睑后面跳动。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1039,6 +1349,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_star_map' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你盯着那个符号看了太久。它开始在你的视野边缘扩散。\n不是因为它变大了——是因为你的眼睛在重新排列它。\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\n你闭上了眼睛。但符号在你的眼睑后面跳动。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1056,6 +1373,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_abyss_voice' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你盯着那个符号看了太久。它开始在你的视野边缘扩散。\n不是因为它变大了——是因为你的眼睛在重新排列它。\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\n你闭上了眼睛。但符号在你的眼睑后面跳动。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1073,6 +1397,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_time_end' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你盯着那个符号看了太久。它开始在你的视野边缘扩散。\n不是因为它变大了——是因为你的眼睛在重新排列它。\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\n你闭上了眼睛。但符号在你的眼睑后面跳动。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1095,6 +1426,13 @@ export const events = [
     effects: { san: -5, mythos: 5, add_clue: 'clue_mythos_seal_truth_full' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你盯着那个符号看了太久。它开始在你的视野边缘扩散。\n不是因为它变大了——是因为你的眼睛在重新排列它。\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\n你闭上了眼睛。但符号在你的眼睑后面跳动。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1117,6 +1455,13 @@ export const events = [
     },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你盯着那个符号看了太久。它开始在你的视野边缘扩散。\n不是因为它变大了——是因为你的眼睛在重新排列它。\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\n你闭上了眼睛。但符号在你的眼睑后面跳动。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
 
@@ -1145,6 +1490,12 @@ export const events = [
     effects: { san: -5, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1169,6 +1520,12 @@ export const events = [
     effects: { san: -5, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1193,6 +1550,12 @@ export const events = [
     effects: { san: -5, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1217,6 +1580,12 @@ export const events = [
     effects: { san: -5, mythos: 3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1241,6 +1610,12 @@ export const events = [
     effects: { san: -5, mythos: 5, unlock_ending_condition: 'ending_transcendence_final' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
 
@@ -1262,6 +1637,13 @@ export const events = [
     effects: { san: -3, mythos: 3, add_clue: 'clue_mythos_deep_seal_name' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '深度不是距离。是重量。\n你感到一种下坠感——但不是身体在往下掉。\n是你的意识在往下沉。穿过海面、穿过黑暗、穿过某种屏障。\n你在很深的地方看到了光。不是温暖的光——是饥饿的光。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1285,6 +1667,13 @@ export const events = [
     effects: { san: -4, mythos: 3, add_clue: 'clue_mythos_deep_underwater_city' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '深度不是距离。是重量。\n你感到一种下坠感——但不是身体在往下掉。\n是你的意识在往下沉。穿过海面、穿过黑暗、穿过某种屏障。\n你在很深的地方看到了光。不是温暖的光——是饥饿的光。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1308,6 +1697,13 @@ export const events = [
     effects: { san: -5, mythos: 4, add_clue: 'clue_mythos_deep_elder_breath' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '深度不是距离。是重量。\n你感到一种下坠感——但不是身体在往下掉。\n是你的意识在往下沉。穿过海面、穿过黑暗、穿过某种屏障。\n你在很深的地方看到了光。不是温暖的光——是饥饿的光。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
   {
@@ -1325,6 +1721,13 @@ export const events = [
     effects: { san: -4, mythos: 4, hp: -1, add_clue: 'clue_mythos_deep_knowledge_cost' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '深度不是距离。是重量。\n你感到一种下坠感——但不是身体在往下掉。\n是你的意识在往下沉。穿过海面、穿过黑暗、穿过某种屏障。\n你在很深的地方看到了光。不是温暖的光——是饥饿的光。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      fear_ocean: '空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。',
+      fear_depth: '地面在你脚下变得不真实。你往下看了一眼——不是真的看，是\'感觉\'了一眼。\n下面有东西。很深的东西。\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。',
+    },
     choices: [],
   },
 ];

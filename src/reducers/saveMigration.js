@@ -46,6 +46,7 @@ export function ensureMinimalExtendedState(state) {
   if (!state.previousDeathContext) state.previousDeathContext = null;
   if (!state.prologue) state.prologue = null;
   if (!state.fearTuning) state.fearTuning = null;
+  if (!state.sanityCollapseCount) state.sanityCollapseCount = 0;
   return state;
 }
 
@@ -181,6 +182,12 @@ export function migrateSaveData(data, slotId) {
     state.inventory = migrateInventory(state.inventory);
   }
 
+  // Difficulty migration: old saves had levels 1-21, new system is 1-13
+  if (typeof state.difficultyLevel === 'number' && state.difficultyLevel > 13) {
+    state.difficultyLevel = 13;
+    state._difficultyMigrated = true;
+  }
+
   // Build the migrated save object
   return {
     version: SAVE_VERSION,
@@ -216,7 +223,9 @@ export function toPersistedState(state) {
     typeof TRANSIENT_STATE_KEYS !== 'undefined'
       ? TRANSIENT_STATE_KEYS
       : ['_effects', '_lastAction', '_runtime', '_debug', '_actionHistory'];
-  const excludeSet = new Set([...UI_KEYS, ...RUNTIME_KEYS]);
+  // Transient cross-loop references (should not be persisted)
+  const TRANSIENT_LOOP_KEYS = ['_prevRunStateForSanLegacy'];
+  const excludeSet = new Set([...UI_KEYS, ...RUNTIME_KEYS, ...TRANSIENT_LOOP_KEYS]);
 
   const persisted = {};
   for (const [k, v] of Object.entries(state)) {

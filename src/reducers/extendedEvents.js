@@ -20,12 +20,15 @@
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { clamp, makeRand } from './utils.js';
 import { hasClueId } from '../utils/clueNameMap.js';
+import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
+import { getNegativeEventWeight } from '../config/difficulty.js';
 import {
   shouldTriggerMissing600,
   createMissing600Event,
   MISSING_600_EVENT_ID,
 } from '../data/events_missing_600.js';
 import { checkOmens } from '../data/events_omens_600.js';
+import { getEventRarityWeight, checkLegendaryTrigger, checkSecretTrigger, getRarityHint } from '../systems/eventRarity.js';
 
 // =============================================
 // SECTION 1: Extended Trigger Checking
@@ -62,7 +65,7 @@ export function checkTriggerExtended(evt, state, ctx) {
       } else if (req.startsWith('san_above_')) {
         const threshold = parseInt(req.replace('san_above_', ''));
         if (state.san < threshold) return false;
-      } else if (!hasClueId(state.clues, req) && !state.triggeredEvents.includes(req)) {
+      } else if (!hasClueId(state.clues, req) && !hasTriggered(state, req)) {
         return false;
       }
     }
@@ -129,7 +132,7 @@ export function checkTriggerExtended(evt, state, ctx) {
   // Required events (superset of original requires)
   if (t.requires_prev_event && t.requires_prev_event.length > 0) {
     for (const req of t.requires_prev_event) {
-      if (!state.triggeredEvents.includes(req)) return false;
+      if (!hasTriggered(state, req)) return false;
     }
   }
 
@@ -150,7 +153,7 @@ export function checkTriggerExtended(evt, state, ctx) {
   // Required flags (explicit)
   if (t.requires_flags && t.requires_flags.length > 0) {
     for (const flag of t.requires_flags) {
-      if (!state.triggeredEvents.includes(flag) && !hasClueId(state.clues, flag)) return false;
+      if (!hasTriggered(state, flag) && !hasClueId(state.clues, flag)) return false;
     }
   }
 
@@ -261,6 +264,7 @@ export const EVENT_BUDGET = {
   ending_aftermath: { maxPerDay: 1, minPerRun: 0, weight: 0.5 },
   silent: { maxPerDay: 3, minPerRun: 0, weight: 0.9, isAnchor: true },
   meta: { maxPerRun: 2, weight: 0.3 },
+  legendary: { maxPerRun: 1, weight: 0.1 },  // max 1 legendary per run
   // Supplement event types (events_supplement.js) — pacing caps
   '线索': { maxPerDay: 3, weight: 1.0 },
   '调查': { maxPerDay: 2, weight: 1.0 },
@@ -346,7 +350,7 @@ export function getEligibleEvents(areaId, state, ctx) {
   if (eligible.length === 0) return [];
 
   // Step 2: Budget filtering (read-only against state)
-  return eligible.filter((e) => {
+  var budgeted = eligible.filter((e) => {
     const cat = e.type || 'unknown';
     const budget = EVENT_BUDGET[cat];
     if (!budget) return true;
@@ -362,6 +366,14 @@ export function getEligibleEvents(areaId, state, ctx) {
     }
 
     return true;
+  });
+
+  // Step 3: Rarity gating — secret/legendary events have hidden trigger conditions
+  return budgeted.filter((e) => {
+    var rarity = e.rarity || 'common';
+    if (rarity === 'legendary') return checkLegendaryTrigger(e, state);
+    if (rarity === 'secret') return checkSecretTrigger(e, state);
+    return true; // common + uncommon always pass
   });
 }
 
@@ -384,6 +396,13 @@ export function getEventWeight(evt, areaId, state, ctx) {
   const loop = state.loopCount || 0;
 
   let weight = evt.weight || budget.weight || 1.0;
+
+  // ── Rarity weight modifier ─────────────────────────────
+  // Common: 1.0x, Uncommon: 0.7x, Secret: 0.35x, Legendary: 0.12x
+  const rarityWeight = getEventRarityWeight(evt);
+  if (rarityWeight !== 1.0) {
+    weight *= rarityWeight;
+  }
 
   // P0-2: trigger.probability as weight modifier (was hard filter, now soft)
   if (evt.trigger?.probability != null && evt.trigger.probability < 1) {
@@ -444,7 +463,7 @@ export function getEventWeight(evt, areaId, state, ctx) {
   else if (evt.tier === 'ending') weight *= 0.8;
 
   // Untriggered bonus
-  if (!(state.triggeredEvents || []).includes(evt.id)) weight *= 1.5;
+  if (!hasTriggered(state, evt.id)) weight *= 1.5;
 
   // Phase 7: Event dedup via seenEventTexts — reduce weight for frequently-seen events
   if (state.seenEventTexts && state.seenEventTexts[evt.id] > 0) {
@@ -537,6 +556,17 @@ export function getEventWeight(evt, areaId, state, ctx) {
     }
   }
 
+  // Difficulty: negative event weight multiplier (phase 4+)
+  if (typeof getNegativeEventWeight === 'function') {
+    const negWeight = getNegativeEventWeight(state.difficultyLevel || 1);
+    if (negWeight !== 1.0) {
+      const negativeTypes = ['loop_locked', 'mythos', 'resource_pressure', 'meta', '超自然遭遇', '怪物遭遇', '神秘事件'];
+      if (negativeTypes.indexOf(cat) >= 0) {
+        weight *= negWeight;
+      }
+    }
+  }
+
   return Math.max(0, weight);
 }
 
@@ -605,8 +635,9 @@ export function commitSelectedEvent(evt, state) {
   const cat = evt.type || 'unknown';
 
   // Record event as triggered (single source of truth for tracking)
-  if (!state.triggeredEvents.includes(evt.id)) {
+  if (!hasTriggered(state, evt.id)) {
     state.triggeredEvents.push(evt.id);
+    syncTriggeredSet(state, evt.id);
   }
 
   // Update category counts
@@ -754,7 +785,7 @@ export function checkEndingConditionQuick(state, cond) {
     case 'has_clue':
       return hasClueId(state.clues, cond.clue_id);
     case 'has_flag':
-      return state.triggeredEvents.includes(cond.flag_id);
+      return hasTriggered(state, cond.flag_id);
     case 'npc_trust_gte':
       return (state.npcTrust[cond.npc_id] || 0) >= cond.value;
     default:
@@ -826,8 +857,9 @@ export function applyExtendedEffect(state, eff) {
     }
     case 'set_flag': {
       // Alias for add_flag with extended tracking
-      if (!state.triggeredEvents.includes(eff.flag_id)) {
+      if (!hasTriggered(state, eff.flag_id)) {
         state.triggeredEvents.push(eff.flag_id);
+        syncTriggeredSet(state, eff.flag_id);
       }
       if (!state.everTriggeredEvents) state.everTriggeredEvents = [];
       if (!state.everTriggeredEvents.includes(eff.flag_id)) {

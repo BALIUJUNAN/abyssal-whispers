@@ -1,6 +1,5 @@
-// src/engine/EventEngine.js — Pure event selection engine
+// src/engine/EventEngine.js — Pure event selection engine (canonical runtime source)
 // ENGINE CONTRACT: Zero game-specific imports. Milestones injected via data.
-// Milestone/hook definitions moved to src/data/milestones.js.
 
 /**
  * Check if a chapter milestone should fire for the given day.
@@ -10,7 +9,7 @@
  * @returns {object|null} milestone or null
  */
 export function checkChapterMilestone(day, state, milestones) {
-  var ms = milestones || (typeof window !== 'undefined' && window.GD?._milestones) || {};
+  var ms = milestones || {};
   var milestone = ms[day];
   if (!milestone) return null;
   if ((state.triggeredEvents || []).includes(milestone.eventId)) return null;
@@ -24,7 +23,7 @@ export function checkChapterMilestone(day, state, milestones) {
  * @returns {object|null} hook or null
  */
 export function checkForcedNarrativeHook(state, hooks) {
-  var hookList = hooks || (typeof window !== 'undefined' && window.GD?._hooks) || [];
+  var hookList = hooks || [];
   for (var i = 0; i < hookList.length; i++) {
     var hook = hookList[i];
     if (hook.condition(state)) return hook;
@@ -51,21 +50,12 @@ export function createMilestoneEvent(milestone) {
 // SECTION 2: Behavioral Profiling Memory
 // =============================================
 
-/**
- * Track player's recent action history and build a rolling behavior profile.
- * Called once per action dispatch (in gameReducer pre-processing).
- * Stores last 20 actions in state._actionHistory.
- */
 export function recordActionHistory(state, actionType) {
   if (!state._actionHistory) state._actionHistory = [];
   state._actionHistory.push({ type: actionType, day: state.day || 1 });
   if (state._actionHistory.length > 20) state._actionHistory = state._actionHistory.slice(-20);
 }
 
-/**
- * Compute granular behavior scores from action history + behaviorTracking.
- * Returns scores 0-10 for each dimension.
- */
 export function getPlayerBehaviorProfile(bt) {
   if (!bt)
     return {
@@ -116,10 +106,6 @@ export function getDominantArchetype(profile) {
   return dominant;
 }
 
-/**
- * Compute recent action tendencies from _actionHistory (last 10 actions).
- * Returns { exploreRate, talkRate, moveRate, restRate, darkRate }.
- */
 export function getRecentActionTendencies(state) {
   var hist = (state._actionHistory || []).slice(-10);
   if (hist.length === 0)
@@ -132,15 +118,7 @@ export function getRecentActionTendencies(state) {
     else if (t === 'MOVE') counts.move++;
     else if (t === 'REST') counts.rest++;
     else if (
-      [
-        'SELF_HARM',
-        'SPREAD_PROPHECY',
-        'CONSUME_ARCHIVE',
-        'SELF_SACRIFICE',
-        'DESECRATE',
-        'BREAK_SEAL',
-        'ATTACK',
-      ].indexOf(t) >= 0
+      ['SELF_HARM', 'SPREAD_PROPHECY', 'CONSUME_ARCHIVE', 'SELF_SACRIFICE', 'DESECRATE', 'ATTACK'].indexOf(t) >= 0
     )
       counts.dark++;
   }
@@ -179,14 +157,9 @@ export function getCooldownDecayFactor(eventId, state) {
   return 1.0;
 }
 
-/**
- * Track which events were seen recently to reduce repeat probability.
- * Called from commitSelectedEvent.
- */
 export function recordEventCooldown(state, eventId) {
   if (!state.eventCooldowns) state.eventCooldowns = {};
   state.eventCooldowns[eventId] = state.day || 1;
-  // Also track in _recentEventIds for quick lookup
   if (!state._recentEventIds) state._recentEventIds = [];
   state._recentEventIds.push(eventId);
   if (state._recentEventIds.length > 30) state._recentEventIds = state._recentEventIds.slice(-30);
@@ -240,26 +213,20 @@ export function getBehaviorWeightMultiplier(evt, state) {
   return 1.0;
 }
 
-/**
- * fearProfile weight: events matching player's fear tags get boosted.
- */
-export function getFearProfileMultiplier(evt, state) {
+export function getFearProfileMultiplier(evt, state, fearTagsMap) {
   if (!state.fearTuning || !state.fearTuning.primary) return 1.0;
-  var ftm = _getFearTags();
-  var fearTags = ftm[state.fearTuning.primary];
-  if (!fearTags) return 1.0;
-  var evtTags = extractEventKeywords(evt);
+  var fearTags = fearTagsMap || {};
+  var primary = state.fearTuning.primary;
+  var fearTagList = fearTags[primary];
+  if (!fearTagList) return 1.0;
+  var evtTags = extractEventKeywords(evt, fearTags);
   var match = false;
-  for (var i = 0; i < fearTags.length; i++) {
-    if (evtTags.indexOf(fearTags[i]) >= 0) {
-      match = true;
-      break;
-    }
+  for (var i = 0; i < fearTagList.length; i++) {
+    if (evtTags.indexOf(fearTagList[i]) >= 0) { match = true; break; }
   }
   if (match) return 1.3;
-  // Secondary fear
   if (state.fearTuning.secondary) {
-    var secTags = ftm[state.fearTuning.secondary];
+    var secTags = fearTags[state.fearTuning.secondary];
     if (secTags) {
       for (var j = 0; j < secTags.length; j++) {
         if (evtTags.indexOf(secTags[j]) >= 0) return 1.15;
@@ -269,77 +236,16 @@ export function getFearProfileMultiplier(evt, state) {
   return 1.0;
 }
 
-/**
- * SAN-scaled weight: lower SAN boosts horror, higher SAN boosts buffer.
- * SSOT: thresholds aligned with 6 san_stages from game_base.json.
- *   stable [75,100] / mild [55,74] / perception [40,54] / explanation [25,39] / reality [10,24] / narrative [1,9]
- */
-export function getSanWeightMultiplier(evt, state) {
-  var san = state.san || 60;
-  var isBuffer = evt.normalcy_anchor || false;
-  var evtType = evt.type || evt.event_classification || '';
-
-  // Use stage-based event_weight if available (SSOT from game_base.json san_stages)
-  // getSanStage is defined in sanReducer.js; use typeof guard for bundle ordering
-  if (typeof getSanStage === 'function') {
-    try {
-      var stage = getSanStage(san, { GD: typeof GD !== 'undefined' ? GD : {} });
-      if (stage && stage.event_weight) {
-        var ew = stage.event_weight;
-        if (isBuffer) return ew.buffer_boost || 1.0;
-        // Level 5+ type overlay (merged from corruptEventWeights)
-        // 对具体事件类型做差异化修正，替代一刀切的 horror_penalty
-        if (stage.level >= 5) {
-          if (['超自然遭遇', '怪物遭遇', 'mythos', 'meta'].includes(evtType)) return 1.8;
-          if (['正常事件', 'NPC对话', '氛围事件'].includes(evtType)) return 0.4;
-        }
-        return ew.horror_penalty || 1.0;
-      }
-    } catch (e) { /* fallback to hardcoded */ }
-  }
-
-  // P1-A fallback: stage-based multipliers with type overlay
-  var _slvl;
-  try { _slvl = (typeof getSanStageFromGD === 'function') ? getSanStageFromGD(san).level : -1; } catch (e) { _slvl = -1; }
-  if (_slvl >= 0) {
-    var _buf = { 6: 0.3, 5: 0.4, 4: 0.6, 3: 0.7, 2: 0.8, 1: 1.0, 0: 1.3 };
-    var _hor = { 6: 2.0, 5: 1.8, 4: 1.3, 3: 1.3, 2: 1.15, 1: 1.0, 0: 0.8 };
-    if (isBuffer) return _buf[_slvl] || 1.0;
-    // Level 5+ type overlay (merged from corruptEventWeights)
-    if (_slvl >= 5) {
-      if (['超自然遭遇', '怪物遭遇', 'mythos', 'meta'].includes(evtType)) return 1.8;
-      if (['正常事件', 'NPC对话', '氛围事件'].includes(evtType)) return 0.4;
+function extractEventKeywords(evt, fearTags) {
+  var keywords = [];
+  var text = (evt.id + ' ' + (evt.description || '')).toLowerCase();
+  for (var tag in fearTags) {
+    var tagList = fearTags[tag];
+    for (var k = 0; k < tagList.length; k++) {
+      if (text.indexOf(tagList[k]) >= 0) keywords.push(tagList[k]);
     }
-    return _hor[_slvl] || 1.0;
   }
-  // Ultimate fallback if getSanStageFromGD unavailable (should not happen)
-  if (isBuffer) {
-    if (san <= 9) return 0.4;
-    if (san <= 24) return 0.6;
-    if (san <= 39) return 0.7;
-    if (san <= 54) return 0.8;
-    if (san >= 75) return 1.3;
-    return 1.0;
-  } else {
-    if (san <= 9) return 1.8;
-    if (san <= 24) return 1.3;
-    if (san <= 39) return 1.3;
-    if (san <= 54) return 1.15;
-    if (san >= 75) return 0.8;
-    return 1.0;
-  }
-}
-
-/**
- * Area corruption multiplier: corrupted areas boost horror events.
- */
-export function getAreaCorruptionMultiplier(evt, state) {
-  var corr = state.safehouseCorruption || 0;
-  var isBuffer = evt.normalcy_anchor || false;
-  if (corr >= 60 && !isBuffer) return 1.3;
-  if (corr >= 40 && !isBuffer) return 1.15;
-  if (corr < 20 && isBuffer) return 1.2;
-  return 1.0;
+  return keywords;
 }
 
 // =============================================
@@ -354,16 +260,11 @@ export var BUFFER_RATIO_TABLE = [
   { maxDay: 99, target: 0.15, tolerance: 0.1 },
 ];
 
-/**
- * Count buffer vs horror events triggered today.
- */
 export function getTodayEventMix(state) {
   var today = state.day || 1;
-  var triggered = state.triggeredEvents || [];
+  var todayTypes = state._todayEventTypes || [];
   var buffer = 0,
     horror = 0;
-  // Check _todayEventTypes if available
-  var todayTypes = state._todayEventTypes || [];
   for (var i = 0; i < todayTypes.length; i++) {
     if (todayTypes[i].isBuffer) buffer++;
     else horror++;
@@ -379,26 +280,19 @@ export function getBufferTarget(day) {
   return BUFFER_RATIO_TABLE[BUFFER_RATIO_TABLE.length - 1];
 }
 
-/**
- * Adjust candidate weights to enforce buffer ratio.
- * If buffer ratio is below target, boost buffer events. If above, boost horror.
- */
 export function applyBufferEnforcement(candidates, state) {
   var day = state.day || 1;
   var target = getBufferTarget(day);
   var mix = getTodayEventMix(state);
-  if (mix.total < 2) return candidates; // Not enough data yet
-
+  if (mix.total < 2) return candidates;
   return candidates.map(function (item) {
     var evt = item.event || item;
     var w = typeof item.weight === 'number' ? item.weight : 1.0;
-    var isBuffer = evt.normalcy_anchor || false;
+    var isBuffer = !!(evt.normalcy_anchor);
     if (mix.ratio < target.target - target.tolerance) {
-      // Too few buffer events — boost buffer, reduce horror
       if (isBuffer) w *= 1.6;
       else w *= 0.7;
     } else if (mix.ratio > target.target + target.tolerance) {
-      // Too many buffer events — boost horror, reduce buffer
       if (isBuffer) w *= 0.6;
       else w *= 1.3;
     }
@@ -410,11 +304,6 @@ export function applyBufferEnforcement(candidates, state) {
 // SECTION 6: Distortion Variants
 // =============================================
 
-/**
- * Select the appropriate distortion variant text based on state.
- * Checks: loop count, SAN level, fearProfile, area corruption.
- * Returns variant text string or null (use original description).
- */
 export function getDistortionVariant(evt, state, rng) {
   if (!evt || !evt.distortion_variants) return null;
   var v = evt.distortion_variants;
@@ -424,7 +313,6 @@ export function getDistortionVariant(evt, state, rng) {
   var fear = state.fearTuning ? state.fearTuning.primary : null;
   var _rand = rng ? rng.next.bind(rng) : Math.random;
 
-  // Priority: fearProfile-specific > loop > san_low > san_mid > corruption
   if (fear && v['fear_' + fear] && _rand() < 0.45) return v['fear_' + fear];
   if (loop >= 8 && v.loop_8_plus && _rand() < 0.4) return v.loop_8_plus;
   if (loop >= 3 && v.loop_3_plus && _rand() < 0.3) return v.loop_3_plus;
@@ -441,7 +329,8 @@ export function getDistortionVariant(evt, state, rng) {
 
 export function applyFirstWeekFilter(candidates, day) {
   if (day > 10 || !candidates || candidates.length === 0) return candidates;
-  return candidates.map(function (evt) {
+  return candidates.map(function (item) {
+    var evt = item.event || item;
     var w = 1.0;
     if (evt.trigger && (evt.trigger.chapter === 1 || evt.trigger.chapter <= 1)) w *= 1.5;
     var type = evt.type || evt.event_classification || '';
@@ -452,100 +341,49 @@ export function applyFirstWeekFilter(candidates, day) {
   });
 }
 
-// SECTION 8: Combined Weight Pipeline — REMOVED (dead code)
-// computeEventWeight and enhanceEventCandidates were never called.
-// The active weight system is getEventWeight() in extendedEvents.js.
-
-// Fear tag map: fallback defined inline to avoid var hoisting issues with fearLens.js.
-// The real FEAR_TAG_MAP from fearLens.js takes precedence at runtime via global scope.
-export function _getFearTags() {
-  if (typeof window !== 'undefined' && window.FEAR_TAG_MAP) return window.FEAR_TAG_MAP;
-  return {
-    ocean: [
-      'harbor_district',
-      'lighthouse',
-      'water',
-      'drowning',
-      'tide',
-      'salt',
-      'sea',
-      'harbor_deep',
-    ],
-    body: ['fusion', 'wound', 'vessel', 'infection', 'flesh', 'mirror', 'possession'],
-    control: ['meta', 'save', 'system', 'clock', 'map', 'locked_door', 'bell', 'thirteenth'],
-    isolation: ['npc_missing', 'betrayal', 'empty_room', 'safehouse', 'alone', 'silent'],
-    knowledge: ['mythos', 'book', 'forbidden', 'library', 'truth', 'clue', 'archive'],
-    morality: ['humanity', 'food_choice', 'sacrifice', 'children', 'npc_help', 'redemption'],
-  };
-}
-
 // =============================================
-// SECTION 9: Day-of-Cycle Weight Multiplier
+// SECTION 8: Day-of-Cycle Weight Multiplier
 // =============================================
 
-/**
- * On critical days (7/14/21/28), boost horror/supernatural events and penalize normal events.
- * Creates the feeling that the world is "accelerating" toward the chapter event.
- *
- * Day 7/14/21: +40% horror, -20% normal (approaching chapter event)
- * Day 28: +60% horror, -30% normal (final descent)
- * Day 5/15/20/25: +20% horror (mid-point tension)
- */
 export function getDayCycleWeightMultiplier(evt, state) {
   var day = state.day || 1;
   var cat = evt.type || evt.event_classification || '';
   var isHorror = ['超自然遭遇', '怪物遭遇', 'mythos', 'meta', 'loop_locked', '神秘事件', '氛围事件', 'silent'].indexOf(cat) >= 0;
   var isNormal = ['正常事件', 'NPC对话'].indexOf(cat) >= 0;
 
-  // Chapter event days — major escalation
   if (day === 7 || day === 14 || day === 21) {
     if (isHorror) return 1.4;
     if (isNormal) return 0.8;
     return 1.1;
   }
-  // Day 28 — final descent, all horror boosted
   if (day === 28) {
     if (isHorror) return 1.6;
     if (isNormal) return 0.7;
     return 1.0;
   }
-  // Mid-point tension days
   if (day === 5 || day === 15 || day === 20 || day === 25) {
     if (isHorror) return 1.2;
     if (isNormal) return 0.9;
     return 1.05;
   }
-  // Day 1-3: calm start, slight penalty on horror to ease player in
   if (day <= 3 && isHorror) return 0.85;
-
   return 1.0;
 }
 
 // =============================================
-// SECTION 10: Time-of-Day Weight Multiplier
+// SECTION 9: Time-of-Day Weight Multiplier
 // =============================================
 
-/**
- * Time-of-day affects event selection.
- * Midnight hours (22:00-04:00) boost horror/silent events and penalize normal ones.
- * Daytime (08:00-18:00) slightly favors normal/buffer events.
- *
- * Reads state.hour (0-23) or falls back to no modifier.
- */
 export function getTimeOfDayWeightMultiplier(evt, state) {
   var hour = state.hour;
-  if (hour == null) return 1.0; // No time data = no modifier
+  if (hour == null) return 1.0;
 
   var cat = evt.type || evt.event_classification || '';
   var isHorror = ['超自然遭遇', '怪物遭遇', 'mythos', 'meta', 'loop_locked', '神秘事件', 'silent'].indexOf(cat) >= 0;
   var isNormal = ['正常事件', 'NPC对话', '氛围事件'].indexOf(cat) >= 0;
-  var isBuffer = evt.normalcy_anchor || false;
-
-  // Midnight window (22:00-04:00) — horror hour
+  var isBuffer = !!(evt.normalcy_anchor);
   var isMidnight = hour >= 22 || hour <= 4;
-  // Late night (20:00-22:00, 04:00-06:00) — transition
   var isLateNight = (hour >= 20 && hour < 22) || (hour > 4 && hour <= 6);
-  // Daytime (08:00-18:00) — relative calm
   var isDaytime = hour >= 8 && hour < 18;
 
   if (isMidnight) {
@@ -559,6 +397,5 @@ export function getTimeOfDayWeightMultiplier(evt, state) {
     return 1.0;
   }
   if (isDaytime && isBuffer) return 1.15;
-
   return 1.0;
 }

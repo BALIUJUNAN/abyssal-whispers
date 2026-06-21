@@ -124,6 +124,7 @@ function _setCache(key, text) {
  * @param {number} [opts.maxTokens]    - Max response tokens (default 512)
  * @param {number} [opts.temperature]  - Temperature 0-1 (default 0.8)
  * @param {boolean} [opts.noCache]     - Skip cache
+ * @param {AbortSignal} [opts.signal]  - External abort signal (for component unmount)
  * @returns {Promise<{ ok: boolean, text: string, error: string|null, cached: boolean }>}
  */
 export async function glmChat(userMessage, opts) {
@@ -239,6 +240,13 @@ async function _doFetch(userMessage, options) {
     if (typeof AbortController !== 'undefined') {
       controller = new AbortController();
       timeoutId = setTimeout(function () { controller.abort(); }, GLM_TIMEOUT_MS);
+    }
+
+    // Chain external abort signal (component unmount) with internal timeout
+    if (options.signal) {
+      options.signal.addEventListener('abort', function () {
+        if (controller) controller.abort();
+      }, { once: true });
     }
 
     var response = await fetch(settings.baseUrl || GLM_BASE_URL, {

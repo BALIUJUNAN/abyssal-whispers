@@ -8,6 +8,7 @@ export var TRANSIENT_STATE_KEYS = [
   '_runtime', // runtime metadata
   '_debug', // debug-only fields
   '_actionHistory', // rolling behavior profile (rebuilt each session)
+  '_pendingDeathCountMeta', // death count meta event (consumed in BEGIN_ADVENTURE)
 ];
 
 // Strip all transient keys from a state object. Returns a new object.

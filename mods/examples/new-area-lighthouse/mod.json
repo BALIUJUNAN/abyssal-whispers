@@ -1,0 +1,351 @@
+{
+  "id": "new_area_lighthouse_zone",
+  "name": "新区域：废弃灯塔区",
+  "author": "官方示例",
+  "version": "1.0.0",
+  "compatibility": ">=0.8.0",
+  "description": "扩展游戏地图，新增「废弃灯塔区」区域。包含8个专属深层事件、2个资源压力事件和1个探索发现事件。灯塔区与雾港码头区相连，需要先解锁灯塔才能进入。",
+  "events": [
+    {
+      "id": "lz_explore_001",
+      "name": "发现灯塔区入口",
+      "type": "exploration",
+      "subtype": "area_discovery",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "A",
+      "tags": ["ugc", "exploration", "area_discovery", "lighthouse_zone", "mod_lz"],
+      "trigger": {
+        "areas": ["harbor_district"],
+        "probability": 0.12,
+        "once_ever": true,
+        "requires_clues": ["clue_lh_green_light"]
+      },
+      "description": "你在码头尽头继续前行，绕过了灯塔看守人坐着的台阶。\n\n灯塔的基座后面有一条石径。石径被海草和藤蔓覆盖着，但你勉强能辨认出它的走向——它通向灯塔的背面。\n\n灯塔的背面有一个你之前没注意到的门。锈蚀的铁门半掩着，像是被什么东西从里面顶开了。\n\n门的后面是另一个空间。\n\n不是灯塔内部——是一个被遗弃的建筑群。石砌的房屋、一个已经倒塌的钟楼、一片长满了奇怪紫色苔藓的空地。\n\n这里没有人烟。\n\n但是有光。从灯塔的方向照过来的绿光，让整个区域笼罩在一种病态的光晕中。\n\n你迈过了门槛。\n\n身后，石径上的海草在风中摆动。像是在挥手。",
+      "effects": {
+        "add_clue": { "id": "clue_lz_discovery", "name": "废弃灯塔区的入口" },
+        "add_run_memory": "你发现了雾港码头区背后的一片废弃建筑群——废弃灯塔区。",
+        "unlock_area": "lighthouse_zone"
+      },
+      "choices": [
+        {
+          "id": "lz_001_enter",
+          "label": "深入探索",
+          "text": "你沿着石径走入了废弃建筑群。\n\n第一间房子你还走得进去——屋顶还在，虽然漏水。墙上的壁炉已经空了，但炉灰里有一些烧焦的纸片。你辨认出了几个字：\n\n「七月二十三日。灯塔的灯又开始闪了。但不是绿色的。这次是红色的。红得像血。」\n\n日期是三年前。\n\n你翻过了一片倒塌的砖墙。前面是一个小广场。广场中央有一个喷泉——但喷泉的水已经干了。\n干涸的池底刻满了和灯塔镜子背面一样的符号。",
+          "effects": {
+            "add_clue": { "id": "clue_lz_red_light", "name": "红色灯光的记录" },
+            "add_clue": { "id": "clue_lz_fountain_symbols", "name": "广场喷泉的符号" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "lz_deep_001",
+      "name": "干涸喷泉的深处",
+      "type": "area_deep",
+      "subtype": "lighthouse_zone",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "A",
+      "tags": ["ugc", "area_deep", "lighthouse_zone", "investigation", "mod_lz"],
+      "trigger": {
+        "areas": ["lighthouse_zone"],
+        "probability": 0.18,
+        "once_per_run": true
+      },
+      "description": "广场的喷泉干了很久了。\n\n但干涸的池底不是水泥——是某种黑色的石头。你蹲下来摸了摸，石头是温的。\n\n不是太阳晒的。太阳照不到这里。\n\n石头上刻满了符号。每一个符号你都认识——从灯塔看守人给你的那块石头上见过。\n\n但不是随意的排列。这些符号有顺序。像是一段话。\n\n你辨认出了几个：\n\n「光」「关」「里面」「血」「门」\n\n然后是一个你从未见过的符号——像是在描述某种你不愿意理解的东西。",
+      "effects": {
+        "san": -1,
+        "add_clue": { "id": "clue_lz_fountain_text", "name": "喷泉底部的铭文" },
+        "mythos": 1
+      },
+      "choices": [
+        {
+          "id": "lz_d001_record",
+          "label": "把铭文记录下来",
+          "text": "你用铅笔把符号描在了笔记本上。\n\n铅笔在纸上的触感变了。不是温度——是质感。像是纸张突然变成了某种更软的东西。\n\n你描完之后，符号在你的笔记本上微微发光——然后熄灭了。\n\n但笔记本上多了一行你之前没写过的字：\n\n「 you are being watched.」\n\n你抬头看向广场周围废弃的窗户。\n每一扇窗户后面都是黑的。\n\n但你觉得——有些窗户后面有东西。",
+          "effects": {
+            "add_clue": { "id": "clue_lz_notebook_writing", "name": "笔记本上出现的文字" },
+            "add_run_memory": "喷泉符号让笔记本上出现了一行英文：you are being watched."
+          }
+        },
+        {
+          "id": "lz_d001_probe",
+          "label": "用工具探测池底",
+          "text": "你用随身的小刀戳了戳池底的黑石。\n\n石头像皮肤一样凹了下去。不是岩石的质地——是某种生物组织。\n你赶紧缩回了手。\n\n小刀的刀尖上沾了一些黑色的液体。液体在你面前慢慢渗入刀身的纹理中。\n\n你把刀收了起来。刀好像比刚才重了一点。",
+          "effects": {
+            "san": -1,
+            "add_clue": { "id": "clue_lz_organic_stone", "name": "像皮肤一样的黑色石头" }
+          }
+        }
+      ]
+    },
+    {
+      "id": "lz_deep_002",
+      "name": "倒塌的钟楼",
+      "type": "area_deep",
+      "subtype": "lighthouse_zone",
+      "weight": 0.9,
+      "tier": "normal",
+      "quality_tier": "A",
+      "tags": ["ugc", "area_deep", "lighthouse_zone", "exploration", "mod_lz"],
+      "trigger": {
+        "areas": ["lighthouse_zone"],
+        "probability": 0.15,
+        "once_per_run": true
+      },
+      "description": "广场尽头有一栋半塌的建筑。从残留的结构来看——原来是一座钟楼。\n\n钟楼的钟还在。但不是挂着的——它被嵌在了倒塌的墙壁里。像被某种巨大的力量从外面砸进去的。\n\n钟面上没有指针。取而代之的是十二个符号。每个符号都不同。\n\n钟的内部你能看到。从门口往里看——钟的内部是空的。\n\n不是被掏空的。是从一开始就没有东西。钟的内部是一片虚空。你往里面看的时候，感觉自己在往下坠。\n\n你后退了一步。虚空的感觉消失了。",
+      "effects": {
+        "san": -2,
+        "add_clue": { "id": "clue_lz_bell_tower", "name": "倒塌的钟楼" },
+        "mythos": 2
+      },
+      "choices": [
+        {
+          "id": "lz_d002_ring",
+          "label": "尝试敲响钟",
+          "text": "你找了一块石头，敲了敲钟面。\n\n钟没有发出声音。\n\n不是哑了——是没有空气传播振动。但你能感觉到钟在振动。频率很低，低到你的骨头能感受到。\n\n钟面上的符号亮了一下。不是发光——是它们在旋转。微小的、缓慢的旋转。\n\n你突然明白了。这口钟在计数。\n\n倒计时。",
+          "effects": {
+            "san": -2,
+            "add_clue": { "id": "clue_lz_bell_countdown", "name": "钟面的倒计时" }
+          }
+        },
+        {
+          "id": "lz_d002_enter",
+          "label": "爬进钟的内部",
+          "text": "你趴在地上，把头伸进了钟的内部虚空。\n\n\\*\\*\\*\n\n\\- 你看到了无穷远的星空\n\\- 星空的中心有一个黑点\n\\- 黑点在呼吸\n\\- 它呼吸的时候，整个星空在膨胀和收缩\n\\- 然后你听到了声音\n\\- 不是从耳朵里听到的\n\\- 是从骨头里听到的\n\\- 它在说一个字\n\\- 你听不懂\n\\- 但你知道\n\\- 它在叫你的名字\n\n\\*\\*\\*\n\n你缩回了头。大口喘着气。\n\n钟的虚空现在已经恢复了平静。\n\n但你知道——它记得你。",
+          "effects": {
+            "san": -3,
+            "add_clue": { "id": "clue_lz_void_entity", "name": "钟内虚空中的存在" },
+            "add_run_memory": "钟的内部是一片虚空。虚空中有某种东西在呼吸，叫了你的名字。"
+          }
+        },
+        {
+          "id": "lz_d002_leave",
+          "label": "离开，不再靠近",
+          "text": "你绕着钟楼走了一圈，然后离开了。\n\n背后的钟楼没有发出任何声音。\n\n但当你走到石径尽头的时候，你听到了身后的一声轻响。\n\n叮——\n\n很短的一声。像有人在很远的地方碰了一下钟的边缘。\n\n你没有回头。",
+          "effects": {
+            "san": -1,
+            "add_run_memory": "钟楼的钟似乎是活的。你离开时它响了一声。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lz_deep_003",
+      "name": "废弃的灯塔管理所",
+      "type": "area_deep",
+      "subtype": "lighthouse_zone",
+      "weight": 1,
+      "tier": "normal",
+      "quality_tier": "B",
+      "tags": ["ugc", "area_deep", "lighthouse_zone", "investigation", "documents", "mod_lz"],
+      "trigger": {
+        "areas": ["lighthouse_zone"],
+        "probability": 0.16,
+        "once_per_run": true
+      },
+      "description": "广场旁边有一栋保存相对完好的建筑。门上的牌子还能辨认：\n\n「沃切斯特灯塔管理所」\n\n门没锁。你推开门，里面的空气沉淀了三年。\n\n桌子上有一叠文件。你翻了翻——是灯塔的维护记录。\n\n前几页是正常的。油料补充、灯泡更换、定期检查。\n\n但从一九九三年七月开始，记录变了。\n\n「灯光的颜色变化异常。已报告上级。」\n「七月二十三日。灯光变绿。持续时间七分钟。已通知海岸警卫队。」\n「七月二十四日。灯光恢复正常。灯室门无法打开。从内部反锁。」\n\n最后一页的日期是七年前。墨水已经褪色了。\n\n「 lighthouse keeper 失踪。灯室门从外部打开。内部无人。」",
+      "effects": {
+        "add_clue": { "id": "clue_lz_keep_records", "name": "灯塔管理所的记录" },
+        "add_clue": { "id": "clue_lz_keeper_missing", "name": "看 manager 失踪记录" },
+        "mythos": 1
+      },
+      "choices": [
+        {
+          "id": "lz_d003_photo",
+          "label": "仔细检查桌子上的物品",
+          "text": "桌子的抽屉没有上锁。\n\n里面有一张照片。黑白照片。上面是三个人——两个男人和一个女人，站在灯塔前面。\n\n其中一个男人的手里拿着和灯塔看守人一样的煤油灯。\n\n照片的背面写着：\n\n「 lighthouse keeper's family. July 1893.」\n\n照片里的看守人和你在码头见到的那个人长得一样。\n\n但照片的日期是一八九三年。\n\n一百三十三年前。",
+          "effects": {
+            "add_clue": { "id": "clue_lz_old_photo", "name": "一百三十三年前的照片" },
+            "san": -2,
+            "add_run_memory": "灯塔看守人在一百三十三年前的照片里出现过。他到底是什么？"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lz_deep_004",
+      "name": "灯塔区的夜晚",
+      "type": "silent",
+      "subtype": "lighthouse_zone",
+      "weight": 0.7,
+      "tier": "normal",
+      "quality_tier": "B",
+      "tags": ["ugc", "silent", "lighthouse_zone", "atmosphere", "mod_lz"],
+      "trigger": {
+        "areas": ["lighthouse_zone"],
+        "probability": 0.1,
+        "time_phase": ["midnight"],
+        "once_per_run": true
+      },
+      "description": "深夜的废弃灯塔区很安静。\n\n不是没有声音的安静——是有很多声音的安静。风穿过废墟的缝隙、远处海浪拍打岩石、某个地方的水管在滴水。\n\n但这些声音融合在一起，形成了一种更低频的振动。你能感觉到它穿过鞋底、穿过骨骼。\n\n灯塔的绿光从高处照下来。光柱扫过废弃的建筑，每一栋建筑的影子都被拉得很长很长。\n\n当你仔细看的时候——那些影子在动。\n\n不是被风吹的。它们在自己的节奏里移动。像是在……做什么事情。\n\n你不敢再看。",
+      "effects": {
+        "san": -1,
+        "light": -1,
+        "add_clue": { "id": "clue_lz_night_shadows", "name": "夜里的移动影子" }
+      },
+      "choices": []
+    },
+    {
+      "id": "lz_resource_001",
+      "name": "废弃仓库的物资",
+      "type": "resource_pressure",
+      "subtype": "lighthouse_zone",
+      "weight": 0.8,
+      "tier": "normal",
+      "quality_tier": "B",
+      "tags": ["ugc", "resource", "lighthouse_zone", "mod_lz"],
+      "trigger": {
+        "areas": ["lighthouse_zone"],
+        "probability": 0.2,
+        "once_per_run": true
+      },
+      "description": "你在一栋半塌的建筑里发现了一个被砖石堵住的房间。\n\n你花了十分钟清理出了一条通道。\n\n房间里堆满了物资——罐头食品、蜡烛、急救用品、甚至还有一些书籍。像是有人提前储备的。\n\n但最近的一罐食品的日期是三年半以前。\n\n有人在这里生活过。在灯塔熄灭之后。\n\n然后突然消失了。",
+      "effects": {
+        "food": 3,
+        "money": 2,
+        "add_clue": { "id": "clue_lz_supplies", "name": "废弃仓库中的储备物资" }
+      },
+      "choices": [
+        {
+          "id": "lz_r001_search",
+          "label": "彻底搜索",
+          "text": "你在房间的更深处发现了一个暗格。\n\n暗格里有一个笔记本。封面上写着「灯塔日志」。\n\n你翻开了最近的一页——三年前的最后一条记录：\n\n「灯灭了。灯塔 keeper 也消失了。我在门后面听到声音。不是人的声音。\n\n我在这里写下这些，万一有人能找到。\n\n灯塔里有一个门。灯室的后面。门没有锁。\n\n我打开了。\n\n我不该打开的。」\n\n记录到此为止。",
+          "effects": {
+            "add_clue": { "id": "clue_lz_lighthouse_log", "name": "灯塔管理日志" },
+            "add_run_memory": "灯塔管理日志的最后一页写着：灯塔里有一个门，写日志的人打开了它，然后记录就中断了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lz_resource_002",
+      "name": "阴影中的低语",
+      "type": "resource_pressure",
+      "subtype": "lighthouse_zone",
+      "weight": 0.6,
+      "tier": "rare",
+      "quality_tier": "A",
+      "tags": ["ugc", "resource", "lighthouse_zone", "fear", "mod_lz"],
+      "trigger": {
+        "areas": ["lighthouse_zone"],
+        "probability": 0.12,
+        "once_per_run": true,
+        "san_lte": 50
+      },
+      "description": "你在废墟中穿行时，听到了低语。\n\n不是从耳朵里听到的。是从某个地方直接进入你的意识。\n\n声音很轻，但内容清晰：\n\n「灯灭的地方，有门。门后面有答案。但答案的重量会压碎你。」\n\n你站住了。声音来自四面八方。\n\n不是从废墟的某个地方发出来的。是从废墟本身。\n\n这些废弃的建筑在对你说话。",
+      "effects": {
+        "san": -2,
+        "add_clue": { "id": "clue_lz_ruins_speak", "name": "废墟的低语" }
+      },
+      "choices": [
+        {
+          "id": "lz_r002_listen",
+          "label": "尝试听清更多",
+          "text": "你闭上眼睛，让声音进来。\n\n更多的碎片：\n\n「 lighthouse keeper 不是第一个人。」\n「上一个 keeper 在门里面。」\n「门需要钥匙。」\n「钥匙在灯塔的顶部。」\n「但灯塔顶部的灯……需要人。」\n\n最后一个声音说：\n\n「 you are the next keeper.」\n\n你睁开了眼睛。\n\n周围的废墟安静了。\n\n但你脑子里有一个想法，不是你的：\n\n lighthouse needs you.",
+          "effects": {
+            "san": -3,
+            "add_clue": { "id": "clue_lz_key_location", "name": "钥匙在灯塔顶部" },
+            "add_flag": "flag_lz_heard_whispers"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lz_deep_005",
+      "name": "灯塔底部的铭文",
+      "type": "area_deep",
+      "subtype": "lighthouse_zone",
+      "weight": 0.9,
+      "tier": "normal",
+      "quality_tier": "A",
+      "tags": ["ugc", "area_deep", "lighthouse_zone", "investigation", "mod_lz"],
+      "trigger": {
+        "areas": ["lighthouse_zone"],
+        "probability": 0.15,
+        "once_per_run": true
+      },
+      "description": "灯塔的底部基座上有大量的铭文。\n\n不是刻的——是某种深色的物质从石缝中渗透出来，然后在表面凝固成的文字。\n\n你凑近看。字迹古老，但你能认出其中一部分：\n\n「I AM THE LIGHTHOUSE. THE LIGHTHOUSE IS ME.」\n\n「灯灭之时，门开之时。」\n\n「 keeper 以身为蜡，以魂为芯。」\n\n最后一行是最清楚的：\n\n「 NOT ALL WHO WANDER ARE LOST. SOME ARE WAITING.」",
+      "effects": {
+        "add_clue": { "id": "clue_lz_base_inscription", "name": "灯塔基座的铭文" },
+        "mythos": 2,
+        "san": -1
+      },
+      "choices": [
+        {
+          "id": "lz_d005_trace",
+          "label": "用手触摸铭文",
+          "text": "你的手指碰到了黑色的文字。\n\n文字在你的触碰下融化了。不是被擦掉——是像蜡一样融化，顺着石壁流了下来。\n\n融化后的液体是温热的。颜色是深绿色——和灯塔的光一样。\n\n液体流到地面后，汇聚成了一句话：\n\n「 THANK YOU.」\n\n然后蒸发了。\n\n灯塔的绿光闪烁了一下。像是一个信号。",
+          "effects": {
+            "add_clue": { "id": "clue_lz_thanks", "name": "灯塔说谢谢" },
+            "add_flag": "flag_lz_touched_inscription"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lz_deep_006",
+      "name": "十字路口的选择",
+      "type": "area_deep",
+      "subtype": "lighthouse_zone",
+      "weight": 0.8,
+      "tier": "rare",
+      "quality_tier": "A",
+      "tags": ["ugc", "area_deep", "lighthouse_zone", "choice", "mod_lz"],
+      "trigger": {
+        "areas": ["lighthouse_zone"],
+        "probability": 0.14,
+        "once_per_run": true,
+        "requires_clues": ["clue_lz_fountain_text", "clue_lz_base_inscription"]
+      },
+      "description": "废弃区的中心是一个十字路口。四条路分别通向：\n\n\\- 钟楼（你见过的）\n\\- 灯塔底部（看守人待的地方）\n\\- 一片浓密的树林\n\\- 一个你无法辨认方向的地方\n\n路口有一块石碑。石碑上刻着四个方向的标记。\n\n但石碑的背面还有一行小字：\n\n「选择你的道路。但记住——每一条路都通向同一个地方。」\n\n你看了看四个方向。每一条路上都有灯光。但不是同一种光。\n\n钟楼方向——没有光。\n灯塔方向——绿色的光。\n树林方向——琥珀色的光。\n第四个方向——白光。纯粹的、不真实的白色。",
+      "effects": {
+        "add_clue": { "id": "clue_lz_crossroads", "name": "废弃区的十字路口" }
+      },
+      "choices": [
+        {
+          "id": "lz_d006_lighthouse",
+          "label": "走向灯塔",
+          "text": "你走向灯塔的方向。\n\n看守人坐在台阶上。他听到了你的脚步声，但没有回头。\n\n「灯塔区的秘密你了解了一些，」他说。「还不够。灯塔的灯室后面还有一道门。」\n\n他看向你。\n\n「那扇门后面是什么——灯塔 keeper 也不知道。 lighthouse keeper 的责任是守着灯。不是守着门。」\n\n他递给你一块石头。\n\n「拿着这个。当你准备好面对门的时候——用它。」\n\n石头很轻。像泡沫塑料一样轻。\n但你知道——它不应该是这么轻的。",
+          "effects": {
+            "add_item": { "id": "item_lz_key_stone", "name": "灯塔钥匙石", "uses": 1 },
+            "add_clue": { "id": "clue_lz_door_behind", "name": "灯塔灯室后面的门" }
+          }
+        },
+        {
+          "id": "lz_d006_forest",
+          "label": "走向树林",
+          "text": "你走向琥珀色光芒的方向。\n\n那是一小片树林。树很小——不是自然生长的尺寸。像是被什么东西压制着长不大的。\n\n树之间有一些奇怪的织物。不是蜘蛛网——更大、更厚重。像是一种生物的分泌物。\n\n树林深处有一口水井。\n\n井的周围没有草。井壁上的苔藓呈现出一种不自然的蓝色。\n\n你往井里看。\n\n井底不是水——是星空。\n\n你后退了一步。确认了一下——井还在。没有变大。没有变成传送门。\n\n但井底确实有星星。",
+          "effects": {
+            "add_clue": { "id": "clue_lz_well_stars", "name": "井底的星空" },
+            "san": -1,
+            "add_run_memory": "废弃区的树林里有一口水井，井底是星空。"
+          }
+        },
+        {
+          "id": "lz_d006_white",
+          "label": "走向白光",
+          "text": "你走向白光的方向。\n\n白光越来越亮。不是刺眼——是太纯净了，纯净到你觉得自己在消失。\n\n你停下脚步。白光也停住了。\n\n白光中有声音。不，不是声音。是一种……意念。\n\n它在传递一个概念：\n\n「 THIS PLACE IS BETWEEN. NOT HERE. NOT THERE. 」\n\n「 EVERY DOOR LEADS TO THE SAME ROOM. 」\n\n「 THE LIGHTHOUSE IS THE LOCK. THE KEEPER IS THE KEY. 」\n\n然后白光突然熄灭了。\n\n你站在原地。什么都没有了。\n\n但你的口袋里多了一样东西。\n\n一片白色的羽毛。\n\n不是任何已知鸟类的羽毛。太完美了。完美得不真实。",
+          "effects": {
+            "add_item": { "id": "item_lz_white_feather", "name": "白色的羽毛", "uses": 1 },
+            "add_clue": { "id": "clue_lz_white_light", "name": "白光中的启示" },
+            "san": -2
+          }
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "tags": ["area_expansion", "lighthouse", "story-rich", "multi-path"],
+    "estimated_playtime": "30-45 min",
+    "new_area_id": "lighthouse_zone",
+    "connected_area": "harbor_district",
+    "event_count_by_type": {
+      "exploration": 1,
+      "area_deep": 5,
+      "resource_pressure": 2,
+      "silent": 1
+    }
+  }
+}

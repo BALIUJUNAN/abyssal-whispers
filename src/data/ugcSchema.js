@@ -24,10 +24,14 @@ export const LIMITS = {
   MAX_TEXT_CHARS: 1500,
   MAX_LABEL_CHARS: 60,
   MAX_MODS_TOTAL: 20,
+  MAX_NPCS_PER_MOD: 8,
+  MAX_ITEMS_PER_MOD: 12,
+  MAX_AREAS_PER_MOD: 4,
+  MAX_ENDINGS_PER_MOD: 4,
 };
 
 // Keys allowed inside an event's `effects` object (top-level)
-const EFFECTS_KEYS_WHITELIST = new Set([
+export const EFFECTS_KEYS_WHITELIST = new Set([
   'san',
   'hp',
   'maxHp',
@@ -70,6 +74,10 @@ const CHOICE_EFFECTS_KEYS_WHITELIST = new Set([
   'money',
   'light',
   'skill',
+  'add_run_memory',
+  'modify_humanity',
+  'modify_mythos',
+  'modify_safehouse_corruption',
 ]);
 
 // Allowed event types
@@ -94,6 +102,22 @@ const VALID_TIERS = new Set(['common', 'normal', 'rare', 'epic', 'unique', 'sign
 
 // Allowed trigger time phases
 const VALID_TIME_PHASES = new Set(['morning', 'afternoon', 'evening', 'midnight']);
+
+// Allowed item types (for mod-defined items)
+const ITEM_TYPES = new Set(['tool', 'consumable', 'weapon', 'key', 'clue', 'ritual', 'food', 'light']);
+
+// Allowed area types (for mod-defined areas)
+const AREA_TYPES = new Set(['town', 'dungeon', 'wilderness', 'water', 'indoor', 'safehouse']);
+
+// Allowed ending condition types (for mod-defined endings)
+const VALID_ENDING_COND_TYPES = new Set([
+  'has_flag', 'has_clue', 'has_item',
+  'san_lte', 'san_gte', 'san_lt', 'san_gt',
+  'humanity_lte', 'humanity_gte',
+  'loop_gte', 'mythos_gte',
+  'npc_trust_gte', 'in_area',
+  'and', 'or', 'not',
+]);
 
 // Allowed area IDs (from base game)
 const VALID_AREA_IDS = new Set([
@@ -576,6 +600,7 @@ function sanitizeChoices(choices) {
 export function validateMod(raw) {
   const errors = [];
   const warnings = [];
+  const validation = {};
 
   // ── Security scan ──
   const security = scanForDanger(raw, 'mod');
@@ -633,12 +658,68 @@ export function validateMod(raw) {
     warnings.push('mod.metadata: ignored (not an object)');
   }
 
-  // ── Optional fields type checks ──
+  // ── NPCs ──
   if (raw.npcs && !Array.isArray(raw.npcs)) {
-    warnings.push('mod.npcs: ignored (not an array)');
+    errors.push('mod.npcs: must be an array');
+  } else if (raw.npcs) {
+    if (raw.npcs.length > LIMITS.MAX_NPCS_PER_MOD)
+      errors.push('mod.npcs: exceeds max ' + LIMITS.MAX_NPCS_PER_MOD);
+    var sn = []; var snIds = {};
+    raw.npcs.forEach(function (n, i) {
+      var r = validateNpc(n, i);
+      if (!r.valid) { errors.push.apply(errors, r.errors); return; }
+      if (snIds[r.sanitized.id]) errors.push('npc[' + i + ']: duplicate ID "' + r.sanitized.id + '"');
+      else { snIds[r.sanitized.id] = true; sn.push(r.sanitized); }
+    });
+    validation._sn = sn;
   }
+
+  // ── Items ──
+  if (raw.items && !Array.isArray(raw.items)) {
+    errors.push('mod.items: must be an array');
+  } else if (raw.items) {
+    if (raw.items.length > LIMITS.MAX_ITEMS_PER_MOD)
+      errors.push('mod.items: exceeds max ' + LIMITS.MAX_ITEMS_PER_MOD);
+    var si = []; var siIds = {};
+    raw.items.forEach(function (it, i) {
+      var r = validateItem(it, i);
+      if (!r.valid) { errors.push.apply(errors, r.errors); return; }
+      if (siIds[r.sanitized.id]) errors.push('item[' + i + ']: duplicate ID "' + r.sanitized.id + '"');
+      else { siIds[r.sanitized.id] = true; si.push(r.sanitized); }
+    });
+    validation._si = si;
+  }
+
+  // ── Areas ──
   if (raw.areas && !Array.isArray(raw.areas)) {
-    warnings.push('mod.areas: ignored (not an array)');
+    errors.push('mod.areas: must be an array');
+  } else if (raw.areas) {
+    if (raw.areas.length > LIMITS.MAX_AREAS_PER_MOD)
+      errors.push('mod.areas: exceeds max ' + LIMITS.MAX_AREAS_PER_MOD);
+    var sa = []; var saIds = {};
+    raw.areas.forEach(function (a, i) {
+      var r = validateArea(a, i);
+      if (!r.valid) { errors.push.apply(errors, r.errors); return; }
+      if (saIds[r.sanitized.id]) errors.push('area[' + i + ']: duplicate ID "' + r.sanitized.id + '"');
+      else { saIds[r.sanitized.id] = true; sa.push(r.sanitized); }
+    });
+    validation._sa = sa;
+  }
+
+  // ── Endings ──
+  if (raw.endings && !Array.isArray(raw.endings)) {
+    errors.push('mod.endings: must be an array');
+  } else if (raw.endings) {
+    if (raw.endings.length > LIMITS.MAX_ENDINGS_PER_MOD)
+      errors.push('mod.endings: exceeds max ' + LIMITS.MAX_ENDINGS_PER_MOD);
+    var se = []; var seIds = {};
+    raw.endings.forEach(function (e, i) {
+      var r = validateEnding(e, i);
+      if (!r.valid) { errors.push.apply(errors, r.errors); return; }
+      if (seIds[r.sanitized.id]) errors.push('ending[' + i + ']: duplicate ID "' + r.sanitized.id + '"');
+      else { seIds[r.sanitized.id] = true; se.push(r.sanitized); }
+    });
+    validation._se = se;
   }
 
   if (errors.length > 0) {
@@ -663,6 +744,10 @@ export function validateMod(raw) {
     version: raw.version,
     compatibility: raw.compatibility || null,
     events: sanitizedEvents,
+    npcs: validation._sn || [],
+    items: validation._si || [],
+    areas: validation._sa || [],
+    endings: validation._se || [],
     metadata: raw.metadata && typeof raw.metadata === 'object' ? raw.metadata : {},
     createdAt: raw.createdAt || new Date().toISOString(),
     enabled: true,
@@ -691,6 +776,177 @@ export function prefixEventIds(events, modId) {
     }
   }
   return events;
+}
+
+// ── Extended Entity Validators (NPC / Item / Area / Ending) ──
+
+/**
+ * Validate a single mod NPC definition.
+ */
+export function validateNpc(raw, index) {
+  var p = 'npc[' + index + ']';
+  var errs = [];
+  var sec = scanForDanger(raw, p);
+  if (!sec.safe) return { valid: false, errors: sec.violations, sanitized: null };
+  errs.push(...validateId(raw.id, p + '.id', LIMITS.MAX_ID_CHARS));
+  errs.push(...validateStringField(raw.name, p + '.name', LIMITS.MAX_NAME_CHARS, true));
+  errs.push(...validateStringField(raw.location, p + '.location', 40, true));
+  if (raw.portrait_hint && typeof raw.portrait_hint !== 'string')
+    errs.push(p + '.portrait_hint: must be string');
+  if (raw.trust_layers && !Array.isArray(raw.trust_layers))
+    errs.push(p + '.trust_layers: must be array');
+  if (errs.length) return { valid: false, errors: errs, sanitized: null };
+  return {
+    valid: true, errors: [],
+    sanitized: {
+      id: raw.id, name: raw.name, location: raw.location,
+      trust_layers: raw.trust_layers || ['standard'],
+      portrait_hint: raw.portrait_hint || '',
+      aliases: raw.aliases || [],
+      personality: raw.personality || '',
+      background: raw.background || '',
+      _ugcModId: raw._ugcModId,
+    },
+  };
+}
+
+/**
+ * Validate a single mod item definition.
+ */
+export function validateItem(raw, index) {
+  var p = 'item[' + index + ']';
+  var errs = [];
+  var sec = scanForDanger(raw, p);
+  if (!sec.safe) return { valid: false, errors: sec.violations, sanitized: null };
+  errs.push(...validateId(raw.id, p + '.id', LIMITS.MAX_ID_CHARS));
+  errs.push(...validateStringField(raw.name, p + '.name', LIMITS.MAX_NAME_CHARS, true));
+  if (!ITEM_TYPES.has(raw.type)) errs.push(p + '.type: invalid "' + raw.type + '"');
+  errs.push(...validateNumberField(raw.uses, p + '.uses', { min: -1, integer: true }));
+  if (raw.effects && !Array.isArray(raw.effects)) errs.push(p + '.effects: must be array');
+  if (errs.length) return { valid: false, errors: errs, sanitized: null };
+  return {
+    valid: true, errors: [],
+    sanitized: {
+      id: raw.id, name: raw.name, type: raw.type || 'tool',
+      uses: typeof raw.uses === 'number' ? raw.uses : 1,
+      consume_on_use: !!raw.consume_on_use,
+      effects: raw.effects || [],
+      use_hint: raw.use_hint || '', use_text: raw.use_text || '',
+      description: raw.description || '',
+      _ugcModId: raw._ugcModId,
+    },
+  };
+}
+
+/**
+ * Validate a single mod area definition.
+ */
+export function validateArea(raw, index) {
+  var p = 'area[' + index + ']';
+  var errs = [];
+  var sec = scanForDanger(raw, p);
+  if (!sec.safe) return { valid: false, errors: sec.violations, sanitized: null };
+  errs.push(...validateId(raw.id, p + '.id', LIMITS.MAX_ID_CHARS));
+  errs.push(...validateStringField(raw.name, p + '.name', LIMITS.MAX_NAME_CHARS, true));
+  errs.push(...validateStringField(raw.description, p + '.description', 500, true));
+  if (raw.connected_areas && !Array.isArray(raw.connected_areas))
+    errs.push(p + '.connected_areas: must be array');
+  if (raw.type && !AREA_TYPES.has(raw.type))
+    errs.push(p + '.type: invalid "' + raw.type + '"');
+  if (errs.length) return { valid: false, errors: errs, sanitized: null };
+  return {
+    valid: true, errors: [],
+    sanitized: {
+      id: raw.id, name: raw.name, description: raw.description,
+      type: raw.type || 'town', connected_areas: raw.connected_areas || [],
+      danger_level: raw.danger_level || 1,
+      chapter_unlock: raw.chapter_unlock || 'chapter_1',
+      hidden_features: raw.hidden_features || [],
+      layout_variants: raw.layout_variants || [],
+      resource_pressure: raw.resource_pressure || {},
+      events: raw.events || [],
+      _ugcModId: raw._ugcModId,
+    },
+  };
+}
+
+/**
+ * Validate a single mod ending definition.
+ */
+export function validateEnding(raw, index) {
+  var p = 'ending[' + index + ']';
+  var errs = [];
+  var sec = scanForDanger(raw, p);
+  if (!sec.safe) return { valid: false, errors: sec.violations, sanitized: null };
+  errs.push(...validateId(raw.id, p + '.id', LIMITS.MAX_ID_CHARS));
+  errs.push(...validateStringField(raw.name, p + '.name', LIMITS.MAX_NAME_CHARS, true));
+  if (raw.conditions && !Array.isArray(raw.conditions))
+    errs.push(p + '.conditions: must be array');
+  if (raw.conditions) {
+    raw.conditions.forEach(function (c, i) {
+      if (!c || typeof c !== 'object') { errs.push(p + '.conditions[' + i + ']: must be object'); return; }
+      if (c.type && !VALID_ENDING_COND_TYPES.has(c.type))
+        errs.push(p + '.conditions[' + i + '].type: invalid "' + c.type + '"');
+    });
+  }
+  if (raw.humanity_variants) {
+    ['humanity_high', 'humanity_fragile', 'humanity_lost'].forEach(function (k) {
+      if (typeof raw.humanity_variants[k] !== 'string')
+        errs.push(p + '.humanity_variants.' + k + ': required string');
+    });
+  }
+  if (errs.length) return { valid: false, errors: errs, sanitized: null };
+  return {
+    valid: true, errors: [],
+    sanitized: {
+      id: raw.id, name: raw.name,
+      world_outcome: raw.world_outcome || 'custom_ending',
+      cost_bearer: raw.cost_bearer || 'player',
+      conditions: raw.conditions || [],
+      blocking_conds: raw.blocking_conds || [],
+      npc_requirements: raw.npc_requirements || {},
+      resource_requirements: raw.resource_requirements || {},
+      humanity_variants: raw.humanity_variants || {},
+      description: raw.description || '',
+      priority: raw.priority || 500,
+      _ugcModId: raw._ugcModId,
+    },
+  };
+}
+
+// ── Conflict Detection & Prefix Helpers (NPC / Item / Area / Ending) ──
+
+export function findNpcConflicts(modNpcs, existing) {
+  var ids = {};
+  existing.forEach(function (n) { ids[n.id] = true; });
+  return modNpcs.filter(function (n) { return ids[n.id]; }).map(function (n) { return n.id; });
+}
+export function prefixNpcIds(npcs, modId) {
+  npcs.forEach(function (n) { if (!n.id.startsWith(modId + '__')) n.id = modId + '__' + n.id; });
+}
+export function findItemConflicts(modItems, existing) {
+  var ids = {};
+  existing.forEach(function (i) { ids[i.id] = true; });
+  return modItems.filter(function (i) { return ids[i.id]; }).map(function (i) { return i.id; });
+}
+export function prefixItemIds(items, modId) {
+  items.forEach(function (i) { if (!i.id.startsWith(modId + '__')) i.id = modId + '__' + i.id; });
+}
+export function findAreaConflicts(modAreas, existing) {
+  var ids = {};
+  existing.forEach(function (a) { ids[a.id] = true; });
+  return modAreas.filter(function (a) { return ids[a.id]; }).map(function (a) { return a.id; });
+}
+export function prefixAreaIds(areas, modId) {
+  areas.forEach(function (a) { if (!a.id.startsWith(modId + '__')) a.id = modId + '__' + a.id; });
+}
+export function findEndingConflicts(modEndings, existing) {
+  var ids = {};
+  existing.forEach(function (e) { ids[e.id] = true; });
+  return modEndings.filter(function (e) { return ids[e.id]; }).map(function (e) { return e.id; });
+}
+export function prefixEndingIds(endings, modId) {
+  endings.forEach(function (e) { if (!e.id.startsWith(modId + '__')) e.id = modId + '__' + e.id; });
 }
 
 /**

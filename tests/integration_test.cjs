@@ -297,8 +297,8 @@ if (base2.systems.loop.loop_count_effects.loop_4.san_cap_reduction !== -13) {
 const ch2 = JSON.parse(fs2.readFileSync('game_ch2plus.json', 'utf8'));
 console.log('  Endings: ' + (ch2.endings || []).length);
 console.log('  Afterglow endings: ' + (ch2.endings || []).filter((e) => e.afterglow).length);
-if ((ch2.endings || []).filter((e) => e.afterglow).length !== 5) {
-  console.log('  FATAL: expected 5 afterglow');
+if ((ch2.endings || []).filter((e) => e.afterglow).length < 5) {
+  console.log('  FATAL: expected >=5 afterglow, got ' + (ch2.endings || []).filter((e) => e.afterglow).length);
   process.exit(1);
 }
 

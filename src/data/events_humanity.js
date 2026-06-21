@@ -28,6 +28,12 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -45,6 +51,12 @@ export const events = [
     effects: { add_clue: 'clue_humanity_child_message' },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -68,6 +80,12 @@ export const events = [
     effects: { food: 1, san: 2, add_run_memory: { text: '玛莎给你盛了一碗热汤。' } },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -88,6 +106,12 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -105,6 +129,12 @@ export const events = [
     effects: { san: 3, add_run_memory: { text: '在教堂得到了短暂的庇护。' } },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -122,6 +152,12 @@ export const events = [
     effects: { food: 2, hp: 1, add_run_memory: { text: '有人在安全屋门口留了补给。' } },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -148,6 +184,12 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -165,6 +207,12 @@ export const events = [
     effects: { add_clue: 'clue_humanity_docker_tip' },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -191,6 +239,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -208,6 +262,12 @@ export const events = [
     effects: { food: 1, san: 2 },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -235,6 +295,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -252,6 +318,12 @@ export const events = [
     effects: { food: 2, hp: 2, add_run_memory: { text: '镇民集体为你提供了补给。' } },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -269,6 +341,12 @@ export const events = [
     effects: { san: 2, add_run_memory: { text: '收到一幅孩子的画。' } },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -292,6 +370,12 @@ export const events = [
     effects: { san: 3, add_run_memory: { text: '伊莎贝拉为你祈福。' } },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
   {
@@ -318,6 +402,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
+      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
+      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
+    },
     choices: [],
   },
 
@@ -339,6 +429,12 @@ export const events = [
     effects: { food: -1, add_run_memory: { text: '镇民因为你的恶行拒绝正常交易。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -356,6 +452,12 @@ export const events = [
     effects: { san: -1, add_run_memory: { text: '教堂拒绝你进入。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -373,6 +475,12 @@ export const events = [
     effects: { hp: -1, san: -1, add_run_memory: { text: '镇上的孩子向你投掷石块。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -396,6 +504,12 @@ export const events = [
     effects: { npc_trust: { '汤米·陈': -1 } },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -419,6 +533,12 @@ export const events = [
     effects: { npc_trust: { '玛莎·格雷': -1 }, add_run_memory: { text: '酒吧里的人集体回避你。' } },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -441,6 +561,12 @@ export const events = [
     effects: { san: -2, add_run_memory: { text: '有人在跟踪你。手里拿着刀。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -462,6 +588,12 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -485,6 +617,12 @@ export const events = [
     effects: { san: -1, add_run_memory: { text: '伊莱亚斯警告你正在堕落。' } },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -502,6 +640,12 @@ export const events = [
     effects: { add_run_memory: { text: '商店拒绝卖东西给你。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -519,6 +663,12 @@ export const events = [
     effects: { san: -2, add_run_memory: { text: '镇民试图围捕你。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -540,6 +690,12 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -557,6 +713,12 @@ export const events = [
     effects: { san: -2, add_run_memory: { text: '你被彻底孤立了。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -580,6 +742,12 @@ export const events = [
     effects: { npc_trust: { 老费舍: -1 }, add_run_memory: { text: '老费舍完全无视了你。' } },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -603,6 +771,12 @@ export const events = [
     effects: { san: -1, add_run_memory: { text: '埃德加说你不再是一个值得书写的人。' } },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
   {
@@ -629,6 +803,12 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '后果在膨胀。\n你过去的恶行像回旋镖一样回来了。\n每一个被你伤害过的人都变成了阴影中的眼睛。\n他们在看着你。不是仇恨——是失望。\n那种失望比仇恨更让你不安。',
+      corruption_high: '环境在呼应你的恶。\n墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n你经过的地方，阴影似乎变得更浓。\n不是光线变暗了——是你在把光带走。\n你留下的只有暗色的痕迹。',
+      loop_3_plus: '你又回到了同一个场景。\n上次你选择了恶。这次呢？\n循环在测试你——不是测试你是否记得，\n而是测试你是否愿意改变。\n但改变需要先承认错误。而承认错误比走同一条路更难。',
+    },
     choices: [],
   },
 
@@ -657,6 +837,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '把食物分给他',
@@ -705,6 +890,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '用急救包帮他',
@@ -753,6 +943,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '拿走食物和药品',
@@ -801,6 +996,11 @@ export const events = [
     effects: { add_clue: 'clue_humanity_informant' },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '承诺保密',
@@ -840,6 +1040,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '撞开门救人',
@@ -879,6 +1084,11 @@ export const events = [
     effects: { add_clue: 'clue_humanity_secret_cost' },
     event_classification: '调查',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '保密，独自调查',
@@ -918,6 +1128,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '把药品给孩子',
@@ -962,6 +1177,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '拒绝出卖',
@@ -1004,6 +1224,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '保持沉默',
@@ -1047,6 +1272,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+    },
     choices: [
       {
         label: '选择安全的路',
@@ -1084,6 +1314,11 @@ export const events = [
     effects: { san: 3, add_run_memory: { text: '镇民集体向你表示信任。' } },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1106,6 +1341,11 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1123,6 +1363,11 @@ export const events = [
     effects: { san: 5, food: 3, add_run_memory: { text: '镇民主动组队来帮助你。' } },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1140,6 +1385,11 @@ export const events = [
     effects: { san: -3, add_run_memory: { text: '镇民投票决定驱逐你。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1157,6 +1407,11 @@ export const events = [
     effects: { san: -3, hp: -1, add_run_memory: { text: '镇民试图围捕你。你勉强逃脱。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1178,6 +1433,11 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1195,6 +1455,11 @@ export const events = [
     effects: { san: -2, add_run_memory: { text: '镇民在你面前集体恐惧退缩。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1222,6 +1487,11 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
 
@@ -1250,6 +1520,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '交易正在进行。但你不知道交易的双方是谁。\n你觉得自己是买家，也觉得自己是商品。\n签契约的手在发抖——你不知道那是对方的手还是你的手。\n墨迹还没干。但你已经签了。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '接受仪式',
@@ -1291,6 +1566,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '交易正在进行。但你不知道交易的双方是谁。\n你觉得自己是买家，也觉得自己是商品。\n签契约的手在发抖——你不知道那是对方的手还是你的手。\n墨迹还没干。但你已经签了。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '同意交换血液',
@@ -1332,6 +1612,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '交易正在进行。但你不知道交易的双方是谁。\n你觉得自己是买家，也觉得自己是商品。\n签契约的手在发抖——你不知道那是对方的手还是你的手。\n墨迹还没干。但你已经签了。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '同意送信',
@@ -1371,6 +1656,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '交易正在进行。但你不知道交易的双方是谁。\n你觉得自己是买家，也觉得自己是商品。\n签契约的手在发抖——你不知道那是对方的手还是你的手。\n墨迹还没干。但你已经签了。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '答应调查',
@@ -1410,6 +1700,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '交易正在进行。但你不知道交易的双方是谁。\n你觉得自己是买家，也觉得自己是商品。\n签契约的手在发抖——你不知道那是对方的手还是你的手。\n墨迹还没干。但你已经签了。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '答应帮忙',
@@ -1448,6 +1743,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '交易正在进行。但你不知道交易的双方是谁。\n你觉得自己是买家，也觉得自己是商品。\n签契约的手在发抖——你不知道那是对方的手还是你的手。\n墨迹还没干。但你已经签了。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '交换故事',

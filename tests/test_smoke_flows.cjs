@@ -478,7 +478,7 @@ test('S9-3: applySanLoss records _lastSanLoss for UI feedback', () => {
 test('S9-4: firstLoopBalance is imported in exploreSlice.js', () => {
   const content = fs.readFileSync(path.join(ROOT, 'src/reducers/slices/exploreSlice.js'), 'utf8');
   assert.ok(content.includes("from '../../systems/firstLoopBalance.js'"), 'should import firstLoopBalance');
-  assert.ok(content.includes('adjustSanLossForFirstLoop'), 'should call adjustSanLossForFirstLoop');
+  assert.ok(content.includes('adjustSanLossForLoop23'), 'should call adjustSanLossForLoop23');
   assert.ok(content.includes('shouldBlockLethalEvent'), 'should call shouldBlockLethalEvent');
 });
 

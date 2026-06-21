@@ -129,7 +129,7 @@ var NPC_PERSONAS = {
  * @param {object} state - current game state
  * @returns {Promise<string|null>} enhanced dialogue or null
  */
-export async function generateNpcDialogue(npcName, topic, state) {
+export async function generateNpcDialogue(npcName, topic, state, signal) {
   if (!isGlmAvailable()) return null;
   var persona = NPC_PERSONAS[npcName] || (npcName + '是沃切斯特的居民。');
   var trust = (state.npcTrust || {})[npcName] || 0;
@@ -161,7 +161,7 @@ export async function generateNpcDialogue(npcName, topic, state) {
 
   var userPrompt = contextParts.join('\n') + '\n\n对话主题: ' + (topic || '日常问候') + '\n\n请生成' + npcName + '的对话。';
 
-  var result = await glmChat(userPrompt, { system: systemPrompt, temperature: 0.9, maxTokens: 256 });
+  var result = await glmChat(userPrompt, { system: systemPrompt, temperature: 0.9, maxTokens: 256, signal: signal });
   return result.ok && result.text ? result.text : null;
 }
 

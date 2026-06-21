@@ -1,5 +1,20 @@
 // src/state/difficultyState.js - 难度状态管理
-import { getDifficultyConfig, getProtectionMultiplier, getMaxSanLoss, getSafeZoneDays } from '../config/difficulty.js';
+import {
+  getDifficultyConfig,
+  getPhaseProtection,
+  getMaxSanLoss,
+  getSafeZoneDays,
+  getStartingFood,
+  getStartingAp,
+  getWorkIncomeMin,
+  getFoodPrice,
+  getNegativeEventWeight,
+  getEscapeReduction,
+  getUnlockedModifiers,
+  getDifficultyPhase,
+  getDifficultyPhaseLabel,
+  getDifficultySpecial,
+} from '../config/difficulty.js';
 
 const DIFFICULTY_STORAGE_KEY = 'coc_difficulty_level';
 
@@ -22,7 +37,6 @@ export function saveDifficulty(level) {
 
 export function applyDifficultyToState(state, difficultyLevel) {
   const config = getDifficultyConfig(difficultyLevel);
-  const protection = getProtectionMultiplier(difficultyLevel);
   const maxSanLoss = getMaxSanLoss(difficultyLevel);
   const safeZoneDays = getSafeZoneDays(difficultyLevel);
 
@@ -30,29 +44,42 @@ export function applyDifficultyToState(state, difficultyLevel) {
     ...state,
     difficultyLevel,
     difficultyName: config.name,
-    difficultyProtection: protection,
+    difficultyConfig: config,
     difficultyMaxSanLoss: maxSanLoss,
     difficultySafeZoneDays: safeZoneDays,
-    // 应用难度修正到SAN损失
-    _difficultySanMultiplier: protection,
-    _difficultyHpMultiplier: protection,
+    // 新增维度字段
+    difficultyStartingFood: getStartingFood(difficultyLevel),
+    difficultyStartingAp: getStartingAp(difficultyLevel),
+    difficultyWorkIncomeMin: getWorkIncomeMin(difficultyLevel),
+    difficultyFoodPrice: getFoodPrice(difficultyLevel),
+    difficultyNegativeEventWeight: getNegativeEventWeight(difficultyLevel),
+    difficultyEscapeReduction: getEscapeReduction(difficultyLevel),
+    difficultyPhase: getDifficultyPhase(difficultyLevel),
+    difficultyPhaseLabel: getDifficultyPhaseLabel(difficultyLevel),
+    difficultyUnlockedModifiers: getUnlockedModifiers(difficultyLevel),
+    difficultySpecial: getDifficultySpecial(difficultyLevel),
   };
 }
 
+/**
+ * 应用难度保护到伤害/损失值。
+ * 使用 getPhaseProtection 按 day 查阶段保护倍率，
+ * 安全区额外减半，最终限制在 difficultyMaxSanLoss 内。
+ */
 export function applyDifficultyProtection(loss, day, state) {
-  const protection = state.difficultyProtection || 1.0;
   const maxLoss = state.difficultyMaxSanLoss || 999;
   const safeZoneDays = state.difficultySafeZoneDays || 0;
+  const level = state.difficultyLevel || 1;
 
-  // 安全区期间减少损失
   if (day <= safeZoneDays) {
     loss = Math.max(1, Math.round(loss * 0.5));
   }
 
-  // 应用难度保护
-  loss = Math.max(1, Math.round(loss * protection));
+  if (day > safeZoneDays) {
+    const phaseProt = getPhaseProtection(level, day);
+    loss = Math.max(1, Math.round(loss * phaseProt));
+  }
 
-  // 限制最大损失
   return Math.min(loss, maxLoss);
 }
 
@@ -62,15 +89,16 @@ export function getDifficultyDisplayInfo(level) {
     level,
     name: config.name,
     description: config.description,
-    survival: config.survival,
-    days: config.days,
-    color: getDifficultyColor(level)
+    survival: config.expected_survival,
+    days: config.expected_days,
+    color: getDifficultyColor(level),
   };
 }
 
 function getDifficultyColor(level) {
   if (level <= 3) return '#4CAF50';
+  if (level <= 6) return '#66BB6A';
   if (level <= 9) return '#FF9800';
-  if (level <= 15) return '#F44336';
-  return '#9C27B0';
+  if (level <= 12) return '#F44336';
+  return '#1A1A2E';
 }

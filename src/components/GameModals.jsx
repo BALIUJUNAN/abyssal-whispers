@@ -1,6 +1,14 @@
 // src/components/GameModals.jsx - Modal components extracted from app.jsx
 // SettingsModal, SaveLoadModal, AchievementGallery
 import { Modal } from './GameCommon.jsx';
+import {
+  getAllSlots,
+  loadSlot,
+  manualSave,
+  exportSave,
+  exportSaveAsText,
+  importSave,
+} from '../engine/SaveManager.js';
 
 export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, onSaveOpen, onLoadOpen, dispatch }) {
   const update = (key, val) => onChange({ ...settings, [key]: val });
@@ -530,6 +538,14 @@ export function SaveLoadModal({ open, onClose, state, onLoad, mode, onSaved }) {
           }}
         >
           导出存档
+        </button>
+        <button
+          className="btn btn-sm save-io-btn save-io-btn-text"
+          onClick={() => {
+            exportSaveAsText();
+          }}
+        >
+          导出为文本
         </button>
         <label className="btn btn-sm save-io-btn">
           导入存档

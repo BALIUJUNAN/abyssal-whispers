@@ -20,6 +20,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '捡起来吃掉',
@@ -48,6 +53,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '拿两条鱼干',
@@ -87,6 +97,11 @@ export const events = [
     effects: {},
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '接受',
@@ -125,6 +140,11 @@ export const events = [
     effects: {},
     event_classification: '轻微异常',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '和猫对视',
@@ -153,6 +173,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '偷一些食物',
@@ -181,6 +206,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '分一半给他',
@@ -218,6 +248,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '试着钓鱼',
@@ -256,6 +291,11 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -273,6 +313,11 @@ export const events = [
     effects: { san: -2, hp: -1 },
     event_classification: '轻微异常',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -290,6 +335,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '交换',
@@ -322,6 +372,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '打开吃掉',
@@ -356,6 +411,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '乞讨',
@@ -395,6 +455,11 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -417,6 +482,11 @@ export const events = [
     effects: { hp: -2, san: -1, food: -1, add_run_memory: { text: '食物中毒，吐出了黑色液体。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -434,6 +504,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [
       {
         label: '吃掉',
@@ -466,6 +541,11 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '大声呼喊',
@@ -499,6 +579,11 @@ export const events = [
     effects: { san: -1 },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '节省电量',
@@ -530,6 +615,11 @@ export const events = [
     effects: { san: 1, add_clue: 'clue_resource_candle_message' },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -547,6 +637,11 @@ export const events = [
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '闭上眼睛',
@@ -602,6 +697,11 @@ export const events = [
     effects: { san: -1, add_item: { item_id: 'glowing_mushroom', name: '发光蘑菇', uses: 3 } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -619,6 +719,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '买灯油',
@@ -650,6 +755,11 @@ export const events = [
     effects: { san: 1, add_clue: 'clue_resource_torch_wall' },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -673,6 +783,11 @@ export const events = [
     effects: { san: -3, hp: -1 },
     event_classification: '怪物遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '保持不动',
@@ -704,6 +819,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [
       {
         label: '使用',
@@ -742,6 +862,11 @@ export const events = [
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
   {
@@ -765,6 +890,11 @@ export const events = [
     effects: { san: -2, add_clue: 'clue_resource_lighthouse_signal' },
     event_classification: '神秘事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_mid: '你注意到了一些以前没有注意到的细节。\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n你觉得它们在有节奏地跳动——像某种巨大的器官。',
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+    },
     choices: [],
   },
 
@@ -1079,6 +1209,11 @@ export const events = [
     effects: { san: -3, safehouseCorruption: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [
       {
         label: '把他赶出去',
@@ -1172,6 +1307,11 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1223,6 +1363,11 @@ export const events = [
     effects: { san: -3, safehouseCorruption: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1246,6 +1391,11 @@ export const events = [
     effects: { san: -3, safehouseCorruption: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1268,6 +1418,11 @@ export const events = [
     effects: { safehouseCorruption: -10, san: 2, add_run_memory: { text: '净化了安全屋。' } },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      corruption_high: '空气中弥漫着一种陌生的气味。\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
 
@@ -1295,6 +1450,11 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [
       {
         label: '朝声音走去',
@@ -1333,6 +1493,11 @@ export const events = [
     effects: { san: -3 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1356,6 +1521,11 @@ export const events = [
     effects: { san: -2 },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [
       {
         label: '跟着声音走',
@@ -1417,6 +1587,11 @@ export const events = [
     effects: { san: -2 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [
       {
         label: '朝灯光走去',
@@ -1451,6 +1626,11 @@ export const events = [
     effects: { san: -3, hp: -1 },
     event_classification: '怪物遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1474,6 +1654,11 @@ export const events = [
     effects: { hp: -2, san: -1, add_run_memory: { text: '在大雾中踩到了陷阱，扭伤了脚踝。' } },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
   {
@@ -1497,6 +1682,11 @@ export const events = [
     effects: { san: -3, mythos: 2, add_clue: 'clue_extreme_blood_moon_seal' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_8_plus: '你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\n你知道接下来会发生什么——但每次你都走同一条路。\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。',
+    },
     choices: [],
   },
 
@@ -1528,6 +1718,11 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1558,6 +1753,11 @@ export const events = [
     },
     event_classification: 'NPC互动',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1575,6 +1775,11 @@ export const events = [
     effects: { san: -2, add_run_memory: { text: '安全屋灯灭了。黑暗中有东西在刮墙。' } },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [
       {
         label: '摸黑睡觉',
@@ -1603,6 +1808,11 @@ export const events = [
     effects: {},
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [
       {
         label: '现在使用',
@@ -1643,6 +1853,11 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: false,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -1670,6 +1885,11 @@ export const events = [
     },
     event_classification: '正常事件',
     normalcy_anchor: true,
+    unreliable_narration_level: 1,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
 ];

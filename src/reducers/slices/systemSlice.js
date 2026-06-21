@@ -12,6 +12,8 @@
 import { getPhase } from '../../engine/WorldTimeSystem.js';
 import { pick } from '../utils.js';
 import { recordActionHistory } from '../../engine/EventEngine.js';
+import { applySanConsequences, tryApSteal } from '../../systems/sanConsequenceChain.js';
+import { getSanStageFromGD } from '../sanReducer.js';
 
 export var systemSlice = {
   name: 'system',
@@ -50,8 +52,14 @@ export var systemSlice = {
 
   // ── afterDispatch: runs after every domain handler ──
   after: function (s, action, c) {
-    // 1. AP 偷取检测：污染状态下行动有概率多扣 1 AP
-    if (s._apLies && s._apOffset > 0) {
+    // 0. SAN consequence chain: level-based logical consequences (fake options, fake trust, AP steal, weight shift)
+    //    NPC_RESPONSE and EXPLORE are handled in their respective slices; applySanConsequences skips them.
+    applySanConsequences(s, c, action.type);
+
+    // 1. AP 偷取检测（旧系统：_apLies 污染态，仅对特定 action 生效）
+    //    level 5+ 的强制 AP 偷取已由 applySanConsequences -> tryApSteal 处理
+    //    此处保留 _apLies 体系以兼容低等级污染叙事
+    if (s._apLies && s._apOffset > 0 && (getSanStageFromGD(s.san).level || 0) < 5) {
       var _apActions = [
         'MOVE', 'EXPLORE', 'TALK_NPC', 'WORK', 'BUY_FOOD', 'NPC_RESPONSE',
         'SELF_HARM', 'SPREAD_PROPHECY', 'CONSUME_ARCHIVE', 'SELF_SACRIFICE',
@@ -70,6 +78,16 @@ export var systemSlice = {
           c.narr('system', pick(_stealTexts, c.rng), { isEffect: true });
         }
       }
+    }
+
+    // 1b. Fake trust consequence: AP steal when NPC_RESPONSE had fake trust hint
+    //     (applySanConsequences skips NPC_RESPONSE; this handles that gap)
+    if (s._pendingSanConsequence && s._pendingSanConsequence.type === 'fake_trust') {
+      var _fakeTrustLevel = getSanStageFromGD(s.san).level || 0;
+      if (_fakeTrustLevel >= 5) {
+        tryApSteal(s, c, _fakeTrustLevel);
+      }
+      delete s._pendingSanConsequence;
     }
 
     // 2. AP 变化音效：通用检测，覆盖所有 action type

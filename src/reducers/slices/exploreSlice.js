@@ -31,6 +31,7 @@ import { applyLegacyEffects } from '../effectReducer.js';
 import { EARLY_WHISPERS } from '../../systems/earlyHooks.js';
 import { emit } from '../../engine/eventBus.js';
 import { checkObjCompletion } from '../objectiveReducer.js';
+import { hasTriggered, syncTriggeredSet } from '../../utils/triggeredSet.js';
 import { getPollutionText } from '../loopReducer.js';
 import { getMonsterManifestation } from '../chapterReducer.js';
 import { checkConclusions, checkFalseInterpretations } from '../conclusionReducer.js';
@@ -47,8 +48,8 @@ import { checkOmens } from '../../data/events_omens_600.js';
 import { applyFearLens, getFearEventWeightModifier } from '../../systems/fearLens.js';
 import { applyTextHallucination } from '../../engine/PollutionManager.js';
 import { addRunMemory, setNpcTrust, getNpcState, setNpcState, checkWrongInference, applyDeathResolution, checkSilentEvent, narrApInsufficient } from '../../utils/appHelpers.js';
-import { adjustSanLossForFirstLoop, adjustSanLossForLoop23, getSanFloor, shouldBlockLethalEvent } from '../../systems/firstLoopBalance.js';
-import { getTrackedText, createSeenTextMap, applyMythosAliases, maybeInjectPhantomNarrative } from '../../systems/textVariants.js';
+import { adjustSanLossForLoop23, getSanFloor, shouldBlockLethalEvent, adjustMonsterChance } from '../../systems/firstLoopBalance.js';
+import { getTrackedText, createSeenTextMap, applyMythosAliases, maybeInjectPhantomNarrative, applyLevel13RealityDistortion } from '../../systems/textVariants.js';
 import { getLightLevelEffects, applyLightTextCorruption } from '../miscReducer.js';
 import { checkChainCompletion, isAreaUnlocked, getAreaDisplayName } from '../../utils/gameHelpers.js';
 import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
@@ -57,6 +58,9 @@ import { getAreaCorruptionNarrative } from '../../systems/worldDecay.js';
 import { applyResourceTextCorruption } from '../../systems/resourceNarrative.js';
 import { getForcedProgressGuard, executeForcedProgressGuard } from '../objectiveReducer.js';
 import { checkChapterMilestone, createMilestoneEvent, getDistortionVariant } from '../../engine/EventEngine.js';
+import { generateFakeOptions, processFakeChoice, getNegativeEventWeightMultiplier, getSafeEventWeightMultiplier } from '../../systems/sanConsequenceChain.js';
+import { getRarityHint } from '../../systems/eventRarity.js';
+import { applyTextFragmentation } from '../../systems/textFragmentation.js';
 
 // TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
 // It remains a global for now; will be extracted to a utility in a future PR.
@@ -221,6 +225,13 @@ export function _selectExploreEvent(s, ctx, GD, c) {
       }
     }
     if (evt && !alreadyCommitted) commitSelectedEvent(evt, s);
+
+    // ── Rarity hint: subtle flavor text for uncommon events ──
+    // Legendary/Secret events NEVER produce hints (by design).
+    if (evt && evt.rarity && ['uncommon'].indexOf(evt.rarity) >= 0) {
+      var hint = getRarityHint(evt.rarity, c.rng);
+      if (hint) c.narr('system', hint, { isSpecial: true });
+    }
   } else {
     evt = selectEvent(s.currentArea, s, ctx, pick, c.rng);
   }
@@ -237,7 +248,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
     const idx = seq.indexOf(evt.id);
     if (idx >= 0) {
       const progress = seq.filter(function (eid) {
-        return s.triggeredEvents.includes(eid);
+        return s._triggeredSet ? s._triggeredSet.has(eid) : s.triggeredEvents.includes(eid);
       }).length;
       if (idx < seq.length - 1)
         c.narr('system', '【事件链：' + ch.name + '】进度 ' + progress + '/' + seq.length, {
@@ -275,7 +286,8 @@ export function _postExploreProcessing(evt, s, c, GD) {
       { isSpecial: true }
     );
   // Monster manifestation
-  if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MONSTER_MANIFEST_CHANCE) {
+  const adjMonsterChance = adjustMonsterChance(GAME_BALANCE.MONSTER_MANIFEST_CHANCE, s);
+  if ((c.rng ? c.rng.next() : Math.random()) < adjMonsterChance) {
     const creature = pick(['deep_ones', 'night_gaunts', 'shoggoth'], c.rng);
     const manifest = getMonsterManifestation(creature, s.day, ctx, c.rng);
     if (manifest) {
@@ -388,22 +400,22 @@ export function handleExploreAction(s, action, c, ctx) {
     case 'MOVE': {
       if (s.ap < 1) {
         narrApInsufficient(s, c.narr, 1);
-        return s;
+        return null;
       }
       const target = action.areaId;
       const cur = getAreaInfo(s.currentArea, ctx);
       if (!cur || !cur.connected_areas.includes(target)) {
         c.narr('system', '无法到达该区域。');
-        return s;
+        return null;
       }
       const targetArea = getAreaInfo(target, ctx);
       if (!targetArea) {
         c.narr('system', '未知区域。');
-        return s;
+        return null;
       }
       if (!isAreaUnlocked(targetArea, s)) {
         c.narr('system', '你还没有找到通往' + targetArea.name + '的路径。也许需要更多线索。');
-        return s;
+        return null;
       }
       s.ap -= action.cost || 1;
       // AP 消耗音效反馈
@@ -415,6 +427,8 @@ export function handleExploreAction(s, action, c, ctx) {
       var _fromArea = s.currentArea;
       s.currentArea = target;
       if (!s.visitedAreas.includes(target)) s.visitedAreas.push(target);
+      // NOTE: loop_area_visits removed — description_variants now keyed to loopCount, not per-visit
+      // (per-visit causes same-loop text churn; loopCount gives cross-loop déjà vu)
       // eventBus: notify listeners of area change
       try { emit('AREA_ENTERED', { areaId: target, fromArea: _fromArea }); } catch (e) {}
       if (target === 'harbor_district') {
@@ -439,6 +453,8 @@ export function handleExploreAction(s, action, c, ctx) {
       desc = applyLightTextCorruption(desc, s.lightLevel || 0, ctx, c.rng);
       // Mythos name alias for area descriptions
       desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
+      // Text Fragmentation for area descriptions (SAN-driven)
+      desc = applyTextFragmentation(desc, s.san, c.rng, { isCritical: false });
       // Layout variants: weighted random selection based on game state
       if (targetArea.layout_variants && targetArea.layout_variants.length > 0) {
         const phase = getPhase(s.ap, s.maxAp);
@@ -523,13 +539,13 @@ export function handleExploreAction(s, action, c, ctx) {
       s.transition = 'move';
       c.log('前往' + displayName);
       if (!s.tutorialSeen.first_move) s.tutorialSeen = { ...s.tutorialSeen, first_move: true };
-      return s;
+      return null;
     }
     case 'EXPLORE': {
       const _apCost = 2 * (s._madnessApMultiplier || 1);
       if (s.ap < _apCost) {
         narrApInsufficient(s, c.narr, _apCost);
-        return s;
+        return null;
       }
       s.ap -= _apCost;
       // AP 消耗音效反馈（探索后AP紧张时提醒）
@@ -551,6 +567,7 @@ export function handleExploreAction(s, action, c, ctx) {
         if (_milestone) {
           const _milestoneEvt = createMilestoneEvent(_milestone);
           s.triggeredEvents.push(_milestoneEvt.id);
+          syncTriggeredSet(s, _milestoneEvt.id);
           c.narr('event', _milestoneEvt.description, {
             eventTitle: _milestoneEvt.name,
             eventType: 'milestone',
@@ -585,9 +602,10 @@ export function handleExploreAction(s, action, c, ctx) {
           for (const eid of ch.sequence) {
             const fe =
               GD.events?.find((e) => e.id === eid) || GD.module4_events?.find((e) => e.id === eid);
-            if (fe && !s.triggeredEvents.includes(eid) && checkTrigger(fe, s)) {
+            if (fe && !hasTriggered(s, eid) && checkTrigger(fe, s)) {
               c.narr('system', '【保底推进】你注意到一些之前忽略的细节。', { isSpecial: true });
               s.triggeredEvents.push(eid);
+              syncTriggeredSet(s, eid);
               var feText = applyQualityTier(fe.description, fe, s);
               c.narr('event', feText, {
                 eventTitle: fe.name,
@@ -600,14 +618,40 @@ export function handleExploreAction(s, action, c, ctx) {
                   }),
                 imageAlt: fe.name,
               });
-              return s;
+              return null;
             }
           }
         }
-        return s;
+        return null;
       }
       // SSOT guard: commitSelectedEvent writes triggeredEvents; skip if already done
-      if (!s.triggeredEvents.includes(evt.id)) s.triggeredEvents.push(evt.id);
+      if (!hasTriggered(s, evt.id)) {
+        s.triggeredEvents.push(evt.id);
+        syncTriggeredSet(s, evt.id);
+      }
+      // Environment narrative: description_variants keyed to loopCount (cross-loop déjà vu)
+      // 同一轮回内文字不变，新轮回才升级 — 避免同轮回多次往返导致精分
+      if (evt.description_variants) {
+        var _loop = (s.loopCount || 0) + 1; // 1-indexed: loopCount=0 means first loop
+        var _dv = evt.description_variants;
+        if (_loop <= 1) {
+          // Loop 1: original description (no change)
+        } else if (_loop <= 3) {
+          evt.description = _dv.visit_2_3 || evt.description;
+        } else if (_loop <= 6) {
+          evt.description = _dv.visit_4_6 || _dv.visit_2_3 || evt.description;
+        } else {
+          evt.description = _dv.visit_7_plus || _dv.visit_4_6 || evt.description;
+        }
+      }
+      // Player action echo: if an NPC died in previous loop, their area has a faint overlay
+      // 原则：不说破。不提到NPC名字。只是一句淡淡的感受。让玩家自己毛。
+      if (evt.echo_overlay && s.loopEchoes && s.loopEchoes.deadNpcAreas) {
+        var _currentArea = s.currentArea || '';
+        if (s.loopEchoes.deadNpcAreas.indexOf(_currentArea) >= 0) {
+          evt.description = evt.description + '\n\n' + evt.echo_overlay;
+        }
+      }
       // Phase 3: Event rendering + effects (inline — has early returns)
       let evtText = getDistortionVariant(evt, s, c.rng) || evt.description;
       evtText = applyQualityTier(evtText, evt, s);
@@ -633,6 +677,18 @@ export function handleExploreAction(s, action, c, ctx) {
       if (_tvResult.action !== 'skip') evtText = _tvResult.text;
       // Mythos name alias: replace true names with chapter-appropriate aliases
       evtText = applyMythosAliases(evtText, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
+      // Level 13 (十三钟响): reality distortion text effects
+      evtText = applyLevel13RealityDistortion(evtText, s.difficultyLevel, c.rng);
+      // ── Text Fragmentation (SAN-driven) ──────────────────
+      // High SAN = intact text. Low SAN = words cross out, vanish, reorder.
+      // Critical events (signature/ending/once_per_run) get milder treatment.
+      var isCriticalEvent = evt.tier === 'signature' || evt.tier === 'ending' || evt.once_per_run;
+      evtText = applyTextFragmentation(evtText, s.san, c.rng, {
+        isCritical: isCriticalEvent,
+        maxSeverity: s.difficultyLevel >= 13 ? 6 : 5, // Lv13 allows full severity
+        loopCount: s.loopCount || 0,        // progressive degradation each loop
+        difficultyLevel: s.difficultyLevel,  // high difficulty boosts corruption
+      });
       c.narr('event', evtText, {
         eventTitle: evt.name,
         eventType: evt.type || evt.event_classification,
@@ -647,17 +703,24 @@ export function handleExploreAction(s, action, c, ctx) {
       });
       if (evt.effects && evt.effects._meta_effect)
         applyMetaEffect(evt.effects._meta_effect, s, evt, c);
+      // SAN consequence chain: inject fake options at level 4+
+      {
+        var _sanLevel = getSanStageFromGD(s.san).level || 0;
+        if (_sanLevel >= 4) {
+          generateFakeOptions(evt, _sanLevel, c.rng);
+        }
+      }
       // Choices / gamble early exits
       if (evt.choices && evt.choices.length > 0) {
         applyLegacyEffects(s, evt.effects);
         s.pendingChoice = { evt, choices: evt.choices };
-        return s;
+        return null;
       }
       const gambleOpts = getGambleOptions(evt, s, ctx, c.rng);
       if (gambleOpts) {
         s.pendingGamble = { evt, options: gambleOpts, apSpent: 2 };
         c.narr('system', '你感到某种冲动——是就此收手，还是更深入地探究？', { isSpecial: true });
-        return s;
+        return null;
       }
       // Anchor + SAN damage + skill check + madness + death
       const anchorResult = processNormalAnchorEvent(evt, s);
@@ -763,7 +826,12 @@ export function handleExploreAction(s, action, c, ctx) {
       }
       {
         const deathCtx = resolveDeath(s, evt, null);
-        if (deathCtx) applyDeathResolution(s, deathCtx, c.narr, ctx);
+        if (deathCtx) {
+          // Count SAN collapse for cross-loop madness memory legacy
+          if (deathCtx.mode === 'san' || deathCtx.mode === 'hybrid')
+            s.sanityCollapseCount = (s.sanityCollapseCount || 0) + 1;
+          applyDeathResolution(s, deathCtx, c.narr, ctx);
+        }
       }
       // Phase 4: Post-event processing (extracted)
       _postExploreProcessing(evt, s, c, GD);
@@ -777,15 +845,15 @@ export function handleExploreAction(s, action, c, ctx) {
       }
       // "Suspected bug" — phantom narrative line (0.3% at low SAN)
       maybeInjectPhantomNarrative(s.narrative, s.san, c.rng);
-      return s;
+      return null;
     }
     case 'DO_SKILL_CHECK': {
-      if (!s.pendingEvent || s.pendingEvent.rolled) return s;
+      if (!s.pendingEvent || s.pendingEvent.rolled) return null;
       const evt = s.pendingEvent;
       const sc = evt.effects?.skill_check;
       if (!sc) {
         s.pendingEvent = { ...evt, rolled: true, result: 'no_check' };
-        return s;
+        return null;
       }
       c.effects.push({ type: 'AUDIO_SKILL', id: 'roll' });
       const result = doSkillCheck(sc.skill, sc.threshold || 50, s, s.difficulty, ctx, c.rng);
@@ -833,7 +901,7 @@ export function handleExploreAction(s, action, c, ctx) {
         );
         c.narr('system', sc.failure?.text || sc.failure || '检定失败。');
       }
-      return s;
+      return null;
     }
     default:
       return null;

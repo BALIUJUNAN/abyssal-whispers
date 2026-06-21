@@ -8,7 +8,12 @@ import { makeRand } from './utils.js';
 
 import { pick, clamp } from './utils.js';
 import { setCorruptionFlag } from './npcReducer.js';
+import { rebuildTriggeredSet, rebuildSilentSet } from '../utils/triggeredSet.js';
+import { getDifficultySpecial } from '../config/difficulty.js';
 import { computeReincarnationDiff } from '../systems/reincarnationDiff.js';
+import { transferLoopEchoes } from './npcReducer.js';
+import { getLegacyForCategory } from '../systems/deathLegacies.js';
+import { decayDeathFragments } from '../systems/deathLegacies.js';
 
 // Parse loop_memory_effect text and apply mechanical bonuses.
 // Maps narrative descriptions to game-state changes.
@@ -199,6 +204,10 @@ export function initLoopState(f, s, ctx, options = {}) {
   f.stats_run.deaths = s.stats_run.deaths + (s.hp <= 0 || s.san <= 0 ? 1 : 0);
   f.stats_run.runs = s.stats_run.runs + 1;
   f.lastDeathType = s.hp <= 0 ? 'physical' : s.san <= 0 ? 'mental' : null;
+  // SAN崩溃计数跨循环搬入
+  f.sanityCollapseCount = (s.sanityCollapseCount || 0);
+  // Carry reference for madness memory injection in BEGIN_ADVENTURE
+  f._prevRunStateForSanLegacy = s._prevRunStateForSanLegacy || s;
 
   // ── 2) 循环计数 & 环境效果 ──
   f.loopCount = (s.loopCount || 0) + 1;
@@ -234,6 +243,30 @@ export function initLoopState(f, s, ctx, options = {}) {
     f.san = Math.min(f.san, f.maxSan);
   }
 
+  // Level 13 (十三钟响): SAN loss inheritance — carry 10% of lost SAN to next loop
+  if (f.loopCount > 1) {
+    var l13Special = getDifficultySpecial(s.difficultyLevel);
+    if (l13Special?.san_inheritance_rate) {
+      var prevMaxSan = s.maxSan || 60;
+      var prevCurrentSan = s.san || 0;
+      var sanLost = Math.max(0, prevMaxSan - prevCurrentSan);
+      var inherited = Math.round(sanLost * l13Special.san_inheritance_rate);
+      var cap = l13Special.san_inheritance_cap || 20;
+      var actualInheritance = Math.min(inherited, cap);
+      if (actualInheritance > 0) {
+        f.maxSan = Math.max(10, (f.maxSan || 60) - actualInheritance);
+        f.san = Math.min(f.san, f.maxSan);
+        var inheritanceMessages = [
+          '你感到自己的灵魂比上次薄了一些。有些记忆……不，不是记忆。是更本质的东西。',
+          '你醒来时，觉得身上少了什么。不是物品，不是记忆。是一种更深的重量。',
+        ];
+        if (f._showInheritanceMessage !== false && f.loopCount <= inheritanceMessages.length + 1) {
+          f._inheritanceNarrative = inheritanceMessages[Math.min(f.loopCount - 2, inheritanceMessages.length - 1)];
+        }
+      }
+    }
+  }
+
   // Pollution increases with each loop (§2.2: replaces SAN penalty at high loops)
   var pollutionRate = f.loopCount >= 6 ? 0.08 : 0.05;
   f.pollution = Math.min(1, (f.pollution || 0) + pollutionRate * f.loopCount);
@@ -253,6 +286,10 @@ export function initLoopState(f, s, ctx, options = {}) {
       }
     }
   }
+
+  // ── 2.5) 玩家行为的回声 — 上一轮NPC死亡的余响（仅持续一轮）
+  // 原则：不说破。不提到NPC名字。只是一句淡淡的感受。
+  transferLoopEchoes(s, f);
 
   // ── 3) 技能保留（按轮回数缩放） ──
   if (f.loopCount > 1) {
@@ -481,12 +518,44 @@ export function initLoopState(f, s, ctx, options = {}) {
   if (f.everTriggeredEvents.length > 2000)
     f.everTriggeredEvents = f.everTriggeredEvents.slice(-2000);
 
+  // ── 12b) triggeredEvents / triggeredSilentEvents 上限（防止长玩膨胀）
+  f.triggeredEvents = [...(s.triggeredEvents || [])];
+  if (f.triggeredEvents.length > 1000) f.triggeredEvents = f.triggeredEvents.slice(-1000);
+  f.triggeredSilentEvents = [...(s.triggeredSilentEvents || [])];
+  if (f.triggeredSilentEvents.length > 500) f.triggeredSilentEvents = f.triggeredSilentEvents.slice(-500);
+
   // ── 13) 死亡上下文搬入 ──
   f.previousDeathContext = s.deathContext || null;
   f.lastDeathType = s.deathContext?.type || s.lastDeathType || null;
   f.lastDeathMode = s.deathContext?.mode || s.lastDeathMode || null;
   if (s.deathContext?.residueFlag) {
     f.loopEchoFlags = [...f.loopEchoFlags, s.deathContext.residueFlag];
+  }
+
+  // ── 13b) 死亡遗产搬入 ──
+  // Generate legacy from last death attribution category
+  if (s.deathContext?.attributionCategory) {
+    var legacyDef = getLegacyForCategory(s.deathContext.attributionCategory);
+    if (legacyDef) {
+      f.deathLegacies = [...(f.deathLegacies || []), legacyDef];
+    }
+    // Also carry the attribution narrative for display
+    f.deathAttributionNarrative = s.deathContext.attributionNarrative || null;
+  }
+  // Carry forward any unconsumed legacies
+  if (s.deathLegacies && s.deathLegacies.length > 0) {
+    f.deathLegacies = [...(f.deathLegacies || []), ...s.deathLegacies];
+  }
+
+  // ── 13c) 死亡碎片搬入（含衰减） ──
+  decayDeathFragments(f);
+
+  // ── 13d) Meta事件标记搬入 ──
+  f.metaEventFlags = { ...(s.metaEventFlags || {}) };
+
+  // ── 13e) 死亡计数Meta事件标记搬入 ──
+  if (s._pendingDeathCountMeta) {
+    f._pendingDeathCountMeta = s._pendingDeathCountMeta;
   }
 
   // ── 14) 矛盾极端检测 ──
@@ -496,6 +565,10 @@ export function initLoopState(f, s, ctx, options = {}) {
 
   // ── 15) 文本重复追踪（跨轮持久化） ──
   f.seenEventTexts = { ...(s.seenEventTexts || {}) };
+
+  // ── 15b) 重建 triggeredEvents 并行 Set（O(1) 查询，防止长玩 O(n) 退化） ──
+  rebuildTriggeredSet(f);
+  rebuildSilentSet(f);
 
   // ── 16) 轮回差异提示 ──
   f.reincarnationDiff = computeReincarnationDiff(s, f, ctx);

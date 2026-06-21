@@ -1,6 +1,16 @@
 // src/reducers/endingReducer.js - Ending condition checking (data-driven)
+// v0.9.0: Implicit ending trigger system — 36 behavior endings are triggered
+// COMPLETELY by player behavior patterns. The player is NEVER told
+// "doing X leads to ending Y". Conditions are cross-referenced against
+// shadow scores, mutual exclusions, and dormant counters.
 
 import { hasClueId } from '../utils/clueNameMap.js';
+import { hasTriggered } from '../utils/triggeredSet.js';
+// v0.9.0: Implicit ending system — shadow scores, mutual exclusions, dormant counters
+import {
+  isEndingBlocked, checkCrossDependencies, getEndingEntropy,
+  getApproachingEndings, enrichBehaviorEndings,
+} from '../systems/implicitEndingSystem.js';
 
 // Map behavior ending condition variable names to state field accessors
 export const CONDITION_VAR_MAP = {
@@ -66,6 +76,9 @@ export const CONDITION_VAR_MAP = {
   city_corruption: (s) => s.safehouseCorruption || 0,
   safehouse_corruption: (s) => s.safehouseCorruption || 0,
   seal_status: (s) => s.sealState || 'intact',
+  // Difficulty
+  difficulty_level: (s) => s.difficultyLevel || 1,
+  difficulty_phase: (s) => s.difficultyPhase || 1,
   // NPC agency (for Hilda/Fisher choice endings)
   hilda_agency: (s) => s.hilda_agency || 0,
   old_fisher_agency: (s) => s.old_fisher_agency || 0,
@@ -76,6 +89,21 @@ export const CONDITION_VAR_MAP = {
   visited_areas_count: (s) => (s.visitedAreas || []).length,
   triggered_events_count: (s) => (s.triggeredEvents || []).length,
   clues_count: (s) => (s.clues || []).length,
+  // Fear profile (for fear-exclusive endings)
+  fear_primary: (s) => s.fearTuning?.primary || '',
+  fear_secondary: (s) => s.fearTuning?.secondary || '',
+  fear_coping: (s) => s.fearTuning?.coping || '',
+  // Aggregated NPC trust
+  npc_trust_total: (s) => {
+    var trust = s.npcTrust || {};
+    return Object.values(trust).reduce(function (sum, v) { return sum + (v || 0); }, 0);
+  },
+  // Safehouse stay tracking
+  safehouse_stay_days: (s) => s.behaviorTracking?.safehouse_stay_days || 0,
+  // Meta / fourth-wall
+  meta_boundary_breaks: (s) => s.behaviorTracking?.meta_boundary_breaks || 0,
+  loop_break_attempts: (s) => s.behaviorTracking?.loop_break_attempts || 0,
+  save_delete_attempts: (s) => s.behaviorTracking?.save_delete_attempts || 0,
 };
 
 export function parseConditionString(condStr) {
@@ -170,9 +198,9 @@ export function checkSingleCondition(state, cond) {
     case 'has_clue':
       return hasClueId(state.clues, cond.clue_id);
     case 'has_flag':
-      return !!(state.triggeredEvents && state.triggeredEvents.includes(cond.flag_id));
+      return !!hasTriggered(state, cond.flag_id);
     case 'not_flag':
-      return !(state.triggeredEvents && state.triggeredEvents.includes(cond.flag_id));
+      return !hasTriggered(state, cond.flag_id);
     case 'npc_trust_gte':
       return (state.npcTrust[cond.npc_id] || 0) >= cond.value;
     case 'skill_gte':
@@ -249,7 +277,12 @@ export function checkEndingDataDriven(state, ctx) {
   };
 
   const matched = [];
+  // Collect IDs of matched endings for mutual exclusion checking
+  var matchedIds = [];
   for (const ed of endings) {
+    // Fear-exclusive endings: only match if player's fear profile matches
+    if (ed._fear_required && (state.fearTuning?.primary || '') !== ed._fear_required) continue;
+
     const rawConds = ed.conditions || ed.required_conditions || [];
     const rawBlocks = ed.blocking_conds || ed.blocking_conditions || [];
     if (!rawConds || rawConds.length === 0) continue;
@@ -258,19 +291,41 @@ export function checkEndingDataDriven(state, ctx) {
     const allMet = condField.every((cond) => checkSingleCondition(state, cond));
     const blocked = blockField.length > 0 && blockField.some((cond) => checkSingleCondition(state, cond));
     if (allMet && !blocked) {
-      matched.push({
-        id: ed.id,
-        name: ed.name,
-        type: ed.type || 'neutral',
-        description: resolveDescription(ed),
-        rewards: ed.rewards,
-        humanityTier,
-        priority: ed.priority || 0,
-        override_category: ed.override_category || 'main',
-        afterglow: ed.afterglow || null,
-        loop_memory_effect: ed.loop_memory_effect || null,
-      });
+      matchedIds.push(ed.id);
     }
+  }
+
+  // v0.9.0: Apply implicit ending filters
+  // 1. Mutual exclusions (silent blocking — player never knows WHY)
+  // 2. Cross-counter dependencies (hidden conjunctions)
+  var bt = state.behaviorTracking || {};
+  var implicitExclusions = [];
+  for (const ed of endings) {
+    if (matchedIds.indexOf(ed.id) < 0) continue;
+    // Check mutual exclusions
+    if (isEndingBlocked(ed.id, matchedIds)) {
+      implicitExclusions.push(ed.id);
+      continue;
+    }
+    // Check cross-counter dependencies
+    var depCheck = checkCrossDependencies(ed.id, bt);
+    if (depCheck.blocked) {
+      implicitExclusions.push(ed.id);
+      continue;
+    }
+    // Passed all implicit checks — add to matched
+    matched.push({
+      id: ed.id,
+      name: ed.name,
+      type: ed.type || 'neutral',
+      description: resolveDescription(ed),
+      rewards: ed.rewards,
+      humanityTier,
+      priority: ed.priority || 0,
+      override_category: ed.override_category || 'main',
+      afterglow: ed.afterglow || null,
+      loop_memory_effect: ed.loop_memory_effect || null,
+    });
   }
   if (matched.length === 0) return null;
 
@@ -375,7 +430,7 @@ export function checkAfterglowUnlock(ending, state) {
     const eventId = cond.split(':')[1];
     return (
       (state.everTriggeredEvents || []).includes(eventId) ||
-      (state.triggeredEvents || []).includes(eventId)
+      hasTriggered(state, eventId)
     );
   }
   if (cond.startsWith('has_item:')) {

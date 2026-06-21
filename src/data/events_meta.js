@@ -30,6 +30,11 @@ export const events = [
     effects: { san: -5, mythos: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -54,6 +59,11 @@ export const events = [
     effects: { san: -5, mythos: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -78,6 +88,11 @@ export const events = [
     effects: { san: -5, mythos: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -102,6 +117,11 @@ export const events = [
     effects: { san: -5, mythos: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   // §3.3: 作者低语 → 触发后NPC信任锁定为0 + 解锁成就
@@ -127,6 +147,11 @@ export const events = [
     effects: { san: -5, mythos: 5, _meta_effect: 'npc_trust_lock_random' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
 
@@ -154,6 +179,10 @@ export const events = [
     effects: { san: -5, _meta_effect: 'overwrite_save_slot' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -178,6 +207,10 @@ export const events = [
     effects: { san: -5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -202,6 +235,10 @@ export const events = [
     effects: { san: -5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
   {
@@ -226,6 +263,10 @@ export const events = [
     effects: { san: -5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 2,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+    },
     choices: [],
   },
 
@@ -253,6 +294,11 @@ export const events = [
     effects: { san: -5, mythos: 5, _meta_effect: 'npc_trust_lock_and_achievement' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   // §3.3: meta_author_002 → 随机NPC永久失踪
@@ -278,6 +324,11 @@ export const events = [
     effects: { san: -5, mythos: 5, _meta_effect: 'npc_permanent_disappear' },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
   {
@@ -302,6 +353,11 @@ export const events = [
     effects: { san: -5, mythos: 5 },
     event_classification: '超自然遭遇',
     normalcy_anchor: false,
+    unreliable_narration_level: 3,
+    distortion_variants: {
+      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
+      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
+    },
     choices: [],
   },
 ];

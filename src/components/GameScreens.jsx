@@ -326,9 +326,9 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
   }
   function getDiffColor(level) {
     if (level <= 3) return 'var(--accent)';     // 绿
-    if (level <= 9) return 'var(--gold)';        // 橙
-    if (level <= 15) return 'var(--danger)';     // 红
-    return 'var(--purple)';                      // 紫
+    if (level <= 6) return '#66BB6A';           // 浅绿
+    if (level <= 9) return 'var(--gold)';       // 橙
+    return '#F44336';                            // 红（10-13）
   }
   return (
     <div className="screen-scroll" ref={setScrollRef}>
@@ -363,7 +363,7 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
             ▼ 解锁进阶难度
           </button>
         )}
-        {/* 进阶难度 4-21 */}
+        {/* 进阶难度 4-13 */}
         {showAdvanced && (
           <div style={{ marginBottom: '0.5rem' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', justifyContent: 'center', marginBottom: '0.3rem' }}>
@@ -396,6 +396,11 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
         {/* 当前难度信息 */}
         <div style={{ color: getDiffColor(diffLevel), fontSize: '0.7rem', marginBottom: '0.5rem' }}>
           Lv.{diffLevel} {diffConfig.name} — {diffConfig.description}
+          {diffConfig.phase_label && (
+            <span style={{ marginLeft: '0.5rem', opacity: 0.7 }}>
+              [{diffConfig.phase_label}]
+            </span>
+          )}
         </div>
         <div style={{ color: 'var(--text-dim)', fontSize: '0.6rem' }}>
           预期存活率 {diffConfig.survival} · 平均存活 {diffConfig.days} 天

@@ -1,47 +1,95 @@
-// src/config/difficulty.js - 难度配置系统
-// 21级难度，从Level 1(普通)到Level 21(v1原版)
+// src/config/difficulty.js — 难度配置系统（13级）
+// 唯一数据源: difficultyLevels.json
+// 本模块仅做 JSON 导入 + 便捷访问函数，不维护任何公式/副本
+//
+// ESM JSON import 兼容性处理:
+//   - Node.js ESM: 使用动态 import + assert { type: 'json' }
+//   - Vite bundler: 静态 import 由 Vite 原生处理
+//   - build.py: JSON 已在构建时 inline 为 DIFFICULTY_LEVELS_RAW，无需运行时 import
 
-export const DIFFICULTY_LEVELS = {
-  1: { name: '普通', description: '标准难度，适合大多数玩家', survival: '25-35%', days: '20-22' },
-  2: { name: '困难', description: '更具挑战性', survival: '15-20%', days: '17-19' },
-  3: { name: '噩梦', description: '高难度挑战', survival: '8-12%', days: '14-16' },
-  4: { name: '普通+', description: '比普通略难', survival: '20-25%', days: '19-21' },
-  5: { name: '普通++', description: '普通难度上限', survival: '15-20%', days: '17-19' },
-  6: { name: '挑战', description: '进入挑战区', survival: '12-15%', days: '16-18' },
-  7: { name: '挑战+', description: '需要策略规划', survival: '10-12%', days: '15-17' },
-  8: { name: '挑战++', description: '中等硬核', survival: '8-10%', days: '14-16' },
-  9: { name: '硬核', description: '硬核玩家入门', survival: '6-8%', days: '13-15' },
-  10: { name: '硬核+', description: '需要精打细算', survival: '5-6%', days: '12-14' },
-  11: { name: '硬核++', description: '高难度开始', survival: '4-5%', days: '11-13' },
-  12: { name: '专家', description: '专家级难度', survival: '3-4%', days: '10-12' },
-  13: { name: '专家+', description: '需要深入了解机制', survival: '2-3%', days: '9-11' },
-  14: { name: '专家++', description: '接近极限', survival: '2-3%', days: '9-10' },
-  15: { name: '大师', description: '大师级挑战', survival: '2-3%', days: '8-10' },
-  16: { name: '大师+', description: '极致挑战', survival: '2-3%', days: '8-10' },
-  17: { name: '大师++', description: '接近v1难度', survival: '2-3%', days: '8-9' },
-  18: { name: '传说', description: '传说级难度', survival: '2-3%', days: '8-9' },
-  19: { name: '传说+', description: '超越极限', survival: '2-3%', days: '8-9' },
-  20: { name: '传说++', description: '接近原版', survival: '2-3%', days: '8-9' },
-  21: { name: 'v1原版', description: '原始v1难度，无任何保护', survival: '2-3%', days: '8-9' }
-};
+import { DIFFICULTY_LEVELS_RAW } from './difficultyLevels.js';
+
+// 将 JSON 的 string-keyed 对象转为 number-keyed，方便按 level 查找
+export const DIFFICULTY_LEVELS = Object.fromEntries(
+  Object.entries(DIFFICULTY_LEVELS_RAW).map(([k, v]) => [Number(k), v])
+);
 
 export function getDifficultyConfig(level) {
   return DIFFICULTY_LEVELS[level] || DIFFICULTY_LEVELS[1];
 }
 
-export function getProtectionMultiplier(level) {
-  // Level 1: 0.35, Level 21: 1.0 (无保护)
-  return Math.min(1.0, 0.35 + (level - 1) * 0.035);
+/**
+ * 根据当前 day 返回该难度下的阶段保护倍率。
+ * JSON 的 san_protection / hp_protection 是分阶段对象，
+ * 这里把 day 映射到对应阶段，取该阶段的保护值。
+ */
+export function getPhaseProtection(level, day) {
+  const cfg = getDifficultyConfig(level);
+  const prot = cfg.san_protection || cfg.hp_protection || {};
+  const phaseMap = [
+    { range: [1, 3],   key: 'day_1_3' },
+    { range: [4, 7],   key: 'day_4_7' },
+    { range: [8, 14],  key: 'day_8_14' },
+    { range: [15, 21], key: 'day_15_21' },
+    { range: [22, 28], key: 'day_22_28' },
+  ];
+  for (const phase of phaseMap) {
+    if (day >= phase.range[0] && day <= phase.range[1]) {
+      return prot[phase.key] ?? 1.0;
+    }
+  }
+  return 1.0;
 }
 
 export function getMaxSanLoss(level) {
-  // Level 1: 3, Level 21: 999
-  if (level >= 21) return 999;
-  return Math.min(999, 3 + Math.floor((level - 1) * 0.5));
+  // Level 13 (十三钟响): 无限制
+  if (level >= 13) return 999;
+  return Math.min(999, Math.round(3 + (level - 1) * 0.5));
 }
 
 export function getSafeZoneDays(level) {
-  // Level 1: 6天, Level 21: 0天
-  if (level >= 21) return 0;
-  return Math.max(0, 6 - Math.floor((level - 1) * 0.3));
+  const cfg = getDifficultyConfig(level);
+  return cfg.safe_zone_restriction ?? 0;
+}
+
+// ── 新增维度 getters（7 个难度维度） ──
+
+export function getStartingFood(level) {
+  return getDifficultyConfig(level).starting_food ?? 3;
+}
+
+export function getStartingAp(level) {
+  return getDifficultyConfig(level).starting_ap ?? 12;
+}
+
+export function getWorkIncomeMin(level) {
+  return getDifficultyConfig(level).work_income_min ?? 3;
+}
+
+export function getFoodPrice(level) {
+  return getDifficultyConfig(level).food_price ?? 3;
+}
+
+export function getNegativeEventWeight(level) {
+  return getDifficultyConfig(level).negative_event_weight ?? 1.0;
+}
+
+export function getEscapeReduction(level) {
+  return getDifficultyConfig(level).escape_reduction ?? 0;
+}
+
+export function getUnlockedModifiers(level) {
+  return getDifficultyConfig(level).unlocks ?? [];
+}
+
+export function getDifficultyPhase(level) {
+  return getDifficultyConfig(level).phase ?? 1;
+}
+
+export function getDifficultyPhaseLabel(level) {
+  return getDifficultyConfig(level).phase_label ?? '';
+}
+
+export function getDifficultySpecial(level) {
+  return getDifficultyConfig(level).special ?? null;
 }

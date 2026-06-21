@@ -11,7 +11,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
 ![Tests](https://img.shields.io/badge/tests-285_passed_%2F_0_failed-brightgreen)
-![Version](https://img.shields.io/badge/version-0.9.0-orange)
+![Version](https://img.shields.io/badge/version-0.9.1-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -344,7 +344,7 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **身份注册表**            | 区域/物品/NPC 统一注册表（双格式 ESM+CJS），支持名称别名解析                                        |
 | **效果执行器**            | 独立 post-reducer 副作用层（音频/存档/统计），去重 + 类型分发                                       |
 | **无障碍支持**            | 轻度污染模式 / 减少动画 / 高对比度 / 字号放大 / 闪烁控制 / prefers-reduced-motion                   |
-| **UGC 模组**              | 支持导入自定义事件 JSON（Schema 校验）                                                              |
+| **UGC 模组**              | 支持导入自定义事件 JSON + 可视化事件编辑器（Schema 校验 + 实时预览）；Mod 可扩展 5 种实体类型（事件/NPC/物品/区域/结局），自动 ID 冲突前缀 + Dev Mode 热重载                                                              |
 | **ErrorBoundary**         | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载                                     |
 | **Error Tracker**         | 测试期玩家操作追踪模块（可插拔，一行删除即可移除）                                                  |
 | **DevPanel**              | 开发者调试面板（~ / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                           |
@@ -359,7 +359,7 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **NPC SAN 观察对话**      | SAN < 40 时 NPC 注意到玩家精神状态恶化，25% 概率触发关心/警告台词                                                                      |
 | **Loop 2-3 渐进保护**     | Loop 2(SAN损失上限7/安全区2天/致命屏蔽) → Loop 3(SAN损失上限9/安全区1天/致命解除)，渐进过渡桥梁                              |
 | **Day-Critical SAN 脉冲** | 关键日期触发视觉脉冲(surge 1.8×/final 2.2×)，SAN 损失闪光反馈，增强日期紧迫感                                                          |
-| **难度模组 Hooks**        | UGC 模组可注入 `difficulty_modifiers`(text_corruption_boost/npc_trust_multiplier/custom_text_swaps)，Zod Schema 全量校验                |
+| **难度模组 Hooks**        | UGC 模组可注入 `difficulty_modifiers`(text_corruption_boost/npc_trust_multiplier/custom_text_swaps) + 5 种扩展实体类型（NPC/物品/区域/结局），Zod Schema 全量校验                |
 | **NPC 记忆 Tier 5**       | 汤米·陈 + 埃德加·洛夫克拉夫特新增 Tier 5 跨轮记忆(实验室/相机记忆/时间线重叠)，8 NPC 全部覆盖到 T5                              |
 | **模拟器性能增强**        | `simulate_loops.cjs` 新增 --difficulty/--batch/--progress/--json 参数，游戏数据模块级缓存，循环效果表预计算                               |
 | **SanPollutionLayer 缓存**| `getVisualForSan` 结果 useRef 缓存，仅 SAN 变化时重算，减少 Canvas 渲染开销                                                           |
@@ -577,7 +577,8 @@ COC/
 │   │   ├── GameCommon.jsx          # 通用游戏 UI 片段（57 行）
 │   │   ├── ScreenTransition.jsx    # 屏幕转场编排器（118 行）— Canvas + CSS + 音频联动
 │   │   ├── TransitionCanvas.jsx    # Canvas 程序化转场引擎（197 行）— 4种像素级效果
-│   │   └── UgcImportExport.jsx     # UGC 模组导入导出（466 行）
+│   │   ├── UgcEventEditor.jsx      # 可视化事件编辑器（~450 行）— 表单 + 实时验证 + JSON 预览
+│   │   └── UgcImportExport.jsx     # UGC 模组管理 + Dev Mode（~600 行）
 │   │
 │   ├── reducers/             # 21 个状态管理模块（5,500+ 行）
 │   │   ├── slices/                 # 6 个 legacy slice + 1 个 systemSlice
@@ -637,7 +638,7 @@ COC/
 │   ├── utils/                # 9 个工具模块（1,600+ 行）
 │   │   ├── appHelpers.js           # 游戏核心辅助函数（274 行）
 │   │   ├── errorTracker.js         # 操作追踪 & 错误报告（337 行）
-│   │   ├── buildEventPool.js       # 事件池构建（130 行）
+│   │   ├── buildEventPool.js       # 事件池构建 + 扩展实体合并（~280 行）
 │   │   ├── gameHelpers.js          # 游戏辅助工具（122 行）
 │   │   ├── trustGates.js           # NPC 信任门控（171 行）
 │   │   ├── npcMemory.js            # NPC 跨轮记忆（~130 行）— Tier 5新增(汤米·陈/洛夫克拉夫特)
@@ -674,7 +675,7 @@ COC/
 │   │   ├── townHotspots.js         # 城镇地图热点定义（237 行）
 │   │   ├── mapConstants.js         # 地图布局常量（37 行）
 │   │   ├── descriptionTemplates.js # 描述文本模板（14 行）
-│   │   ├── ugcSchema.js            # UGC 模组 JSON Schema（582 行）
+│   │   ├── ugcSchema.js            # UGC 模组 JSON Schema + 扩展实体验证（~950 行）
 │   │   │
 │   │   │   ── 核心 JSON 数据（支持懒加载） ──
 │   │   ├── game_base.json          # 主游戏数据 — 区域/NPC/物品/SAN配置（8,325 行）
@@ -849,8 +850,32 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
 ### UGC 模组创作指南
 
 > **10 分钟写出你的第一个事件模组。** 只需要 JSON，不需要写代码。
+> 也可以使用**可视化事件编辑器**在游戏内直接创建事件。
 
-#### 最小模组
+#### 可视化事件编辑器
+
+游戏内置表单编辑器（点击模组管理面板的「＋ 创建事件」）：
+
+- **5 个标签页**：基础信息 / 触发条件 / 效果 / 选项 / 实时预览
+- **实时验证**：输入时自动校验 Schema，错误即时显示
+- **一键保存**：保存为可直接安装的 Mod
+- **复制 JSON**：导出为 JSON 粘贴到其他项目
+
+#### Mod 扩展类型
+
+Mod 不再仅能添加事件，还支持 4 种扩展实体：
+
+| 类型 | 字段 | 说明 |
+|------|------|------|
+| `events` | id, name, type, trigger, description, effects, choices | 自定义事件（原有） |
+| `npcs` | id, name, location, trust_layers, portrait_hint | 自定义 NPC（简化对话由事件驱动） |
+| `items` | id, name, type, uses, effects | 自定义物品（支持 tool/consumable/weapon/key/clue/ritual/food/light） |
+| `areas` | id, name, description, type, connected_areas | 自定义区域（支持 town/dungeon/wilderness/water/indoor/safehouse） |
+| `endings` | id, name, conditions, humanity_variants | 自定义结局（支持 15 种条件类型） |
+
+**限制**：每 Mod 最多 30 事件 / 8 NPC / 12 物品 / 4 区域 / 4 结局。
+
+#### 最小模组（纯事件）
 
 ```json
 {
@@ -872,6 +897,38 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
         },
         { "id": "ignore", "text": "忽略", "effects": {} }
       ]
+    }
+  ]
+}
+```
+
+#### 扩展模组（含 NPC + 物品 + 区域 + 结局）
+
+```json
+{
+  "id": "mod_extended",
+  "name": "扩展内容包",
+  "events": [...],
+  "npcs": [
+    { "id": "my_npc", "name": "神秘旅人", "location": "town_center",
+      "trust_layers": ["standard", "deep"] }
+  ],
+  "items": [
+    { "id": "my_key", "name": "古旧钥匙", "type": "key", "uses": 1 }
+  ],
+  "areas": [
+    { "id": "my_area", "name": "废弃地下室", "type": "dungeon",
+      "description": "一个隐藏在镇中心地下的废弃空间。",
+      "connected_areas": ["town_center"] }
+  ],
+  "endings": [
+    { "id": "my_ending", "name": "真相之路",
+      "conditions": [{ "type": "has_flag", "id": "flag_truth", "value": 1 }],
+      "humanity_variants": {
+        "humanity_high": "你选择了真相。",
+        "humanity_fragile": "真相让你动摇。",
+        "humanity_lost": "真相摧毁了你。"
+      }
     }
   ]
 }
@@ -909,11 +966,39 @@ UGC 模组有严格的安全限制：
 | **仅 JSON**      | 不支持 JavaScript 代码执行，所有逻辑通过声明式 effects 实现 |
 | **未知字段剥离** | Schema 不认识的字段会被静默移除，不会进入游戏               |
 | **ID 校验**      | 仅允许字母、数字、下划线、连字符                            |
-| **深度限制**     | 最多 30 个事件 / 每事件 6 个选项                            |
+| **深度限制**     | 最多 30 事件/8 NPC/12 物品/4 区域/4 结局 per Mod           |
+| **选项限制**     | 每事件最多 6 个选项                                          |
+| **Mod 上限**     | 最多同时安装 20 个 Mod                                       |
 | **危险内容拦截** | 自动扫描并拦截脚本注入、事件处理器、远程 URL                |
-| **兼容性字段**   | `compatibility` 字段标注适用游戏版本（如 `>=0.2.3`）        |
+| **兼容性字段**   | `compatibility` 字段标注适用游戏版本（如 `>=0.9.0`）        |
+| **Dev Mode**     | 开发者可启用 Dev Mode 热重载，无需重启游戏即可刷新 Mod 数据  |
 
 > **不会执行任何远程代码。** 模组只包含数据，不包含可执行逻辑。
+
+---
+
+## CI/CD 流水线
+
+项目使用 GitHub Actions 自动化测试、构建和部署：
+
+| 流水线 | 触发 | 功能 |
+|--------|------|------|
+| **PR Quality Gate** | PR → main/develop | 测试 + Lint + 构建 + 格式检查，一步失败阻断合入 |
+| **Main CI** | push → main | Lint → Test → Vite Build → Legacy Build → Format Check |
+| **Preview Deploy** | push → develop | 自动构建并部署到 GitHub Pages（`/preview/` 子目录） |
+| **Release** | push tag `v*` | 测试 + 构建 + 自动生成 changelog + GitHub Release + 上传 `index.html` |
+
+**在线预览**：`https://baliujunan.github.io/abyssal-whispers/preview/`
+
+**快速测试命令**：
+```bash
+npm test                  # 全量测试（48 tests）
+npm run lint:schema       # 数据 Schema 校验
+npm run lint:engine       # 引擎边界检查
+npm run mod:validate      # Mod 格式校验
+npm run build             # Vite 生产构建
+npm run build:single      # Legacy 单文件构建
+```
 
 ---
 
@@ -1091,6 +1176,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.9.1** | 2026-06-21 | **Mod 生态增强 + CI/CD 流水线** — ①Mod 扩展类型：支持 5 种实体（事件/NPC/物品/区域/结局），Schema 校验 + 自动 ID 冲突前缀 + GD 注入 + 注册表同步；②可视化事件编辑器：5 标签页表单（基础/触发/效果/选项/预览），实时验证，一键保存为 Mod；③Dev Mode 热重载：开发者模式切换 + 刷新按钮，无需重启游戏即可重载 Mod；④CI/CD 流水线：PR Quality Gate + Main CI + Preview Deploy（GitHub Pages）+ Release（自动 changelog + GitHub Release）；⑤构建修复：`hasClueId` re-export 缺失导致 Vite build 失败 |
 | **0.9.0** | 2026-06-21 | **状态管理架构升级：Zustand + Immer 桥接 + combineSlices 声明式切片** — ①Step 1 桥接层：将 useReducer + gameReducer 桥接至 Zustand + Immer middleware，状态从模块级变量迁移到 Zustand store，dispatch 时序严格保持（reducer → patch draft → flushEffects），所有切片逻辑零改动；②Step 2 切片组合：新建 `combineSlices.js`（220行）createSlice 工厂 + rootReducer 组合器，支持 before/after 三阶段执行（systemSlice 的 tracking/AP/audio），JSDoc 类型注解对齐未来 TS 迁移，钩子错误隔离（单钩子抛错不阻塞 action 链路）；③gameReducer.js 从 194 行瘦身至 102 行纯调度入口；④新建 systemSlice（95行）将 hoarding tracking / recordActionHistory / AP steal / AP audio 四类 cross-cutting 逻辑从主 reducer 内联迁移到 before/after hooks；⑤新增 `resetVisualCorruption()` 修复 NEW_GAME 时 surge/flash 残留；⑥构建验证：check_build_imports 270 imports 0 errors + Vite build 1.13s + 全测试套件 285 passed；⑦`__SLICE_DEBUG__` 开发环境钩子执行日志（before/业务/after 时序追踪） |
 | **0.8.0** | 2026-06-20 | **长玩稳定性 + 工程质量 + 内容质量验证** — ①triggeredEvents 上限防御：triggeredEvents 硬上限 1000 + triggeredSilentEvents 上限 500，每轮回 initLoopState 自动截断，防止长玩存档膨胀；②O(1) 查询优化：新增 `triggeredSet.js` 并行 Set 结构，12 个 reducer/组件文件 migrated (`includes`→`hasTriggered`)，事件存在性查询从 O(n)→O(1)；③AudioManager 资源释放：`stopAmbient()` 加 `src=''` 释放媒体引用，防止 Audio 对象驻留内存；④SanPollutionLayer 清理集中化：startCorruption 清理旧计时器 + useEffect cleanup 统一清理所有 interval/timeout；⑤React 渲染缓存：FloatingInfoBar CluePanel 加 useMemo + GamePanels freeClues 加 useMemo，消除大数组 filter 每帧重算；⑥NPCDialog AbortController：LLM 请求真正 abort（不只是丢弃结果），glmClient._doFetch 接受外部 AbortSignal；⑦eventBus 订阅审计：确认 on() 订阅未被组件使用，无泄漏风险；⑧测试修复：smoke_flows S9-4 (adjustSanLossForLoop23 重命名对齐) + player_experience P3-5/P3-6 (safe window 测试修正) + integration afterglow 预期宽松化，**285 passed / 0 failed / 9 suites**；⑨叙事质量验证：`lint-narrative-quality.mjs` 抽检 50 条 → 平均 96.7/100，禁用词 0，S=33/A=17；⑩NPC 一致性验证：`lint-npc-consistency.mjs` → 478 条台词 0 矛盾；⑪FORBIDDEN_WORDS 调整：去除克苏鲁语境合法词（扭曲/疯狂/诡异/恐怖），仅保留纯标签化恐怖词（不可名状/令人毛骨悚然/骇人听闻/极度恐惧） |
 | **0.7.1** | 2026-06-19 | **轮回记忆机械化 + Day-of-Cycle权重 + NPC对话深化 + 性能优化** — ①轮回记忆效应机械化：`applyLoopMemoryEffects()` 解析结局`loop_memory_effect`叙事文本，自动应用NPC信任+/腐化-/SAN上下限/全属性+/神秘学+/物品/角色解锁/封印知识持久化(10+种模式)；②Loop 2-3渐进保护：`firstLoopBalance.js`新增Loop 2( SAN上限7/安全区2天/致命屏蔽)和Loop 3(SAN上限9/安全区1天/致命解除)，技能保留30%→40%→50%→60%阶梯；③Day-of-Cycle事件权重：`EventEngine.js` Section 9新增关键日期(7/14/21/28)超自然×1.8/日常×0.4 + SAN stage 5+类型差异化修正(超自然1.8/日常0.4)；④NPC对话三扩展：日期里程碑对话(1-28天×8NPC)、天气反应对话(5天气×8NPC)、SAN观察对话(SAN<40时NPC关心玩家)；⑤SanVisualCorruption重构：Canvas渲染移至`SanPollutionLayer`组件，此文件改为surge/flash触发器(关键日期脉冲×1.8/×2.2)；⑥难度模组Hooks：`textVariants.js`/`ugcReducer.js`新增`difficulty_modifiers`(文本腐蚀/NPC信任/自定义替换)，Zod Schema全量校验；⑦NPC记忆Tier 5：汤米·陈+埃德加·洛夫克拉夫特新增T5跨轮记忆(实验室/相机/时间线重叠)；⑧封印知识持久化：`initLoopState`追踪封印仪式参与记录(Hilda/Fisher/Isabella)，跨轮解锁特殊对话；⑨确定性RNG扩展：`PollutionManager`/`fearLens`/`worldDecay`/`getWeather`等系统接入`rng`参数；⑩模拟器增强：`simulate_loops.cjs`新增`--difficulty/--batch/--progress/--json`参数+游戏数据模块级缓存+循环效果表预计算；⑪性能优化：`SanPollutionLayer` `getVisualForSan` useRef缓存，仅SAN变化时重算；⑫游戏数据扩展：4个结局新增`afterglow`余韵文本(老费舍救赎/伊莎贝拉第十二声钟/深渊吞噬/循环真相)，5个`loop_memory_effect`机械化映射 |

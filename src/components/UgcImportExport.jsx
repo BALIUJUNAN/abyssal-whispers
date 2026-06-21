@@ -13,7 +13,90 @@ import {
   importModFromJson,
   getModStats,
 } from '../reducers/ugcReducer.js';
-import { validateMod, parseAndValidateMod } from '../data/ugcSchema.js';
+import {
+  validateMod, parseAndValidateMod,
+  validateNpc, validateItem, validateArea, validateEnding,
+} from '../data/ugcSchema.js';
+import { applyUgcToGD } from '../utils/buildEventPool.js';
+import UgcEventEditor from './UgcEventEditor.jsx';
+
+// ── Bundled example mods catalog ──
+// Each entry describes a mod that ships with the game.
+// Players can install these with one click from the "Browse Examples" gallery.
+const BUNDLED_EXAMPLES = [
+  {
+    id: 'simple_event',
+    file: 'mods/examples/simple_event.json',
+    name: '码头边的旧日记',
+    author: '官方示例',
+    version: '1.0.0',
+    description: '最简单的纯叙事事件。在码头发现一本旧日记，无分支选择。适合学习事件基础结构。',
+    icon: '📖',
+    tags: ['入门', '纯叙事'],
+    eventCount: 1,
+    difficulty: '★☆☆',
+  },
+  {
+    id: 'branch_choice',
+    file: 'mods/examples/branch_choice.json',
+    name: '流浪汉的请求',
+    author: '官方示例',
+    version: '1.0.0',
+    description: '包含 3 个选项的分支选择事件。每个选项有不同的效果（食物、人性、信任、金钱）。',
+    icon: '🤔',
+    tags: ['入门', '分支选择'],
+    eventCount: 1,
+    difficulty: '★☆☆',
+  },
+  {
+    id: 'chain_quest',
+    file: 'mods/examples/chain_quest.json',
+    name: '寻找失踪的猫',
+    author: '官方示例',
+    version: '1.0.0',
+    description: '两阶段连锁任务。用 requires_flags 串联事件，第二阶段给予更好奖励。',
+    icon: '🔗',
+    tags: ['进阶', '任务链'],
+    eventCount: 2,
+    difficulty: '★★☆',
+  },
+  {
+    id: 'add_npc_lighthouse_keeper',
+    file: 'mods/examples/add-npc-lighthouse-keeper/mod.json',
+    name: '老灯塔看守人',
+    author: '官方示例',
+    version: '1.0.0',
+    description: '6 事件完整 NPC 任务链。初次相遇 → 帮助修灯 → 发现真相 → 道德抉择 → 结局分支。',
+    icon: '🧙',
+    tags: ['高级', 'NPC', '任务链', '剧情'],
+    eventCount: 6,
+    difficulty: '★★★',
+  },
+  {
+    id: 'new_area_lighthouse_zone',
+    file: 'mods/examples/new-area-lighthouse/mod.json',
+    name: '废弃灯塔区',
+    author: '官方示例',
+    version: '1.0.0',
+    description: '9 事件的新区域扩展。探索发现、深层调查、资源获取、氛围事件。多路径探索。',
+    icon: '🏚️',
+    tags: ['高级', '区域扩展', '探索'],
+    eventCount: 9,
+    difficulty: '★★★',
+  },
+  {
+    id: 'difficulty_expert_mode',
+    file: 'mods/examples/difficulty-expert/mod.json',
+    name: '专家模式',
+    author: '官方示例',
+    version: '1.0.0',
+    description: '难度调整 Mod。难度 8+ 时生效：文本腐化 ×2、NPC 信任 30%、6 组全局文本替换。',
+    icon: '💀',
+    tags: ['高级', '难度', '文本替换'],
+    eventCount: 3,
+    difficulty: '★★★',
+  },
+];
 
 // ────────────────────────────────────────────────
 // SECTION 1: Main Panel Component
@@ -30,8 +113,21 @@ export function UgcPanel({ onClose, GD }) {
     refreshMods();
   }, []);
 
+  const [devMode, setDevMode] = useState(false);
   const refreshMods = () => {
     setMods(getAllMods());
+  };
+
+  const handleDevRefresh = () => {
+    if (!GD) return;
+    var result = applyUgcToGD(GD);
+    refreshMods();
+    var n = GD._ugcEventCount || 0;
+    var nn = GD._ugcNpcCount || 0;
+    var ni = GD._ugcItemCount || 0;
+    var na = GD._ugcAreaCount || 0;
+    var ne = GD._ugcEndingCount || 0;
+    showToast('已刷新：' + n + ' 事件 + ' + nn + ' NPC + ' + ni + ' 物品 + ' + na + ' 区域 + ' + ne + ' 结局');
   };
 
   const stats = useMemo(() => getModStats(), [mods]);
@@ -78,6 +174,27 @@ export function UgcPanel({ onClose, GD }) {
     showToast('MOD安装成功');
   };
 
+  const handleInstallExample = useCallback(
+    async (example) => {
+      try {
+        // Fetch the bundled example mod JSON
+        const resp = await fetch(example.file);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.text();
+        const result = importModFromJson(json);
+        if (result.success) {
+          handleImportSuccess();
+          showToast(`「${example.name}」安装成功！`);
+        } else {
+          showToast(result.errors?.join('\n') || '安装失败', 'error');
+        }
+      } catch (e) {
+        showToast('加载示例失败: ' + e.message, 'error');
+      }
+    },
+    [handleImportSuccess, showToast]
+  );
+
   return (
     <div className="ugc-panel">
       <div className="ugc-panel-header">
@@ -85,11 +202,24 @@ export function UgcPanel({ onClose, GD }) {
         <div className="ugc-stats">
           <span>{stats.totalMods} 模组</span>
           <span>·</span>
-          <span>{stats.totalUgcEvents} 自定义事件</span>
+          <span>{stats.totalUgcEvents} 事件</span>
+          {stats.totalUgcNpcs > 0 && <span>·</span>}
+          {stats.totalUgcNpcs > 0 && <span>{stats.totalUgcNpcs} NPC</span>}
+          {stats.totalUgcItems > 0 && <span>·</span>}
+          {stats.totalUgcItems > 0 && <span>{stats.totalUgcItems} 物品</span>}
+          {stats.totalUgcAreas > 0 && <span>·</span>}
+          {stats.totalUgcAreas > 0 && <span>{stats.totalUgcAreas} 区域</span>}
+          {stats.totalUgcEndings > 0 && <span>·</span>}
+          {stats.totalUgcEndings > 0 && <span>{stats.totalUgcEndings} 结局</span>}
         </div>
         <button className="ugc-close-btn" onClick={onClose}>
           ✕
         </button>
+        {devMode && (
+          <button className="ugc-dev-refresh" onClick={handleDevRefresh} title="重新加载所有模组">
+            刷新
+          </button>
+        )}
       </div>
 
       {feedback && (
@@ -98,17 +228,21 @@ export function UgcPanel({ onClose, GD }) {
 
       <div className="ugc-panel-body">
         {view === 'list' && (
-          <ModListView
-            mods={mods}
-            onToggle={handleToggle}
-            onUninstall={handleUninstall}
-            onExport={handleExport}
-            onSelect={(m) => {
-              setSelectedMod(m);
-              setView('detail');
-            }}
-            onImport={() => setView('import')}
-          />
+          <>
+            <ModListView
+              mods={mods}
+              onToggle={handleToggle}
+              onUninstall={handleUninstall}
+              onExport={handleExport}
+              onSelect={(m) => {
+                setSelectedMod(m);
+                setView('detail');
+              }}
+              onImport={() => setView('import')}
+            />
+            {/* Bundled Examples Gallery */}
+            <ExampleGallery onInstall={handleInstallExample} installedIds={new Set(mods.map(m => m.id))} />
+          </>
         )}
         {view === 'import' && (
           <ModImportView
@@ -132,17 +266,32 @@ export function UgcPanel({ onClose, GD }) {
             }}
           />
         )}
+        {view === 'editor' && (
+          <UgcEventEditor
+            open={true}
+            initialEvent={null}
+            onClose={() => setView('list')}
+            onSaveAsMod={(modData) => {
+              var result = installMod(modData);
+              if (result.success) {
+                if (GD) applyUgcToGD(GD);
+                refreshMods();
+                setView('list');
+                showToast('事件模组创建成功');
+              } else {
+                showToast((result.errors || []).join('\n') || '创建失败', 'error');
+              }
+            }}
+          />
+        )}
       </div>
 
-      {/* Sample mod download */}
+      {/* Empty state — shown when no mods installed */}
       {view === 'list' && mods.length === 0 && (
         <div className="ugc-empty-state">
           <div className="ugc-empty-icon">📭</div>
           <div className="ugc-empty-text">还没有安装任何模组</div>
-          <div className="ugc-empty-hint">点击"导入模组"来安装一个JSON文件</div>
-          <button className="btn btn-sm" onClick={() => downloadSampleMod()}>
-            下载示例模组
-          </button>
+          <div className="ugc-empty-hint">浏览下方示例或导入自己的 JSON 文件</div>
         </div>
       )}
     </div>
@@ -150,7 +299,58 @@ export function UgcPanel({ onClose, GD }) {
 }
 
 // ────────────────────────────────────────────────
-// SECTION 2: Mod List View
+// SECTION 2: Bundled Example Gallery
+// ────────────────────────────────────────────────
+
+function ExampleGallery({ onInstall, installedIds }) {
+  const [expanded, setExpanded] = useState(false);
+  const visibleExamples = expanded ? BUNDLED_EXAMPLES : BUNDLED_EXAMPLES.slice(0, 3);
+
+  return (
+    <div className="ugc-example-gallery">
+      <div className="ugc-example-header">
+        <span className="ugc-example-title">📚 官方示例</span>
+        <button
+          className="btn btn-sm ugc-example-toggle"
+          onClick={() => setExpanded((v) => !v)}
+        >
+          {expanded ? '收起' : `查看全部 (${BUNDLED_EXAMPLES.length})`}
+        </button>
+      </div>
+      <div className="ugc-example-grid">
+        {visibleExamples.map((ex) => {
+          const isInstalled = installedIds.has(ex.id);
+          return (
+            <div key={ex.id} className="ugc-example-card">
+              <div className="ugc-example-icon">{ex.icon}</div>
+              <div className="ugc-example-info">
+                <div className="ugc-example-name">{ex.name}</div>
+                <div className="ugc-example-desc">{ex.description}</div>
+                <div className="ugc-example-meta">
+                  <span className="ugc-example-difficulty">{ex.difficulty}</span>
+                  <span className="ugc-example-count">{ex.eventCount} 事件</span>
+                  {ex.tags.map((t) => (
+                    <span key={t} className="ugc-example-tag">{t}</span>
+                  ))}
+                </div>
+              </div>
+              <button
+                className={'btn btn-sm ugc-example-install' + (isInstalled ? ' installed' : '')}
+                onClick={() => !isInstalled && onInstall(ex)}
+                disabled={isInstalled}
+              >
+                {isInstalled ? '✓ 已安装' : '安装'}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────
+// SECTION 3: Mod List View
 // ────────────────────────────────────────────────
 
 function ModListView({ mods, onToggle, onUninstall, onExport, onSelect, onImport }) {
@@ -160,9 +360,14 @@ function ModListView({ mods, onToggle, onUninstall, onExport, onSelect, onImport
         <button className="btn btn-primary btn-sm" onClick={onImport}>
           📥 导入模组
         </button>
-        <button className="btn btn-sm" onClick={() => downloadSampleMod()}>
-          📄 示例模组
-        </button>
+        <label className="ugc-dev-toggle" title="开发者模式：启用手动刷新">
+          <input
+            type="checkbox"
+            checked={devMode}
+            onChange={(e) => setDevMode(e.target.checked)}
+          />
+          <span>Dev</span>
+        </label>
       </div>
       {mods.length > 0 && (
         <div className="ugc-mod-list">
@@ -174,6 +379,9 @@ function ModListView({ mods, onToggle, onUninstall, onExport, onSelect, onImport
               <div className="ugc-mod-card-header">
                 <div className="ugc-mod-info">
                   <div className="ugc-mod-name">{mod.name}</div>
+                  {mod.metadata?.description && (
+                    <div className="ugc-mod-desc">{mod.metadata.description}</div>
+                  )}
                   <div className="ugc-mod-meta">
                     <span className="ugc-mod-author">by {mod.author}</span>
                     <span className="ugc-mod-version">v{mod.version}</span>
@@ -210,7 +418,7 @@ function ModListView({ mods, onToggle, onUninstall, onExport, onSelect, onImport
 }
 
 // ────────────────────────────────────────────────
-// SECTION 3: Import View
+// SECTION 4: Import View
 // ────────────────────────────────────────────────
 
 function ModImportView({ GD, onBack, onSuccess, onError }) {
@@ -335,7 +543,7 @@ function ModImportView({ GD, onBack, onSuccess, onError }) {
 }
 
 // ────────────────────────────────────────────────
-// SECTION 4: Detail View
+// SECTION 5: Detail View
 // ────────────────────────────────────────────────
 
 function ModDetailView({ mod, onBack, onToggle, onExport, onUninstall }) {
@@ -418,6 +626,57 @@ function ModDetailView({ mod, onBack, onToggle, onExport, onUninstall }) {
         ))}
       </div>
 
+      {/* Extended entity sections */}
+      {mod.npcs && mod.npcs.length > 0 && (
+        <div className="ugc-detail-section">
+          <h4>NPC ({mod.npcs.length})</h4>
+          {mod.npcs.map((n, i) => (
+            <div key={n.id || i} className="ugc-detail-row">
+              <span className="ugc-detail-id">{n.id}</span>
+              <span>{n.name}</span>
+              <span className="ugc-detail-type">{n.location}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {mod.items && mod.items.length > 0 && (
+        <div className="ugc-detail-section">
+          <h4>物品 ({mod.items.length})</h4>
+          {mod.items.map((it, i) => (
+            <div key={it.id || i} className="ugc-detail-row">
+              <span className="ugc-detail-id">{it.id}</span>
+              <span>{it.name}</span>
+              <span className="ugc-detail-type">{it.type}</span>
+              {it.uses > 0 && <span>x{it.uses}</span>}
+            </div>
+          ))}
+        </div>
+      )}
+      {mod.areas && mod.areas.length > 0 && (
+        <div className="ugc-detail-section">
+          <h4>区域 ({mod.areas.length})</h4>
+          {mod.areas.map((a, i) => (
+            <div key={a.id || i} className="ugc-detail-row">
+              <span className="ugc-detail-id">{a.id}</span>
+              <span>{a.name}</span>
+              <span className="ugc-detail-type">{a.type}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {mod.endings && mod.endings.length > 0 && (
+        <div className="ugc-detail-section">
+          <h4>结局 ({mod.endings.length})</h4>
+          {mod.endings.map((ed, i) => (
+            <div key={ed.id || i} className="ugc-detail-row">
+              <span className="ugc-detail-id">{ed.id}</span>
+              <span>{ed.name}</span>
+              <span className="ugc-detail-type">{ed.world_outcome}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="ugc-detail-actions">
         <button
           className={'btn' + (mod.enabled !== false ? '' : ' btn-primary')}
@@ -437,7 +696,7 @@ function ModDetailView({ mod, onBack, onToggle, onExport, onUninstall }) {
 }
 
 // ────────────────────────────────────────────────
-// SECTION 5: Validation Result Display
+// SECTION 6: Validation Result Display
 // ────────────────────────────────────────────────
 
 function ValidationResult({ result }) {
