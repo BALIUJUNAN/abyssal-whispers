@@ -317,6 +317,7 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **事件链 / 线索链**       | 顺序推进的多阶段调查，线索组合推导结论                                                              |
 | **音频系统**              | 53 段音频 — 区域环境音乐(9区×昼夜) + 技能检定音效 + 死亡叙事 + 中文语音台词 + 钟声变体 + AP消耗音效反馈 + 前传环境音 |
 | **笔记本系统**            | 独立浮层 UI（N 键/按钮），3 条线索链 + 5 个结论 + 线索互引标记 + 散落笔记，不影响上方数据查看          |
+| **事件日志**              | 可折叠事件记录面板（左栏全量 / 右栏最近10条 / 顶部快捷按钮），按 Day 标记，支持幻影条目过期过滤，存档持久化（200条上限）  |
 | **设置面板**              | **页面缩放**(70-140%) · 字号/行高/字族 · 闪烁/动画/高对比度 · 视觉污染/震动/文字污染/暗角 · 5路音量/静音 · 引导/跳过已读 · **存档/读档/成就入口** |
 | **成就系统**              | 20 个成就，进程 / 结局 / 挑战 / 隐藏四大类                                                          |
 | **多槽位存档**            | 3 自动 + 3 手动，版本迁移兼容，JSON 导入/导出                                                       |
@@ -336,6 +337,7 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **"疑似bug"系统**         | 幻影日志(0.5%,8s消失)/NPC名字错字(0.3%)/幻影叙述(0.3%,5s消失)，玩家永远不确定是bug还是疯狂         |
 | **AP 污染系统**           | SAN深/轮回多时AP显示欺骗(多报1-4点)+行动偷取(20-40%多扣1AP)+发现机制(揭示叙事)                   |
 | **不可靠每日总结**        | SAN stage≥2:数值误差±1 / ≥3:省略行动记录 / ≥4:追加虚假记忆                                        |
+| **区域描述渐进变体**      | 9区域×3层到访记忆（2-3次/4-6次/7+次），lookup表驱动，自然流过污染管线                                  |
 | **Mythos SAN门控**        | SAN≥50且loop<3时mythos增益静默跳过——知识"滑过"意识，保持"不可知"恐怖                               |
 | **事件文本感官化**        | 800+事件全面改写：去掉"你知道——"句式，"展现"替代"讲述"，感官细节替代概念说明                       |
 | **神话专名门控**          | 第一周目零真名泄露；loop 2 使用模糊替代（"那个符号""地下的纹路"）；loop 3+ 才解锁专名              |
@@ -676,6 +678,7 @@ COC/
 │   │   ├── townHotspots.js         # 城镇地图热点定义（237 行）
 │   │   ├── mapConstants.js         # 地图布局常量（37 行）
 │   │   ├── descriptionTemplates.js # 描述文本模板（14 行）
+│   │   ├── areaDescriptionVariants.js # 区域描述到访渐进变体 lookup 表（9区域×3层，~70 行）
 │   │   ├── ugcSchema.js            # UGC 模组 JSON Schema + 扩展实体验证（~950 行）
 │   │   │
 │   │   │   ── 核心 JSON 数据（支持懒加载） ──
@@ -1177,6 +1180,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.9.3** | 2026-06-21 | **区域描述渐进变体系统 + 事件日志文档化** — ①区域描述渐进变体：`areaDescriptionVariants.js` lookup 表（9区域×3层到访记忆：2-3次/4-6次/7+次），MOVE handler 描述管线集成，变体文本自然流过 mythos alias / text fragmentation / resource corruption 管线，营造跨访问"déjà vu"体验；②事件日志系统文档化：`state.eventLog` 多模块写入（engineCore/effectReducer/appHelpers），三处 UI 展示（左栏可折叠全量面板/右栏最近10条/顶部 EventLogButton），`useEventLog` 细粒度 selector，存档持久化200条上限，幻影条目过期过滤；③`build.py` 新增 `data/areaDescriptionVariants.js` 注册，`check_build_imports` 329 imports 0 errors |
 | **0.9.2** | 2026-06-21 | **Effects 传递架构修复 + BEGIN_ADVENTURE 切片提取** — ①`flushEffectsBuffer()` 从"轮询 Zustand state._effects"改为"显式接收 effects 参数"，消除 gameReducer → Zustand → flushEffectsBuffer 的循环读取，修复 effects 在并发 dispatch 下可能丢失或读到 stale batch 的问题；②`useGameStore.js` 移除 `sliceEffects` 中间变量（每个 slice handler 后赋值 `c.effects`），改为直接在 produce 末尾 `c.effects.slice()` → `effectsToFlush`，再显式传给 `flushEffectsBuffer(effectsToFlush)`；③`BEGIN_ADVENTURE` handler 从 `coreSlice.js` 提取为独立 `adventureSlice.js`（~250行），`gameReducer.js` 新增 `adventureSlice` 路由分支；④`test_effect_protocol.cjs` Test 9 更新为引用 `adventureSlice.js` + 验证 typed commands (`audio.play/audio.ambient`) |
 | **0.9.1** | 2026-06-21 | **Mod 生态增强 + CI/CD 流水线** — ①Mod 扩展类型：支持 5 种实体（事件/NPC/物品/区域/结局），Schema 校验 + 自动 ID 冲突前缀 + GD 注入 + 注册表同步；②可视化事件编辑器：5 标签页表单（基础/触发/效果/选项/预览），实时验证，一键保存为 Mod；③Dev Mode 热重载：开发者模式切换 + 刷新按钮，无需重启游戏即可重载 Mod；④CI/CD 流水线：PR Quality Gate + Main CI + Preview Deploy（GitHub Pages）+ Release（自动 changelog + GitHub Release）；⑤构建修复：`hasClueId` re-export 缺失导致 Vite build 失败 |
 | **0.9.0** | 2026-06-21 | **状态管理架构升级：Zustand + Immer 桥接 + combineSlices 声明式切片** — ①Step 1 桥接层：将 useReducer + gameReducer 桥接至 Zustand + Immer middleware，状态从模块级变量迁移到 Zustand store，dispatch 时序严格保持（reducer → patch draft → flushEffects），所有切片逻辑零改动；②Step 2 切片组合：新建 `combineSlices.js`（220行）createSlice 工厂 + rootReducer 组合器，支持 before/after 三阶段执行（systemSlice 的 tracking/AP/audio），JSDoc 类型注解对齐未来 TS 迁移，钩子错误隔离（单钩子抛错不阻塞 action 链路）；③gameReducer.js 从 194 行瘦身至 102 行纯调度入口；④新建 systemSlice（95行）将 hoarding tracking / recordActionHistory / AP steal / AP audio 四类 cross-cutting 逻辑从主 reducer 内联迁移到 before/after hooks；⑤新增 `resetVisualCorruption()` 修复 NEW_GAME 时 surge/flash 残留；⑥构建验证：check_build_imports 270 imports 0 errors + Vite build 1.13s + 全测试套件 285 passed；⑦`__SLICE_DEBUG__` 开发环境钩子执行日志（before/业务/after 时序追踪） |
