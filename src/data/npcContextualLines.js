@@ -13,6 +13,10 @@ export function selectContextualLine(npcName, state, opts) {
   var visitedAreas = state.visitedAreas || [];
   var inventory = state.inventory || [];
   var invIds = inventory.map(function(i) { return i.id || i.name || ""; });
+  // 上轮死亡区域：来自 loopReducer 传递的 previousDeathsByArea（上一轮回累积）
+  var prevDeathsByArea = state.previousDeathsByArea || {};
+  // 上轮死亡类型：来自 deathContext / lastDeathType
+  var prevDeathType = state.lastDeathType || state.deathContext?.type || null;
   var seen = (state._seenContextualLines || {})[npcName] || [];
   var candidates = pool.filter(function(line) {
     var c = line.conditions || {};
@@ -26,6 +30,13 @@ export function selectContextualLine(npcName, state, opts) {
     if (c.died_last_run && !diedLast) return false;
     if (c.visited_area && visitedAreas.indexOf(c.visited_area) < 0) return false;
     if (c.has_item && invIds.indexOf(c.has_item) < 0) return false;
+    // 上轮死亡区域条件（数组，任一匹配即通过）
+    if (c.death_area && Array.isArray(c.death_area)) {
+      var hasDeathInArea = c.death_area.some(function(a) { return (prevDeathsByArea[a] || 0) > 0; });
+      if (!hasDeathInArea) return false;
+    }
+    // 上轮死亡类型条件（字符串精确匹配）
+    if (c.prev_death_type && prevDeathType !== c.prev_death_type) return false;
     return true;
   });
   if (candidates.length === 0) return null;
@@ -64,6 +75,8 @@ export var NPC_CONTEXTUAL_LINES = {
     { text: '你又来了。', conditions: {loop_min: 2}, priority: 5, tags: ['loop'] },
     { text: '海会记住所有回来的人。你是回来次数最多的。', conditions: {loop_min: 5}, priority: 6, tags: ['loop'] },
     { text: '你记住了。上次你死在灯塔下面。（停顿）烟斗里的烟，还是老样子。', conditions: {loop_min: 3, trust_min: 4}, priority: 7, tags: ['loop'] },
+    // ── 轮回记忆台词 P0：锚链台词（min_loop ≥ 2 + 信任 ≥ 2 + 上轮死于水域）──
+    { text: '（他把一段锚链放在桌上。锚链上的锈迹和你上次沾到的一模一样。）你回来了。锚还记得你。', conditions: {loop_min: 2, trust_min: 2, death_area: ['harbor_district', 'lighthouse']}, priority: 8, tags: ['loop', 'memory', 'legacy'] },
     { text: '你……又来了。还是说，我又看见你了？', conditions: {loop_min: 2, san_below: 40}, priority: 7, tags: ['loop', 'san'] },
     { text: '（他转过身去。码头的木板在脚下吱呀作响。）', conditions: {trust_max: 0}, priority: 2, tags: ['silence'] },
     { text: '别问了。', conditions: {trust_min: 1, trust_max: 2}, priority: 2, tags: ['silence'] },
@@ -91,6 +104,8 @@ export var NPC_CONTEXTUAL_LINES = {
     { text: '（他看着灯塔的楼梯扶手。扶手上有抓痕。）你上次掉下去的时候，抓了扶手。痕迹还在。', conditions: {died_last_run: true}, priority: 6, tags: ['legacy'] },
     { text: '你的眼睛在发光。不是反光。是发光。', conditions: {san_below: 35}, priority: 5, tags: ['san'] },
     { text: '灯塔今天闪了十三次。正常只会闪十二次。多出来的那一次……我没看到是什么。', conditions: {time: 'night'}, priority: 3, tags: ['lore'] },
+    { text: '（他把望远镜递给你。镜头里，海面上有一个光点。不是灯塔。不是船。它在动。）你有没有看到那个？', conditions: {loop_min: 3, trust_min: 4}, priority: 7, tags: ['loop', 'lore'] },
+    { text: '（他看着你。很久。）你每次回来都比上次更不像人。我 noticed 了。不是讽刺——是陈述。', conditions: {loop_min: 5, trust_min: 3}, priority: 8, tags: ['loop', 'memory'] },
   ],
   '希尔达·莫里斯': [
     { text: '门开着。进来吧。走廊里的画像今天很安静。', conditions: {}, priority: 1, tags: ['greeting'] },
@@ -110,6 +125,8 @@ export var NPC_CONTEXTUAL_LINES = {
     { text: '你又来了。走廊里的画像已经认得你了。', conditions: {loop_min: 2}, priority: 5, tags: ['loop'] },
     { text: '走廊里的画像已经不为你变化了。它们习惯了你。', conditions: {loop_min: 5}, priority: 6, tags: ['loop'] },
     { text: '（她看着你。）你上次来的时候，地下室的门是开的。这次也是。', conditions: {loop_min: 3, trust_min: 3}, priority: 7, tags: ['loop'] },
+    // ── 轮回记忆台词 P0：死亡方式台词（min_loop ≥ 2 + 信任 ≥ 2 + 死于庄园/墓穴区域）──
+    { text: '（她没有看你的脸。目光落在你左手的旧疤上。）上次你从这里出去的时候，这个疤还没有。你在地下室摔了一跤。石头很滑。', conditions: {loop_min: 2, trust_min: 2, death_area: ['voxchester_manor', 'deep_catacombs']}, priority: 8, tags: ['loop', 'memory', 'legacy'] },
     { text: '（她没有开门。你听到走廊里有脚步声。但不是朝门口来的。）', conditions: {trust_max: 0}, priority: 2, tags: ['silence'] },
     { text: '（她看着你。目光停在你的左手上。你上次死的时候，左手先着地。）你的手……还疼吗？', conditions: {died_last_run: true}, priority: 6, tags: ['legacy'] },
     { text: '庄园的画像今天多了一个人。那个人穿着你的衣服。', conditions: {san_below: 35}, priority: 5, tags: ['san'] },
@@ -134,6 +151,12 @@ export var NPC_CONTEXTUAL_LINES = {
     { text: '（她背对着你擦杯子。没有回头。）', conditions: {trust_max: 0}, priority: 2, tags: ['silence'] },
     { text: '（她看着你坐下。）你上次来的时候，坐的是那个位置。那个位置现在是空的。一直是空的。', conditions: {died_last_run: true}, priority: 6, tags: ['legacy'] },
     { text: '今天的啤酒不太对。有一股海水的味道。不是正常的那种。', conditions: {}, priority: 1, tags: ['lore'] },
+    { text: '又来了？坐吧。你那个位置没人敢坐。他们说你坐过的凳子会自己冒水。', conditions: {trust_min: 1}, priority: 2, tags: ['greeting'] },
+    { text: '码头上周来了一条船。船上的人没下船。船自己开走了。我赌五十块钱那艘船现在正在海底跟1919年的沉船打牌。', conditions: {trust_min: 2}, priority: 3, tags: ['lore'] },
+    { text: '别碰角落那杯啤酒。已经放了一周了。比我在灯塔底下捡到那个东西的存放时间还短。', conditions: {trust_min: 3}, priority: 4, tags: ['lore'] },
+    { text: '你上次来的时候点了什么来着？……算了。我也忘了。今天喝什么？', conditions: {loop_min: 2}, priority: 5, tags: ['loop'] },
+    { text: '（她擦杯子的手停了一下。她看见了什么——不是在你身上，是在你身后。然后她恢复了动作。）你身后那杯酒……不是我给你倒的。', conditions: {loop_min: 5, trust_min: 3}, priority: 7, tags: ['loop', 'lore'] },
+    { text: '（她把酒馆的门关上了一点。声音压得很低。）我在这吧台后面待了十二年。见过很多人来来去去。但你不一样。你不是来喝酒的。你是来告别的。', conditions: {loop_min: 3, trust_min: 4}, priority: 7, tags: ['loop', 'lore'] },
   ],
   '伊莱亚斯·沃德': [
     { text: '他抬起头，手指还夹着一支没点燃的烟斗。镜片后面的目光快速扫过你的脸，又垂回去。「你好。新来的？」', conditions: {}, priority: 1, tags: ['greeting'] },
@@ -148,10 +171,14 @@ export var NPC_CONTEXTUAL_LINES = {
     { text: '「你的体温比上次低了2度。这在医学上是不正常的。」', conditions: {san_below: 40}, priority: 5, tags: ['san'] },
     { text: '「你的轮回次数已经超出了理论值。你不再是案例——你是现象。」', conditions: {loop_min: 5}, priority: 6, tags: ['loop'] },
     { text: '（他看着你。翻了翻笔记本。）「你上次来的时候，坐的是那把椅子。椅子上的磨损痕迹和你的坐姿吻合。」', conditions: {loop_min: 3, trust_min: 3}, priority: 7, tags: ['loop'] },
+    // ── 轮回记忆台词 P0：体温台词（min_loop ≥ 2 + 信任 ≥ 3）──
+    { text: '「你的体温比上次低了2.7度。误差超出测量仪的量程。」他把温度计放回口袋。「这不是疾病。这是衰减。」', conditions: {loop_min: 2, trust_min: 3, san_below: 50}, priority: 8, tags: ['loop', 'memory', 'san'] },
     { text: '（他看了看你。然后在笔记本上写了一行字，没有让你看。）', conditions: {trust_max: 1}, priority: 2, tags: ['silence'] },
     { text: '「你的档案里多了一条记录。死亡原因：……」他没有读完。「你不需要知道细节。」', conditions: {died_last_run: true}, priority: 6, tags: ['legacy'] },
     { text: '「你的血液检测结果……」他停顿了一下。「含盐量偏高。不是饮食能解释的那种偏高。」', conditions: {san_below: 45}, priority: 5, tags: ['san'] },
     { text: '「你手上的伤疤……你确定是今天才有的吗？它的愈合程度不对。」', conditions: {san_below: 35}, priority: 5, tags: ['san'] },
+    // ── 伊莱亚斯语言指纹：学术观察体 ──
+    { text: '（他翻到笔记本前一页。上面有一组数据。）「你的行为模式出现了系统性偏移。这不是记忆衰退——是某种外部写入。每次轮回，你的选择在收敛。」', conditions: {loop_min: 5, trust_min: 4}, priority: 8, tags: ['loop', 'memory', 'lore'] },
   ],
   '伊莎贝拉·韦伯': [
     { text: '「愿主保佑你。你来祈祷吗？」', conditions: {}, priority: 1, tags: ['greeting'] },
@@ -169,6 +196,8 @@ export var NPC_CONTEXTUAL_LINES = {
     { text: '「你上次来教堂的时候……我记得。那天的蜡烛灭了三根。」她没有说为什么。', conditions: {died_last_run: true}, priority: 6, tags: ['legacy'] },
     { text: '「你听到了吗？钟声。不是十三下。是你的名字。」', conditions: {san_below: 30}, priority: 6, tags: ['san'] },
     { text: '教堂的地板今天是温的。不是暖气。是从下面传上来的。', conditions: {time: 'night'}, priority: 3, tags: ['lore'] },
+    // ── 伊莎贝拉语言指纹：宗教见证者 ──
+    { text: '「你走过圣坛的时候，蜡烛没有晃动。但没有风。」她看着你。「它们认识你。不需要风来引燃。」', conditions: {loop_min: 3, trust_min: 3}, priority: 8, tags: ['loop', 'memory', 'san'] },
   ],
   '汤米·陈': [
     { text: '（他正在擦相机。抬头看了你一眼。）你对摄影感兴趣吗？', conditions: {}, priority: 1, tags: ['greeting'] },
@@ -181,6 +210,8 @@ export var NPC_CONTEXTUAL_LINES = {
     { text: '你今天拍的照片……你确定那是你拍的吗？', conditions: {san_below: 40}, priority: 5, tags: ['san'] },
     { text: '（他把相机递给你。屏幕上的照片是你——但不是现在的你。是很多个你。重叠在一起。）', conditions: {san_below: 30}, priority: 6, tags: ['san'] },
     { text: '我的相机已经存了太多你的照片。每次都不一样。每次都是你。', conditions: {loop_min: 5}, priority: 6, tags: ['loop'] },
+    // ── 汤米语言指纹：摄影即见证 ──
+    { text: '（他调整了一下焦距，对着你按了快门。没有闪光灯。）「你知道吗？有些东西只有相机能看到。人眼会自动过滤掉。」', conditions: {loop_min: 3, trust_min: 3}, priority: 8, tags: ['loop', 'memory', 'san'] },
     { text: '（他看了看你。然后继续擦镜头。没有说话。）', conditions: {trust_max: 0}, priority: 2, tags: ['silence'] },
     { text: '（他翻了翻相机。停在一张照片上。照片里是你——但你倒在地上。）这张……我什么时候拍的？', conditions: {died_last_run: true}, priority: 6, tags: ['legacy'] },
     { text: '你的照片里多了一个影子。不是你的。', conditions: {san_below: 35}, priority: 5, tags: ['san'] },
@@ -196,6 +227,8 @@ export var NPC_CONTEXTUAL_LINES = {
     { text: '你的故事越来越有意思了。但我不确定那是故事。', conditions: {san_below: 40}, priority: 5, tags: ['san'] },
     { text: '你不是在调查沃切斯特。沃切斯特在调查你。你就是最好的素材。', conditions: {san_below: 30}, priority: 6, tags: ['san'] },
     { text: '你的故事已经写了太多遍。但每一次的结局都不一样。这本身就是最好的故事。', conditions: {loop_min: 5}, priority: 6, tags: ['loop'] },
+    // ── 埃德加语言指纹：元叙事观察者 ──
+    { text: '（他合上笔记本。没有看封底。）「有趣。这本书的作者——不是写故事的人。是读故事的人。你每读一遍，结局就变一次。」', conditions: {loop_min: 3, trust_min: 3}, priority: 8, tags: ['loop', 'memory', 'lore'] },
     { text: '（他看了你一眼。然后在笔记本上画了一条线。划掉了什么。）', conditions: {trust_max: 0}, priority: 2, tags: ['silence'] },
     { text: '「你回来了。」他翻了翻笔记本。「上次的故事……你没有读完。结局是——」他停住了。最后一页是空白的。不。有一滴血。', conditions: {died_last_run: true}, priority: 6, tags: ['legacy'] },
     { text: '「你说话的时候，有些词会自己改变。你注意到了吗？」', conditions: {san_below: 35}, priority: 5, tags: ['san'] },
@@ -203,4 +236,4 @@ export var NPC_CONTEXTUAL_LINES = {
   ],
 };
 
-// Total: 143 lines across 8 NPCs
+// Total: 151 lines across 8 NPCs

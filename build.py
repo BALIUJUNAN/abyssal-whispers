@@ -95,6 +95,7 @@ REDUCER_FILES = [
     'data/events_area_deep.js',
     'data/events_ending.js',
     'data/events_silent.js',
+    'data/areaInvestigationDetails.js',  # 区域可调查细节（5-8条/区域，随loop/SAN变化）
     'data/events_meta.js',
     'data/extended_events_index.js',
     'data/ending_missing_600.js',
@@ -134,6 +135,7 @@ REDUCER_FILES = [
     'reducers/npcReducer.js',          # MUST precede loopReducer.js (imported by it)
     'systems/reincarnationDiff.js',  # MUST precede loopReducer.js
     'systems/deathLegacies.js',       # MUST precede loopReducer.js + coreSlice.js (death legacy system)
+    'systems/playerTraces.js',        # MUST precede loopReducer.js (player trace detection)
     'reducers/loopReducer.js',
     'reducers/chapterReducer.js',
     'reducers/conclusionReducer.js',
@@ -169,7 +171,10 @@ REDUCER_FILES = [
     'systems/sanFeedback.js',         # Used by app.jsx
     'systems/npcFeedback.js',         # MUST precede npcSlice.js
     'systems/firstLoopBalance.js',    # MUST precede exploreSlice.js
+    'systems/balanceSimulator.js',    # Balance simulation (imports firstLoopBalance + difficulty)
     'systems/sanityVisual.js',        # MUST precede appHelpers.js (getPerceptionLevels, getSanStageClasses)
+    'systems/textFragmentation.js',    # MUST precede exploreSlice.js + NPCDialog.jsx (applyTextFragmentation)
+    'systems/textPollution.js',        # MUST precede appHelpers.js + exploreSlice.js (applyTextPollution)
     'systems/llmNarrative.js',        # LLM narrative enhancement (optional, depends on glmClient.js)
     # gameSettings.js excluded: DEFAULT_SETTINGS already in miscReducer.js
     # Phase 2: App-level helper functions extracted from app.jsx
@@ -181,6 +186,7 @@ REDUCER_FILES = [
     'reducers/slices/adventureSlice.js',  # BEGIN_ADVENTURE (depends on coreSlice + difficultyState)
     'reducers/slices/loopSlice.js',       # NEW_GAME, CONTINUE_GAME, LOOP_SHOP_PURCHASE
     'data/areaDescriptionVariants.js',  # MUST precede exploreSlice.js (area description variants)
+    'data/areaInvestigationDetails.js', # MUST precede exploreSlice.js (investigation details)
     'engine/eventBus.js',              # MUST precede exploreSlice.js, dailySlice.js
     'runtime/eventSideEffects.js',    # MUST follow eventBus.js — side effect handlers
     'systems/earlyHooks.js',           # MUST precede exploreSlice.js

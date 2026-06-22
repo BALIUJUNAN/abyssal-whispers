@@ -10,8 +10,8 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
-![Tests](https://img.shields.io/badge/tests-285_passed_%2F_0_failed-brightgreen)
-![Version](https://img.shields.io/badge/version-0.9.3-orange)
+![Tests](https://img.shields.io/badge/tests-536_passed_%2F_0_failed-brightgreen)
+![Version](https://img.shields.io/badge/version-0.9.4-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -72,7 +72,7 @@ npm run tauri:build
 
 | 维度           | 数据                                                                                                                        |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **独立事件**   | **855+ 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆） + 102 结局，全部含 quality_tier / trigger 条件，**589 个事件含 SAN/轮回 distortion variants（覆盖率 98%）** |
+| **独立事件**   | **629 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆 + 10 痕迹连锁） + 102 结局，全部含 quality_tier / trigger 条件，**589 个事件含 SAN/轮回 distortion variants（覆盖率 93%）** |
 | **行为结局**   | **36 条** — 由你的选择模式触发，非预设分支                                                                                  |
 | **主线结局**   | **10 条** — 封印守护者 / 希尔达抉择 / 老费舍血脉 / 第十二声钟 / 海上逃离 / 证据逃离 / 异端黎明 / 深渊吞噬 / 超越 / 循环真相 |
 | **结局余韵**   | 每条结局附带可解锁的 Afterglow 文本（条件触发）                                                                             |
@@ -80,7 +80,7 @@ npm run tauri:build
 | **NPC**        | **8 位** × 5 级信任 × 4 层跨轮记忆 × 关系网 × 死后遗产 × **40+ 条上下文对话**（信任/时段/SAN/轮回/死亡遗产变体）             |
 | **可探索区域** | 9 个 — 从镇中心到深渊墓穴，危险度递进（45-265 事件/区域）                                                                    |
 | **物品**       | 79 种 — 全部有效果，含 2 家可购买商店 + 轮回商店 6 件永久商品                                                                |
-| **事件链**     | 7 条 — 码头暗流 / 森林深处 / 庄园迷踪 / 墓穴惊魂 / 伊斯之谜 / 灯塔真相 / 城市暗流                                           |
+| **事件链**     | 12 条 — 7 条主线叙事链 + 5 条玩家痕迹软连锁（has_flag/add_flag 引擎级事件依赖）                                                |
 | **音频素材**   | 53 段 (WAV + MP3) — 覆盖环境音乐 / 音效 / 中文语音                                                                          |
 | **成就**       | 20 个 — 进程 / 结局 / 挑战 / 隐藏四大类                                                                                     |
 | **存档槽位**   | 6 个 — 3 自动轮转 + 3 手动管理，JSON 导入导出                                                                               |
@@ -90,10 +90,10 @@ npm run tauri:build
 | **布局模式**   | 2 种 — 暗黑地牢风格全景地图 / 经典三栏面板                                                                                  |
 | **转场动画**   | **Canvas 程序化转场** — 噪声擦拭 / 墨汁渗透 / 虚空之环 / 故障切片 4 种效果 + 主题音效联动 + 可关闭                          |
 | **AI 叙事增强**| GLM-4.7 Flash — 9 个场景动态生成，离线优先                                                                   |
-| **代码规模**   | 45,000+ 行 JS/JSX — 114+ 个源文件                                                                                           |
+| **代码规模**   | 50,000+ 行 JS/JSX — 120+ 个源文件                                                                                           |
 | **数据校验**   | Zod Schema 855条数据全量校验                                                                                                 |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
-| **测试覆盖**   | 完整流程测试 48 项（19 组）+ 事件 lint 69 项 + 拼接/Vite 双构建验证                                                          |
+| **测试覆盖**   | 12 个套件 536 项（完整流程 48 + 事件 lint 100 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + 其他 86），拼接/Vite 双构建验证                                                          |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -364,6 +364,8 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **难度模组 Hooks**        | UGC 模组可注入 `difficulty_modifiers`(text_corruption_boost/npc_trust_multiplier/custom_text_swaps) + 5 种扩展实体类型（NPC/物品/区域/结局），Zod Schema 全量校验                |
 | **NPC 记忆 Tier 5**       | 汤米·陈 + 埃德加·洛夫克拉夫特新增 Tier 5 跨轮记忆(实验室/相机记忆/时间线重叠)，8 NPC 全部覆盖到 T5                              |
 | **模拟器性能增强**        | `simulate_loops.cjs` 新增 --difficulty/--batch/--progress/--json 参数，游戏数据模块级缓存，循环效果表预计算                               |
+| **balanceSimulator**      | 轻量级 28 天蒙特卡洛模拟器（~280 行），复用 13 级难度 + 恐惧画像 + graduated protection + 封印状态，96 项平衡测试覆盖 10 维度                                  |
+| **玩家痕迹系统**          | 9 条行为痕迹（3 试点 + 6 扩展），跨轮回区域描述自动追加，add_flag/has_flag 软连锁引擎级事件依赖，5 条痕迹回声事件                                                       |
 | **SanPollutionLayer 缓存**| `getVisualForSan` 结果 useRef 缓存，仅 SAN 变化时重算，减少 Canvas 渲染开销                                                           |
 | **第 600 事件**           | 隐藏终局事件 — loop≥10 + mythos≥25 + san≤10 + 5+结局 + 终局内容 → 599→600 虚拟事件自动显现         |
 | **triggeredSet.js**       | 并行 Set 结构替代 triggeredEvents.includes() O(n) 扫描，12 个文件 migrated，事件查询 O(1)                                                               |
@@ -634,6 +636,7 @@ COC/
 │   │   ├── npcFeedback.js          # NPC 关系反馈 — 6级信任分层（~100 行）
 │   │   ├── sanFeedback.js          # SAN 反馈分层 — 4档损失表现（~120 行）
 │   │   ├── firstLoopBalance.js     # 首轮+二三轮保护（~140 行）— Loop 2-3渐进桥梁
+│   │   ├── balanceSimulator.js     # 平衡模拟器（~280 行）— 28天蒙特卡洛/13级难度/恐惧画像/graduated protection/封印状态
 │   │   ├── textVariants.js         # 文本重复控制 — 4层污染变体 + 难度文本替换（~230 行）
 │   │   ├── llmNarrative.js         # AI 叙事增强层（~320 行）— 9个LLM增强函数（事件/NPC/死亡/Meta/余韵/SAN腐蚀/人格反思/轮回开场/存档名污染）
 │   │   └── gameSettings.js         # 设置系统 — 无障碍+音量+视觉+LLM控制（~110 行）
@@ -715,7 +718,7 @@ COC/
 │   └── vendor/                     # React 18 / ReactDOM / Babel / Immer
 │
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 9 个测试文件（285 tests）
+├── tests/                    # 13 个测试文件（536 tests）
 │   ├── test_effect_protocol.cjs       # 效果协议测试（6 tests）
 │   ├── test_game_data_protocol.cjs    # 游戏数据协议测试（10 tests）
 │   ├── test_event_system.cjs          # 事件系统测试（19 tests）
@@ -732,6 +735,10 @@ COC/
 │   │                                  #   验证 10-15 轮内可达至少 2 个结局方向
 │   ├── test_player_experience_loop.cjs # 玩家体验链集成测试（25 tests）
 │   │                                  #   完整体验: 引导→NPC→SAN→死亡→总结→轮回→差异
+│   ├── test_phase2_features.mjs        # Phase 2 专项测试（100 tests）
+│   │                                  #   has_flag 触发/micro_horror 数据完整性/玩家痕迹/NPC 覆盖率
+│   ├── test_balance_system.mjs         # 平衡系统测试（96 tests）
+│   │                                  #   10 维度：配置完整性/单调性/保护倍率/graduated protection/恐惧画像/难度梯度/消耗速率/封印递增/可复现性/输出结构
 │   └── integration_test.cjs           # 集成测试（19 tests）
 │
 ├── mods/                     # UGC 模组
@@ -847,6 +854,16 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
   description: "你发现了一些不该存在的东西。",
   effects: { add_clue: "clue_custom_001", san: -1 },
 }
+```
+
+**事件连锁（软依赖）**：用 `add_flag` / `has_flag` 实现跨事件联动，无需硬编码事件 ID：
+
+```javascript
+// 前置事件：触发后设置痕迹标志
+{ effects: { add_flag: 'trace_broken_window_church' } }
+
+// 后序事件：需要该标志才出现
+{ trigger: { areas: ['church'], has_flag: 'trace_broken_window_church', min_loop: 2 } }
 ```
 
 事件调度器会自动将其纳入触发池。
@@ -996,7 +1013,7 @@ UGC 模组有严格的安全限制：
 
 **快速测试命令**：
 ```bash
-npm test                  # 全量测试（48 tests）
+npm test                  # 全量测试（536 tests / 12 suites）
 npm run lint:schema       # 数据 Schema 校验
 npm run lint:engine       # 引擎边界检查
 npm run mod:validate      # Mod 格式校验
@@ -1046,7 +1063,7 @@ npm run tauri:build      # 桌面版构建（需要 Rust）
 # ── 验证 ──────────────────────────────────────────────
 
 npm run verify           # 完整验证（测试 + Vite 构建 + Legacy 构建）
-npm test                 # 全部测试（285 tests / 9 suites）
+npm test                 # 全部测试（536 tests / 12 suites）
 npm run format:check     # 代码格式检查（Prettier）
 
 # ── 轮回系统测试 ─────────────────────────────────────
@@ -1124,12 +1141,12 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 ## 代码质量
 
-### 综合评分：**9.4 / 10**
+### 综合评分：**9.5 / 10**
 
 | 维度                 | 评分       | 状态                                                                                           |
 | -------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
 | **主循环 & Reducer** | **9.5/10** | ✅ 6 legacy slice + systemSlice before/after hooks + combineSlices 组合器 + Zustand+Immer 桥接层 |
-| **事件系统**         | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents，855 事件 + 102 结局       |
+| **事件系统**         | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents，629 事件 + 102 结局 + has_flag 软连锁       |
 | **SAN 系统**         | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现                  |
 | **子系统**           | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk                          |
 | **构建流程**         | **9.5/10** | ✅ Vite 主线（ESM + HMR）；Legacy 单文件保留；verify 覆盖双构建；注释安全删除 + token 边界保护 |
@@ -1163,7 +1180,11 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 - ✅ **死亡总结4段叙事** — 死因叙事先行（不暴露机制）→ 发现回顾 → 世界变化 → 新目标建议，`DeathSummaryView` 组件直接渲染
 - ✅ **轮回差异提示** — `computeReincarnationDiff()` 在 `initLoopState` 末尾自动生成，存入 `f.reincarnationDiff`
 - ✅ **NPC 反馈分层** — 跨级触发脉冲+音效，同级轻文本，信任降级有警告，避免 UI 噪音
-- ✅ **首轮保护** — `shouldBlockLethalEvent` + `adjustSanLossForFirstLoop` + `adjustSanLossForLoop23` 接入 exploreSlice 事件筛选和伤害计算（Loop 0-3 渐进桥梁）
+- ✅ **事件软连锁** — `add_flag`/`has_flag` 引擎级事件依赖，5 条前置 + 5 条回声，零 reducer 改造，支持多对多叙事链
+- ✅ **玩家痕迹系统** — 9 条行为痕迹跨轮回区域描述追加，`detectPlayerTraces` 自动检测 + `recordPlayerTrace` 手动记录，`_triggeredSet` O(1) 查询
+- ✅ **平衡模拟器** — `balanceSimulator.js` 28 天蒙特卡洛，复用 13 级难度 + 恐惧画像 + graduated protection + 封印状态，96 项 CI 回归测试
+- ✅ **NPC 语言指纹** — 8 位 NPC 完整写作规范（句式/语气/意象/信任递进/轮回记忆/死亡回响/SAN 退化/禁用词），`event_authoring.md` 官方文档
+- ✅ **首轮保护** — `shouldBlockLethalEvent` + `adjustSanLossForLoop23` + `adjustMonsterChance` 接入 exploreSlice 事件筛选和伤害计算（Loop 0-3 渐进桥梁）
 - ✅ **Day-of-Cycle权重** — `EventEngine.js` Section 9，关键日期(7/14/21/28)超自然事件×1.8/日常事件×0.4 + SAN stage 5+ 类型差异化修正
 - ✅ **轮回记忆效应机械化** — `applyLoopMemoryEffects()` 解析 `loop_memory_effect` 叙事文本为10+种机械效果（NPC信任/腐化/SAN/属性/物品/角色/封印知识）
 - ✅ **NPC 对话三层扩展** — `npcDialogue.js` 日期里程碑(1-28天×8NPC) + 天气反应(5天气×8NPC) + SAN观察(SAN<40关心玩家)
@@ -1180,6 +1201,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.9.4** | 2026-06-22 | **Phase 2 体系化升级** — ①轻量事件依赖机制：引擎级 `has_flag`/`add_flag` 软连锁，5 条前置事件 + 5 条回声事件，零 reducer 改造；②玩家痕迹系统扩展：3 试点→9 条痕迹（+森林低语/酒馆硬币/墓穴符号/灯塔信号/庄园日记/森林祭品），跨轮回区域描述自动追加；③NPC 语言指纹规范沉淀：`event_authoring.md` 8 位 NPC 完整指纹（句式/语气/意象/信任递进/轮回记忆/死亡回响/SAN 退化/禁用词）；④测试与平衡体系补全：`balanceSimulator.js` 轻量蒙特卡洛模拟器（13 级难度/恐惧画像/graduated protection/封印状态）+ `test_balance_system.mjs` 96 项平衡测试（10 维度：配置完整性/单调性/保护倍率/graduated protection/恐惧画像/难度梯度/消耗速率/封印递增/可复现性/输出结构）；⑤微恐怖触发率测试：19 个 micro_horror 事件数据完整性验证（weight/probability/once_per_run）；⑥NPC 台词覆盖率测试：8 位 NPC 三级优先级（low/mid/high）全覆盖，memory line 关键词验证；⑦全量回归 536 passed / 0 failed / 12 suites |
 | **0.9.3** | 2026-06-21 | **区域描述渐进变体系统 + 事件日志文档化** — ①区域描述渐进变体：`areaDescriptionVariants.js` lookup 表（9区域×3层到访记忆：2-3次/4-6次/7+次），MOVE handler 描述管线集成，变体文本自然流过 mythos alias / text fragmentation / resource corruption 管线，营造跨访问"déjà vu"体验；②事件日志系统文档化：`state.eventLog` 多模块写入（engineCore/effectReducer/appHelpers），三处 UI 展示（左栏可折叠全量面板/右栏最近10条/顶部 EventLogButton），`useEventLog` 细粒度 selector，存档持久化200条上限，幻影条目过期过滤；③`build.py` 新增 `data/areaDescriptionVariants.js` 注册，`check_build_imports` 329 imports 0 errors |
 | **0.9.2** | 2026-06-21 | **Effects 传递架构修复 + BEGIN_ADVENTURE 切片提取** — ①`flushEffectsBuffer()` 从"轮询 Zustand state._effects"改为"显式接收 effects 参数"，消除 gameReducer → Zustand → flushEffectsBuffer 的循环读取，修复 effects 在并发 dispatch 下可能丢失或读到 stale batch 的问题；②`useGameStore.js` 移除 `sliceEffects` 中间变量（每个 slice handler 后赋值 `c.effects`），改为直接在 produce 末尾 `c.effects.slice()` → `effectsToFlush`，再显式传给 `flushEffectsBuffer(effectsToFlush)`；③`BEGIN_ADVENTURE` handler 从 `coreSlice.js` 提取为独立 `adventureSlice.js`（~250行），`gameReducer.js` 新增 `adventureSlice` 路由分支；④`test_effect_protocol.cjs` Test 9 更新为引用 `adventureSlice.js` + 验证 typed commands (`audio.play/audio.ambient`) |
 | **0.9.1** | 2026-06-21 | **Mod 生态增强 + CI/CD 流水线** — ①Mod 扩展类型：支持 5 种实体（事件/NPC/物品/区域/结局），Schema 校验 + 自动 ID 冲突前缀 + GD 注入 + 注册表同步；②可视化事件编辑器：5 标签页表单（基础/触发/效果/选项/预览），实时验证，一键保存为 Mod；③Dev Mode 热重载：开发者模式切换 + 刷新按钮，无需重启游戏即可重载 Mod；④CI/CD 流水线：PR Quality Gate + Main CI + Preview Deploy（GitHub Pages）+ Release（自动 changelog + GitHub Release）；⑤构建修复：`hasClueId` re-export 缺失导致 Vite build 失败 |

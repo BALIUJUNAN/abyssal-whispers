@@ -237,8 +237,8 @@ for (const [n, f] of Object.entries(files2)) {
   allE.push(...x.events);
 }
 console.log('  Total events: ' + allE.length);
-if (allE.length !== 599) {
-  console.log('  FATAL: expected 599, got ' + allE.length);
+if (allE.length !== 629) {
+  console.log('  FATAL: expected 629, got ' + allE.length);
   process.exit(1);
 }
 
@@ -343,11 +343,52 @@ if (!eev.includes('max_meta_per_run')) {
   process.exit(1);
 }
 
+// P2-1: has_flag trigger condition (light event chaining)
+if (!eev.includes('has_flag')) {
+  console.log('  FATAL: missing has_flag trigger support');
+  process.exit(1);
+}
+if (!eev.includes('applyMicroHorrorDilution')) {
+  console.log('  FATAL: missing applyMicroHorrorDilution');
+  process.exit(1);
+}
+
+// P2-1: micro_horror budget category
+const sil = fs2.readFileSync('src/data/events_silent.js', 'utf8');
+const silFn = new Function('e', sil.replace('export const events', 'e.events'));
+const silData = {};
+silFn(silData);
+const evts = silData.events || [];
+const mh = evts.filter((e) => e.type === 'micro_horror');
+console.log('  Micro-horror events: ' + mh.length);
+console.log('  Micro-horror has distortion_variants: ' + mh.filter((e) => e.distortion_variants).length + '/' + mh.length);
+
+// P2-1: trace echo event (has_flag chain)
+const traceEcho = evts.filter((e) => e.subtype === 'trace_echo');
+console.log('  Trace echo events: ' + traceEcho.length);
+if (traceEcho.length > 0) {
+  console.log('  Trace echo has_flag: ' + traceEcho[0].trigger.has_flag);
+}
+
+// P2-6: playerTraces.js has hasTriggered import
+const pt = fs2.readFileSync('src/systems/playerTraces.js', 'utf8');
+if (!pt.includes('hasTriggered')) {
+  console.log('  FATAL: playerTraces.js missing hasTriggered import');
+  process.exit(1);
+}
+
+// P2-6: areaInvestigationDetails.js registered
+const build = fs2.readFileSync('build.py', 'utf8');
+if (!build.includes('areaInvestigationDetails')) {
+  console.log('  FATAL: areaInvestigationDetails.js not in build.py');
+  process.exit(1);
+}
+
 console.log('\n========================================');
 console.log('  FULL INTEGRATION TEST PASSED');
-console.log('  Events: 599 + 1 virtual = 600');
+console.log('  Events: 629 + 1 virtual = 630');
 console.log('  Quality: S=' + dist2.S + ' A=' + dist2.A + ' B=' + dist2.B + ' C=' + dist2.C);
-console.log('  DV: ' + dv + '/599');
+console.log('  DV: ' + dv + '/629');
 console.log('  Meta: ' + meta.length + '/12');
 console.log('  NPC: ' + npc.length + '/75');
 console.log('  Afterglow: 5 endings');

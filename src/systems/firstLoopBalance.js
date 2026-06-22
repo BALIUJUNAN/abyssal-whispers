@@ -83,6 +83,7 @@ export function adjustMonsterChance(rawChance, state) {
   return rawChance;
 }
 
+export { PROTECTION_CONFIG, GRADUATED_CONFIG };
 export function shouldBlockLethalEvent(event, state) {
   // Safe window (first loop, days 1-3): block ALL events to give player breathing room
   if (isInSafeWindow(state)) return true;

@@ -22,6 +22,8 @@ const SUITES = [
   { file: 'tests/test_ending_reachability.cjs', label: 'ending_reachability' },
   { file: 'tests/test_player_experience_loop.cjs', label: 'player_experience' },
   { file: 'tests/test_combineSlices.cjs', label: 'combineSlices' },
+  { file: 'tests/test_phase2_features.mjs', label: 'phase2_features' },
+  { file: 'tests/test_balance_system.mjs', label: 'balance_system' },
   { file: 'tests/integration_test.cjs', label: 'integration' },
 ];
 
