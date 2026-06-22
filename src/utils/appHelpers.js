@@ -9,6 +9,7 @@ import { hasTriggered, syncTriggeredSet } from './triggeredSet.js';
 import { generatePersonalityReport } from '../data/behavior_endings.js';
 // P1-A: use getSanStageFromGD instead of hardcoded SAN thresholds
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
+import { applyTextPollution } from '../systems/textPollution.js';
 import { captureNpcEcho } from '../reducers/npcReducer.js';
 // P-REFACTOR: getPerceptionLevels moved to systems/sanityVisual.js
 // Re-export removed — concatenation build declares it once from sanityVisual.js
@@ -580,6 +581,12 @@ export function buildReducerCtx(s, opts, corruptFn) {
         entry._originalText = text;
         entry.text = corrupted;
       }
+    }
+    // P2-5: text pollution (SAN-driven) — applies to all non-special text
+    if (!extra.isSpecial && !extra.isEffect && !extra.madness) {
+      const polluted = applyTextPollution(entry.text, s.san, s.loopCount);
+      if (polluted !== entry.text) entry._originalText = entry._originalText || entry.text;
+      entry.text = polluted;
     }
     s.narrative.push(entry);
     if (s.narrative.length > MAX_NARRATIVE_ENTRIES) {

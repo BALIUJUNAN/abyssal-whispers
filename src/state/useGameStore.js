@@ -28,6 +28,7 @@ import { handleCoreAction } from '../reducers/slices/coreSlice.js';
 import { handleAdventureAction } from '../reducers/slices/adventureSlice.js';
 import { handleLoopAction } from '../reducers/slices/loopSlice.js';
 import { applyFearCorruption } from '../systems/fearLens.js';
+import { applyTextPollution } from '../systems/textPollution.js';
 import { initialState } from './initialState.js';
 
 // ═══════════════════════════════════════════════════════════════
@@ -70,6 +71,12 @@ function buildSliceCtx(draft, rng, corruptFn) {
       var corrupted = corruptFn(text, 1);
       if (corrupted !== text) entry._originalText = text;
       entry.text = corrupted;
+    }
+    // Apply text pollution (SAN-driven character/word corruption)
+    if (!extra.isSpecial && !extra.isEffect && !extra.madness) {
+      var polluted = applyTextPollution(entry.text, draft.san, draft.loopCount, rng);
+      if (polluted !== entry.text) entry._originalText = entry._originalText || entry.text;
+      entry.text = polluted;
     }
     draft.narrative.push(entry);
     if (draft.narrative.length > 250) {

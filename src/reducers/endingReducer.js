@@ -446,14 +446,34 @@ export function checkAfterglowUnlock(ending, state) {
 
 /**
  * Get unlocked afterglow texts for a specific ending.
+ * Progressive unlock: each trigger of the ending reveals one more text.
  * @param {object} ending - ending object
  * @param {object} state - game state
- * @returns {string[]} unlocked texts (may be empty)
+ * @returns {object} { texts: string[], locked: number } — unlocked texts and how many remain locked
  */
 export function getAfterglowTexts(ending, state) {
-  if (!ending || !ending.afterglow) return [];
-  if (!checkAfterglowUnlock(ending, state)) return [];
-  return ending.afterglow.texts || [];
+  if (!ending || !ending.afterglow) return { texts: [], locked: 0 };
+  if (!checkAfterglowUnlock(ending, state)) return { texts: [], locked: 0 };
+  var allTexts = ending.afterglow.texts || [];
+  var triggerCount = getEndingTriggerCount(state, ending.id) || 0;
+  // First trigger unlocks text 1 (was always shown before)
+  // Subsequent triggers unlock one more each time
+  var unlockedCount = Math.min(allTexts.length, triggerCount);
+  return {
+    texts: allTexts.slice(0, unlockedCount),
+    locked: allTexts.length - unlockedCount,
+  };
+}
+
+/**
+ * Get how many times a specific ending has been triggered.
+ * @param {object} state - game state
+ * @param {string} endingId - ending ID
+ * @returns {number}
+ */
+export function getEndingTriggerCount(state, endingId) {
+  if (!state || !state.endingTriggerCounts) return 0;
+  return state.endingTriggerCounts[endingId] || 0;
 }
 
 /**
@@ -464,10 +484,15 @@ export function getAfterglowTexts(ending, state) {
  */
 export function getEndingRecord(allEndings, state) {
   const achieved = new Set(state.previousEndings || []);
-  return (allEndings || []).map((ending) => ({
-    ending,
-    achieved: achieved.has(ending.id),
-    afterglowUnlocked: achieved.has(ending.id) && checkAfterglowUnlock(ending, state),
-    afterglowTexts: achieved.has(ending.id) ? getAfterglowTexts(ending, state) : [],
-  }));
+  return (allEndings || []).map((ending) => {
+    var agResult = getAfterglowTexts(ending, state);
+    return {
+      ending,
+      achieved: achieved.has(ending.id),
+      afterglowUnlocked: agResult.texts.length > 0,
+      afterglowTexts: agResult.texts,
+      afterglowLocked: agResult.locked,
+      triggerCount: getEndingTriggerCount(state, ending.id),
+    };
+  });
 }

@@ -1,0 +1,3426 @@
+{
+  "events_area_deep.js": {
+    "exact_duplicates": {
+      "distortion_variants/san_low": {
+        "83a6bacd": {
+          "count": 33,
+          "sample_size": 83,
+          "event_ids": [
+            "area_catacombs_001",
+            "area_catacombs_003",
+            "area_catacombs_004",
+            "area_catacombs_005",
+            "area_catacombs_006",
+            "area_catacombs_008",
+            "area_catacombs_009",
+            "area_catacombs_010",
+            "area_catacombs_011",
+            "area_catacombs_012",
+            "area_lighthouse_001",
+            "area_lighthouse_002",
+            "area_lighthouse_003",
+            "area_lighthouse_004",
+            "area_lighthouse_005",
+            "area_lighthouse_006",
+            "area_lighthouse_007",
+            "area_lighthouse_008",
+            "area_lighthouse_009",
+            "area_lighthouse_010",
+            "area_lighthouse_011",
+            "area_lighthouse_012",
+            "area_ruins_001",
+            "area_ruins_002",
+            "area_ruins_003",
+            "area_ruins_004",
+            "area_ruins_006",
+            "area_ruins_007",
+            "area_ruins_008",
+            "area_ruins_009",
+            "area_ruins_010",
+            "area_ruins_011",
+            "area_ruins_012"
+          ],
+          "sample_text": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真实的。"
+        },
+        "9b33ad81": {
+          "count": 11,
+          "sample_size": 97,
+          "event_ids": [
+            "area_grove_001",
+            "area_grove_002",
+            "area_grove_003",
+            "area_grove_004",
+            "area_grove_005",
+            "area_grove_007",
+            "area_grove_008",
+            "area_grove_009",
+            "area_grove_010",
+            "area_grove_011",
+            "area_grove_012"
+          ],
+          "sample_text": "这里的树长得不一样。不是形态不一样——是本质不一样。\\n它们的树干上有和你类似的纹路。像皮肤。像血管。\\n你把手贴在一棵树上。树干是温热的。它在脉搏。\\n你缩回了手。树的脉搏没有停止。它还在跳。"
+        },
+        "0ee98c91": {
+          "count": 9,
+          "sample_size": 90,
+          "event_ids": [
+            "area_deep_001",
+            "area_deep_002",
+            "area_deep_003",
+            "area_deep_005",
+            "area_deep_008",
+            "area_deep_009",
+            "area_deep_010",
+            "area_deep_011",
+            "area_deep_012"
+          ],
+          "sample_text": "深度不是距离。是重量。\\n你感到一种下坠感——但不是身体在往下掉。\\n是你的意识在往下沉。穿过岩层、穿过黑暗、穿过某种屏障。\\n你在很深的地方看到了光。不是温暖的光——是饥饿的光。"
+        }
+      },
+      "distortion_variants/san_mid": {
+        "d7466777": {
+          "count": 50,
+          "sample_size": 68,
+          "event_ids": [
+            "area_town_center_001",
+            "area_town_center_002",
+            "area_town_center_003",
+            "area_town_center_004",
+            "area_town_center_005",
+            "area_town_center_006",
+            "area_town_center_007",
+            "area_town_center_008",
+            "area_town_center_009",
+            "area_town_center_011",
+            "area_town_center_013",
+            "area_town_center_014",
+            "area_town_center_015",
+            "area_harbor_001",
+            "area_harbor_002",
+            "area_harbor_003",
+            "area_harbor_004",
+            "area_harbor_005",
+            "area_harbor_006",
+            "area_harbor_008",
+            "area_harbor_009",
+            "area_harbor_010",
+            "area_harbor_011",
+            "area_harbor_012",
+            "area_harbor_013",
+            "area_harbor_014",
+            "area_harbor_015",
+            "area_forest_001",
+            "area_forest_002",
+            "area_forest_003",
+            "area_forest_005",
+            "area_forest_008",
+            "area_forest_009",
+            "area_forest_010",
+            "area_forest_011",
+            "area_forest_012",
+            "area_forest_013",
+            "area_forest_014",
+            "area_forest_015",
+            "area_manor_001",
+            "area_manor_002",
+            "area_manor_003",
+            "area_manor_005",
+            "area_manor_006",
+            "area_manor_007",
+            "area_manor_008",
+            "area_manor_009",
+            "area_manor_012",
+            "area_manor_013",
+            "area_manor_015"
+          ],
+          "sample_text": "你注意到了一些以前没有注意到的细节。\\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\\n你觉得它们在有节奏地跳动——像某种巨大的器官。"
+        }
+      },
+      "distortion_variants/corruption_high": {
+        "ae88b627": {
+          "count": 41,
+          "sample_size": 74,
+          "event_ids": [
+            "area_catacombs_001",
+            "area_catacombs_003",
+            "area_catacombs_004",
+            "area_catacombs_005",
+            "area_catacombs_006",
+            "area_catacombs_008",
+            "area_catacombs_009",
+            "area_catacombs_010",
+            "area_catacombs_011",
+            "area_catacombs_012",
+            "area_ruins_001",
+            "area_ruins_002",
+            "area_ruins_003",
+            "area_ruins_004",
+            "area_ruins_006",
+            "area_ruins_007",
+            "area_ruins_008",
+            "area_ruins_009",
+            "area_ruins_010",
+            "area_ruins_011",
+            "area_ruins_012",
+            "area_grove_001",
+            "area_grove_002",
+            "area_grove_003",
+            "area_grove_004",
+            "area_grove_005",
+            "area_grove_007",
+            "area_grove_008",
+            "area_grove_009",
+            "area_grove_010",
+            "area_grove_011",
+            "area_grove_012",
+            "area_deep_001",
+            "area_deep_002",
+            "area_deep_003",
+            "area_deep_005",
+            "area_deep_008",
+            "area_deep_009",
+            "area_deep_010",
+            "area_deep_011",
+            "area_deep_012"
+          ],
+          "sample_text": "空气中弥漫着一种陌生的气味。\\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动。\\n你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。"
+        }
+      },
+      "distortion_variants/loop_3_plus": {
+        "8ce22cbe": {
+          "count": 48,
+          "sample_size": 75,
+          "event_ids": [
+            "area_town_center_001",
+            "area_town_center_002",
+            "area_town_center_003",
+            "area_town_center_004",
+            "area_town_center_005",
+            "area_town_center_006",
+            "area_town_center_007",
+            "area_town_center_008",
+            "area_town_center_009",
+            "area_town_center_011",
+            "area_town_center_013",
+            "area_town_center_014",
+            "area_town_center_015",
+            "area_forest_001",
+            "area_forest_002",
+            "area_forest_003",
+            "area_forest_005",
+            "area_forest_008",
+            "area_forest_009",
+            "area_forest_010",
+            "area_forest_011",
+            "area_forest_012",
+            "area_forest_013",
+            "area_forest_014",
+            "area_forest_015",
+            "area_manor_001",
+            "area_manor_002",
+            "area_manor_003",
+            "area_manor_005",
+            "area_manor_006",
+            "area_manor_007",
+            "area_manor_008",
+            "area_manor_009",
+            "area_manor_012",
+            "area_manor_013",
+            "area_manor_015",
+            "area_lighthouse_001",
+            "area_lighthouse_002",
+            "area_lighthouse_003",
+            "area_lighthouse_004",
+            "area_lighthouse_005",
+            "area_lighthouse_006",
+            "area_lighthouse_007",
+            "area_lighthouse_008",
+            "area_lighthouse_009",
+            "area_lighthouse_010",
+            "area_lighthouse_011",
+            "area_lighthouse_012"
+          ],
+          "sample_text": "这已经不是你第一次经历这个了。\\n你确定——你在之前的循环里见过这一幕。\\n但记忆的边缘在模糊。是第几次来着？你数不清了。\\n但你知道——它还会再来。"
+        }
+      },
+      "distortion_variants/fear_ocean": {
+        "b11f0de4": {
+          "count": 23,
+          "sample_size": 65,
+          "event_ids": [
+            "area_harbor_001",
+            "area_harbor_002",
+            "area_harbor_003",
+            "area_harbor_004",
+            "area_harbor_005",
+            "area_harbor_006",
+            "area_harbor_008",
+            "area_harbor_009",
+            "area_harbor_010",
+            "area_harbor_011",
+            "area_harbor_012",
+            "area_harbor_013",
+            "area_harbor_014",
+            "area_harbor_015",
+            "area_deep_001",
+            "area_deep_002",
+            "area_deep_003",
+            "area_deep_005",
+            "area_deep_008",
+            "area_deep_009",
+            "area_deep_010",
+            "area_deep_011",
+            "area_deep_012"
+          ],
+          "sample_text": "空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。"
+        }
+      },
+      "distortion_variants/fear_depth": {
+        "94c97ddf": {
+          "count": 33,
+          "sample_size": 109,
+          "event_ids": [
+            "area_forest_001",
+            "area_forest_002",
+            "area_forest_003",
+            "area_forest_005",
+            "area_forest_008",
+            "area_forest_009",
+            "area_forest_010",
+            "area_forest_011",
+            "area_forest_012",
+            "area_forest_013",
+            "area_forest_014",
+            "area_forest_015",
+            "area_catacombs_001",
+            "area_catacombs_003",
+            "area_catacombs_004",
+            "area_catacombs_005",
+            "area_catacombs_006",
+            "area_catacombs_008",
+            "area_catacombs_009",
+            "area_catacombs_010",
+            "area_catacombs_011",
+            "area_catacombs_012",
+            "area_grove_001",
+            "area_grove_002",
+            "area_grove_003",
+            "area_grove_004",
+            "area_grove_005",
+            "area_grove_007",
+            "area_grove_008",
+            "area_grove_009",
+            "area_grove_010",
+            "area_grove_011",
+            "area_grove_012"
+          ],
+          "sample_text": "地面在你脚下变得不真实。你往下看了一眼——不是真的看，是'感觉'了一眼。\\n下面有东西。很深的东西。\\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。\\n低频的、持续的振动。像是什么巨大的东西在水底下呼吸。"
+        }
+      },
+      "description_variants/visit_2_3": {
+        "0d2f3cbe": {
+          "count": 15,
+          "sample_size": 113,
+          "event_ids": [
+            "area_town_center_001",
+            "area_town_center_002",
+            "area_town_center_003",
+            "area_town_center_004",
+            "area_town_center_005",
+            "area_town_center_006",
+            "area_town_center_007",
+            "area_town_center_008",
+            "area_town_center_009",
+            "area_town_center_010",
+            "area_town_center_011",
+            "area_town_center_012",
+            "area_town_center_013",
+            "area_town_center_014",
+            "area_town_center_015"
+          ],
+          "sample_text": "脚下的路有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是鹅卵石的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        },
+        "bb9a2205": {
+          "count": 15,
+          "sample_size": 113,
+          "event_ids": [
+            "area_harbor_001",
+            "area_harbor_002",
+            "area_harbor_003",
+            "area_harbor_004",
+            "area_harbor_005",
+            "area_harbor_006",
+            "area_harbor_007",
+            "area_harbor_008",
+            "area_harbor_009",
+            "area_harbor_010",
+            "area_harbor_011",
+            "area_harbor_012",
+            "area_harbor_013",
+            "area_harbor_014",
+            "area_harbor_015"
+          ],
+          "sample_text": "码头的木板有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是海风的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        },
+        "22cc7f7d": {
+          "count": 15,
+          "sample_size": 114,
+          "event_ids": [
+            "area_forest_001",
+            "area_forest_002",
+            "area_forest_003",
+            "area_forest_004",
+            "area_forest_005",
+            "area_forest_006",
+            "area_forest_007",
+            "area_forest_008",
+            "area_forest_009",
+            "area_forest_010",
+            "area_forest_011",
+            "area_forest_012",
+            "area_forest_013",
+            "area_forest_014",
+            "area_forest_015"
+          ],
+          "sample_text": "某棵熟悉的树有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是松针的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        },
+        "97cbcbc3": {
+          "count": 15,
+          "sample_size": 112,
+          "event_ids": [
+            "area_manor_001",
+            "area_manor_002",
+            "area_manor_003",
+            "area_manor_004",
+            "area_manor_005",
+            "area_manor_006",
+            "area_manor_007",
+            "area_manor_008",
+            "area_manor_009",
+            "area_manor_010",
+            "area_manor_011",
+            "area_manor_012",
+            "area_manor_013",
+            "area_manor_014",
+            "area_manor_015"
+          ],
+          "sample_text": "某级台阶有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是壁炉的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        },
+        "9d06b164": {
+          "count": 12,
+          "sample_size": 112,
+          "event_ids": [
+            "area_catacombs_001",
+            "area_catacombs_002",
+            "area_catacombs_003",
+            "area_catacombs_004",
+            "area_catacombs_005",
+            "area_catacombs_006",
+            "area_catacombs_007",
+            "area_catacombs_008",
+            "area_catacombs_009",
+            "area_catacombs_010",
+            "area_catacombs_011",
+            "area_catacombs_012"
+          ],
+          "sample_text": "某道转弯有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是石壁的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        },
+        "d226870d": {
+          "count": 12,
+          "sample_size": 115,
+          "event_ids": [
+            "area_lighthouse_001",
+            "area_lighthouse_002",
+            "area_lighthouse_003",
+            "area_lighthouse_004",
+            "area_lighthouse_005",
+            "area_lighthouse_006",
+            "area_lighthouse_007",
+            "area_lighthouse_008",
+            "area_lighthouse_009",
+            "area_lighthouse_010",
+            "area_lighthouse_011",
+            "area_lighthouse_012"
+          ],
+          "sample_text": "某级台阶的磨损有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是灯光的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        },
+        "2dbeefb3": {
+          "count": 12,
+          "sample_size": 115,
+          "event_ids": [
+            "area_ruins_001",
+            "area_ruins_002",
+            "area_ruins_003",
+            "area_ruins_004",
+            "area_ruins_005",
+            "area_ruins_006",
+            "area_ruins_007",
+            "area_ruins_008",
+            "area_ruins_009",
+            "area_ruins_010",
+            "area_ruins_011",
+            "area_ruins_012"
+          ],
+          "sample_text": "某面墙壁的纹路有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是金属的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        },
+        "0b997923": {
+          "count": 12,
+          "sample_size": 114,
+          "event_ids": [
+            "area_grove_001",
+            "area_grove_002",
+            "area_grove_003",
+            "area_grove_004",
+            "area_grove_005",
+            "area_grove_006",
+            "area_grove_007",
+            "area_grove_008",
+            "area_grove_009",
+            "area_grove_010",
+            "area_grove_011",
+            "area_grove_012"
+          ],
+          "sample_text": "某棵树的纹理有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是浆果的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        },
+        "07543ac2": {
+          "count": 12,
+          "sample_size": 115,
+          "event_ids": [
+            "area_deep_001",
+            "area_deep_002",
+            "area_deep_003",
+            "area_deep_004",
+            "area_deep_005",
+            "area_deep_006",
+            "area_deep_007",
+            "area_deep_008",
+            "area_deep_009",
+            "area_deep_010",
+            "area_deep_011",
+            "area_deep_012"
+          ],
+          "sample_text": "某段路的倾斜度有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是深水的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。"
+        }
+      },
+      "description_variants/visit_4_6": {
+        "1dbda335": {
+          "count": 15,
+          "sample_size": 113,
+          "event_ids": [
+            "area_town_center_001",
+            "area_town_center_002",
+            "area_town_center_003",
+            "area_town_center_004",
+            "area_town_center_005",
+            "area_town_center_006",
+            "area_town_center_007",
+            "area_town_center_008",
+            "area_town_center_009",
+            "area_town_center_010",
+            "area_town_center_011",
+            "area_town_center_012",
+            "area_town_center_013",
+            "area_town_center_014",
+            "area_town_center_015"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——公告栏上的画面已经刻好了。\\n你甚至能预判鹅卵石从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        },
+        "c8ddec7e": {
+          "count": 15,
+          "sample_size": 113,
+          "event_ids": [
+            "area_harbor_001",
+            "area_harbor_002",
+            "area_harbor_003",
+            "area_harbor_004",
+            "area_harbor_005",
+            "area_harbor_006",
+            "area_harbor_007",
+            "area_harbor_008",
+            "area_harbor_009",
+            "area_harbor_010",
+            "area_harbor_011",
+            "area_harbor_012",
+            "area_harbor_013",
+            "area_harbor_014",
+            "area_harbor_015"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——某根系缆桩的画面已经刻好了。\\n你甚至能预判海风从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        },
+        "42ce01a6": {
+          "count": 15,
+          "sample_size": 116,
+          "event_ids": [
+            "area_forest_001",
+            "area_forest_002",
+            "area_forest_003",
+            "area_forest_004",
+            "area_forest_005",
+            "area_forest_006",
+            "area_forest_007",
+            "area_forest_008",
+            "area_forest_009",
+            "area_forest_010",
+            "area_forest_011",
+            "area_forest_012",
+            "area_forest_013",
+            "area_forest_014",
+            "area_forest_015"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——上次刻标记的地方的画面已经刻好了。\\n你甚至能预判松针从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        },
+        "4e70d8cd": {
+          "count": 15,
+          "sample_size": 112,
+          "event_ids": [
+            "area_manor_001",
+            "area_manor_002",
+            "area_manor_003",
+            "area_manor_004",
+            "area_manor_005",
+            "area_manor_006",
+            "area_manor_007",
+            "area_manor_008",
+            "area_manor_009",
+            "area_manor_010",
+            "area_manor_011",
+            "area_manor_012",
+            "area_manor_013",
+            "area_manor_014",
+            "area_manor_015"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——某幅画像的画面已经刻好了。\\n你甚至能预判壁炉从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        },
+        "098e9a86": {
+          "count": 12,
+          "sample_size": 112,
+          "event_ids": [
+            "area_catacombs_001",
+            "area_catacombs_002",
+            "area_catacombs_003",
+            "area_catacombs_004",
+            "area_catacombs_005",
+            "area_catacombs_006",
+            "area_catacombs_007",
+            "area_catacombs_008",
+            "area_catacombs_009",
+            "area_catacombs_010",
+            "area_catacombs_011",
+            "area_catacombs_012"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——某个划痕的画面已经刻好了。\\n你甚至能预判石壁从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        },
+        "2225a1c6": {
+          "count": 12,
+          "sample_size": 113,
+          "event_ids": [
+            "area_lighthouse_001",
+            "area_lighthouse_002",
+            "area_lighthouse_003",
+            "area_lighthouse_004",
+            "area_lighthouse_005",
+            "area_lighthouse_006",
+            "area_lighthouse_007",
+            "area_lighthouse_008",
+            "area_lighthouse_009",
+            "area_lighthouse_010",
+            "area_lighthouse_011",
+            "area_lighthouse_012"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——灯室的地板的画面已经刻好了。\\n你甚至能预判灯光从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        },
+        "92d8bf1b": {
+          "count": 12,
+          "sample_size": 115,
+          "event_ids": [
+            "area_ruins_001",
+            "area_ruins_002",
+            "area_ruins_003",
+            "area_ruins_004",
+            "area_ruins_005",
+            "area_ruins_006",
+            "area_ruins_007",
+            "area_ruins_008",
+            "area_ruins_009",
+            "area_ruins_010",
+            "area_ruins_011",
+            "area_ruins_012"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——上次触碰的机器的画面已经刻好了。\\n你甚至能预判金属从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        },
+        "ecada15c": {
+          "count": 12,
+          "sample_size": 116,
+          "event_ids": [
+            "area_grove_001",
+            "area_grove_002",
+            "area_grove_003",
+            "area_grove_004",
+            "area_grove_005",
+            "area_grove_006",
+            "area_grove_007",
+            "area_grove_008",
+            "area_grove_009",
+            "area_grove_010",
+            "area_grove_011",
+            "area_grove_012"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——上次摘浆果的地方的画面已经刻好了。\\n你甚至能预判浆果从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        },
+        "85e60451": {
+          "count": 12,
+          "sample_size": 113,
+          "event_ids": [
+            "area_deep_001",
+            "area_deep_002",
+            "area_deep_003",
+            "area_deep_004",
+            "area_deep_005",
+            "area_deep_006",
+            "area_deep_007",
+            "area_deep_008",
+            "area_deep_009",
+            "area_deep_010",
+            "area_deep_011",
+            "area_deep_012"
+          ],
+          "sample_text": "你已经在脑子里走了一遍。\\n不需要眼睛——竖井的边缘的画面已经刻好了。\\n你甚至能预判深水从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。"
+        }
+      },
+      "description_variants/visit_7_plus": {
+        "c5b9ea74": {
+          "count": 15,
+          "sample_size": 140,
+          "event_ids": [
+            "area_town_center_001",
+            "area_town_center_002",
+            "area_town_center_003",
+            "area_town_center_004",
+            "area_town_center_005",
+            "area_town_center_006",
+            "area_town_center_007",
+            "area_town_center_008",
+            "area_town_center_009",
+            "area_town_center_010",
+            "area_town_center_011",
+            "area_town_center_012",
+            "area_town_center_013",
+            "area_town_center_014",
+            "area_town_center_015"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——脚下的路的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        },
+        "7ea93df7": {
+          "count": 15,
+          "sample_size": 141,
+          "event_ids": [
+            "area_harbor_001",
+            "area_harbor_002",
+            "area_harbor_003",
+            "area_harbor_004",
+            "area_harbor_005",
+            "area_harbor_006",
+            "area_harbor_007",
+            "area_harbor_008",
+            "area_harbor_009",
+            "area_harbor_010",
+            "area_harbor_011",
+            "area_harbor_012",
+            "area_harbor_013",
+            "area_harbor_014",
+            "area_harbor_015"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——码头的木板的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        },
+        "ea433258": {
+          "count": 15,
+          "sample_size": 142,
+          "event_ids": [
+            "area_forest_001",
+            "area_forest_002",
+            "area_forest_003",
+            "area_forest_004",
+            "area_forest_005",
+            "area_forest_006",
+            "area_forest_007",
+            "area_forest_008",
+            "area_forest_009",
+            "area_forest_010",
+            "area_forest_011",
+            "area_forest_012",
+            "area_forest_013",
+            "area_forest_014",
+            "area_forest_015"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——某棵熟悉的树的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        },
+        "5c43936c": {
+          "count": 15,
+          "sample_size": 140,
+          "event_ids": [
+            "area_manor_001",
+            "area_manor_002",
+            "area_manor_003",
+            "area_manor_004",
+            "area_manor_005",
+            "area_manor_006",
+            "area_manor_007",
+            "area_manor_008",
+            "area_manor_009",
+            "area_manor_010",
+            "area_manor_011",
+            "area_manor_012",
+            "area_manor_013",
+            "area_manor_014",
+            "area_manor_015"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——某级台阶的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        },
+        "245b88bc": {
+          "count": 12,
+          "sample_size": 140,
+          "event_ids": [
+            "area_catacombs_001",
+            "area_catacombs_002",
+            "area_catacombs_003",
+            "area_catacombs_004",
+            "area_catacombs_005",
+            "area_catacombs_006",
+            "area_catacombs_007",
+            "area_catacombs_008",
+            "area_catacombs_009",
+            "area_catacombs_010",
+            "area_catacombs_011",
+            "area_catacombs_012"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——某道转弯的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        },
+        "5bb30452": {
+          "count": 12,
+          "sample_size": 143,
+          "event_ids": [
+            "area_lighthouse_001",
+            "area_lighthouse_002",
+            "area_lighthouse_003",
+            "area_lighthouse_004",
+            "area_lighthouse_005",
+            "area_lighthouse_006",
+            "area_lighthouse_007",
+            "area_lighthouse_008",
+            "area_lighthouse_009",
+            "area_lighthouse_010",
+            "area_lighthouse_011",
+            "area_lighthouse_012"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——某级台阶的磨损的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        },
+        "32ffeb87": {
+          "count": 12,
+          "sample_size": 143,
+          "event_ids": [
+            "area_ruins_001",
+            "area_ruins_002",
+            "area_ruins_003",
+            "area_ruins_004",
+            "area_ruins_005",
+            "area_ruins_006",
+            "area_ruins_007",
+            "area_ruins_008",
+            "area_ruins_009",
+            "area_ruins_010",
+            "area_ruins_011",
+            "area_ruins_012"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——某面墙壁的纹路的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        },
+        "6eabd743": {
+          "count": 12,
+          "sample_size": 142,
+          "event_ids": [
+            "area_grove_001",
+            "area_grove_002",
+            "area_grove_003",
+            "area_grove_004",
+            "area_grove_005",
+            "area_grove_006",
+            "area_grove_007",
+            "area_grove_008",
+            "area_grove_009",
+            "area_grove_010",
+            "area_grove_011",
+            "area_grove_012"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——某棵树的纹理的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        },
+        "2ccfe83b": {
+          "count": 12,
+          "sample_size": 143,
+          "event_ids": [
+            "area_deep_001",
+            "area_deep_002",
+            "area_deep_003",
+            "area_deep_004",
+            "area_deep_005",
+            "area_deep_006",
+            "area_deep_007",
+            "area_deep_008",
+            "area_deep_009",
+            "area_deep_010",
+            "area_deep_011",
+            "area_deep_012"
+          ],
+          "sample_text": "你的身体先于你的意识动了。\\n不需要思考——某段路的倾斜度的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。"
+        }
+      },
+      "echo_overlay": {
+        "698243fa": {
+          "count": 15,
+          "sample_size": 65,
+          "event_ids": [
+            "area_town_center_001",
+            "area_town_center_002",
+            "area_town_center_003",
+            "area_town_center_004",
+            "area_town_center_005",
+            "area_town_center_006",
+            "area_town_center_007",
+            "area_town_center_008",
+            "area_town_center_009",
+            "area_town_center_010",
+            "area_town_center_011",
+            "area_town_center_012",
+            "area_town_center_013",
+            "area_town_center_014",
+            "area_town_center_015"
+          ],
+          "sample_text": "镇中心的某个角落空了。\\n不是你能指认的空——是空气里少了一种声音。\\n你走了几个来回。确认了。\\n某个一直在这里的东西，不在了。"
+        },
+        "ed05482c": {
+          "count": 15,
+          "sample_size": 68,
+          "event_ids": [
+            "area_harbor_001",
+            "area_harbor_002",
+            "area_harbor_003",
+            "area_harbor_004",
+            "area_harbor_005",
+            "area_harbor_006",
+            "area_harbor_007",
+            "area_harbor_008",
+            "area_harbor_009",
+            "area_harbor_010",
+            "area_harbor_011",
+            "area_harbor_012",
+            "area_harbor_013",
+            "area_harbor_014",
+            "area_harbor_015"
+          ],
+          "sample_text": "码头比上次来时安静了一些。\\n不是人少了——是有什么东西不在了。\\n你闻了闻空气。盐味还是一样的。\\n但混在里面的另一种味道——消失了。"
+        },
+        "b3911769": {
+          "count": 15,
+          "sample_size": 52,
+          "event_ids": [
+            "area_forest_001",
+            "area_forest_002",
+            "area_forest_003",
+            "area_forest_004",
+            "area_forest_005",
+            "area_forest_006",
+            "area_forest_007",
+            "area_forest_008",
+            "area_forest_009",
+            "area_forest_010",
+            "area_forest_011",
+            "area_forest_012",
+            "area_forest_013",
+            "area_forest_014",
+            "area_forest_015"
+          ],
+          "sample_text": "林子里少了点什么。\\n不是你能指认的——是某种节奏变了。\\n风还在吹。鸟还在叫。\\n但有一种默契不再了。"
+        },
+        "ffbf22ff": {
+          "count": 15,
+          "sample_size": 67,
+          "event_ids": [
+            "area_manor_001",
+            "area_manor_002",
+            "area_manor_003",
+            "area_manor_004",
+            "area_manor_005",
+            "area_manor_006",
+            "area_manor_007",
+            "area_manor_008",
+            "area_manor_009",
+            "area_manor_010",
+            "area_manor_011",
+            "area_manor_012",
+            "area_manor_013",
+            "area_manor_014",
+            "area_manor_015"
+          ],
+          "sample_text": "庄园的某个房间空了。\\n不是家具少了——是空气的密度变了。\\n你经过那个房间门口时放慢了脚步。\\n你没有进去。你知道里面没有人在等你。"
+        },
+        "48743ee9": {
+          "count": 12,
+          "sample_size": 65,
+          "event_ids": [
+            "area_catacombs_001",
+            "area_catacombs_002",
+            "area_catacombs_003",
+            "area_catacombs_004",
+            "area_catacombs_005",
+            "area_catacombs_006",
+            "area_catacombs_007",
+            "area_catacombs_008",
+            "area_catacombs_009",
+            "area_catacombs_010",
+            "area_catacombs_011",
+            "area_catacombs_012"
+          ],
+          "sample_text": "墓穴入口的某个回声位置空了。\\n不是石头少了——是某种持续了很久的'在场'结束了。\\n你站在入口处等了一下。\\n没有人和你一起等。"
+        },
+        "7de9ea21": {
+          "count": 12,
+          "sample_size": 76,
+          "event_ids": [
+            "area_lighthouse_001",
+            "area_lighthouse_002",
+            "area_lighthouse_003",
+            "area_lighthouse_004",
+            "area_lighthouse_005",
+            "area_lighthouse_006",
+            "area_lighthouse_007",
+            "area_lighthouse_008",
+            "area_lighthouse_009",
+            "area_lighthouse_010",
+            "area_lighthouse_011",
+            "area_lighthouse_012"
+          ],
+          "sample_text": "灯塔的某个位置空了。\\n不是灯灭了——是灯后面的人不在了。\\n你走上螺旋梯时数了级数。\\n和上次一样。但走到顶的时候——\\n你觉得这段路比上次长了一些。"
+        },
+        "59834671": {
+          "count": 12,
+          "sample_size": 60,
+          "event_ids": [
+            "area_ruins_001",
+            "area_ruins_002",
+            "area_ruins_003",
+            "area_ruins_004",
+            "area_ruins_005",
+            "area_ruins_006",
+            "area_ruins_007",
+            "area_ruins_008",
+            "area_ruins_009",
+            "area_ruins_010",
+            "area_ruins_011",
+            "area_ruins_012"
+          ],
+          "sample_text": "遗迹的某个角落空了。\\n不是装置少了——是一种共鸣消失了。\\n你把手放在那面墙壁上。\\n以前能感到的振动——现在没有了。"
+        },
+        "a12c0f37": {
+          "count": 12,
+          "sample_size": 72,
+          "event_ids": [
+            "area_grove_001",
+            "area_grove_002",
+            "area_grove_003",
+            "area_grove_004",
+            "area_grove_005",
+            "area_grove_006",
+            "area_grove_007",
+            "area_grove_008",
+            "area_grove_009",
+            "area_grove_010",
+            "area_grove_011",
+            "area_grove_012"
+          ],
+          "sample_text": "禁忌之林的某个位置空了。\\n不是果子少了——是某个采集的痕迹不在了。\\n你找到了那个地方。\\n藤蔓还在。浆果还在。\\n但来采它们的人——不在了。"
+        },
+        "496f8f8d": {
+          "count": 12,
+          "sample_size": 70,
+          "event_ids": [
+            "area_deep_001",
+            "area_deep_002",
+            "area_deep_003",
+            "area_deep_004",
+            "area_deep_005",
+            "area_deep_006",
+            "area_deep_007",
+            "area_deep_008",
+            "area_deep_009",
+            "area_deep_010",
+            "area_deep_011",
+            "area_deep_012"
+          ],
+          "sample_text": "深渊深处有个位置空了。\\n不是空间少了——是某种注视消失了。\\n你往下看。黑暗还是一样的。\\n但黑暗里不再有东西在看你。\\n这让你更加不安。"
+        }
+      }
+    },
+    "near_duplicates": [
+      {
+        "idx_a": 60,
+        "idx_b": 62,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 60,
+        "idx_b": 63,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 60,
+        "idx_b": 64,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 60,
+        "idx_b": 65,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 60,
+        "idx_b": 67,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 60,
+        "idx_b": 68,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 60,
+        "idx_b": 69,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 60,
+        "idx_b": 70,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 60,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 62,
+        "idx_b": 63,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 62,
+        "idx_b": 64,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 62,
+        "idx_b": 65,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 62,
+        "idx_b": 67,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 62,
+        "idx_b": 68,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 62,
+        "idx_b": 69,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 62,
+        "idx_b": 70,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 62,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 63,
+        "idx_b": 64,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 63,
+        "idx_b": 65,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 63,
+        "idx_b": 67,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 63,
+        "idx_b": 68,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 63,
+        "idx_b": 69,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 63,
+        "idx_b": 70,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 63,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 64,
+        "idx_b": 65,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 64,
+        "idx_b": 67,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 64,
+        "idx_b": 68,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 64,
+        "idx_b": 69,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 64,
+        "idx_b": 70,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 64,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 65,
+        "idx_b": 67,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 65,
+        "idx_b": 68,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 65,
+        "idx_b": 69,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 65,
+        "idx_b": 70,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 65,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 67,
+        "idx_b": 68,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 67,
+        "idx_b": 69,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 67,
+        "idx_b": 70,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 67,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 68,
+        "idx_b": 69,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 68,
+        "idx_b": 70,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 68,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 69,
+        "idx_b": 70,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 69,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 70,
+        "idx_b": 71,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "catacombs_entrance"
+      },
+      {
+        "idx_a": 72,
+        "idx_b": 73,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "lighthouse"
+      },
+      {
+        "idx_a": 72,
+        "idx_b": 74,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "lighthouse"
+      },
+      {
+        "idx_a": 72,
+        "idx_b": 75,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "lighthouse"
+      },
+      {
+        "idx_a": 72,
+        "idx_b": 76,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "lighthouse"
+      },
+      {
+        "idx_a": 72,
+        "idx_b": 77,
+        "similarity": 1.0,
+        "text_a": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "text_b": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真",
+        "subtype": "lighthouse"
+      }
+    ]
+  },
+  "events_humanity.js": {
+    "exact_duplicates": {
+      "distortion_variants/san_low": {
+        "d18c55eb": {
+          "count": 15,
+          "sample_size": 207,
+          "event_ids": [
+            "humanity_good_001",
+            "humanity_good_002",
+            "humanity_good_003",
+            "humanity_good_004",
+            "humanity_good_005",
+            "humanity_good_006",
+            "humanity_good_007",
+            "humanity_good_008",
+            "humanity_good_009",
+            "humanity_good_010",
+            "humanity_good_011",
+            "humanity_good_012",
+            "humanity_good_013",
+            "humanity_good_014",
+            "humanity_good_015"
+          ],
+          "sample_text": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包和旧书混合的气味。你看到的声音有颜色——暖黄色的、像烛光的声音。你感到的温暖有重量——像一件湿透了的羊毛毯子裹在你身上。也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。但你感受到了温暖。这就够了。或者——这本身就是问题所在。美让"
+        },
+        "065deabe": {
+          "count": 15,
+          "sample_size": 179,
+          "event_ids": [
+            "humanity_bad_001",
+            "humanity_bad_002",
+            "humanity_bad_003",
+            "humanity_bad_004",
+            "humanity_bad_005",
+            "humanity_bad_006",
+            "humanity_bad_007",
+            "humanity_bad_008",
+            "humanity_bad_009",
+            "humanity_bad_010",
+            "humanity_bad_011",
+            "humanity_bad_012",
+            "humanity_bad_013",
+            "humanity_bad_014",
+            "humanity_bad_015"
+          ],
+          "sample_text": "后果在膨胀——像某种有机体在生长。你过去的恶行像回旋镖一样回来了。每一个被你伤害过的人都变成了阴影中的眼睛。他们在看着你。不是仇恨——是失望。那种失望比仇恨更让你不安。你感到空气里有味道——不是臭味。是某种更复杂的、像组织坏死和铁锈混合的气味。墙壁上的纹理在缓慢变化——像皮肤在愈合某种创伤。而你是那个创伤。沃切斯特在愈合。而你——是它愈合过程中的一道疤痕。"
+        },
+        "89863159": {
+          "count": 10,
+          "sample_size": 149,
+          "event_ids": [
+            "humanity_trial_001",
+            "humanity_trial_002",
+            "humanity_trial_003",
+            "humanity_trial_004",
+            "humanity_trial_005",
+            "humanity_trial_006",
+            "humanity_trial_007",
+            "humanity_trial_008",
+            "humanity_trial_009",
+            "humanity_trial_010"
+          ],
+          "sample_text": "你的感官在互换。你看到的声音有颜色——温暖的、琥珀色的声音在左边，冰冷的、铁灰色的声音在右边。你听到的气味有重量——甜的气味往下沉，苦的气味往上飘。你试图用理性来判断。但理性需要感官作为材料。而你的感官正在背叛你。你感到舌尖上有一种不属于任何食物的味道。铜的。像血。像某种古老的东西在期待你的选择。"
+        },
+        "5537afc9": {
+          "count": 8,
+          "sample_size": 181,
+          "event_ids": [
+            "humanity_collective_001",
+            "humanity_collective_002",
+            "humanity_collective_003",
+            "humanity_collective_004",
+            "humanity_collective_005",
+            "humanity_collective_006",
+            "humanity_collective_007",
+            "humanity_collective_008"
+          ],
+          "sample_text": "你看到的面孔在重叠。不是幻觉——是记忆的面孔叠在了现在的面孔上面。你看到了上一个循环里对你微笑的同一张脸。再上上一个循环里递给你热汤的同一双手。沃切斯特的居民在重复自己。不是因为他们没有新意——是因为他们的善意是循环的一部分。像某种固定的程序。但程序里的温度是真实的。你感到脸颊上有温度。有人在你身边。有人在为你做事。有人在某个你无法触及的维度里——一直记得你。"
+        },
+        "5d9961cf": {
+          "count": 6,
+          "sample_size": 195,
+          "event_ids": [
+            "humanity_trade_001",
+            "humanity_trade_002",
+            "humanity_trade_003",
+            "humanity_trade_004",
+            "humanity_trade_005",
+            "humanity_trade_006"
+          ],
+          "sample_text": "交易正在进行——但你不知道交易的双方是谁。你觉得自己是买家，也觉得自己是商品。签契约的手在发抖——你不知道那是对方的手还是你的手。墨迹还没干。但你已经签了。你感到舌尖上有一种金属的味道——像刚刚舔过某种古老的、被压缩在纸页里的金属。契约纸张的纤维里有微弱的、脉动的温度。像活物。你在和一个活的东西签契约。而你——也是那个活的东西。交易的悖论：你出卖的一部分自己，就是用来购买另一部分的自己。"
+        }
+      },
+      "distortion_variants/san_mid": {
+        "7b4e9c60": {
+          "count": 10,
+          "sample_size": 176,
+          "event_ids": [
+            "humanity_trial_001",
+            "humanity_trial_002",
+            "humanity_trial_003",
+            "humanity_trial_004",
+            "humanity_trial_005",
+            "humanity_trial_006",
+            "humanity_trial_007",
+            "humanity_trial_008",
+            "humanity_trial_009",
+            "humanity_trial_010"
+          ],
+          "sample_text": "你注意到了一些以前没有注意到的细节。空气里有两种气味在交织——一种是你选择的那个方向传来的、温暖的、像面包的味道。另一种是你放弃的方向传来的、陈旧的、像铁锈的味道。声音也有了方向——左边有极微弱的、像心跳的声音。右边有风的声音。不是自然的风。是某种更深的、像地下通道里的风。你的手指在自发地颤抖。不是因为恐惧。是因为某种更古老的、属于血液的东西在响应。"
+        }
+      },
+      "distortion_variants/corruption_high": {
+        "4a3d5e7f": {
+          "count": 15,
+          "sample_size": 192,
+          "event_ids": [
+            "humanity_bad_001",
+            "humanity_bad_002",
+            "humanity_bad_003",
+            "humanity_bad_004",
+            "humanity_bad_005",
+            "humanity_bad_006",
+            "humanity_bad_007",
+            "humanity_bad_008",
+            "humanity_bad_009",
+            "humanity_bad_010",
+            "humanity_bad_011",
+            "humanity_bad_012",
+            "humanity_bad_013",
+            "humanity_bad_014",
+            "humanity_bad_015"
+          ],
+          "sample_text": "环境在呼应你的恶——不，环境在消化你的恶。墙壁上的污渍更深了。你注意到污渍的纹理和人类血管的分支极其相似。空气中有一种铁锈和灰烬的味道——但不是燃烧的灰烬。是某种有机物分解后的残留。你经过的地方，阴影确实变得更浓了。不是光线变暗了——是你在把光带走。你留下的只有暗色的痕迹。像足迹。但比足迹更深。像某种东西在追踪你。沃切斯特在记住你做过的事。用墙壁。用阴影。用你皮肤上无法洗掉的气味。"
+        },
+        "d0380771": {
+          "count": 6,
+          "sample_size": 198,
+          "event_ids": [
+            "humanity_trade_001",
+            "humanity_trade_002",
+            "humanity_trade_003",
+            "humanity_trade_004",
+            "humanity_trade_005",
+            "humanity_trade_006"
+          ],
+          "sample_text": "空气中弥漫着一种陌生的气味——不是铁锈。是更深的、像某种古老图书馆里纸张在分解时的甜味。墙壁的颜色似乎比记忆中更深了——不是变暗。是变丰富了。像浸入了某种浓缩的液体。你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物在消化你留下的体温。交易正在生效。你能感到某种东西在从你的皮肤里渗出——不是血。是某种更轻的、像记忆的东西。你在被缓慢地抽取。而抽取你的——正是那个在契约上签了名的、另一个你。"
+        }
+      },
+      "distortion_variants/loop_3_plus": {
+        "abdb46af": {
+          "count": 15,
+          "sample_size": 217,
+          "event_ids": [
+            "humanity_good_001",
+            "humanity_good_002",
+            "humanity_good_003",
+            "humanity_good_004",
+            "humanity_good_005",
+            "humanity_good_006",
+            "humanity_good_007",
+            "humanity_good_008",
+            "humanity_good_009",
+            "humanity_good_010",
+            "humanity_good_011",
+            "humanity_good_012",
+            "humanity_good_013",
+            "humanity_good_014",
+            "humanity_good_015"
+          ],
+          "sample_text": "你记得上一次也是类似的情景。同一个NPC、同一份善意、同一句温暖的话。但结局不一样。上次你选择了另一条路。现在你又站在了同一个路口。善意是循环里为数不多的锚点——但锚点也会移位。你注意到了一些细微的不同：NPC的表情比上次多了一丝疲惫。递给你东西的手在微微颤抖。话语里多了一个你上次没注意到的停顿。善意在重复——但也在磨损。像一块被反复使用的布。你感到一阵酸楚。不是因为感动。是因为你知道这份善意正在"
+        },
+        "09177515": {
+          "count": 15,
+          "sample_size": 213,
+          "event_ids": [
+            "humanity_bad_001",
+            "humanity_bad_002",
+            "humanity_bad_003",
+            "humanity_bad_004",
+            "humanity_bad_005",
+            "humanity_bad_006",
+            "humanity_bad_007",
+            "humanity_bad_008",
+            "humanity_bad_009",
+            "humanity_bad_010",
+            "humanity_bad_011",
+            "humanity_bad_012",
+            "humanity_bad_013",
+            "humanity_bad_014",
+            "humanity_bad_015"
+          ],
+          "sample_text": "你又回到了同一个场景。上次你选择了恶。这次呢？你靠在墙上。墙面的温度比上次更高了——像沃切斯特在记住你的体温。你开始觉得——也许城市在测试你。不是测试你是否记得。而是测试你是否愿意改变。但改变需要付出代价。你低头看自己的手。指甲缝里有暗色的残留。不是泥土。是某种更有机的。你打了个哈欠。太累了。连悔意都变成了一种可以循环的习惯。但每次走进这个场景——你的胃里都会有一种不属于饥饿的沉重感。像 cons"
+        },
+        "4c97f359": {
+          "count": 8,
+          "sample_size": 231,
+          "event_ids": [
+            "humanity_collective_001",
+            "humanity_collective_002",
+            "humanity_collective_003",
+            "humanity_collective_004",
+            "humanity_collective_005",
+            "humanity_collective_006",
+            "humanity_collective_007",
+            "humanity_collective_008"
+          ],
+          "sample_text": "你又回到了这个场景。同一个面孔。同样的善意。同样的温暖的话。你开始能预判接下来会发生什么——第一个人会微笑。第二个人会递东西。第三个人会说一句你记不清但让你感到安心的话。你靠墙站着。等着这些重复发生。你太累了。连感动都变成了一种被动的、可以预判的生理反应。但——当那个孩子跑过来塞给你东西的时候——你的手还是在微微发抖。不是因为厌倦。是因为某种更深的东西在回应。循环里的善意像回声。回声重复。但每一次"
+        }
+      },
+      "distortion_variants/false_memory": {
+        "87b50ffa": {
+          "count": 15,
+          "sample_size": 173,
+          "event_ids": [
+            "humanity_good_001",
+            "humanity_good_002",
+            "humanity_good_003",
+            "humanity_good_004",
+            "humanity_good_005",
+            "humanity_good_006",
+            "humanity_good_007",
+            "humanity_good_008",
+            "humanity_good_009",
+            "humanity_good_010",
+            "humanity_good_011",
+            "humanity_good_012",
+            "humanity_good_013",
+            "humanity_good_014",
+            "humanity_good_015"
+          ],
+          "sample_text": "你记得收到过这份善意——但也许是在另一个循环里。那个循环里的场景更明亮。NPC的笑容更真诚。食物更香。你记得那种完整的、没有任何裂痕的温暖。但你也记得——那个循环里，你背叛了这份善意。你选择了另一条路。现在的善意带着一种修复的痕迹。像某个东西在试图弥补某个你造成的裂痕。你接受了它。但你知道——这个善意的背后有一个伤口。而那个伤口——是你留下的。"
+        }
+      }
+    },
+    "near_duplicates": [
+      {
+        "idx_a": 0,
+        "idx_b": 1,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 2,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 3,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 4,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 5,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 6,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 7,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 8,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 9,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 10,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 11,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 12,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 13,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 0,
+        "idx_b": 14,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 2,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 3,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 4,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 5,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 6,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 7,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 8,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 9,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 10,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 11,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 12,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 13,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 1,
+        "idx_b": 14,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 3,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 4,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 5,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 6,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 7,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 8,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 9,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 10,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 11,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 12,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 13,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 2,
+        "idx_b": 14,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 4,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 5,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 6,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 7,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 8,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 9,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 10,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 11,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 12,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 13,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      },
+      {
+        "idx_a": 3,
+        "idx_b": 14,
+        "similarity": 1.0,
+        "text_a": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "text_b": "善意在扭曲——但它仍然是善意。你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。但你能闻到它。不是比喻。你确实闻到了——某种温暖的、像刚出炉的面包",
+        "subtype": "good_return"
+      }
+    ]
+  },
+  "events_ending.js": {
+    "exact_duplicates": {
+      "distortion_variants/san_low": {
+        "d5253398": {
+          "count": 15,
+          "sample_size": 96,
+          "event_ids": [
+            "ending_cross_001",
+            "ending_cross_002",
+            "ending_cross_003",
+            "ending_cross_004",
+            "ending_cross_005",
+            "ending_cross_006",
+            "ending_cross_007",
+            "ending_cross_008",
+            "ending_cross_009",
+            "ending_cross_010",
+            "ending_cross_011",
+            "ending_cross_012",
+            "ending_cross_013",
+            "ending_cross_014",
+            "ending_cross_015"
+          ],
+          "sample_text": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个自己在不同的时间线上死去和重生。"
+        }
+      },
+      "distortion_variants/san_mid": {
+        "d7466777": {
+          "count": 15,
+          "sample_size": 68,
+          "event_ids": [
+            "ending_cross_001",
+            "ending_cross_002",
+            "ending_cross_003",
+            "ending_cross_004",
+            "ending_cross_005",
+            "ending_cross_006",
+            "ending_cross_007",
+            "ending_cross_008",
+            "ending_cross_009",
+            "ending_cross_010",
+            "ending_cross_011",
+            "ending_cross_012",
+            "ending_cross_013",
+            "ending_cross_014",
+            "ending_cross_015"
+          ],
+          "sample_text": "你注意到了一些以前没有注意到的细节。\\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\\n你觉得它们在有节奏地跳动——像某种巨大的器官。"
+        }
+      },
+      "distortion_variants/loop_8_plus": {
+        "948608bc": {
+          "count": 15,
+          "sample_size": 88,
+          "event_ids": [
+            "ending_cross_001",
+            "ending_cross_002",
+            "ending_cross_003",
+            "ending_cross_004",
+            "ending_cross_005",
+            "ending_cross_006",
+            "ending_cross_007",
+            "ending_cross_008",
+            "ending_cross_009",
+            "ending_cross_010",
+            "ending_cross_011",
+            "ending_cross_012",
+            "ending_cross_013",
+            "ending_cross_014",
+            "ending_cross_015"
+          ],
+          "sample_text": "你太熟悉这一切了。每一个细节都像刻在骨头上的铭文。\\n你知道接下来会发生什么——但每次你都走同一条路。\\n不是因为没有选择。是因为你记住了所有的路，而它们最终都通向同一个地方。"
+        }
+      },
+      "distortion_variants/fear_ocean": {
+        "b11f0de4": {
+          "count": 15,
+          "sample_size": 65,
+          "event_ids": [
+            "ending_cross_001",
+            "ending_cross_002",
+            "ending_cross_003",
+            "ending_cross_004",
+            "ending_cross_005",
+            "ending_cross_006",
+            "ending_cross_007",
+            "ending_cross_008",
+            "ending_cross_009",
+            "ending_cross_010",
+            "ending_cross_011",
+            "ending_cross_012",
+            "ending_cross_013",
+            "ending_cross_014",
+            "ending_cross_015"
+          ],
+          "sample_text": "空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。"
+        }
+      },
+      "distortion_variants/fear_body": {
+        "ca161ea1": {
+          "count": 15,
+          "sample_size": 76,
+          "event_ids": [
+            "ending_cross_001",
+            "ending_cross_002",
+            "ending_cross_003",
+            "ending_cross_004",
+            "ending_cross_005",
+            "ending_cross_006",
+            "ending_cross_007",
+            "ending_cross_008",
+            "ending_cross_009",
+            "ending_cross_010",
+            "ending_cross_011",
+            "ending_cross_012",
+            "ending_cross_013",
+            "ending_cross_014",
+            "ending_cross_015"
+          ],
+          "sample_text": "你注意到皮肤上有一个你从未见过的斑点。你揉了揉眼睛。它还在。\\n你摸了摸它——不疼，不痒。但触感不对。\\n你把它划破了。没有血。是淡蓝色的液体。像海水。"
+        }
+      }
+    },
+    "near_duplicates": [
+      {
+        "idx_a": 40,
+        "idx_b": 41,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 42,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 43,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 44,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 45,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 46,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 47,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 48,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 49,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 50,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 51,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 52,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 53,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 40,
+        "idx_b": 54,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 42,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 43,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 44,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 45,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 46,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 47,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 48,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 49,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 50,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 51,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 52,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 53,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 41,
+        "idx_b": 54,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 43,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 44,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 45,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 46,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 47,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 48,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 49,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 50,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 51,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 52,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 53,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 42,
+        "idx_b": 54,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 44,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 45,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 46,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 47,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 48,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 49,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 50,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 51,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 52,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 53,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      },
+      {
+        "idx_a": 43,
+        "idx_b": 54,
+        "similarity": 1.0,
+        "text_a": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "text_b": "所有的结局在你脑中重叠。你同时经历了每一个结局——\\n超越者的冷光、深渊的黑暗、逃离的曙光。\\n它们在你意识里交错，像是所有可能的你同时在呼吸。\\n你感到无数个",
+        "subtype": "cross"
+      }
+    ]
+  },
+  "events_mythos.js": {
+    "exact_duplicates": {
+      "distortion_variants/san_low": {
+        "82033899": {
+          "count": 2,
+          "sample_size": 141,
+          "event_ids": [
+            "mythos_perception_007",
+            "mythos_perception_014"
+          ],
+          "sample_text": "你分不清雾是冷的还是暖的。有时它像海水一样包裹你，有时像体温一样令人不适。轮廓在雾中不再移动——它在生长。从雾里长出来的。高大的、多肢的、不属于任何已知分类的形状。它没有面孔。但你听到了一声叹息。不是从轮廓发出的。是从雾本身。雾气在你皮肤上留下了一层薄薄的盐粒。你舔了舔嘴唇。咸的。"
+        },
+        "225820db": {
+          "count": 15,
+          "sample_size": 137,
+          "event_ids": [
+            "mythos_forbidden_001",
+            "mythos_forbidden_002",
+            "mythos_forbidden_003",
+            "mythos_forbidden_004",
+            "mythos_forbidden_005",
+            "mythos_forbidden_006",
+            "mythos_forbidden_007",
+            "mythos_forbidden_008",
+            "mythos_forbidden_009",
+            "mythos_forbidden_010",
+            "mythos_forbidden_011",
+            "mythos_forbidden_012",
+            "mythos_forbidden_013",
+            "mythos_forbidden_014",
+            "mythos_forbidden_015"
+          ],
+          "sample_text": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有什么东西正从纸的背面看着你。你闻到了墨水的味道。不是纸上的墨水。是从纸的纤维里渗出来的、陈旧的、带着体温的墨水味。"
+        },
+        "9e32b107": {
+          "count": 12,
+          "sample_size": 97,
+          "event_ids": [
+            "mythos_backlash_001",
+            "mythos_backlash_002",
+            "mythos_backlash_003",
+            "mythos_backlash_004",
+            "mythos_backlash_005",
+            "mythos_backlash_006",
+            "mythos_backlash_007",
+            "mythos_backlash_008",
+            "mythos_backlash_009",
+            "mythos_backlash_010",
+            "mythos_backlash_011",
+            "mythos_backlash_012"
+          ],
+          "sample_text": "知识在回流。不是从外部进入——是从你的内部涌出。\\n你学到的那些名字、那些符号——它们在反噬你。\\n你的大脑在把它们推出去，但它们在你的颅骨内回荡。\\n你咬了一下舌头。疼。这是你唯一确定的东西。"
+        },
+        "bea0e6a0": {
+          "count": 8,
+          "sample_size": 100,
+          "event_ids": [
+            "mythos_echo_001",
+            "mythos_echo_002",
+            "mythos_echo_003",
+            "mythos_echo_004",
+            "mythos_echo_005",
+            "mythos_echo_006",
+            "mythos_echo_007",
+            "mythos_echo_008"
+          ],
+          "sample_text": "你盯着那个符号看了太久。它开始在你的视野边缘扩散。\\n不是因为它变大了——是因为你的眼睛在重新排列它。\\n你看到符号的每一个笔画都在动，像是有生命一样蠕动。\\n你闭上了眼睛。但符号在你的眼睑后面跳动。"
+        },
+        "83a6bacd": {
+          "count": 5,
+          "sample_size": 83,
+          "event_ids": [
+            "mythos_transcend_001",
+            "mythos_transcend_002",
+            "mythos_transcend_003",
+            "mythos_transcend_004",
+            "mythos_transcend_005"
+          ],
+          "sample_text": "你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\\n你捏了一下手背。疼。至少这部分是真实的。"
+        },
+        "9240b41f": {
+          "count": 4,
+          "sample_size": 90,
+          "event_ids": [
+            "mythos_deep_001",
+            "mythos_deep_002",
+            "mythos_deep_003",
+            "mythos_deep_004"
+          ],
+          "sample_text": "深度不是距离。是重量。\\n你感到一种下坠感——但不是身体在往下掉。\\n是你的意识在往下沉。穿过海面、穿过黑暗、穿过某种屏障。\\n你在很深的地方看到了光。不是温暖的光——是饥饿的光。"
+        }
+      },
+      "distortion_variants/san_mid": {
+        "e8fe4fa0": {
+          "count": 2,
+          "sample_size": 118,
+          "event_ids": [
+            "mythos_perception_007",
+            "mythos_perception_014"
+          ],
+          "sample_text": "雾有重量。你穿过雾时，感到一种微弱的阻力——像是走在某种温暖的液体里。雾的气味不是海潮——是更陈旧的、沉积的、像被遗忘在黑暗里的海水的味道。轮廓在雾中移动时，留下了一道微弱的、发光的轨迹。像某种深海生物的荧光。它没有眼睛。但它看到了你。"
+        },
+        "d7466777": {
+          "count": 16,
+          "sample_size": 68,
+          "event_ids": [
+            "mythos_backlash_001",
+            "mythos_backlash_002",
+            "mythos_backlash_003",
+            "mythos_backlash_004",
+            "mythos_backlash_005",
+            "mythos_backlash_006",
+            "mythos_backlash_007",
+            "mythos_backlash_008",
+            "mythos_backlash_009",
+            "mythos_backlash_010",
+            "mythos_backlash_011",
+            "mythos_backlash_012",
+            "mythos_deep_001",
+            "mythos_deep_002",
+            "mythos_deep_003",
+            "mythos_deep_004"
+          ],
+          "sample_text": "你注意到了一些以前没有注意到的细节。\\n空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\\n你觉得它们在有节奏地跳动——像某种巨大的器官。"
+        }
+      },
+      "distortion_variants/corruption_high": {
+        "ea04f454": {
+          "count": 6,
+          "sample_size": 123,
+          "event_ids": [
+            "mythos_backlash_001",
+            "mythos_backlash_005",
+            "mythos_backlash_007",
+            "mythos_backlash_008",
+            "mythos_backlash_011",
+            "mythos_echo_002"
+          ],
+          "sample_text": "墙壁上的裂缝在缓慢扩大——不是物理上的扩大。是你在记忆里对它们的认知在扩大。\\n你记不清这些裂缝以前有多宽了。你开始怀疑——它们是不是一直在扩大，只是你的记忆在帮你缩小它们？\\n你翻了个身。床垫发出的声音不像弹簧——更像某种在消化你的体温的软体。"
+        },
+        "3369b18b": {
+          "count": 4,
+          "sample_size": 112,
+          "event_ids": [
+            "mythos_backlash_002",
+            "mythos_backlash_004",
+            "mythos_backlash_012",
+            "mythos_echo_004"
+          ],
+          "sample_text": "你站在房间里，忽然不确定这个房间是否属于你。\\n墙壁的颜色比记忆中更深了——但\"记忆中\"是哪个记忆？今天的？昨天的？还是某个你已经遗忘的循环里的？\\n你翻了个身。床垫发出的声音不像弹簧——更像某种在用你的记忆做填充物的软体。"
+        },
+        "f7447660": {
+          "count": 2,
+          "sample_size": 110,
+          "event_ids": [
+            "mythos_backlash_003",
+            "mythos_echo_001"
+          ],
+          "sample_text": "空气里有味道——不是灰尘。是某种更复杂的、像知识本身在缓慢分解时散发的气味。\\n墙壁的颜色比记忆中更深了——像浸入了某种液体。但不是水。是记忆的溶剂。\\n你翻了个身。床垫发出的声音不像弹簧——更像某种半流质的器官在收缩。"
+        },
+        "ef5add18": {
+          "count": 4,
+          "sample_size": 110,
+          "event_ids": [
+            "mythos_backlash_006",
+            "mythos_backlash_009",
+            "mythos_backlash_010",
+            "mythos_echo_006"
+          ],
+          "sample_text": "你的触觉变了。你摸到的物体不再有明确的边界——手指和墙壁之间似乎有一层看不见的薄膜。\\n墙壁的温度在变化。不是环境温度——是墙壁自己在发热。像某种新陈代谢。\\n你翻了个身。床垫发出的声音不像弹簧——更像某种在呼吸的腔体。"
+        },
+        "1e7f0794": {
+          "count": 4,
+          "sample_size": 130,
+          "event_ids": [
+            "mythos_echo_003",
+            "mythos_echo_005",
+            "mythos_echo_007",
+            "mythos_echo_008"
+          ],
+          "sample_text": "你注意到房间里的声音变了。不是变响了——是变稠了。声音像蜂蜜一样粘在你的耳膜上。\\n墙壁的颜色似乎比记忆中更深了。角落里有东西在蠕动——但当你眨眼时，它消失了。不是跑掉了。是融入了阴影。\\n床垫在发出一种低频的振动。不是弹簧的共振。是某种和你心跳不同步的搏动。"
+        }
+      },
+      "distortion_variants/loop_3_plus": {
+        "e26bd020": {
+          "count": 5,
+          "sample_size": 123,
+          "event_ids": [
+            "mythos_forbidden_001",
+            "mythos_forbidden_003",
+            "mythos_forbidden_005",
+            "mythos_forbidden_009",
+            "mythos_transcend_003"
+          ],
+          "sample_text": "你在这里已经待了多久？你看了看手机——没有信号。时间停在下午 3:17。\\n你记得上一次在这里时，时间也是下午 3:17。\\n你走出房间又回来。时间还是 3:17。\\n你靠在墙上。墙在发热。不是你的体温——是某个更持久的热源。像这个房间在记住你。"
+        },
+        "31187dfa": {
+          "count": 3,
+          "sample_size": 124,
+          "event_ids": [
+            "mythos_forbidden_002",
+            "mythos_forbidden_007",
+            "mythos_forbidden_012"
+          ],
+          "sample_text": "你打了一个哈欠。太早了——你上午才醒。但这个哈欠来自更深的地方。\\n不是困倦。是重复的余震。你的身体在继承上一个循环的疲劳。\\n上一次你在这里站了多久？你不记得了。但你的腿记得。它们在微微发颤。\\n你太累了。连\"累\"本身都变成了一种可以预判的体验。"
+        },
+        "4b0a65b5": {
+          "count": 4,
+          "sample_size": 123,
+          "event_ids": [
+            "mythos_forbidden_004",
+            "mythos_forbidden_011",
+            "mythos_transcend_001",
+            "mythos_transcend_004"
+          ],
+          "sample_text": "你的手在你思考之前就已经伸向了书架。\\n你不需要看——你的肌肉记得那本书的位置。第三层。从左数第七本。\\n手指碰到书脊的瞬间，你感到一阵微弱的电流。不是静电。是某种更古老的触觉记忆在激活。\\n你合上书。指尖还留着那种触感。像触摸了一个活物的皮肤。"
+        },
+        "7cb41401": {
+          "count": 4,
+          "sample_size": 126,
+          "event_ids": [
+            "mythos_forbidden_006",
+            "mythos_forbidden_010",
+            "mythos_forbidden_013",
+            "mythos_forbidden_015"
+          ],
+          "sample_text": "你记得上一次你在这里打开了同一本书。页码是第 47 页。\\n这一次你打开书——页码是第 47 页。\\n你记得上一次你读到这里时，窗外的光线是从左上方照进来的。\\n这一次——光线还在那个位置。分毫不差。\\n你开始怀疑——不是书在重复。是你的记忆在重复书。"
+        },
+        "3f62f928": {
+          "count": 4,
+          "sample_size": 120,
+          "event_ids": [
+            "mythos_forbidden_008",
+            "mythos_forbidden_014",
+            "mythos_transcend_002",
+            "mythos_transcend_005"
+          ],
+          "sample_text": "你还没有翻开书，就已经知道下一页写的是什么。\\n不是猜的。是\"记得\"。你记得自己在某个循环里读过这一句。\\n文字在微微发热——不是纸张的问题。是墨水在响应你的注视。\\n你的指尖在发麻。你合上了书。但那些字已经在你皮肤下面了。像刺青。像烙印。"
+        }
+      },
+      "distortion_variants/fear_ocean": {
+        "b11f0de4": {
+          "count": 12,
+          "sample_size": 65,
+          "event_ids": [
+            "mythos_echo_001",
+            "mythos_echo_002",
+            "mythos_echo_003",
+            "mythos_echo_004",
+            "mythos_echo_005",
+            "mythos_echo_006",
+            "mythos_echo_007",
+            "mythos_echo_008",
+            "mythos_deep_001",
+            "mythos_deep_002",
+            "mythos_deep_003",
+            "mythos_deep_004"
+          ],
+          "sample_text": "空气中有海水的味道。你看了看窗外——是内陆。但盐味还在。\\n你咽了一下。嘴里有铁锈的味道。嘴唇上有盐粒。它们没有消失。它们在增多。"
+        }
+      },
+      "distortion_variants/fear_body": {
+        "ba2f6818": {
+          "count": 4,
+          "sample_size": 133,
+          "event_ids": [
+            "mythos_forbidden_001",
+            "mythos_forbidden_002",
+            "mythos_forbidden_003",
+            "mythos_forbidden_015"
+          ],
+          "sample_text": "你的左手和右手温度不一样。差了大约三度。\\n你把两只手贴在一起。温差在接触面上形成了一个微弱的压强——不是物理的压强。是某种暗示性的推力。\\n左手在冷。右手在热。冷的那边像海底。热的那边像熔炉。\\n你不确定哪个是真实的温度。也许都不是。也许你的体温已经不再属于你了。"
+        },
+        "204f8576": {
+          "count": 5,
+          "sample_size": 131,
+          "event_ids": [
+            "mythos_forbidden_004",
+            "mythos_forbidden_007",
+            "mythos_forbidden_011",
+            "mythos_forbidden_013",
+            "mythos_backlash_004"
+          ],
+          "sample_text": "你感到指尖上有一层不属于你的触感。像有人把他们的手指套在了你的手指外面。\\n你仔细看了看——没有。手指就是你的手指。但触感不是你的。\\n那种触感在缓慢地往手臂上爬。像某种黏附性的薄膜。\\n你试图用另一只手把它搓掉。搓下来的不是皮——是一种极其微弱的、滑腻的残留。"
+        },
+        "ee955f14": {
+          "count": 5,
+          "sample_size": 143,
+          "event_ids": [
+            "mythos_forbidden_005",
+            "mythos_forbidden_008",
+            "mythos_backlash_006",
+            "mythos_backlash_008",
+            "mythos_backlash_009"
+          ],
+          "sample_text": "你注意到手臂上的静脉在移动。不是跳动——是平移。\\n它们在极其缓慢地改变位置，像某种微型生物在血管里散步。\\n你按住其中一条。脉搏在指尖下继续——但不是朝向你按压的方向。是横向的。垂直于任何已知的血管走向。\\n你松了手。静脉已经不在原来的位置了。它们移动了大约两厘米。在你不注意的时候。"
+        },
+        "bb6dc641": {
+          "count": 11,
+          "sample_size": 156,
+          "event_ids": [
+            "mythos_forbidden_006",
+            "mythos_forbidden_010",
+            "mythos_forbidden_012",
+            "mythos_forbidden_014",
+            "mythos_backlash_001",
+            "mythos_backlash_003",
+            "mythos_backlash_005",
+            "mythos_backlash_007",
+            "mythos_backlash_010",
+            "mythos_backlash_011",
+            "mythos_backlash_012"
+          ],
+          "sample_text": "你注意到皮肤上有一个你从未见过的斑点。淡蓝色的。圆形。边缘极其整齐。\\n你揉了揉眼睛。它还在。你摸了摸它——不疼，不痒。但触感不对。像是某种东西从皮肤下面在摸你的手。\\n你把它划破了。没有血。是淡蓝色的液体，像海水。你闻了闻。盐味。\\n你的皮肤在呼吸。毛孔在扩张——不是为了散热。是为了吸入某种不属于空气的东西。"
+        },
+        "b74b58e5": {
+          "count": 2,
+          "sample_size": 148,
+          "event_ids": [
+            "mythos_forbidden_009",
+            "mythos_backlash_002"
+          ],
+          "sample_text": "你感到指尖上有一层不属于你的触感。像有人把他们的手指套在了你的手指外面。\\n你仔细看了看——没有。手指就是你的手指。但触感不是你的。\\n那种触感在缓慢地往手臂上爬。像某种黏附性的薄膜。\\n你试图用另一只手把它搓掉。搓下来的不是皮——是一种极其微弱的、滑腻的残留。像某种生物的分泌物。但不是恶心的。"
+        }
+      },
+      "distortion_variants/fear_depth": {
+        "cbda904e": {
+          "count": 5,
+          "sample_size": 148,
+          "event_ids": [
+            "mythos_forbidden_001",
+            "mythos_forbidden_002",
+            "mythos_forbidden_003",
+            "mythos_forbidden_006",
+            "mythos_deep_003"
+          ],
+          "sample_text": "你往下看。不是真的看——是\"感觉\"了一眼。\\n下面有东西。很深的东西。不是距离上的深——是维度上的深。\\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。低频的、持续的振动。\\n你感到膝盖在发软。不是恐惧。是引力。某种属于深水的引力在把你往下拉。\\n你尝到了铁锈的味道。你的牙齿在发酸。"
+        },
+        "022fe4ec": {
+          "count": 6,
+          "sample_size": 144,
+          "event_ids": [
+            "mythos_forbidden_004",
+            "mythos_forbidden_008",
+            "mythos_forbidden_014",
+            "mythos_echo_001",
+            "mythos_echo_004",
+            "mythos_deep_004"
+          ],
+          "sample_text": "你感到了一种不属于地球的引力。方向不是向下——是向内。\\n地面在你脚下变得不真实。泥土在缓慢地、有目的地朝一个中心点聚拢。\\n那个中心点在你脚下大约十米深的地方。\\n你不确定那是什么——一个空洞？一个入口？一个正在消化什么的嘴？\\n你往后退了一步。泥土跟了半步。然后停住了。它在等你回来。"
+        },
+        "a93d1739": {
+          "count": 10,
+          "sample_size": 154,
+          "event_ids": [
+            "mythos_forbidden_005",
+            "mythos_forbidden_010",
+            "mythos_forbidden_013",
+            "mythos_echo_002",
+            "mythos_echo_003",
+            "mythos_echo_005",
+            "mythos_echo_008",
+            "mythos_transcend_003",
+            "mythos_transcend_004",
+            "mythos_deep_001"
+          ],
+          "sample_text": "地面在你脚下变得不真实。你踩着的不是地面——是一个表面。一个极其逼真的模仿品。\\n你往下看了一眼——不是真的看，是\"感觉\"了一眼。泥土的颗粒在极其缓慢地移动。不是被风吹的。是有方向的。\\n有东西在下面移动。很慢。很大。你在它上面走。它没有反应。\\n也许它在等你走累了。等你停下来。等你的重量足够让它注意到你。"
+        },
+        "033052e7": {
+          "count": 5,
+          "sample_size": 129,
+          "event_ids": [
+            "mythos_forbidden_007",
+            "mythos_forbidden_009",
+            "mythos_echo_006",
+            "mythos_echo_007",
+            "mythos_transcend_005"
+          ],
+          "sample_text": "你往下看。很深。比你能看到的地方更深。\\n光线在那里消失了——不是被吸收了。是光线自己选择不往下走。\\n你感到一种原始的冲动——不要往那里看。你的前额叶在尖叫。\\n但你的眼睛移不开。某种更古老的本能在接管你的视线。\\n下面有东西。它在等你往下看。你已经看了。"
+        },
+        "73942f5d": {
+          "count": 6,
+          "sample_size": 144,
+          "event_ids": [
+            "mythos_forbidden_011",
+            "mythos_forbidden_012",
+            "mythos_forbidden_015",
+            "mythos_transcend_001",
+            "mythos_transcend_002",
+            "mythos_deep_002"
+          ],
+          "sample_text": "地面在发热。不是太阳晒的——是从下面传上来的。某种深层的、沉积了无数年的热量。\\n你往下看了一眼——不是真的看，是\"感觉\"了一眼。下面有东西。很深的东西。\\n它在呼吸。极其缓慢的呼吸。你可能用了整整一天才察觉到一次呼吸的完成。\\n你听到了一个声音——不是从耳朵进入的，是从骨头里传上来的。"
+        }
+      }
+    },
+    "near_duplicates": [
+      {
+        "idx_a": 6,
+        "idx_b": 13,
+        "similarity": 1.0,
+        "text_a": "你分不清雾是冷的还是暖的。有时它像海水一样包裹你，有时像体温一样令人不适。轮廓在雾中不再移动——它在生长。从雾里长出来的。高大的、多肢的、不属于任何已知分类的形",
+        "text_b": "你分不清雾是冷的还是暖的。有时它像海水一样包裹你，有时像体温一样令人不适。轮廓在雾中不再移动——它在生长。从雾里长出来的。高大的、多肢的、不属于任何已知分类的形",
+        "subtype": "perception"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 21,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 22,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 23,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 24,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 25,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 26,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 27,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 28,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 29,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 30,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 31,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 32,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 33,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 20,
+        "idx_b": 34,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 22,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 23,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 24,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 25,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 26,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 27,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 28,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 29,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 30,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 31,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 32,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 33,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 21,
+        "idx_b": 34,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 23,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 24,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 25,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 26,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 27,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 28,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 29,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 30,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 31,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 32,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 33,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 22,
+        "idx_b": 34,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 24,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 25,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 26,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 27,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 28,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 29,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 30,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 31,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 32,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      },
+      {
+        "idx_a": 23,
+        "idx_b": 33,
+        "similarity": 1.0,
+        "text_a": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "text_b": "那些文字在移动。不是字在纸上移动——是纸上的空白在扩大。文字在向边缘退去，像是什么东西从纸的背面把它们推开了。你凑得更近。纸的背面什么都没有。但你能感觉到——有",
+        "subtype": "forbidden_knowledge"
+      }
+    ]
+  }
+}

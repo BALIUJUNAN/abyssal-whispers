@@ -35,7 +35,12 @@
         "骇人听闻",
         "极度恐惧"
       ],
-      "imagery_isolation": "每个区域只保留1-2个主意象，禁止堆砌"
+      "imagery_isolation": "每个区域只保留1-2个主意象，禁止堆砌",
+      "literary_references": {
+        "primary": "冷静叙述 + 具体感官细节 + 抽象超越（Lovecraft 结构 × Baudelaire 美学）",
+        "fear_endings_style": "Baudelaire《恶之花》：从消解/腐朽中提炼美——溶解不是毁灭，是更完整的形态。'美丽得让你哭泣''像回到了一个你离开太久以至于忘了的房子'——用具体感官通向抽象超越",
+        "note": "恐惧结局有意突破日常极简原则，使用排比递进和抽象判断词。此例外未在 principles 中显式记录，是文档与实现的隐性分歧"
+      }
     }
   },
   "core_loop": {

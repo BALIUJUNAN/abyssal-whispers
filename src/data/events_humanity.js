@@ -29,11 +29,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -52,11 +49,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -81,11 +75,8 @@ export const events = [
     event_classification: 'NPC互动',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -107,11 +98,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -130,11 +118,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -153,11 +138,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -185,11 +167,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -208,11 +187,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -240,11 +216,8 @@ export const events = [
     event_classification: 'NPC互动',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -263,11 +236,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -296,11 +266,8 @@ export const events = [
     event_classification: 'NPC互动',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -319,11 +286,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -342,11 +306,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -371,11 +332,8 @@ export const events = [
     event_classification: 'NPC互动',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
   {
@@ -403,11 +361,8 @@ export const events = [
     event_classification: 'NPC互动',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '善意在扭曲。\n你分不清这份善意是来自他人的真心，还是来自你SAN降低后的臆想。\n也许他们从来没有对你微笑。也许那只是你疲惫的大脑制造的幻觉。\n但你感受到了温暖。这就够了。或者……这本身就是问题所在。',
-      loop_3_plus: '你记得上一次也是类似的情景。\n同一个NPC、同一份善意、同一句温暖的话。\n但结局不一样。上次你选择了另一条路。\n现在你又站在了同一个路口。\n善意是循环里为数不多的锚点——但锚点也会移位。',
-      false_memory: '你记得收到过这份善意——但也许是在另一个循环里。\n这个NPC在另一个时间线里对你说过同样的话。\n你分不清这份善意属于当前的时间线，还是属于某个你已遗忘的过去。\n但无论如何，你选择相信它。',
-    },
+    distortion_template: 'good_return',
+    
     choices: [],
   },
 
@@ -1315,10 +1270,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
-      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
-    },
+    distortion_template: 'collective',
+    
     choices: [],
   },
   {
@@ -1342,10 +1295,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
-      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
-    },
+    distortion_template: 'collective',
+    
     choices: [],
   },
   {
@@ -1364,10 +1315,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
-      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
-    },
+    distortion_template: 'collective',
+    
     choices: [],
   },
   {
@@ -1386,10 +1335,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: false,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
-      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
-    },
+    distortion_template: 'collective',
+    
     choices: [],
   },
   {
@@ -1408,10 +1355,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: false,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
-      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
-    },
+    distortion_template: 'collective',
+    
     choices: [],
   },
   {
@@ -1434,10 +1379,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
-      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
-    },
+    distortion_template: 'collective',
+    
     choices: [],
   },
   {
@@ -1456,10 +1399,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: false,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
-      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
-    },
+    distortion_template: 'collective',
+    
     choices: [],
   },
   {
@@ -1488,10 +1429,8 @@ export const events = [
     event_classification: '正常事件',
     normalcy_anchor: true,
     unreliable_narration_level: 1,
-    distortion_variants: {
-      san_low: '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n你分不清这是真实发生的事还是你的大脑在自行填补空白。\n你捏了一下手背。疼。至少这部分是真实的。',
-      loop_3_plus: '这已经不是你第一次经历这个了。\n你确定——你在之前的循环里见过这一幕。\n但记忆的边缘在模糊。是第几次来着？你数不清了。\n但你知道——它还会再来。',
-    },
+    distortion_template: 'collective',
+    
     choices: [],
   },
 

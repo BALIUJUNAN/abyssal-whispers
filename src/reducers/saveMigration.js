@@ -30,6 +30,7 @@ export function ensureMinimalExtendedState(state) {
   if (!state.endingHistory) state.endingHistory = [];
   if (!state.loopEchoFlags) state.loopEchoFlags = [];
   if (!state.worldCorrectionFlags) state.worldCorrectionFlags = [];
+  if (!state.playerTraces) state.playerTraces = [];
   if (!state.eventCooldowns) state.eventCooldowns = {};
   if (!state.categoryCountsToday) state.categoryCountsToday = {};
   if (!state.categoryCountsRun) state.categoryCountsRun = {};

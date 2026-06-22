@@ -51,6 +51,8 @@ import { adjustSanLossForLoop23, getSanFloor, shouldBlockLethalEvent, adjustMons
 import { getTrackedText, createSeenTextMap, applyMythosAliases, maybeInjectPhantomNarrative, applyLevel13RealityDistortion } from '../../systems/textVariants.js';
 import { getLightLevelEffects, applyLightTextCorruption } from '../miscReducer.js';
 import { getAreaDescriptionVariant } from '../../data/areaDescriptionVariants.js';
+import { getInvestigationDetail } from '../../data/areaInvestigationDetails.js';
+import { getPlayerTraceNarrative } from '../../systems/playerTraces.js';
 import { checkChainCompletion, isAreaUnlocked, getAreaDisplayName } from '../../utils/gameHelpers.js';
 import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
 import { getEventImage } from '../../portraitMap.js';
@@ -462,6 +464,16 @@ export function handleExploreAction(s, action, c, ctx) {
       desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
       // Text Fragmentation for area descriptions (SAN-driven)
       desc = applyTextFragmentation(desc, s.san, c.rng, { isCritical: false });
+      // Investigation detail: loop/SAN/death-conditioned ambient observation
+      var invDetail = getInvestigationDetail(target, s, c.rng);
+      if (invDetail) {
+        desc = desc + '\n\n' + invDetail;
+      }
+      // Player trace: last loop's actions leave marks in the environment (P2-6)
+      var traceNarr = getPlayerTraceNarrative(target, s);
+      if (traceNarr) {
+        desc = desc + '\n\n' + traceNarr;
+      }
       // Layout variants: weighted random selection based on game state
       if (targetArea.layout_variants && targetArea.layout_variants.length > 0) {
         const phase = getPhase(s.ap, s.maxAp);

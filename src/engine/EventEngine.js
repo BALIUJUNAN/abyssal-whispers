@@ -323,6 +323,42 @@ export function getDistortionVariant(evt, state, rng) {
   return null;
 }
 
+// ── Distortion Template Injection ──────────────────────
+// Shared distortion text for humanity events, keyed by subtype.
+// Events without local distortion_variants get them injected from templates.
+// Events with unique keys (corruption_high, san_mid) keep local variants.
+//
+// Call this from initExtendedEvents() after GD.events is fully assembled.
+
+import { DISTORTION_TEMPLATE_MAP } from '../data/distortionTemplates.js';
+
+export function injectDistortionTemplates(GD) {
+  if (!GD || !GD.events) return;
+  var events = GD.events;
+  var injected = 0;
+
+  for (var i = 0; i < events.length; i++) {
+    var evt = events[i];
+    if (!evt.subtype) continue;
+
+    // Skip if event already has local distortion_variants (e.g. trial with san_mid)
+    if (evt.distortion_variants && Object.keys(evt.distortion_variants).length > 0) continue;
+
+    // Resolve template: explicit distortion_template field > subtype name
+    var templateKey = evt.distortion_template || evt.subtype;
+    var template = DISTORTION_TEMPLATE_MAP[templateKey];
+    if (!template) continue;
+
+    // Inject template variants as local distortion_variants
+    evt.distortion_variants = Object.assign({}, template);
+    injected++;
+  }
+
+  if (injected > 0) {
+    console.log('[EventEngine] Injected distortion templates for ' + injected + ' events');
+  }
+}
+
 // =============================================
 // SECTION 7: First-week filter (legacy compat)
 // =============================================
@@ -350,18 +386,23 @@ export function getDayCycleWeightMultiplier(evt, state) {
   var cat = evt.type || evt.event_classification || '';
   var isHorror = ['超自然遭遇', '怪物遭遇', 'mythos', 'meta', 'loop_locked', '神秘事件', '氛围事件', 'silent'].indexOf(cat) >= 0;
   var isNormal = ['正常事件', 'NPC对话'].indexOf(cat) >= 0;
+  // 微恐怖事件：关键日 ×1.5（比普通氛围事件的 1.4/1.6 更高）
+  var isMicroHorror = cat === 'micro_horror';
 
   if (day === 7 || day === 14 || day === 21) {
+    if (isMicroHorror) return 1.5;
     if (isHorror) return 1.4;
     if (isNormal) return 0.8;
     return 1.1;
   }
   if (day === 28) {
+    if (isMicroHorror) return 1.5;
     if (isHorror) return 1.6;
     if (isNormal) return 0.7;
     return 1.0;
   }
   if (day === 5 || day === 15 || day === 20 || day === 25) {
+    if (isMicroHorror) return 1.2;
     if (isHorror) return 1.2;
     if (isNormal) return 0.9;
     return 1.05;

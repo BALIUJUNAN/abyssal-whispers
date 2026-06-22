@@ -16,6 +16,7 @@ import { CHAPTER_MILESTONES, FORCED_NARRATIVE_HOOKS } from '../data/milestones.j
 import { getDeathMetaEvents } from '../data/events_death_meta.js';
 import { generateDeathFragments, checkDeathTruthAssembly } from '../data/events_death_meta.js';
 import { getEventRarityWeight, checkLegendaryTrigger, checkSecretTrigger, getRarityHint } from '../systems/eventRarity.js';
+import { injectDistortionTemplates } from '../engine/EventEngine.js';
 
 /**
  * Initialize the extended event system.
@@ -76,6 +77,10 @@ export function initExtendedEvents(GD) {
 
   // Inject fear profile exclusive endings into GD.endings
   injectFearEndings(GD);
+
+  // Inject shared distortion text templates for events without local variants
+  // (removes ~23 duplicate distortion_variants blocks from events_humanity.js)
+  injectDistortionTemplates(GD);
 
   // Merge legendary events into GD.events (rarity: legendary)
   // These are gated by checkLegendaryTrigger() in eventRarity.js,

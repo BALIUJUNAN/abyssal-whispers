@@ -157,6 +157,17 @@ export function checkTriggerExtended(evt, state, ctx) {
     }
   }
 
+  // has_flag: convenience alias for single-flag requirement
+  // Supports string or array; ALL listed flags must be triggered.
+  // Use case: soft event chaining — event A sets "seen_shadow_slow" via set_flag,
+  // event B requires has_flag: "seen_shadow_slow" to appear.
+  if (t.has_flag) {
+    var flagList = Array.isArray(t.has_flag) ? t.has_flag : [t.has_flag];
+    for (var f = 0; f < flagList.length; f++) {
+      if (!hasTriggered(state, flagList[f]) && !hasClueId(state.clues, flagList[f])) return false;
+    }
+  }
+
   // NPC trust requirements
   if (t.npc_trust_gte) {
     for (const [npcId, minTrust] of Object.entries(t.npc_trust_gte)) {
@@ -273,6 +284,10 @@ export const EVENT_BUDGET = {
   '超自然遭遇': { maxPerDay: 2, weight: 0.7 },
   'NPC互动': { maxPerDay: 2, weight: 1.0 },
   '氛围事件': { maxPerDay: 3, weight: 0.9, isAnchor: true },
+  // ── 微恐怖事件投放规则 ──
+  // 基础权重 0.2x（已在事件数据中 weight: 0.3-0.4，此处 budget 提供 maxPerDay 门控）
+  // 单局单日最多 1 条；连续触发后自动稀释（插入 2 条 buffer 事件）
+  micro_horror: { maxPerDay: 1, weight: 0.4 },
 };
 
 // Types considered "abnormal" for streak tracking
@@ -289,6 +304,49 @@ export const ABNORMAL_TYPES = new Set([
 
 // Types that serve as anchors (break abnormal streaks)
 export const ANCHOR_TYPES = new Set(['silent', '正常事件', 'NPC互动', '氛围事件', '轻微异常']);
+
+// ── 微恐怖事件投放辅助函数 ──────────────────────────────────────
+
+/**
+ * 判断事件类型是否为微恐怖事件。
+ * 直接按 type 字段判断，不依赖 event_classification（微恐怖归类为"氛围事件"）。
+ */
+export function isMicroHorror(evt) {
+  return evt && evt.type === 'micro_horror';
+}
+
+/**
+ * 计算连续微恐怖触发次数（从 _todayEventTypes 末尾向前扫描）。
+ * 仅计数 type === 'micro_horror' 的事件，遇到其他类型即停止。
+ * 返回当前 consecutively triggered micro_horror count（不含本次）。
+ */
+export function getConsecutiveMicroHorrorCount(state) {
+  var types = state._todayEventTypes || [];
+  var count = 0;
+  for (var i = types.length - 1; i >= 0; i--) {
+    if (types[i].type === 'micro_horror') count++;
+    else break;
+  }
+  return count;
+}
+
+/**
+ * PURE: 对候选列表施加微恐怖稀释效应。
+ * 当日历连续触发 ≥2 条微恐怖后，将下一轮候选的 buffer 事件权重提升 1.5x，
+ * 不额外惩罚非 buffer 事件（让 buffer enforcement 处理全局比例）。
+ *
+ * 返回新的候选列表（每个元素保持 { event, weight } 结构）。
+ */
+export function applyMicroHorrorDilution(candidates, state) {
+  var streak = getConsecutiveMicroHorrorCount(state);
+  if (streak < 2) return candidates;
+  return candidates.map(function (item) {
+    var evt = item.event || item;
+    var w = typeof item.weight === 'number' ? item.weight : 1.0;
+    if (evt.normalcy_anchor) w *= 1.5;
+    return { event: evt, weight: w };
+  });
+}
 
 /**
  * PURE: Get all eligible events for the current area and state.
@@ -754,7 +812,10 @@ export function selectEventV2(areaId, state, ctx, pick, rng) {
   const candidates = getEligibleEvents(areaId, state, ctx);
   if (candidates.length === 0) return null;
 
-  const selected = chooseWeightedEvent(candidates, areaId, state, ctx, pick, rng);
+  // ── 微恐怖稀释：连续触发 ≥2 条后，下一轮 buffer 事件权重 ×1.5 ──
+  const dilutedCandidates = applyMicroHorrorDilution(candidates, state);
+
+  const selected = chooseWeightedEvent(dilutedCandidates, areaId, state, ctx, pick, rng);
   if (!selected) return null;
 
   commitSelectedEvent(selected, state);

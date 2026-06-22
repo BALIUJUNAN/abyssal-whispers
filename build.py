@@ -60,6 +60,7 @@ REDUCER_FILES = [
     'engine/WorldTimeSystem.js',
     'reducers/sanReducer.js',
     # engine/EventEngine.js — 3-layer weighted selection (JS for build.py)
+    'data/distortionTemplates.js',   # MUST precede EventEngine.js (DISTORTION_TEMPLATE_MAP import)
     'engine/EventEngine.js',
     # ── 难度配置 (必须 precedes 所有使用 difficulty 的 reducer) ──
     'config/difficultyLevels.js',  # difficulty data (JSON inlined by resolve_json_imports)

@@ -72,7 +72,7 @@ npm run tauri:build
 
 | 维度           | 数据                                                                                                                        |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **独立事件**   | **629 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆 + 10 痕迹连锁） + 102 结局，全部含 quality_tier / trigger 条件，**589 个事件含 SAN/轮回 distortion variants（覆盖率 93%）** |
+| **独立事件**   | **629 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆 + 10 痕迹连锁） + 102 结局，全部含 quality_tier / trigger 条件，**589 个事件含 SAN/轮回 distortion variants（覆盖率 93%，其中 23 个引用共享模板，消除逐字重复）** |
 | **行为结局**   | **36 条** — 由你的选择模式触发，非预设分支                                                                                  |
 | **主线结局**   | **10 条** — 封印守护者 / 希尔达抉择 / 老费舍血脉 / 第十二声钟 / 海上逃离 / 证据逃离 / 异端黎明 / 深渊吞噬 / 超越 / 循环真相 |
 | **结局余韵**   | 每条结局附带可解锁的 Afterglow 文本（条件触发）                                                                             |
@@ -660,7 +660,7 @@ COC/
 │   │   ├── events_npc_cross.js     # NPC 跨角色事件（853 行）
 │   │   ├── events_mythos.js        # 神话知识事件（610 行）
 │   │   ├── events_resource.js      # 资源压力事件（664 行）
-│   │   ├── events_humanity.js      # 人性抉择事件（563 行）
+│   │   ├── events_humanity.js      # 人性抉择事件（1706 行，54 事件，6 子类型模板化）
 │   │   ├── events_area_deep.js     # 区域深层事件（143 行）
 │   │   ├── events_silent.js        # 静默事件（104 行）
 │   │   ├── events_omens_600.js     # 征兆事件（102 行）
@@ -682,6 +682,7 @@ COC/
 │   │   ├── mapConstants.js         # 地图布局常量（37 行）
 │   │   ├── descriptionTemplates.js # 描述文本模板（14 行）
 │   │   ├── areaDescriptionVariants.js # 区域描述到访渐进变体 lookup 表（9区域×3层，~70 行）
+│   │   ├── distortionTemplates.js  # 扭曲文本共享模板（6 模板 + DISTORTION_TEMPLATE_MAP，~90 行）
 │   │   ├── ugcSchema.js            # UGC 模组 JSON Schema + 扩展实体验证（~950 行）
 │   │   │
 │   │   │   ── 核心 JSON 数据（支持懒加载） ──
@@ -775,7 +776,7 @@ COC/
 
 | 模块                   | 路径                     | 行数    | 职责                                | 关键特性                                               |
 | ---------------------- | ------------------------ | ------- | ----------------------------------- | ------------------------------------------------------ |
-| **EventEngine**        | `engine/`                | 465+    | 三层加权 + Day-of-Cycle权重         | TypeScript strict 模式；behavior画像/冷却衰减/缓冲执行/恐惧权重/关键日期超自然×1.8 |
+| **EventEngine**        | `engine/`                | 465+    | 三层加权 + Day-of-Cycle权重 + 扭曲模板注入 | TypeScript strict 模式；behavior画像/冷却衰减/缓冲执行/恐惧权重/关键日期超自然×1.8 + injectDistortionTemplates 运行时模板注入（消除事件扭曲文本逐字重复） |
 | **PollutionManager**   | `engine/`                | 161     | SAN+逻辑+视觉污染                   | TypeScript；文本幻觉/虚假消息/虚假记忆/权重腐蚀 + 确定性RNG        |
 | **SaveManager**        | `engine/`                | 224     | 存档系统+版本迁移                   | TypeScript；6槽位/字段过滤/旧格式兼容/JSON导入导出                 |
 | **useGameStore**       | `state/`                 | 143    | Zustand + Immer 桥接层   | dispatch → createGameReducer → patch draft → flushEffects |
@@ -1201,6 +1202,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.9.5** | 2026-06-22 | **扭曲文本模板化 + 文学参照文档化** — ①`distortionTemplates.js` 新建 6 个共享模板（good_return / bad_consequence / trial_early / trial_late / collective / special_trade）+ `DISTORTION_TEMPLATE_MAP` 查找表；②`events_humanity.js` 移除 23 块模板级重复文本（-107 行），添加 23 个 `distortion_template` 字段（+46 行），净省 62 行；③`EventEngine.js` 新增 `injectDistortionTemplates(GD)` 运行时注入器，事件本地含 `corruption_high`/`san_mid` 等独特键时保留本地 variants，其余按 `distortion_template` 字段或 `subtype` 名自动注入；④`extendedEventsInit.js` 注册 injector 调用；⑤文学参照补录：`DESIGN_REFACTOR_NOTES.md` 新增 Lovecraft/Baudelaire/Murakami/Borges/Houellebecq 五作者对照表 + 恐惧结局特殊文本策略说明；⑥`game_base.json` `text_style` 新增 `literary_references` 字段；⑦`mistake.txt` 条目 #44「隐性设计意图未记录」；⑧构建验证：check_build_imports 345/0 + build.py 7.3MB + Vite ESM 1.32s + 全测试 48/48 + lint:narrative 27S/20A/3B |
 | **0.9.4** | 2026-06-22 | **Phase 2 体系化升级** — ①轻量事件依赖机制：引擎级 `has_flag`/`add_flag` 软连锁，5 条前置事件 + 5 条回声事件，零 reducer 改造；②玩家痕迹系统扩展：3 试点→9 条痕迹（+森林低语/酒馆硬币/墓穴符号/灯塔信号/庄园日记/森林祭品），跨轮回区域描述自动追加；③NPC 语言指纹规范沉淀：`event_authoring.md` 8 位 NPC 完整指纹（句式/语气/意象/信任递进/轮回记忆/死亡回响/SAN 退化/禁用词）；④测试与平衡体系补全：`balanceSimulator.js` 轻量蒙特卡洛模拟器（13 级难度/恐惧画像/graduated protection/封印状态）+ `test_balance_system.mjs` 96 项平衡测试（10 维度：配置完整性/单调性/保护倍率/graduated protection/恐惧画像/难度梯度/消耗速率/封印递增/可复现性/输出结构）；⑤微恐怖触发率测试：19 个 micro_horror 事件数据完整性验证（weight/probability/once_per_run）；⑥NPC 台词覆盖率测试：8 位 NPC 三级优先级（low/mid/high）全覆盖，memory line 关键词验证；⑦全量回归 536 passed / 0 failed / 12 suites |
 | **0.9.3** | 2026-06-21 | **区域描述渐进变体系统 + 事件日志文档化** — ①区域描述渐进变体：`areaDescriptionVariants.js` lookup 表（9区域×3层到访记忆：2-3次/4-6次/7+次），MOVE handler 描述管线集成，变体文本自然流过 mythos alias / text fragmentation / resource corruption 管线，营造跨访问"déjà vu"体验；②事件日志系统文档化：`state.eventLog` 多模块写入（engineCore/effectReducer/appHelpers），三处 UI 展示（左栏可折叠全量面板/右栏最近10条/顶部 EventLogButton），`useEventLog` 细粒度 selector，存档持久化200条上限，幻影条目过期过滤；③`build.py` 新增 `data/areaDescriptionVariants.js` 注册，`check_build_imports` 329 imports 0 errors |
 | **0.9.2** | 2026-06-21 | **Effects 传递架构修复 + BEGIN_ADVENTURE 切片提取** — ①`flushEffectsBuffer()` 从"轮询 Zustand state._effects"改为"显式接收 effects 参数"，消除 gameReducer → Zustand → flushEffectsBuffer 的循环读取，修复 effects 在并发 dispatch 下可能丢失或读到 stale batch 的问题；②`useGameStore.js` 移除 `sliceEffects` 中间变量（每个 slice handler 后赋值 `c.effects`），改为直接在 produce 末尾 `c.effects.slice()` → `effectsToFlush`，再显式传给 `flushEffectsBuffer(effectsToFlush)`；③`BEGIN_ADVENTURE` handler 从 `coreSlice.js` 提取为独立 `adventureSlice.js`（~250行），`gameReducer.js` 新增 `adventureSlice` 路由分支；④`test_effect_protocol.cjs` Test 9 更新为引用 `adventureSlice.js` + 验证 typed commands (`audio.play/audio.ambient`) |

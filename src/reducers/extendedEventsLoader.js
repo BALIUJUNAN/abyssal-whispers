@@ -26,7 +26,7 @@ export function mergeExtendedEvents(GD, extendedModules) {
 
   // Store metadata — _extendedEvents must contain ONLY actual events (with trigger),
   // not item definitions or other non-event entries embedded in event files.
-  // shouldTriggerMissing600() checks _extendedEvents.length === 599.
+  // shouldTriggerMissing600() checks _extendedEvents.length >= EXTENDED_POOL_TARGET.
   GD._extendedEventsLoaded = true;
   GD._extendedEvents = newEvents.filter((e) => e.trigger);
   GD._extendedEventCount = GD._extendedEvents.length;
@@ -180,6 +180,7 @@ export function ensureExtendedState(state) {
   if (!state.endingHistory) state.endingHistory = [];
   if (!state.loopEchoFlags) state.loopEchoFlags = [];
   if (!state.worldCorrectionFlags) state.worldCorrectionFlags = [];
+  if (!state.playerTraces) state.playerTraces = [];
 
   // Current run tracking
   if (!state.eventCooldowns) state.eventCooldowns = {};

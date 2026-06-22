@@ -13,6 +13,7 @@ import { getDifficultySpecial } from '../config/difficulty.js';
 import { computeReincarnationDiff } from '../systems/reincarnationDiff.js';
 import { transferLoopEchoes } from './npcReducer.js';
 import { getLegacyForCategory } from '../systems/deathLegacies.js';
+import { detectPlayerTraces } from '../systems/playerTraces.js';
 import { decayDeathFragments } from '../systems/deathLegacies.js';
 
 // Parse loop_memory_effect text and apply mechanical bonuses.
@@ -494,6 +495,11 @@ export function initLoopState(f, s, ctx, options = {}) {
     f.previousEndings.push(s.ending.id);
   }
   if (f.previousEndings.length > 50) f.previousEndings = f.previousEndings.slice(-50);
+  // ending trigger count for progressive afterglow unlock
+  f.endingTriggerCounts = { ...(s.endingTriggerCounts || {}) };
+  if (s.ending?.id) {
+    f.endingTriggerCounts[s.ending.id] = (f.endingTriggerCounts[s.ending.id] || 0) + 1;
+  }
 
   f.endingHistory = [
     ...(s.endingHistory || []),
@@ -572,6 +578,21 @@ export function initLoopState(f, s, ctx, options = {}) {
 
   // ── 16) 轮回差异提示 ──
   f.reincarnationDiff = computeReincarnationDiff(s, f, ctx);
+
+  // ── 17) 玩家痕迹检测（P2-6） ──
+  // Carry forward existing traces + auto-detect new ones from this loop's actions
+  f.playerTraces = [...(s.playerTraces || [])];
+  var newTraces = detectPlayerTraces(f);
+  for (var ti = 0; ti < newTraces.length; ti++) {
+    var nt = newTraces[ti];
+    // Avoid duplicates
+    if (!f.playerTraces.some(function (t) { return t.traceId === nt.traceId; })) {
+      f.playerTraces.push(nt);
+    }
+  }
+  if (f.playerTraces.length > 30) {
+    f.playerTraces = f.playerTraces.slice(-30);
+  }
 
   return f;
 }

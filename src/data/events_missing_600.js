@@ -1,6 +1,10 @@
 // data/events_missing_600.js
 // 虚拟第600个事件 —— 运行时生成，不入事件池
-// 当 599 个真实事件全部就位、玩家满足极终局条件时，第600个事件自行显现。
+// 当真实扩展事件池达到完整规模、玩家满足极终局条件时，该事件自行显现。
+// 阈值随扩展事件池规模增长而递增（当前完整池 618 条）。
+
+// 扩展事件池完整规模——新增事件时同步更新此值
+export const EXTENDED_POOL_TARGET = 619;
 
 export const MISSING_600_EVENT_ID = 'missing_event_600';
 
@@ -9,8 +13,8 @@ export const MISSING_600_EVENT_ID = 'missing_event_600';
  * 所有条件必须同时满足。
  */
 export function shouldTriggerMissing600(state, allExtendedEvents) {
-  // 1. 真实扩展事件池恰好 599
-  if (!allExtendedEvents || allExtendedEvents.length !== 599) return false;
+  // 1. 真实扩展事件池达到完整规模
+  if (!allExtendedEvents || allExtendedEvents.length < EXTENDED_POOL_TARGET) return false;
 
   // 2. 周目 >= 10
   if ((state.loopCount || 0) < 10) return false;
@@ -79,9 +83,9 @@ export function createMissing600Event(state) {
       '你没有写过这一页。但上面有字。\n\n' +
       '字迹是你的。内容是：\n\n' +
       '你在沃切斯特记录了 ' +
-      (599 + endingsCount) +
+      (EXTENDED_POOL_TARGET + endingsCount) +
       ' 件事。\n' +
-      '其中 599 件是真实的。\n' +
+      '其中 ' + EXTENDED_POOL_TARGET + ' 件是真实的。\n' +
       '最后一件——是你正在阅读的这一件。\n\n' +
       '它不存在于任何事件池中。\n' +
       '它不在 game_data.json 里。\n' +
