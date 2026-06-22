@@ -35,9 +35,6 @@ import { applyMetaCorruption } from '../../systems/metaCorruption.js';
 import { emit } from '../../engine/eventBus.js';
 import { maybeInjectPhantomLog } from '../../systems/textVariants.js';
 
-// TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
-// It remains a global for now; will be extracted to a utility in a future PR.
-
 // ── REST sub-functions ──────────────────────────────────────────────
 
 /** Process food consumption, starvation damage, and NPC trust decay. Returns true if player died. */

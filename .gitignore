@@ -59,3 +59,25 @@ mistake.txt
 # Large raw assets (use WebP in assets/)
 *.png
 !assets/**/*.png
+
+# Analysis / upgrade scripts (local only, never commit)
+scripts/analyze_*.py
+scripts/analyze_*.js
+scripts/check_*.py
+scripts/customize_*.py
+scripts/dup_*.py
+scripts/extract_*.py
+scripts/find_*.py
+scripts/fix_*.py
+scripts/replace_*.py
+scripts/upgrade_*.py
+scripts/sample_*.py
+scripts/*_variants.json
+scripts/*_test.json
+scripts/*_report.json
+scripts/aftermath_*.json
+scripts/omen_*.json
+_extract_descriptions.cjs
+
+# Backup files from refactoring
+src/data/*.bak_*

@@ -49474,6 +49474,78 @@ function handleLoopAction(s, action, c, ctx) {
   }
 }
 
+// === data/areaDescriptionVariants.js ===
+/**
+ * area_deep.js description_variants 去重 lookup 表
+ */
+
+const AREA_DESCRIPTION_VARIANTS = {
+  // catacombs_entrance (area_catacombs_001)
+  'catacombs_entrance': {
+    'visit_2_3': `某道转弯有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是石壁的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——某个划痕的画面已经刻好了。\\n你甚至能预判石壁从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——某道转弯的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+  // deep_catacombs (area_deep_001)
+  'deep_catacombs': {
+    'visit_2_3': `某段路的倾斜度有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是深水的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——竖井的边缘的画面已经刻好了。\\n你甚至能预判深水从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——某段路的倾斜度的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+  // forbidden_grove (area_grove_001)
+  'forbidden_grove': {
+    'visit_2_3': `某棵树的纹理有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是浆果的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——上次摘浆果的地方的画面已经刻好了。\\n你甚至能预判浆果从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——某棵树的纹理的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+  // harbor_district (area_harbor_001)
+  'harbor_district': {
+    'visit_2_3': `码头的木板有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是海风的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——某根系缆桩的画面已经刻好了。\\n你甚至能预判海风从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——码头的木板的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+  // lighthouse (area_lighthouse_001)
+  'lighthouse': {
+    'visit_2_3': `某级台阶的磨损有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是灯光的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——灯室的地板的画面已经刻好了。\\n你甚至能预判灯光从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——某级台阶的磨损的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+  // ruins_of_yith (area_ruins_001)
+  'ruins_of_yith': {
+    'visit_2_3': `某面墙壁的纹路有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是金属的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——上次触碰的机器的画面已经刻好了。\\n你甚至能预判金属从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——某面墙壁的纹路的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+  // town_center (area_town_center_001)
+  'town_center': {
+    'visit_2_3': `脚下的路有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是鹅卵石的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——公告栏上的画面已经刻好了。\\n你甚至能预判鹅卵石从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——脚下的路的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+  // voxchester_manor (area_manor_001)
+  'voxchester_manor': {
+    'visit_2_3': `某级台阶有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是壁炉的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——某幅画像的画面已经刻好了。\\n你甚至能预判壁炉从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——某级台阶的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+  // whispering_forest (area_forest_001)
+  'whispering_forest': {
+    'visit_2_3': `某棵熟悉的树有些不一样了。\\n不是变了——是你看它的方式变了。\\n上次经过时忽略的细节，这次突然撞进眼里。\\n也许是松针的味道比上次浓了一些。\\n也许是光线从另一个角度照进来。\\n你知道这里是哪里。但你知道——\\n你不只是路过。`,
+    'visit_4_6': `你已经在脑子里走了一遍。\\n不需要眼睛——上次刻标记的地方的画面已经刻好了。\\n你甚至能预判松针从哪个方向来。\\n但你还是走了和上次一样的路。\\n每一步都踩在记忆的印子上。\\n你知道前方有什么。\\n问题是你这次会不会做出同样的选择。`,
+    'visit_7_plus': `你的身体先于你的意识动了。\\n不需要思考——某棵熟悉的树的每一寸你都记得。\\n你知道哪里不平、哪里会响、哪里藏着什么。\\n像是你亲手布置的。但你没有。\\n你只是来过足够多次，让这个地方长在了你身上。\\n长在了你的骨头里。\\n现在你是这个地方的一部分了——\\n就像它也是你的一部分一样。`,
+  },
+};
+
+function getAreaDescriptionVariant(area, level) {
+  return AREA_DESCRIPTION_VARIANTS[area]?.[level] || null;
+}
+
+function getAreaDescriptionVariants(area) {
+  return AREA_DESCRIPTION_VARIANTS[area] || null;
+}
+
+AREA_DESCRIPTION_VARIANTS;
+
 // === engine/eventBus.js ===
 // src/engine/eventBus.js — Typed event bus for cross-slice communication
 // WHY: exploreSlice and dailySlice both mutate s.safehouseCorruption, s.san, etc.
@@ -50715,14 +50787,10 @@ function shuffleArray(arr, _rand) {
 // ctx (bundle-scope context with GD) is passed as 4th param to handleExploreAction.
 // Sub-functions within EXPLORE use ctx via closure from the handler scope.
 //
-// TODO: EXPLORE case is ~210 lines with 5-6 nesting levels.
-// Consider splitting into sub-phase functions:
-//   _selectEvent(s, ctx, c)    → candidate filtering + weighted selection
-//   _applyEventEffects(s, c)   → SAN damage, skill checks, madness
-//   _postEventProcessing(s, c) → chain progress, conclusions, endings
-
-// TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
-// It remains a global for now; will be extracted to a utility in a future PR.
+// EXPLORE case decomposed into 3 sub-phase functions:
+//   _selectExploreEvent(s, ctx, GD, c)  → candidate filtering + weighted selection
+//   _postExploreProcessing(evt, s, c, GD) → chain progress, conclusions, endings
+//   _applyMadnessEffects(mad, s, c, ctx) → SAN damage, skill checks, madness
 
 // §3.3: Meta event real consequences
 function applyMetaEffect(effectType, state, evt, c) {
@@ -51110,6 +51178,16 @@ function handleExploreAction(s, action, c, ctx) {
       let desc = getSanTextVariant(targetArea.description, s.san, pick, ctx, c.rng);
       // DESIGN_REFACTOR_NOTES.md: "光源<30%时，town_center描述轻度污染"
       desc = applyLightTextCorruption(desc, s.lightLevel || 0, ctx, c.rng);
+      // Visit-level description variants: progressive déjà vu (visit 2+)
+      var visitCount = (s.visitedAreas || []).filter(function(a) { return a === target; }).length;
+      if (visitCount >= 2) {
+        var tier = visitCount <= 3 ? 'visit_2_3' : visitCount <= 6 ? 'visit_4_6' : 'visit_7_plus';
+        var variant = getAreaDescriptionVariant(target, tier);
+        if (variant) {
+          var cleanVariant = variant.replace(/\\n/g, '\n');
+          desc = desc + '\n\n' + cleanVariant;
+        }
+      }
       // Mythos name alias for area descriptions
       desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
       // Text Fragmentation for area descriptions (SAN-driven)
@@ -52156,9 +52234,6 @@ function handleNpcAction(s, action, c, ctx) {
 // REST, WORK, BUY_FOOD
 // Phase 1 Refactor: REST case decomposed into sub-functions for readability.
 // NOTE: Sub-functions receive ctx (bundle-scope context with GD) as 3rd param.
-
-// TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
-// It remains a global for now; will be extracted to a utility in a future PR.
 
 // ── REST sub-functions ──────────────────────────────────────────────
 

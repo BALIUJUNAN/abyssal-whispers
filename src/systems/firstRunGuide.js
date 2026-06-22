@@ -4,6 +4,8 @@
 //
 // Early hooks (thirteenth bell entrance) are in src/systems/earlyHooks.js.
 
+import { getSanStageFromGD } from '../reducers/utils.js';
+
 const GUIDE_STEPS = [
   {
     id: 'welcome',

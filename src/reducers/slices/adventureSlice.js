@@ -6,6 +6,7 @@
 import { audio, hooks, fx } from '../../engine/commands.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { applyDifficultyToState } from '../../state/difficultyState.js';
+import { pick } from '../utils.js';
 import {
   addRunMemory,
   getNpcTrust,

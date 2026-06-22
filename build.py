@@ -180,6 +180,7 @@ REDUCER_FILES = [
     'reducers/slices/coreSlice.js',  # Core setup: START_GAME, SET_DIFFICULTY, ROLL_STATS, SWITCH_SAFEHOUSE
     'reducers/slices/adventureSlice.js',  # BEGIN_ADVENTURE (depends on coreSlice + difficultyState)
     'reducers/slices/loopSlice.js',       # NEW_GAME, CONTINUE_GAME, LOOP_SHOP_PURCHASE
+    'data/areaDescriptionVariants.js',  # MUST precede exploreSlice.js (area description variants)
     'engine/eventBus.js',              # MUST precede exploreSlice.js, dailySlice.js
     'runtime/eventSideEffects.js',    # MUST follow eventBus.js — side effect handlers
     'systems/earlyHooks.js',           # MUST precede exploreSlice.js

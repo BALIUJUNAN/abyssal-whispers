@@ -7,6 +7,9 @@
 // 设计参考：Darkest Dungeon 的 Hamlet 地图 — 每个建筑/区域是一个锚点，
 // 点击后弹出该地点的功能界面（而非切换屏幕）。
 
+import { isAreaUnlocked } from '../utils/gameHelpers.js';
+import { getAvailableSafehouses } from '../utils/appHelpers.js';
+
 export const TOWN_HOTSPOTS = [
   // ─── 核心区域（9个） ────────────────────────────────────────
   {

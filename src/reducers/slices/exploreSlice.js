@@ -4,11 +4,10 @@
 // ctx (bundle-scope context with GD) is passed as 4th param to handleExploreAction.
 // Sub-functions within EXPLORE use ctx via closure from the handler scope.
 //
-// TODO: EXPLORE case is ~210 lines with 5-6 nesting levels.
-// Consider splitting into sub-phase functions:
-//   _selectEvent(s, ctx, c)    → candidate filtering + weighted selection
-//   _applyEventEffects(s, c)   → SAN damage, skill checks, madness
-//   _postEventProcessing(s, c) → chain progress, conclusions, endings
+// EXPLORE case decomposed into 3 sub-phase functions:
+//   _selectExploreEvent(s, ctx, GD, c)  → candidate filtering + weighted selection
+//   _postExploreProcessing(evt, s, c, GD) → chain progress, conclusions, endings
+//   _applyMadnessEffects(mad, s, c, ctx) → SAN damage, skill checks, madness
 
 import { rand, clamp, pick, applySanLoss } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
@@ -51,6 +50,7 @@ import { addRunMemory, setNpcTrust, getNpcState, setNpcState, checkWrongInferenc
 import { adjustSanLossForLoop23, getSanFloor, shouldBlockLethalEvent, adjustMonsterChance } from '../../systems/firstLoopBalance.js';
 import { getTrackedText, createSeenTextMap, applyMythosAliases, maybeInjectPhantomNarrative, applyLevel13RealityDistortion } from '../../systems/textVariants.js';
 import { getLightLevelEffects, applyLightTextCorruption } from '../miscReducer.js';
+import { getAreaDescriptionVariant } from '../../data/areaDescriptionVariants.js';
 import { checkChainCompletion, isAreaUnlocked, getAreaDisplayName } from '../../utils/gameHelpers.js';
 import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
 import { getEventImage } from '../../portraitMap.js';
@@ -61,9 +61,6 @@ import { checkChapterMilestone, createMilestoneEvent, getDistortionVariant } fro
 import { generateFakeOptions, processFakeChoice, getNegativeEventWeightMultiplier, getSafeEventWeightMultiplier } from '../../systems/sanConsequenceChain.js';
 import { getRarityHint } from '../../systems/eventRarity.js';
 import { applyTextFragmentation } from '../../systems/textFragmentation.js';
-
-// TODO: checkSilentEvent is defined in app.jsx — avoid circular import.
-// It remains a global for now; will be extracted to a utility in a future PR.
 
 // §3.3: Meta event real consequences
 export function applyMetaEffect(effectType, state, evt, c) {
@@ -451,6 +448,16 @@ export function handleExploreAction(s, action, c, ctx) {
       let desc = getSanTextVariant(targetArea.description, s.san, pick, ctx, c.rng);
       // DESIGN_REFACTOR_NOTES.md: "光源<30%时，town_center描述轻度污染"
       desc = applyLightTextCorruption(desc, s.lightLevel || 0, ctx, c.rng);
+      // Visit-level description variants: progressive déjà vu (visit 2+)
+      var visitCount = (s.visitedAreas || []).filter(function(a) { return a === target; }).length;
+      if (visitCount >= 2) {
+        var tier = visitCount <= 3 ? 'visit_2_3' : visitCount <= 6 ? 'visit_4_6' : 'visit_7_plus';
+        var variant = getAreaDescriptionVariant(target, tier);
+        if (variant) {
+          var cleanVariant = variant.replace(/\\n/g, '\n');
+          desc = desc + '\n\n' + cleanVariant;
+        }
+      }
       // Mythos name alias for area descriptions
       desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
       // Text Fragmentation for area descriptions (SAN-driven)

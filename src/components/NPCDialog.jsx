@@ -5,6 +5,7 @@ import { applyTextFragmentation } from '../systems/textFragmentation.js';
 import { generateNpcDialogue, isGlmAvailable } from '../systems/llmNarrative.js';
 import { getContextualLine } from '../systems/npcDialogue.js';
 import { getChoiceDelay } from '../engine/PollutionManager.js';
+import { checkTrustGate } from '../utils/trustGates.js';
 import { getNpcImage } from '../portraitMap.js';
 
 export function NPCDialog({ npc, trust, layer, dispatch, state }) {

@@ -20,6 +20,7 @@
 //   5. Event-specific additional conditions (evt.trigger.legendary_requires)
 
 import { getCurrentSanStage } from '../reducers/utils.js';
+import { hasClueId } from '../utils/clueNameMap.js';
 
 // ============================================================
 // Rarity Definitions

@@ -36,7 +36,13 @@ def strip_comments(src):
 def resolve(imp, cur):
     if not imp.startswith('.'):
         return None
-    return os.path.normpath(os.path.join(os.path.dirname(cur), imp)).replace(os.sep, '/')
+    r = os.path.normpath(os.path.join(os.path.dirname(cur), imp)).replace(os.sep, '/')
+    # Strip leading ../ (src/ subdirectory imports) and src/ prefix
+    while r.startswith('../'):
+        r = r[3:]
+    if r.startswith('src/'):
+        r = r[4:]
+    return r
 
 def main():
     files = parse_reducer_files(BUILD_PY)

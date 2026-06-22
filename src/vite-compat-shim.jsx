@@ -3,26 +3,22 @@
 // This bridges the gap between build.py's flat global-scope concatenation
 // and Vite's ESM module isolation.
 //
-// PROGRESS: Slice handlers (PR13-14) now have explicit imports and are
-// removed from this shim. Remaining modules are still used as globals by
-// component files, reducers, systems, and utility modules.
+// PROGRESS: Slice handlers (PR13-14) removed. Batch 1 (4 data modules: events_death_echo,
+// events_omens_600, events_missing_600, descriptionTemplates) removed. Batch 2 (4 utility
+// modules: gameConstants, clueNameMap, gameHelpers, trustGates) removed — added 3 imports.
+// Batch 3 (3 core modules: appHelpers, reducersUtils, sanReducer) removed — added 3 imports.
+// Remaining: 44 modules (runtime, data, registry + engine/systems/reducers not yet migrated).
 //
 // TODO: Continue adding explicit imports to remaining modules (reducers,
 // systems, etc.) until this shim can be reduced to only the minimal set
 // of truly shared globals (GD, React, ctx, errorTracker, audioManager).
 
 // ── Utility modules ──
-import * as _reducersUtils from './reducers/utils.js';
-import * as _clueNameMap from './utils/clueNameMap.js';
-import * as _gameHelpers from './utils/gameHelpers.js';
-import * as _trustGates from './utils/trustGates.js';
 import * as _npcMemory from './utils/npcMemory.js';
 import * as _errorTracker from './utils/errorTracker.js';
-import * as _appHelpers from './utils/appHelpers.js';
 import * as _buildEventPool from './utils/buildEventPool.js';
 
 // ── State modules ──
-import * as _gameConstants from './state/gameConstants.js';
 import * as _initialState from './state/initialState.js';
 import * as _transientKeys from './state/transientKeys.js';
 import * as _uiStore from './state/uiStore.js';
@@ -30,7 +26,6 @@ import * as _gameStore from './state/gameStore.js';
 
 // ── Engine modules ──
 import * as _worldTime from './engine/WorldTimeSystem.js';
-import * as _sanReducer from './reducers/sanReducer.js';
 import * as _eventEngine from './engine/EventEngine.js';
 import * as _pollutionMgr from './engine/PollutionManager.js';
 import * as _saveManager from './engine/SaveManager.js';
@@ -71,14 +66,10 @@ import * as _effectExecutor from './runtime/effectExecutor.js';
 import * as _audioManager from './managers/AudioManager.js';
 
 // ── Data modules ──
-import * as _eventsMissing600 from './data/events_missing_600.js';
-import * as _eventsOmens600 from './data/events_omens_600.js';
 import * as _extendedEventsIndex from './data/extended_events_index.js';
 import * as _behaviorEndings from './data/behavior_endings.js';
 import * as _endingMissing600 from './data/ending_missing_600.js';
-import * as _eventsDeathEcho from './data/events_death_echo.js';
 import * as _prologueEvents from './data/prologue_events.js';
-import * as _descriptionTemplates from './data/descriptionTemplates.js';
 import * as _mapConstants from './data/mapConstants.js';
 import * as _townHotspots from './data/townHotspots.js';
 import * as _ugcSchema from './data/ugcSchema.js';
@@ -93,21 +84,14 @@ import * as _itemRegistry from './data/registry/itemRegistry.js';
 // NOTE: 'produce' is already set by main.vite.jsx (window.produce = produce),
 // so we no longer import/assign it here.
 const MODULES = [
-  _reducersUtils,
-  _clueNameMap,
-  _gameHelpers,
-  _trustGates,
   _npcMemory,
   _errorTracker,
-  _appHelpers,
   _buildEventPool,
-  _gameConstants,
   _initialState,
   _transientKeys,
   _uiStore,
   _gameStore,
   _worldTime,
-  _sanReducer,
   _sanityVisual,
   _eventEngine,
   _pollutionMgr,
@@ -133,14 +117,10 @@ const MODULES = [
   _ugcReducer,
   _effectExecutor,
   _audioManager,
-  _eventsMissing600,
-  _eventsOmens600,
   _extendedEventsIndex,
   _behaviorEndings,
   _endingMissing600,
-  _eventsDeathEcho,
   _prologueEvents,
-  _descriptionTemplates,
   _mapConstants,
   _townHotspots,
   _ugcSchema,
@@ -163,4 +143,4 @@ if (!('audioManager' in globalThis) && _audioManager.audioManager) {
   globalThis.audioManager = _audioManager.audioManager;
 }
 
-console.log('[Vite] Compatibility shim loaded —', MODULES.length, 'modules on globalThis');
+console.log('[Vite] Compatibility shim loaded —', MODULES.length, 'modules on globalThis (reduced from 55)');

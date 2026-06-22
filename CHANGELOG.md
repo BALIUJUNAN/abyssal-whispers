@@ -1,3 +1,29 @@
+## 2026-06-21 — 区域描述变体 lookup 表引擎集成
+
+### 新增功能
+
+- **区域描述渐进变体系统** — 玩家第 2 次到访同一区域时，描述文本追加记忆叠加层（3 层渐进：2-3 次 / 4-6 次 / 7+ 次），营造跨访问的" déjà vu"体验
+  - `src/data/areaDescriptionVariants.js` — 9 个区域 × 3 层到访级变体 lookup 表（事件 `description_variants` 去重提取）
+  - `src/reducers/slices/exploreSlice.js` — MOVE handler 描述管线中插入 visit-level 变体逻辑，变体文本自然流过 mythos alias / text fragmentation / resource corruption 管线
+  - `build.py` — `data/areaDescriptionVariants.js` 注册到 `REDUCER_FILES`（exploreSlice 之前）
+
+### 工程变更
+
+- `check_build_imports.py` 验证通过（329 imports / 146 files）
+- 拼接构建 + Vite ESM 构建双通过
+- 完整流程测试 48/48 通过
+
+### 文档更新
+
+- **事件日志系统文档化** — 代码中已完整实现但之前未记录：
+  - `state.eventLog` 数组（`{ day, text }`），多模块写入（engineCore / effectReducer / useGameStore / appHelpers）
+  - 三处 UI 展示：左栏可折叠全量面板（`NarrativeVirtualList`）/ 右栏最近 10 条 / 顶部 `EventLogButton` 快捷入口
+  - `useEventLog()` / `useEventLogLength()` 细粒度 selector
+  - 存档持久化（200 条上限）+ 幻影条目过期过滤（`isPhantomExpired`）
+  - README 系统功能一览 + 项目结构均补充条目
+
+---
+
 ## 2026-06-17 — v0.7.0 难度系统 + 平衡性测试框架
 
 ### 新增功能
