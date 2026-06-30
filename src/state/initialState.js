@@ -50,6 +50,11 @@ function createWorldState() {
     npcTrust: {},
     npcStates: {},
     npcRelations: {},
+    factionStanding: {},          // faction_id → -10..+10
+    npcLocations: {},             // npcName → areaId (daily autonomous position)
+    npcThreads: {},               // npcName_depth → { depth, resolved }
+    _dailyNpcTalks: {},           // npcName → day number (resets each day)
+    _pendingDelayedEffects: [],   // scheduled moral dilemma delayed effects
     sealState: STARTING_STATE.SEAL_STATE,
     weather: STARTING_STATE.WEATHER,
     safehouseCorruption: 0,

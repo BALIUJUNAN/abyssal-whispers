@@ -111,6 +111,7 @@ export function _processRestBookkeeping(s, c, ctx) {
   trackDailyBehaviorPatterns(s, c.bt);
   s._dayActions = [];
   s._dailyTrustGains = {};
+  s._dailyNpcTalks = {};
   s._todayEventTypes = [];
   s._dayStartArea = s.currentArea;
   saveGame(s);

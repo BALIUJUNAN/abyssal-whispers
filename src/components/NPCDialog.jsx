@@ -7,6 +7,7 @@ import { getContextualLine } from '../systems/npcDialogue.js';
 import { getChoiceDelay } from '../engine/PollutionManager.js';
 import { checkTrustGate } from '../utils/trustGates.js';
 import { getNpcImage } from '../portraitMap.js';
+import { NPC_THREAD_QUESTIONS } from '../data/npcContextualLines.js';
 
 export function NPCDialog({ npc, trust, layer, dispatch, state }) {
   const [show, setShow] = useState(false);
@@ -39,6 +40,7 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
   // 对话分组折叠状态：交谈/帮助 默认展开，特殊 默认折叠
   const [collapsedGroups, setCollapsedGroups] = useState({
     talk: false,
+    probe: false,
     help: false,
     special: true,
   });
@@ -310,6 +312,46 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
                 </div>
               )}
             </div>
+            {/* 追问组 — dialogue follow-up threads with branching */}
+            {state.pendingNpc && state.pendingNpc.availableThreads && state.pendingNpc.availableThreads.length > 0 && (
+              <div className="npc-dialog-group">
+                <div className="npc-dialog-group-title" onClick={() => toggleGroup('probe')}>
+                  <span className={'chevron' + (collapsedGroups.probe ? '' : ' open')}>▶</span> 追问
+                </div>
+                {!collapsedGroups.probe && (
+                  <div className="npc-dialog-group-body">
+                    {state.pendingNpc.availableThreads.map(function (t) {
+                      // Branch choice at depth2: show choice text, dispatch branch id
+                      if (t.branch && t.choiceText) {
+                        return (
+                          <button
+                            key={t.thread.id + '_' + t.branch}
+                            className="btn btn-sm"
+                            style={{ color: 'var(--cyan)', fontSize: '0.72rem' }}
+                            onClick={() => doResponse('probe_' + t.thread.id + '_' + t.branch)}
+                          >
+                            {t.choiceText}
+                            <span className="cost">1 AP</span>
+                          </button>
+                        );
+                      }
+                      // Thread entry (depth1) or outcome (depth3)
+                      return (
+                        <button
+                          key={t.thread.id + (t.branch || '')}
+                          className="btn btn-sm"
+                          style={{ color: t.isOutcome ? 'var(--text-dim)' : 'var(--gold)', fontSize: '0.72rem' }}
+                          onClick={() => doResponse('probe_' + t.thread.id)}
+                        >
+                          {t.isOutcome ? '继续追问...' : t.thread.label}
+                          <span className="cost">1 AP</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
             {/* 帮助组 */}
             <div className="npc-dialog-group">
               <div className="npc-dialog-group-title" onClick={() => toggleGroup('help')}>

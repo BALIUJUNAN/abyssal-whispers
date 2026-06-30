@@ -85,6 +85,8 @@ REDUCER_FILES = [
     'data/events_ch2plus.js',         # Ch2+ 章节事件，从 game_ch2plus.json 迁移 (+70)
     # DEPENDENCY: requires eventSystemV2.js + resourceNarrative.js (above) for weight functions
     'systems/eventRarity.js',         # MUST precede extendedEvents.js (getEventRarityWeight)
+    'data/npcRelationshipWeb.js',     # MUST precede extendedEvents.js (NPC_RELATIONSHIPS proximity weight)
+    'utils/npcLocation.js',           # MUST precede extendedEvents.js (getNpcsHere)
     'reducers/extendedEvents.js',
     'reducers/eventReducer.js',
     'data/descriptionTemplates.js',  # MUST be before events_*.js files that import DESC
@@ -101,7 +103,6 @@ REDUCER_FILES = [
     'data/extended_events_index.js',
     'data/ending_missing_600.js',
     'reducers/endingReducer.js',       # MUST precede behavior_endings.js
-    'data/npcRelationshipWeb.js',      # NPC relationship network (moral choice engine)
     'systems/implicitEndingSystem.js', # Implicit ending triggers (depends on endingReducer)
     'systems/fearMoralModifier.js',    # Fear → moral pressure mapping (depends on implicitEndingSystem)
     'systems/moralChoiceEngine.js',    # Moral choice integration (depends on fearMoralModifier)
@@ -193,11 +194,14 @@ REDUCER_FILES = [
     'systems/earlyHooks.js',           # MUST precede exploreSlice.js
     'systems/textFragmentation.js',    # MUST precede exploreSlice.js + NPCDialog.jsx (applyTextFragmentation)
     'reducers/slices/exploreSlice.js',
+    # NPC relationship system (trust propagation + delayed moral effects)
+    'systems/npcRelationshipSystem.js',    # MUST precede npcSlice.js (propagateTrustChange) and dayAdvance.js (processDelayedEffects)
     'reducers/slices/npcSlice.js',
     # ── Daily REST pipeline (domain-owned system files, extracted from dailySlice.js) ──
     'systems/daily/foodSystem.js',         # MUST precede dailySlice.js (_processFoodAndStarvation)
     'systems/daily/safehouseSystem.js',    # MUST precede dailySlice.js (_processSafehouseAndWorldDecay)
     'systems/daily/restRecovery.js',       # MUST precede dailySlice.js (_processRestRecovery)
+    'systems/npcSchedule.js',             # NPC autonomous movement (must precede dayAdvance.js)
     'systems/daily/dayAdvance.js',         # MUST precede dailySlice.js (_advanceDayClock + _processChapterAndMotif)
     'systems/daily/dayCritical.js',        # MUST precede dailySlice.js (_processDayCriticalAndDecay)
     'systems/daily/nightEffects.js',       # MUST precede dailySlice.js (_processNpcCorruption + _processNightEffects)

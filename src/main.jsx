@@ -11,6 +11,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { produce } from 'immer';
+import { validateGameData } from './data/schemas/index.js';
 
 // Install React/ReactDOM/produce as globals for app.jsx and component files
 // that still reference them via globalThis (through vite-compat-shim)
@@ -46,6 +47,21 @@ try {
   window.__GAME_DATA__ = GD;
   window.GD = GD;
   console.log('[Vite] Game data loaded:', GD.events?.length, 'events');
+
+  // Validate game data with Zod schemas
+  var _validation = validateGameData(GD);
+  var _totalInvalid = _validation.events.invalid + _validation.npcs.invalid + _validation.areas.invalid + _validation.items.invalid;
+  if (_totalInvalid > 0) {
+    console.warn('[Vite] Game data validation:', _totalInvalid, 'invalid entries found:');
+    ['events', 'npcs', 'areas', 'items'].forEach(function (cat) {
+      var r = _validation[cat];
+      if (r.invalid > 0) {
+        console.warn('  ' + cat + ':', r.invalid, 'invalid —', r.errors.slice(0, 5).map(function (e) { return e.id + ': ' + (e.issues || []).map(function (i) { return i.path.join('.') + ' ' + i.message; }).join(', '); }).join('; '));
+      }
+    });
+  } else {
+    console.log('[Vite] Game data validation: all entries valid (' + _validation.events.valid + ' events, ' + _validation.npcs.valid + ' npcs, ' + _validation.areas.valid + ' areas, ' + _validation.items.valid + ' items)');
+  }
 
   // Mark ch2plus and meta chapters as loaded so lazy fetch in app.jsx is a no-op
   const { markChapterLoaded } = await import('./reducers/extendedEventsLoader.js');

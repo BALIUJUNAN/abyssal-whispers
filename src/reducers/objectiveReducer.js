@@ -1,7 +1,7 @@
 // src/reducers/objectiveReducer.js - Objective generation and completion
 
 import { applySanLoss, makeRand } from './utils.js';
-import { hasClueId } from '../utils/clueNameMap.js';
+import { hasClueId, resolveClueName } from '../utils/clueNameMap.js';
 import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
 
 export function genObjectives(day, ctx) {
@@ -124,7 +124,7 @@ export function executeForcedProgressGuard(guard, state, narr) {
   if (missingClues.length > 0) {
     const hintClue = guard.fallbackClueHint || missingClues[0];
     if (!hasClueId(state.clues, hintClue)) {
-      state.clues.push(hintClue);
+      state.clues.push({ id: hintClue, name: resolveClueName(hintClue) || hintClue });
       narr('system', '（你将这条信息记录在了笔记本上。）', { isSpecial: true });
     }
   }

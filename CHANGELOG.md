@@ -1,3 +1,40 @@
+## 2026-06-30 — v0.9.7 NPC 系统深度升级：关系传播 + 自主移动 + 对话树
+
+### 新增功能
+
+#### A. 关系涟漪传播系统（npcRelationshipSystem.js）
+- **propagateTrustChange()** — 玩家改变 NPC A 的 trust 时，自动通过 NPC_RELATIONSHIPS 关系网传播到关联 NPC，传播公式 `round(delta × affinity × moralWeight / 10)`
+- **propagateFactionStanding()** — 同步更新阵营声望（seal_keeper / deep_one / military / cultist），范围 -10..+10
+- **processMoralDilemmaChoice()** — 激活 MORAL_DILEMMAS 数据中的 hiddenCost / hiddenBenefit / delayedEffect / discoveryChance
+- **scheduleDelayedEffect() + processDelayedEffects()** — 道德困境延迟效应在 nightly 结算时触发（如"3 天后玛莎发现真相"）
+- npcSlice.js 的 8 个 setNpcTrust 调用点全部接入传播（trust_up / share_food / attack / incite / exploit / betray / preach 成功失败）
+
+#### B. NPC 自主移动系统（npcSchedule.js）
+- **computeDailyNpcLocations()** — 每日 day start 计算 NPC 位置，4 层移动规则：腐蚀 override（40%）→ 信任追踪（20%）→ 孤立倾向（15%）→ 随机漂移（10%）
+- **processNpcEncounters()** — 同区域 NPC 互动：友好关系 → 双方 trust 微增；冲突关系 → 双方 trust 微减
+- state.npcLocations 追踪每日自主位置，getNpcsHere() 优先读取自主位置，fallback 到 schedule
+
+#### C. NPC 主动接触事件权重（extendedEvents.js）
+- getEventWeight() 新增 NPC proximity modifier：事件 trigger.npc_initiated: true 时，玩家在 NPC 所在区域 + trust ≥ 3 + 当天未对话 → 权重 ×3；trust ≤ 1 + 有 conflict → 权重 ×2
+- state._dailyNpcTalks 追踪每日对话状态，dayOpen.js 每日重置
+
+#### D. 对话追问系统升级为对话树（NPC_THREAD_QUESTIONS）
+- 数据结构升级：depth1 → depth2（含 choices 分支选择）→ depth3（branch-specific 结局）
+- 3 条主线（伊莱亚斯/希尔达/伊莎贝拉/约书亚/汤米/埃德加）全部加了 depth2 分支，每个分支导向不同 depth3 结局（不同文本 + 不同线索 + 不同 flags）
+- state.npcThreads 持久化线程状态：{ depth, branch, flags, resolved }
+- state._dialogueFlags 记录对话中获得的标志位
+- NPCDialog.jsx 追问组支持分支选择按钮（cyan 色）+ outcome 按钮
+
+### 工程变更
+
+- **Zod 数据验证启用** — main.jsx bootstrap 在 GD merge 后调用 validateGameData()，malformed 数据不再静默失败
+- **require() in ESM 清零** — selectors.js (2处) + eventSideEffects.js (7个handler) 全部改为 ESM import
+- **s.clues 混合类型归一化** — 10 个 push 点全部归一化为 {id, name} 对象格式，消除 [object Object] 显示 bug
+- **新文件双注册** — npcRelationshipSystem.js / npcSchedule.js / npcLocation.js 加入 build.py REDUCER_FILES
+- 536 passed / 0 failed | 388 imports / 0 errors | Vite build 1.27s
+
+---
+
 ## 2026-06-21 — 区域描述变体 lookup 表引擎集成
 
 ### 新增功能

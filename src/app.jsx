@@ -161,7 +161,8 @@ import { uiStore, useUiStore, addUiToast, removeUiToast, notifySave, updateSetti
 import { useSanVisual, useSanLevel, useNpcTrust, useEventLogLength } from './state/selectors.js';
 
 // ── Event side effects (must be imported once to activate handlers) ──
-import './runtime/eventSideEffects.js';
+import { setDispatch } from './runtime/eventSideEffects.js';
+setDispatch(getDispatch());
 
 // ── Components ──
 import { UgcPanel } from './components/UgcImportExport.jsx';

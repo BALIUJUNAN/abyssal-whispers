@@ -1,5 +1,7 @@
 // src/utils/gameHelpers.js — 游戏逻辑工具函数（从 app.jsx 提取）
 
+import { resolveClueName } from './clueNameMap.js';
+
 // GD 和 ctx 将在 bundle 时由 app.jsx 中的全局变量提供
 // build.py 会剥离 import/export 语句，所以这些函数可以直接使用同作用域的 GD
 
@@ -72,13 +74,13 @@ export function checkChainCompletion(state, narr) {
   for (const chain of chains) {
     const chainClues = chain.clues || [];
     for (const clue of chainClues) {
-      if (state.clues.some((c) => (typeof c === 'string' ? c : c.id) === clue.id)) continue;
+      if (state.clues.some((c) => c.id === clue.id)) continue;
       if (
         clue.source &&
         state.triggeredEvents.includes(clue.source) &&
-        !state.clues.some((c) => (typeof c === 'string' ? c : c.id) === clue.id)
+        !state.clues.some((c) => c.id === clue.id)
       ) {
-        state.clues.push(clue.id);
+        state.clues.push({ id: clue.id, name: clue.name });
         narr('system', '【线索链：' + chain.name + '】发现线索「' + clue.name + '」', {
           isSpecial: true,
         });
@@ -88,7 +90,7 @@ export function checkChainCompletion(state, narr) {
     const allFound =
       chainClues.length > 0 &&
       chainClues.every((c) =>
-        state.clues.some((cc) => (typeof cc === 'string' ? cc : cc.id) === c.id)
+        state.clues.some((cc) => cc.id === c.id)
       );
     if (allFound) {
       state.completedChains.push(chain.id);

@@ -272,7 +272,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
     conc.unlocks.forEach(function (u) {
       if (!hasClueId(s.clues, u)) {
         const _rn = resolveClueName(u);
-        s.clues.push(_rn && _rn !== u ? { id: u, name: _rn } : u);
+        s.clues.push({ id: u, name: _rn || u });
       }
     });
   }

@@ -407,7 +407,10 @@ function applySingleEffect(state, eff, rng) {
         const id = typeof c === 'string' ? c : (c.id || '');
         return id === (typeof clue === 'string' ? clue : clue.id);
       })) {
-        state.clues.push(clue);
+        // Normalize: always store {id, name} objects
+        const cid = typeof clue === 'string' ? clue : (clue.id || '');
+        const cname = typeof clue === 'string' ? clue : (clue.name || clue.id || '');
+        state.clues.push({ id: cid, name: cname });
       }
     }
   }

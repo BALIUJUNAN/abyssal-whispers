@@ -4632,7 +4632,172 @@ var NPC_CONTEXTUAL_LINES = {
   ],
 };
 
-// Total: 151 lines across 8 NPCs
+// NPC_THREAD_QUESTIONS — Dialogue follow-up system (depth 0→1→2→3)
+// Each thread is a progressive questioning chain that reveals NPC backstory.
+// Depth 1: available at trust ≥ 2 (1 AP)
+// Depth 2: available at trust ≥ 3 (1 AP), requires depth 1 completed
+// Depth 3: auto-reveal at trust ≥ 4, awards clue + trust
+var NPC_THREAD_QUESTIONS = {
+  '老费舍': [
+    {
+      id: 'fisher_lighthouse',
+      label: '关于灯塔 keeper 的事',
+      trustReq: 2,
+      depth1: {
+        response: '（他手上的动作停了一下。）灯灭了三天。他去修灯，然后没有回来。不是第一次。但这次……海面上有东西。不只是浪。',
+      },
+      depth2: {
+        trustReq: 3,
+        response: '（他左右看了看，压低声音。）最后见他那天，他说听到了"下面有人在叫他"。灯塔下面只有岩石。没有路。',
+      },
+      depth3: {
+        trustReq: 4,
+        response: '（沉默了很久。他从网兜底层摸出一张皱巴巴的纸片。）这是他的。我在灯塔脚下捡到的。上面的符号……我不认识。但你的表情说明你认识。',
+        clue: 'clue_lighthouse_note',
+        trustGain: 1,
+      },
+    },
+    {
+      id: 'fisher_son',
+      label: '你儿子的事',
+      trustReq: 3,
+      depth1: {
+        response: '（脸色变了。）不要提他。他已经不在这个镇上了。去了什么地方——没有地址，没有回信。我最后一次见他，他说他要"去更靠近水的地方"。',
+      },
+      depth2: {
+        trustReq: 4,
+        response: '（他的手在抖。）有时候我在码头能闻到他的味道。不是烟——是海水的味道。但他从来没有出海。',
+      },
+      depth3: {
+        response: '（他把补好的渔网放在一边，从口袋里掏出一块石头——上面有类似指纹的纹路，但纹路走向不对。）他在海边捡到这个。说"能听到声音"。我想他现在能听到很多声音。',
+        clue: 'clue_fisher_son_stone',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '伊莱亚斯·沃德': [
+    {
+      id: 'elias_seal',
+      label: '你研究的封印到底是什么？',
+      trustReq: 2,
+      depth1: {
+        response: '封印不是锁。是阀门。它控制的不是什么东西出不来——是控制什么东西不能进来。或者说……进来多少。',
+      },
+      depth2: {
+        trustReq: 3,
+        response: '我的理论是：每次"第十三声钟响"，不是钟在响。是另一侧在敲门。封印把门从这边顶住——但顶门的东西在消耗。',
+      },
+      depth3: {
+        response: '（他递给你一张手绘的结构图，角落有一个你从未见过的符号。）莫里斯家族的血液能重新激活封印的关键节点。这就是希尔达重要的原因——不是因为她"了解"封印。是因为她是封印的一部分。',
+        clue: 'clue_elias_seal_diagram',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '希尔达·莫里斯': [
+    {
+      id: 'hilda_bloodline',
+      label: '你的家族……',
+      trustReq: 2,
+      depth1: {
+        response: '（她的表情变了——不是惊讶，是某种你无法命状的释然。）你终于问了。我一直在等有人问。我祖母告诉我：莫里斯家的血不是用来流的。是用来写的。',
+      },
+      depth2: {
+        trustReq: 3,
+        response: '每个莫里斯女嗣出生时手腕上都有一个胎记。形状和封印的符号完全一致。我们不是封印的守护者。我们是封印的钥匙。',
+      },
+      depth3: {
+        response: '（她挽起袖子。你看见了一个发光的、脉动的符号，像活的一样。）伊莱亚斯需要我的血来重绘封印。但每一次重绘，我的记忆就会被"读"一次——然后消失一点。我已经不记得我妹妹的脸了。',
+        clue: 'clue_hilda_seal_mark',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '伊莎贝拉·韦伯': [
+    {
+      id: 'isabella_church',
+      label: '教堂地下室……',
+      trustReq: 2,
+      depth1: {
+        response: '（她停顿了很久。）教堂下面有东西。不是老鼠，不是积水。是声音。一种……有节奏的、宏大的声音。只有我在值班的深夜能听到。',
+      },
+      depth2: {
+        trustReq: 3,
+        response: '地下室的墙上有雕刻。不是哥特式——比那古老得多。我对比过伊莱亚斯教授图纸上的符号。完全一致。 sealing。同一个封印。教堂和灯塔下面封印的是同一个东西。',
+      },
+      depth3: {
+        response: '（她给你看了一张手抄的段落，墨水颜色深浅不一，像是断断续续写了很多次。）"当守门人忘记自己是谁时，门将从内部打开。"——我越来越怀疑，"守门人"不是指封印的维护者。是指封印本身。',
+        clue: 'clue_isabella_church_text',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '约书亚·布莱克': [
+    {
+      id: 'joshua_mission',
+      label: '你的任务是什么？',
+      trustReq: 2,
+      depth1: {
+        response: '（他看了你一眼，确认四周无人。）镇上有军事遗留资产。不能落入任何一方手中——军方、教会、深海相关方。我的工作是确保它们保持……不可用状态。',
+      },
+      depth2: {
+        trustReq: 3,
+        response: '灯塔下面有一个 bunker。军方 1958 年建的。里面有通讯设备——仍然能发出信号。我最近截获了一段加密通讯。发件地址……是灯塔 keeper 的名字。他已经三天没有上来过了。',
+        clue: 'clue_joshua_bunker',
+      },
+      depth3: {
+        response: '（他递给你一把钥匙。） bunker 的备用钥匙。我守不住这个秘密太久了。但记住——一旦你下去，军方会有反应。他们不需要人来保护资产。他们只需要确保没有人知道。',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '汤米·陈': [
+    {
+      id: 'tommy_supply',
+      label: '你最近进的货……',
+      trustReq: 2,
+      depth1: {
+        response: '（他压低声音。）有一批货是从海上漂过来的。包装上有奇怪的符号。我已经没有胆子再进了——但港口那边的"批发商"还在卖。',
+      },
+      depth2: {
+        trustReq: 3,
+        response: '漂过来的东西不只是货物。有盐。不是海盐——结晶形态不对。而且每包下面都压着一片碎贝壳。不是沃切斯特海滩的贝壳。是深海的。',
+        clue: 'clue_tommy_deep_shells',
+      },
+      depth3: {
+        response: '（他给你看了一张从包裹里掉出来的纸片，上面只有一个词，用墨水写的，已经褪色了。）"醒"。批发商说这是"祝福"。我越来越不确定了。',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '埃德加·洛夫克拉夫特': [
+    {
+      id: 'lovecraft_notebook',
+      label: '你笔记本上写了什么？',
+      trustReq: 2,
+      depth1: {
+        response: '（他合上本子，看了你三秒。）不是写出来的。是记录下来的。这座城市在每个细节上都在偏离它的本来面目。我在记"偏差"。',
+      },
+      depth2: {
+        trustReq: 3,
+        response: '昨天我在市政厅的记录里查到一个名字——"J. 沃德"。1904 年的市政文件。但伊莱亚斯·沃德今年才来的。除非……（他翻到某一页）这不是第一次有人姓沃德。上一次是 1847 年。同一个签名笔迹。',
+        clue: 'clue_lovecraft_ward_name',
+      },
+      depth3: {
+        response: '（他把笔记本翻到最后一页。一片空白。）有时候文字会自己消失。不是被擦掉——是被"重写"了。我昨天记录了完整的事件序列。今天早上再看——变成了别的东西。我怀疑记录本身也在被侵蚀。',
+        trustGain: 1,
+      },
+    },
+  ],
+};
+
+// Total: 7 NPCs × 1-2 threads × 3 depth levels
 
 // === systems/npcDialogue.js ===
 // src/systems/npcDialogue.js - Multi-version NPC dialogue system
@@ -11335,6 +11500,768 @@ function checkExtraCondition(cond, state) {
   }
 }
 
+// === data/npcRelationshipWeb.js ===
+// src/data/npcRelationshipWeb.js — NPC Relationship Network
+// Defines the web of relationships between NPCs in沃切斯特.
+// When the player helps/harms one NPC, the effects ripple through the network.
+// There are NO perfect choices — every action has a moral cost.
+//
+// Architecture:
+//   npcRelations — bidirectional relationship map (who knows whom, how well)
+//   moralDilemmas — specific choice scenarios where helping A hurts B
+//   reputationPropagation — trust changes ripple through shared connections
+//   factionAlignment — NPCs belong to factions; actions affect faction standing
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION 1: Faction Definitions
+// ═══════════════════════════════════════════════════════════════
+
+var FACTIONS = {
+  seal_keeper: {
+    id: 'seal_keeper',
+    name: '封印守护者',
+    description: '致力于维护或修复古老封印的组织',
+    color: '#4a9eff',
+    members: ['伊莱亚斯·沃德', '希尔达·莫里斯', '伊莎贝拉·韦伯'],
+    goals: ['seal_restored', 'ancient_knowledge_preserved'],
+    conflicts: ['deep_one', 'cultist'],
+  },
+  deep_one: {
+    id: 'deep_one',
+    name: '深潜者血脉',
+    description: '被海洋污染影响的混血人类及其后代',
+    color: '#2d8a6e',
+    members: ['老费舍', '玛莎·格雷'],
+    goals: ['fusion_accepted', 'seal_broken'],
+    conflicts: ['seal_keeper'],
+  },
+  town_civilian: {
+    id: 'town_civilian',
+    name: '普通镇民',
+    description: '不知情或选择无视真相的城镇居民',
+    color: '#8a8a8a',
+    members: ['汤米·陈'],
+    goals: ['normal_life', 'town_safe'],
+    conflicts: [],
+  },
+  military: {
+    id: 'military',
+    name: '军方残余',
+    description: '了解部分真相的军事人员',
+    color: '#6b5b3a',
+    members: ['约书亚·布莱克'],
+    goals: ['lighthouse_secured', 'containment'],
+    conflicts: ['deep_one', 'cultist'],
+  },
+  cultist: {
+    id: 'cultist',
+    name: '晨星会',
+    description: '崇拜古神的秘密教团',
+    color: '#8b0000',
+    members: ['伊莎贝拉·韦伯'], // hidden affiliation
+    goals: ['seal_broken', 'ritual_completed'],
+    conflicts: ['seal_keeper', 'military'],
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION 2: NPC Relationship Graph
+// ═══════════════════════════════════════════════════════════════
+// Each relationship has:
+//   affinity: -5 to +5 (how much they like each other)
+//   knowledge: boolean (does A know B?)
+//   secretShared: string[] (shared secrets between A and B)
+//   conflict: string|null (source of tension between A and B)
+//   moralWeight: number (how much the player's action toward A affects B)
+
+var NPC_RELATIONSHIPS = {
+  // 伊莱亚斯 ↔ 玛莎
+  '伊莱亚斯·沃德-玛莎·格雷': {
+    affinity: 2,
+    knowledge: true,
+    secretShared: ['seal_location'],
+    conflict: null,
+    moralWeight: 1.5,
+    note: '互相尊重但保持距离。伊莱亚斯知道玛莎的丈夫是深潜者混血，但没有揭发。',
+  },
+
+  // 伊莱亚斯 ↔ 希尔达
+  '伊莱亚斯·沃德-希尔达·莫里斯': {
+    affinity: 3,
+    knowledge: true,
+    secretShared: ['seal_ritual', 'morris_bloodline'],
+    conflict: null,
+    moralWeight: 2.0,
+    note: '学术合作者。希尔达的家族是封印的关键，伊莱亚斯是唯一理解封印原理的外人。',
+  },
+
+  // 伊莱亚斯 ↔ 伊莎贝拉
+  '伊莱亚斯·沃德-伊莎贝拉·韦伯': {
+    affinity: -2,
+    knowledge: true,
+    secretShared: [],
+    conflict: '伊莎贝拉是晨星会成员，伊莱亚斯在研究如何阻止晨星会',
+    moralWeight: 1.0,
+    note: '表面礼貌，实质对立。伊莱亚斯不知道伊莎贝拉的真实身份。',
+  },
+
+  // 玛莎 ↔ 老费舍
+  '玛莎·格雷-老费舍': {
+    affinity: 4,
+    knowledge: true,
+    secretShared: ['deep_one_transformation', 'harbor_secrets'],
+    conflict: null,
+    moralWeight: 2.5,
+    note: '夫妻关系（虽然名义上丈夫失踪）。玛莎不知道费舍的完整计划。',
+  },
+
+  // 玛莎 ↔ 伊莎贝拉
+  '玛莎·格雷-伊莎贝拉·韦伯': {
+    affinity: 1,
+    knowledge: true,
+    secretShared: [],
+    conflict: null,
+    moralWeight: 0.5,
+    note: '点头之交。玛莎对教堂的事不关心。',
+  },
+
+  // 老费舍 ↔ 伊莎贝拉
+  '老费舍-伊莎贝拉·韦伯': {
+    affinity: 3,
+    knowledge: true,
+    secretShared: ['seal_ritual', 'cult_plan'],
+    conflict: null,
+    moralWeight: 2.0,
+    note: '晨星会内部合作。费舍提供海洋/混血知识，伊莎贝拉提供封印知识。',
+  },
+
+  // 伊莎贝拉 ↔ 希尔达
+  '伊莎贝拉·韦伯-希尔达·莫里斯': {
+    affinity: -3,
+    knowledge: true,
+    secretShared: [],
+    conflict: '伊莎贝拉需要希尔达的血液完成封印破坏仪式',
+    moralWeight: 3.0,
+    note: '最危险的冲突。伊莎贝拉表面关心希尔达，实际在利用她。',
+  },
+
+  // 伊莱亚斯 ↔ 约书亚
+  '伊莱亚斯·沃德-约书亚·布莱克': {
+    affinity: 0,
+    knowledge: false,
+    secretShared: [],
+    conflict: null,
+    moralWeight: 0.3,
+    note: '几乎没有交集。约书亚不知道伊莱亚斯的存在。',
+  },
+
+  // 汤米 ↔ 玛莎
+  '汤米·陈-玛莎·格雷': {
+    affinity: 2,
+    knowledge: true,
+    secretShared: ['harbor_trade'],
+    conflict: null,
+    moralWeight: 0.8,
+    note: '商业关系。玛莎从汤米那里买 supplies，汤米从玛莎获取码头情报。',
+  },
+
+  // 汤米 ↔ 伊莱亚斯
+  '汤米·陈-伊莱亚斯·沃德': {
+    affinity: 1,
+    knowledge: true,
+    secretShared: [],
+    conflict: null,
+    moralWeight: 0.5,
+    note: '普通顾客关系。伊莱亚斯在汤米店里买胶卷。',
+  },
+
+  // 约书亚 ↔ 老费舍
+  '约书亚·布莱克-老费舍': {
+    affinity: -1,
+    knowledge: false,
+    secretShared: [],
+    conflict: null,
+    moralWeight: 0.2,
+    note: '约书亚在码头见过费舍，但没有深入交流。',
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION 3: Moral Dilemma Definitions
+// ═══════════════════════════════════════════════════════════════
+// Each dilemma presents a choice where helping one NPC harms another.
+// The player is NOT told the full consequences upfront.
+// Some consequences are delayed — they manifest later.
+
+var MORAL_DILEMMAS = {
+  // Dilemma 1: 伊莱亚斯的研究 vs 玛莎的安全
+  dilemma_elias_research: {
+    id: 'dilemma_elias_research',
+    name: '知识的代价',
+    description: '伊莱亚斯要求你带回一份深海样本进行分析。但玛莎警告过你，接触深海物品会加速深潜者混血的变异。',
+    // NOT exposed to player: helping Elias accelerates Martha's transformation
+    choices: [
+      {
+        id: 'bring_sample',
+        label: '把样本带给伊莱亚斯',
+        shortLabel: '交给教授',
+        immediateEffect: '伊莱亚斯信任+1，获得关键线索',
+        hiddenCost: {
+          faction: 'deep_one',
+          factionPenalty: 2,
+          npc: '玛莎·格雷',
+          npcPenalty: -1,
+          delayedEffect: 'martha_corruption_trigger',
+          delayDays: 3,
+        },
+        behaviorCounter: null, // no direct counter — cost is indirect
+      },
+      {
+        id: 'refuse_sample',
+        label: '拒绝伊莱亚斯',
+        shortLabel: '拒绝教授',
+        immediateEffect: '伊莱亚斯信任-1',
+        hiddenCost: {
+          npc: '伊莱亚斯·沃德',
+          npcPenalty: -2,
+          delayedEffect: 'elias_desperation',
+          delayDays: 5,
+        },
+        hiddenBenefit: {
+          npc: '玛莎·格雷',
+          npcBenefit: +1, // Martha appreciates the protection
+        },
+      },
+      {
+        id: 'deceive_both',
+        label: '伪造样本交给伊莱亚斯，把真样本处理掉',
+        shortLabel: '两边瞒',
+        immediateEffect: '双方信任不变',
+        hiddenCost: {
+          npc: '伊莱亚斯·沃德',
+          npcPenalty: -1, // if discovered later
+          discoveryChance: 0.3,
+          discoveryDelay: 7,
+        },
+      },
+    ],
+    triggerConditions: {
+      minTrust: { '伊莱亚斯·沃德': 2, '玛莎·格雷': 2 },
+      minDay: 5,
+      maxUses: 2, // only triggers twice per run
+    },
+    fearModifier: {
+      morality: { intensity: 1.5, extraChoices: ['confess_to_martha'] },
+      knowledge: { intensity: 1.3 },
+      isolation: { intensity: 0.8 },
+    },
+  },
+
+  // Dilemma 2: 希尔达的牺牲 vs 封印修复
+  dilemma_hilda_sacrifice: {
+    id: 'dilemma_hilda_sacrifice',
+    name: '血统的代价',
+    description: '修复封印需要莫里斯家族的血脉。希尔达知道这一点，并主动提出牺牲自己。但伊莱亚斯声称可能有替代方案——只是需要更多时间，而时间可能不够。',
+    choices: [
+      {
+        id: 'accept_sacrifice',
+        label: '接受希尔达的牺牲',
+        shortLabel: '接受牺牲',
+        immediateEffect: '封印开始修复',
+        hiddenCost: {
+          npc: '希尔达·莫里斯',
+          npcPenalty: -5, // death
+          faction: 'seal_keeper',
+          factionPenalty: -3,
+        },
+      },
+      {
+        id: 'pursue_alternative',
+        label: '追求替代方案',
+        shortLabel: '寻找替代',
+        immediateEffect: '封印继续恶化',
+        hiddenCost: {
+          global: 'seal_deterioration',
+          sealDmg: 15,
+          delayedEffect: 'seal_crisis',
+          delayDays: 7,
+        },
+        hiddenBenefit: {
+          npc: '希尔达·莫里斯',
+          npcBenefit: +2,
+          npc: '伊莱亚斯·沃德',
+          npcBenefit: +1,
+        },
+      },
+      {
+        id: 'force_hilda_choice',
+        label: '让希尔达自己决定',
+        shortLabel: '让她选',
+        immediateEffect: '希尔达做出自己的选择',
+        hiddenCost: {
+          npc: '伊莱亚斯·沃德',
+          npcPenalty: -1, // disappointed you didn't choose
+          npc: '希尔达·莫里斯',
+          npcPenalty: -1, // feels abandoned
+        },
+      },
+    ],
+    triggerConditions: {
+      minTrust: { '伊莱亚斯·沃德': 3, '希尔达·莫里斯': 2 },
+      minDay: 15,
+      maxUses: 1,
+    },
+    fearModifier: {
+      morality: { intensity: 2.0, extraChoices: ['find_third_option'] },
+      body: { intensity: 1.5 },
+      isolation: { intensity: 1.2 },
+    },
+  },
+
+  // Dilemma 3: 费舍的秘密 vs 玛莎的幸福
+  dilemma_fisher_secret: {
+    id: 'dilemma_fisher_secret',
+    name: '深海的秘密',
+    description: '你发现了老费舍的真实身份和他与海底祭祀的关系。玛莎对此毫不知情。告诉她真相可能摧毁她最后的精神支柱，但隐瞒也可能导致更大的灾难。',
+    choices: [
+      {
+        id: 'tell_martha',
+        label: '告诉玛莎真相',
+        shortLabel: '告诉她',
+        immediateEffect: '玛莎SAN大幅下降',
+        hiddenCost: {
+          npc: '玛莎·格雷',
+          npcPenalty: -3, // sanity + trust hit
+          delayedEffect: 'martha_breakdown',
+          delayDays: 2,
+        },
+        hiddenBenefit: {
+          faction: 'deep_one',
+          factionPenalty: -2, // Fisher appreciates honesty? Actually Fisher would be angry
+          npc: '老费舍',
+          npcPenalty: -3, // Fisher angry you exposed him
+        },
+      },
+      {
+        id: 'keep_secret',
+        label: '保守秘密',
+        shortLabel: '保守秘密',
+        immediateEffect: '玛莎保持现状',
+        hiddenCost: {
+          morality_score: -5, // internal moral weight (not exposed)
+          delayedEffect: 'secret_burden',
+          delayDays: 10,
+        },
+        hiddenBenefit: {
+          npc: '玛莎·格雷',
+          npcBenefit: +1,
+          npc: '老费舍',
+          npcBenefit: +2,
+        },
+      },
+      {
+        id: 'manipulate_both',
+        label: '利用这个秘密控制双方',
+        shortLabel: '利用秘密',
+        immediateEffect: '获得双方 leverage',
+        hiddenCost: {
+          npc: '玛莎·格雷',
+          npcPenalty: -2,
+          npc: '老费舍',
+          npcPenalty: -2,
+          behaviorCounter: 'betrayed_high_trust_npcs',
+          behaviorIncrement: 2,
+        },
+      },
+    ],
+    triggerConditions: {
+      minTrust: { '玛莎·格雷': 3, '老费舍': 2 },
+      requiresKnowledge: 'fisher_true_identity',
+      minDay: 8,
+      maxUses: 1,
+    },
+    fearModifier: {
+      morality: { intensity: 1.8 },
+      ocean: { intensity: 1.5 },
+      isolation: { intensity: 1.3 },
+    },
+  },
+
+  // Dilemma 4: 约书亚的治疗 vs 他的战斗力
+  dilemma_joshua_cure: {
+    id: 'dilemma_joshua_cure',
+    name: '清醒的代价',
+    description: '你找到了可能治愈约书亚深潜者变异的方法。但治疗过程会剥夺他在战斗中的异常能力——他是你唯一的战斗同伴。',
+    choices: [
+      {
+        id: 'cure_joshua',
+        label: '治愈约书亚',
+        shortLabel: '治愈他',
+        immediateEffect: '约书亚恢复正常，失去战斗同伴',
+        hiddenCost: {
+          npc: '约书亚·布莱克',
+          npcPenalty: -3, // loses his "gift"
+          combat_bonus: -20,
+        },
+        hiddenBenefit: {
+          npc: '约书亚·布莱克',
+          npcBenefit: +3, // grateful
+          humanity: +10,
+        },
+      },
+      {
+        id: 'keep_ability',
+        label: '保留他的能力',
+        shortLabel: '保留能力',
+        immediateEffect: '约书亚保持现状',
+        hiddenCost: {
+          humanity: -5,
+          morality_score: -3,
+          delayedEffect: 'joshua_suffering',
+          delayDays: 14,
+        },
+      },
+      {
+        id: 'partial_cure',
+        label: '只缓解症状',
+        shortLabel: '缓解症状',
+        immediateEffect: '约书亚症状减轻，能力保留一部分',
+        hiddenCost: {
+          humanity: -2,
+          npc: '约书亚·布莱克',
+          npcPenalty: -1, // senses something is wrong
+        },
+      },
+    ],
+    triggerConditions: {
+      minTrust: { '约书亚·布莱克': 4 },
+      requiresKnowledge: 'deep_one_cure_method',
+      minDay: 12,
+      maxUses: 1,
+    },
+    fearModifier: {
+      morality: { intensity: 1.6 },
+      body: { intensity: 1.8 },
+      control: { intensity: 1.4 },
+    },
+  },
+
+  // Dilemma 5: 伊莎贝拉的真相 vs 镇民的稳定
+  dilemma_isabella_truth: {
+    id: 'dilemma_isabella_truth',
+    name: '信仰的崩塌',
+    description: '你发现了伊莎贝拉的晨星会身份。公布真相会让镇民陷入恐慌，但让她继续领导教堂意味着更多人会受到影响。',
+    choices: [
+      {
+        id: 'expose_isabella',
+        label: '公布伊莎贝拉的身份',
+        shortLabel: '揭发她',
+        immediateEffect: '教堂信任崩溃',
+        hiddenCost: {
+          faction: 'cultist',
+          factionPenalty: -5,
+          npc: '伊莎贝拉·韦伯',
+          npcPenalty: -5,
+          global: 'town_panic',
+          panicLevel: 3,
+        },
+        hiddenBenefit: {
+          faction: 'seal_keeper',
+          factionBonus: 2,
+          npc: '伊莱亚斯·沃德',
+          npcBenefit: +2,
+        },
+      },
+      {
+        id: 'blackmail_isabella',
+        label: '用秘密控制伊莎贝拉',
+        shortLabel: '控制她',
+        immediateEffect: '获得教堂影响力',
+        hiddenCost: {
+          behaviorCounter: 'betrayed_high_trust_npcs',
+          behaviorIncrement: 1,
+          morality_score: -8,
+          npc: '伊莎贝拉·韦伯',
+          npcPenalty: -2,
+        },
+      },
+      {
+        id: 'protect_isabella',
+        label: '保护伊莎贝拉的秘密',
+        shortLabel: '保护她',
+        immediateEffect: '伊莎贝拉感激',
+        hiddenCost: {
+          faction: 'seal_keeper',
+          factionPenalty: -1,
+          humanity: -5,
+          delayedEffect: 'isabella_betrayal_risk',
+          delayDays: 10,
+        },
+      },
+    ],
+    triggerConditions: {
+      requiresKnowledge: 'isabella_cult_identity',
+      minDay: 10,
+      maxUses: 1,
+    },
+    fearModifier: {
+      morality: { intensity: 2.0 },
+      control: { intensity: 1.6 },
+      knowledge: { intensity: 1.3 },
+    },
+  },
+
+  // Dilemma 6: 帮助陌生人 vs 自身资源
+  dilemma_stranger_help: {
+    id: 'dilemma_stranger_help',
+    name: '陌生人的请求',
+    description: '一个受伤的陌生人请求你的帮助。帮助他会消耗你宝贵的资源，但拒绝意味着他可能活不过今晚。',
+    choices: [
+      {
+        id: 'help_stranger',
+        label: '帮助陌生人',
+        shortLabel: '帮助他',
+        immediateEffect: '消耗资源，获得潜在盟友',
+        hiddenCost: {
+          food: -2,
+          hp: -1,
+        },
+        hiddenBenefit: {
+          karma: 2, // abstract moral currency
+          npc: 'stranger',
+          npcBenefit: 3,
+        },
+      },
+      {
+        id: 'refuse_stranger',
+        label: '拒绝帮助',
+        shortLabel: '拒绝',
+        immediateEffect: '资源保留',
+        hiddenCost: {
+          humanity: -3,
+          karma: -2,
+        },
+      },
+      {
+        id: 'conditional_help',
+        label: '以某个条件交换帮助',
+        shortLabel: '条件交换',
+        immediateEffect: '双方各取所需',
+        hiddenCost: {
+          karma: 1,
+          food: -1,
+        },
+      },
+    ],
+    triggerConditions: {
+      minFood: 3,
+      minDay: 3,
+      maxUses: 3,
+    },
+    fearModifier: {
+      morality: { intensity: 1.4 },
+      isolation: { intensity: 1.6 },
+    },
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION 4: Reputation Propagation
+// ═══════════════════════════════════════════════════════════════
+// When player acts toward NPC A, effects ripple to connected NPCs.
+
+/**
+ * Propagate reputation change through the relationship network.
+ * @param {string} targetNpc - NPC the player directly interacted with
+ * @param {number} trustDelta - trust change (+/-)
+ * @param {object} state - game state
+ * @returns {object} propagation results { direct: npc, ripples: [{npc, delta}] }
+ */
+function propagateReputation(targetNpc, trustDelta, state) {
+  var ripples = [];
+  var processed = new Set();
+  processed.add(targetNpc);
+
+  // Direct effect
+  ripples.push({ npc: targetNpc, delta: trustDelta, isDirect: true });
+
+  // Find all relationships involving targetNpc
+  for (var key in NPC_RELATIONSHIPS) {
+    var rel = NPC_RELATIONSHIPS[key];
+    var parts = key.split('-');
+    if (parts.length !== 2) continue;
+
+    var otherNpc = null;
+    if (parts[0] === targetNpc) otherNpc = parts[1];
+    else if (parts[1] === targetNpc) otherNpc = parts[0];
+    if (!otherNpc || processed.has(otherNpc)) continue;
+
+    // Calculate ripple effect
+    var rippleDelta = Math.round(trustDelta * rel.moralWeight * 0.3);
+    if (rippleDelta !== 0) {
+      ripples.push({ npc: otherNpc, delta: rippleDelta, isDirect: false, via: targetNpc });
+      processed.add(otherNpc);
+    }
+  }
+
+  // Second-degree propagation (friend of friend)
+  for (var i = 0; i < ripples.length; i++) {
+    var ripple = ripples[i];
+    if (ripple.isDirect) continue;
+    for (var key2 in NPC_RELATIONSHIPS) {
+      var rel2 = NPC_RELATIONSHIPS[key2];
+      var parts2 = key2.split('-');
+      if (parts2.length !== 2) continue;
+      var thirdNpc = null;
+      if (parts2[0] === ripple.npc) thirdNpc = parts2[1];
+      else if (parts2[1] === ripple.npc) thirdNpc = parts2[0];
+      if (!thirdNpc || processed.has(thirdNpc)) continue;
+
+      var secondRipple = Math.round(ripple.delta * rel2.moralWeight * 0.15);
+      if (secondRipple !== 0) {
+        ripples.push({ npc: thirdNpc, delta: secondRipple, isDirect: false, via: ripple.npc });
+        processed.add(thirdNpc);
+      }
+    }
+  }
+
+  return { target: targetNpc, ripples: ripples };
+}
+
+/**
+ * Get faction standing change from an action.
+ * @param {string} npcId
+ * @param {string} action - 'help', 'harm', 'betray', 'redeem'
+ * @returns {object} { factionChanges: { factionId: delta } }
+ */
+function getFactionImpact(npcId, action) {
+  var changes = {};
+  for (var fid in FACTIONS) {
+    var faction = FACTIONS[fid];
+    if (faction.members.indexOf(npcId) >= 0) {
+      var delta = 0;
+      switch (action) {
+        case 'help':
+        case 'redeem':
+          delta = 2;
+          break;
+        case 'harm':
+        case 'betray':
+          delta = -3;
+          break;
+        case 'exploit':
+          delta = -1;
+          break;
+        default:
+          delta = 0;
+      }
+      if (delta !== 0) changes[fid] = delta;
+    }
+  }
+  return { factionChanges: changes };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION 5: Moral Score (abstract, hidden from player)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Compute abstract moral score from state.
+ * This is NEVER shown to the player — used only for ending conditions
+ * and narrative flavor.
+ *
+ * Positive = altruistic choices
+ * Negative = selfish/harmful choices
+ *
+ * @param {object} state
+ * @returns {number} moral score (-100 to +100)
+ */
+function computeMoralScore(state) {
+  var score = 0;
+  var bt = state.behaviorTracking || {};
+
+  // Positive actions
+  score += (bt.redeemed_npcs || 0) * 10;
+  score += (bt.selfless_actions || 0) * 5;
+  score += (bt.promises_kept || 0) * 5;
+  score += (bt.truths_told || 0) * 3;
+  score += (bt.npc_saved_from_danger || 0) * 8;
+  score += (bt.donated_money_total || 0) * 2;
+
+  // Negative actions
+  score -= (bt.betrayed_high_trust_npcs || 0) * 15;
+  score -= (bt.cannibalism_count || 0) * 20;
+  score -= (bt.direct_kill_count || 0) * 10;
+  score -= (bt.npc_as_resource_count || 0) * 12;
+  score -= (bt.npc_deaths_by_manipulation || 0) * 15;
+  score -= (bt.accepted_bribes || 0) * 5;
+
+  // Dilemma choices
+  if (state._dilemmaChoices) {
+    for (var i = 0; i < state._dilemmaChoices.length; i++) {
+      var choice = state._dilemmaChoices[i];
+      score += (choice.moralWeight || 0);
+    }
+  }
+
+  return Math.max(-100, Math.min(100, score));
+}
+
+/**
+ * Get moral tier description (for narrative use only).
+ * This describes the player's moral PATTERN, not their score.
+ *
+ * @param {number} moralScore
+ * @returns {{ tier: string, description: string }}
+ */
+function getMoralTier(moralScore) {
+  if (moralScore >= 50) {
+    return {
+      tier: 'altruist',
+      description: '你选择了一条艰难的路。不是因为没有更好的选择，而是因为你觉得那是对的。',
+    };
+  }
+  if (moralScore >= 20) {
+    return {
+      tier: 'principled',
+      description: '你在善恶之间摇摆，但总有一个声音在拉你回去。',
+    };
+  }
+  if (moralScore >= -20) {
+    return {
+      tier: 'pragmatist',
+      description: '你做的选择没有对错。只有后果。',
+    };
+  }
+  if (moralScore >= -50) {
+    return {
+      tier: 'compromised',
+      description: '有些选择你现在后悔了。但后悔和改变是两回事。',
+    };
+  }
+  return {
+    tier: 'fallen',
+    description: '你已经不记得最初的自己是什么样子了。',
+  };
+}
+
+// === utils/npcLocation.js ===
+// src/utils/npcLocation.js — NPC location lookup (schedule-based)
+//
+// Zero imports — depends only on global GD and state parameter.
+// Placed early in REDUCER_FILES so it can be imported by extendedEvents.js
+// and other files that need NPC presence checks.
+
+function getNpcsHere(state) {
+  const npcs = GD.npcs || GD.module3_npcs || [];
+  return npcs.filter((n) => {
+    if (state.npcStates[n.name]?.dead) return false;
+    const d = ((state.day - 1) % 5) + 1;
+    const sch = (n.schedule || []).find((x) => x.startsWith('day' + d));
+    return sch && (sch.split(':')[1] || '').trim() === state.currentArea;
+  });
+}
+
 // === reducers/extendedEvents.js ===
 // src/reducers/extendedEvents.js - Extended event system for 800+ event pool
 // Handles: trigger checking, event scheduling, budget control, cooldowns
@@ -11948,6 +12875,26 @@ function getEventWeight(evt, areaId, state, ctx) {
         weight *= negWeight;
       }
     }
+  }
+
+  // NPC proximity: npc_initiated events get boosted when player is near relevant NPCs
+  if (evt.trigger?.npc_initiated && weight > 0) {
+    var npcsHere = getNpcsHere(state);
+    var proximityMult = 1.0;
+    for (var ni = 0; ni < npcsHere.length; ni++) {
+      var npcName = npcsHere[ni].name;
+      var npcTrust = (state.npcTrust[npcName] || 0);
+      var talkedToday = (state._dailyNpcTalks && state._dailyNpcTalks[npcName]) === state.day;
+      if (npcTrust >= 3 && !talkedToday) {
+        proximityMult = Math.max(proximityMult, 3.0);
+      } else if (npcTrust <= 1) {
+        var relKey = Object.keys(NPC_RELATIONSHIPS || {}).find(function (k) {
+          return k.indexOf(npcName) >= 0 && NPC_RELATIONSHIPS[k].conflict;
+        });
+        if (relKey) proximityMult = Math.max(proximityMult, 2.0);
+      }
+    }
+    weight *= proximityMult;
   }
 
   return Math.max(0, weight);
@@ -31957,751 +32904,6 @@ function getEndingRecord(allEndings, state) {
   });
 }
 
-// === data/npcRelationshipWeb.js ===
-// src/data/npcRelationshipWeb.js — NPC Relationship Network
-// Defines the web of relationships between NPCs in沃切斯特.
-// When the player helps/harms one NPC, the effects ripple through the network.
-// There are NO perfect choices — every action has a moral cost.
-//
-// Architecture:
-//   npcRelations — bidirectional relationship map (who knows whom, how well)
-//   moralDilemmas — specific choice scenarios where helping A hurts B
-//   reputationPropagation — trust changes ripple through shared connections
-//   factionAlignment — NPCs belong to factions; actions affect faction standing
-
-// ═══════════════════════════════════════════════════════════════
-// SECTION 1: Faction Definitions
-// ═══════════════════════════════════════════════════════════════
-
-var FACTIONS = {
-  seal_keeper: {
-    id: 'seal_keeper',
-    name: '封印守护者',
-    description: '致力于维护或修复古老封印的组织',
-    color: '#4a9eff',
-    members: ['伊莱亚斯·沃德', '希尔达·莫里斯', '伊莎贝拉·韦伯'],
-    goals: ['seal_restored', 'ancient_knowledge_preserved'],
-    conflicts: ['deep_one', 'cultist'],
-  },
-  deep_one: {
-    id: 'deep_one',
-    name: '深潜者血脉',
-    description: '被海洋污染影响的混血人类及其后代',
-    color: '#2d8a6e',
-    members: ['老费舍', '玛莎·格雷'],
-    goals: ['fusion_accepted', 'seal_broken'],
-    conflicts: ['seal_keeper'],
-  },
-  town_civilian: {
-    id: 'town_civilian',
-    name: '普通镇民',
-    description: '不知情或选择无视真相的城镇居民',
-    color: '#8a8a8a',
-    members: ['汤米·陈'],
-    goals: ['normal_life', 'town_safe'],
-    conflicts: [],
-  },
-  military: {
-    id: 'military',
-    name: '军方残余',
-    description: '了解部分真相的军事人员',
-    color: '#6b5b3a',
-    members: ['约书亚·布莱克'],
-    goals: ['lighthouse_secured', 'containment'],
-    conflicts: ['deep_one', 'cultist'],
-  },
-  cultist: {
-    id: 'cultist',
-    name: '晨星会',
-    description: '崇拜古神的秘密教团',
-    color: '#8b0000',
-    members: ['伊莎贝拉·韦伯'], // hidden affiliation
-    goals: ['seal_broken', 'ritual_completed'],
-    conflicts: ['seal_keeper', 'military'],
-  },
-};
-
-// ═══════════════════════════════════════════════════════════════
-// SECTION 2: NPC Relationship Graph
-// ═══════════════════════════════════════════════════════════════
-// Each relationship has:
-//   affinity: -5 to +5 (how much they like each other)
-//   knowledge: boolean (does A know B?)
-//   secretShared: string[] (shared secrets between A and B)
-//   conflict: string|null (source of tension between A and B)
-//   moralWeight: number (how much the player's action toward A affects B)
-
-var NPC_RELATIONSHIPS = {
-  // 伊莱亚斯 ↔ 玛莎
-  '伊莱亚斯·沃德-玛莎·格雷': {
-    affinity: 2,
-    knowledge: true,
-    secretShared: ['seal_location'],
-    conflict: null,
-    moralWeight: 1.5,
-    note: '互相尊重但保持距离。伊莱亚斯知道玛莎的丈夫是深潜者混血，但没有揭发。',
-  },
-
-  // 伊莱亚斯 ↔ 希尔达
-  '伊莱亚斯·沃德-希尔达·莫里斯': {
-    affinity: 3,
-    knowledge: true,
-    secretShared: ['seal_ritual', 'morris_bloodline'],
-    conflict: null,
-    moralWeight: 2.0,
-    note: '学术合作者。希尔达的家族是封印的关键，伊莱亚斯是唯一理解封印原理的外人。',
-  },
-
-  // 伊莱亚斯 ↔ 伊莎贝拉
-  '伊莱亚斯·沃德-伊莎贝拉·韦伯': {
-    affinity: -2,
-    knowledge: true,
-    secretShared: [],
-    conflict: '伊莎贝拉是晨星会成员，伊莱亚斯在研究如何阻止晨星会',
-    moralWeight: 1.0,
-    note: '表面礼貌，实质对立。伊莱亚斯不知道伊莎贝拉的真实身份。',
-  },
-
-  // 玛莎 ↔ 老费舍
-  '玛莎·格雷-老费舍': {
-    affinity: 4,
-    knowledge: true,
-    secretShared: ['deep_one_transformation', 'harbor_secrets'],
-    conflict: null,
-    moralWeight: 2.5,
-    note: '夫妻关系（虽然名义上丈夫失踪）。玛莎不知道费舍的完整计划。',
-  },
-
-  // 玛莎 ↔ 伊莎贝拉
-  '玛莎·格雷-伊莎贝拉·韦伯': {
-    affinity: 1,
-    knowledge: true,
-    secretShared: [],
-    conflict: null,
-    moralWeight: 0.5,
-    note: '点头之交。玛莎对教堂的事不关心。',
-  },
-
-  // 老费舍 ↔ 伊莎贝拉
-  '老费舍-伊莎贝拉·韦伯': {
-    affinity: 3,
-    knowledge: true,
-    secretShared: ['seal_ritual', 'cult_plan'],
-    conflict: null,
-    moralWeight: 2.0,
-    note: '晨星会内部合作。费舍提供海洋/混血知识，伊莎贝拉提供封印知识。',
-  },
-
-  // 伊莎贝拉 ↔ 希尔达
-  '伊莎贝拉·韦伯-希尔达·莫里斯': {
-    affinity: -3,
-    knowledge: true,
-    secretShared: [],
-    conflict: '伊莎贝拉需要希尔达的血液完成封印破坏仪式',
-    moralWeight: 3.0,
-    note: '最危险的冲突。伊莎贝拉表面关心希尔达，实际在利用她。',
-  },
-
-  // 伊莱亚斯 ↔ 约书亚
-  '伊莱亚斯·沃德-约书亚·布莱克': {
-    affinity: 0,
-    knowledge: false,
-    secretShared: [],
-    conflict: null,
-    moralWeight: 0.3,
-    note: '几乎没有交集。约书亚不知道伊莱亚斯的存在。',
-  },
-
-  // 汤米 ↔ 玛莎
-  '汤米·陈-玛莎·格雷': {
-    affinity: 2,
-    knowledge: true,
-    secretShared: ['harbor_trade'],
-    conflict: null,
-    moralWeight: 0.8,
-    note: '商业关系。玛莎从汤米那里买 supplies，汤米从玛莎获取码头情报。',
-  },
-
-  // 汤米 ↔ 伊莱亚斯
-  '汤米·陈-伊莱亚斯·沃德': {
-    affinity: 1,
-    knowledge: true,
-    secretShared: [],
-    conflict: null,
-    moralWeight: 0.5,
-    note: '普通顾客关系。伊莱亚斯在汤米店里买胶卷。',
-  },
-
-  // 约书亚 ↔ 老费舍
-  '约书亚·布莱克-老费舍': {
-    affinity: -1,
-    knowledge: false,
-    secretShared: [],
-    conflict: null,
-    moralWeight: 0.2,
-    note: '约书亚在码头见过费舍，但没有深入交流。',
-  },
-};
-
-// ═══════════════════════════════════════════════════════════════
-// SECTION 3: Moral Dilemma Definitions
-// ═══════════════════════════════════════════════════════════════
-// Each dilemma presents a choice where helping one NPC harms another.
-// The player is NOT told the full consequences upfront.
-// Some consequences are delayed — they manifest later.
-
-var MORAL_DILEMMAS = {
-  // Dilemma 1: 伊莱亚斯的研究 vs 玛莎的安全
-  dilemma_elias_research: {
-    id: 'dilemma_elias_research',
-    name: '知识的代价',
-    description: '伊莱亚斯要求你带回一份深海样本进行分析。但玛莎警告过你，接触深海物品会加速深潜者混血的变异。',
-    // NOT exposed to player: helping Elias accelerates Martha's transformation
-    choices: [
-      {
-        id: 'bring_sample',
-        label: '把样本带给伊莱亚斯',
-        shortLabel: '交给教授',
-        immediateEffect: '伊莱亚斯信任+1，获得关键线索',
-        hiddenCost: {
-          faction: 'deep_one',
-          factionPenalty: 2,
-          npc: '玛莎·格雷',
-          npcPenalty: -1,
-          delayedEffect: 'martha_corruption_trigger',
-          delayDays: 3,
-        },
-        behaviorCounter: null, // no direct counter — cost is indirect
-      },
-      {
-        id: 'refuse_sample',
-        label: '拒绝伊莱亚斯',
-        shortLabel: '拒绝教授',
-        immediateEffect: '伊莱亚斯信任-1',
-        hiddenCost: {
-          npc: '伊莱亚斯·沃德',
-          npcPenalty: -2,
-          delayedEffect: 'elias_desperation',
-          delayDays: 5,
-        },
-        hiddenBenefit: {
-          npc: '玛莎·格雷',
-          npcBenefit: +1, // Martha appreciates the protection
-        },
-      },
-      {
-        id: 'deceive_both',
-        label: '伪造样本交给伊莱亚斯，把真样本处理掉',
-        shortLabel: '两边瞒',
-        immediateEffect: '双方信任不变',
-        hiddenCost: {
-          npc: '伊莱亚斯·沃德',
-          npcPenalty: -1, // if discovered later
-          discoveryChance: 0.3,
-          discoveryDelay: 7,
-        },
-      },
-    ],
-    triggerConditions: {
-      minTrust: { '伊莱亚斯·沃德': 2, '玛莎·格雷': 2 },
-      minDay: 5,
-      maxUses: 2, // only triggers twice per run
-    },
-    fearModifier: {
-      morality: { intensity: 1.5, extraChoices: ['confess_to_martha'] },
-      knowledge: { intensity: 1.3 },
-      isolation: { intensity: 0.8 },
-    },
-  },
-
-  // Dilemma 2: 希尔达的牺牲 vs 封印修复
-  dilemma_hilda_sacrifice: {
-    id: 'dilemma_hilda_sacrifice',
-    name: '血统的代价',
-    description: '修复封印需要莫里斯家族的血脉。希尔达知道这一点，并主动提出牺牲自己。但伊莱亚斯声称可能有替代方案——只是需要更多时间，而时间可能不够。',
-    choices: [
-      {
-        id: 'accept_sacrifice',
-        label: '接受希尔达的牺牲',
-        shortLabel: '接受牺牲',
-        immediateEffect: '封印开始修复',
-        hiddenCost: {
-          npc: '希尔达·莫里斯',
-          npcPenalty: -5, // death
-          faction: 'seal_keeper',
-          factionPenalty: -3,
-        },
-      },
-      {
-        id: 'pursue_alternative',
-        label: '追求替代方案',
-        shortLabel: '寻找替代',
-        immediateEffect: '封印继续恶化',
-        hiddenCost: {
-          global: 'seal_deterioration',
-          sealDmg: 15,
-          delayedEffect: 'seal_crisis',
-          delayDays: 7,
-        },
-        hiddenBenefit: {
-          npc: '希尔达·莫里斯',
-          npcBenefit: +2,
-          npc: '伊莱亚斯·沃德',
-          npcBenefit: +1,
-        },
-      },
-      {
-        id: 'force_hilda_choice',
-        label: '让希尔达自己决定',
-        shortLabel: '让她选',
-        immediateEffect: '希尔达做出自己的选择',
-        hiddenCost: {
-          npc: '伊莱亚斯·沃德',
-          npcPenalty: -1, // disappointed you didn't choose
-          npc: '希尔达·莫里斯',
-          npcPenalty: -1, // feels abandoned
-        },
-      },
-    ],
-    triggerConditions: {
-      minTrust: { '伊莱亚斯·沃德': 3, '希尔达·莫里斯': 2 },
-      minDay: 15,
-      maxUses: 1,
-    },
-    fearModifier: {
-      morality: { intensity: 2.0, extraChoices: ['find_third_option'] },
-      body: { intensity: 1.5 },
-      isolation: { intensity: 1.2 },
-    },
-  },
-
-  // Dilemma 3: 费舍的秘密 vs 玛莎的幸福
-  dilemma_fisher_secret: {
-    id: 'dilemma_fisher_secret',
-    name: '深海的秘密',
-    description: '你发现了老费舍的真实身份和他与海底祭祀的关系。玛莎对此毫不知情。告诉她真相可能摧毁她最后的精神支柱，但隐瞒也可能导致更大的灾难。',
-    choices: [
-      {
-        id: 'tell_martha',
-        label: '告诉玛莎真相',
-        shortLabel: '告诉她',
-        immediateEffect: '玛莎SAN大幅下降',
-        hiddenCost: {
-          npc: '玛莎·格雷',
-          npcPenalty: -3, // sanity + trust hit
-          delayedEffect: 'martha_breakdown',
-          delayDays: 2,
-        },
-        hiddenBenefit: {
-          faction: 'deep_one',
-          factionPenalty: -2, // Fisher appreciates honesty? Actually Fisher would be angry
-          npc: '老费舍',
-          npcPenalty: -3, // Fisher angry you exposed him
-        },
-      },
-      {
-        id: 'keep_secret',
-        label: '保守秘密',
-        shortLabel: '保守秘密',
-        immediateEffect: '玛莎保持现状',
-        hiddenCost: {
-          morality_score: -5, // internal moral weight (not exposed)
-          delayedEffect: 'secret_burden',
-          delayDays: 10,
-        },
-        hiddenBenefit: {
-          npc: '玛莎·格雷',
-          npcBenefit: +1,
-          npc: '老费舍',
-          npcBenefit: +2,
-        },
-      },
-      {
-        id: 'manipulate_both',
-        label: '利用这个秘密控制双方',
-        shortLabel: '利用秘密',
-        immediateEffect: '获得双方 leverage',
-        hiddenCost: {
-          npc: '玛莎·格雷',
-          npcPenalty: -2,
-          npc: '老费舍',
-          npcPenalty: -2,
-          behaviorCounter: 'betrayed_high_trust_npcs',
-          behaviorIncrement: 2,
-        },
-      },
-    ],
-    triggerConditions: {
-      minTrust: { '玛莎·格雷': 3, '老费舍': 2 },
-      requiresKnowledge: 'fisher_true_identity',
-      minDay: 8,
-      maxUses: 1,
-    },
-    fearModifier: {
-      morality: { intensity: 1.8 },
-      ocean: { intensity: 1.5 },
-      isolation: { intensity: 1.3 },
-    },
-  },
-
-  // Dilemma 4: 约书亚的治疗 vs 他的战斗力
-  dilemma_joshua_cure: {
-    id: 'dilemma_joshua_cure',
-    name: '清醒的代价',
-    description: '你找到了可能治愈约书亚深潜者变异的方法。但治疗过程会剥夺他在战斗中的异常能力——他是你唯一的战斗同伴。',
-    choices: [
-      {
-        id: 'cure_joshua',
-        label: '治愈约书亚',
-        shortLabel: '治愈他',
-        immediateEffect: '约书亚恢复正常，失去战斗同伴',
-        hiddenCost: {
-          npc: '约书亚·布莱克',
-          npcPenalty: -3, // loses his "gift"
-          combat_bonus: -20,
-        },
-        hiddenBenefit: {
-          npc: '约书亚·布莱克',
-          npcBenefit: +3, // grateful
-          humanity: +10,
-        },
-      },
-      {
-        id: 'keep_ability',
-        label: '保留他的能力',
-        shortLabel: '保留能力',
-        immediateEffect: '约书亚保持现状',
-        hiddenCost: {
-          humanity: -5,
-          morality_score: -3,
-          delayedEffect: 'joshua_suffering',
-          delayDays: 14,
-        },
-      },
-      {
-        id: 'partial_cure',
-        label: '只缓解症状',
-        shortLabel: '缓解症状',
-        immediateEffect: '约书亚症状减轻，能力保留一部分',
-        hiddenCost: {
-          humanity: -2,
-          npc: '约书亚·布莱克',
-          npcPenalty: -1, // senses something is wrong
-        },
-      },
-    ],
-    triggerConditions: {
-      minTrust: { '约书亚·布莱克': 4 },
-      requiresKnowledge: 'deep_one_cure_method',
-      minDay: 12,
-      maxUses: 1,
-    },
-    fearModifier: {
-      morality: { intensity: 1.6 },
-      body: { intensity: 1.8 },
-      control: { intensity: 1.4 },
-    },
-  },
-
-  // Dilemma 5: 伊莎贝拉的真相 vs 镇民的稳定
-  dilemma_isabella_truth: {
-    id: 'dilemma_isabella_truth',
-    name: '信仰的崩塌',
-    description: '你发现了伊莎贝拉的晨星会身份。公布真相会让镇民陷入恐慌，但让她继续领导教堂意味着更多人会受到影响。',
-    choices: [
-      {
-        id: 'expose_isabella',
-        label: '公布伊莎贝拉的身份',
-        shortLabel: '揭发她',
-        immediateEffect: '教堂信任崩溃',
-        hiddenCost: {
-          faction: 'cultist',
-          factionPenalty: -5,
-          npc: '伊莎贝拉·韦伯',
-          npcPenalty: -5,
-          global: 'town_panic',
-          panicLevel: 3,
-        },
-        hiddenBenefit: {
-          faction: 'seal_keeper',
-          factionBonus: 2,
-          npc: '伊莱亚斯·沃德',
-          npcBenefit: +2,
-        },
-      },
-      {
-        id: 'blackmail_isabella',
-        label: '用秘密控制伊莎贝拉',
-        shortLabel: '控制她',
-        immediateEffect: '获得教堂影响力',
-        hiddenCost: {
-          behaviorCounter: 'betrayed_high_trust_npcs',
-          behaviorIncrement: 1,
-          morality_score: -8,
-          npc: '伊莎贝拉·韦伯',
-          npcPenalty: -2,
-        },
-      },
-      {
-        id: 'protect_isabella',
-        label: '保护伊莎贝拉的秘密',
-        shortLabel: '保护她',
-        immediateEffect: '伊莎贝拉感激',
-        hiddenCost: {
-          faction: 'seal_keeper',
-          factionPenalty: -1,
-          humanity: -5,
-          delayedEffect: 'isabella_betrayal_risk',
-          delayDays: 10,
-        },
-      },
-    ],
-    triggerConditions: {
-      requiresKnowledge: 'isabella_cult_identity',
-      minDay: 10,
-      maxUses: 1,
-    },
-    fearModifier: {
-      morality: { intensity: 2.0 },
-      control: { intensity: 1.6 },
-      knowledge: { intensity: 1.3 },
-    },
-  },
-
-  // Dilemma 6: 帮助陌生人 vs 自身资源
-  dilemma_stranger_help: {
-    id: 'dilemma_stranger_help',
-    name: '陌生人的请求',
-    description: '一个受伤的陌生人请求你的帮助。帮助他会消耗你宝贵的资源，但拒绝意味着他可能活不过今晚。',
-    choices: [
-      {
-        id: 'help_stranger',
-        label: '帮助陌生人',
-        shortLabel: '帮助他',
-        immediateEffect: '消耗资源，获得潜在盟友',
-        hiddenCost: {
-          food: -2,
-          hp: -1,
-        },
-        hiddenBenefit: {
-          karma: 2, // abstract moral currency
-          npc: 'stranger',
-          npcBenefit: 3,
-        },
-      },
-      {
-        id: 'refuse_stranger',
-        label: '拒绝帮助',
-        shortLabel: '拒绝',
-        immediateEffect: '资源保留',
-        hiddenCost: {
-          humanity: -3,
-          karma: -2,
-        },
-      },
-      {
-        id: 'conditional_help',
-        label: '以某个条件交换帮助',
-        shortLabel: '条件交换',
-        immediateEffect: '双方各取所需',
-        hiddenCost: {
-          karma: 1,
-          food: -1,
-        },
-      },
-    ],
-    triggerConditions: {
-      minFood: 3,
-      minDay: 3,
-      maxUses: 3,
-    },
-    fearModifier: {
-      morality: { intensity: 1.4 },
-      isolation: { intensity: 1.6 },
-    },
-  },
-};
-
-// ═══════════════════════════════════════════════════════════════
-// SECTION 4: Reputation Propagation
-// ═══════════════════════════════════════════════════════════════
-// When player acts toward NPC A, effects ripple to connected NPCs.
-
-/**
- * Propagate reputation change through the relationship network.
- * @param {string} targetNpc - NPC the player directly interacted with
- * @param {number} trustDelta - trust change (+/-)
- * @param {object} state - game state
- * @returns {object} propagation results { direct: npc, ripples: [{npc, delta}] }
- */
-function propagateReputation(targetNpc, trustDelta, state) {
-  var ripples = [];
-  var processed = new Set();
-  processed.add(targetNpc);
-
-  // Direct effect
-  ripples.push({ npc: targetNpc, delta: trustDelta, isDirect: true });
-
-  // Find all relationships involving targetNpc
-  for (var key in NPC_RELATIONSHIPS) {
-    var rel = NPC_RELATIONSHIPS[key];
-    var parts = key.split('-');
-    if (parts.length !== 2) continue;
-
-    var otherNpc = null;
-    if (parts[0] === targetNpc) otherNpc = parts[1];
-    else if (parts[1] === targetNpc) otherNpc = parts[0];
-    if (!otherNpc || processed.has(otherNpc)) continue;
-
-    // Calculate ripple effect
-    var rippleDelta = Math.round(trustDelta * rel.moralWeight * 0.3);
-    if (rippleDelta !== 0) {
-      ripples.push({ npc: otherNpc, delta: rippleDelta, isDirect: false, via: targetNpc });
-      processed.add(otherNpc);
-    }
-  }
-
-  // Second-degree propagation (friend of friend)
-  for (var i = 0; i < ripples.length; i++) {
-    var ripple = ripples[i];
-    if (ripple.isDirect) continue;
-    for (var key2 in NPC_RELATIONSHIPS) {
-      var rel2 = NPC_RELATIONSHIPS[key2];
-      var parts2 = key2.split('-');
-      if (parts2.length !== 2) continue;
-      var thirdNpc = null;
-      if (parts2[0] === ripple.npc) thirdNpc = parts2[1];
-      else if (parts2[1] === ripple.npc) thirdNpc = parts2[0];
-      if (!thirdNpc || processed.has(thirdNpc)) continue;
-
-      var secondRipple = Math.round(ripple.delta * rel2.moralWeight * 0.15);
-      if (secondRipple !== 0) {
-        ripples.push({ npc: thirdNpc, delta: secondRipple, isDirect: false, via: ripple.npc });
-        processed.add(thirdNpc);
-      }
-    }
-  }
-
-  return { target: targetNpc, ripples: ripples };
-}
-
-/**
- * Get faction standing change from an action.
- * @param {string} npcId
- * @param {string} action - 'help', 'harm', 'betray', 'redeem'
- * @returns {object} { factionChanges: { factionId: delta } }
- */
-function getFactionImpact(npcId, action) {
-  var changes = {};
-  for (var fid in FACTIONS) {
-    var faction = FACTIONS[fid];
-    if (faction.members.indexOf(npcId) >= 0) {
-      var delta = 0;
-      switch (action) {
-        case 'help':
-        case 'redeem':
-          delta = 2;
-          break;
-        case 'harm':
-        case 'betray':
-          delta = -3;
-          break;
-        case 'exploit':
-          delta = -1;
-          break;
-        default:
-          delta = 0;
-      }
-      if (delta !== 0) changes[fid] = delta;
-    }
-  }
-  return { factionChanges: changes };
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SECTION 5: Moral Score (abstract, hidden from player)
-// ═══════════════════════════════════════════════════════════════
-
-/**
- * Compute abstract moral score from state.
- * This is NEVER shown to the player — used only for ending conditions
- * and narrative flavor.
- *
- * Positive = altruistic choices
- * Negative = selfish/harmful choices
- *
- * @param {object} state
- * @returns {number} moral score (-100 to +100)
- */
-function computeMoralScore(state) {
-  var score = 0;
-  var bt = state.behaviorTracking || {};
-
-  // Positive actions
-  score += (bt.redeemed_npcs || 0) * 10;
-  score += (bt.selfless_actions || 0) * 5;
-  score += (bt.promises_kept || 0) * 5;
-  score += (bt.truths_told || 0) * 3;
-  score += (bt.npc_saved_from_danger || 0) * 8;
-  score += (bt.donated_money_total || 0) * 2;
-
-  // Negative actions
-  score -= (bt.betrayed_high_trust_npcs || 0) * 15;
-  score -= (bt.cannibalism_count || 0) * 20;
-  score -= (bt.direct_kill_count || 0) * 10;
-  score -= (bt.npc_as_resource_count || 0) * 12;
-  score -= (bt.npc_deaths_by_manipulation || 0) * 15;
-  score -= (bt.accepted_bribes || 0) * 5;
-
-  // Dilemma choices
-  if (state._dilemmaChoices) {
-    for (var i = 0; i < state._dilemmaChoices.length; i++) {
-      var choice = state._dilemmaChoices[i];
-      score += (choice.moralWeight || 0);
-    }
-  }
-
-  return Math.max(-100, Math.min(100, score));
-}
-
-/**
- * Get moral tier description (for narrative use only).
- * This describes the player's moral PATTERN, not their score.
- *
- * @param {number} moralScore
- * @returns {{ tier: string, description: string }}
- */
-function getMoralTier(moralScore) {
-  if (moralScore >= 50) {
-    return {
-      tier: 'altruist',
-      description: '你选择了一条艰难的路。不是因为没有更好的选择，而是因为你觉得那是对的。',
-    };
-  }
-  if (moralScore >= 20) {
-    return {
-      tier: 'principled',
-      description: '你在善恶之间摇摆，但总有一个声音在拉你回去。',
-    };
-  }
-  if (moralScore >= -20) {
-    return {
-      tier: 'pragmatist',
-      description: '你做的选择没有对错。只有后果。',
-    };
-  }
-  if (moralScore >= -50) {
-    return {
-      tier: 'compromised',
-      description: '有些选择你现在后悔了。但后悔和改变是两回事。',
-    };
-  }
-  return {
-    tier: 'fallen',
-    description: '你已经不记得最初的自己是什么样子了。',
-  };
-}
-
 // === systems/implicitEndingSystem.js ===
 // src/systems/implicitEndingSystem.js — Implicit ending trigger system
 // 36 behavior endings are triggered COMPLETELY by player behavior patterns.
@@ -40191,15 +40393,11 @@ function applyEffects(state, effects, context) {
       }
       case 'add_clue': {
         const _clueExists = state.clues.some(
-          (c) => (typeof c === 'string' ? c : c.id) === eff.clue_id
+          (c) => c.id === eff.clue_id
         );
         if (!_clueExists) {
           const _resolved = resolveClueName(eff.clue_id);
-          state.clues.push(
-            _resolved && _resolved !== eff.clue_id
-              ? { id: eff.clue_id, name: _resolved }
-              : eff.clue_id
-          );
+          state.clues.push({ id: eff.clue_id, name: _resolved || eff.clue_id });
           if (state.behaviorTracking) {
             state.behaviorTracking.clue_finds = (state.behaviorTracking.clue_finds || 0) + 1;
           }
@@ -40341,11 +40539,11 @@ function applyLegacyEffects(state, eff, rng) {
       if (typeof cid === 'string') {
         if (!state.clues.some((c) => (typeof c === 'string' ? c : c.id) === cid)) {
           const resolved = resolveClueName(cid);
-          state.clues.push(resolved && resolved !== cid ? { id: cid, name: resolved } : cid);
+          state.clues.push({ id: cid, name: resolved || cid });
         }
       } else if (cid && cid.id) {
-        if (!state.clues.some((c) => (typeof c === 'string' ? c : c.id) === cid.id))
-          state.clues.push(cid);
+        if (!state.clues.some((c) => c.id === cid.id))
+          state.clues.push({ id: cid.id, name: cid.name || resolveClueName(cid.id) || cid.id });
       }
     }
   }
@@ -40751,7 +40949,7 @@ function executeForcedProgressGuard(guard, state, narr) {
   if (missingClues.length > 0) {
     const hintClue = guard.fallbackClueHint || missingClues[0];
     if (!hasClueId(state.clues, hintClue)) {
-      state.clues.push(hintClue);
+      state.clues.push({ id: hintClue, name: resolveClueName(hintClue) || hintClue });
       narr('system', '（你将这条信息记录在了笔记本上。）', { isSpecial: true });
     }
   }
@@ -45968,8 +46166,8 @@ function handlePrologueChoice(state, choiceId) {
   const clueRaw = choice.effects && choice.effects.add_clue;
   const clueId = clueRaw && typeof clueRaw === 'object' ? clueRaw.id : clueRaw;
   const clueName = clueRaw && typeof clueRaw === 'object' ? clueRaw.name : clueRaw;
-  if (clueId && !(s.clues || []).includes(clueId)) {
-    s = { ...s, clues: [...s.clues, clueId] };
+  if (clueId && !hasClueId(s.clues, clueId)) {
+    s = { ...s, clues: [...s.clues, { id: clueId, name: clueName || clueId }] };
   }
 
   // 3) 应用SAN效果
@@ -46418,13 +46616,13 @@ function checkChainCompletion(state, narr) {
   for (const chain of chains) {
     const chainClues = chain.clues || [];
     for (const clue of chainClues) {
-      if (state.clues.some((c) => (typeof c === 'string' ? c : c.id) === clue.id)) continue;
+      if (state.clues.some((c) => c.id === clue.id)) continue;
       if (
         clue.source &&
         state.triggeredEvents.includes(clue.source) &&
-        !state.clues.some((c) => (typeof c === 'string' ? c : c.id) === clue.id)
+        !state.clues.some((c) => c.id === clue.id)
       ) {
-        state.clues.push(clue.id);
+        state.clues.push({ id: clue.id, name: clue.name });
         narr('system', '【线索链：' + chain.name + '】发现线索「' + clue.name + '」', {
           isSpecial: true,
         });
@@ -46434,7 +46632,7 @@ function checkChainCompletion(state, narr) {
     const allFound =
       chainClues.length > 0 &&
       chainClues.every((c) =>
-        state.clues.some((cc) => (typeof cc === 'string' ? cc : cc.id) === c.id)
+        state.clues.some((cc) => cc.id === c.id)
       );
     if (allFound) {
       state.completedChains.push(chain.id);
@@ -47744,6 +47942,10 @@ function createWorldState() {
     npcTrust: {},
     npcStates: {},
     npcRelations: {},
+    factionStanding: {},          // faction_id → -10..+10
+    npcThreads: {},               // npcName → { depth: 0-2, resolved: bool }
+    _dailyNpcTalks: {},           // npcName → day number (resets each day)
+    _pendingDelayedEffects: [],   // scheduled moral dilemma delayed effects
     sealState: STARTING_STATE.SEAL_STATE,
     weather: STARTING_STATE.WEATHER,
     safehouseCorruption: 0,
@@ -53197,6 +53399,11 @@ function clearEventBus() {
 // Architecture:
 //   Reducers/Slices → emit(event, payload) → eventBus → this file's handlers → UI side effects
 
+// dispatch is injected by app.jsx bootstrap — avoids circular import (useGameStore → gameReducer → slices → ...)
+var _dispatch = null;
+
+function setDispatch(fn) { _dispatch = fn; }
+
 // ── Keep references to unsub functions for cleanup ──
 const _unsubs = [];
 
@@ -53211,9 +53418,8 @@ function register(event, handler) {
 // Effect: dispatch ADD_NARRATIVE to game state (via getDispatch)
 
 register('NARRATIVE_APPEND', function (payload) {
-  const { dispatch } = require('../state/useGameStore.js');
-  if (!dispatch) return;
-  dispatch({
+  if (!_dispatch) return;
+  _dispatch({
     type: 'ADD_NARRATIVE',
     entry: {
       text: payload.text,
@@ -53229,9 +53435,8 @@ register('NARRATIVE_APPEND', function (payload) {
 // Effect: dispatch ADD_EVENT_LOG
 
 register('EVENT_LOG_APPEND', function (payload) {
-  const { dispatch } = require('../state/useGameStore.js');
-  if (!dispatch) return;
-  dispatch({
+  if (!_dispatch) return;
+  _dispatch({
     type: 'ADD_EVENT_LOG',
     entry: {
       text: payload.text,
@@ -53289,7 +53494,6 @@ register('AMBIENT_SWITCH', function (payload) {
 // Effect: show a toast notification
 
 register('POPUP_SHOW', function (payload) {
-  const { addUiToast } = require('../state/uiStore.js');
   if (!addUiToast) return;
   addUiToast({
     id: payload.id || 'toast_' + Date.now(),
@@ -53308,7 +53512,6 @@ register('POPUP_SHOW', function (payload) {
 // Effect: hide a specific toast
 
 register('POPUP_HIDE', function (payload) {
-  const { removeUiToast } = require('../state/uiStore.js');
   if (!removeUiToast || !payload.id) return;
   removeUiToast(payload.id);
 });
@@ -53333,7 +53536,6 @@ register('SCREEN_SHAKE', function (payload) {
 // Effect: trigger the red flash in SanPollutionLayer via sanVisualCorruption
 
 register('SAN_LOSS_FLASH', function (payload) {
-  const { triggerSanLossFlash } = require('../systems/sanVisualCorruption.js');
   if (triggerSanLossFlash) {
     triggerSanLossFlash(payload.amount || 3);
   }
@@ -53344,7 +53546,6 @@ register('SAN_LOSS_FLASH', function (payload) {
 // Effect: trigger critical day surge in sanVisualCorruption
 
 register('DAY_SURGE', function (payload) {
-  const { triggerDayCriticalSurge } = require('../systems/sanVisualCorruption.js');
   if (triggerDayCriticalSurge) {
     triggerDayCriticalSurge(payload.day, payload.san);
   }
@@ -53373,7 +53574,6 @@ register('TOAST_SHOW', function (payload) {
 // Effect: brief save flash + toast
 
 register('SAVE_INDICATOR', function (payload) {
-  const { notifySave } = require('../state/uiStore.js');
   if (notifySave) {
     notifySave(payload.message, payload.type);
   }
@@ -54568,7 +54768,7 @@ function _postExploreProcessing(evt, s, c, GD) {
     conc.unlocks.forEach(function (u) {
       if (!hasClueId(s.clues, u)) {
         const _rn = resolveClueName(u);
-        s.clues.push(_rn && _rn !== u ? { id: u, name: _rn } : u);
+        s.clues.push({ id: u, name: _rn || u });
       }
     });
   }
@@ -55223,6 +55423,275 @@ function handleExploreAction(s, action, c, ctx) {
   }
 }
 
+// === systems/npcRelationshipSystem.js ===
+// src/systems/npcRelationshipSystem.js — NPC relationship propagation
+//
+// Actives the dormant data in npcRelationshipWeb.js:
+//   NPC_RELATIONSHIPS — bidirectional affinity/knowledge/conflict/moralWeight
+//   MORAL_DILEMMAS    — moral choice scenarios with hidden costs & delayed effects
+//   FACTIONS          — seal_keeper / deep_one / military / cultist
+//
+// When a player's action changes NPC A's trust, the change ripples through
+// A's relationship network via propagateTrustChange().
+// Moral dilemma choices schedule delayed effects that fire on future days.
+
+// ════════════════════════════════════════
+// Section 1: Trust propagation
+// ════════════════════════════════════════
+
+/**
+ * Propagate a trust change from one NPC through the relationship web.
+ * Each connected NPC receives a scaled delta based on:
+ *   affinity (-5..+5): how much they like the changed NPC
+ *   moralWeight (1.0..3.0): how sensitive the relationship is
+ *
+ * Formula: propagation = round(delta * affinity * moralWeight / 10)
+ *
+ * @param {string} changedNpc - the NPC whose trust changed
+ * @param {number} delta - the trust change (+1, -2, etc.)
+ * @param {object} state - mutable game state
+ * @param {object} [c] - reducer context (for narr/log)
+ */
+function propagateTrustChange(changedNpc, delta, state, c) {
+  if (delta === 0) return;
+  var propagated = [];
+  for (const [key, rel] of Object.entries(NPC_RELATIONSHIPS)) {
+    var otherNpc = null;
+    if (key.startsWith(changedNpc + '-')) {
+      otherNpc = key.slice(changedNpc.length + 1);
+    } else if (key.endsWith('-' + changedNpc)) {
+      otherNpc = key.slice(0, key.length - changedNpc.length - 1);
+    }
+    if (!otherNpc) continue;
+    var propagation = Math.round(delta * rel.affinity * rel.moralWeight / 10);
+    if (propagation === 0) continue;
+    var oldTrust = getNpcTrust(state, otherNpc);
+    setNpcTrust(state, otherNpc, oldTrust + propagation);
+    propagated.push({ npc: otherNpc, delta: propagation, oldTrust: oldTrust });
+  }
+  if (propagated.length > 0 && c && c.narr) {
+    var lines = propagated.map(function (p) {
+      return p.npc + '（' + p.oldTrust + '→' + getNpcTrust(state, p.npc) + '）';
+    });
+    c.narr('system', '关系涟漪：' + lines.join('、'));
+  }
+}
+
+// ════════════════════════════════════════
+// Section 2: Faction standing
+// ════════════════════════════════════════
+
+// Build NPC → faction lookup from FACTIONS
+var NPC_FACTION_MAP = {};
+for (const [factionId, faction] of Object.entries(FACTIONS)) {
+  if (faction.members) {
+    faction.members.forEach(function (name) {
+      NPC_FACTION_MAP[name] = factionId;
+    });
+  }
+}
+
+/**
+ * Update faction standing based on an NPC trust change.
+ * Called alongside propagateTrustChange.
+ *
+ * @param {string} npcName - the NPC whose trust changed
+ * @param {number} delta - the trust change
+ * @param {object} state - mutable game state
+ */
+function propagateFactionStanding(npcName, delta, state) {
+  var factionId = NPC_FACTION_MAP[npcName];
+  if (!factionId) return;
+  if (!state.factionStanding) state.factionStanding = {};
+  var current = state.factionStanding[factionId] || 0;
+  // Faction standing: -10..+10, scaled by delta and moralWeight
+  var faction = FACTIONS[factionId];
+  var memberCount = faction.members ? faction.members.length : 1;
+  var standingDelta = Math.round(delta * 2 / memberCount);
+  state.factionStanding[factionId] = Math.max(-10, Math.min(10, current + standingDelta));
+}
+
+// ════════════════════════════════════════
+// Section 3: Delayed moral effects
+// ════════════════════════════════════════
+
+/**
+ * Schedule a delayed moral effect from a dilemma choice.
+ * The effect will be checked and applied on the target day.
+ *
+ * @param {object} state - mutable game state
+ * @param {string} effectType - type of delayed effect
+ * @param {number} dueDay - the day number when the effect fires
+ * @param {object} effectData - the effect payload
+ */
+function scheduleDelayedEffect(state, effectType, dueDay, effectData) {
+  if (!state._pendingDelayedEffects) state._pendingDelayedEffects = [];
+  state._pendingDelayedEffects.push({
+    type: effectType,
+    dueDay: dueDay,
+    data: effectData,
+    fired: false,
+  });
+}
+
+/**
+ * Check and fire any delayed effects that are due today.
+ * Call from dayAdvance after day increment.
+ *
+ * @param {object} state - mutable game state
+ * @param {number} currentDay - the current day number
+ * @param {object} [c] - reducer context
+ * @returns {boolean} true if any effects fired
+ */
+function processDelayedEffects(state, currentDay, c) {
+  if (!state._pendingDelayedEffects) return false;
+  var fired = false;
+  var remaining = [];
+  for (var i = 0; i < state._pendingDelayedEffects.length; i++) {
+    var eff = state._pendingDelayedEffects[i];
+    if (eff.fired) continue;
+    if (currentDay >= eff.dueDay) {
+      _applyDelayedEffect(state, eff, c);
+      eff.fired = true;
+      fired = true;
+    } else {
+      remaining.push(eff);
+    }
+  }
+  state._pendingDelayedEffects = remaining;
+  return fired;
+}
+
+function _applyDelayedEffect(state, eff, c) {
+  var data = eff.data;
+  switch (eff.type) {
+    case 'npc_trust_delta': {
+      var npcName = data.npc;
+      var penalty = data.npcPenalty || 0;
+      if (npcName && penalty !== 0) {
+        var old = getNpcTrust(state, npcName);
+        setNpcTrust(state, npcName, old + penalty);
+        if (c && c.narr) {
+          c.narr('system', npcName + '对你的态度似乎变了。（' + old + '→' + getNpcTrust(state, npcName) + '）');
+        }
+      }
+      break;
+    }
+    case 'npc_discovery': {
+      // NPC discovers player's deception (e.g., fake sample)
+      var dNpc = data.npc;
+      if (dNpc && data.discoveryPenalty) {
+        var dOld = getNpcTrust(state, dNpc);
+        setNpcTrust(state, dNpc, Math.max(0, dOld + data.discoveryPenalty));
+        if (c && c.narr) {
+          c.narr('system', dNpc + '发现了真相。');
+        }
+      }
+      break;
+    }
+    case 'martha_corruption_trigger': {
+      // Delayed corruption trigger from helping Elias with deep one sample
+      if (data.npc === '玛莎·格雷') {
+        var ns = getNpcState(state, '玛莎·格雷');
+        if (!ns.corrupted) {
+          setNpcState(state, '玛莎·格雷', Object.assign({}, ns, { corruptionTriggered: true }));
+          if (c && c.narr) {
+            c.narr('system', '你注意到玛莎最近有些不对劲。她的皮肤上出现了奇怪的斑纹……');
+          }
+        }
+      }
+      break;
+    }
+    case 'elias_desperation': {
+      // Elias becomes desperate if player refuses him
+      if (data.npc === '伊莱亚斯·沃德') {
+        var eNs = getNpcState(state, '伊莱亚斯·沃德');
+        if (!eNs.desperate) {
+          setNpcState(state, '伊莱亚斯·沃德', Object.assign({}, eNs, { desperate: true }));
+          if (c && c.narr) {
+            c.narr('system', '伊莱亚斯看起来比上次更加焦躁了。他开始独自一人待在实验室里。');
+          }
+        }
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+// ════════════════════════════════════════
+// Section 4: Moral dilemma integration
+// ════════════════════════════════════════
+
+/**
+ * Process a moral dilemma choice. Schedules immediate trust changes
+ * and any delayed effects defined in the dilemma data.
+ *
+ * @param {string} dilemmaId - key in MORAL_DILEMMAS
+ * @param {string} choiceId - the chosen option
+ * @param {object} state - mutable game state
+ * @param {object} c - reducer context
+ * @returns {object|null} immediate narrative text or null
+ */
+function processMoralDilemmaChoice(dilemmaId, choiceId, state, c) {
+  var dilemma = MORAL_DILEMMAS[dilemmaId];
+  if (!dilemma) return null;
+  var choice = dilemma.choices.find(function (ch) { return ch.id === choiceId; });
+  if (!choice) return null;
+
+  // Immediate effects
+  if (choice.immediateEffect && c && c.narr) {
+    c.narr('system', choice.immediateEffect);
+  }
+
+  // Immediate hidden cost
+  if (choice.hiddenCost) {
+    var hc = choice.hiddenCost;
+    if (hc.npc && hc.npcPenalty) {
+      var old = getNpcTrust(state, hc.npc);
+      setNpcTrust(state, hc.npc, Math.max(0, old + hc.npcPenalty));
+      propagateTrustChange(hc.npc, hc.npcPenalty, state, c);
+      propagateFactionStanding(hc.npc, hc.npcPenalty, state);
+    }
+    if (hc.delayedEffect && hc.delayDays) {
+      var targetDay = (state.day || 1) + hc.delayDays;
+      scheduleDelayedEffect(state, hc.delayedEffect, targetDay, hc);
+    }
+  }
+
+  // Immediate hidden benefit
+  if (choice.hiddenBenefit) {
+    var hb = choice.hiddenBenefit;
+    if (hb.npc && hb.npcBenefit) {
+      var bOld = getNpcTrust(state, hb.npc);
+      setNpcTrust(state, hb.npc, Math.min(5, bOld + hb.npcBenefit));
+      propagateTrustChange(hb.npc, hb.npcBenefit, state, c);
+      propagateFactionStanding(hb.npc, hb.npcBenefit, state);
+    }
+  }
+
+  // Behavior counter
+  if (choice.behaviorCounter) {
+    state.behaviorTracking = state.behaviorTracking || {};
+    state.behaviorTracking[choice.behaviorCounter] = (state.behaviorTracking[choice.behaviorCounter] || 0) + 1;
+  }
+
+  // Discovery chance (for deception choices)
+  if (choice.hiddenCost && choice.hiddenCost.discoveryChance && choice.hiddenCost.discoveryDelay) {
+    var discoveryRoll = (c && c.rng ? c.rng.next() : Math.random());
+    if (discoveryRoll < choice.hiddenCost.discoveryChance) {
+      var discDay = (state.day || 1) + choice.hiddenCost.discoveryDelay;
+      scheduleDelayedEffect(state, 'npc_discovery', discDay, {
+        npc: choice.hiddenCost.npc,
+        discoveryPenalty: choice.hiddenCost.npcPenalty * 2, // harsher when discovered
+      });
+    }
+  }
+
+  return choice.immediateEffect || null;
+}
+
 // === reducers/slices/npcSlice.js ===
 // src/reducers/slices/npcSlice.js - Extracted from gameReducer
 // TALK_NPC, NPC_RESPONSE
@@ -55247,6 +55716,8 @@ function handleNpcAction(s, action, c, ctx) {
         return null;
       }
       s.ap -= 1;
+      if (!s._dailyNpcTalks) s._dailyNpcTalks = {};
+      s._dailyNpcTalks[npc.name] = s.day;
       // AP 消耗音效反馈
       if (s.ap <= 2 && s.ap > 0) {
         c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
@@ -55371,6 +55842,26 @@ function handleNpcAction(s, action, c, ctx) {
       }
       // NPC 记忆渐进深化系统（数据在 appHelpers.js 模块级，避免每次 TALK_NPC 重分配）
       handleNpcMemoryTier(s, npc, c.narr, c.rng);
+      // 对话追问系统：展示可用的追问线（信任≥2 解锁第一层）
+      if (!ns.corrupted && NPC_THREAD_QUESTIONS[npc.name]) {
+        var availableThreads = [];
+        var allThreads = NPC_THREAD_QUESTIONS[npc.name];
+        for (var ti = 0; ti < allThreads.length; ti++) {
+          var thread = allThreads[ti];
+          var threadState = (s.npcThreads || {})[npc.name + '_' + thread.id];
+          if (!threadState || threadState.resolved) continue;
+          if (threadState.depth === undefined || threadState.depth === 0) {
+            if (trust >= (thread.trustReq || 2)) availableThreads.push({ thread: thread, nextDepth: 1 });
+          } else if (threadState.depth === 1) {
+            if (trust >= (thread.depth2 && thread.depth2.trustReq ? thread.depth2.trustReq : 3)) availableThreads.push({ thread: thread, nextDepth: 2 });
+          } else if (threadState.depth === 2) {
+            if (trust >= (thread.depth3 && thread.depth3.trustReq ? thread.depth3.trustReq : 4)) availableThreads.push({ thread: thread, nextDepth: 3 });
+          }
+        }
+        if (availableThreads.length > 0) {
+          s.pendingNpc = Object.assign({}, s.pendingNpc, { availableThreads: availableThreads });
+        }
+      }
       c.log('与' + npc.name + '对话');
       if (!s.tutorialSeen.first_talk) s.tutorialSeen = { ...s.tutorialSeen, first_talk: true };
       return null;
@@ -55426,6 +55917,8 @@ function handleNpcAction(s, action, c, ctx) {
             var _gain = Math.max(0, Math.round(1 * _trustMult));
             var _newTrust = Math.min(5, trust + _gain);
             setNpcTrust(s, npc.name, _newTrust);
+            propagateTrustChange(npc.name, _gain, s, c);
+            propagateFactionStanding(npc.name, _gain, s);
             if (!s._dailyTrustGains) s._dailyTrustGains = {};
             s._dailyTrustGains[npc.name] = 'talk';
             for (let lv = trust + 1; lv <= _newTrust; lv++) {
@@ -55434,7 +55927,7 @@ function handleNpcAction(s, action, c, ctx) {
                 layer.unlocks.forEach((u) => {
                   if (!hasClueId(s.clues, u)) {
                     const _rn = resolveClueName(u);
-                    s.clues.push(_rn && _rn !== u ? { id: u, name: _rn } : u);
+                    s.clues.push({ id: u, name: _rn || u });
                   }
                 });
             }
@@ -55543,6 +56036,8 @@ function handleNpcAction(s, action, c, ctx) {
             }
             const newTrust = Math.min(5, curTrust + 1);
             setNpcTrust(s, npc.name, newTrust);
+            propagateTrustChange(npc.name, 1, s, c);
+            propagateFactionStanding(npc.name, 1, s);
             if (!s._dailyTrustGains) s._dailyTrustGains = {};
             s._dailyTrustGains[npc.name] = 'food';
             addRunMemory(s, '你把食物分给了' + npc.name + '。', 'npc');
@@ -55591,7 +56086,8 @@ function handleNpcAction(s, action, c, ctx) {
         } else {
           const dmg = rand(2, 8, c.rng);
           s.hp = Math.max(0, s.hp - dmg);
-          { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, Math.max(0, _old - 2)); _warnTrustDrop(c, npc.name, _old, Math.max(0, _old - 2)); }
+          { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, Math.max(0, _old - 2)); _warnTrustDrop(c, npc.name, _old, Math.max(0, _old - 2));
+            propagateTrustChange(npc.name, -2, s, c); propagateFactionStanding(npc.name, -2, s); }
           c.narr(
             'system',
             '【攻击】掷骰 ' +
@@ -55678,6 +56174,7 @@ function handleNpcAction(s, action, c, ctx) {
               '看穿了你的意图。'
           );
           setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 1));
+          propagateTrustChange(npc.name, -1, s, c); propagateFactionStanding(npc.name, -1, s);
         }
         s.pendingNpc = null;
       } else if (choice === 'exploit_npc') {
@@ -55689,6 +56186,7 @@ function handleNpcAction(s, action, c, ctx) {
         s.ap -= 1;
         c.bt.npc_as_resource_count = (c.bt.npc_as_resource_count || 0) + 1;
         setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 2));
+        propagateTrustChange(npc.name, -2, s, c); propagateFactionStanding(npc.name, -2, s);
         const gain = rand(2, 6, c.rng);
         s.money = (s.money || 0) + gain;
         modHumanity(s, -12, '把' + npc.name + '当作资源利用');
@@ -55706,7 +56204,8 @@ function handleNpcAction(s, action, c, ctx) {
         }
         s.ap -= 1;
         c.bt.betrayed_high_trust_npcs = (c.bt.betrayed_high_trust_npcs || 0) + 1;
-        { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, 0); _warnTrustDrop(c, npc.name, _old, 0); }
+        { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, 0); _warnTrustDrop(c, npc.name, _old, 0);
+          propagateTrustChange(npc.name, -_old, s, c); propagateFactionStanding(npc.name, -_old, s); }
         if (!c.bt._npc_harm_tally) c.bt._npc_harm_tally = {};
         c.bt._npc_harm_tally[npc.name] = (c.bt._npc_harm_tally[npc.name] || 0) + 1;
         c.bt.same_npc_harm_max = Math.max(
@@ -55772,6 +56271,7 @@ function handleNpcAction(s, action, c, ctx) {
             { isSpecial: true }
           );
           setNpcTrust(s, npc.name, Math.min(5, getNpcTrust(s, npc.name) + 1));
+          propagateTrustChange(npc.name, 1, s, c); propagateFactionStanding(npc.name, 1, s);
         } else {
           c.narr(
             'system',
@@ -55784,8 +56284,79 @@ function handleNpcAction(s, action, c, ctx) {
               '后退了一步，表情变得警惕。'
           );
           setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 1));
+          propagateTrustChange(npc.name, -1, s, c); propagateFactionStanding(npc.name, -1, s);
         }
         s.pendingNpc = null;
+      }
+
+      // 对话追问系统：处理追问选择
+      if (choice && choice.startsWith('probe_')) {
+        var _threadId = choice.slice(6);
+        var _threads = NPC_THREAD_QUESTIONS[npc.name] || [];
+        var _thread = _threads.find(function (t) { return t.id === _threadId; });
+        if (_thread) {
+          var _threadState = (s.npcThreads || {})[npc.name + '_' + _threadId] || { depth: 0 };
+          var _nextDepth = _threadState.depth + 1;
+          var _responseText = '';
+          var _clueAwarded = null;
+          var _trustAward = 0;
+          // Check trust gate for next depth
+          var _nextTrustReq = _nextDepth === 1 ? (_thread.trustReq || 2) : (_nextDepth === 2 ? (_thread.depth2 && _thread.depth2.trustReq || 3) : (_thread.depth3 && _thread.depth3.trustReq || 4));
+          if (trust < _nextTrustReq) {
+            _responseText = npc.name + '似乎不想再深入这个话题了。';
+          } else if (_nextDepth === 1) {
+            _responseText = _thread.depth1 ? _thread.depth1.response : '';
+          } else if (_nextDepth === 2) {
+            _responseText = _thread.depth2 ? _thread.depth2.response : '';
+            if (_thread.depth2 && _thread.depth2.clue && !hasClueId(s.clues, _thread.depth2.clue)) {
+              _clueAwarded = _thread.depth2.clue;
+            }
+          } else if (_nextDepth >= 3) {
+            _responseText = _thread.depth3 ? _thread.depth3.response : '';
+            _clueAwarded = _thread.depth3 ? _thread.depth3.clue : null;
+            _trustAward = _thread.depth3 ? (_thread.depth3.trustGain || 0) : 0;
+            _threadState.resolved = true;
+          }
+          // Update thread state
+          if (!s.npcThreads) s.npcThreads = {};
+          s.npcThreads[npc.name + '_' + _threadId] = { depth: _nextDepth, resolved: _threadState.resolved || false };
+          // Narrate response
+          if (_responseText) c.narr('system', npc.name + '："' + _responseText + '"');
+          // Award clue
+          if (_clueAwarded && !hasClueId(s.clues, _clueAwarded)) {
+            var _clueName = resolveClueName(_clueAwarded) || _clueAwarded;
+            s.clues.push({ id: _clueAwarded, name: _clueName });
+            c.narr('system', '【线索获得】' + _clueName, { isSpecial: true });
+            if (c.effects) c.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
+          }
+          // Award trust
+          if (_trustAward > 0) {
+            var _newTrust = Math.min(5, trust + _trustAward);
+            setNpcTrust(s, npc.name, _newTrust);
+            propagateTrustChange(npc.name, _trustAward, s, c);
+            propagateFactionStanding(npc.name, _trustAward, s);
+            c.narr('system', npc.name + '对你的信任加深了。（' + trust + '→' + _newTrust + '）');
+          }
+          // Update pendingNpc with remaining available threads
+          var _remainingThreads = [];
+          var _allThreads = NPC_THREAD_QUESTIONS[npc.name] || [];
+          for (var ri = 0; ri < _allThreads.length; ri++) {
+            var _rt = _allThreads[ri];
+            var _rtState = (s.npcThreads || {})[npc.name + '_' + _rt.id];
+            if (_rtState && _rtState.resolved) continue;
+            var _rtDepth = _rtState ? _rtState.depth : 0;
+            var _rtNextDepth = _rtDepth + 1;
+            var _rtTrustReq = _rtNextDepth === 1 ? (_rt.trustReq || 2) : (_rtNextDepth === 2 ? (_rt.depth2 && _rt.depth2.trustReq || 3) : (_rt.depth3 && _rt.depth3.trustReq || 4));
+            if (getNpcTrust(s, npc.name) >= _rtTrustReq) {
+              _remainingThreads.push({ thread: _rt, nextDepth: _rtNextDepth });
+            }
+          }
+          if (_remainingThreads.length > 0) {
+            s.pendingNpc = Object.assign({}, s.pendingNpc, { availableThreads: _remainingThreads, trust: getNpcTrust(s, npc.name) });
+          } else {
+            s.pendingNpc = Object.assign({}, s.pendingNpc, { trust: getNpcTrust(s, npc.name) });
+          }
+        }
       }
 
       // v0.9.0: Moral choice engine integration
@@ -55966,6 +56537,8 @@ function _processRestRecovery(s, c, shStage, ctx) {
 function _advanceDayClock(s, c, ctx) {
   const oldDay = s.day;
   s.day++;
+  // Fire any delayed moral effects scheduled by MORAL_DILEMMAS
+  processDelayedEffects(s, s.day, c);
   // eventBus: notify listeners of day transition
   try {
     emit('DAY_ADVANCED', { oldDay: oldDay, newDay: s.day });
@@ -56354,6 +56927,7 @@ function _processRestBookkeeping(s, c, ctx) {
   trackDailyBehaviorPatterns(s, c.bt);
   s._dayActions = [];
   s._dailyTrustGains = {};
+  s._dailyNpcTalks = {};
   s._todayEventTypes = [];
   s._dayStartArea = s.currentArea;
   saveGame(s);
@@ -57751,7 +58325,10 @@ function applySingleEffect(state, eff, rng) {
         const id = typeof c === 'string' ? c : (c.id || '');
         return id === (typeof clue === 'string' ? clue : clue.id);
       })) {
-        state.clues.push(clue);
+        // Normalize: always store {id, name} objects
+        const cid = typeof clue === 'string' ? clue : (clue.id || '');
+        const cname = typeof clue === 'string' ? clue : (clue.name || clue.id || '');
+        state.clues.push({ id: cid, name: cname });
       }
     }
   }
@@ -58826,434 +59403,357 @@ function useGameSelector(selector) {
 
 // === state/selectors.js ===
 // src/state/selectors.js — Fine-grained Zustand selectors
-// Each selector subscribes to only the state slice a component needs.
-// This prevents global state changes from triggering re-renders in unrelated components.
 //
-// Usage:
-//   import { useSanVisual, useNpcTrust, useEventLog } from '../state/selectors.js';
-//   const sanVisual = useSanVisual(); // re-renders ONLY when SAN changes
-//   const trust = useNpcTrust('old_lady'); // re-renders ONLY when this NPC's trust changes
+// CRITICAL: Zustand 5.0.14 does NOT support equalityFn (it's silently ignored).
+// React's useSyncExternalStore compares with Object.is (reference equality).
+// Every selector returning an object/array MUST use useMemo to cache the result.
+// All selector functions must be defined at module level (stable refs).
 
-// ── shallowEqual helper ──
-// Zustand's default equality is Object.is (reference equality).
-// For arrays/objects, we need shallow comparison to avoid re-renders
-// when the parent creates a new array reference with the same contents.
+var useMemo = React.useMemo;
 
-function shallowEqual(a, b) {
-  if (a === b) return true;
-  if (typeof a !== 'object' || typeof b !== 'object') return false;
-  if (a == null || b == null) return false;
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-  for (let i = 0; i < keysA.length; i++) {
-    if (a[keysA[i]] !== b[keysB[i]]) return false;
-  }
-  return true;
-}
+// ── Module-level selector functions (stable references) ──
 
-// ── useGameSelector with shallow equality ──
+var _selSan = function (s) { return s.san; };
+var _selCurrentArea = function (s) { return s.currentArea || ''; };
+var _selVisitedCount = function (s) { return (s.visitedAreas || []).length; };
+var _selWeather = function (s) { return s.weather || ''; };
+var _selSafehouseCorruption = function (s) { return s.safehouseCorruption || 0; };
+var _selSealState = function (s) { return s.sealState || ''; };
+var _selMythosLevel = function (s) { return s.mythosLevel || 0; };
+var _selEventLogLength = function (s) { return (s.eventLog || []).length; };
+var _selNarrativeText = function (s) { return (s.narrative || []).map(function (n) { return n.text; }).join('\n'); };
+var _selDay = function (s) { return s.day || 1; };
+var _selLoopCount = function (s) { return s.loopCount || 0; };
+var _selCurrentChapter = function (s) { return s.currentChapter || ''; };
+var _selFood = function (s) { return s.food != null ? s.food : 0; };
+var _selMoney = function (s) { return s.money != null ? s.money : 0; };
+var _selPollution = function (s) { return s.pollution != null ? s.pollution : 0; };
+var _selHumanityScore = function (s) { return s.humanityScore != null ? s.humanityScore : 0; };
+var _selMadnessActive = function (s) { return !!s.madnessActive; };
+var _selLongTermEffectsCount = function (s) { return (s.longTermEffects || []).length; };
 
-function useShallowSelector(selector, equalityFn) {
-  return useGameStore(selector, equalityFn || shallowEqual);
-}
+// ── Public selectors ──
 
-// ── SAN / Visual selectors ──
-
-/** Raw SAN value. Re-renders on any SAN change. */
-function useSan() {
-  return useGameStore(function (s) { return s.san; });
-}
-
-/** Visual parameters for current SAN (cached per SAN value). */
+// SAN / Visual — use useMemo because Zustand 5 has no equalityFn
+function useSan() { return useGameStore(_selSan); }
 function useSanVisual() {
-  return useGameStore(function (s) { return getVisualForSan(s.san); });
+  var san = useGameStore(_selSan);
+  return useMemo(function () { return getVisualForSan(san); }, [san]);
 }
-
-/** CSS class fragments for SAN stage (vtClass, stageClass, sanClass, level). */
 function useSanStageClasses(allowVisualFX) {
-  return useGameStore(function (s) {
-    return getSanStageClasses(s.san, allowVisualFX, { GD: s._GD || {} });
-  });
+  var san = useGameStore(_selSan);
+  return useMemo(function () {
+    return getSanStageClasses(san, allowVisualFX, { GD: window.GD || {} });
+  }, [san, allowVisualFX]);
 }
-
-/** Perception distortion levels (focus, edge, audio, input, text). */
 function usePerceptionLevels() {
-  return useGameStore(function (s) { return getPerceptionLevels(s); });
+  var san = useGameStore(_selSan);
+  var loopCount = useGameStore(_selLoopCount);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var mythosLevel = useGameStore(_selMythosLevel);
+  var pollution = useGameStore(_selPollution);
+  return useMemo(function () {
+    return getPerceptionLevels({ san: san, loopCount: loopCount, safehouseCorruption: safehouseCorruption, mythosLevel: mythosLevel, pollution: pollution });
+  }, [san, loopCount, safehouseCorruption, mythosLevel, pollution]);
 }
-
-/** Just the SAN level number (0-6). */
 function useSanLevel() {
-  return useGameStore(function (s) {
-    const v = getVisualForSan(s.san);
-    return v.level;
-  });
+  var san = useGameStore(_selSan);
+  return useMemo(function () { return getVisualForSan(san).level; }, [san]);
 }
 
-// ── Character selectors ──
-
+// Character — subscribe to primitives, useMemo to create objects
 function useHp() {
-  return useGameStore(function (s) { return { hp: s.hp, maxHp: s.maxHp }; }, shallowEqual);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  return useMemo(function () { return { hp: hp, maxHp: maxHp }; }, [hp, maxHp]);
 }
-
 function useAp() {
-  return useGameStore(function (s) { return { ap: s.ap, maxAp: s.maxAp }; }, shallowEqual);
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  return useMemo(function () { return { ap: ap, maxAp: maxAp }; }, [ap, maxAp]);
 }
-
 function useInventory() {
   return useGameStore(function (s) { return s.inventory || []; });
 }
-
 function useClues() {
   return useGameStore(function (s) { return s.clues || []; });
 }
-
 function useSkills() {
   return useGameStore(function (s) { return s.skills || {}; });
 }
 
-// ── World selectors ──
+// World
+function useCurrentArea() { return useGameStore(_selCurrentArea); }
+function useVisitedCount() { return useGameStore(_selVisitedCount); }
+function useWeather() { return useGameStore(_selWeather); }
+function useSafehouseCorruption() { return useGameStore(_selSafehouseCorruption); }
+function useSealState() { return useGameStore(_selSealState); }
+function useMythosLevel() { return useGameStore(_selMythosLevel); }
 
-/** Current area ID only. */
-function useCurrentArea() {
-  return useGameStore(function (s) { return s.currentArea; });
-}
-
-/** Visited areas count (for map progress indicator). */
-function useVisitedCount() {
-  return useGameStore(function (s) { return (s.visitedAreas || []).length; });
-}
-
-/** Weather string. */
-function useWeather() {
-  return useGameStore(function (s) { return s.weather; });
-}
-
-/** Safehouse corruption (0-100). */
-function useSafehouseCorruption() {
-  return useGameStore(function (s) { return s.safehouseCorruption; });
-}
-
-/** Seal state string. */
-function useSealState() {
-  return useGameStore(function (s) { return s.sealState; });
-}
-
-/** Mythos level (0-100). */
-function useMythosLevel() {
-  return useGameStore(function (s) { return s.mythosLevel; });
-}
-
-// ── NPC selectors (per-NPC to minimize re-renders) ──
-
-/**
- * Trust level for a specific NPC.
- * Re-renders ONLY when this NPC's trust changes.
- *
- * @param {string} npcId - NPC identifier (ID, not display name)
- * @returns {number} trust level 0-5
- */
+// NPC
 function useNpcTrust(npcId) {
-  return useGameStore(function (s) {
-    return getNpcTrust(s, npcId);
-  });
+  return useGameStore(function (s) { return getNpcTrust(s, npcId); });
 }
-
-/**
- * Trust levels for all NPCs.
- * Use this only when you need to render a list of all NPCs.
- * For single-NPC display, use useNpcTrust(npcId) instead.
- */
 function useAllNpcTrust() {
   return useGameStore(function (s) { return s.npcTrust || {}; });
 }
-
-/**
- * NPC state for a specific NPC.
- * @param {string} npcId
- * @returns {object|null}
- */
 function useNpcState(npcId) {
-  return useGameStore(function (s) {
-    return (s.npcStates || {})[npcId] || null;
-  });
+  return useGameStore(function (s) { return (s.npcStates || {})[npcId] || null; });
 }
 
-// ── Event / Narrative selectors ──
-
-/** Full event log array. */
+// Event / Narrative
 function useEventLog() {
   return useGameStore(function (s) { return s.eventLog || []; });
 }
-
-/** Event log length only (for badge counters). */
-function useEventLogLength() {
-  return useGameStore(function (s) { return (s.eventLog || []).length; });
-}
-
-/** Last N entries from event log (shallow slice). */
+function useEventLogLength() { return useGameStore(_selEventLogLength); }
 function useRecentEventLog(n) {
-  const count = n || 10;
-  return useGameStore(function (s) {
-    return (s.eventLog || []).slice(-count);
-  });
+  var count = n || 10;
+  return useGameStore(function (s) { return (s.eventLog || []).slice(-count); });
 }
-
-/** Current narrative text array. */
 function useNarrative() {
   return useGameStore(function (s) { return s.narrative || []; });
 }
+function useNarrativeText() { return useGameStore(_selNarrativeText); }
 
-/** Narrative text only (for display components). */
-function useNarrativeText() {
-  return useGameStore(function (s) {
-    return (s.narrative || []).map(function (n) { return n.text; }).join('\n');
-  });
-}
-
-// ── Progress selectors ──
-
-/** Current day number. */
-function useDay() {
-  return useGameStore(function (s) { return s.day || 1; });
-}
-
-/** Loop count (0 = first loop). */
-function useLoopCount() {
-  return useGameStore(function (s) { return s.loopCount || 0; });
-}
-
-/** Current chapter ID. */
-function useCurrentChapter() {
-  return useGameStore(function (s) { return s.currentChapter; });
-}
-
-/** Objectives array. */
+// Progress
+function useDay() { return useGameStore(_selDay); }
+function useLoopCount() { return useGameStore(_selLoopCount); }
+function useCurrentChapter() { return useGameStore(_selCurrentChapter); }
 function useObjectives() {
   return useGameStore(function (s) { return s.objectives || []; });
 }
-
-/** Triggered events set (as array). */
 function useTriggeredEvents() {
   return useGameStore(function (s) { return s.triggeredEvents || []; });
 }
 
-// ── Resource selectors ──
+// Resources
+function useFood() { return useGameStore(_selFood); }
+function useMoney() { return useGameStore(_selMoney); }
+function usePollution() { return useGameStore(_selPollution); }
+function useHumanityScore() { return useGameStore(_selHumanityScore); }
 
-function useFood() {
-  return useGameStore(function (s) { return s.food; });
-}
-
-function useMoney() {
-  return useGameStore(function (s) { return s.money; });
-}
-
-function usePollution() {
-  return useGameStore(function (s) { return s.pollution; });
-}
-
-function useHumanityScore() {
-  return useGameStore(function (s) { return s.humanityScore; });
-}
-
-// ── UI state selectors (from uiStore) ──
-
+// UI state
 function useUiState(selector) {
-  const { useUiStore } = require('./uiStore.js');
   if (selector) return useUiStore(selector);
   return useUiStore();
 }
-
-/** A specific modal open state, e.g. useUiModal('notebookOpen'). */
 function useUiModal(modalKey) {
-  const { useUiStore } = require('./uiStore.js');
   return useUiStore(function (s) { return s[modalKey]; });
 }
 
-// ── Derived selectors (computed, memoized via useMemo in component) ──
-
-/**
- * Check if a specific event was triggered.
- * Returns boolean — no re-render unless triggeredEvents reference changes.
- */
+// Derived
 function useEventTriggered(eventId) {
-  return useGameStore(function (s) {
-    return (s.triggeredEvents || []).indexOf(eventId) >= 0;
-  });
+  return useGameStore(function (s) { return (s.triggeredEvents || []).indexOf(eventId) >= 0; });
+}
+function useLongTermEffectsCount() { return useGameStore(_selLongTermEffectsCount); }
+function useMadnessActive() { return useGameStore(_selMadnessActive); }
+
+// ── Combined selectors ──
+// CRITICAL: subscribe to primitives only, use useMemo to create the combined object.
+// Zustand 5.0.14 has no equalityFn; React's Object.is sees new objects as changes.
+
+function useAppGameData() {
+  var screen = useGameStore(function (s) { return s.screen; });
+  var day = useGameStore(_selDay);
+  var san = useGameStore(_selSan);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  var loopCount = useGameStore(_selLoopCount);
+  var currentArea = useGameStore(_selCurrentArea);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var pollution = useGameStore(_selPollution);
+  var money = useGameStore(_selMoney);
+  var food = useGameStore(_selFood);
+  var inventory = useGameStore(function (s) { return s.inventory; });
+  var clues = useGameStore(function (s) { return s.clues; });
+  var narrative = useGameStore(function (s) { return s.narrative; });
+  var eventLog = useGameStore(function (s) { return s.eventLog; });
+  var pendingEvent = useGameStore(function (s) { return s.pendingEvent; });
+  var pendingNpc = useGameStore(function (s) { return s.pendingNpc; });
+  var pendingGamble = useGameStore(function (s) { return s.pendingGamble; });
+  var pendingChoice = useGameStore(function (s) { return s.pendingChoice; });
+  var transition = useGameStore(function (s) { return s.transition; });
+  var madnessActive = useGameStore(_selMadnessActive);
+  var ending = useGameStore(function (s) { return s.ending; });
+  var endingCoins = useGameStore(function (s) { return s.endingCoins; });
+  var loopShopTier = useGameStore(function (s) { return s.loopShopTier; });
+  var visitedAreas = useGameStore(function (s) { return s.visitedAreas; });
+  var sealState = useGameStore(_selSealState);
+  var weather = useGameStore(_selWeather);
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var _level13GlitchScheduled = useGameStore(function (s) { return s._level13GlitchScheduled; });
+  var glitchPulse = useGameStore(function (s) { return s.glitchPulse; });
+  var stats_run = useGameStore(function (s) { return s.stats_run; });
+  var accessibilityOptions = useGameStore(function (s) { return s.accessibilityOptions; });
+
+  return useMemo(function () {
+    return {
+      screen: screen, day: day, san: san, hp: hp, maxHp: maxHp,
+      ap: ap, maxAp: maxAp, loopCount: loopCount, currentArea: currentArea,
+      safehouseCorruption: safehouseCorruption, pollution: pollution,
+      money: money, food: food, inventory: inventory, clues: clues,
+      narrative: narrative, eventLog: eventLog,
+      pendingEvent: pendingEvent, pendingNpc: pendingNpc,
+      pendingGamble: pendingGamble, pendingChoice: pendingChoice,
+      transition: transition, madnessActive: madnessActive,
+      ending: ending, endingCoins: endingCoins, loopShopTier: loopShopTier,
+      visitedAreas: visitedAreas, sealState: sealState, weather: weather,
+      currentSafehouse: currentSafehouse,
+      _level13GlitchScheduled: _level13GlitchScheduled, glitchPulse: glitchPulse,
+      stats_run: stats_run, accessibilityOptions: accessibilityOptions,
+    };
+  }, [screen, day, san, hp, maxHp, ap, maxAp, loopCount, currentArea,
+      safehouseCorruption, pollution, money, food, inventory, clues,
+      narrative, eventLog, pendingEvent, pendingNpc, pendingGamble, pendingChoice,
+      transition, madnessActive, ending, endingCoins, loopShopTier, visitedAreas,
+      sealState, weather, currentSafehouse, _level13GlitchScheduled, glitchPulse,
+      stats_run, accessibilityOptions]);
 }
 
-/**
- * Active long-term effects count.
- */
-function useLongTermEffectsCount() {
-  return useGameStore(function (s) { return (s.longTermEffects || []).length; });
+// Other batch selectors — use useMemo for the same reason
+function useGameLayoutData() {
+  var screen = useGameStore(function (s) { return s.screen; });
+  var day = useGameStore(_selDay);
+  var loopCount = useGameStore(_selLoopCount);
+  var currentArea = useGameStore(_selCurrentArea);
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  var san = useGameStore(_selSan);
+  var audioMuted = useGameStore(function (s) { return s.audioMuted; });
+  var deathContext = useGameStore(function (s) { return s.deathContext; });
+  var _level13GlitchScheduled = useGameStore(function (s) { return s._level13GlitchScheduled; });
+  var tutorialSeen = useGameStore(function (s) { return s.tutorialSeen; });
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  return useMemo(function () {
+    return {
+      screen: screen, day: day, loopCount: loopCount, currentArea: currentArea,
+      ap: ap, maxAp: maxAp, san: san, audioMuted: audioMuted,
+      deathContext: deathContext, _level13GlitchScheduled: _level13GlitchScheduled,
+      tutorialSeen: tutorialSeen, currentSafehouse: currentSafehouse,
+    };
+  }, [screen, day, loopCount, currentArea, ap, maxAp, san, audioMuted,
+      deathContext, _level13GlitchScheduled, tutorialSeen, currentSafehouse]);
 }
 
-/**
- * Check if madness is active.
- */
-function useMadnessActive() {
-  return useGameStore(function (s) { return s.madnessActive; });
+function useCenterPanelData() {
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  var san = useGameStore(_selSan);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  var food = useGameStore(_selFood);
+  var money = useGameStore(_selMoney);
+  var currentArea = useGameStore(_selCurrentArea);
+  var day = useGameStore(_selDay);
+  var loopCount = useGameStore(_selLoopCount);
+  var inventory = useGameStore(function (s) { return s.inventory; });
+  var clues = useGameStore(function (s) { return s.clues; });
+  var narrative = useGameStore(function (s) { return s.narrative; });
+  var eventLog = useGameStore(function (s) { return s.eventLog; });
+  var pendingEvent = useGameStore(function (s) { return s.pendingEvent; });
+  var pendingNpc = useGameStore(function (s) { return s.pendingNpc; });
+  var pendingGamble = useGameStore(function (s) { return s.pendingGamble; });
+  var pendingChoice = useGameStore(function (s) { return s.pendingChoice; });
+  var transition = useGameStore(function (s) { return s.transition; });
+  var madnessActive = useGameStore(_selMadnessActive);
+  var ending = useGameStore(function (s) { return s.ending; });
+  var skills = useGameStore(function (s) { return s.skills; });
+  var pollution = useGameStore(_selPollution);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var objectives = useGameStore(function (s) { return s.objectives; });
+  var longTermEffects = useGameStore(function (s) { return s.longTermEffects; });
+  return useMemo(function () {
+    return {
+      ap: ap, maxAp: maxAp, san: san, hp: hp, maxHp: maxHp,
+      food: food, money: money, currentArea: currentArea, day: day,
+      loopCount: loopCount, inventory: inventory, clues: clues,
+      narrative: narrative, eventLog: eventLog,
+      pendingEvent: pendingEvent, pendingNpc: pendingNpc,
+      pendingGamble: pendingGamble, pendingChoice: pendingChoice,
+      transition: transition, madnessActive: madnessActive, ending: ending,
+      skills: skills, pollution: pollution, safehouseCorruption: safehouseCorruption,
+      currentSafehouse: currentSafehouse, objectives: objectives,
+      longTermEffects: longTermEffects,
+    };
+  }, [ap, maxAp, san, hp, maxHp, food, money, currentArea, day, loopCount,
+      inventory, clues, narrative, eventLog, pendingEvent, pendingNpc,
+      pendingGamble, pendingChoice, transition, madnessActive, ending,
+      skills, pollution, safehouseCorruption, currentSafehouse, objectives,
+      longTermEffects]);
 }
 
-// ── Batch selector (for components needing multiple slices) ──
-// Use sparingly — prefer individual selectors for maximum granularity.
+function useLeftPanelDataFull() {
+  var san = useGameStore(_selSan);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  var pollution = useGameStore(_selPollution);
+  var loopCount = useGameStore(_selLoopCount);
+  var madnessActive = useGameStore(_selMadnessActive);
+  var sealState = useGameStore(_selSealState);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var weather = useGameStore(_selWeather);
+  var food = useGameStore(_selFood);
+  var money = useGameStore(_selMoney);
+  var inventory = useGameStore(function (s) { return s.inventory; });
+  var clues = useGameStore(function (s) { return s.clues; });
+  var skills = useGameStore(function (s) { return s.skills; });
+  var stats = useGameStore(function (s) { return s.stats; });
+  var objectives = useGameStore(function (s) { return s.objectives; });
+  var longTermEffects = useGameStore(function (s) { return s.longTermEffects; });
+  var currentArea = useGameStore(_selCurrentArea);
+  return useMemo(function () {
+    return {
+      san: san, hp: hp, maxHp: maxHp, pollution: pollution,
+      loopCount: loopCount, madnessActive: madnessActive, sealState: sealState,
+      safehouseCorruption: safehouseCorruption, currentSafehouse: currentSafehouse,
+      weather: weather, food: food, money: money, inventory: inventory,
+      clues: clues, skills: skills, stats: stats, objectives: objectives,
+      longTermEffects: longTermEffects, currentArea: currentArea,
+    };
+  }, [san, hp, maxHp, pollution, loopCount, madnessActive, sealState,
+      safehouseCorruption, currentSafehouse, weather, food, money, inventory,
+      clues, skills, stats, objectives, longTermEffects, currentArea]);
+}
 
 function useGameHeaderData() {
-  return useGameStore(function (s) {
+  var day = useGameStore(_selDay);
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  var san = useGameStore(_selSan);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  var food = useGameStore(_selFood);
+  var money = useGameStore(_selMoney);
+  var loopCount = useGameStore(_selLoopCount);
+  var currentArea = useGameStore(_selCurrentArea);
+  return useMemo(function () {
     return {
-      day: s.day,
-      ap: s.ap,
-      maxAp: s.maxAp,
-      san: s.san,
-      hp: s.hp,
-      maxHp: s.maxHp,
-      food: s.food,
-      money: s.money,
-      loopCount: s.loopCount,
-      currentArea: s.currentArea,
+      day: day, ap: ap, maxAp: maxAp, san: san,
+      hp: hp, maxHp: maxHp, food: food, money: money,
+      loopCount: loopCount, currentArea: currentArea,
     };
-  }, shallowEqual);
+  }, [day, ap, maxAp, san, hp, maxHp, food, money, loopCount, currentArea]);
 }
 
 function useLeftPanelData() {
-  return useGameStore(function (s) {
+  var sealState = useGameStore(_selSealState);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var pollution = useGameStore(_selPollution);
+  var weather = useGameStore(_selWeather);
+  var san = useGameStore(_selSan);
+  var loopCount = useGameStore(_selLoopCount);
+  return useMemo(function () {
     return {
-      sealState: s.sealState,
-      safehouseCorruption: s.safehouseCorruption,
-      currentSafehouse: s.currentSafehouse,
-      pollution: s.pollution,
-      weather: s.weather,
-      san: s.san,
-      loopCount: s.loopCount,
+      sealState: sealState, safehouseCorruption: safehouseCorruption,
+      currentSafehouse: currentSafehouse, pollution: pollution,
+      weather: weather, san: san, loopCount: loopCount,
     };
-  }, shallowEqual);
-}
-
-// ── Combined selectors (minimize re-renders for high-frequency components) ──
-
-/** Fields App needs for game-screen render (replaces useAppState full-state subscription). */
-function useAppGameData() {
-  return useGameStore(function (s) {
-    return {
-      screen: s.screen,
-      day: s.day,
-      san: s.san,
-      hp: s.hp,
-      maxHp: s.maxHp,
-      ap: s.ap,
-      maxAp: s.maxAp,
-      loopCount: s.loopCount,
-      currentArea: s.currentArea,
-      safehouseCorruption: s.safehouseCorruption,
-      pollution: s.pollution,
-      money: s.money,
-      food: s.food,
-      inventory: s.inventory,
-      clues: s.clues,
-      narrative: s.narrative,
-      eventLog: s.eventLog,
-      pendingEvent: s.pendingEvent,
-      pendingNpc: s.pendingNpc,
-      pendingGamble: s.pendingGamble,
-      pendingChoice: s.pendingChoice,
-      transition: s.transition,
-      madnessActive: s.madnessActive,
-      ending: s.ending,
-      endingCoins: s.endingCoins,
-      loopShopTier: s.loopShopTier,
-      visitedAreas: s.visitedAreas,
-      sealState: s.sealState,
-      weather: s.weather,
-      currentSafehouse: s.currentSafehouse,
-      _level13GlitchScheduled: s._level13GlitchScheduled,
-      glitchPulse: s.glitchPulse,
-      stats_run: s.stats_run,
-      accessibilityOptions: s.accessibilityOptions,
-    };
-  }, shallowEqual);
-}
-
-/** Fields GameLayout uses for effects + rendering (town_map + classic). */
-function useGameLayoutData() {
-  return useGameStore(function (s) {
-    return {
-      screen: s.screen,
-      day: s.day,
-      loopCount: s.loopCount,
-      currentArea: s.currentArea,
-      ap: s.ap,
-      maxAp: s.maxAp,
-      san: s.san,
-      audioMuted: s.audioMuted,
-      deathContext: s.deathContext,
-      _level13GlitchScheduled: s._level13GlitchScheduled,
-      tutorialSeen: s.tutorialSeen,
-      currentSafehouse: s.currentSafehouse,
-    };
-  }, shallowEqual);
-}
-
-/** Fields CenterPanel reads for rendering (narrative + actions). */
-function useCenterPanelData() {
-  return useGameStore(function (s) {
-    return {
-      ap: s.ap,
-      maxAp: s.maxAp,
-      san: s.san,
-      hp: s.hp,
-      maxHp: s.maxHp,
-      food: s.food,
-      money: s.money,
-      currentArea: s.currentArea,
-      day: s.day,
-      loopCount: s.loopCount,
-      inventory: s.inventory,
-      clues: s.clues,
-      narrative: s.narrative,
-      eventLog: s.eventLog,
-      pendingEvent: s.pendingEvent,
-      pendingNpc: s.pendingNpc,
-      pendingGamble: s.pendingGamble,
-      pendingChoice: s.pendingChoice,
-      transition: s.transition,
-      madnessActive: s.madnessActive,
-      ending: s.ending,
-      skills: s.skills,
-      pollution: s.pollution,
-      safehouseCorruption: s.safehouseCorruption,
-      currentSafehouse: s.currentSafehouse,
-      objectives: s.objectives,
-      longTermEffects: s.longTermEffects,
-    };
-  }, shallowEqual);
-}
-
-/** Fields LeftPanel reads for rendering. */
-function useLeftPanelDataFull() {
-  return useGameStore(function (s) {
-    return {
-      san: s.san,
-      hp: s.hp,
-      maxHp: s.maxHp,
-      pollution: s.pollution,
-      loopCount: s.loopCount,
-      madnessActive: s.madnessActive,
-      sealState: s.sealState,
-      safehouseCorruption: s.safehouseCorruption,
-      currentSafehouse: s.currentSafehouse,
-      weather: s.weather,
-      food: s.food,
-      money: s.money,
-      inventory: s.inventory,
-      clues: s.clues,
-      skills: s.skills,
-      stats: s.stats,
-      objectives: s.objectives,
-      longTermEffects: s.longTermEffects,
-      currentArea: s.currentArea,
-    };
-  }, shallowEqual);
+  }, [sealState, safehouseCorruption, currentSafehouse, pollution, weather, san, loopCount]);
 }
 
 // === state/gameStore.js ===
@@ -61120,6 +61620,7 @@ function NPCDialog({ npc, trust, layer, dispatch, state }) {
   // 对话分组折叠状态：交谈/帮助 默认展开，特殊 默认折叠
   const [collapsedGroups, setCollapsedGroups] = useState({
     talk: false,
+    probe: false,
     help: false,
     special: true,
   });
@@ -61391,6 +61892,31 @@ function NPCDialog({ npc, trust, layer, dispatch, state }) {
                 </div>
               )}
             </div>
+            {/* 追问组 — dialogue follow-up threads */}
+            {state.pendingNpc && state.pendingNpc.availableThreads && state.pendingNpc.availableThreads.length > 0 && (
+              <div className="npc-dialog-group">
+                <div className="npc-dialog-group-title" onClick={() => toggleGroup('probe')}>
+                  <span className={'chevron' + (collapsedGroups.probe ? '' : ' open')}>▶</span> 追问
+                </div>
+                {!collapsedGroups.probe && (
+                  <div className="npc-dialog-group-body">
+                    {state.pendingNpc.availableThreads.map(function (t) {
+                      return (
+                        <button
+                          key={t.thread.id}
+                          className="btn btn-sm"
+                          style={{ color: 'var(--gold)', fontSize: '0.72rem' }}
+                          onClick={() => doResponse('probe_' + t.thread.id)}
+                        >
+                          {t.thread.label}
+                          <span className="cost">1 AP</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
             {/* 帮助组 */}
             <div className="npc-dialog-group">
               <div className="npc-dialog-group-title" onClick={() => toggleGroup('help')}>
@@ -63049,7 +63575,7 @@ function NotebookModal({ open, onClose, state }) {
   // 用 Set 加速查找
   const clueIdSet = useMemo(() => {
     const s = new Set();
-    (state.clues || []).forEach((clue) => s.add(typeof clue === 'object' ? clue.id || clue.name : clue));
+    (state.clues || []).forEach((clue) => s.add(clue.id || clue.name));
     return s;
   }, [state.clues]);
   const completedChainSet = useMemo(
@@ -68730,6 +69256,8 @@ enforceSaveFormatFreeze();
 
 // ── Event side effects (must be imported once to activate handlers) ──
 
+setDispatch(getDispatch());
+
 // ── Components ──
 
 // GAME_DATA placeholder is replaced at build time by build.py.
@@ -68837,6 +69365,7 @@ function App() {
       setTimeout(function () { ls.remove(); }, 700);
     }
   }, []);
+
   /* [TRACKER-DISPATCH] 包装 dispatch — 自动记录每步操作 */
   var dispatch = React.useCallback(function (action) {
     if (!action.meta) action.meta = {};
@@ -68850,8 +69379,26 @@ function App() {
     getDispatch()(action);
   }, []);
 
-  // UI state from external store (replaces 7 useState calls)
-  const ui = useUiStore();
+  // UI state from external store — use useMemo because Zustand 5 has no equalityFn
+  var _uiSettingsOpen = useUiStore(function (s) { return s.settingsOpen; });
+  var _uiSaveLoadOpen = useUiStore(function (s) { return s.saveLoadOpen; });
+  var _uiSaveLoadMode = useUiStore(function (s) { return s.saveLoadMode; });
+  var _uiAchOpen = useUiStore(function (s) { return s.achOpen; });
+  var _uiUgcOpen = useUiStore(function (s) { return s.ugcOpen; });
+  var _uiNotebookOpen = useUiStore(function (s) { return s.notebookOpen; });
+  var _uiNotebookEverOpened = useUiStore(function (s) { return s.notebookEverOpened; });
+  var _uiSettings = useUiStore(function (s) { return s.settings; });
+  var _uiSaveTick = useUiStore(function (s) { return s.saveTick; });
+  var _uiToasts = useUiStore(function (s) { return s.toasts; });
+  var ui = useMemo(function () {
+    return {
+      settingsOpen: _uiSettingsOpen, saveLoadOpen: _uiSaveLoadOpen,
+      saveLoadMode: _uiSaveLoadMode, achOpen: _uiAchOpen, ugcOpen: _uiUgcOpen,
+      notebookOpen: _uiNotebookOpen, notebookEverOpened: _uiNotebookEverOpened,
+      settings: _uiSettings, saveTick: _uiSaveTick, toasts: _uiToasts,
+    };
+  }, [_uiSettingsOpen, _uiSaveLoadOpen, _uiSaveLoadMode, _uiAchOpen, _uiUgcOpen,
+      _uiNotebookOpen, _uiNotebookEverOpened, _uiSettings, _uiSaveTick, _uiToasts]);
   const settings = ui.settings;
   const savedExists = useMemo(() => hasSave(), [ui.saveTick]);
 

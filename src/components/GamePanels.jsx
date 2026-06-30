@@ -10,7 +10,8 @@ import { CitySketchMap } from './CitySketchMap.jsx';
 import { NarrativeVirtualList, useVirtualList } from './VirtualList.jsx';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
 import { getPlayerImage, getNpcImage } from '../portraitMap.js';
-import { getNpcsHere, getAreaDisplayName, isAreaUnlocked } from '../utils/gameHelpers.js';
+import { getNpcsHere } from '../utils/npcLocation.js';
+import { getAreaDisplayName, isAreaUnlocked } from '../utils/gameHelpers.js';
 import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
 import { getChapterForDay } from '../reducers/chapterReducer.js';
 import { checkAfterglowUnlock, getAfterglowTexts, getEndingTriggerCount } from '../reducers/endingReducer.js';
@@ -1337,7 +1338,7 @@ export function NotebookModal({ open, onClose, state }) {
   // 用 Set 加速查找
   const clueIdSet = useMemo(() => {
     const s = new Set();
-    (state.clues || []).forEach((clue) => s.add(typeof clue === 'object' ? clue.id || clue.name : clue));
+    (state.clues || []).forEach((clue) => s.add(clue.id || clue.name));
     return s;
   }, [state.clues]);
   const completedChainSet = useMemo(

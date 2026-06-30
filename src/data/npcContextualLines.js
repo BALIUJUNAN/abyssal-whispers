@@ -236,4 +236,327 @@ export var NPC_CONTEXTUAL_LINES = {
   ],
 };
 
-// Total: 151 lines across 8 NPCs
+// NPC_THREAD_QUESTIONS — Dialogue tree system (depth 0→1→2→3 with branching)
+// Each thread is a progressive questioning chain with optional branching at depth2.
+// Branching: at depth2, player chooses a direction → different depth3 outcome.
+// State: npcThreads["NPC_threadId"] = { depth, branch, flags, resolved }
+export var NPC_THREAD_QUESTIONS = {
+  '老费舍': [
+    {
+      id: 'fisher_lighthouse',
+      label: '关于灯塔 keeper 的事',
+      trustReq: 2,
+      depth1: {
+        text: '（他手上的动作停了一下。）灯灭了三天。他去修灯，然后没有回来。不是第一次。但这次……海面上有东西。不只是浪。',
+      },
+      depth2: {
+        trustReq: 3,
+        text: '（他左右看了看，压低声音。）最后见他那天，他说听到了"下面有人在叫他"。灯塔下面只有岩石。没有路。',
+        choices: [
+          { text: '追问"下面"是什么', branch: 'below', trustReq: 3 },
+          { text: '问他 lighthouse keeper 的名字', branch: 'name', trustReq: 3 },
+        ],
+      },
+      branches: {
+        below: {
+          depth3: {
+            text: '（他摇头。）我不知道。但他那天的日记里写了一个词——反复写。"Kthulhu"。不是英语。不是任何我能认出的语言。但他写得很熟练。像在练习。',
+            clue: 'clue_lighthouse_kthulhu',
+            trustGain: 1,
+            flags: ['fisher_knows_name'],
+          },
+        },
+        name: {
+          depth3: {
+            text: '（他沉默了很久。）名字……我忘了。不，不是忘了。是我不能说。说了之后，我就真的看不见他了。',
+            clue: 'clue_lighthouse_keepersecret',
+            trustGain: 1,
+            flags: ['fisher_hides_name'],
+          },
+        },
+      },
+      depth3: {
+        trustReq: 4,
+        text: '（沉默了很久。他从网兜底层摸出一张皱巴巴的纸片。）这是他的。我在灯塔脚下捡到的。上面的符号……我不认识。但你的表情说明你认识。',
+        clue: 'clue_lighthouse_note',
+        trustGain: 1,
+      },
+    },
+    {
+      id: 'fisher_son',
+      label: '你儿子的事',
+      trustReq: 3,
+      depth1: {
+        text: '（脸色变了。）不要提他。他已经不在这个镇上了。去了什么地方——没有地址，没有回信。我最后一次见他，他说他要"去更靠近水的地方"。',
+      },
+      depth2: {
+        trustReq: 4,
+        text: '（他的手在抖。）有时候我在码头能闻到他的味道。不是烟——是海水的味道。但他从来没有出海。',
+      },
+      depth3: {
+        text: '（他把补好的渔网放在一边，从口袋里掏出一块石头——上面有类似指纹的纹路，但纹路走向不对。）他在海边捡到这个。说"能听到声音"。我想他现在能听到很多声音。',
+        clue: 'clue_fisher_son_stone',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '伊莱亚斯·沃德': [
+    {
+      id: 'elias_seal',
+      label: '你研究的封印到底是什么？',
+      trustReq: 2,
+      depth1: {
+        text: '封印不是锁。是阀门。它控制的不是什么东西出不来——是控制什么东西不能进来。或者说……进来多少。',
+      },
+      depth2: {
+        trustReq: 3,
+        text: '我的理论是：每次"第十三声钟响"，不是钟在响。是另一侧在敲门。封印把门从这边顶住——但顶门的东西在消耗。',
+        choices: [
+          { text: '问"另一侧"是什么', branch: 'other_side', trustReq: 3 },
+          { text: '问封印的"消耗"从何而来', branch: 'cost', trustReq: 3 },
+        ],
+      },
+      branches: {
+        other_side: {
+          depth3: {
+            text: '（他合上笔记本，看了你很久。）"另一侧"不是一个地方。是一种意识。群体意识。集体想象。当足够多的人相信同一个故事时，故事就有了重量。第十三声钟响时——故事醒了。',
+            clue: 'clue_seal_other_side',
+            trustGain: 1,
+            flags: ['elias_theory_collective'],
+          },
+        },
+        cost: {
+          depth3: {
+            text: '（他苦笑。）我祖母的日记。她的祖母的日记。封印的维护者每一代都在减少。不是死亡——是"遗忘"。维护封印需要记忆。用自己的记忆加固封印。每一代，维护者就忘记更多。我祖母忘记了她的名字。我母亲忘记了她的孩子。我现在……（他停顿）……我正在忘记为什么而来。',
+            clue: 'clue_seal_cost_memory',
+            trustGain: 1,
+            flags: ['elias_forgetting'],
+          },
+        },
+      },
+      depth3: {
+        trustReq: 4,
+        text: '（他递给你一张手绘的结构图，角落有一个你从未见过的符号。）莫里斯家族的血液能重新激活封印的关键节点。这就是希尔达重要的原因——不是因为她"了解"封印。是因为她是封印的一部分。',
+        clue: 'clue_elias_seal_diagram',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '希尔达·莫里斯': [
+    {
+      id: 'hilda_bloodline',
+      label: '你的家族……',
+      trustReq: 2,
+      depth1: {
+        text: '（她的表情变了——不是惊讶，是某种你无法命状的释然。）你终于问了。我一直在等有人问。我祖母告诉我：莫里斯家的血不是用来流的。是用来写的。',
+      },
+      depth2: {
+        trustReq: 3,
+        text: '每个莫里斯女嗣出生时手腕上都有一个胎记。形状和封印的符号完全一致。我们不是封印的守护者。我们是封印的钥匙。',
+        choices: [
+          { text: '问"钥匙"的具体含义', branch: 'key_meaning', trustReq: 3 },
+          { text: '问她的胎记现在怎样', branch: 'mark_now', trustReq: 3 },
+        ],
+      },
+      branches: {
+        key_meaning: {
+          depth3: {
+            text: '（她沉默了很久。）钥匙不是开锁的。是"被锁的"。封印需要一个人格作为锚点——一个持续存在的、有意识的人格来维持封印的结构。我是锚点。我的血在维持封印。我的记忆在加固封印。每一次重绘，我就失去一点自己。',
+            clue: 'clue_hilda_anchor',
+            trustGain: 1,
+            flags: ['hilda_is_anchor'],
+          },
+        },
+        mark_now: {
+          depth3: {
+            text: '（她挽起袖子。你看见了一个发光的、脉动的符号，像活的一样。）它在生长。每次封印波动，它就扩大一点。伊莱亚斯说我的血液能重绘封印——但重绘需要"消耗"标记的一部分。我不知道重绘完那天，我还会不会记得我是谁。',
+            clue: 'clue_hilda_seal_mark',
+            trustGain: 1,
+            flags: ['hilda_mark_growing'],
+          },
+        },
+      },
+      depth3: {
+        trustReq: 4,
+        text: '（她把袖子拉下来，动作很轻。）伊莱亚斯需要我的血。但不是现在。再等几天。我想……我想再记住一些东西。',
+        clue: 'clue_hilda_delay',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '伊莎贝拉·韦伯': [
+    {
+      id: 'isabella_church',
+      label: '教堂地下室……',
+      trustReq: 2,
+      depth1: {
+        text: '（她停顿了很久。）教堂下面有东西。不是老鼠，不是积水。是声音。一种……有节奏的、宏大的声音。只有我在值班的深夜能听到。',
+      },
+      depth2: {
+        trustReq: 3,
+        text: '地下室的墙上有雕刻。不是哥特式——比那古老得多。我对比过伊莱亚斯教授图纸上的符号。完全一致。同一个封印。教堂和灯塔下面封印的是同一个东西。',
+        choices: [
+          { text: '问那个"声音"具体是什么', branch: 'sound', trustReq: 3 },
+          { text: '问她是否见过其他人下去', branch: 'others', trustReq: 3 },
+        ],
+      },
+      branches: {
+        sound: {
+          depth3: {
+            text: '（她皱眉。）不是语言。是……震动。一种通过骨头传播的低频。我有时候在教堂里站着不动的时候能感觉到——脚底在震。不是风，不是地铁。是下面有什么东西在"呼吸"。',
+            clue: 'clue_church_frequency',
+            trustGain: 1,
+            flags: ['isabella_feels_vibration'],
+          },
+        },
+        others: {
+          depth3: {
+            text: '（她摇头，但犹豫了一下。）有一个夜班保安。他说他见过"穿灰色衣服的人"在地下室走动。但人事记录里没有这个人。上周……他不来了。我打他电话，是空号。',
+            clue: 'clue_church_security',
+            trustGain: 1,
+            flags: ['isabella_security_missing'],
+          },
+        },
+      },
+      depth3: {
+        trustReq: 4,
+        text: '（她给你看了一张手抄的段落，墨水颜色深浅不一，像是断断续续写了很多次。）"当守门人忘记自己是谁时，门将从内部打开。"——我越来越怀疑，"守门人"不是指封印的维护者。是指封印本身。',
+        clue: 'clue_isabella_church_text',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '约书亚·布莱克': [
+    {
+      id: 'joshua_mission',
+      label: '你的任务是什么？',
+      trustReq: 2,
+      depth1: {
+        text: '（他看了你一眼，确认四周无人。）镇上有军事遗留资产。不能落入任何一方手中——军方、教会、深海相关方。我的工作是确保它们保持……不可用状态。',
+      },
+      depth2: {
+        trustReq: 3,
+        text: '灯塔下面有一个 bunker。军方 1958 年建的。里面有通讯设备——仍然能发出信号。我最近截获了一段加密通讯。发件地址……是灯塔 keeper 的名字。他已经三天没有上来过了。',
+        clue: 'clue_joshua_bunker',
+        choices: [
+          { text: '问 bunker 里具体有什么', branch: 'bunker_contents', trustReq: 3 },
+          { text: '问军方为什么建在灯塔下', branch: 'why_lighthouse', trustReq: 3 },
+        ],
+      },
+      branches: {
+        bunker_contents: {
+          depth3: {
+            text: '（他压低声音。）1958 年的档案里写了三个字："收容物"。没有更多解释。但 bunker 的电路图上有一个房间标注为"样本库"。样本。复数。军方在这里收容过……某种东西。不止一个。',
+            clue: 'clue_bunker_samples',
+            trustGain: 1,
+            flags: ['joshua_knows_samples'],
+          },
+        },
+        why_lighthouse: {
+          depth3: {
+            text: '（他冷笑。）灯塔的位置不是随机的。它建在封印的一个节点上。军方 1950 年代就知道下面有东西。他们建 bunker 不是为了"研究"——是为了"压制"。他们在封印上盖了一层混凝土。',
+            clue: 'clue_bunker_seal',
+            trustGain: 1,
+            flags: ['joshua_knows_seal'],
+          },
+        },
+      },
+      depth3: {
+        trustReq: 4,
+        text: '（他递给你一把钥匙。） bunker 的备用钥匙。我守不住这个秘密太久了。但记住——一旦你下去，军方会有反应。他们不需要人来保护资产。他们只需要确保没有人知道。',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '汤米·陈': [
+    {
+      id: 'tommy_supply',
+      label: '你最近进的货……',
+      trustReq: 2,
+      depth1: {
+        text: '（他压低声音。）有一批货是从海上漂过来的。包装上有奇怪的符号。我已经没有胆子再进了——但港口那边的"批发商"还在卖。',
+      },
+      depth2: {
+        trustReq: 3,
+        text: '漂过来的东西不只是货物。有盐。不是海盐——结晶形态不对。而且每包下面都压着一片碎贝壳。不是沃切斯特海滩的贝壳。是深海的。',
+        choices: [
+          { text: '问"批发商"是谁', branch: 'supplier', trustReq: 3 },
+          { text: '问那个符号像什么', branch: 'symbol', trustReq: 3 },
+        ],
+      },
+      branches: {
+        supplier: {
+          depth3: {
+            text: '（他摇头。）我不知道他的名字。但他每次来都戴着一顶黑色的礼帽，帽檐压得很低。他的车上有一个瓶子——里面装着蓝色的液体。我见过一次他倒了一点在手上……然后他的手开始发光。不是反射。是自己在亮。',
+            clue: 'clue_supplier_glow',
+            trustGain: 1,
+            flags: ['tommy_sees_supplier'],
+          },
+        },
+        symbol: {
+          depth3: {
+            text: '（他画了一个圈，里面有一条波浪线。）这个。我在每个漂来的包裹上都见过。后来我在教堂的地下室也见过——刻在石头上。我不知道它是什么意思，但每次看到它，我的指甲下面就开始发痒。',
+            clue: 'clue_supplier_symbol',
+            trustGain: 1,
+            flags: ['tommy_symbol_on_nails'],
+          },
+        },
+      },
+      depth3: {
+        trustReq: 4,
+        text: '（他给你看了一张从包裹里掉出来的纸片，上面只有一个词，用墨水写的，已经褪色了。）"醒"。批发商说这是"祝福"。我越来越不确定了。',
+        trustGain: 1,
+      },
+    },
+  ],
+
+  '埃德加·洛夫克拉夫特': [
+    {
+      id: 'lovecraft_notebook',
+      label: '你笔记本上写了什么？',
+      trustReq: 2,
+      depth1: {
+        text: '（他合上本子，看了你三秒。）不是写出来的。是记录下来的。这座城市在每个细节上都在偏离它的本来面目。我在记"偏差"。',
+      },
+      depth2: {
+        trustReq: 3,
+        text: '昨天我在市政厅的记录里查到一个名字——"J. 沃德"。1904 年的市政文件。但伊莱亚斯·沃德今年才来的。除非……（他翻到某一页）这不是第一次有人姓沃德。上一次是 1847 年。同一个签名笔迹。',
+        clue: 'clue_lovecraft_ward_name',
+        choices: [
+          { text: '问"偏差"的具体例子', branch: 'deviation', trustReq: 3 },
+          { text: '问他怎么知道笔迹是同一个人的', branch: 'handwriting', trustReq: 3 },
+        ],
+      },
+      branches: {
+        deviation: {
+          depth3: {
+            text: '（他翻到某一页，指着一段文字。）"市政厅门前有一棵橡树。"——我上周去看。那里没有树。但市政厅 1904 年的照片里，树在那里。而且照片的阴影方向……和太阳的实际方向相反。不是拍摄角度问题。是方向本身。',
+            clue: 'clue_deviation_oak',
+            trustGain: 1,
+            flags: ['lovecraft_deviation_oak'],
+          },
+        },
+        handwriting: {
+          depth3: {
+            text: '（他递给你一张放大镜。）1847 年的签名和今年的签名。你看——笔画的角度完全一致。不是"相似"。是完全一致。误差在 0.01 度以内。人手写不出这种东西。这是……复制。',
+            clue: 'clue_deviation_handwriting',
+            trustGain: 1,
+            flags: ['lovecraft_copy_signature'],
+          },
+        },
+      },
+      depth3: {
+        trustReq: 4,
+        text: '（他把笔记本翻到最后一页。一片空白。）有时候文字会自己消失。不是被擦掉——是被"重写"了。我昨天记录了完整的事件序列。今天早上再看——变成了别的东西。我怀疑记录本身也在被侵蚀。',
+        trustGain: 1,
+      },
+    },
+  ],
+};
+
+// Total: 7 NPCs × 1-2 threads × 3 depth levels

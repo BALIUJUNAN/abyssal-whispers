@@ -17,6 +17,8 @@ import {
   addRunMemory,
   getNpcState,
 } from '../../utils/appHelpers.js';
+import { processDelayedEffects } from '../npcRelationshipSystem.js';
+import { computeDailyNpcLocations, processNpcEncounters } from '../npcSchedule.js';
 
 /**
  * Advance day counter, weather, seal, chapter. Play audio. Returns oldDay.
@@ -24,6 +26,12 @@ import {
 export function _advanceDayClock(s, c, ctx) {
   const oldDay = s.day;
   s.day++;
+  // Compute NPC autonomous movement for the new day
+  computeDailyNpcLocations(s, ctx?.GD);
+  // Process NPC encounters (same-area interactions)
+  processNpcEncounters(s, c);
+  // Fire any delayed moral effects scheduled by MORAL_DILEMMAS
+  processDelayedEffects(s, s.day, c);
   // eventBus: notify listeners of day transition
   try {
     emit('DAY_ADVANCED', { oldDay: oldDay, newDay: s.day });

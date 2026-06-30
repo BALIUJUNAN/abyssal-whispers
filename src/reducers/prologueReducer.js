@@ -8,6 +8,7 @@ import {
   generateFearFlags,
   getNeutralTuning,
 } from '../systems/fearProfile.js';
+import { hasClueId } from '../utils/clueNameMap.js';
 
 /**
  * 获取当前前传场景的事件数据
@@ -99,8 +100,8 @@ export function handlePrologueChoice(state, choiceId) {
   const clueRaw = choice.effects && choice.effects.add_clue;
   const clueId = clueRaw && typeof clueRaw === 'object' ? clueRaw.id : clueRaw;
   const clueName = clueRaw && typeof clueRaw === 'object' ? clueRaw.name : clueRaw;
-  if (clueId && !(s.clues || []).includes(clueId)) {
-    s = { ...s, clues: [...s.clues, clueId] };
+  if (clueId && !hasClueId(s.clues, clueId)) {
+    s = { ...s, clues: [...s.clues, { id: clueId, name: clueName || clueId }] };
   }
 
   // 3) 应用SAN效果

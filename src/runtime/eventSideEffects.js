@@ -7,6 +7,13 @@
 
 import { emit, on, clearEventBus } from '../engine/eventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
+import { addUiToast, removeUiToast, notifySave } from '../state/uiStore.js';
+import { triggerSanLossFlash, triggerDayCriticalSurge } from '../systems/sanVisualCorruption.js';
+
+// dispatch is injected by app.jsx bootstrap — avoids circular import (useGameStore → gameReducer → slices → ...)
+var _dispatch = null;
+
+export function setDispatch(fn) { _dispatch = fn; }
 
 // ── Keep references to unsub functions for cleanup ──
 const _unsubs = [];
@@ -22,9 +29,8 @@ function register(event, handler) {
 // Effect: dispatch ADD_NARRATIVE to game state (via getDispatch)
 
 register('NARRATIVE_APPEND', function (payload) {
-  const { dispatch } = require('../state/useGameStore.js');
-  if (!dispatch) return;
-  dispatch({
+  if (!_dispatch) return;
+  _dispatch({
     type: 'ADD_NARRATIVE',
     entry: {
       text: payload.text,
@@ -40,9 +46,8 @@ register('NARRATIVE_APPEND', function (payload) {
 // Effect: dispatch ADD_EVENT_LOG
 
 register('EVENT_LOG_APPEND', function (payload) {
-  const { dispatch } = require('../state/useGameStore.js');
-  if (!dispatch) return;
-  dispatch({
+  if (!_dispatch) return;
+  _dispatch({
     type: 'ADD_EVENT_LOG',
     entry: {
       text: payload.text,
@@ -100,7 +105,6 @@ register('AMBIENT_SWITCH', function (payload) {
 // Effect: show a toast notification
 
 register('POPUP_SHOW', function (payload) {
-  const { addUiToast } = require('../state/uiStore.js');
   if (!addUiToast) return;
   addUiToast({
     id: payload.id || 'toast_' + Date.now(),
@@ -119,7 +123,6 @@ register('POPUP_SHOW', function (payload) {
 // Effect: hide a specific toast
 
 register('POPUP_HIDE', function (payload) {
-  const { removeUiToast } = require('../state/uiStore.js');
   if (!removeUiToast || !payload.id) return;
   removeUiToast(payload.id);
 });
@@ -144,7 +147,6 @@ register('SCREEN_SHAKE', function (payload) {
 // Effect: trigger the red flash in SanPollutionLayer via sanVisualCorruption
 
 register('SAN_LOSS_FLASH', function (payload) {
-  const { triggerSanLossFlash } = require('../systems/sanVisualCorruption.js');
   if (triggerSanLossFlash) {
     triggerSanLossFlash(payload.amount || 3);
   }
@@ -155,7 +157,6 @@ register('SAN_LOSS_FLASH', function (payload) {
 // Effect: trigger critical day surge in sanVisualCorruption
 
 register('DAY_SURGE', function (payload) {
-  const { triggerDayCriticalSurge } = require('../systems/sanVisualCorruption.js');
   if (triggerDayCriticalSurge) {
     triggerDayCriticalSurge(payload.day, payload.san);
   }
@@ -184,7 +185,6 @@ register('TOAST_SHOW', function (payload) {
 // Effect: brief save flash + toast
 
 register('SAVE_INDICATOR', function (payload) {
-  const { notifySave } = require('../state/uiStore.js');
   if (notifySave) {
     notifySave(payload.message, payload.type);
   }

@@ -6,6 +6,7 @@
 // All selector functions must be defined at module level (stable refs).
 
 import { useGameStore } from './useGameStore.js';
+import { useUiStore } from './uiStore.js';
 import { getVisualForSan, getSanStageClasses, getPerceptionLevels } from '../systems/sanityVisual.js';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
 
@@ -134,13 +135,11 @@ export function useHumanityScore() { return useGameStore(_selHumanityScore); }
 
 // UI state
 export function useUiState(selector) {
-  var _useUiStore = require('./uiStore.js').useUiStore;
-  if (selector) return _useUiStore(selector);
-  return _useUiStore();
+  if (selector) return useUiStore(selector);
+  return useUiStore();
 }
 export function useUiModal(modalKey) {
-  var _useUiStore = require('./uiStore.js').useUiStore;
-  return _useUiStore(function (s) { return s[modalKey]; });
+  return useUiStore(function (s) { return s[modalKey]; });
 }
 
 // Derived

@@ -11,7 +11,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_%2B_singlefile-green)
 ![Tests](https://img.shields.io/badge/tests-536_passed_%2F_0_failed-brightgreen)
-![Version](https://img.shields.io/badge/version-0.9.6-orange)
+![Version](https://img.shields.io/badge/version-0.9.7-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -49,7 +49,7 @@ npm run dev
 # 从源码构建（需要 Rust + Node.js 环境）
 npm install
 npm run tauri:build
-# 输出：src-tauri/target/release/abyssal-whispers_0.9.6_x64-setup.exe
+# 输出：src-tauri/target/release/abyssal-whispers_0.9.7_x64-setup.exe
 ```
 
 | 平台        | 状态          | 说明                  |

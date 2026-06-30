@@ -21,7 +21,9 @@ import { getPhase } from '../engine/WorldTimeSystem.js';
 import { clamp, makeRand } from './utils.js';
 import { hasClueId } from '../utils/clueNameMap.js';
 import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
+import { getNpcsHere } from '../utils/npcLocation.js';
 import { getNegativeEventWeight } from '../config/difficulty.js';
+import { NPC_RELATIONSHIPS } from '../data/npcRelationshipWeb.js';
 import {
   shouldTriggerMissing600,
   createMissing600Event,
@@ -623,6 +625,26 @@ export function getEventWeight(evt, areaId, state, ctx) {
         weight *= negWeight;
       }
     }
+  }
+
+  // NPC proximity: npc_initiated events get boosted when player is near relevant NPCs
+  if (evt.trigger?.npc_initiated && weight > 0) {
+    var npcsHere = getNpcsHere(state);
+    var proximityMult = 1.0;
+    for (var ni = 0; ni < npcsHere.length; ni++) {
+      var npcName = npcsHere[ni].name;
+      var npcTrust = (state.npcTrust[npcName] || 0);
+      var talkedToday = (state._dailyNpcTalks && state._dailyNpcTalks[npcName]) === state.day;
+      if (npcTrust >= 3 && !talkedToday) {
+        proximityMult = Math.max(proximityMult, 3.0);
+      } else if (npcTrust <= 1) {
+        var relKey = Object.keys(NPC_RELATIONSHIPS || {}).find(function (k) {
+          return k.indexOf(npcName) >= 0 && NPC_RELATIONSHIPS[k].conflict;
+        });
+        if (relKey) proximityMult = Math.max(proximityMult, 2.0);
+      }
+    }
+    weight *= proximityMult;
   }
 
   return Math.max(0, weight);

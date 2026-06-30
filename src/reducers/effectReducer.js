@@ -76,15 +76,11 @@ export function applyEffects(state, effects, context) {
       }
       case 'add_clue': {
         const _clueExists = state.clues.some(
-          (c) => (typeof c === 'string' ? c : c.id) === eff.clue_id
+          (c) => c.id === eff.clue_id
         );
         if (!_clueExists) {
           const _resolved = resolveClueName(eff.clue_id);
-          state.clues.push(
-            _resolved && _resolved !== eff.clue_id
-              ? { id: eff.clue_id, name: _resolved }
-              : eff.clue_id
-          );
+          state.clues.push({ id: eff.clue_id, name: _resolved || eff.clue_id });
           if (state.behaviorTracking) {
             state.behaviorTracking.clue_finds = (state.behaviorTracking.clue_finds || 0) + 1;
           }
@@ -226,11 +222,11 @@ export function applyLegacyEffects(state, eff, rng) {
       if (typeof cid === 'string') {
         if (!state.clues.some((c) => (typeof c === 'string' ? c : c.id) === cid)) {
           const resolved = resolveClueName(cid);
-          state.clues.push(resolved && resolved !== cid ? { id: cid, name: resolved } : cid);
+          state.clues.push({ id: cid, name: resolved || cid });
         }
       } else if (cid && cid.id) {
-        if (!state.clues.some((c) => (typeof c === 'string' ? c : c.id) === cid.id))
-          state.clues.push(cid);
+        if (!state.clues.some((c) => c.id === cid.id))
+          state.clues.push({ id: cid.id, name: cid.name || resolveClueName(cid.id) || cid.id });
       }
     }
   }

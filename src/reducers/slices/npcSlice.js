@@ -13,12 +13,14 @@ import { getSanTextVariant } from '../sanReducer.js';
 import { getNpcDialogueVariant, NPC_CORRUPTION_LINES, getNpcFatigueEffect, getDifficultyNpcTrustMultiplier, getDifficultyNpcSuspicion, getDaySpecificLine, getWeatherLine, getSanLevelLine } from '../../systems/npcDialogue.js';
 import { handleNpcMemoryTier } from '../../utils/npcMemory.js';
 import { checkTrustGate } from '../../utils/trustGates.js';
-import { getNpcsHere } from '../../utils/gameHelpers.js';
+import { getNpcsHere } from '../../utils/npcLocation.js';
 import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
 import { getFakeTrustHint, shouldShowFakeTrustHint } from '../../systems/sanConsequenceChain.js';
 import { getSanStageFromGD } from '../sanReducer.js';
 // v0.9.0: Moral choice engine — reputation propagation + moral tracking
 import { processNpcMoralChoice } from '../../systems/moralChoiceEngine.js';
+import { propagateTrustChange, propagateFactionStanding } from '../../systems/npcRelationshipSystem.js';
+import { NPC_THREAD_QUESTIONS } from '../../data/npcContextualLines.js';
 
 /** Light trust-drop warning — only narrates, no audio. Used for significant drops. */
 function _warnTrustDrop(c, npcName, oldVal, newVal) {
@@ -38,6 +40,8 @@ export function handleNpcAction(s, action, c, ctx) {
         return null;
       }
       s.ap -= 1;
+      if (!s._dailyNpcTalks) s._dailyNpcTalks = {};
+      s._dailyNpcTalks[npc.name] = s.day;
       // AP 消耗音效反馈
       if (s.ap <= 2 && s.ap > 0) {
         c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
@@ -162,6 +166,58 @@ export function handleNpcAction(s, action, c, ctx) {
       }
       // NPC 记忆渐进深化系统（数据在 appHelpers.js 模块级，避免每次 TALK_NPC 重分配）
       handleNpcMemoryTier(s, npc, c.narr, c.rng);
+      // 对话追问系统：展示可用的追问线（信任≥2 解锁第一层，支持 depth2 分支）
+      if (!ns.corrupted && NPC_THREAD_QUESTIONS[npc.name]) {
+        var availableThreads = [];
+        var allThreads = NPC_THREAD_QUESTIONS[npc.name];
+        for (var ti = 0; ti < allThreads.length; ti++) {
+          var thread = allThreads[ti];
+          var threadState = (s.npcThreads || {})[npc.name + '_' + thread.id];
+          if (threadState && threadState.resolved) continue;
+          var curDepth = threadState ? threadState.depth : 0;
+          // depth 0 → depth 1: show thread entry
+          if (curDepth === 0) {
+            if (trust >= (thread.trustReq || 2)) {
+              availableThreads.push({ thread: thread, nextDepth: 1, branch: null });
+            }
+          }
+          // depth 1 → depth 2: show depth2 text + choices (if any)
+          else if (curDepth === 1) {
+            var d2 = thread.depth2 || {};
+            var d2TrustReq = d2.trustReq || 3;
+            if (trust >= d2TrustReq) {
+              if (d2.choices && d2.choices.length > 0) {
+                // Show branch choices
+                for (var ci = 0; ci < d2.choices.length; ci++) {
+                  var ch = d2.choices[ci];
+                  if (trust >= (ch.trustReq || d2TrustReq)) {
+                    availableThreads.push({ thread: thread, nextDepth: 2, branch: ch.branch, choiceText: ch.text });
+                  }
+                }
+              } else {
+                // Linear: auto-advance to depth3
+                availableThreads.push({ thread: thread, nextDepth: 3, branch: null });
+              }
+            }
+          }
+          // depth 2 → depth 3: show branch outcome (if branch chosen) or default depth3
+          else if (curDepth === 2) {
+            var d3TrustReq = (thread.depth3 && thread.depth3.trustReq) || 4;
+            if (trust >= d3TrustReq) {
+              var chosenBranch = threadState.branch;
+              if (chosenBranch && thread.branches && thread.branches[chosenBranch]) {
+                availableThreads.push({ thread: thread, nextDepth: 3, branch: chosenBranch, isOutcome: true });
+              } else if (!chosenBranch) {
+                // Show default depth3 (no branching was available)
+                availableThreads.push({ thread: thread, nextDepth: 3, branch: null, isOutcome: true });
+              }
+            }
+          }
+        }
+        if (availableThreads.length > 0) {
+          s.pendingNpc = Object.assign({}, s.pendingNpc, { availableThreads: availableThreads });
+        }
+      }
       c.log('与' + npc.name + '对话');
       if (!s.tutorialSeen.first_talk) s.tutorialSeen = { ...s.tutorialSeen, first_talk: true };
       return null;
@@ -217,6 +273,8 @@ export function handleNpcAction(s, action, c, ctx) {
             var _gain = Math.max(0, Math.round(1 * _trustMult));
             var _newTrust = Math.min(5, trust + _gain);
             setNpcTrust(s, npc.name, _newTrust);
+            propagateTrustChange(npc.name, _gain, s, c);
+            propagateFactionStanding(npc.name, _gain, s);
             if (!s._dailyTrustGains) s._dailyTrustGains = {};
             s._dailyTrustGains[npc.name] = 'talk';
             for (let lv = trust + 1; lv <= _newTrust; lv++) {
@@ -225,7 +283,7 @@ export function handleNpcAction(s, action, c, ctx) {
                 layer.unlocks.forEach((u) => {
                   if (!hasClueId(s.clues, u)) {
                     const _rn = resolveClueName(u);
-                    s.clues.push(_rn && _rn !== u ? { id: u, name: _rn } : u);
+                    s.clues.push({ id: u, name: _rn || u });
                   }
                 });
             }
@@ -334,6 +392,8 @@ export function handleNpcAction(s, action, c, ctx) {
             }
             const newTrust = Math.min(5, curTrust + 1);
             setNpcTrust(s, npc.name, newTrust);
+            propagateTrustChange(npc.name, 1, s, c);
+            propagateFactionStanding(npc.name, 1, s);
             if (!s._dailyTrustGains) s._dailyTrustGains = {};
             s._dailyTrustGains[npc.name] = 'food';
             addRunMemory(s, '你把食物分给了' + npc.name + '。', 'npc');
@@ -382,7 +442,8 @@ export function handleNpcAction(s, action, c, ctx) {
         } else {
           const dmg = rand(2, 8, c.rng);
           s.hp = Math.max(0, s.hp - dmg);
-          { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, Math.max(0, _old - 2)); _warnTrustDrop(c, npc.name, _old, Math.max(0, _old - 2)); }
+          { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, Math.max(0, _old - 2)); _warnTrustDrop(c, npc.name, _old, Math.max(0, _old - 2));
+            propagateTrustChange(npc.name, -2, s, c); propagateFactionStanding(npc.name, -2, s); }
           c.narr(
             'system',
             '【攻击】掷骰 ' +
@@ -469,6 +530,7 @@ export function handleNpcAction(s, action, c, ctx) {
               '看穿了你的意图。'
           );
           setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 1));
+          propagateTrustChange(npc.name, -1, s, c); propagateFactionStanding(npc.name, -1, s);
         }
         s.pendingNpc = null;
       } else if (choice === 'exploit_npc') {
@@ -480,6 +542,7 @@ export function handleNpcAction(s, action, c, ctx) {
         s.ap -= 1;
         c.bt.npc_as_resource_count = (c.bt.npc_as_resource_count || 0) + 1;
         setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 2));
+        propagateTrustChange(npc.name, -2, s, c); propagateFactionStanding(npc.name, -2, s);
         const gain = rand(2, 6, c.rng);
         s.money = (s.money || 0) + gain;
         modHumanity(s, -12, '把' + npc.name + '当作资源利用');
@@ -497,7 +560,8 @@ export function handleNpcAction(s, action, c, ctx) {
         }
         s.ap -= 1;
         c.bt.betrayed_high_trust_npcs = (c.bt.betrayed_high_trust_npcs || 0) + 1;
-        { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, 0); _warnTrustDrop(c, npc.name, _old, 0); }
+        { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, 0); _warnTrustDrop(c, npc.name, _old, 0);
+          propagateTrustChange(npc.name, -_old, s, c); propagateFactionStanding(npc.name, -_old, s); }
         if (!c.bt._npc_harm_tally) c.bt._npc_harm_tally = {};
         c.bt._npc_harm_tally[npc.name] = (c.bt._npc_harm_tally[npc.name] || 0) + 1;
         c.bt.same_npc_harm_max = Math.max(
@@ -563,6 +627,7 @@ export function handleNpcAction(s, action, c, ctx) {
             { isSpecial: true }
           );
           setNpcTrust(s, npc.name, Math.min(5, getNpcTrust(s, npc.name) + 1));
+          propagateTrustChange(npc.name, 1, s, c); propagateFactionStanding(npc.name, 1, s);
         } else {
           c.narr(
             'system',
@@ -575,8 +640,118 @@ export function handleNpcAction(s, action, c, ctx) {
               '后退了一步，表情变得警惕。'
           );
           setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 1));
+          propagateTrustChange(npc.name, -1, s, c); propagateFactionStanding(npc.name, -1, s);
         }
         s.pendingNpc = null;
+      }
+
+      // 对话追问系统：处理追问选择（支持 depth2 分支）
+      if (choice && choice.startsWith('probe_')) {
+        // Parse: probe_{threadId} or probe_{threadId}_{branch}
+        var _raw = choice.slice(6);
+        var _threadId = _raw;
+        var _branch = null;
+        // Match against known thread IDs to separate id from branch suffix
+        var _probeThreads = NPC_THREAD_QUESTIONS[npc.name] || [];
+        for (var _pi = 0; _pi < _probeThreads.length; _pi++) {
+          var _tid = _probeThreads[_pi].id;
+          if (_raw === _tid) { _threadId = _tid; break; }
+          if (_raw.startsWith(_tid + '_')) { _threadId = _tid; _branch = _raw.slice(_tid.length + 1); break; }
+        }
+        var _threads = _probeThreads;
+        var _thread = _threads.find(function (t) { return t.id === _threadId; });
+        if (_thread) {
+          var _threadState = (s.npcThreads || {})[npc.name + '_' + _threadId] || { depth: 0, flags: [] };
+          var _nextDepth = _threadState.depth + 1;
+          var _responseText = '';
+          var _clueAwarded = null;
+          var _trustAward = 0;
+          var _flagsToSet = [];
+          var _resolved = false;
+
+          // Check trust gate for next depth
+          var _nextTrustReq = _nextDepth === 1 ? (_thread.trustReq || 2) : (_nextDepth === 2 ? (_thread.depth2 && _thread.depth2.trustReq || 3) : (_thread.depth3 && _thread.depth3.trustReq || 4));
+
+          if (trust < _nextTrustReq) {
+            _responseText = npc.name + '似乎不想再深入这个话题了。';
+          } else if (_nextDepth === 1) {
+            // Depth 1: always linear (no branching yet)
+            _responseText = _thread.depth1 ? _thread.depth1.text || _thread.depth1.response || '' : '';
+          } else if (_nextDepth === 2) {
+            // Depth 2: if player just chose a branch, show branch-specific depth3 outcome
+            if (_branch && _thread.branches && _thread.branches[_branch]) {
+              var _brData = _thread.branches[_branch];
+              if (_brData.depth3) {
+                _responseText = _brData.depth3.text || '';
+                _clueAwarded = _brData.depth3.clue || null;
+                _trustAward = _brData.depth3.trustGain || 0;
+                _flagsToSet = _brData.depth3.flags || [];
+                _resolved = true;
+              }
+            } else {
+              // No branch chosen yet: show depth2 text
+              _responseText = _d2.text || _d2.response || '';
+              if (_d2.clue && !hasClueId(s.clues, _d2.clue)) _clueAwarded = _d2.clue;
+            }
+          } else if (_nextDepth >= 3) {
+            // Depth 3: show branch-specific outcome (using stored branch) or default
+            var _activeBranch = _branch || _threadState.branch;
+            if (_activeBranch && _thread.branches && _thread.branches[_activeBranch]) {
+              var _br3 = _thread.branches[_activeBranch];
+              _responseText = _br3.depth3 ? (_br3.depth3.text || '') : '';
+              _clueAwarded = _br3.depth3 ? _br3.depth3.clue : null;
+              _trustAward = _br3.depth3 ? (_br3.depth3.trustGain || 0) : 0;
+              _flagsToSet = _br3.depth3 ? (_br3.depth3.flags || []) : [];
+            } else {
+              _responseText = _d3.text || _d3.response || '';
+              _clueAwarded = _d3.clue || null;
+              _trustAward = _d3.trustGain || 0;
+            }
+            _resolved = true;
+          }
+
+          // Deduct AP for probe action
+          if (_nextDepth >= 1 && _nextDepth <= 2) {
+            s.ap = Math.max(0, s.ap - 1);
+          }
+
+          // Update thread state
+          if (!s.npcThreads) s.npcThreads = {};
+          s.npcThreads[npc.name + '_' + _threadId] = {
+            depth: _resolved ? 3 : _nextDepth,
+            branch: _threadState.branch,
+            flags: _threadState.flags.concat(_flagsToSet),
+            resolved: _resolved,
+          };
+
+          // Narrate response
+          if (_responseText) c.narr('system', npc.name + '："' + _responseText + '"');
+
+          // Award clue
+          if (_clueAwarded && !hasClueId(s.clues, _clueAwarded)) {
+            var _clueName = resolveClueName(_clueAwarded) || _clueAwarded;
+            s.clues.push({ id: _clueAwarded, name: _clueName });
+            c.narr('system', '【线索获得】' + _clueName, { isSpecial: true });
+            if (c.effects) c.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
+          }
+
+          // Award trust
+          if (_trustAward > 0) {
+            var _newTrust = Math.min(5, trust + _trustAward);
+            setNpcTrust(s, npc.name, _newTrust);
+            propagateTrustChange(npc.name, _trustAward, s, c);
+            propagateFactionStanding(npc.name, _trustAward, s);
+            c.narr('system', npc.name + '对你的信任加深了。（' + trust + '→' + _newTrust + '）');
+          }
+
+          // Set flags
+          for (var fi = 0; fi < _flagsToSet.length; fi++) {
+            if (!s._dialogueFlags) s._dialogueFlags = [];
+            if (s._dialogueFlags.indexOf(_flagsToSet[fi]) < 0) {
+              s._dialogueFlags.push(_flagsToSet[fi]);
+            }
+          }
+        }
       }
 
       // v0.9.0: Moral choice engine integration
