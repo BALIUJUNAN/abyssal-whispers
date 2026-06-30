@@ -194,6 +194,14 @@ REDUCER_FILES = [
     'systems/textFragmentation.js',    # MUST precede exploreSlice.js + NPCDialog.jsx (applyTextFragmentation)
     'reducers/slices/exploreSlice.js',
     'reducers/slices/npcSlice.js',
+    # ── Daily REST pipeline (domain-owned system files, extracted from dailySlice.js) ──
+    'systems/daily/foodSystem.js',         # MUST precede dailySlice.js (_processFoodAndStarvation)
+    'systems/daily/safehouseSystem.js',    # MUST precede dailySlice.js (_processSafehouseAndWorldDecay)
+    'systems/daily/restRecovery.js',       # MUST precede dailySlice.js (_processRestRecovery)
+    'systems/daily/dayAdvance.js',         # MUST precede dailySlice.js (_advanceDayClock + _processChapterAndMotif)
+    'systems/daily/dayCritical.js',        # MUST precede dailySlice.js (_processDayCriticalAndDecay)
+    'systems/daily/nightEffects.js',       # MUST precede dailySlice.js (_processNpcCorruption + _processNightEffects)
+    'systems/daily/dayOpen.js',            # MUST precede dailySlice.js (_processDayOpenAndEndings + _processRestBookkeeping)
     'reducers/slices/dailySlice.js',
     'reducers/slices/darkSlice.js',
     'reducers/slices/uiSlice.js',

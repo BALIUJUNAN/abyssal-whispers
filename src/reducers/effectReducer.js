@@ -142,7 +142,7 @@ export function applyEffects(state, effects, context) {
  * Adapter: converts legacy {HP: 3, SAN: -2, food: 1, add_clue: "..."} event effect format.
  * Also handles extended event formats: npc_trust, safehouseCorruption, add_item, add_run_memory.
  */
-export function applyLegacyEffects(state, eff) {
+export function applyLegacyEffects(state, eff, rng) {
   if (!eff) return;
 
   // ── Resource Fraud (SSOT: resourceFraud.js) ─────────────────
@@ -150,13 +150,14 @@ export function applyLegacyEffects(state, eff) {
   // This hook modifies positive resource GAINS only — consumption/loss is never affected.
   // Covers: event resource drops, NPC gifts, exploration rewards, safehouse finds.
   var fraud = getResourceFraudState(state.san || 60);
+  var _rand = rng ? function () { return rng.next(); } : Math.random;
   if (fraud.active && fraud.realMult < 1.0) {
     // Food gain (legacy format): reduce by realMult
     if (eff.food && eff.food > 0) {
       eff.food = Math.max(0, Math.round(eff.food * fraud.realMult));
     }
     // Item gain: all-or-nothing based on realMult
-    if (eff.add_item && Math.random() > fraud.realMult) {
+    if (eff.add_item && _rand() > fraud.realMult) {
       delete eff.add_item;
     }
     // Clue gain: each clue independently passes/fails the realMult check
@@ -164,7 +165,7 @@ export function applyLegacyEffects(state, eff) {
       var clues = Array.isArray(eff.add_clue) ? eff.add_clue : [eff.add_clue];
       var realClues = [];
       for (var ci = 0; ci < clues.length; ci++) {
-        if (Math.random() <= fraud.realMult) realClues.push(clues[ci]);
+        if (_rand() <= fraud.realMult) realClues.push(clues[ci]);
       }
       eff.add_clue = realClues.length === 1 ? realClues[0] : realClues;
       if (realClues.length === 0) delete eff.add_clue;

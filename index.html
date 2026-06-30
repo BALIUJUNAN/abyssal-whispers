@@ -7240,7 +7240,7 @@ function getSupplementEvents() { return supplement_events; }
 // Module: events_ch2plus
 // Events: 70
 
-const events = [
+const EVENTS = [
 
   {
     id: 'evt_deep_one_patrol',
@@ -12485,7 +12485,7 @@ const DESC = {
 // === data/events_loop.js ===
 // 轮回专属事件扩展 - 74 events (70 + 4 §2补充)
 // Directions: 轮回低语(20), 记忆碎片(15), 轮回矛盾(12), 墙中之物(10), 世界修正(8), 轮回终点暗示(5), 高轮回深度(4)
-const _events_loopEvents = [
+const EVENTS = [
   // =============================================
   // 轮回低语 (20) - loop >= 2, random replacement
   // =============================================
@@ -14487,7 +14487,7 @@ var loopEvents = _events_loopEvents;
 // === data/events_humanity.js ===
 // 人性值驱动事件 - 54 events
 // Directions: 善行回报(15), 恶行反噬(15), 人性摇摆(10), 集体态度(8), 特殊交易(6)
-const _events_humanityEvents = [
+const EVENTS = [
   // =============================================
   // 善行回报 (15) - humanity >= 70, random
   // =============================================
@@ -16196,7 +16196,7 @@ var humanityEvents = _events_humanityEvents;
 // === data/events_mythos.js ===
 // 神话知识等级事件 - 64 events (60 + 4 §2补充)
 // Directions: 神话感知(20), 禁忌知识(15), 神话反噬(12), 旧日回响(8), 超越者视角(5), 深层禁忌(4)
-const _events_mythosEvents = [
+const EVENTS = [
   // =============================================
   // 神话感知 (20) - mythos >= 5, hidden things
   // =============================================
@@ -17932,7 +17932,7 @@ var mythosEvents = _events_mythosEvents;
 // === data/events_resource.js ===
 // 资源压力与生存抉择事件 - 61 events (55 + 6 §2补充)
 // Directions: 食物抉择(15), 光源衰竭(12), 药品短缺(10), 安全屋入侵(10), 极端环境(8), 生存任务链(6)
-const _events_resourceEvents = [
+const EVENTS = [
   // =============================================
   // 食物抉择 (15) - food <= 2, humanity中等
   // =============================================
@@ -19830,7 +19830,7 @@ var resourceEvents = _events_resourceEvents;
 // NPC交叉与关系网事件 - 75 events (65 + 10 §1补充)
 // Directions: 双人对话(20), 秘密交换(15), 三角关系(10), 信任连锁(12), 联合对抗(8)
 // §1补充: 死后遗产(4), 关系网任务链(4), 组队前置(2)
-const _events_npcCrossEvents = [
+const EVENTS = [
   // =============================================
   // 双人对话 (20) - 两个NPC信任>=2, 同一区域
   // =============================================
@@ -22774,7 +22774,7 @@ var npcCrossEvents = _events_npcCrossEvents;
 // === data/events_area_deep.js ===
 // 区域专属深层事件 - 120 events (15 per area for 8 areas)
 // Each area gets 12-15 deep events
-const _events_areaDeepEvents = [
+const EVENTS = [
   // === town_center (15) ===
   {
     id: 'area_town_center_001',
@@ -26462,7 +26462,7 @@ var areaDeepEvents = _events_areaDeepEvents;
 // === data/events_ending.js ===
 // 结局前置与后置事件 - 55 events
 // Directions: 结局预兆(20), 结局余波(20), 结局交织(15)
-const _events_endingEvents = [
+const EVENTS = [
   // =============================================
   // 结局预兆 (20) - 满足某结局大部分条件但尚未触发
   // =============================================
@@ -28088,7 +28088,7 @@ var endingEvents = _events_endingEvents;
 // Directions: 日常观察(20), 自然异常(15), 城镇低语(15), 个人记忆(12), 时间错位(10), 区域沉默(9), 结局余波(3)
 // P0完成: 全部84事件已添加 distortion_variants —— 引擎 getDistortionVariant() 直接可用
 // P0完成: 9个"某地沉默"从模板复制升级为各区域独立叙事 + SAN/轮回变体
-const _events_silentEvents = [
+const EVENTS = [
   // 日常观察 (20) — normalcy_anchor 事件，san_low 下变成"不安"
   {
     id: 'silent_daily_001',
@@ -30960,7 +30960,7 @@ AREA_INVESTIGATION_DETAILS;
 // 移除: 选择消失(6) → 合并到 meta_choice_001 作为后果
 // §3.3: 5个事件添加实质性游戏后果
 // §3.4: 全部 once_ever + SAN < 15 + 每轮最多1次
-const _events_metaEvents = [
+const EVENTS = [
   // ── 玩家身份揭示 (5) — S tier，终极元叙事 ──
   // §3.3 后果: meta_identity_005 触发后，某个NPC信任锁定为0 + 解锁成就
   {
@@ -35073,7 +35073,7 @@ function injectBehaviorEndings(GD) {
 // 死亡回声事件 - 死亡类型的轮回污染
 // 每种死亡类型对应一个回声事件，在下一周目触发
 // 注意：这些事件独立于 599 核心事件池，通过 extendedEventsInit 单独加载
-const _events_deathEchoEvents = [
+const EVENTS = [
   // HP 死亡回声 (6)
   {
     id: 'death_echo_drowning',
@@ -35457,7 +35457,7 @@ const _events_deathEchoEvents = [
 ];
 
 // Getter for bundled build (import alias stripped by build.py)
-function getDeathEchoEvents() { return events; }
+function getDeathEchoEvents() { return EVENTS; }
 var deathEchoEvents = _events_deathEchoEvents;
 
 // === reducers/extendedEventsLoader.js ===
@@ -35621,6 +35621,15 @@ async function loadChapterData(GD, chapterKey, url) {
  */
 function isChapterLoaded(chapterKey) {
   return _loadedChapters.has(chapterKey);
+}
+
+/**
+ * Mark a chapter as loaded without fetching.
+ * Use when data is merged at build time (static JSON import).
+ * @param {string} chapterKey
+ */
+function markChapterLoaded(chapterKey) {
+  _loadedChapters.add(chapterKey);
 }
 
 /**
@@ -40248,7 +40257,7 @@ function applyEffects(state, effects, context) {
  * Adapter: converts legacy {HP: 3, SAN: -2, food: 1, add_clue: "..."} event effect format.
  * Also handles extended event formats: npc_trust, safehouseCorruption, add_item, add_run_memory.
  */
-function applyLegacyEffects(state, eff) {
+function applyLegacyEffects(state, eff, rng) {
   if (!eff) return;
 
   // ── Resource Fraud (SSOT: resourceFraud.js) ─────────────────
@@ -40256,13 +40265,14 @@ function applyLegacyEffects(state, eff) {
   // This hook modifies positive resource GAINS only — consumption/loss is never affected.
   // Covers: event resource drops, NPC gifts, exploration rewards, safehouse finds.
   var fraud = getResourceFraudState(state.san || 60);
+  var _rand = rng ? function () { return rng.next(); } : Math.random;
   if (fraud.active && fraud.realMult < 1.0) {
     // Food gain (legacy format): reduce by realMult
     if (eff.food && eff.food > 0) {
       eff.food = Math.max(0, Math.round(eff.food * fraud.realMult));
     }
     // Item gain: all-or-nothing based on realMult
-    if (eff.add_item && Math.random() > fraud.realMult) {
+    if (eff.add_item && _rand() > fraud.realMult) {
       delete eff.add_item;
     }
     // Clue gain: each clue independently passes/fails the realMult check
@@ -40270,7 +40280,7 @@ function applyLegacyEffects(state, eff) {
       var clues = Array.isArray(eff.add_clue) ? eff.add_clue : [eff.add_clue];
       var realClues = [];
       for (var ci = 0; ci < clues.length; ci++) {
-        if (Math.random() <= fraud.realMult) realClues.push(clues[ci]);
+        if (_rand() <= fraud.realMult) realClues.push(clues[ci]);
       }
       eff.add_clue = realClues.length === 1 ? realClues[0] : realClues;
       if (realClues.length === 0) delete eff.add_clue;
@@ -47994,7 +48004,7 @@ const useUiStore = create((set, get) => ({
   ugcOpen: false,
   notebookOpen: false,
   notebookEverOpened: false,
-  settings: null,
+  settings: loadSettings(),
   saveTick: 0,
   uiMode: 'town_map',
   activeHotspot: null,
@@ -48006,10 +48016,6 @@ const useUiStore = create((set, get) => ({
   },
 
   getSettings: () => {
-    const s = get();
-    if (s.settings === null) {
-      set({ settings: loadSettings() });
-    }
     return get().settings;
   },
 
@@ -55021,7 +55027,7 @@ function handleExploreAction(s, action, c, ctx) {
       }
       // Choices / gamble early exits
       if (evt.choices && evt.choices.length > 0) {
-        applyLegacyEffects(s, evt.effects);
+        applyLegacyEffects(s, evt.effects, c.rng);
         s.pendingChoice = { evt, choices: evt.choices };
         return null;
       }
@@ -55119,7 +55125,7 @@ function handleExploreAction(s, action, c, ctx) {
           }
         }
       }
-      applyLegacyEffects(s, evt.effects);
+      applyLegacyEffects(s, evt.effects, c.rng);
       if (sanDmg >= GAME_BALANCE.MADNESS_TRIGGER) {
         const mad = rollMadness(ctx, c.rng);
         s.madnessActive = mad;
@@ -55801,15 +55807,14 @@ function handleNpcAction(s, action, c, ctx) {
   }
 }
 
-// === reducers/slices/dailySlice.js ===
-// src/reducers/slices/dailySlice.js - Extracted from gameReducer
-// REST, WORK, BUY_FOOD
-// Phase 1 Refactor: REST case decomposed into sub-functions for readability.
-// NOTE: Sub-functions receive ctx (bundle-scope context with GD) as 3rd param.
+// === systems/daily/foodSystem.js ===
+// src/systems/daily/foodSystem.js — Daily REST: food consumption, starvation damage, NPC trust decay
+// Extracted from reducers/slices/dailySlice.js
 
-// ── REST sub-functions ──────────────────────────────────────────────
-
-/** Process food consumption, starvation damage, and NPC trust decay. Returns true if player died. */
+/**
+ * Process food consumption, starvation damage, and NPC trust decay.
+ * Returns true if player died from starvation or madness.
+ */
 function _processFoodAndStarvation(s, c, ctx) {
   const restArea = getAreaInfo(s.currentArea, ctx);
   const foodMod = restArea?.resource_pressure?.food_consumption_modifier || 1.0;
@@ -55835,7 +55840,10 @@ function _processFoodAndStarvation(s, c, ctx) {
     var GD = ctx.GD;
     const npcs = GD.npcs || GD.module3_npcs || [];
     npcs.forEach((npc) => {
-      if (getNpcTrust(s, npc.name) > 0 && (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.NPC_TRUST_DECAY_CHANCE)
+      if (
+        getNpcTrust(s, npc.name) > 0 &&
+        (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.NPC_TRUST_DECAY_CHANCE
+      )
         setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 1));
     });
   } else {
@@ -55868,7 +55876,13 @@ function _processFoodAndStarvation(s, c, ctx) {
   return false;
 }
 
-/** Process safehouse degradation, world decay, area corruption, and safehouse visual stage. */
+// === systems/daily/safehouseSystem.js ===
+// src/systems/daily/safehouseSystem.js — Daily REST: safehouse degradation, world decay, area corruption
+// Extracted from reducers/slices/dailySlice.js
+
+/**
+ * Process safehouse degradation, world decay, area corruption, and safehouse visual stage.
+ */
 function _processSafehouseAndWorldDecay(s, c, ctx) {
   s.safehouseCorruption = processSafehouseNight(s, ctx, c.rng);
   {
@@ -55901,7 +55915,13 @@ function _processSafehouseAndWorldDecay(s, c, ctx) {
   return shStage;
 }
 
-/** Process safehouse recovery, long-term effects, and AP reset for new day. */
+// === systems/daily/restRecovery.js ===
+// src/systems/daily/restRecovery.js — Daily REST: recovery, long-term effects cleanup, AP reset for new day
+// Extracted from reducers/slices/dailySlice.js
+
+/**
+ * Process safehouse recovery, long-term effects, and AP reset for new day.
+ */
 function _processRestRecovery(s, c, shStage, ctx) {
   var GD = ctx.GD;
   let sanRec = shStage.available_functions?.san_recovery || 0;
@@ -55936,12 +55956,20 @@ function _processRestRecovery(s, c, shStage, ctx) {
   s.harborRiskReduction = 0;
 }
 
-/** Advance day counter, weather, seal, chapter. Play audio. Returns oldDay. */
+// === systems/daily/dayAdvance.js ===
+// src/systems/daily/dayAdvance.js — Daily REST: day clock advance, chapter transition, motif text, AP pollution
+// Extracted from reducers/slices/dailySlice.js
+
+/**
+ * Advance day counter, weather, seal, chapter. Play audio. Returns oldDay.
+ */
 function _advanceDayClock(s, c, ctx) {
   const oldDay = s.day;
   s.day++;
   // eventBus: notify listeners of day transition
-  try { emit('DAY_ADVANCED', { oldDay: oldDay, newDay: s.day }); } catch (e) {}
+  try {
+    emit('DAY_ADVANCED', { oldDay: oldDay, newDay: s.day });
+  } catch (e) {}
   s.ap = s.maxAp;
   // Chapter 1 protection: cap AP to 5 for Days 1-3 on first loop.
   // Forces focused exploration — player must visit church/harbor, not wander aimlessly.
@@ -55996,7 +56024,9 @@ function _advanceDayClock(s, c, ctx) {
   return oldDay;
 }
 
-/** Process chapter transitions, motif flavor, SAN stage AP mod. */
+/**
+ * Process chapter transitions, motif flavor, SAN stage AP mod.
+ */
 function _processChapterAndMotif(s, c, oldDay, ctx) {
   var GD = ctx.GD;
   const oldChKey = getChapterForDay(oldDay, ctx).key;
@@ -56016,10 +56046,14 @@ function _processChapterAndMotif(s, c, oldDay, ctx) {
   // DESIGN_REFACTOR_NOTES.md: "Day 3结束强制触发教堂地下室或码头仓库过渡事件"
   if (oldDay === 3 && s.loopCount <= 0 && !s.triggeredEvents.includes('evt_day3_transition')) {
     s.triggeredEvents.push('evt_day3_transition');
-    var hasChurchClue = hasClueId(s.clues, 'clue_church') || hasClueId(s.clues, 'evt_church_bell')
-      || s.triggeredEvents.includes('evt_church_bell') || s.triggeredEvents.includes('evt_strange_clock');
-    var hasHarborClue = hasClueId(s.clues, 'clue_warehouse') || hasClueId(s.clues, 'evt_warehouse_key')
-      || s.triggeredEvents.includes('evt_warehouse_key') || s.triggeredEvents.includes('evt_fisherman_warning');
+    var hasChurchClue =
+      hasClueId(s.clues, 'clue_church') || hasClueId(s.clues, 'evt_church_bell')
+        || s.triggeredEvents.includes('evt_church_bell')
+        || s.triggeredEvents.includes('evt_strange_clock');
+    var hasHarborClue =
+      hasClueId(s.clues, 'clue_warehouse') || hasClueId(s.clues, 'evt_warehouse_key')
+        || s.triggeredEvents.includes('evt_warehouse_key')
+        || s.triggeredEvents.includes('evt_fisherman_warning');
     if (hasChurchClue || hasHarborClue) {
       var loc = hasChurchClue ? '教堂' : '码头';
       var detail = hasChurchClue
@@ -56033,11 +56067,15 @@ function _processChapterAndMotif(s, c, oldDay, ctx) {
       addRunMemory(s, '在' + loc + '发现了向下的通道。', 'discovery');
     } else {
       // Player didn't explore much — give them a hint
-      c.narr('event', '第三天的傍晚，你听到钟声又响了。这次你很确定——是十四声。\n\n你还没有找到钟声的来源。但你知道它来自两个方向之一：教堂，或者码头。\n\n明天你必须做出选择。', {
-        eventTitle: '第十四声',
-        eventType: 'hint',
-        isSpecial: true,
-      });
+      c.narr(
+        'event',
+        '第三天的傍晚，你听到钟声又响了。这次你很确定——是十四声。\n\n你还没有找到钟声的来源。但你知道它来自两个方向之一：教堂，或者码头。\n\n明天你必须做出选择。',
+        {
+          eventTitle: '第十四声',
+          eventType: 'hint',
+          isSpecial: true,
+        }
+      );
     }
   }
   if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MOTIF_TEXT_CHANCE) {
@@ -56071,7 +56109,11 @@ function _processChapterAndMotif(s, c, oldDay, ctx) {
       var passiveMad = rollMadness(ctx, c.rng);
       s.madnessActive = passiveMad;
       c.effects.push({ type: 'INCREMENT_STAT', key: 'madness_count' });
-      c.narr('madness', '【被动疯狂检定】你的心智在低语中碎裂。\n【' + passiveMad.name + '】' + passiveMad.description, { madness: passiveMad });
+      c.narr(
+        'madness',
+        '【被动疯狂检定】你的心智在低语中碎裂。\n【' + passiveMad.name + '】' + passiveMad.description,
+        { madness: passiveMad }
+      );
       addRunMemory(s, '在低SAN状态下触发被动疯狂——' + passiveMad.name, 'madness');
       c.effects.push({ type: 'AUDIO_PLAY', id: 'madness' });
     }
@@ -56096,15 +56138,29 @@ function _processChapterAndMotif(s, c, oldDay, ctx) {
   }
 }
 
-/** Process day-specific critical events and world decay atmosphere. */
+// === systems/daily/dayCritical.js ===
+// src/systems/daily/dayCritical.js — Daily REST: critical day events, world decay, harbor whispers
+// Extracted from reducers/slices/dailySlice.js
+
+/**
+ * Process day-specific critical events and world decay atmosphere.
+ */
 function _processDayCriticalAndDecay(s, c, ctx) {
-  var GD = ctx.GD;
   {
     const dayCrit = getDayCriticalEvent(s.day);
     if (dayCrit && !s.triggeredEvents.includes('day_crit_' + s.day)) {
       s.triggeredEvents.push('day_crit_' + s.day);
       // Narrative Month: Trigger visual surge for critical days
-      if (s.day === 7 || s.day === 14 || s.day === 21 || s.day === 28 || s.day === 5 || s.day === 15 || s.day === 20 || s.day === 25) {
+      if (
+        s.day === 7 ||
+        s.day === 14 ||
+        s.day === 21 ||
+        s.day === 28 ||
+        s.day === 5 ||
+        s.day === 15 ||
+        s.day === 20 ||
+        s.day === 25
+      ) {
         triggerDayCriticalSurge(s.day, s.san);
       }
       c.narr('event', dayCrit.text, {
@@ -56146,7 +56202,13 @@ function _processDayCriticalAndDecay(s, c, ctx) {
   }
 }
 
-/** Process NPC corruption triggers and seal-state accelerated corruption. */
+// === systems/daily/nightEffects.js ===
+// src/systems/daily/nightEffects.js — Daily REST: NPC corruption, silent events, resources, meta corruption
+// Extracted from reducers/slices/dailySlice.js
+
+/**
+ * Process NPC corruption triggers and seal-state accelerated corruption.
+ */
 function _processNpcCorruption(s, c, ctx) {
   var GD = ctx.GD;
   const corruptionTriggers = checkNPCCorruption(s, ctx);
@@ -56167,7 +56229,9 @@ function _processNpcCorruption(s, c, ctx) {
   });
 }
 
-/** Process safehouse silent events, SAN break-wall, daily resources, corruption effects. */
+/**
+ * Process safehouse silent events, SAN break-wall, daily resources, corruption effects.
+ */
 function _processNightEffects(s, c, ctx) {
   var GD = ctx.GD;
   checkSilentEvent(s, c.narr, 'safehouse', GD);
@@ -56192,7 +56256,13 @@ function _processNightEffects(s, c, ctx) {
   applyMetaCorruption(s, c, s._visualPollution);
 }
 
-/** Narrate new day header, area description, forced hooks, check endings and time limit. */
+// === systems/daily/dayOpen.js ===
+// src/systems/daily/dayOpen.js — Daily REST: day open narrative, area description, endings, bookkeeping
+// Extracted from reducers/slices/dailySlice.js
+
+/**
+ * Narrate new day header, area description, forced hooks, check endings and time limit.
+ */
 function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _startArea, ctx) {
   narrDailySummary(s, c.narr, _startSan, _startHp, _startClues, _startArea, ctx, c.rng);
   c.narr(
@@ -56273,7 +56343,9 @@ function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues, _star
   }
 }
 
-/** Final bookkeeping: objectives, stats, knowledge, daily patterns, auto-save. */
+/**
+ * Final bookkeeping: objectives, stats, knowledge, daily patterns, auto-save.
+ */
 function _processRestBookkeeping(s, c, ctx) {
   s.objectives = genObjectives(s.day, ctx);
   s.stats_run.days_best = Math.max(s.stats_run.days_best, s.day);
@@ -56290,74 +56362,82 @@ function _processRestBookkeeping(s, c, ctx) {
   if (!s.tutorialSeen.first_rest) s.tutorialSeen = { ...s.tutorialSeen, first_rest: true };
 }
 
-// ── Main handler ────────────────────────────────────────────────────
+// === reducers/slices/dailySlice.js ===
+// src/reducers/slices/dailySlice.js — Thin dispatcher for REST / WORK / BUY_FOOD
+// All REST sub-functions live in src/systems/daily/ (domain-owned system files).
+// This file only handles WORK and BUY_FOOD inline, plus dispatches REST steps.
 
-function handleDailyAction(draft, action, ctx) {
+// ── Daily REST pipeline (domain-owned, imported) ─────────────────────
+
+// ── Main handler ──────────────────────────────────────────────────────
+
+function handleDailyAction(draft, action, c, ctx) {
   switch (action.type) {
     case 'REST': {
       const _startSan = draft.san,
         _startHp = draft.hp,
         _startClues = (draft.clues || []).length,
         _startArea = draft._dayStartArea || draft.currentArea;
-      if (_processFoodAndStarvation(draft, ctx, ctx)) return null; // player died
-      const shStage = _processSafehouseAndWorldDecay(draft, ctx, ctx);
-      _processRestRecovery(draft, ctx, shStage, ctx);
-      const oldDay = _advanceDayClock(draft, ctx, ctx);
-      _processChapterAndMotif(draft, ctx, oldDay, ctx);
-      _processDayCriticalAndDecay(draft, ctx, ctx);
-      _processNpcCorruption(draft, ctx, ctx);
-      _processNightEffects(draft, ctx, ctx);
-      _processDayOpenAndEndings(draft, ctx, _startSan, _startHp, _startClues, _startArea, ctx);
-      _processRestBookkeeping(draft, ctx, ctx);
+      if (_processFoodAndStarvation(draft, c, ctx)) return null; // player died
+      const shStage = _processSafehouseAndWorldDecay(draft, c, ctx);
+      _processRestRecovery(draft, c, shStage, ctx);
+      const oldDay = _advanceDayClock(draft, c, ctx);
+      _processChapterAndMotif(draft, c, oldDay, ctx);
+      _processDayCriticalAndDecay(draft, c, ctx);
+      _processNpcCorruption(draft, c, ctx);
+      _processNightEffects(draft, c, ctx);
+      _processDayOpenAndEndings(draft, c, _startSan, _startHp, _startClues, _startArea, ctx);
+      _processRestBookkeeping(draft, c, ctx);
       // "Suspected bug" — phantom log entry (0.5% at low SAN/high loop)
-      maybeInjectPhantomLog(draft.eventLog, draft.san, draft.loopCount, ctx.rng);
+      maybeInjectPhantomLog(draft.eventLog, draft.san, draft.loopCount, c.rng);
       return null;
     }
     case 'WORK': {
       if (draft.ap < 2) {
-        narrApInsufficient(draft, ctx.narr, 2);
+        narrApInsufficient(draft, c.narr, 2);
         return null;
       }
       draft.ap -= 2;
       // AP 消耗音效反馈
       if (draft.ap <= 2 && draft.ap > 0) {
-        ctx.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
       } else if (draft.ap <= 0) {
-        ctx.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
       }
-      const earned = rand(3, 12, ctx.rng);
+      const earned = rand(3, 12, c.rng);
       draft.money = (draft.money || 0) + earned;
-      ctx.bt.work_count = (ctx.bt.work_count || 0) + 1;
-      if ((draft.money || 0) > (ctx.bt.hoarded_money_max || 0)) ctx.bt.hoarded_money_max = draft.money;
-      ctx.narr('system', '你在码头帮了半天工。报酬微薄，但至少口袋里多了几枚硬币。金钱 +' + earned);
-      ctx.log('打工挣钱');
+      c.bt.work_count = (c.bt.work_count || 0) + 1;
+      if ((draft.money || 0) > (c.bt.hoarded_money_max || 0))
+        c.bt.hoarded_money_max = draft.money;
+      c.narr('system', '你在码头帮了半天工。报酬微薄，但至少口袋里多了几枚硬币。金钱 +' + earned);
+      c.log('打工挣钱');
       return null;
     }
     case 'BUY_FOOD': {
       if (draft.ap < 1) {
-        narrApInsufficient(draft, ctx.narr, 1);
+        narrApInsufficient(draft, c.narr, 1);
         return null;
       }
       const foodPrice = 3;
       if ((draft.money || 0) < foodPrice) {
-        ctx.narr('system', '你的钱不够。购买食物需要 ' + foodPrice + ' 金钱。');
+        c.narr('system', '你的钱不够。购买食物需要 ' + foodPrice + ' 金钱。');
         return null;
       }
       if ((draft.food || 0) >= (draft.maxFood || 5)) {
-        ctx.narr('system', '你的食物已经满了。');
+        c.narr('system', '你的食物已经满了。');
         return null;
       }
       draft.ap -= 1;
       // AP 消耗音效反馈
       if (draft.ap <= 2 && draft.ap > 0) {
-        ctx.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
       } else if (draft.ap <= 0) {
-        ctx.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_click_forbidden' });
       }
       draft.money -= foodPrice;
       draft.food = Math.min(draft.maxFood, (draft.food || 0) + 1);
-      ctx.narr('system', '你在杂货店买了一些食物。食物 +1，金钱 -' + foodPrice);
-      ctx.log('购买食物');
+      c.narr('system', '你在杂货店买了一些食物。食物 +1，金钱 -' + foodPrice);
+      c.log('购买食物');
       return null;
     }
     default:
@@ -56533,16 +56613,16 @@ function handleDarkAction(s, action, c, ctx) {
 // src/reducers/slices/uiSlice.js — Zustand-native action handlers
 // Migrated from gameReducer bridge (Step 1 of Zustand migration).
 //
-// Signature: (draft, action, ctx) => null | object
+// Signature: (draft, action, c, ctx) => null | object
 //   draft    — immer proxy (mutate in place, do NOT return new state)
 //   action   — { type, ...payload }
-//   ctx      — { GD, narr, log, effects, rng, bt, now, pick }
-//              narr/log/effects close over draft (mutate via closure)
+//   c        — { narr, log, effects, bt, rng } (reducer context, close over draft)
+//   ctx      — { GD } (game data)
 //
 // Handlers mutate draft directly. Return null = handled.
-// Effects collected in ctx.effects, flushed after set() by dispatch router.
+// Effects collected in c.effects, flushed after set() by dispatch router.
 
-function handleUiAction(draft, action, ctx) {
+function handleUiAction(draft, action, c, ctx) {
   var GD = ctx.GD;
 
   switch (action.type) {
@@ -56558,21 +56638,21 @@ function handleUiAction(draft, action, ctx) {
       }
       draft.pendingChoice = null;
       // SAN consequence: check if this is a fake option and apply hidden penalty
-      var fakeResult = processFakeChoice(choice, draft, ctx);
+      var fakeResult = processFakeChoice(choice, draft, c);
       if (fakeResult) {
-        ctx.narr('system', fakeResult, { isSpecial: true });
-        ctx.log('选择了虚假选项：' + (choice._originalLabel || choice.label));
+        c.narr('system', fakeResult, { isSpecial: true });
+        c.log('选择了虚假选项：' + (choice._originalLabel || choice.label));
       } else {
-        ctx.narr('system', choice.text, { isSpecial: true });
-        applyLegacyEffects(draft, choice.effects);
+        c.narr('system', choice.text, { isSpecial: true });
+        applyLegacyEffects(draft, choice.effects, c.rng);
       }
       // Death check after choice effects (unified via applyDeathResolution)
       {
         var deathCtx = resolveDeath(draft, pc.evt, choice);
-        if (deathCtx) applyDeathResolution(draft, deathCtx, ctx.narr, ctx);
+        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx);
       }
       draft.objectives = checkObjCompletion(draft.objectives, draft);
-      ctx.log('选择：' + choice.label);
+      c.log('选择：' + choice.label);
       return null;
     }
     case 'DISMISS_PENDING':
@@ -56587,7 +56667,7 @@ function handleUiAction(draft, action, ctx) {
       return null;
     case 'AUDIO_MUTE_TOGGLE':
       draft.audioMuted = !draft.audioMuted;
-      ctx.effects.push({ type: 'AUDIO_SET_MUTED', muted: draft.audioMuted });
+      c.effects.push({ type: 'AUDIO_SET_MUTED', muted: draft.audioMuted });
       return null;
     case 'ACCESSIBILITY_TOGGLE': {
       var key = action.key;
@@ -56608,7 +56688,7 @@ function handleUiAction(draft, action, ctx) {
           ...draft.accessibilityOptions,
           sudden_sounds: cur3 === 'off' ? 'on' : 'off',
         };
-        ctx.effects.push({
+        c.effects.push({
           type: 'AUDIO_SUDDEN_MUTED',
           value: draft.accessibilityOptions.sudden_sounds === 'off',
         });
@@ -56628,7 +56708,7 @@ function handleUiAction(draft, action, ctx) {
       var evt = g.evt;
       if (choiceId === 'safe') {
         // Safe: normal SAN damage flow
-        ctx.narr('system', opt.text);
+        c.narr('system', opt.text);
         var sanDmg = Math.abs(evt.sanity_damage || 0);
         if (sanDmg > 0) {
           sanDmg = processSanLoss(
@@ -56641,50 +56721,50 @@ function handleUiAction(draft, action, ctx) {
           );
           if (sanDmg > 0) {
             if (evt.skill_check) {
-              ctx.effects.push({ type: 'AUDIO_SKILL', id: 'roll' });
+              c.effects.push({ type: 'AUDIO_SKILL', id: 'roll' });
               var check = doSkillCheck(
                 evt.skill_check.skill,
                 evt.skill_check.threshold || 50,
                 draft,
                 draft.difficulty,
                 ctx,
-                ctx.rng
+                c.rng
               );
               if (check.success) {
-                ctx.effects.push({ type: 'AUDIO_SKILL', id: 'success' });
+                c.effects.push({ type: 'AUDIO_SKILL', id: 'success' });
                 sanDmg = Math.max(1, Math.round(sanDmg * 0.5));
-                ctx.narr('system', '【技能检定：' + check.skillName + '】成功！SAN损失减半。');
+                c.narr('system', '【技能检定：' + check.skillName + '】成功！SAN损失减半。');
                 draft.stats_run.checks_passed++;
               } else {
-                ctx.effects.push({
+                c.effects.push({
                   type: 'AUDIO_SKILL',
                   id: check.isCritFail ? 'critical_fail' : 'fail',
                 });
-                ctx.narr('system', '【技能检定：' + check.skillName + '】失败！');
+                c.narr('system', '【技能检定：' + check.skillName + '】失败！');
                 draft.stats_run.checks_failed++;
               }
             }
             applySanLoss(draft, sanDmg, { trackStats: true });
-            ctx.narr('system', 'SAN -' + sanDmg, { isEffect: true });
+            c.narr('system', 'SAN -' + sanDmg, { isEffect: true });
             if (sanDmg >= 1) {
-              ctx.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanDmg });
+              c.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanDmg });
               draft.transition = 'san-loss';
             }
           }
         }
       } else if (choiceId === 'deep_investigate') {
         // Deep investigate: roll 1d6 SAN loss, then check for reward
-        var sanRoll = rand(1, 6, ctx.rng);
-        ctx.narr('system', opt.text);
+        var sanRoll = rand(1, 6, c.rng);
+        c.narr('system', opt.text);
         applySanLoss(draft, sanRoll, { trackStats: true });
-        ctx.narr('system', 'SAN -' + sanRoll, { isEffect: true });
+        c.narr('system', 'SAN -' + sanRoll, { isEffect: true });
         if (sanRoll >= 1) {
-          ctx.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanRoll });
+          c.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanRoll });
           draft.transition = 'san-loss';
         }
         // Independent reward check
         var reward = opt.reward || {};
-        var r = (ctx.rng ? ctx.rng.next() : Math.random());
+        var r = (c.rng ? c.rng.next() : Math.random());
         if (r < reward.clue_chance) {
           // Clue found — causal feedback
           var _GD = GD;
@@ -56692,12 +56772,12 @@ function handleUiAction(draft, action, ctx) {
             .flatMap(function (x) { return x.clues || []; })
             .filter(function (x) { return !hasClueId(draft.clues, x.id); });
           if (availableClues.length > 0) {
-            var found = pick(availableClues, ctx.rng);
+            var found = pick(availableClues, c.rng);
             draft.clues.push({ id: found.id, name: found.name || found.id });
-            ctx.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
+            c.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
             if (!draft.tutorialSeen.first_clue && draft.clues.length === 1)
               draft.tutorialSeen = { ...draft.tutorialSeen, first_clue: true };
-            ctx.narr('system', reward.text_on_success + ' 线索：' + (found.name || found.id), {
+            c.narr('system', reward.text_on_success + ' 线索：' + (found.name || found.id), {
               isSpecial: true,
             });
             addRunMemory(
@@ -56706,31 +56786,31 @@ function handleUiAction(draft, action, ctx) {
               'choice'
             );
           } else {
-            ctx.narr('system', reward.text_on_success, { isSpecial: true });
+            c.narr('system', reward.text_on_success, { isSpecial: true });
           }
-          ctx.narr('system', '这是你继续观察才发现的东西。如果刚才选择了收手，你永远不会知道。', {
+          c.narr('system', '这是你继续观察才发现的东西。如果刚才选择了收手，你永远不会知道。', {
             isSpecial: true,
           });
         } else if (r < reward.clue_chance + reward.san_gain_chance) {
           // SAN recovery — neutral outcome
-          var gain = rand(1, 3, ctx.rng);
+          var gain = rand(1, 3, c.rng);
           applySanLoss(draft, -gain);
-          ctx.narr('san-recovery', '你在混乱中找到了某种秩序。SAN +' + gain);
-          ctx.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
+          c.narr('san-recovery', '你在混乱中找到了某种秩序。SAN +' + gain);
+          c.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
         } else if (r < reward.clue_chance + reward.san_gain_chance + reward.madness_risk) {
           // Madness — causal feedback: you've been noticed
-          var mad = rollMadness(ctx, ctx.rng);
+          var mad = rollMadness(ctx, c.rng);
           draft.madnessActive = mad;
-          ctx.narr('madness', '【临时疯狂：' + mad.name + '】' + mad.description, { madness: mad });
-          ctx.narr('system', reward.text_on_madness, { isSpecial: true });
-          ctx.narr('system', '被某种东西记住了。', { isSpecial: true });
+          c.narr('madness', '【临时疯狂：' + mad.name + '】' + mad.description, { madness: mad });
+          c.narr('system', reward.text_on_madness, { isSpecial: true });
+          c.narr('system', '被某种东西记住了。', { isSpecial: true });
           addRunMemory(draft, '深入探究时被某种东西记住了——' + mad.name, 'madness');
-          ctx.effects.push(
+          c.effects.push(
             { type: 'AUDIO_PLAY', id: 'madness' },
             { type: 'AUDIO_PLAY', id: 'madness_loop' }
           );
         } else {
-          ctx.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
+          c.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
         }
         // Also apply base event SAN damage
         var baseSanDmg = Math.abs(evt.sanity_damage || 0);
@@ -56744,20 +56824,20 @@ function handleUiAction(draft, action, ctx) {
             ctx
           );
           if (baseSanDmg > 0) {
-            applySanLoss(draft, baseSanDmg, { audio: true, effects: ctx.effects });
-            ctx.narr('system', 'SAN -' + baseSanDmg, { isEffect: true });
+            applySanLoss(draft, baseSanDmg, { audio: true, effects: c.effects });
+            c.narr('system', 'SAN -' + baseSanDmg, { isEffect: true });
           }
         }
       }
       // Apply event effects BEFORE death check
-      applyLegacyEffects(draft, evt.effects);
+      applyLegacyEffects(draft, evt.effects, c.rng);
       // Post-gamble: check death (unified via applyDeathResolution)
       {
         var deathCtx = resolveDeath(draft, evt, null);
-        if (deathCtx) applyDeathResolution(draft, deathCtx, ctx.narr, ctx);
+        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx);
       }
       draft.objectives = checkObjCompletion(draft.objectives, draft);
-      ctx.log('探索(赌博)：' + evt.name);
+      c.log('探索(赌博)：' + evt.name);
       return null;
     }
     case 'START_PROLOGUE': {
@@ -56770,7 +56850,7 @@ function handleUiAction(draft, action, ctx) {
       draft.clues = [];
       draft.narrative = [
         {
-          id: ctx.now(),
+          id: c.now(),
           type: 'system',
           text: '这不是沃切斯特的第一份档案。',
           isSpecial: true,
@@ -56811,7 +56891,7 @@ function handleUiAction(draft, action, ctx) {
       // 添加叙述文本
       for (var bi = 0; bi < result.narration.length; bi++) {
         var block = result.narration[bi];
-        ctx.narr(block.type, block.text, { isEffect: block.isEffect, isSpecial: block.isSpecial });
+        c.narr(block.type, block.text, { isEffect: block.isEffect, isSpecial: block.isSpecial });
       }
 
       // 如果完成前传，恢复初始状态用于角色创建
@@ -56848,7 +56928,7 @@ function handleUiAction(draft, action, ctx) {
       return null;
     }
     case 'DELAYED_NARRATE': {
-      ctx.narr(action.narrType || 'system', action.text, action.extra || {});
+      c.narr(action.narrType || 'system', action.text, action.extra || {});
       return null;
     }
     case 'USE_ITEM': {
@@ -56859,8 +56939,8 @@ function handleUiAction(draft, action, ctx) {
       var def = getItemDef(item.id, ctx);
       if (!def) return null;
       // Apply item effects
-      var consumed = useItemByDef(draft, item, ctx.narr, ctx);
-      ctx.effects.push({ type: 'AUDIO_PLAY', id: 'item_use' });
+      var consumed = useItemByDef(draft, item, c.narr, ctx);
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'item_use' });
       // Consume item if flagged
       if (consumed) {
         if (draft.inventory[idx].uses > 1) {
@@ -58447,6 +58527,11 @@ function disconnectDevtools() {
 // createGameReducer bridge removed — single produce path only.
 // DevTools: opt-in via @xyflow/zustand-devtools (see import above).
 
+// Disable Immer auto-freeze in dev mode. Auto-freeze recursively freezes all
+// state objects, which triggers forceStoreRerender inside React's passive effects
+// phase when Zustand notifies subscribers of the frozen state update.
+setAutoFreeze(false);
+
 // ═══════════════════════════════════════════════════════════════
 //  Placeholder state (pre-seed, before GD loads)
 // ═══════════════════════════════════════════════════════════════
@@ -58510,6 +58595,16 @@ function buildSliceCtx(draft, rng, corruptFn) {
     rng: rng,
     now: function () { return Date.now(); },
     pick: rng ? rng.pick : function (arr) { return arr[Math.floor(Math.random() * arr.length)]; },
+    view: {
+      phase: getPhase(draft.ap, draft.maxAp),
+      visits: 0,
+      pollution: draft.pollution || 0,
+      san: draft.san,
+      hp: draft.hp,
+      maxHp: draft.maxHp,
+      loopCount: draft.loopCount || 0,
+      madnessActive: !!draft.madnessActive,
+    },
   };
 }
 
@@ -58642,11 +58737,26 @@ var useGameStore = create(
 
       seedState: function (gd) {
         var realInit = initialState();
+        var settings = loadSettings();
         set(function (draft) {
           for (var key in realInit) {
             if (realInit.hasOwnProperty(key)) draft[key] = realInit[key];
           }
           draft._GD = gd;
+          // Sync UI settings → game state (was in a separate useEffect, now folded into initial seed)
+          draft.accessibilityOptions = {
+            visual_distortion: settings.visualDistortion !== false,
+            flicker_control: settings.flickerEffect !== false,
+            sudden_sounds: settings.suddenSounds !== false ? 'on' : 'off',
+          };
+          draft._visualPollution = settings.visualPollution ?? 50;
+          draft._interactionPollution = settings.interactionPollution ?? 50;
+          draft._metaPollution = settings.metaPollution ?? 50;
+          if (settings.lightPollutionMode) {
+            draft._visualPollution = 10;
+            draft._interactionPollution = 5;
+            draft._metaPollution = 25;
+          }
         });
       },
     };
@@ -59664,6 +59774,8 @@ var SanPollutionLayer = memo(function SanPollutionLayer(props) {
 // src/components/SanPollutionLayer.jsx - SAN visual corruption (re-exports from SanPollutionLayers.jsx)
 // CorruptibleChoice, AbyssPopup, and injected CSS live here for backward compatibility.
 // The canvas renderer was split into SanPollutionLayers.jsx for layered activation.
+
+var { useState, useEffect, useRef, useCallback, memo } = React;
 
 // Re-export the layered renderer (defined in SanPollutionLayers.jsx)
 
@@ -68510,18 +68622,20 @@ function ScreenTransition({ screenKey, children, duration }) {
   var prevKey = useRef(screenKey);
   var timerRef = useRef(null);
   var rafRef = useRef(null);
+  var childrenRef = useRef(children);
+  childrenRef.current = children;
 
   // Sync children when NOT transitioning (same screen, state changed)
   useEffect(function () {
     if (phase === "visible" && screenKey === prevKey.current) {
-      setRenderChildren(children);
+      setRenderChildren(childrenRef.current);
     }
-  }, [children, phase, screenKey]);
+  }, [phase, screenKey]);
 
   useEffect(function () {
     if (screenKey === prevKey.current) return;
     if (totalDur === 0) {
-      setRenderKey(screenKey); setRenderChildren(children);
+      setRenderKey(screenKey); setRenderChildren(childrenRef.current);
       setVariant(getVariant(screenKey)); prevKey.current = screenKey;
       return;
     }
@@ -68536,7 +68650,7 @@ function ScreenTransition({ screenKey, children, duration }) {
     if (canvasRef.current && canvasRef.current.play) {
       canvasRef.current.play(getVariant(prevKey.current), canvasDur, function () {
         // Canvas complete -> swap content + CSS enter
-        setRenderKey(screenKey); setRenderChildren(children);
+        setRenderKey(screenKey); setRenderChildren(childrenRef.current);
         setVariant(getVariant(screenKey));
         setPhase("enter");
         prevKey.current = screenKey;
@@ -68545,13 +68659,13 @@ function ScreenTransition({ screenKey, children, duration }) {
       // Fallback: no canvas, just timer-based swap
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(function () {
-        setRenderKey(screenKey); setRenderChildren(children);
+        setRenderKey(screenKey); setRenderChildren(childrenRef.current);
         setVariant(getVariant(screenKey));
         setPhase("enter");
         prevKey.current = screenKey;
       }, canvasDur);
     }
-  }, [screenKey, children, totalDur, canvasDur]);
+  }, [screenKey, totalDur, canvasDur]);
 
   // enter -> visible on next frame
   useEffect(function () {
@@ -68698,8 +68812,6 @@ let _currentFearTuning = null;
 // State lives in useGameStore (Zustand + immer). Components subscribe via granular selectors.
 // App uses useAppGameData() for game screen; individual components use their own selectors.
 
-var _storeSeeded = false;
-
 function App() {
   // Granular subscriptions — each hook re-renders only when its slice changes
   var screen = useScreen();
@@ -68712,10 +68824,12 @@ function App() {
 
   var stateRef = React.useRef(game);
   stateRef.current = game;
-  // Seed Zustand store on mount (after GD is available at module level)
+  // Seed Zustand store on mount (may already be seeded by main.jsx in dev mode)
   React.useEffect(function () {
-    seedGameStore(GD);
-    _storeSeeded = true;
+    var storeState = useGameStore.getState();
+    if (!storeState._GD) {
+      seedGameStore(GD);
+    }
     // 移除加载层
     var ls = document.getElementById('loading-screen');
     if (ls) {
@@ -68738,7 +68852,7 @@ function App() {
 
   // UI state from external store (replaces 7 useState calls)
   const ui = useUiStore();
-  const settings = ui.settings || getSettings();
+  const settings = ui.settings;
   const savedExists = useMemo(() => hasSave(), [ui.saveTick]);
 
   // Achievement checking
@@ -68766,39 +68880,7 @@ function App() {
     audioManager._effectScale = (settings.effectVolume ?? 80) / 100;
     audioManager._uiScale = (settings.uiVolume ?? 80) / 100;
     audioManager.suddenMuted = !settings.suddenSounds;
-    dispatch({
-      type: 'ACCESSIBILITY_TOGGLE',
-      key: 'visual_distortion',
-      value: !!settings.visualDistortion,
-    });
-    dispatch({
-      type: 'ACCESSIBILITY_TOGGLE',
-      key: 'flicker_control',
-      value: !!settings.flickerEffect,
-    });
-    // SSOT: three independent pollution sliders
-    dispatch({
-      type: 'SET_META_FIELD',
-      field: '_visualPollution',
-      value: settings.visualPollution ?? 50,
-    });
-    dispatch({
-      type: 'SET_META_FIELD',
-      field: '_interactionPollution',
-      value: settings.interactionPollution ?? 50,
-    });
-    dispatch({
-      type: 'SET_META_FIELD',
-      field: '_metaPollution',
-      value: settings.metaPollution ?? 50,
-    });
-    // Light pollution mode: override all sliders to minimum
-    if (settings.lightPollutionMode) {
-      dispatch({ type: 'SET_META_FIELD', field: '_visualPollution', value: 10 });
-      dispatch({ type: 'SET_META_FIELD', field: '_interactionPollution', value: 5 });
-      dispatch({ type: 'SET_META_FIELD', field: '_metaPollution', value: 25 });
-    }
-  }, [settings]);
+  }, []); // Audio settings only — game state sync moved to seedState
 
   // 笔记本打开 → 同步标记引导已读（uiStore → game state）
   useEffect(() => {
@@ -68837,7 +68919,17 @@ function App() {
     };
   }, []);
 
-  const handleSettingsChange = (s) => updateSettings(s);
+  const handleSettingsChange = (s) => {
+    updateSettings(s);
+    // Sync pollution settings to game state (initial values set in seedState)
+    dispatch({ type: 'SET_META_FIELD', field: '_visualPollution', value: s.visualPollution ?? 50 });
+    dispatch({ type: 'SET_META_FIELD', field: '_interactionPollution', value: s.interactionPollution ?? 50 });
+    dispatch({ type: 'SET_META_FIELD', field: '_metaPollution', value: s.lightPollutionMode ? 25 : (s.metaPollution ?? 50) });
+    if (s.lightPollutionMode) {
+      dispatch({ type: 'SET_META_FIELD', field: '_visualPollution', value: 10 });
+      dispatch({ type: 'SET_META_FIELD', field: '_interactionPollution', value: 5 });
+    }
+  };
   const fontSizeClass = 'narrative-size-' + settings.narrativeFontSize;
   const handleLoadSlot = (loaded) => {
     dispatch({ type: 'CONTINUE_GAME', savedState: loaded });

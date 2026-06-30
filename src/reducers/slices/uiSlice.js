@@ -1,14 +1,14 @@
 // src/reducers/slices/uiSlice.js — Zustand-native action handlers
 // Migrated from gameReducer bridge (Step 1 of Zustand migration).
 //
-// Signature: (draft, action, ctx) => null | object
+// Signature: (draft, action, c, ctx) => null | object
 //   draft    — immer proxy (mutate in place, do NOT return new state)
 //   action   — { type, ...payload }
-//   ctx      — { GD, narr, log, effects, rng, bt, now, pick }
-//              narr/log/effects close over draft (mutate via closure)
+//   c        — { narr, log, effects, bt, rng } (reducer context, close over draft)
+//   ctx      — { GD } (game data)
 //
 // Handlers mutate draft directly. Return null = handled.
-// Effects collected in ctx.effects, flushed after set() by dispatch router.
+// Effects collected in c.effects, flushed after set() by dispatch router.
 
 import { rand, clamp, pick, applySanLoss } from '../utils.js';
 import { processSanLoss, rollMadness } from '../sanReducer.js';
@@ -28,7 +28,7 @@ import { hasClueId } from '../../utils/clueNameMap.js';
 import { initSkills } from '../../utils/gameHelpers.js';
 import { processFakeChoice } from '../../systems/sanConsequenceChain.js';
 
-export function handleUiAction(draft, action, ctx) {
+export function handleUiAction(draft, action, c, ctx) {
   var GD = ctx.GD;
 
   switch (action.type) {
@@ -44,21 +44,21 @@ export function handleUiAction(draft, action, ctx) {
       }
       draft.pendingChoice = null;
       // SAN consequence: check if this is a fake option and apply hidden penalty
-      var fakeResult = processFakeChoice(choice, draft, ctx);
+      var fakeResult = processFakeChoice(choice, draft, c);
       if (fakeResult) {
-        ctx.narr('system', fakeResult, { isSpecial: true });
-        ctx.log('选择了虚假选项：' + (choice._originalLabel || choice.label));
+        c.narr('system', fakeResult, { isSpecial: true });
+        c.log('选择了虚假选项：' + (choice._originalLabel || choice.label));
       } else {
-        ctx.narr('system', choice.text, { isSpecial: true });
-        applyLegacyEffects(draft, choice.effects);
+        c.narr('system', choice.text, { isSpecial: true });
+        applyLegacyEffects(draft, choice.effects, c.rng);
       }
       // Death check after choice effects (unified via applyDeathResolution)
       {
         var deathCtx = resolveDeath(draft, pc.evt, choice);
-        if (deathCtx) applyDeathResolution(draft, deathCtx, ctx.narr, ctx);
+        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx);
       }
       draft.objectives = checkObjCompletion(draft.objectives, draft);
-      ctx.log('选择：' + choice.label);
+      c.log('选择：' + choice.label);
       return null;
     }
     case 'DISMISS_PENDING':
@@ -73,7 +73,7 @@ export function handleUiAction(draft, action, ctx) {
       return null;
     case 'AUDIO_MUTE_TOGGLE':
       draft.audioMuted = !draft.audioMuted;
-      ctx.effects.push({ type: 'AUDIO_SET_MUTED', muted: draft.audioMuted });
+      c.effects.push({ type: 'AUDIO_SET_MUTED', muted: draft.audioMuted });
       return null;
     case 'ACCESSIBILITY_TOGGLE': {
       var key = action.key;
@@ -94,7 +94,7 @@ export function handleUiAction(draft, action, ctx) {
           ...draft.accessibilityOptions,
           sudden_sounds: cur3 === 'off' ? 'on' : 'off',
         };
-        ctx.effects.push({
+        c.effects.push({
           type: 'AUDIO_SUDDEN_MUTED',
           value: draft.accessibilityOptions.sudden_sounds === 'off',
         });
@@ -114,7 +114,7 @@ export function handleUiAction(draft, action, ctx) {
       var evt = g.evt;
       if (choiceId === 'safe') {
         // Safe: normal SAN damage flow
-        ctx.narr('system', opt.text);
+        c.narr('system', opt.text);
         var sanDmg = Math.abs(evt.sanity_damage || 0);
         if (sanDmg > 0) {
           sanDmg = processSanLoss(
@@ -127,50 +127,50 @@ export function handleUiAction(draft, action, ctx) {
           );
           if (sanDmg > 0) {
             if (evt.skill_check) {
-              ctx.effects.push({ type: 'AUDIO_SKILL', id: 'roll' });
+              c.effects.push({ type: 'AUDIO_SKILL', id: 'roll' });
               var check = doSkillCheck(
                 evt.skill_check.skill,
                 evt.skill_check.threshold || 50,
                 draft,
                 draft.difficulty,
                 ctx,
-                ctx.rng
+                c.rng
               );
               if (check.success) {
-                ctx.effects.push({ type: 'AUDIO_SKILL', id: 'success' });
+                c.effects.push({ type: 'AUDIO_SKILL', id: 'success' });
                 sanDmg = Math.max(1, Math.round(sanDmg * 0.5));
-                ctx.narr('system', '【技能检定：' + check.skillName + '】成功！SAN损失减半。');
+                c.narr('system', '【技能检定：' + check.skillName + '】成功！SAN损失减半。');
                 draft.stats_run.checks_passed++;
               } else {
-                ctx.effects.push({
+                c.effects.push({
                   type: 'AUDIO_SKILL',
                   id: check.isCritFail ? 'critical_fail' : 'fail',
                 });
-                ctx.narr('system', '【技能检定：' + check.skillName + '】失败！');
+                c.narr('system', '【技能检定：' + check.skillName + '】失败！');
                 draft.stats_run.checks_failed++;
               }
             }
             applySanLoss(draft, sanDmg, { trackStats: true });
-            ctx.narr('system', 'SAN -' + sanDmg, { isEffect: true });
+            c.narr('system', 'SAN -' + sanDmg, { isEffect: true });
             if (sanDmg >= 1) {
-              ctx.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanDmg });
+              c.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanDmg });
               draft.transition = 'san-loss';
             }
           }
         }
       } else if (choiceId === 'deep_investigate') {
         // Deep investigate: roll 1d6 SAN loss, then check for reward
-        var sanRoll = rand(1, 6, ctx.rng);
-        ctx.narr('system', opt.text);
+        var sanRoll = rand(1, 6, c.rng);
+        c.narr('system', opt.text);
         applySanLoss(draft, sanRoll, { trackStats: true });
-        ctx.narr('system', 'SAN -' + sanRoll, { isEffect: true });
+        c.narr('system', 'SAN -' + sanRoll, { isEffect: true });
         if (sanRoll >= 1) {
-          ctx.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanRoll });
+          c.effects.push({ type: 'AUDIO_SAN_LOSS', amount: sanRoll });
           draft.transition = 'san-loss';
         }
         // Independent reward check
         var reward = opt.reward || {};
-        var r = (ctx.rng ? ctx.rng.next() : Math.random());
+        var r = (c.rng ? c.rng.next() : Math.random());
         if (r < reward.clue_chance) {
           // Clue found — causal feedback
           var _GD = GD;
@@ -178,12 +178,12 @@ export function handleUiAction(draft, action, ctx) {
             .flatMap(function (x) { return x.clues || []; })
             .filter(function (x) { return !hasClueId(draft.clues, x.id); });
           if (availableClues.length > 0) {
-            var found = pick(availableClues, ctx.rng);
+            var found = pick(availableClues, c.rng);
             draft.clues.push({ id: found.id, name: found.name || found.id });
-            ctx.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
+            c.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
             if (!draft.tutorialSeen.first_clue && draft.clues.length === 1)
               draft.tutorialSeen = { ...draft.tutorialSeen, first_clue: true };
-            ctx.narr('system', reward.text_on_success + ' 线索：' + (found.name || found.id), {
+            c.narr('system', reward.text_on_success + ' 线索：' + (found.name || found.id), {
               isSpecial: true,
             });
             addRunMemory(
@@ -192,31 +192,31 @@ export function handleUiAction(draft, action, ctx) {
               'choice'
             );
           } else {
-            ctx.narr('system', reward.text_on_success, { isSpecial: true });
+            c.narr('system', reward.text_on_success, { isSpecial: true });
           }
-          ctx.narr('system', '这是你继续观察才发现的东西。如果刚才选择了收手，你永远不会知道。', {
+          c.narr('system', '这是你继续观察才发现的东西。如果刚才选择了收手，你永远不会知道。', {
             isSpecial: true,
           });
         } else if (r < reward.clue_chance + reward.san_gain_chance) {
           // SAN recovery — neutral outcome
-          var gain = rand(1, 3, ctx.rng);
+          var gain = rand(1, 3, c.rng);
           applySanLoss(draft, -gain);
-          ctx.narr('san-recovery', '你在混乱中找到了某种秩序。SAN +' + gain);
-          ctx.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
+          c.narr('san-recovery', '你在混乱中找到了某种秩序。SAN +' + gain);
+          c.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
         } else if (r < reward.clue_chance + reward.san_gain_chance + reward.madness_risk) {
           // Madness — causal feedback: you've been noticed
-          var mad = rollMadness(ctx, ctx.rng);
+          var mad = rollMadness(ctx, c.rng);
           draft.madnessActive = mad;
-          ctx.narr('madness', '【临时疯狂：' + mad.name + '】' + mad.description, { madness: mad });
-          ctx.narr('system', reward.text_on_madness, { isSpecial: true });
-          ctx.narr('system', '被某种东西记住了。', { isSpecial: true });
+          c.narr('madness', '【临时疯狂：' + mad.name + '】' + mad.description, { madness: mad });
+          c.narr('system', reward.text_on_madness, { isSpecial: true });
+          c.narr('system', '被某种东西记住了。', { isSpecial: true });
           addRunMemory(draft, '深入探究时被某种东西记住了——' + mad.name, 'madness');
-          ctx.effects.push(
+          c.effects.push(
             { type: 'AUDIO_PLAY', id: 'madness' },
             { type: 'AUDIO_PLAY', id: 'madness_loop' }
           );
         } else {
-          ctx.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
+          c.narr('system', '它只学会了你的呼吸频率。', { isSpecial: true });
         }
         // Also apply base event SAN damage
         var baseSanDmg = Math.abs(evt.sanity_damage || 0);
@@ -230,20 +230,20 @@ export function handleUiAction(draft, action, ctx) {
             ctx
           );
           if (baseSanDmg > 0) {
-            applySanLoss(draft, baseSanDmg, { audio: true, effects: ctx.effects });
-            ctx.narr('system', 'SAN -' + baseSanDmg, { isEffect: true });
+            applySanLoss(draft, baseSanDmg, { audio: true, effects: c.effects });
+            c.narr('system', 'SAN -' + baseSanDmg, { isEffect: true });
           }
         }
       }
       // Apply event effects BEFORE death check
-      applyLegacyEffects(draft, evt.effects);
+      applyLegacyEffects(draft, evt.effects, c.rng);
       // Post-gamble: check death (unified via applyDeathResolution)
       {
         var deathCtx = resolveDeath(draft, evt, null);
-        if (deathCtx) applyDeathResolution(draft, deathCtx, ctx.narr, ctx);
+        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx);
       }
       draft.objectives = checkObjCompletion(draft.objectives, draft);
-      ctx.log('探索(赌博)：' + evt.name);
+      c.log('探索(赌博)：' + evt.name);
       return null;
     }
     case 'START_PROLOGUE': {
@@ -256,7 +256,7 @@ export function handleUiAction(draft, action, ctx) {
       draft.clues = [];
       draft.narrative = [
         {
-          id: ctx.now(),
+          id: c.now(),
           type: 'system',
           text: '这不是沃切斯特的第一份档案。',
           isSpecial: true,
@@ -297,7 +297,7 @@ export function handleUiAction(draft, action, ctx) {
       // 添加叙述文本
       for (var bi = 0; bi < result.narration.length; bi++) {
         var block = result.narration[bi];
-        ctx.narr(block.type, block.text, { isEffect: block.isEffect, isSpecial: block.isSpecial });
+        c.narr(block.type, block.text, { isEffect: block.isEffect, isSpecial: block.isSpecial });
       }
 
       // 如果完成前传，恢复初始状态用于角色创建
@@ -334,7 +334,7 @@ export function handleUiAction(draft, action, ctx) {
       return null;
     }
     case 'DELAYED_NARRATE': {
-      ctx.narr(action.narrType || 'system', action.text, action.extra || {});
+      c.narr(action.narrType || 'system', action.text, action.extra || {});
       return null;
     }
     case 'USE_ITEM': {
@@ -345,8 +345,8 @@ export function handleUiAction(draft, action, ctx) {
       var def = getItemDef(item.id, ctx);
       if (!def) return null;
       // Apply item effects
-      var consumed = useItemByDef(draft, item, ctx.narr, ctx);
-      ctx.effects.push({ type: 'AUDIO_PLAY', id: 'item_use' });
+      var consumed = useItemByDef(draft, item, c.narr, ctx);
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'item_use' });
       // Consume item if flagged
       if (consumed) {
         if (draft.inventory[idx].uses > 1) {

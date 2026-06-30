@@ -2,7 +2,7 @@
 // Directions: 日常观察(20), 自然异常(15), 城镇低语(15), 个人记忆(12), 时间错位(10), 区域沉默(9), 结局余波(3)
 // P0完成: 全部84事件已添加 distortion_variants —— 引擎 getDistortionVariant() 直接可用
 // P0完成: 9个"某地沉默"从模板复制升级为各区域独立叙事 + SAN/轮回变体
-export const events = [
+export const EVENTS = [
   // 日常观察 (20) — normalcy_anchor 事件，san_low 下变成"不安"
   {
     id: 'silent_daily_001',

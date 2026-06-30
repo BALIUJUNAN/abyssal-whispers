@@ -15,6 +15,7 @@
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { setAutoFreeze } from 'immer';
 import { logAction } from '../engine/zustandDevTools.js';
 import { flushEffectsBuffer, setEffectsDispatch } from '../reducers/gameReducer.js';
 import { STARTING_STATE, STAT_DEFAULTS } from './gameConstants.js';
@@ -30,6 +31,14 @@ import { handleLoopAction } from '../reducers/slices/loopSlice.js';
 import { applyFearCorruption } from '../systems/fearLens.js';
 import { applyTextPollution } from '../systems/textPollution.js';
 import { initialState } from './initialState.js';
+import { createSeededRng } from '../utils/seededRng.js';
+import { getPhase } from '../engine/WorldTimeSystem.js';
+import { loadSettings } from '../reducers/miscReducer.js';
+
+// Disable Immer auto-freeze in dev mode. Auto-freeze recursively freezes all
+// state objects, which triggers forceStoreRerender inside React's passive effects
+// phase when Zustand notifies subscribers of the frozen state update.
+setAutoFreeze(false);
 
 // ═══════════════════════════════════════════════════════════════
 //  Placeholder state (pre-seed, before GD loads)
@@ -94,6 +103,16 @@ function buildSliceCtx(draft, rng, corruptFn) {
     rng: rng,
     now: function () { return Date.now(); },
     pick: rng ? rng.pick : function (arr) { return arr[Math.floor(Math.random() * arr.length)]; },
+    view: {
+      phase: getPhase(draft.ap, draft.maxAp),
+      visits: 0,
+      pollution: draft.pollution || 0,
+      san: draft.san,
+      hp: draft.hp,
+      maxHp: draft.maxHp,
+      loopCount: draft.loopCount || 0,
+      madnessActive: !!draft.madnessActive,
+    },
   };
 }
 
@@ -226,11 +245,26 @@ export var useGameStore = create(
 
       seedState: function (gd) {
         var realInit = initialState();
+        var settings = loadSettings();
         set(function (draft) {
           for (var key in realInit) {
             if (realInit.hasOwnProperty(key)) draft[key] = realInit[key];
           }
           draft._GD = gd;
+          // Sync UI settings → game state (was in a separate useEffect, now folded into initial seed)
+          draft.accessibilityOptions = {
+            visual_distortion: settings.visualDistortion !== false,
+            flicker_control: settings.flickerEffect !== false,
+            sudden_sounds: settings.suddenSounds !== false ? 'on' : 'off',
+          };
+          draft._visualPollution = settings.visualPollution ?? 50;
+          draft._interactionPollution = settings.interactionPollution ?? 50;
+          draft._metaPollution = settings.metaPollution ?? 50;
+          if (settings.lightPollutionMode) {
+            draft._visualPollution = 10;
+            draft._interactionPollution = 5;
+            draft._metaPollution = 25;
+          }
         });
       },
     };

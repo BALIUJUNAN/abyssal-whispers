@@ -1,435 +1,359 @@
 // src/state/selectors.js — Fine-grained Zustand selectors
-// Each selector subscribes to only the state slice a component needs.
-// This prevents global state changes from triggering re-renders in unrelated components.
 //
-// Usage:
-//   import { useSanVisual, useNpcTrust, useEventLog } from '../state/selectors.js';
-//   const sanVisual = useSanVisual(); // re-renders ONLY when SAN changes
-//   const trust = useNpcTrust('old_lady'); // re-renders ONLY when this NPC's trust changes
+// CRITICAL: Zustand 5.0.14 does NOT support equalityFn (it's silently ignored).
+// React's useSyncExternalStore compares with Object.is (reference equality).
+// Every selector returning an object/array MUST use useMemo to cache the result.
+// All selector functions must be defined at module level (stable refs).
 
 import { useGameStore } from './useGameStore.js';
 import { getVisualForSan, getSanStageClasses, getPerceptionLevels } from '../systems/sanityVisual.js';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
 
-// ── shallowEqual helper ──
-// Zustand's default equality is Object.is (reference equality).
-// For arrays/objects, we need shallow comparison to avoid re-renders
-// when the parent creates a new array reference with the same contents.
+var useMemo = React.useMemo;
 
-function shallowEqual(a, b) {
-  if (a === b) return true;
-  if (typeof a !== 'object' || typeof b !== 'object') return false;
-  if (a == null || b == null) return false;
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-  for (let i = 0; i < keysA.length; i++) {
-    if (a[keysA[i]] !== b[keysB[i]]) return false;
-  }
-  return true;
-}
+// ── Module-level selector functions (stable references) ──
 
-// ── useGameSelector with shallow equality ──
+var _selSan = function (s) { return s.san; };
+var _selCurrentArea = function (s) { return s.currentArea || ''; };
+var _selVisitedCount = function (s) { return (s.visitedAreas || []).length; };
+var _selWeather = function (s) { return s.weather || ''; };
+var _selSafehouseCorruption = function (s) { return s.safehouseCorruption || 0; };
+var _selSealState = function (s) { return s.sealState || ''; };
+var _selMythosLevel = function (s) { return s.mythosLevel || 0; };
+var _selEventLogLength = function (s) { return (s.eventLog || []).length; };
+var _selNarrativeText = function (s) { return (s.narrative || []).map(function (n) { return n.text; }).join('\n'); };
+var _selDay = function (s) { return s.day || 1; };
+var _selLoopCount = function (s) { return s.loopCount || 0; };
+var _selCurrentChapter = function (s) { return s.currentChapter || ''; };
+var _selFood = function (s) { return s.food != null ? s.food : 0; };
+var _selMoney = function (s) { return s.money != null ? s.money : 0; };
+var _selPollution = function (s) { return s.pollution != null ? s.pollution : 0; };
+var _selHumanityScore = function (s) { return s.humanityScore != null ? s.humanityScore : 0; };
+var _selMadnessActive = function (s) { return !!s.madnessActive; };
+var _selLongTermEffectsCount = function (s) { return (s.longTermEffects || []).length; };
 
-export function useShallowSelector(selector, equalityFn) {
-  return useGameStore(selector, equalityFn || shallowEqual);
-}
+// ── Public selectors ──
 
-// ── SAN / Visual selectors ──
-
-/** Raw SAN value. Re-renders on any SAN change. */
-export function useSan() {
-  return useGameStore(function (s) { return s.san; });
-}
-
-/** Visual parameters for current SAN (cached per SAN value). */
+// SAN / Visual — use useMemo because Zustand 5 has no equalityFn
+export function useSan() { return useGameStore(_selSan); }
 export function useSanVisual() {
-  return useGameStore(function (s) { return getVisualForSan(s.san); });
+  var san = useGameStore(_selSan);
+  return useMemo(function () { return getVisualForSan(san); }, [san]);
 }
-
-/** CSS class fragments for SAN stage (vtClass, stageClass, sanClass, level). */
 export function useSanStageClasses(allowVisualFX) {
-  return useGameStore(function (s) {
-    return getSanStageClasses(s.san, allowVisualFX, { GD: s._GD || {} });
-  });
+  var san = useGameStore(_selSan);
+  return useMemo(function () {
+    return getSanStageClasses(san, allowVisualFX, { GD: window.GD || {} });
+  }, [san, allowVisualFX]);
 }
-
-/** Perception distortion levels (focus, edge, audio, input, text). */
 export function usePerceptionLevels() {
-  return useGameStore(function (s) { return getPerceptionLevels(s); });
+  var san = useGameStore(_selSan);
+  var loopCount = useGameStore(_selLoopCount);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var mythosLevel = useGameStore(_selMythosLevel);
+  var pollution = useGameStore(_selPollution);
+  return useMemo(function () {
+    return getPerceptionLevels({ san: san, loopCount: loopCount, safehouseCorruption: safehouseCorruption, mythosLevel: mythosLevel, pollution: pollution });
+  }, [san, loopCount, safehouseCorruption, mythosLevel, pollution]);
 }
-
-/** Just the SAN level number (0-6). */
 export function useSanLevel() {
-  return useGameStore(function (s) {
-    const v = getVisualForSan(s.san);
-    return v.level;
-  });
+  var san = useGameStore(_selSan);
+  return useMemo(function () { return getVisualForSan(san).level; }, [san]);
 }
 
-// ── Character selectors ──
-
+// Character — subscribe to primitives, useMemo to create objects
 export function useHp() {
-  return useGameStore(function (s) { return { hp: s.hp, maxHp: s.maxHp }; }, shallowEqual);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  return useMemo(function () { return { hp: hp, maxHp: maxHp }; }, [hp, maxHp]);
 }
-
 export function useAp() {
-  return useGameStore(function (s) { return { ap: s.ap, maxAp: s.maxAp }; }, shallowEqual);
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  return useMemo(function () { return { ap: ap, maxAp: maxAp }; }, [ap, maxAp]);
 }
-
 export function useInventory() {
   return useGameStore(function (s) { return s.inventory || []; });
 }
-
 export function useClues() {
   return useGameStore(function (s) { return s.clues || []; });
 }
-
 export function useSkills() {
   return useGameStore(function (s) { return s.skills || {}; });
 }
 
-// ── World selectors ──
+// World
+export function useCurrentArea() { return useGameStore(_selCurrentArea); }
+export function useVisitedCount() { return useGameStore(_selVisitedCount); }
+export function useWeather() { return useGameStore(_selWeather); }
+export function useSafehouseCorruption() { return useGameStore(_selSafehouseCorruption); }
+export function useSealState() { return useGameStore(_selSealState); }
+export function useMythosLevel() { return useGameStore(_selMythosLevel); }
 
-/** Current area ID only. */
-export function useCurrentArea() {
-  return useGameStore(function (s) { return s.currentArea; });
-}
-
-/** Visited areas count (for map progress indicator). */
-export function useVisitedCount() {
-  return useGameStore(function (s) { return (s.visitedAreas || []).length; });
-}
-
-/** Weather string. */
-export function useWeather() {
-  return useGameStore(function (s) { return s.weather; });
-}
-
-/** Safehouse corruption (0-100). */
-export function useSafehouseCorruption() {
-  return useGameStore(function (s) { return s.safehouseCorruption; });
-}
-
-/** Seal state string. */
-export function useSealState() {
-  return useGameStore(function (s) { return s.sealState; });
-}
-
-/** Mythos level (0-100). */
-export function useMythosLevel() {
-  return useGameStore(function (s) { return s.mythosLevel; });
-}
-
-// ── NPC selectors (per-NPC to minimize re-renders) ──
-
-/**
- * Trust level for a specific NPC.
- * Re-renders ONLY when this NPC's trust changes.
- *
- * @param {string} npcId - NPC identifier (ID, not display name)
- * @returns {number} trust level 0-5
- */
+// NPC
 export function useNpcTrust(npcId) {
-  return useGameStore(function (s) {
-    return getNpcTrust(s, npcId);
-  });
+  return useGameStore(function (s) { return getNpcTrust(s, npcId); });
 }
-
-/**
- * Trust levels for all NPCs.
- * Use this only when you need to render a list of all NPCs.
- * For single-NPC display, use useNpcTrust(npcId) instead.
- */
 export function useAllNpcTrust() {
   return useGameStore(function (s) { return s.npcTrust || {}; });
 }
-
-/**
- * NPC state for a specific NPC.
- * @param {string} npcId
- * @returns {object|null}
- */
 export function useNpcState(npcId) {
-  return useGameStore(function (s) {
-    return (s.npcStates || {})[npcId] || null;
-  });
+  return useGameStore(function (s) { return (s.npcStates || {})[npcId] || null; });
 }
 
-// ── Event / Narrative selectors ──
-
-/** Full event log array. */
+// Event / Narrative
 export function useEventLog() {
   return useGameStore(function (s) { return s.eventLog || []; });
 }
-
-/** Event log length only (for badge counters). */
-export function useEventLogLength() {
-  return useGameStore(function (s) { return (s.eventLog || []).length; });
-}
-
-/** Last N entries from event log (shallow slice). */
+export function useEventLogLength() { return useGameStore(_selEventLogLength); }
 export function useRecentEventLog(n) {
-  const count = n || 10;
-  return useGameStore(function (s) {
-    return (s.eventLog || []).slice(-count);
-  });
+  var count = n || 10;
+  return useGameStore(function (s) { return (s.eventLog || []).slice(-count); });
 }
-
-/** Current narrative text array. */
 export function useNarrative() {
   return useGameStore(function (s) { return s.narrative || []; });
 }
+export function useNarrativeText() { return useGameStore(_selNarrativeText); }
 
-/** Narrative text only (for display components). */
-export function useNarrativeText() {
-  return useGameStore(function (s) {
-    return (s.narrative || []).map(function (n) { return n.text; }).join('\n');
-  });
-}
-
-// ── Progress selectors ──
-
-/** Current day number. */
-export function useDay() {
-  return useGameStore(function (s) { return s.day || 1; });
-}
-
-/** Loop count (0 = first loop). */
-export function useLoopCount() {
-  return useGameStore(function (s) { return s.loopCount || 0; });
-}
-
-/** Current chapter ID. */
-export function useCurrentChapter() {
-  return useGameStore(function (s) { return s.currentChapter; });
-}
-
-/** Objectives array. */
+// Progress
+export function useDay() { return useGameStore(_selDay); }
+export function useLoopCount() { return useGameStore(_selLoopCount); }
+export function useCurrentChapter() { return useGameStore(_selCurrentChapter); }
 export function useObjectives() {
   return useGameStore(function (s) { return s.objectives || []; });
 }
-
-/** Triggered events set (as array). */
 export function useTriggeredEvents() {
   return useGameStore(function (s) { return s.triggeredEvents || []; });
 }
 
-// ── Resource selectors ──
+// Resources
+export function useFood() { return useGameStore(_selFood); }
+export function useMoney() { return useGameStore(_selMoney); }
+export function usePollution() { return useGameStore(_selPollution); }
+export function useHumanityScore() { return useGameStore(_selHumanityScore); }
 
-export function useFood() {
-  return useGameStore(function (s) { return s.food; });
-}
-
-export function useMoney() {
-  return useGameStore(function (s) { return s.money; });
-}
-
-export function usePollution() {
-  return useGameStore(function (s) { return s.pollution; });
-}
-
-export function useHumanityScore() {
-  return useGameStore(function (s) { return s.humanityScore; });
-}
-
-// ── UI state selectors (from uiStore) ──
-
+// UI state
 export function useUiState(selector) {
-  const { useUiStore } = require('./uiStore.js');
-  if (selector) return useUiStore(selector);
-  return useUiStore();
+  var _useUiStore = require('./uiStore.js').useUiStore;
+  if (selector) return _useUiStore(selector);
+  return _useUiStore();
 }
-
-/** A specific modal open state, e.g. useUiModal('notebookOpen'). */
 export function useUiModal(modalKey) {
-  const { useUiStore } = require('./uiStore.js');
-  return useUiStore(function (s) { return s[modalKey]; });
+  var _useUiStore = require('./uiStore.js').useUiStore;
+  return _useUiStore(function (s) { return s[modalKey]; });
 }
 
-// ── Derived selectors (computed, memoized via useMemo in component) ──
-
-/**
- * Check if a specific event was triggered.
- * Returns boolean — no re-render unless triggeredEvents reference changes.
- */
+// Derived
 export function useEventTriggered(eventId) {
-  return useGameStore(function (s) {
-    return (s.triggeredEvents || []).indexOf(eventId) >= 0;
-  });
+  return useGameStore(function (s) { return (s.triggeredEvents || []).indexOf(eventId) >= 0; });
+}
+export function useLongTermEffectsCount() { return useGameStore(_selLongTermEffectsCount); }
+export function useMadnessActive() { return useGameStore(_selMadnessActive); }
+
+// ── Combined selectors ──
+// CRITICAL: subscribe to primitives only, use useMemo to create the combined object.
+// Zustand 5.0.14 has no equalityFn; React's Object.is sees new objects as changes.
+
+export function useAppGameData() {
+  var screen = useGameStore(function (s) { return s.screen; });
+  var day = useGameStore(_selDay);
+  var san = useGameStore(_selSan);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  var loopCount = useGameStore(_selLoopCount);
+  var currentArea = useGameStore(_selCurrentArea);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var pollution = useGameStore(_selPollution);
+  var money = useGameStore(_selMoney);
+  var food = useGameStore(_selFood);
+  var inventory = useGameStore(function (s) { return s.inventory; });
+  var clues = useGameStore(function (s) { return s.clues; });
+  var narrative = useGameStore(function (s) { return s.narrative; });
+  var eventLog = useGameStore(function (s) { return s.eventLog; });
+  var pendingEvent = useGameStore(function (s) { return s.pendingEvent; });
+  var pendingNpc = useGameStore(function (s) { return s.pendingNpc; });
+  var pendingGamble = useGameStore(function (s) { return s.pendingGamble; });
+  var pendingChoice = useGameStore(function (s) { return s.pendingChoice; });
+  var transition = useGameStore(function (s) { return s.transition; });
+  var madnessActive = useGameStore(_selMadnessActive);
+  var ending = useGameStore(function (s) { return s.ending; });
+  var endingCoins = useGameStore(function (s) { return s.endingCoins; });
+  var loopShopTier = useGameStore(function (s) { return s.loopShopTier; });
+  var visitedAreas = useGameStore(function (s) { return s.visitedAreas; });
+  var sealState = useGameStore(_selSealState);
+  var weather = useGameStore(_selWeather);
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var _level13GlitchScheduled = useGameStore(function (s) { return s._level13GlitchScheduled; });
+  var glitchPulse = useGameStore(function (s) { return s.glitchPulse; });
+  var stats_run = useGameStore(function (s) { return s.stats_run; });
+  var accessibilityOptions = useGameStore(function (s) { return s.accessibilityOptions; });
+
+  return useMemo(function () {
+    return {
+      screen: screen, day: day, san: san, hp: hp, maxHp: maxHp,
+      ap: ap, maxAp: maxAp, loopCount: loopCount, currentArea: currentArea,
+      safehouseCorruption: safehouseCorruption, pollution: pollution,
+      money: money, food: food, inventory: inventory, clues: clues,
+      narrative: narrative, eventLog: eventLog,
+      pendingEvent: pendingEvent, pendingNpc: pendingNpc,
+      pendingGamble: pendingGamble, pendingChoice: pendingChoice,
+      transition: transition, madnessActive: madnessActive,
+      ending: ending, endingCoins: endingCoins, loopShopTier: loopShopTier,
+      visitedAreas: visitedAreas, sealState: sealState, weather: weather,
+      currentSafehouse: currentSafehouse,
+      _level13GlitchScheduled: _level13GlitchScheduled, glitchPulse: glitchPulse,
+      stats_run: stats_run, accessibilityOptions: accessibilityOptions,
+    };
+  }, [screen, day, san, hp, maxHp, ap, maxAp, loopCount, currentArea,
+      safehouseCorruption, pollution, money, food, inventory, clues,
+      narrative, eventLog, pendingEvent, pendingNpc, pendingGamble, pendingChoice,
+      transition, madnessActive, ending, endingCoins, loopShopTier, visitedAreas,
+      sealState, weather, currentSafehouse, _level13GlitchScheduled, glitchPulse,
+      stats_run, accessibilityOptions]);
 }
 
-/**
- * Active long-term effects count.
- */
-export function useLongTermEffectsCount() {
-  return useGameStore(function (s) { return (s.longTermEffects || []).length; });
+// Other batch selectors — use useMemo for the same reason
+export function useGameLayoutData() {
+  var screen = useGameStore(function (s) { return s.screen; });
+  var day = useGameStore(_selDay);
+  var loopCount = useGameStore(_selLoopCount);
+  var currentArea = useGameStore(_selCurrentArea);
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  var san = useGameStore(_selSan);
+  var audioMuted = useGameStore(function (s) { return s.audioMuted; });
+  var deathContext = useGameStore(function (s) { return s.deathContext; });
+  var _level13GlitchScheduled = useGameStore(function (s) { return s._level13GlitchScheduled; });
+  var tutorialSeen = useGameStore(function (s) { return s.tutorialSeen; });
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  return useMemo(function () {
+    return {
+      screen: screen, day: day, loopCount: loopCount, currentArea: currentArea,
+      ap: ap, maxAp: maxAp, san: san, audioMuted: audioMuted,
+      deathContext: deathContext, _level13GlitchScheduled: _level13GlitchScheduled,
+      tutorialSeen: tutorialSeen, currentSafehouse: currentSafehouse,
+    };
+  }, [screen, day, loopCount, currentArea, ap, maxAp, san, audioMuted,
+      deathContext, _level13GlitchScheduled, tutorialSeen, currentSafehouse]);
 }
 
-/**
- * Check if madness is active.
- */
-export function useMadnessActive() {
-  return useGameStore(function (s) { return s.madnessActive; });
+export function useCenterPanelData() {
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  var san = useGameStore(_selSan);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  var food = useGameStore(_selFood);
+  var money = useGameStore(_selMoney);
+  var currentArea = useGameStore(_selCurrentArea);
+  var day = useGameStore(_selDay);
+  var loopCount = useGameStore(_selLoopCount);
+  var inventory = useGameStore(function (s) { return s.inventory; });
+  var clues = useGameStore(function (s) { return s.clues; });
+  var narrative = useGameStore(function (s) { return s.narrative; });
+  var eventLog = useGameStore(function (s) { return s.eventLog; });
+  var pendingEvent = useGameStore(function (s) { return s.pendingEvent; });
+  var pendingNpc = useGameStore(function (s) { return s.pendingNpc; });
+  var pendingGamble = useGameStore(function (s) { return s.pendingGamble; });
+  var pendingChoice = useGameStore(function (s) { return s.pendingChoice; });
+  var transition = useGameStore(function (s) { return s.transition; });
+  var madnessActive = useGameStore(_selMadnessActive);
+  var ending = useGameStore(function (s) { return s.ending; });
+  var skills = useGameStore(function (s) { return s.skills; });
+  var pollution = useGameStore(_selPollution);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var objectives = useGameStore(function (s) { return s.objectives; });
+  var longTermEffects = useGameStore(function (s) { return s.longTermEffects; });
+  return useMemo(function () {
+    return {
+      ap: ap, maxAp: maxAp, san: san, hp: hp, maxHp: maxHp,
+      food: food, money: money, currentArea: currentArea, day: day,
+      loopCount: loopCount, inventory: inventory, clues: clues,
+      narrative: narrative, eventLog: eventLog,
+      pendingEvent: pendingEvent, pendingNpc: pendingNpc,
+      pendingGamble: pendingGamble, pendingChoice: pendingChoice,
+      transition: transition, madnessActive: madnessActive, ending: ending,
+      skills: skills, pollution: pollution, safehouseCorruption: safehouseCorruption,
+      currentSafehouse: currentSafehouse, objectives: objectives,
+      longTermEffects: longTermEffects,
+    };
+  }, [ap, maxAp, san, hp, maxHp, food, money, currentArea, day, loopCount,
+      inventory, clues, narrative, eventLog, pendingEvent, pendingNpc,
+      pendingGamble, pendingChoice, transition, madnessActive, ending,
+      skills, pollution, safehouseCorruption, currentSafehouse, objectives,
+      longTermEffects]);
 }
 
-// ── Batch selector (for components needing multiple slices) ──
-// Use sparingly — prefer individual selectors for maximum granularity.
+export function useLeftPanelDataFull() {
+  var san = useGameStore(_selSan);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  var pollution = useGameStore(_selPollution);
+  var loopCount = useGameStore(_selLoopCount);
+  var madnessActive = useGameStore(_selMadnessActive);
+  var sealState = useGameStore(_selSealState);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var weather = useGameStore(_selWeather);
+  var food = useGameStore(_selFood);
+  var money = useGameStore(_selMoney);
+  var inventory = useGameStore(function (s) { return s.inventory; });
+  var clues = useGameStore(function (s) { return s.clues; });
+  var skills = useGameStore(function (s) { return s.skills; });
+  var stats = useGameStore(function (s) { return s.stats; });
+  var objectives = useGameStore(function (s) { return s.objectives; });
+  var longTermEffects = useGameStore(function (s) { return s.longTermEffects; });
+  var currentArea = useGameStore(_selCurrentArea);
+  return useMemo(function () {
+    return {
+      san: san, hp: hp, maxHp: maxHp, pollution: pollution,
+      loopCount: loopCount, madnessActive: madnessActive, sealState: sealState,
+      safehouseCorruption: safehouseCorruption, currentSafehouse: currentSafehouse,
+      weather: weather, food: food, money: money, inventory: inventory,
+      clues: clues, skills: skills, stats: stats, objectives: objectives,
+      longTermEffects: longTermEffects, currentArea: currentArea,
+    };
+  }, [san, hp, maxHp, pollution, loopCount, madnessActive, sealState,
+      safehouseCorruption, currentSafehouse, weather, food, money, inventory,
+      clues, skills, stats, objectives, longTermEffects, currentArea]);
+}
 
 export function useGameHeaderData() {
-  return useGameStore(function (s) {
+  var day = useGameStore(_selDay);
+  var ap = useGameStore(function (s) { return s.ap; });
+  var maxAp = useGameStore(function (s) { return s.maxAp; });
+  var san = useGameStore(_selSan);
+  var hp = useGameStore(function (s) { return s.hp; });
+  var maxHp = useGameStore(function (s) { return s.maxHp; });
+  var food = useGameStore(_selFood);
+  var money = useGameStore(_selMoney);
+  var loopCount = useGameStore(_selLoopCount);
+  var currentArea = useGameStore(_selCurrentArea);
+  return useMemo(function () {
     return {
-      day: s.day,
-      ap: s.ap,
-      maxAp: s.maxAp,
-      san: s.san,
-      hp: s.hp,
-      maxHp: s.maxHp,
-      food: s.food,
-      money: s.money,
-      loopCount: s.loopCount,
-      currentArea: s.currentArea,
+      day: day, ap: ap, maxAp: maxAp, san: san,
+      hp: hp, maxHp: maxHp, food: food, money: money,
+      loopCount: loopCount, currentArea: currentArea,
     };
-  }, shallowEqual);
+  }, [day, ap, maxAp, san, hp, maxHp, food, money, loopCount, currentArea]);
 }
 
 export function useLeftPanelData() {
-  return useGameStore(function (s) {
+  var sealState = useGameStore(_selSealState);
+  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
+  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var pollution = useGameStore(_selPollution);
+  var weather = useGameStore(_selWeather);
+  var san = useGameStore(_selSan);
+  var loopCount = useGameStore(_selLoopCount);
+  return useMemo(function () {
     return {
-      sealState: s.sealState,
-      safehouseCorruption: s.safehouseCorruption,
-      currentSafehouse: s.currentSafehouse,
-      pollution: s.pollution,
-      weather: s.weather,
-      san: s.san,
-      loopCount: s.loopCount,
+      sealState: sealState, safehouseCorruption: safehouseCorruption,
+      currentSafehouse: currentSafehouse, pollution: pollution,
+      weather: weather, san: san, loopCount: loopCount,
     };
-  }, shallowEqual);
+  }, [sealState, safehouseCorruption, currentSafehouse, pollution, weather, san, loopCount]);
 }
-
-// ── Combined selectors (minimize re-renders for high-frequency components) ──
-
-/** Fields App needs for game-screen render (replaces useAppState full-state subscription). */
-export function useAppGameData() {
-  return useGameStore(function (s) {
-    return {
-      screen: s.screen,
-      day: s.day,
-      san: s.san,
-      hp: s.hp,
-      maxHp: s.maxHp,
-      ap: s.ap,
-      maxAp: s.maxAp,
-      loopCount: s.loopCount,
-      currentArea: s.currentArea,
-      safehouseCorruption: s.safehouseCorruption,
-      pollution: s.pollution,
-      money: s.money,
-      food: s.food,
-      inventory: s.inventory,
-      clues: s.clues,
-      narrative: s.narrative,
-      eventLog: s.eventLog,
-      pendingEvent: s.pendingEvent,
-      pendingNpc: s.pendingNpc,
-      pendingGamble: s.pendingGamble,
-      pendingChoice: s.pendingChoice,
-      transition: s.transition,
-      madnessActive: s.madnessActive,
-      ending: s.ending,
-      endingCoins: s.endingCoins,
-      loopShopTier: s.loopShopTier,
-      visitedAreas: s.visitedAreas,
-      sealState: s.sealState,
-      weather: s.weather,
-      currentSafehouse: s.currentSafehouse,
-      _level13GlitchScheduled: s._level13GlitchScheduled,
-      glitchPulse: s.glitchPulse,
-      stats_run: s.stats_run,
-      accessibilityOptions: s.accessibilityOptions,
-    };
-  }, shallowEqual);
-}
-
-/** Fields GameLayout uses for effects + rendering (town_map + classic). */
-export function useGameLayoutData() {
-  return useGameStore(function (s) {
-    return {
-      screen: s.screen,
-      day: s.day,
-      loopCount: s.loopCount,
-      currentArea: s.currentArea,
-      ap: s.ap,
-      maxAp: s.maxAp,
-      san: s.san,
-      audioMuted: s.audioMuted,
-      deathContext: s.deathContext,
-      _level13GlitchScheduled: s._level13GlitchScheduled,
-      tutorialSeen: s.tutorialSeen,
-      currentSafehouse: s.currentSafehouse,
-    };
-  }, shallowEqual);
-}
-
-/** Fields CenterPanel reads for rendering (narrative + actions). */
-export function useCenterPanelData() {
-  return useGameStore(function (s) {
-    return {
-      ap: s.ap,
-      maxAp: s.maxAp,
-      san: s.san,
-      hp: s.hp,
-      maxHp: s.maxHp,
-      food: s.food,
-      money: s.money,
-      currentArea: s.currentArea,
-      day: s.day,
-      loopCount: s.loopCount,
-      inventory: s.inventory,
-      clues: s.clues,
-      narrative: s.narrative,
-      eventLog: s.eventLog,
-      pendingEvent: s.pendingEvent,
-      pendingNpc: s.pendingNpc,
-      pendingGamble: s.pendingGamble,
-      pendingChoice: s.pendingChoice,
-      transition: s.transition,
-      madnessActive: s.madnessActive,
-      ending: s.ending,
-      skills: s.skills,
-      pollution: s.pollution,
-      safehouseCorruption: s.safehouseCorruption,
-      currentSafehouse: s.currentSafehouse,
-      objectives: s.objectives,
-      longTermEffects: s.longTermEffects,
-    };
-  }, shallowEqual);
-}
-
-/** Fields LeftPanel reads for rendering. */
-export function useLeftPanelDataFull() {
-  return useGameStore(function (s) {
-    return {
-      san: s.san,
-      hp: s.hp,
-      maxHp: s.maxHp,
-      pollution: s.pollution,
-      loopCount: s.loopCount,
-      madnessActive: s.madnessActive,
-      sealState: s.sealState,
-      safehouseCorruption: s.safehouseCorruption,
-      currentSafehouse: s.currentSafehouse,
-      weather: s.weather,
-      food: s.food,
-      money: s.money,
-      inventory: s.inventory,
-      clues: s.clues,
-      skills: s.skills,
-      stats: s.stats,
-      objectives: s.objectives,
-      longTermEffects: s.longTermEffects,
-      currentArea: s.currentArea,
-    };
-  }, shallowEqual);
-}
-

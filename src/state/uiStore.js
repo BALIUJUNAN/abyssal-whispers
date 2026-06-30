@@ -44,7 +44,7 @@ export const useUiStore = create((set, get) => ({
   ugcOpen: false,
   notebookOpen: false,
   notebookEverOpened: false,
-  settings: null,
+  settings: loadSettings(),
   saveTick: 0,
   uiMode: 'town_map',
   activeHotspot: null,
@@ -56,10 +56,6 @@ export const useUiStore = create((set, get) => ({
   },
 
   getSettings: () => {
-    const s = get();
-    if (s.settings === null) {
-      set({ settings: loadSettings() });
-    }
     return get().settings;
   },
 

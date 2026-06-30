@@ -52,18 +52,20 @@ export function ScreenTransition({ screenKey, children, duration }) {
   var prevKey = useRef(screenKey);
   var timerRef = useRef(null);
   var rafRef = useRef(null);
+  var childrenRef = useRef(children);
+  childrenRef.current = children;
 
   // Sync children when NOT transitioning (same screen, state changed)
   useEffect(function () {
     if (phase === "visible" && screenKey === prevKey.current) {
-      setRenderChildren(children);
+      setRenderChildren(childrenRef.current);
     }
-  }, [children, phase, screenKey]);
+  }, [phase, screenKey]);
 
   useEffect(function () {
     if (screenKey === prevKey.current) return;
     if (totalDur === 0) {
-      setRenderKey(screenKey); setRenderChildren(children);
+      setRenderKey(screenKey); setRenderChildren(childrenRef.current);
       setVariant(getVariant(screenKey)); prevKey.current = screenKey;
       return;
     }
@@ -78,7 +80,7 @@ export function ScreenTransition({ screenKey, children, duration }) {
     if (canvasRef.current && canvasRef.current.play) {
       canvasRef.current.play(getVariant(prevKey.current), canvasDur, function () {
         // Canvas complete -> swap content + CSS enter
-        setRenderKey(screenKey); setRenderChildren(children);
+        setRenderKey(screenKey); setRenderChildren(childrenRef.current);
         setVariant(getVariant(screenKey));
         setPhase("enter");
         prevKey.current = screenKey;
@@ -87,13 +89,13 @@ export function ScreenTransition({ screenKey, children, duration }) {
       // Fallback: no canvas, just timer-based swap
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(function () {
-        setRenderKey(screenKey); setRenderChildren(children);
+        setRenderKey(screenKey); setRenderChildren(childrenRef.current);
         setVariant(getVariant(screenKey));
         setPhase("enter");
         prevKey.current = screenKey;
       }, canvasDur);
     }
-  }, [screenKey, children, totalDur, canvasDur]);
+  }, [screenKey, totalDur, canvasDur]);
 
   // enter -> visible on next frame
   useEffect(function () {

@@ -1,7 +1,7 @@
 import { DESC } from './descriptionTemplates.js';
 // 区域专属深层事件 - 120 events (15 per area for 8 areas)
 // Each area gets 12-15 deep events
-export const events = [
+export const EVENTS = [
   // === town_center (15) ===
   {
     id: 'area_town_center_001',

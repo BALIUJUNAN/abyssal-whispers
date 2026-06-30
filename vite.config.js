@@ -41,7 +41,7 @@ function finalizeBuildPlugin() {
       if (existsSync(src)) {
         renameSync(src, dst);
       }
-      // Copy audio directory (not in publicDir, needs explicit copy)
+      // Copy audio directory (binary files, cannot be inlined into HTML)
       const audioSrc = resolve(__dirname, 'audio');
       const audioDst = resolve(outDir, 'audio');
       if (existsSync(audioSrc)) {
@@ -52,21 +52,8 @@ function finalizeBuildPlugin() {
           console.warn('[build] Audio copy failed:', e.message);
         }
       }
-      // Copy game data JSON files (loaded at runtime via fetch)
-      const dataSrc = resolve(__dirname, 'src/data');
-      const dataFiles = ['game_base.json', 'game_ch2plus.json', 'game_meta.json'];
-      for (const df of dataFiles) {
-        const srcPath = resolve(dataSrc, df);
-        const dstPath = resolve(outDir, df);
-        if (existsSync(srcPath)) {
-          try {
-            cpSync(srcPath, dstPath);
-            console.log('[build] Copied ' + df + ' to dist/');
-          } catch (e) {
-            console.warn('[build] ' + df + ' copy failed:', e.message);
-          }
-        }
-      }
+      // JSON data is now statically imported in main.jsx and inlined by viteSingleFile.
+      // Assets (webp images) are handled by publicDir: 'assets' → copied to dist/.
     },
   };
 }
@@ -75,8 +62,11 @@ export default defineConfig({
   plugins: [
     react(),
     devHtmlPlugin(),
-    viteSingleFile({  // Build-only: merge all chunks into single HTML
-      enable: false,  // Disabled during dev (HMR needs separate chunks)
+    viteSingleFile({
+      // Build-only: inline all JS/CSS/JSON into a single self-contained HTML file.
+      // Disabled during dev (HMR needs separate chunks).
+      enable: true,
+      deleteInlinedFiles: true,
     }),
     finalizeBuildPlugin(),
   ],

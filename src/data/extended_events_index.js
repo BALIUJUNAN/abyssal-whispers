@@ -1,16 +1,16 @@
 // 扩展事件索引 - 汇总所有新增事件模块
 // 总计 575 个新增事件，分 9 个方向（§3.2: meta从36精简到12）
 
-import { events as loopEvents } from './events_loop.js';
-import { events as humanityEvents } from './events_humanity.js';
-import { events as mythosEvents } from './events_mythos.js';
-import { events as resourceEvents } from './events_resource.js';
-import { events as npcCrossEvents } from './events_npc_cross.js';
-import { events as areaDeepEvents } from './events_area_deep.js';
-import { events as endingEvents } from './events_ending.js';
-import { events as silentEvents } from './events_silent.js';
-import { events as metaEvents } from './events_meta.js';
-import { events as ch2plusEvents } from './events_ch2plus.js';
+import { EVENTS as loopEvents } from './events_loop.js';
+import { EVENTS as humanityEvents } from './events_humanity.js';
+import { EVENTS as mythosEvents } from './events_mythos.js';
+import { EVENTS as resourceEvents } from './events_resource.js';
+import { EVENTS as npcCrossEvents } from './events_npc_cross.js';
+import { EVENTS as areaDeepEvents } from './events_area_deep.js';
+import { EVENTS as endingEvents } from './events_ending.js';
+import { EVENTS as silentEvents } from './events_silent.js';
+import { EVENTS as metaEvents } from './events_meta.js';
+import { EVENTS as ch2plusEvents } from './events_ch2plus.js';
 
 // 按方向分类的事件模块
 export const EXTENDED_EVENT_MODULES = {

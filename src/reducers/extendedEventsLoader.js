@@ -161,6 +161,15 @@ export function isChapterLoaded(chapterKey) {
 }
 
 /**
+ * Mark a chapter as loaded without fetching.
+ * Use when data is merged at build time (static JSON import).
+ * @param {string} chapterKey
+ */
+export function markChapterLoaded(chapterKey) {
+  _loadedChapters.add(chapterKey);
+}
+
+/**
  * Get the set of loaded chapters (for debug / UI display).
  * @returns {string[]}
  */

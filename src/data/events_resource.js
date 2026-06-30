@@ -1,7 +1,7 @@
 import { DESC } from './descriptionTemplates.js';
 // 资源压力与生存抉择事件 - 61 events (55 + 6 §2补充)
 // Directions: 食物抉择(15), 光源衰竭(12), 药品短缺(10), 安全屋入侵(10), 极端环境(8), 生存任务链(6)
-export const events = [
+export const EVENTS = [
   // =============================================
   // 食物抉择 (15) - food <= 2, humanity中等
   // =============================================

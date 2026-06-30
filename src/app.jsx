@@ -14,7 +14,7 @@ import {
   useLoopCount,
   useCurrentArea,
 } from './state/selectors.js';
-import { useScreen, getDispatch, seedGameStore } from './state/useGameStore.js';
+import { useScreen, getDispatch, seedGameStore, useGameStore } from './state/useGameStore.js';
 
 // ── Core reducers & systems ──
 import { rand, d100, d3, clamp, pick, rollDice, shuffle } from './reducers/utils.js';
@@ -113,7 +113,7 @@ import { checkOmens } from './data/events_omens_600.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
 import { resolveDeath } from './reducers/deathSystem.js';
 import { getGuideStep } from './systems/firstRunGuide.js';
-import { getSanLossPresentation } from './systems/sanFeedback.js';
+import { getSanLossPresentation, getSanStageFeedback } from './systems/sanFeedback.js';
 import { PROLOGUE_EVENTS } from './data/prologue_events.js';
 import {
   initPrologueState,
@@ -157,7 +157,7 @@ configureSaveManager({ SAVE_VERSION, migrateSaveData, toPersistedState });
 enforceSaveFormatFreeze();
 
 // ── State stores ──
-import { uiStore, useUiStore, getSettings, addUiToast, removeUiToast, notifySave, updateSettings } from './state/uiStore.js';
+import { uiStore, useUiStore, addUiToast, removeUiToast, notifySave, updateSettings } from './state/uiStore.js';
 import { useSanVisual, useSanLevel, useNpcTrust, useEventLogLength } from './state/selectors.js';
 
 // ── Event side effects (must be imported once to activate handlers) ──
@@ -274,8 +274,6 @@ let _currentFearTuning = null;
 // State lives in useGameStore (Zustand + immer). Components subscribe via granular selectors.
 // App uses useAppGameData() for game screen; individual components use their own selectors.
 
-var _storeSeeded = false;
-
 function App() {
   // Granular subscriptions — each hook re-renders only when its slice changes
   var screen = useScreen();
@@ -288,10 +286,12 @@ function App() {
 
   var stateRef = React.useRef(game);
   stateRef.current = game;
-  // Seed Zustand store on mount (after GD is available at module level)
+  // Seed Zustand store on mount (may already be seeded by main.jsx in dev mode)
   React.useEffect(function () {
-    seedGameStore(GD);
-    _storeSeeded = true;
+    var storeState = useGameStore.getState();
+    if (!storeState._GD) {
+      seedGameStore(GD);
+    }
     // 移除加载层
     var ls = document.getElementById('loading-screen');
     if (ls) {
@@ -299,6 +299,7 @@ function App() {
       setTimeout(function () { ls.remove(); }, 700);
     }
   }, []);
+
   /* [TRACKER-DISPATCH] 包装 dispatch — 自动记录每步操作 */
   var dispatch = React.useCallback(function (action) {
     if (!action.meta) action.meta = {};
@@ -312,9 +313,27 @@ function App() {
     getDispatch()(action);
   }, []);
 
-  // UI state from external store (replaces 7 useState calls)
-  const ui = useUiStore();
-  const settings = ui.settings || getSettings();
+  // UI state from external store — use useMemo because Zustand 5 has no equalityFn
+  var _uiSettingsOpen = useUiStore(function (s) { return s.settingsOpen; });
+  var _uiSaveLoadOpen = useUiStore(function (s) { return s.saveLoadOpen; });
+  var _uiSaveLoadMode = useUiStore(function (s) { return s.saveLoadMode; });
+  var _uiAchOpen = useUiStore(function (s) { return s.achOpen; });
+  var _uiUgcOpen = useUiStore(function (s) { return s.ugcOpen; });
+  var _uiNotebookOpen = useUiStore(function (s) { return s.notebookOpen; });
+  var _uiNotebookEverOpened = useUiStore(function (s) { return s.notebookEverOpened; });
+  var _uiSettings = useUiStore(function (s) { return s.settings; });
+  var _uiSaveTick = useUiStore(function (s) { return s.saveTick; });
+  var _uiToasts = useUiStore(function (s) { return s.toasts; });
+  var ui = useMemo(function () {
+    return {
+      settingsOpen: _uiSettingsOpen, saveLoadOpen: _uiSaveLoadOpen,
+      saveLoadMode: _uiSaveLoadMode, achOpen: _uiAchOpen, ugcOpen: _uiUgcOpen,
+      notebookOpen: _uiNotebookOpen, notebookEverOpened: _uiNotebookEverOpened,
+      settings: _uiSettings, saveTick: _uiSaveTick, toasts: _uiToasts,
+    };
+  }, [_uiSettingsOpen, _uiSaveLoadOpen, _uiSaveLoadMode, _uiAchOpen, _uiUgcOpen,
+      _uiNotebookOpen, _uiNotebookEverOpened, _uiSettings, _uiSaveTick, _uiToasts]);
+  const settings = ui.settings;
   const savedExists = useMemo(() => hasSave(), [ui.saveTick]);
 
   // Achievement checking
@@ -342,39 +361,7 @@ function App() {
     audioManager._effectScale = (settings.effectVolume ?? 80) / 100;
     audioManager._uiScale = (settings.uiVolume ?? 80) / 100;
     audioManager.suddenMuted = !settings.suddenSounds;
-    dispatch({
-      type: 'ACCESSIBILITY_TOGGLE',
-      key: 'visual_distortion',
-      value: !!settings.visualDistortion,
-    });
-    dispatch({
-      type: 'ACCESSIBILITY_TOGGLE',
-      key: 'flicker_control',
-      value: !!settings.flickerEffect,
-    });
-    // SSOT: three independent pollution sliders
-    dispatch({
-      type: 'SET_META_FIELD',
-      field: '_visualPollution',
-      value: settings.visualPollution ?? 50,
-    });
-    dispatch({
-      type: 'SET_META_FIELD',
-      field: '_interactionPollution',
-      value: settings.interactionPollution ?? 50,
-    });
-    dispatch({
-      type: 'SET_META_FIELD',
-      field: '_metaPollution',
-      value: settings.metaPollution ?? 50,
-    });
-    // Light pollution mode: override all sliders to minimum
-    if (settings.lightPollutionMode) {
-      dispatch({ type: 'SET_META_FIELD', field: '_visualPollution', value: 10 });
-      dispatch({ type: 'SET_META_FIELD', field: '_interactionPollution', value: 5 });
-      dispatch({ type: 'SET_META_FIELD', field: '_metaPollution', value: 25 });
-    }
-  }, [settings]);
+  }, []); // Audio settings only — game state sync moved to seedState
 
   // 笔记本打开 → 同步标记引导已读（uiStore → game state）
   useEffect(() => {
@@ -413,7 +400,17 @@ function App() {
     };
   }, []);
 
-  const handleSettingsChange = (s) => updateSettings(s);
+  const handleSettingsChange = (s) => {
+    updateSettings(s);
+    // Sync pollution settings to game state (initial values set in seedState)
+    dispatch({ type: 'SET_META_FIELD', field: '_visualPollution', value: s.visualPollution ?? 50 });
+    dispatch({ type: 'SET_META_FIELD', field: '_interactionPollution', value: s.interactionPollution ?? 50 });
+    dispatch({ type: 'SET_META_FIELD', field: '_metaPollution', value: s.lightPollutionMode ? 25 : (s.metaPollution ?? 50) });
+    if (s.lightPollutionMode) {
+      dispatch({ type: 'SET_META_FIELD', field: '_visualPollution', value: 10 });
+      dispatch({ type: 'SET_META_FIELD', field: '_interactionPollution', value: 5 });
+    }
+  };
   const fontSizeClass = 'narrative-size-' + settings.narrativeFontSize;
   const handleLoadSlot = (loaded) => {
     dispatch({ type: 'CONTINUE_GAME', savedState: loaded });

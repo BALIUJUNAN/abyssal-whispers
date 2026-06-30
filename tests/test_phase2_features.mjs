@@ -6,7 +6,7 @@ import { hasTriggered, syncTriggeredSet } from '../src/utils/triggeredSet.js';
 import { isMicroHorror, getConsecutiveMicroHorrorCount, applyMicroHorrorDilution, EVENT_BUDGET } from '../src/reducers/extendedEvents.js';
 import { detectPlayerTraces, getPlayerTraceNarrative, recordPlayerTrace, TRACE_DESCRIPTIONS, TRACE_AREA_BINDINGS } from '../src/systems/playerTraces.js';
 import { NPC_CONTEXTUAL_LINES } from '../src/data/npcContextualLines.js';
-import { events as silentEvents } from '../src/data/events_silent.js';
+import { EVENTS as silentEvents } from '../src/data/events_silent.js';
 
 var passed = 0, failed = 0;
 function assert(name, cond) {

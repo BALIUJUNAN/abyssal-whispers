@@ -4,6 +4,7 @@
 
 import { getVisualForSan } from '../systems/sanityVisual.js';
 import { tickVisualCorruption, getSurgeMultiplier, getFlashAlpha } from '../systems/sanVisualCorruption.js';
+const { useState, useEffect, useRef, useCallback, memo } = React;
 export { getVisualForSan };
 
 // Re-export the layered renderer (defined in SanPollutionLayers.jsx)

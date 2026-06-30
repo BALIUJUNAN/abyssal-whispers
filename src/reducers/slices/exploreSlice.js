@@ -731,7 +731,7 @@ export function handleExploreAction(s, action, c, ctx) {
       }
       // Choices / gamble early exits
       if (evt.choices && evt.choices.length > 0) {
-        applyLegacyEffects(s, evt.effects);
+        applyLegacyEffects(s, evt.effects, c.rng);
         s.pendingChoice = { evt, choices: evt.choices };
         return null;
       }
@@ -829,7 +829,7 @@ export function handleExploreAction(s, action, c, ctx) {
           }
         }
       }
-      applyLegacyEffects(s, evt.effects);
+      applyLegacyEffects(s, evt.effects, c.rng);
       if (sanDmg >= GAME_BALANCE.MADNESS_TRIGGER) {
         const mad = rollMadness(ctx, c.rng);
         s.madnessActive = mad;

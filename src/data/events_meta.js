@@ -5,7 +5,7 @@
 // 移除: 选择消失(6) → 合并到 meta_choice_001 作为后果
 // §3.3: 5个事件添加实质性游戏后果
 // §3.4: 全部 once_ever + SAN < 15 + 每轮最多1次
-export const events = [
+export const EVENTS = [
   // ── 玩家身份揭示 (5) — S tier，终极元叙事 ──
   // §3.3 后果: meta_identity_005 触发后，某个NPC信任锁定为0 + 解锁成就
   {

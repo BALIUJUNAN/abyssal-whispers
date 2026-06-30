@@ -1,14 +1,12 @@
 // src/main.jsx — Vite entry point (primary dev entry)
 //
-// In production, build.py generates the single-file index.html.
-// In development, this file bootstraps the game via Vite + ESM.
+// In development, Vite serves ESM modules with HMR.
+// In production, vite-plugin-singlefile inlines all JS/CSS/JSON into a single HTML.
 //
 // Architecture:
-//   1. Load & merge split game data JSON (same logic as build.py)
+//   1. Import game data JSON (Vite bundles these into the JS bundle at build time)
 //   2. Import compatibility shim (globalThis bridge for modules not yet migrated to ESM)
 //   3. Import app.jsx (which initializes GD, renders <App />)
-//
-// P2-1: This is now the PRIMARY Vite entry. The old placeholder page has been removed.
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -20,39 +18,50 @@ window.React = React;
 window.ReactDOM = ReactDOM;
 window.produce = produce;
 
-// Load and merge split game data (mirrors build.py logic)
-async function loadGameData() {
-  const [base, ch2plus, meta] = await Promise.all([
-    fetch('/game_base.json').then((r) => r.json()),
-    fetch('/game_ch2plus.json')
-      .then((r) => r.json())
-      .catch(() => ({})),
-    fetch('/game_meta.json')
-      .then((r) => r.json())
-      .catch(() => ({})),
-  ]);
+// Static JSON imports — Vite bundles these into the JS bundle at build time.
+// vite-plugin-singlefile then inlines the entire bundle into the HTML.
+import gameBase from '../game_base.json';
+import gameCh2plus from '../game_ch2plus.json';
+import gameMeta from '../game_meta.json';
 
-  const merged = { ...base };
-  merged.events = [...(base.events || []), ...(ch2plus.events || [])];
-  if (ch2plus.endings) merged.endings = ch2plus.endings;
-  if (ch2plus.ending_judgement) merged.ending_judgement = ch2plus.ending_judgement;
-  if (meta.implementation_notes) merged.implementation_notes = meta.implementation_notes;
-  if (meta.deprecated_endings_archive)
-    merged.deprecated_endings_archive = meta.deprecated_endings_archive;
+function mergeGameData() {
+  const merged = { ...gameBase };
+  merged.events = [...(gameBase.events || []), ...(gameCh2plus.events || [])];
+  if (gameCh2plus.endings) merged.endings = gameCh2plus.endings;
+  if (gameCh2plus.ending_judgement) merged.ending_judgement = gameCh2plus.ending_judgement;
+  if (gameMeta.implementation_notes) merged.implementation_notes = gameMeta.implementation_notes;
+  if (gameMeta.deprecated_endings_archive)
+    merged.deprecated_endings_archive = gameMeta.deprecated_endings_archive;
 
   return merged;
 }
 
-// Bootstrap: load data → shim → app
+// Bootstrap: data → shim → app
 try {
   // Import compatibility shim (sets up legacy globals on globalThis)
   await import('./vite-compat-shim.jsx');
 
-  // Load and merge game data
-  const GD = await loadGameData();
+  // Merge game data (synchronous — all JSON is statically imported)
+  const GD = mergeGameData();
   window.__GAME_DATA__ = GD;
   window.GD = GD;
   console.log('[Vite] Game data loaded:', GD.events?.length, 'events');
+
+  // Mark ch2plus and meta chapters as loaded so lazy fetch in app.jsx is a no-op
+  const { markChapterLoaded } = await import('./reducers/extendedEventsLoader.js');
+  markChapterLoaded('ch2plus');
+  markChapterLoaded('meta');
+
+  // Initialize extended events BEFORE seeding game store.
+  // Immer auto-freezes GD in dev mode, so modifications must happen before set().
+  const { initExtendedEvents } = await import('./reducers/extendedEventsInit.js');
+  initExtendedEvents(GD);
+  console.log('[Vite] Extended events initialized');
+
+  // Seed game store with GD BEFORE React renders (avoids set() during passive effects)
+  const { seedGameStore } = await import('./state/useGameStore.js');
+  seedGameStore(GD);
+  console.log('[Vite] Game store seeded');
 
   // Import app.jsx — triggers module-level init (GD, ReactDOM.createRoot, etc.)
   await import('./app.jsx');

@@ -1,7 +1,7 @@
 // 死亡回声事件 - 死亡类型的轮回污染
 // 每种死亡类型对应一个回声事件，在下一周目触发
 // 注意：这些事件独立于 599 核心事件池，通过 extendedEventsInit 单独加载
-export const events = [
+export const EVENTS = [
   // HP 死亡回声 (6)
   {
     id: 'death_echo_drowning',
@@ -385,4 +385,4 @@ export const events = [
 ];
 
 // Getter for bundled build (import alias stripped by build.py)
-export function getDeathEchoEvents() { return events; }
+export function getDeathEchoEvents() { return EVENTS; }

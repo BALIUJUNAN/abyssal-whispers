@@ -231,7 +231,7 @@ for (const [n, f] of Object.entries(files2)) {
     /import\s*\{[^}]*\}\s*from\s*'[^']*';/g,
     "var DESC={WALL_HAND_REMOVE:'',SYMBOLS_RING_DOOR_HERE:'',SYMBOLS_NOT_CARVED:'',DEEP_EXPLORE_WALL_SKIN:''};"
   );
-  const m = new Function('e', c.replace('export const events', 'e.events'));
+  const m = new Function('e', c.replace(/export const (events|EVENTS)/, 'e.events'));
   const x = {};
   m(x);
   allE.push(...x.events);
@@ -355,7 +355,7 @@ if (!eev.includes('applyMicroHorrorDilution')) {
 
 // P2-1: micro_horror budget category
 const sil = fs2.readFileSync('src/data/events_silent.js', 'utf8');
-const silFn = new Function('e', sil.replace('export const events', 'e.events'));
+const silFn = new Function('e', sil.replace(/export const (events|EVENTS)/, 'e.events'));
 const silData = {};
 silFn(silData);
 const evts = silData.events || [];

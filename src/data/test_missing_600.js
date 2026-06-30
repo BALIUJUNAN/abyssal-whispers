@@ -5,6 +5,7 @@
 import { ALL_EXTENDED_EVENTS as allExtended } from './extended_events_index.js';
 import {
   MISSING_600_EVENT_ID,
+  EXTENDED_POOL_TARGET,
   shouldTriggerMissing600,
   createMissing600Event,
 } from './events_missing_600.js';
@@ -28,9 +29,11 @@ function assert(condition, name) {
 // =============================================
 console.log('\n=== Test Suite 1: Event Pool Integrity ===');
 
+const EXTENDED_COUNT = allExtended.length;
+
 assert(
-  allExtended.length === 599,
-  `allExtendedEvents.length === 599 (actual: ${allExtended.length})`
+  EXTENDED_COUNT >= 600,
+  `allExtendedEvents.length >= 600 (actual: ${EXTENDED_COUNT})`
 );
 
 assert(
@@ -181,8 +184,8 @@ assert(
 );
 
 assert(
-  shouldTriggerMissing600(makeState(), [...allExtended, { id: 'extra_event' }]) === false,
-  'Pool length !== 599 -> false'
+  shouldTriggerMissing600(makeState(), allExtended.slice(0, EXTENDED_POOL_TARGET - 1)) === false,
+  'Pool below target -> false'
 );
 
 assert(shouldTriggerMissing600(makeState(), []) === false, 'Empty pool -> false');
@@ -298,12 +301,12 @@ import { selectEventV2 } from '../reducers/extendedEvents.js';
 
 assert(typeof selectEventV2 === 'function', 'selectEventV2 is exported and callable');
 
-// Build a mock GD with 599 events (the real extended events) + area + systems
+// Build a mock GD with the real extended events count + area + systems
 const mockGD2 = {
   events: [...allExtended],
   _extendedEvents: [...allExtended],
   _extendedEventsLoaded: true,
-  _extendedEventCount: 599,
+  _extendedEventCount: EXTENDED_COUNT,
   areas: [
     { id: 'town_center', connected_areas: [], resource_pressure: { required_light_level: 0 } },
   ],
@@ -389,15 +392,15 @@ assert(
 // =============================================
 console.log('\n=== Test Suite 8: Event Isolation ===');
 
-import { events as loop_events } from './events_loop.js';
-import { events as humanity_events } from './events_humanity.js';
-import { events as mythos_events } from './events_mythos.js';
-import { events as resource_events } from './events_resource.js';
-import { events as npc_events } from './events_npc_cross.js';
-import { events as area_events } from './events_area_deep.js';
-import { events as ending_events } from './events_ending.js';
-import { events as silent_events } from './events_silent.js';
-import { events as meta_events } from './events_meta.js';
+import { EVENTS as loop_events } from './events_loop.js';
+import { EVENTS as humanity_events } from './events_humanity.js';
+import { EVENTS as mythos_events } from './events_mythos.js';
+import { EVENTS as resource_events } from './events_resource.js';
+import { EVENTS as npc_events } from './events_npc_cross.js';
+import { EVENTS as area_events } from './events_area_deep.js';
+import { EVENTS as ending_events } from './events_ending.js';
+import { EVENTS as silent_events } from './events_silent.js';
+import { EVENTS as meta_events } from './events_meta.js';
 
 const all_files = [
   ...loop_events,
@@ -416,7 +419,7 @@ assert(
   'missing_event_600 is NOT in any events_*.js file'
 );
 
-assert(all_files.length === 599, `Total across all files is 599 (actual: ${all_files.length})`);
+assert(all_files.length === EXTENDED_COUNT, `Total across all files is ${EXTENDED_COUNT} (actual: ${all_files.length})`);
 
 // =============================================
 // Test Suite 9: Death System
@@ -424,7 +427,7 @@ assert(all_files.length === 599, `Total across all files is 599 (actual: ${all_f
 console.log('\n=== Test Suite 9: Death System ===');
 
 import { resolveDeath, inferDeathType, getDeathTypeLabel } from '../reducers/deathSystem.js';
-import { events as deathEchoEvents } from './events_death_echo.js';
+import { EVENTS as deathEchoEvents } from './events_death_echo.js';
 
 // resolveDeath returns null when alive
 assert(resolveDeath(makeState({ hp: 5, san: 5 })) === null, 'resolveDeath returns null when alive');
@@ -496,10 +499,10 @@ assert(
   'getDeathTypeLabel("body_and_self_lost") = 身心俱灭'
 );
 
-// Death echo events are NOT in the 599 pool
+// Death echo events are NOT in the extended pool
 assert(
   !allExtended.some((e) => e.id.startsWith('death_echo_')),
-  'Death echo events are NOT in the 599 extended pool'
+  'Death echo events are NOT in the extended pool'
 );
 
 // =============================================

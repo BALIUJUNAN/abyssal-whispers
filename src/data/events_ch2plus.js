@@ -2,7 +2,7 @@
 // Module: events_ch2plus
 // Events: 70
 
-export const events = [
+export const EVENTS = [
 
   {
     id: 'evt_deep_one_patrol',

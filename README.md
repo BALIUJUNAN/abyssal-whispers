@@ -9,9 +9,9 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![CI](https://github.com/BALIUJUNAN/abyssal-whispers/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
-![Build](https://img.shields.io/badge/build-py_%2B_Vite_dual-green)
+![Build](https://img.shields.io/badge/build-Vite_%2B_singlefile-green)
 ![Tests](https://img.shields.io/badge/tests-536_passed_%2F_0_failed-brightgreen)
-![Version](https://img.shields.io/badge/version-0.9.4-orange)
+![Version](https://img.shields.io/badge/version-0.9.6-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -49,7 +49,7 @@ npm run dev
 # 从源码构建（需要 Rust + Node.js 环境）
 npm install
 npm run tauri:build
-# 输出：src-tauri/target/release/abyssal-whispers_0.2.3_x64-setup.exe
+# 输出：src-tauri/target/release/abyssal-whispers_0.9.6_x64-setup.exe
 ```
 
 | 平台        | 状态          | 说明                  |
@@ -1005,10 +1005,12 @@ UGC 模组有严格的安全限制：
 
 | 流水线 | 触发 | 功能 |
 |--------|------|------|
-| **PR Quality Gate** | PR → main/develop | 测试 + Lint + 构建 + 格式检查，一步失败阻断合入 |
-| **Main CI** | push → main | Lint → Test → Vite Build → Legacy Build → Format Check |
-| **Preview Deploy** | push → develop | 自动构建并部署到 GitHub Pages（`/preview/` 子目录） |
-| **Release** | push tag `v*` | 测试 + 构建 + 自动生成 changelog + GitHub Release + 上传 `index.html` |
+| **PR Quality Gate** | PR → main/develop | 测试 + 6 项 lint（schema/engine/narrative/npc/mod）+ Vite 构建 + Legacy 构建 + 格式检查，一步失败阻断合入 |
+| **Main CI** | push → main/develop | 5 个并行 job：Lint（schema/engine/narrative/npc/mod）→ Test（10min 超时）→ Vite Build（产物上传）→ Legacy Build（产物上传）→ Format Check |
+| **Preview Deploy** | push → develop | 继承 lint + test + legacy build 结果，构建后部署到 GitHub Pages（`/preview/` 子目录） |
+| **Release** | push tag `v*` | 测试 + Legacy 构建 + 自动生成 changelog + GitHub Release + 上传 `index.html` |
+
+**Node.js 版本**：22.15.0 LTS（CI + 本地 `.nvmrc` 同步）
 
 **在线预览**：`https://baliujunan.github.io/abyssal-whispers/preview/`
 
@@ -1024,30 +1026,135 @@ npm run build:single      # Legacy 单文件构建
 
 ---
 
+## 架构决策记录（ADR）
+
+> 记录了项目中关键架构决策的背景、理由和后果。
+> 按时间顺序排列，编号对应 mistake.txt 中同类问题的系统性修复。
+
+### ADR-001: 双构建系统（Vite ESM + Python 拼接）
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳 |
+| **背景** | 项目需要同时支持浏览器开发（ESM + HMR）和离线单文件分发（Tauri / GitHub Pages） |
+| **决策** | 维护两条独立构建管线：Vite（开发/生产 ESM）+ `build.py`（拼接为单文件 HTML） |
+| **理由** | Vite 提供原生 ESM + HMR + 路径别名；拼接构建保证离线可玩的单文件交付 |
+| **后果** | 每项改动必须通过双构建验证（`npm run verify`）；`REDUCER_FILES` 顺序依赖需手动维护；`check_build_imports.py` 自动化检查 |
+| **相关** | mistake.txt #5（拼接构建特有问题） |
+
+### ADR-002: Zustand + Immer 声明式状态管理
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳 |
+| **背景** | 原 `gameReducer.js` 单体 switch 超过 1000 行，难以维护和测试 |
+| **决策** | 迁移到 Zustand + Immer + `combineSlices` 声明式切片架构 |
+| **理由** | slice 文件职责单一（core/explore/npc/daily/dark/ui），`combineSlices` 提供 before/after 三阶段执行；Immer 保证不可变性的同时允许 mutable 写法 |
+| **后果** | `useGameStore.dispatch(action)` 直接调用 slice handler；`gameReducer.js` 缩减为效果缓冲区（41 行） |
+| **相关** | mistake.txt #7（Immer 使用错误） |
+
+### ADR-003: `c` / `ctx` 双上下文分离
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳 |
+| **背景** | 原 `ctx` 承载了 `{ GD, narr, log, effects, rng, bt }` 全部职责，导致混淆和传递错误 |
+| **决策** | 拆分为两个独立参数：`c`（reducer context：narr/effects/bt/rng）和 `ctx`（`{ GD }` 纯数据） |
+| **理由** | 需要 GD 的函数（chapterReducer 等）和需要 narr/effects 的函数（副作用）分属不同层级；分离后类型更清晰 |
+| **后果** | 所有 slice handler 签名统一为 `(draft, action, c, ctx)`；命名冲突风险（回调参数勿用 `c`） |
+| **相关** | mistake.txt #6（c 与 ctx 混淆）、#45（slice handler 迁移后签名遗漏 c 参数） |
+
+### ADR-004: 确定性 RNG（Seeded RNG）
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳 |
+| **背景** | `Math.random()` 导致存档回放不可靠，bug 复现困难 |
+| **决策** | 引入 `createSeededRng` + `c.rng`，所有 reducer 工具函数通过 `makeRand(rng)` 接入 |
+| **理由** | 存档回放、模拟器、平衡测试均依赖可复现的随机序列 |
+| **后果** | `rand()`/`pick()` 必须传 `c.rng`；测试环境 `c.rng` 可能为 null，需 fallback `Math.random()` |
+| **相关** | mistake.txt #2（确定性 RNG 未接入）、#17（RNG 缺失第六批） |
+
+### ADR-005: SAN 系统 SSOT（Single Source of Truth）
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳 |
+| **背景** | SAN 阈值、阶段名称、视觉效果参数散落在多个 reducer 和组件中 |
+| **决策** | 所有 SAN 配置集中在 `game_base.json` 的 `san_stages`，通过 `getCurrentSanStage()` 全局查询 |
+| **理由** | 6 阶段 × 4 维度（visual/interaction/logic/meta）配置变更只需改 JSON，零硬编码 |
+| **后果** | 组件层通过 CSS 类 + Canvas 参数响应阶段变化；`applySanLoss()` 是唯一扣减入口 |
+| **相关** | CLAUDE.md "Reducer 三条铁律" |
+
+### ADR-006: 引擎层隔离（TypeScript + DI 注入）
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳 |
+| **背景** | 游戏逻辑、数据、渲染混杂在同一模块，导致循环依赖和测试困难 |
+| **决策** | `src/engine/` 独立为 TypeScript strict 模式模块，零游戏导入，依赖通过 DI 注入 |
+| **理由** | EventEngine / PollutionManager / SaveManager / WorldTimeSystem 可在无 React 环境运行（模拟器、测试） |
+| **后果** | 引擎层不引用任何 `src/reducers/` 或 `src/components/`；`npm run lint:engine` 自动检查边界 |
+| **相关** | mistake.txt #19（ milestone 死代码 — 未注入 GD） |
+
+### ADR-007: Post-Reducer 副作用执行器
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳 |
+| **背景** | Reducer 中混杂音频播放、存档写入、统计递增等副作用，违反纯函数原则 |
+| **决策** | Slice handler 只收集 `c.effects.push({ type, ... })`，由 `effectExecutor.js` 在 reducer 结束后批量执行 |
+| **理由** | 副作用类型分发（AUDIO_PLAY / SAVE_GAME / INCREMENT_STAT）+ 去重（`_fxId`）+ 测试时可直接 mock |
+| **后果** | Reducer 保持同步确定性；异步副作用不阻塞状态更新 |
+| **相关** | mistake.txt #7b（dispatch 返回 undefined） |
+
+### ADR-008: 每日流程领域拆分（dailySlice → systems/daily/）
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳（v0.9.5） |
+| **背景** | `dailySlice.js` 膨胀至 594 行、37 个 import，REST 流程耦合在一个文件 |
+| **决策** | 按领域拆分为 7 个独立系统文件：`foodSystem` / `safehouseSystem` / `restRecovery` / `dayAdvance` / `dayCritical` / `nightEffects` / `dayOpen` |
+| **理由** | 每个系统文件只关注自己的领域逻辑，import 降至 5-8 个；dailySlice 变为 162 行的纯调度层 |
+| **后果** | 新增每日流程只需在对应系统文件修改；`build.py` REDUCER_FILES 需维护 7 个新条目 |
+| **相关** | 本次重构 |
+
+### ADR-009: 事件数据统一命名（`events` → `EVENTS`）
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳（v0.9.5） |
+| **背景** | 多个事件文件 `export const events = [...]` 在拼接构建中同名遮蔽（mistake.txt #36） |
+| **决策** | 所有事件数据文件统一使用 `export const EVENTS = [...]` |
+| **理由** | 消除 ESM + 拼接构建双重作用域下的变量遮蔽风险；未来新增事件文件只需遵循命名约定 |
+| **后果** | 所有导入方（`extended_events_index.js`、测试文件）已同步更新 |
+| **相关** | mistake.txt #36（同名 export 变量遮蔽函数声明） |
+
+---
+
 ## 开发指南
 
 ### 环境要求
 
 | 依赖            | 版本       | 说明                             |
 | --------------- | ---------- | -------------------------------- |
-| **Node.js**     | >= 20.19.0 | Vite 8 官方要求；项目含 `.nvmrc` |
-| **npm**         | >= 10      | 随 Node.js 20+ 自带              |
+| **Node.js**     | >= 22.15.0 | Vite 8 官方要求；CI 同步使用 22 LTS；项目含 `.nvmrc` |
+| **npm**         | >= 10      | 随 Node.js 22+ 自带              |
 | **Python**      | >= 3.8     | Legacy 单文件构建 (`build.py`)   |
 | **Rust stable** | latest     | 仅 Tauri 桌面版构建需要          |
 
 ```bash
 # 推荐：使用 nvm 自动切换版本
-nvm use   # 读取 .nvmrc → 20.19.0
+nvm use   # 读取 .nvmrc → 22.15.0
 ```
 
 ### 构建路线
 
-项目有两条构建路线，**推荐使用 Vite**：
+项目使用 Vite + vite-plugin-singlefile 构建**自包含单 HTML 文件**：
 
 | 路线              | 命令                            | 产物                     | 适用场景                          |
 | ----------------- | ------------------------------- | ------------------------ | --------------------------------- |
-| **Vite（推荐）**  | `npm run dev` / `npm run build` | `dist/` 587B HTML + 分块  | 日常开发、生产部署                |
-| **Legacy 单文件** | `npm run build:single`          | `index.html` (~1.8MB)    | 离线分发（保留，非主线）          |
+| **Vite（推荐）**  | `npm run dev` / `npm run build` | `dist/index.html`（~2.8MB，自包含） | 日常开发、离线分发、生产部署 |
 | **Tauri 桌面版**  | `npm run tauri:build`           | `.exe` 安装包            | 桌面客户端                        |
 
 ```bash
@@ -1057,13 +1164,13 @@ npm install
 # ── 推荐路线 ──────────────────────────────────────────
 
 npm run dev              # 开发服务器 → http://localhost:3000（Vite HMR）
-npm run build            # 生产构建 → dist-vite/
+npm run build            # 生产构建 → dist/index.html（自包含单文件，双击即可打开）
 npm run preview          # 预览生产构建 → http://localhost:4173
 npm run tauri:build      # 桌面版构建（需要 Rust）
 
 # ── 验证 ──────────────────────────────────────────────
 
-npm run verify           # 完整验证（测试 + Vite 构建 + Legacy 构建）
+npm run verify           # 完整验证（测试 + Vite 构建）
 npm test                 # 全部测试（536 tests / 12 suites）
 npm run format:check     # 代码格式检查（Prettier）
 
@@ -1202,6 +1309,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.9.6** | 2026-06-30 | **Zustand 5 迁移修复 + 每日流程领域拆分** — ①dailySlice 按领域拆分为 7 个独立系统文件（foodSystem/safehouseSystem/restRecovery/dayAdvance/dayCritical/nightEffects/dayOpen），从 594 行瘦身至 108 行纯调度层；②修复 Zustand 5.0.14 不支持 equalityFn 导致所有返回对象的 selector 触发无限重渲染（Maximum update depth exceeded），全部改用 useMemo 缓存；③修复 `buildSliceCtx` 缺失 `view` 属性导致区域场景图永远显示默认变体；④修复 Immer autoFreeze 冻结 GD 导致 `initExtendedEvents` 报错；⑤修复 `uiStore.settings: null` 导致渲染阶段 `set()` 调用；⑥`main.jsx` 静态 JSON import 替代 fetch()；⑦`seedGameStore` 移至 React 渲染前执行；⑧所有 selector 函数提取为模块级常量（稳定引用）；⑨`ScreenTransition` 修复 children 缓存导致同屏更新失效；⑩关闭 Immer autoFreeze 避免开发模式冻结问题；⑪mistake.txt 新增条目 #46（Zustand 5 equalityFn 缺失） |
 | **0.9.5** | 2026-06-22 | **扭曲文本模板化 + 文学参照文档化** — ①`distortionTemplates.js` 新建 6 个共享模板（good_return / bad_consequence / trial_early / trial_late / collective / special_trade）+ `DISTORTION_TEMPLATE_MAP` 查找表；②`events_humanity.js` 移除 23 块模板级重复文本（-107 行），添加 23 个 `distortion_template` 字段（+46 行），净省 62 行；③`EventEngine.js` 新增 `injectDistortionTemplates(GD)` 运行时注入器，事件本地含 `corruption_high`/`san_mid` 等独特键时保留本地 variants，其余按 `distortion_template` 字段或 `subtype` 名自动注入；④`extendedEventsInit.js` 注册 injector 调用；⑤文学参照补录：`DESIGN_REFACTOR_NOTES.md` 新增 Lovecraft/Baudelaire/Murakami/Borges/Houellebecq 五作者对照表 + 恐惧结局特殊文本策略说明；⑥`game_base.json` `text_style` 新增 `literary_references` 字段；⑦`mistake.txt` 条目 #44「隐性设计意图未记录」；⑧构建验证：check_build_imports 345/0 + build.py 7.3MB + Vite ESM 1.32s + 全测试 48/48 + lint:narrative 27S/20A/3B |
 | **0.9.4** | 2026-06-22 | **Phase 2 体系化升级** — ①轻量事件依赖机制：引擎级 `has_flag`/`add_flag` 软连锁，5 条前置事件 + 5 条回声事件，零 reducer 改造；②玩家痕迹系统扩展：3 试点→9 条痕迹（+森林低语/酒馆硬币/墓穴符号/灯塔信号/庄园日记/森林祭品），跨轮回区域描述自动追加；③NPC 语言指纹规范沉淀：`event_authoring.md` 8 位 NPC 完整指纹（句式/语气/意象/信任递进/轮回记忆/死亡回响/SAN 退化/禁用词）；④测试与平衡体系补全：`balanceSimulator.js` 轻量蒙特卡洛模拟器（13 级难度/恐惧画像/graduated protection/封印状态）+ `test_balance_system.mjs` 96 项平衡测试（10 维度：配置完整性/单调性/保护倍率/graduated protection/恐惧画像/难度梯度/消耗速率/封印递增/可复现性/输出结构）；⑤微恐怖触发率测试：19 个 micro_horror 事件数据完整性验证（weight/probability/once_per_run）；⑥NPC 台词覆盖率测试：8 位 NPC 三级优先级（low/mid/high）全覆盖，memory line 关键词验证；⑦全量回归 536 passed / 0 failed / 12 suites |
 | **0.9.3** | 2026-06-21 | **区域描述渐进变体系统 + 事件日志文档化** — ①区域描述渐进变体：`areaDescriptionVariants.js` lookup 表（9区域×3层到访记忆：2-3次/4-6次/7+次），MOVE handler 描述管线集成，变体文本自然流过 mythos alias / text fragmentation / resource corruption 管线，营造跨访问"déjà vu"体验；②事件日志系统文档化：`state.eventLog` 多模块写入（engineCore/effectReducer/appHelpers），三处 UI 展示（左栏可折叠全量面板/右栏最近10条/顶部 EventLogButton），`useEventLog` 细粒度 selector，存档持久化200条上限，幻影条目过期过滤；③`build.py` 新增 `data/areaDescriptionVariants.js` 注册，`check_build_imports` 329 imports 0 errors |

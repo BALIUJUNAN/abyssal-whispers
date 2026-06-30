@@ -412,10 +412,14 @@ console.log('--- S8: SAN Death Resolution Coverage ---');
 test('S8-1: all SAN loss slices have death resolution in same file or caller', () => {
   // Files that call applySanLoss MUST also have resolveDeath/applyDeathResolution
   // either in the same file or be called from a main reducer that does.
+  // For dailySlice.js, death resolution lives in foodSystem.js (domain-owned).
   const slicesWithDeathCheck = [
     'src/reducers/slices/exploreSlice.js',
     'src/reducers/slices/uiSlice.js',
+  ];
+  const dailyDeathResolutionFiles = [
     'src/reducers/slices/dailySlice.js',
+    'src/systems/daily/foodSystem.js', // _processFoodAndStarvation calls applyDeathResolution
   ];
   const slicesViaMainReducer = [
     'src/reducers/slices/darkSlice.js',
@@ -431,6 +435,16 @@ test('S8-1: all SAN loss slices have death resolution in same file or caller', (
       rel + ' should have death resolution (resolveDeath/applyDeathResolution)'
     );
   }
+  // dailySlice delegates death resolution to foodSystem.js — check at least one file has it
+  var dailyHasDeathRes = false;
+  for (const rel of dailyDeathResolutionFiles) {
+    const content = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+    if (content.includes('resolveDeath') || content.includes('applyDeathResolution')) {
+      dailyHasDeathRes = true;
+      break;
+    }
+  }
+  assert.ok(dailyHasDeathRes, 'dailySlice.js or foodSystem.js should have death resolution');
   // Slices that rely on main reducer — verify they export a handler (not top-level death check)
   for (const rel of slicesViaMainReducer) {
     const content = fs.readFileSync(path.join(ROOT, rel), 'utf8');
