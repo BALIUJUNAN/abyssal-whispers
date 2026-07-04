@@ -1,6 +1,8 @@
 // src/data/registry/npcRegistry.js — NPC identity registry
 // Phase B: uses createRegistryHelpers for shared logic.
 
+import { createRegistryHelpers } from './registryUtils.js';
+
 export var NPC_REGISTRY = {
   elias_ward: {
     name: '伊莱亚斯·沃德',
@@ -55,8 +57,8 @@ export var NPC_REGISTRY = {
   },
 };
 
-// Create helpers via registryUtils (if available)
-var _h = typeof createRegistryHelpers === 'function' ? createRegistryHelpers(NPC_REGISTRY) : null;
+// Create helpers via registryUtils (ESM import — always available)
+var _h = createRegistryHelpers(NPC_REGISTRY);
 
 export var NPC_NAME_TO_ID = _h
   ? _h.nameToId
@@ -81,7 +83,3 @@ export function getNpcName(input) {
 export function migrateNpcKeys(obj) {
   return _h ? _h.migrateKeys(obj) : obj;
 }
-
-try {
-  module.exports = { NPC_REGISTRY, NPC_NAME_TO_ID, resolveNpcId, getNpcName, migrateNpcKeys };
-} catch (e) {}

@@ -17,6 +17,7 @@ import { getDeathMetaEvents } from '../data/events_death_meta.js';
 import { generateDeathFragments, checkDeathTruthAssembly } from '../data/events_death_meta.js';
 import { getEventRarityWeight, checkLegendaryTrigger, checkSecretTrigger, getRarityHint } from '../systems/eventRarity.js';
 import { injectDistortionTemplates } from '../engine/EventEngine.js';
+import { DISTORTION_TEMPLATE_MAP } from '../data/distortionTemplates.js';
 
 /**
  * Initialize the extended event system.
@@ -80,7 +81,7 @@ export function initExtendedEvents(GD) {
 
   // Inject shared distortion text templates for events without local variants
   // (removes ~23 duplicate distortion_variants blocks from events_humanity.js)
-  injectDistortionTemplates(GD);
+  injectDistortionTemplates(GD, DISTORTION_TEMPLATE_MAP);
 
   // Merge legendary events into GD.events (rarity: legendary)
   // These are gated by checkLegendaryTrigger() in eventRarity.js,

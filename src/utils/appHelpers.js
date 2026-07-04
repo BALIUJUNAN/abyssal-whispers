@@ -31,13 +31,14 @@ export function getUICorruptionLayer(san, loopCount, safehouseCorruption) {
   return 0; // clean — 理智
 }
 
-export function modHumanity(state, amount, reason) {
+export function modHumanity(state, amount, reason, rng) {
   state.humanityScore = clamp((state.humanityScore ?? 50) + amount, 0, 100);
   if (Math.abs(amount) >= 5) {
     const narr = state.narrative;
     const label = amount > 0 ? '人性光辉' : '人性暗面';
+    var _rand = rng ? rng.next.bind(rng) : Math.random;
     narr.push({
-      id: Date.now() + Math.random(),
+      id: _rand() * 0xFFFFFF | 0,
       type: 'system',
       text: '【' + label + '】' + reason,
       isSpecial: true,
@@ -140,7 +141,7 @@ export function buildDeathRecap(state, deathContext = null) {
 
 export function applyBlessing(state, blessing, narr, ctx) {
   if (!blessing) return;
-  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
+  var GD = ctx?.GD || {};
   const eff = blessing.effect || {};
   narr('system', '【恩赐·' + blessing.name + '】' + blessing.description, { isSpecial: true });
   if (eff.type === 'unlock_knowledge' && eff.knowledge_id) {
@@ -167,7 +168,7 @@ export function applyBlessing(state, blessing, narr, ctx) {
 }
 
 export function getAvailableSafehouses(state, ctx) {
-  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
+  var GD = ctx?.GD || {};
   const alts = GD.systems?.safehouse?.relocation_rules?.alternative_safehouses || [];
   return alts.filter((sh) => {
     const npcName = sh.unlock_condition.includes('伊莱亚斯')
@@ -210,7 +211,7 @@ const _DEATH_SAN_TYPES = [
  * @param {object} [ctx]      - { GD } game data context
  */
 export function applyDeathResolution(s, deathCtx, narr, ctx) {
-  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
+  var GD = ctx?.GD || {};
   s.deathContext = deathCtx;
   s.lastDeathType = deathCtx.type;
   s.lastDeathMode = deathCtx.mode;
@@ -568,7 +569,8 @@ export function buildReducerCtx(s, opts, corruptFn) {
   const _corruptText = corruptFn || function (t) { return t; };
   const effects = [];
   const narr = (type, text, extra = {}) => {
-    const entry = { id: Date.now() + Math.random(), type, text, ...extra };
+    var _rand = (opts && opts.rng) ? opts.rng.next.bind(opts.rng) : Math.random;
+    const entry = { id: _rand() * 0xFFFFFF | 0, type, text, ...extra };
     if (
       _narrCorrLayer > 0 &&
       (type === 'system' || type === 'event') &&

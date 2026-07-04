@@ -24,6 +24,8 @@ const SUITES = [
   { file: 'tests/test_combineSlices.cjs', label: 'combineSlices' },
   { file: 'tests/test_phase2_features.mjs', label: 'phase2_features' },
   { file: 'tests/test_balance_system.mjs', label: 'balance_system' },
+  { file: 'tests/test_achievement_reducer.mjs', label: 'achievement_reducer' },
+  { file: 'tests/test_chapter_reducer.mjs', label: 'chapter_reducer' },
   { file: 'tests/integration_test.cjs', label: 'integration' },
 ];
 

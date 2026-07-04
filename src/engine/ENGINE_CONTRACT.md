@@ -56,7 +56,6 @@ export function applyTextHallucination(text, san, getStage) {
 | WorldTimeSystem.js | Phase calculation, seal state machine, weather | NO — reads GD via ctx |
 | SaveManager.js | localStorage abstraction, slot CRUD, import/export | NO — receives validator |
 | commands.js | Typed command factory functions | NO |
-| combineSlices.js | Slice composition framework | NO |
 | eventBus.js | Pub/sub event bus | NO |
 | engineCore.js | Pure JS simulation core | NO |
 
@@ -64,8 +63,22 @@ export function applyTextHallucination(text, san, getStage) {
 
 | File | New location | Reason |
 |------|-------------|--------|
-| gameReducer.js | `src/reducers/gameReducer.js` | Imports from reducers/slices/* (game business logic) |
+| gameReducer.js | Merged into `src/runtime/effectExecutor.js` | Effect buffer shell merged; file deleted |
+| combineSlices.js | `src/state/combineSlices.js` | State management infrastructure (Zustand slice composition, zero engine imports) |
 | eventSideEffects.js | `src/runtime/eventSideEffects.js` | Imports from managers/, state/, systems/ (UI integration) |
+
+## Language: JavaScript only
+
+All engine files use JavaScript (ES modules). TypeScript `.ts` files were removed (v0.9.8)
+because they were orphaned — not imported by any other file, not compiled by Vite, not checked in CI.
+The `tsconfig.json` was also removed. If TypeScript is adopted project-wide in the future,
+it must be done as a full migration with proper build integration.
+
+## CJS Boundary
+
+CJS (`.cjs`) files are accepted outside `src/` for Node.js scripts and tests.
+See ADR-030 for the full retention policy.
+In short: `tests/*.cjs` and `scripts/*.cjs` use CJS; `src/**/*.js` uses ESM.
 
 ## Enforcement
 Run `npm run lint:engine` to verify zero violations.

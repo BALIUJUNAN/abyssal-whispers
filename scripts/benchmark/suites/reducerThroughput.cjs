@@ -14,7 +14,7 @@ var SRC = path.join(__dirname, '..', '..', '..', 'src');
 // so we benchmark the combineSlices rootReducer directly
 // with mock state — this isolates slice handler throughput.
 
-var combineSlices = require(path.join(SRC, 'engine', 'combineSlices.js'));
+var combineSlices = require(path.join(SRC, 'state', 'combineSlices.js'));
 var gameConstants = require(path.join(SRC, 'state', 'gameConstants.js'));
 
 // ── Slice stubs (minimal handlers for throughput measurement) ──

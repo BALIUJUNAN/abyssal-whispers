@@ -51,10 +51,10 @@ export var systemSlice = {
   },
 
   // ── afterDispatch: runs after every domain handler ──
-  after: function (s, action, c) {
+  after: function (s, action, c, ctx) {
     // 0. SAN consequence chain: level-based logical consequences (fake options, fake trust, AP steal, weight shift)
     //    NPC_RESPONSE and EXPLORE are handled in their respective slices; applySanConsequences skips them.
-    applySanConsequences(s, c, action.type);
+    applySanConsequences(s, c, action.type, ctx);
 
     // 1. AP 偷取检测（旧系统：_apLies 污染态，仅对特定 action 生效）
     //    level 5+ 的强制 AP 偷取已由 applySanConsequences -> tryApSteal 处理

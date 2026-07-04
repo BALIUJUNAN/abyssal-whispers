@@ -298,9 +298,9 @@ export function checkSanLegacy(prevState) {
  * @param {object} c - reducer context
  * @param {string} actionType - the dispatched action type
  */
-export function applySanConsequences(s, c, actionType) {
+export function applySanConsequences(s, c, actionType, ctx) {
   var stage = getCurrentSanStage(s.san, {
-    GD: (typeof window !== 'undefined' && window.GD) || {},
+    GD: ctx?.GD || {},
   });
   var level = stage.level;
 

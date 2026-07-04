@@ -27,9 +27,9 @@ export function _advanceDayClock(s, c, ctx) {
   const oldDay = s.day;
   s.day++;
   // Compute NPC autonomous movement for the new day
-  computeDailyNpcLocations(s, ctx?.GD);
+  computeDailyNpcLocations(s, ctx?.GD, c.rng);
   // Process NPC encounters (same-area interactions)
-  processNpcEncounters(s, c);
+  processNpcEncounters(s, c, ctx?.GD);
   // Fire any delayed moral effects scheduled by MORAL_DILEMMAS
   processDelayedEffects(s, s.day, c);
   // eventBus: notify listeners of day transition

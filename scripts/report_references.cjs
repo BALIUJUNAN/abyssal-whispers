@@ -127,7 +127,7 @@ console.log('=== DEBT TREND vs BASELINES ===');
 var baselines = {};
 try {
   baselines = JSON.parse(
-    fs.readFileSync(path.join(SRC, 'data', 'validators', 'baselines.json'), 'utf8')
+    fs.readFileSync(path.join(SRC, '..', 'scripts', 'validators', 'baselines.json'), 'utf8')
   );
 } catch (e) {}
 var npcBase = baselines.chineseNpcRefs || 0;

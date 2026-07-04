@@ -567,9 +567,10 @@ test('S10-2: firstRunGuide respects showGuideHints setting', () => {
 });
 
 test('S10-3: npcFeedback only strong on tier change', () => {
-  const content = fs.readFileSync(path.join(ROOT, 'src/reducers/slices/npcSlice.js'), 'utf8');
-  assert.ok(content.includes('f.tierChanged'), 'should check tierChanged');
-  assert.ok(content.includes('_warnTrustDrop'), 'should have _warnTrustDrop for drops');
+  const npcSliceContent = fs.readFileSync(path.join(ROOT, 'src/reducers/slices/npcSlice.js'), 'utf8');
+  const socialContent = fs.readFileSync(path.join(ROOT, 'src/systems/npc/socialBranches.js'), 'utf8');
+  assert.ok(socialContent.includes('tierChanged'), 'should check tierChanged in socialBranches');
+  assert.ok(npcSliceContent.includes('_warnTrustDrop'), 'should have _warnTrustDrop for drops');
 });
 
 test('S10-4: seenEventTexts persists across loops', () => {

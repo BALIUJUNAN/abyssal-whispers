@@ -49,8 +49,9 @@ var AREA_ADJACENCY = {
  * @param {object} state - mutable game state
  * @param {object} [GD] - game data (optional, uses global GD if not provided)
  */
-export function computeDailyNpcLocations(state, GD) {
-  GD = GD || (typeof window !== 'undefined' ? window.GD : null) || {};
+export function computeDailyNpcLocations(state, GD, rng) {
+  GD = GD || {};
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
   var npcs = GD.npcs || [];
   if (!state.npcLocations) state.npcLocations = {};
 
@@ -71,24 +72,24 @@ export function computeDailyNpcLocations(state, GD) {
 
     // Movement rules (applied in priority order)
     // 1. Corruption override: corrupted NPCs gravitate to dangerous areas
-    if (ns.corrupted && Math.random() < 0.4) {
+    if (ns.corrupted && _rand() < 0.4) {
       var dangerAreas = Object.keys(AREA_SAFETY).filter(function (a) { return AREA_SAFETY[a] === 'dangerous'; });
-      finalLocation = dangerAreas[Math.floor(Math.random() * dangerAreas.length)];
+      finalLocation = dangerAreas[Math.floor(_rand() * dangerAreas.length)];
     }
     // 2. Trust seek: high-trust NPCs may seek out the player
-    else if (trust >= 3 && Math.random() < 0.2) {
+    else if (trust >= 3 && _rand() < 0.2) {
       finalLocation = playerArea;
     }
     // 3. Isolation: low-SAN NPCs move to safe areas
-    else if (state.san < 30 && Math.random() < 0.15) {
+    else if (state.san < 30 && _rand() < 0.15) {
       var safeAreas = Object.keys(AREA_SAFETY).filter(function (a) { return AREA_SAFETY[a] === 'safe'; });
-      finalLocation = safeAreas[Math.floor(Math.random() * safeAreas.length)];
+      finalLocation = safeAreas[Math.floor(_rand() * safeAreas.length)];
     }
     // 4. Random drift: 10% chance to move to adjacent area
-    else if (Math.random() < 0.1) {
+    else if (_rand() < 0.1) {
       var adj = AREA_ADJACENCY[baseLocation] || [];
       if (adj.length > 0) {
-        finalLocation = adj[Math.floor(Math.random() * adj.length)];
+        finalLocation = adj[Math.floor(_rand() * adj.length)];
       }
     }
 
@@ -104,8 +105,8 @@ export function computeDailyNpcLocations(state, GD) {
  * @param {string} areaId - area to check
  * @returns {Array} NPCs in that area
  */
-export function getNpcLocations(state, areaId) {
-  var npcs = GD.npcs || [];
+export function getNpcLocations(state, areaId, GD) {
+  var npcs = (GD?.npcs || GD?.module3_npcs || []);
   return npcs.filter(function (n) {
     if (state.npcStates[n.name]?.dead) return false;
     var loc = state.npcLocations?.[n.name];
@@ -124,8 +125,8 @@ export function getNpcLocations(state, areaId) {
  * @param {object} state - mutable game state
  * @param {object} [c] - reducer context for narration
  */
-export function processNpcEncounters(state, c) {
-  var npcs = GD.npcs || [];
+export function processNpcEncounters(state, c, GD) {
+  var npcs = (GD?.npcs || GD?.module3_npcs || []);
   var areaMap = {};
   for (var i = 0; i < npcs.length; i++) {
     var npc = npcs[i];
@@ -168,7 +169,7 @@ export function processNpcEncounters(state, c) {
   if (encounters.length > 0 && c && c.narr) {
     for (var j = 0; j < encounters.length; j++) {
       var enc = encounters[j];
-      var areaName = _getAreaDisplayName(enc.area);
+      var areaName = _getAreaDisplayName(enc.area, GD);
       if (enc.type === 'friendly') {
         c.narr('system', enc.npcs[0] + '和' + enc.npcs[1] + '在' + areaName + '遇见了。他们交谈了片刻。');
       } else {
@@ -189,9 +190,9 @@ function _getScheduledLocation(npc, day) {
   return entry.split(':')[1] || npc.location || 'town_center';
 }
 
-function _getAreaDisplayName(areaId) {
+function _getAreaDisplayName(areaId, GD) {
   try {
-    var areas = GD.areas || [];
+    var areas = (GD?.areas || []);
     var area = areas.find(function (a) { return a.id === areaId; });
     return area ? area.name : areaId;
   } catch (e) {

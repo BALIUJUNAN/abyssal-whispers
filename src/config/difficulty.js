@@ -5,7 +5,6 @@
 // ESM JSON import 兼容性处理:
 //   - Node.js ESM: 使用动态 import + assert { type: 'json' }
 //   - Vite bundler: 静态 import 由 Vite 原生处理
-//   - build.py: JSON 已在构建时 inline 为 DIFFICULTY_LEVELS_RAW，无需运行时 import
 
 import { DIFFICULTY_LEVELS_RAW } from './difficultyLevels.js';
 

@@ -82,7 +82,3 @@ export function createRegistryHelpers(registry, opts) {
     },
   };
 }
-
-try {
-  module.exports = { createRegistryHelpers };
-} catch (e) {}

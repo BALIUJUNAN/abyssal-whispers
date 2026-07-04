@@ -1,4 +1,6 @@
 // src/data/registry/itemRegistry.js
+import { createRegistryHelpers } from './registryUtils.js';
+
 export var ITEM_REGISTRY = {
   flashlight: { name: '手电筒', aliases: [], type: 'light', stackable: false },
   notebook: { name: '笔记本和笔', aliases: ['笔记本'], type: 'tool', stackable: false },
@@ -75,8 +77,8 @@ CLUE_ITEMS.forEach(function (name, i) {
     ITEM_REGISTRY[id] = { name: name, aliases: [], type: 'clue', stackable: false };
 });
 
-// Create helpers via registryUtils (if available)
-var _ih = typeof createRegistryHelpers === 'function' ? createRegistryHelpers(ITEM_REGISTRY) : null;
+// Create helpers via registryUtils (ESM import — always available)
+var _ih = createRegistryHelpers(ITEM_REGISTRY);
 
 export var ITEM_NAME_TO_ID = _ih ? _ih.nameToId : {};
 (function () {
@@ -166,17 +168,3 @@ export function getItemCount(s, itemInput) {
   });
   return item ? item.uses || 1 : 0;
 }
-try {
-  module.exports = {
-    ITEM_REGISTRY,
-    ITEM_NAME_TO_ID,
-    resolveItemId,
-    getItemName,
-    normalizeItemRef,
-    migrateInventory,
-    addItem,
-    removeItem,
-    hasItem,
-    getItemCount,
-  };
-} catch (e) {}

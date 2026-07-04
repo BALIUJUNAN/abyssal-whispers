@@ -95,8 +95,8 @@ var FRAUD_HINTS = {
  * @param {function} [rng] - seeded random (optional, for future probabilistic variants)
  * @returns {{ displayMult: number, realMult: number, active: boolean, tier: number, description: string }}
  */
-export function getResourceFraudState(san, rng) {
-  var stage = getCurrentSanStage(san, { GD: (typeof window !== 'undefined' && window.GD) || {} });
+export function getResourceFraudState(san, rng, gd) {
+  var stage = getCurrentSanStage(san, { GD: gd || {} });
   var level = stage.level || 0;
 
   for (var i = 0; i < FRAUD_TIERS.length; i++) {
@@ -128,7 +128,7 @@ export function getResourceFraudState(san, rng) {
  */
 export function applyResourceFraud(gains, san, rng) {
   if (!gains) return gains;
-  var fraud = getResourceFraudState(san, rng);
+  var fraud = getResourceFraudState(san, rng, {});
   if (!fraud.active || fraud.realMult >= 1.0) return gains;
 
   var modified = { ...gains };
@@ -178,7 +178,7 @@ export function applyResourceFraud(gains, san, rng) {
  * @returns {number} inflated or accurate count for display
  */
 export function getDisplayedResource(resourceType, actualCount, san) {
-  var fraud = getResourceFraudState(san);
+  var fraud = getResourceFraudState(san, null, {});
   if (!fraud.active) return actualCount;
 
   // Only inflate "positive" resources (what player has gained)

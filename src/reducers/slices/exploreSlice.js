@@ -1,13 +1,5 @@
-// src/reducers/slices/exploreSlice.js - Extracted from gameReducer
-// MOVE, EXPLORE, DO_SKILL_CHECK
-//
-// ctx (bundle-scope context with GD) is passed as 4th param to handleExploreAction.
-// Sub-functions within EXPLORE use ctx via closure from the handler scope.
-//
-// EXPLORE case decomposed into 3 sub-phase functions:
-//   _selectExploreEvent(s, ctx, GD, c)  → candidate filtering + weighted selection
-//   _postExploreProcessing(evt, s, c, GD) → chain progress, conclusions, endings
-//   _applyMadnessEffects(mad, s, c, ctx) → SAN damage, skill checks, madness
+// src/reducers/slices/exploreSlice.js — Thin dispatcher for MOVE / EXPLORE / DO_SKILL_CHECK
+// Domain logic lives in src/systems/explore/ (eventSelectionSystem, eventConsequenceSystem, madnessEffectSystem).
 
 import { rand, clamp, pick, applySanLoss } from '../utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
@@ -64,334 +56,14 @@ import { generateFakeOptions, processFakeChoice, getNegativeEventWeightMultiplie
 import { getRarityHint } from '../../systems/eventRarity.js';
 import { applyTextFragmentation } from '../../systems/textFragmentation.js';
 
-// §3.3: Meta event real consequences
-export function applyMetaEffect(effectType, state, evt, c) {
-  if (!effectType) return;
-  switch (effectType) {
-    case 'overwrite_save_slot':
-      // §3.3: "虚假的存档" — 标记存档槽被覆盖
-      state._metaSaveOverwritten = true;
-      c.narr('system', '存档已更新为最新版本。你可能失去了什么。', { isSpecial: true });
-      break;
-    case 'npc_trust_lock_random':
-    case 'npc_trust_lock_and_achievement':
-      // §3.3: NPC信任锁定为0 + 解锁成就
-      var trustNpcs = Object.entries(state.npcTrust || {}).filter(function (kv) {
-        return kv[1] >= 3;
-      });
-      if (trustNpcs.length > 0) {
-        var target = c.pick(trustNpcs);
-        setNpcTrust(state, target[0], 0);
-        state._npcTrustLocked = state._npcTrustLocked || {};
-        state._npcTrustLocked[target[0]] = true;
-        c.narr(
-          'system',
-          target[0] + '突然说了一串你听不懂的话。然后沉默了。你感到——有什么东西断裂了。',
-          { isSpecial: true }
-        );
-      }
-      if (effectType === 'npc_trust_lock_and_achievement') {
-        state._achievements = state._achievements || [];
-        if (!state._achievements.includes('achievement_fourth_wall')) {
-          state._achievements.push('achievement_fourth_wall');
-          c.narr('system', '【成就解锁】打破第四面墙', { isSpecial: true });
-        }
-      }
-      break;
-    case 'npc_permanent_disappear':
-      // §3.3: "作者的提示" — 随机NPC永久失踪
-      var aliveNpcs = Object.entries(state.npcStates || {}).filter(function (kv) {
-        return !kv[1].dead;
-      });
-      if (aliveNpcs.length > 0) {
-        var victim = c.pick(aliveNpcs);
-        setNpcState(state, victim[0], {
-          ...getNpcState(state, victim[0]),
-          dead: true,
-          disappearance: 'meta_vanish',
-        });
-        c.narr(
-          'system',
-          victim[0] + '失踪了。没有人记得他/她是什么时候消失的。好像从来没有存在过。',
-          { isSpecial: true }
-        );
-      }
-      break;
-    case 'delete_dialogue_branch':
-      // §3.3: "选择的消失" — 删除一个未选择的对话分支
-      state._deletedBranches = state._deletedBranches || [];
-      state._deletedBranches.push({ day: state.day, source: evt.id });
-      c.narr('system', '你感到——某种可能性消失了。一条你没有走过的路，现在永远走不了了。', {
-        isSpecial: true,
-      });
-      break;
-  }
-}
+// Domain logic (src/systems/explore/)
+import { _selectExploreEvent } from '../../systems/explore/eventSelectionSystem.js';
+import { applyMetaEffect, applyQualityTier, _postExploreProcessing } from '../../systems/explore/eventConsequenceSystem.js';
+import { _applyMadnessEffects } from '../../systems/explore/madnessEffectSystem.js';
 
-// P1: Quality tier dynamic truncation
-// Tier S: full display (no change)
-// Tier A: full display (no change)
-// Tier B: normal display
-// Tier C: first trigger = truncate to 2 sentences; subsequent = generic replacement
-var _QT_GENERIC_REPLACEMENT = '你又有一种熟悉的感觉，但你想不起细节了。沃切斯特的日常就是这样。';
-export function applyQualityTier(text, evt, state) {
-  var qt = evt.quality_tier;
-  if (!qt || qt === 'S' || qt === 'A' || qt === 'B') return text;
-  // Tier C: check trigger count
-  if (qt === 'C') {
-    var triggered = state.triggeredEvents || [];
-    var count = 0;
-    for (var i = 0; i < triggered.length; i++) {
-      if (triggered[i] === evt.id) count++;
-    }
-    if (count >= 2) return _QT_GENERIC_REPLACEMENT;
-    // First trigger: truncate to first 2 sentences
-    var sentences = text.split(/[。\n]/);
-    var result = [];
-    for (var j = 0; j < sentences.length && result.length < 2; j++) {
-      var s = sentences[j].trim();
-      if (s.length > 0) result.push(s);
-    }
-    return result.join('。') + '。';
-  }
-  return text;
-}
-
-// ── EXPLORE sub-functions (P1-9: decomposed from 213-line case) ─────
-
-/** Phase 1: Select an explore event via extended pipeline + omen/600 fallback.
- *  Milestone + progress guard handled inline by caller (needs c.narr).
- *  Returns { evt, alreadyCommitted }. */
-export function _selectExploreEvent(s, ctx, GD, c) {
-  // Extended event selection pipeline
-  let evt = null;
-  let alreadyCommitted = false;
-  if (GD._extendedEventsLoaded) {
-    const rawCandidates = getEligibleEvents(s.currentArea, s, ctx);
-    // First-loop protection: filter out lethal events during safe window
-    const candidates = rawCandidates.filter(ev => !shouldBlockLethalEvent(ev, s));
-    if (candidates.length > 0) {
-      if (s.fearTuning && s.fearTuning.primary) {
-        const fearScored = candidates
-          .map(function (ev) {
-            return {
-              evt: ev,
-              weight: getEventWeight(ev, s.currentArea, s, ctx) * getFearEventWeightModifier(ev, s),
-            };
-          })
-          .filter(function (x) {
-            return x.weight > 0;
-          });
-        if (fearScored.length > 0) {
-          const totalW = fearScored.reduce(function (a, b) {
-            return a + b.weight;
-          }, 0);
-          let roll = (c.rng ? c.rng.next() : Math.random()) * totalW;
-          for (const item of fearScored) {
-            roll -= item.weight;
-            if (roll <= 0) {
-              evt = item.evt;
-              break;
-            }
-          }
-          if (!evt) evt = fearScored[fearScored.length - 1].evt;
-        }
-      }
-      if (!evt) evt = chooseWeightedEvent(candidates, s.currentArea, s, ctx, pick, c.rng);
-    }
-    // Special events that bypass normal pool
-    if (!evt) {
-      const allEvts = GD.events || [];
-      const omen = checkOmens(s, c.rng);
-      if (omen) {
-        evt = omen;
-        commitSelectedEvent(omen, s);
-        alreadyCommitted = true;
-      } else {
-        const extEvts =
-          GD._extendedEvents ||
-          (allEvts.length > (GD._deathEchoCount || 0)
-            ? allEvts.slice(0, allEvts.length - (GD._deathEchoCount || 0))
-            : allEvts);
-        if (
-          shouldTriggerMissing600(s, extEvts) &&
-          (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MISSING_600_CHANCE
-        ) {
-          evt = createMissing600Event(s);
-          commitSelectedEvent(evt, s);
-          alreadyCommitted = true;
-        }
-      }
-    }
-    if (evt && !alreadyCommitted) commitSelectedEvent(evt, s);
-
-    // ── Rarity hint: subtle flavor text for uncommon events ──
-    // Legendary/Secret events NEVER produce hints (by design).
-    if (evt && evt.rarity && ['uncommon'].indexOf(evt.rarity) >= 0) {
-      var hint = getRarityHint(evt.rarity, c.rng);
-      if (hint) c.narr('system', hint, { isSpecial: true });
-    }
-  } else {
-    evt = selectEvent(s.currentArea, s, ctx, pick, c.rng);
-  }
-  return { evt: evt, alreadyCommitted: alreadyCommitted };
-}
-
-/** Phase 4: Post-event processing — objectives, chains, conclusions, monsters, tracking. */
-export function _postExploreProcessing(evt, s, c, GD) {
-  s.objectives = checkObjCompletion(s.objectives, s);
-  // Event chain progress
-  const chains = GD.event_chains || [];
-  for (const ch of chains) {
-    const seq = ch.sequence || [];
-    const idx = seq.indexOf(evt.id);
-    if (idx >= 0) {
-      const progress = seq.filter(function (eid) {
-        return s._triggeredSet ? s._triggeredSet.has(eid) : s.triggeredEvents.includes(eid);
-      }).length;
-      if (idx < seq.length - 1)
-        c.narr('system', '【事件链：' + ch.name + '】进度 ' + progress + '/' + seq.length, {
-          isSpecial: true,
-        });
-    }
-  }
-  // Area corruption narrative
-  const areaNarr = getAreaCorruptionNarrative(s.currentArea, s, c.rng);
-  if (areaNarr) c.narr('system', areaNarr, { isSpecial: true });
-  checkChainCompletion(s, c.narr);
-  checkWrongInference(s, c.narr, GD);
-  // Conclusions
-  const newConclusions = checkConclusions(s, ctx);
-  for (const conc of newConclusions) {
-    s.discoveredConclusions.push(conc.id);
-    c.narr('system', '【结论达成】' + conc.name, { isSpecial: true });
-    c.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
-    conc.evidence.forEach(function (e) {
-      c.narr('system', '  · ' + e);
-    });
-    conc.unlocks.forEach(function (u) {
-      if (!hasClueId(s.clues, u)) {
-        const _rn = resolveClueName(u);
-        s.clues.push({ id: u, name: _rn || u });
-      }
-    });
-  }
-  // False interpretations
-  const falseInts = checkFalseInterpretations(s, ctx, c.rng);
-  for (const fi of falseInts)
-    c.narr(
-      'system',
-      '【注意】你隐约觉得"' + fi.interpretation + '"这个想法不太对劲。' + (fi.consequence || ''),
-      { isSpecial: true }
-    );
-  // Monster manifestation
-  const adjMonsterChance = adjustMonsterChance(GAME_BALANCE.MONSTER_MANIFEST_CHANCE, s);
-  if ((c.rng ? c.rng.next() : Math.random()) < adjMonsterChance) {
-    const creature = pick(['deep_ones', 'night_gaunts', 'shoggoth'], c.rng);
-    const manifest = getMonsterManifestation(creature, s.day, ctx, c.rng);
-    if (manifest) {
-      const stageNames = {
-        absence: '异常',
-        trace: '痕迹',
-        influence: '影响',
-        partial_presence: '阴影',
-        full_presence: '出现',
-      };
-      c.narr(
-        'system',
-        '【' + (stageNames[manifest.stage] || '异常') + '】' + manifest.manifestation
-      );
-    }
-  }
-  // Behavior tracking
-  if (evt.tags) {
-    if (evt.tags.includes('fusion')) {
-      c.bt.fusion_accepted_count = (c.bt.fusion_accepted_count || 0) + 1;
-      c.bt.fusion_and_self_harm_total = (c.bt.fusion_and_self_harm_total || 0) + 1;
-    }
-    if (evt.tags.includes('possession'))
-      c.bt.possession_accepted_count = (c.bt.possession_accepted_count || 0) + 1;
-    if (evt.tags.includes('bell') || evt.tags.includes('thirteenth'))
-      c.bt.thirteenth_bell_obsession = (c.bt.thirteenth_bell_obsession || 0) + 1;
-    if (evt.tags.includes('meta') || evt.tags.includes('loop'))
-      c.bt.meta_boundary_breaks = (c.bt.meta_boundary_breaks || 0) + 1;
-    if (evt.tags.includes('sea') || evt.tags.includes('tide') || evt.tags.includes('harbor_deep'))
-      c.bt.sea_acceptance_flags = (c.bt.sea_acceptance_flags || 0) + 1;
-  }
-  if (evt.event_classification === '超自然遭遇' || evt.event_classification === '怪物遭遇')
-    c.bt.meta_boundary_breaks = (c.bt.meta_boundary_breaks || 0) + 1;
-  c.log('探索：' + evt.name);
-  if (!s.tutorialSeen.first_explore) s.tutorialSeen = { ...s.tutorialSeen, first_explore: true };
-}
-
-/**
- * Apply mechanical effects from temporary_madness_table.
- * Maps madness name to in-game consequences.
- */
-function _applyMadnessEffects(mad, s, c, ctx) {
-  var name = mad.name || '';
-  // Panic flee: lose all remaining AP
-  if (name === '恐慌逃跑') {
-    s.ap = 0;
-    c.narr('system', '你无法控制自己的双腿。剩余行动力耗尽。', { isEffect: true });
-  }
-  // Hysteria: extra SAN loss
-  else if (name === '歇斯底里') {
-    var extraSan = rand(1, 3, c.rng);
-    applySanLoss(s, extraSan);
-    c.narr('system', '你无法停止大笑/大哭。SAN -' + extraSan, { isEffect: true });
-  }
-  // Paranoia: NPC trust -1 for all known NPCs
-  else if (name === '偏执妄想') {
-    var npcs = Object.keys(s.npcTrust || {});
-    for (var i = 0; i < npcs.length; i++) {
-      if ((s.npcTrust[npcs[i]] || 0) > 0) {
-        s.npcTrust[npcs[i]] = Math.max(0, s.npcTrust[npcs[i]] - 1);
-      }
-    }
-    if (npcs.length > 0) c.narr('system', '你开始怀疑每一个人。所有NPC信任 -1。', { isEffect: true });
-  }
-  // Violence: HP loss to self
-  else if (name === '暴力发作') {
-    s.hp = Math.max(0, s.hp - 3);
-    c.narr('system', '你失控了。HP -3。', { isEffect: true });
-  }
-  // Hallucination: extra SAN loss
-  else if (name === '幻觉侵袭') {
-    var hallSan = rand(1, 4, c.rng);
-    applySanLoss(s, hallSan);
-    c.narr('system', '幻觉吞没了你。SAN -' + hallSan, { isEffect: true });
-  }
-  // Amnesia: lose recent clues (narrative only, don't actually remove)
-  else if (name === '失忆症') {
-    c.narr('system', '你想不起来了……最近获得的线索变得模糊。（侦查检定 -10）', { isEffect: true });
-    s._madnessSkillPenalty = { skill: '侦查', penalty: -10 };
-  }
-  // Catatonia: narrative only (AP already consumed by the event)
-  else if (name === '僵直症') {
-    c.narr('system', '你蜷缩在地上，无法动弹。闪避 -50。', { isEffect: true });
-    s._madnessSkillPenalty = { skill: '闪避', penalty: -50 };
-  }
-  // Compulsion: AP cost doubled (flag for next actions)
-  else if (name === '强迫行为') {
-    c.narr('system', '你开始反复数数。接下来的行动消耗翻倍。', { isEffect: true });
-    s._madnessApMultiplier = 2;
-  }
-  // Phantom pain: all checks -15
-  else if (name === '幻痛') {
-    c.narr('system', '剧烈的疼痛袭来——但你身上没有伤口。所有检定 -15。', { isEffect: true });
-    s._madnessGlobalCheckPenalty = -15;
-  }
-  // Brief possession: mythos gain + extra SAN loss
-  else if (name === '短暂附身') {
-    var mythosGain = rand(1, 3, c.rng);
-    var possSan = rand(1, 6, c.rng);
-    s.mythosLevel = (s.mythosLevel || 0) + mythosGain;
-    applySanLoss(s, possSan);
-    c.narr('system', '你的嘴说出了不属于你的话。克苏鲁神话 +' + mythosGain + '，SAN -' + possSan, { isEffect: true });
-    c.bt.possession_accepted_count = (c.bt.possession_accepted_count || 0) + 1;
-  }
-}
+// Re-export helpers used by other reducers
+export { _selectExploreEvent } from '../../systems/explore/eventSelectionSystem.js';
+export { applyMetaEffect, applyQualityTier, _postExploreProcessing } from '../../systems/explore/eventConsequenceSystem.js';
 
 export function handleExploreAction(s, action, c, ctx) {
   var GD = ctx.GD;
@@ -479,11 +151,11 @@ export function handleExploreAction(s, action, c, ctx) {
         const phase = getPhase(s.ap, s.maxAp);
         const isNight = phase === 'midnight' || phase === 'evening';
         const isRainy = s.weather === '雨天' || s.weather === '大雾';
-        const visitCount = (s.visitedAreas || []).filter((a) => a === target).length;
+        var visitCount2 = (s.visitedAreas || []).filter((a) => a === target).length;
         const eligible = targetArea.layout_variants.filter((v) => {
           if (v.id.endsWith('_dark') && !isNight) return false;
           if (v.id.endsWith('_flooded') && !isRainy) return false;
-          if (v.id.endsWith('_wrecked') && visitCount < 2) return false;
+          if (v.id.endsWith('_wrecked') && visitCount2 < 2) return false;
           return true;
         });
         if (eligible.length > 0) {
@@ -609,7 +281,7 @@ export function handleExploreAction(s, action, c, ctx) {
       // Progress guard (clue nudge)
       const _guard = getForcedProgressGuard(s, ctx, c.rng);
       if (_guard) executeForcedProgressGuard(_guard, s, c.narr);
-      // Phase 2: Event selection via pure pipeline (extracted)
+      // Phase 2: Event selection via pure pipeline (delegated)
       const _sel = _selectExploreEvent(s, ctx, GD, c);
       let evt = _sel.evt;
       const _alreadyCommitted = _sel.alreadyCommitted;
@@ -852,7 +524,7 @@ export function handleExploreAction(s, action, c, ctx) {
           applyDeathResolution(s, deathCtx, c.narr, ctx);
         }
       }
-      // Phase 4: Post-event processing (extracted)
+      // Phase 4: Post-event processing (delegated)
       _postExploreProcessing(evt, s, c, GD);
       // Chapter 1 early whisper: 20% chance on Days 1-3, first loop only
       // Atmospheric — no AP cost, no game effect, pure unease.

@@ -10,7 +10,7 @@ NPC 引用:    "martha_grey"     不要 "玛莎·格雷"
 物品引用:    "silver_dagger"    不要 "银质匕首"
 ```
 
-查 ID：`node -e "console.log(require('./src/data/registry/npcRegistry.cjs').NPC_REGISTRY)"`
+查 ID：`node --input-type=module -e "import('./src/data/registry/npcRegistry.js').then(m => console.log(m.NPC_REGISTRY))"`
 
 ### 2. effects 只能使用注册过的 type
 
@@ -36,7 +36,7 @@ NPC 引用:    "martha_grey"     不要 "玛莎·格雷"
 
 ### 4. 新增债务会 FAIL
 
-构建时 `python build.py --prod` 会运行验证器。如果新增了：
+构建时 `npm run build` 会运行验证器。如果新增了：
 
 - 未注册的 NPC/物品引用 → E14/E15 ERROR
 - 超过 baseline 的中文引用 → E11_BASELINE/E12_BASELINE ERROR
@@ -68,9 +68,9 @@ NPC 引用:    "martha_grey"     不要 "玛莎·格雷"
 
 | 实体类型 | Registry        | 查 ID 命令                                                                                          |
 | -------- | --------------- | --------------------------------------------------------------------------------------------------- |
-| NPC      | npcRegistry.js  | `node -e "console.log(Object.keys(require('./src/data/registry/npcRegistry.cjs').NPC_REGISTRY))"`   |
-| 区域     | areaRegistry.js | `node -e "console.log(Object.keys(require('./src/data/registry/areaRegistry.cjs').AREA_REGISTRY))"` |
-| 物品     | itemRegistry.js | `node -e "console.log(Object.keys(require('./src/data/registry/itemRegistry.cjs').ITEM_REGISTRY))"` |
+| NPC      | npcRegistry.js  | `node --input-type=module -e "import('./src/data/registry/npcRegistry.js').then(m => console.log(Object.keys(m.NPC_REGISTRY)))"`   |
+| 区域     | areaRegistry.js | `node --input-type=module -e "import('./src/data/registry/areaRegistry.js').then(m => console.log(Object.keys(m.AREA_REGISTRY)))"` |
+| 物品     | itemRegistry.js | `node --input-type=module -e "import('./src/data/registry/itemRegistry.js').then(m => console.log(Object.keys(m.ITEM_REGISTRY)))"` |
 
 ---
 

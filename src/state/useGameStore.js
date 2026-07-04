@@ -3,21 +3,22 @@
 // Architecture:
 //   dispatch(action):
 //     1. systemSlice.before  (cross-cutting: tracking, profiling, _apBefore)
-//     2. Slice action        (mutates draft directly — single produce via immer middleware)
-//     3. systemSlice.after   (cross-cutting: AP steal, AP audio, SAN consequences)
+//     2. Slice action         (via combineSlices dispatch map → handler mutates draft)
+//     3. systemSlice.after    (cross-cutting: AP steal, AP audio, SAN consequences)
 //     4. Persist effects to state._effects
-//     5. flushEffectsBuffer  (side effects dispatched async via effectExecutor)
+//     5. flushEffectsBuffer   (side effects dispatched async via effectExecutor)
 //
-// All 6 domain slices migrated: uiSlice, dailySlice, exploreSlice, npcSlice, darkSlice, coreSlice
-// Each handler mutates draft in-place, collects effects via c.effects (buildSliceCtx closure).
-// createGameReducer bridge removed — single produce path only.
+// Slice dispatch is data-driven: combineSlices builds a dispatch map from
+// createSlice configs. Each slice handler mutates the immer draft in-place.
+// The if/else-if router was replaced by the combineSlices dispatch map (v0.9.8).
 // DevTools: opt-in via @xyflow/zustand-devtools (see import above).
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { setAutoFreeze } from 'immer';
+import { createSlice, combineSlices } from './combineSlices.js';
 import { logAction } from '../engine/zustandDevTools.js';
-import { flushEffectsBuffer, setEffectsDispatch } from '../reducers/gameReducer.js';
+import { flushEffectsBuffer, setEffectsDispatch } from '../runtime/effectExecutor.js';
 import { STARTING_STATE, STAT_DEFAULTS } from './gameConstants.js';
 import { systemSlice } from '../reducers/slices/systemSlice.js';
 import { handleUiAction } from '../reducers/slices/uiSlice.js';
@@ -34,6 +35,24 @@ import { initialState } from './initialState.js';
 import { createSeededRng } from '../utils/seededRng.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { loadSettings } from '../reducers/miscReducer.js';
+
+// ═══════════════════════════════════════════════════════════════
+//  Slice dispatch map — built once via combineSlices
+// ═══════════════════════════════════════════════════════════════
+
+var coreSlice = createSlice({ name: 'core', handler: handleCoreAction });
+var adventureSlice = createSlice({ name: 'adventure', handler: handleAdventureAction });
+var loopSlice = createSlice({ name: 'loop', handler: handleLoopAction });
+var dailySlice = createSlice({ name: 'daily', handler: handleDailyAction });
+var exploreSlice = createSlice({ name: 'explore', handler: handleExploreAction });
+var npcSlice = createSlice({ name: 'npc', handler: handleNpcAction });
+var darkSlice = createSlice({ name: 'dark', handler: handleDarkAction });
+var uiSlice = createSlice({ name: 'ui', handler: handleUiAction });
+
+var createRootReducer = combineSlices([
+  coreSlice, adventureSlice, loopSlice, dailySlice,
+  exploreSlice, npcSlice, darkSlice, uiSlice, systemSlice,
+]);
 
 // Disable Immer auto-freeze in dev mode. Auto-freeze recursively freezes all
 // state objects, which triggers forceStoreRerender inside React's passive effects
@@ -69,11 +88,12 @@ var PLACEHOLDER = {
 //  Key difference: operates on immer draft directly (no produce wrapper).
 // ═══════════════════════════════════════════════════════════════
 
-function buildSliceCtx(draft, rng, corruptFn) {
+function buildSliceCtx(draft, rng, corruptFn, actIdx) {
   var effects = [];
+  var _narrLocalSeq = 0;
   var narr = function (type, text, extra) {
     extra = extra || {};
-    var entry = { id: Date.now() + Math.random(), type: type, text: text };
+    var entry = { id: (actIdx || 0) * 1000 + (++_narrLocalSeq), type: type, text: text };
     for (var k in extra) entry[k] = extra[k];
     // Apply fear corruption to system/event narration
     if (corruptFn && (type === 'system' || type === 'event') && !extra.isSpecial && !extra.isEffect && !extra.madness) {
@@ -162,72 +182,13 @@ export var useGameStore = create(
 
           // Build lightweight context (replaces buildReducerCtx — no module-level buffer)
           var ctx = { GD: GD };
-          var c = buildSliceCtx(draft, rng, corruptFn);
+          var c = buildSliceCtx(draft, rng, corruptFn, actIdx);
 
-          // systemSlice.before runs for ALL actions
-          systemSlice.before && systemSlice.before(draft, action, c, ctx);
-
-          // ── Route to migrated slice actions (draft mutation, no double produce) ──
-          var actionType = action.type;
-
-          // dailySlice: REST, WORK, BUY_FOOD
-          if (actionType === 'REST' || actionType === 'WORK' || actionType === 'BUY_FOOD') {
-            handleDailyAction(draft, action, c, ctx);
-          }
-          // exploreSlice: MOVE, EXPLORE, DO_SKILL_CHECK
-          else if (actionType === 'MOVE' || actionType === 'EXPLORE' || actionType === 'DO_SKILL_CHECK') {
-            handleExploreAction(draft, action, c, ctx);
-          }
-          // npcSlice: TALK_NPC, NPC_RESPONSE
-          else if (actionType === 'TALK_NPC' || actionType === 'NPC_RESPONSE') {
-            handleNpcAction(draft, action, c, ctx);
-          }
-          // darkSlice: SELF_HARM, SPREAD_PROPHECY, CONSUME_ARCHIVE, SELF_SACRIFICE, DESECRATE, BREAK_SEAL
-          else if (actionType === 'SELF_HARM' || actionType === 'SPREAD_PROPHECY'
-            || actionType === 'CONSUME_ARCHIVE' || actionType === 'SELF_SACRIFICE'
-            || actionType === 'DESECRATE' || actionType === 'BREAK_SEAL') {
-            handleDarkAction(draft, action, c, ctx);
-          }
-          // coreSlice: START_GAME, SET_DIFFICULTY, SET_ARCHETYPE, ROLL_STATS, SWITCH_SAFEHOUSE, GLITCH_PULSE, RESIST_SAN_DRAIN
-          else if (actionType === 'START_GAME' || actionType === 'SET_DIFFICULTY'
-            || actionType === 'SET_ARCHETYPE' || actionType === 'ROLL_STATS'
-            || actionType === 'SWITCH_SAFEHOUSE' || actionType === 'GLITCH_PULSE'
-            || actionType === 'GLITCH_PULSE_CLEAR' || actionType === 'RESIST_SAN_DRAIN') {
-            handleCoreAction(draft, action, c, ctx);
-          }
-          // adventureSlice: BEGIN_ADVENTURE
-          else if (actionType === 'BEGIN_ADVENTURE') {
-            handleAdventureAction(draft, action, c, ctx);
-          }
-          // loopSlice: NEW_GAME, CONTINUE_GAME, LOOP_SHOP_PURCHASE
-          else if (actionType === 'NEW_GAME' || actionType === 'CONTINUE_GAME'
-            || actionType === 'LOOP_SHOP_PURCHASE') {
-            handleLoopAction(draft, action, c, ctx);
-          }
-          // uiSlice: CHOICE_SELECT, DISMISS_PENDING, CLEAR_TRANSITION, AUDIO_MUTE_TOGGLE, etc.
-          else if (actionType === 'CHOICE_SELECT'
-            || actionType === 'DISMISS_PENDING'
-            || actionType === 'CLEAR_TRANSITION'
-            || actionType === 'AUDIO_MUTE_TOGGLE'
-            || actionType === 'ACCESSIBILITY_TOGGLE'
-            || actionType === 'GAMBLE_CHOICE'
-            || actionType === 'START_PROLOGUE'
-            || actionType === 'PROLOGUE_CHOICE'
-            || actionType === 'COMPLETE_PROLOGUE'
-            || actionType === 'DISMISS_GUIDE'
-            || actionType === 'SKIP_PROLOGUE'
-            || actionType === 'MARK_NOTEBOOK_OPENED'
-            || actionType === 'SET_META_FIELD'
-            || actionType === 'DELAYED_NARRATE'
-            || actionType === 'USE_ITEM'
-          ) {
-            handleUiAction(draft, action, c, ctx);
-          }
-          // Unhandled action types are silently ignored (all domain actions covered above)
-
-          // ── systemSlice.after (cross-cutting post-dispatch) ──
-          // Runs for ALL actions, including non-migrated slices
-          systemSlice.after && systemSlice.after(draft, action, c, ctx);
+          // ── Dispatch via combineSlices root reducer ──
+          // systemSlice.before / domain handler / systemSlice.after
+          // are all managed by the combined reducer's before/after hooks.
+          var rootReducer = createRootReducer({ GD: GD });
+          rootReducer(draft, action, c);
 
           // ── Collect all effects ──
           var allEffects = c.effects ? c.effects.slice() : [];

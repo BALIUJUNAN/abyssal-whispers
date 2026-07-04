@@ -35,7 +35,3 @@ export function getAreaName(id) {
   var entry = AREA_REGISTRY[id];
   return entry ? entry.name : id;
 }
-
-try {
-  module.exports = { AREA_REGISTRY, AREA_NAME_TO_ID, resolveAreaId, getAreaName };
-} catch (e) {}

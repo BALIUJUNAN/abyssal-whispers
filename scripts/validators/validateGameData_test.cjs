@@ -1,6 +1,6 @@
-// src/data/validators/validateGameData.js
+// scripts/validators/validateGameData.cjs
 // Build-time / test-time validator for game data integrity.
-// Run: node src/data/validators/validateGameData.js
+// Run: node scripts/validators/validateGameData.cjs
 // Returns array of { level: 'error'|'warn', rule: string, message: string, context?: string }
 
 function validateGameData(base, ch2plus, meta) {

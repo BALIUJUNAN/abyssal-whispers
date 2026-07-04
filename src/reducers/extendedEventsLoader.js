@@ -43,8 +43,8 @@ export function mergeExtendedEvents(GD, extendedModules) {
 // game pre-fetches the next chapter's data so events are ready
 // before the player reaches that chapter.
 //
-// In single-file mode (Tauri / build.py default), all data is
-// already merged at build time — these fetches are skipped.
+// In single-file mode (Vite singlefile plugin), all data is
+// already bundled — these fetches are skipped.
 
 /** @type {Set<string>} chapters already loaded or merged */
 const _loadedChapters = new Set(['ch1']); // ch1 always in base

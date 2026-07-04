@@ -101,7 +101,7 @@ export function getLegacyForCategory(category) {
  * @param {object|null} [rng] - seeded RNG
  */
 export function applyDeathLegacy(s, legacy, narr, ctx, rng) {
-  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
+  var GD = ctx?.GD || {};
   var _rand = makeRand(rng);
 
   if (!legacy || !legacy.effects) return;
@@ -116,8 +116,7 @@ export function applyDeathLegacy(s, legacy, narr, ctx, rng) {
         s.san = Math.min(s.san, s.maxSan);
         narr(
           'system',
-          '你感到某种结构性的变化——你的精神承受上限下降了。'
-            + eff.value + '。'
+          '你感到某种结构性的变化——你的精神承受上限下降了 ' + Math.abs(eff.value) + ' 点。'
             + '但你也感受到了一些防护正在你周围形成。'
         );
         break;
@@ -128,7 +127,7 @@ export function applyDeathLegacy(s, legacy, narr, ctx, rng) {
         s.food = Math.min(s.maxFood || 5, (s.food || 0) + eff.value);
         narr(
           'system',
-          '沃切斯特在你的口袋里留了些食物。' + eff.value + '份。'
+          '沃切斯特在你的口袋里留了 ' + eff.value + ' 份食物。'
             + '但这也意味着你的身体已经适应了更少的需求——行动范围缩小了。'
         );
         break;
@@ -163,7 +162,7 @@ export function applyDeathLegacy(s, legacy, narr, ctx, rng) {
         }
         narr(
           'system',
-          '沃切斯特让一些人开始用不同的眼光看你。' + eff.value + '。'
+          '沃切斯特让一些人开始用不同的眼光看你。信任降低了 ' + Math.abs(eff.value) + ' 点。'
             + '但你注意到了一些以前没注意到的东西——\n'
             + '某些人看向你时的犹豫。某些话题被刻意绕开。'
         );

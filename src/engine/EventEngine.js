@@ -329,10 +329,10 @@ export function getDistortionVariant(evt, state, rng) {
 // Events with unique keys (corruption_high, san_mid) keep local variants.
 //
 // Call this from initExtendedEvents() after GD.events is fully assembled.
+// distortionTemplates is injected by the caller (DI pattern) to avoid
+// engine/ → data/ import boundary violation.
 
-import { DISTORTION_TEMPLATE_MAP } from '../data/distortionTemplates.js';
-
-export function injectDistortionTemplates(GD) {
+export function injectDistortionTemplates(GD, distortionTemplates) {
   if (!GD || !GD.events) return;
   var events = GD.events;
   var injected = 0;
@@ -346,7 +346,7 @@ export function injectDistortionTemplates(GD) {
 
     // Resolve template: explicit distortion_template field > subtype name
     var templateKey = evt.distortion_template || evt.subtype;
-    var template = DISTORTION_TEMPLATE_MAP[templateKey];
+    var template = distortionTemplates[templateKey];
     if (!template) continue;
 
     // Inject template variants as local distortion_variants

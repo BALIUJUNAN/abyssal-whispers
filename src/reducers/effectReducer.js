@@ -145,7 +145,7 @@ export function applyLegacyEffects(state, eff, rng) {
   // At low SAN, the player SEES inflated resource counts but GETS reduced actual gains.
   // This hook modifies positive resource GAINS only — consumption/loss is never affected.
   // Covers: event resource drops, NPC gifts, exploration rewards, safehouse finds.
-  var fraud = getResourceFraudState(state.san || 60);
+  var fraud = getResourceFraudState(state.san || 60, null, {});
   var _rand = rng ? function () { return rng.next(); } : Math.random;
   if (fraud.active && fraud.realMult < 1.0) {
     // Food gain (legacy format): reduce by realMult

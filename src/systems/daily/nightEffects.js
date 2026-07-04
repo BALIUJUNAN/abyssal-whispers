@@ -49,7 +49,7 @@ export function _processNightEffects(s, c, ctx) {
     const bwfx = checkBreakWallEvent(s, c.narr, GD, c.rng);
     if (bwfx) c.effects.push(...bwfx);
   }
-  processDailyResources(s, c.rng);
+  processDailyResources(s, c.rng, ctx);
   {
     const resNarr = getResourceNarrative(s, c.rng);
     if (resNarr) c.narr('system', resNarr, { isSpecial: true });

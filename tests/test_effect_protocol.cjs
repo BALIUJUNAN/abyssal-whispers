@@ -125,20 +125,21 @@ test('No audioManager calls in slice handlers', function () {
   assert.deepStrictEqual(violations, [], 'Found direct side effects:\n' + violations.join('\n'));
 });
 
-test('No Date.now() or Math.random() in gameReducer', function () {
-  const appPath = path.join(SRC, 'app.jsx');
-  const content = fs.readFileSync(appPath, 'utf8');
-  const start = content.indexOf('function gameReducer(');
-  const end = content.indexOf('\nfunction App(', start);
-  const reducerBody = content.slice(start, end);
+test('No Date.now() or Math.random() in dispatch', function () {
+  const storePath = path.join(SRC, 'state', 'useGameStore.js');
+  const content = fs.readFileSync(storePath, 'utf8');
+  // Extract the dispatch function body (starts at "dispatch: function (action) {")
+  const dispatchStart = content.indexOf('dispatch: function (action) {');
+  const dispatchEnd = content.indexOf('\n      },', dispatchStart);
+  const dispatchBody = content.slice(dispatchStart, dispatchEnd);
   const violations = [];
-  const lines = reducerBody.split('\n');
+  const lines = dispatchBody.split('\n');
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (line.trim().startsWith('//')) continue;
-    if (/Date\.now\(\)/.test(line)) violations.push('gameReducer:' + (i + 1) + ': Date.now()');
+    if (/Date\.now\(\)/.test(line)) violations.push('useGameStore.dispatch:' + (i + 1) + ': Date.now()');
     if (/Math\.random\(\)/.test(line))
-      violations.push('gameReducer:' + (i + 1) + ': Math.random()');
+      violations.push('useGameStore.dispatch:' + (i + 1) + ': Math.random()');
   }
   assert.deepStrictEqual(violations, [], 'Reducer impurity:\n' + violations.join('\n'));
 });
@@ -175,7 +176,7 @@ test('effectExecutor routes AUDIO_PLAY to audioManager.playEffect', function () 
     },
   };
 
-  // Simulate a batch of effects like what gameReducer produces
+  // Simulate a batch of effects like what flushEffectsBuffer produces
   var effects = [
     { type: 'AUDIO_PLAY', id: 'begin', _fxId: 'batch1_0' },
     { type: 'AUDIO_AMBIENT', area: 'town_center', phase: 'morning', _fxId: 'batch1_1' },
@@ -536,52 +537,43 @@ test('createSeededRng: pick and shuffle are deterministic', function () {
   assert.notDeepStrictEqual(shuf1, items, 'shuffle() actually reorders');
 });
 
-// Test 17: Build order — all ESM imports in bundle files resolve to earlier files
-test('build order: all imported functions available before use', function () {
-  var buildPath = path.join(__dirname, '..', 'build.py');
-  if (!fs.existsSync(buildPath)) { console.log('  SKIP: build.py not found'); passed--; return; }
-  var buildContent = fs.readFileSync(buildPath, 'utf8');
-  // Extract REDUCER_FILES list
-  var listMatch = buildContent.match(/REDUCER_FILES\s*=\s*\[([\s\S]*?)\]/);
-  if (!listMatch) { console.log('  SKIP: cannot parse REDUCER_FILES'); passed--; return; }
-  var fileListStr = listMatch[1];
-  var fileRegex = /'([^']+)'/g;
-  var buildOrder = [];
-  var m;
-  while ((m = fileRegex.exec(fileListStr)) !== null) {
-    buildOrder.push(m[1]);
+// Test 17: ESM imports — all imported source files exist
+test('ESM imports: all imported source files exist', function () {
+  var srcDir = path.join(__dirname, '..', 'src');
+  var jsFiles = [];
+  function walk(dir) {
+    var entries = fs.readdirSync(dir);
+    for (var e = 0; e < entries.length; e++) {
+      var full = path.join(dir, entries[e]);
+      var stat = fs.statSync(full);
+      if (stat.isDirectory()) {
+        walk(full);
+      } else if (full.endsWith('.js')) jsFiles.push(full);
+    }
   }
+  walk(srcDir);
 
-  // For each file in the build order, check that its ESM imports reference
-  // files that appear EARLIER in the build order (or are in the same file)
   var violations = [];
-  for (var i = 0; i < buildOrder.length; i++) {
-    var relPath = buildOrder[i];
-    var absPath = path.join(SRC, relPath);
-    if (!fs.existsSync(absPath)) continue;
-    var content = fs.readFileSync(absPath, 'utf8');
-    // Find all import ... from './xxx.js' statements
+  for (var i = 0; i < jsFiles.length; i++) {
+    var content = fs.readFileSync(jsFiles[i], 'utf8');
+    // Strip single-line and multi-line comments before matching imports
+    var code = content.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
     var importRegex = /import\s+.*?from\s+['"]\.\/(.*?)['"]/g;
     var im;
-    while ((im = importRegex.exec(content)) !== null) {
+    while ((im = importRegex.exec(code)) !== null) {
       var importTarget = im[1];
-      // Normalize: strip ../ prefix to get relative-to-src path
-      var dir = path.dirname(relPath);
-      var resolved = path.normalize(path.join(dir, importTarget)).replace(/\\/g, '/');
-      // Check if this resolved path appears in buildOrder BEFORE current file
-      var foundAt = buildOrder.indexOf(resolved);
-      if (foundAt === -1) {
-        // Not in build order at all — might be a node_module or optional
-        // Only flag if it's a src/ file
-        if (resolved.startsWith('src/')) {
-          violations.push(relPath + ' imports ' + resolved + ' (not in REDUCER_FILES)');
-        }
-      } else if (foundAt > i) {
-        violations.push(relPath + ' (pos ' + i + ') imports ' + resolved + ' (pos ' + foundAt + ') — loaded AFTER');
+      // Normalize relative path
+      var resolved = path.resolve(path.dirname(jsFiles[i]), importTarget);
+      // Skip self-imports (e.g. barrel index.js re-exporting from itself)
+      if (path.normalize(resolved) === path.normalize(jsFiles[i])) continue;
+      // Verify the imported file exists (.js or .json)
+      var exists = fs.existsSync(resolved) || fs.existsSync(resolved + '.js') || fs.existsSync(resolved + '.json');
+      if (!exists) {
+        violations.push(path.relative(srcDir, jsFiles[i]) + ' imports ' + importTarget + ' (file not found)');
       }
     }
   }
-  assert.deepStrictEqual(violations, [], 'Build order violations:\n' + violations.join('\n'));
+  assert.deepStrictEqual(violations, [], 'ESM import violations:\n' + violations.join('\n'));
 });
 
 // Test 18b: No shadowed 'c' variable bugs in slice handlers

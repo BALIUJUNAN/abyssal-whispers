@@ -174,7 +174,7 @@ export function getResourceEventWeightModifier(evt, state) {
 // SECTION 3: Daily Resource Processing
 // =============================================
 
-export function processDailyResources(state, rng) {
+export function processDailyResources(state, rng, ctx) {
   // Declare food BEFORE use to avoid var-hoisting shadowing the starvation check
   var food = state.food || 0;
   var actions = state._dayActions || [];
@@ -195,7 +195,7 @@ export function processDailyResources(state, rng) {
   // falls back to danger_level >= 5 for backward compatibility.
   // NOTE: lighthouse (level 5) has infection_risk=false in game data — narrative exclusion.
   var areaData =
-    getAreaInfo(state.currentArea, { GD: (typeof window !== 'undefined' && window.GD) || {} });
+    getAreaInfo(state.currentArea, { GD: ctx?.GD || {} });
   var isInfectious = areaData
     ? !!areaData.infection_risk
     : ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove'].indexOf(state.currentArea) >= 0;

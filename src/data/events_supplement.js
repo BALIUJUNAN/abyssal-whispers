@@ -1820,5 +1820,5 @@ export var supplement_events = [
   },
 ];
 
-// Getter for bundled build (import alias stripped by build.py)
+// Accessor for event pool
 export function getSupplementEvents() { return supplement_events; }

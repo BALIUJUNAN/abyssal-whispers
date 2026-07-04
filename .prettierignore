@@ -2,7 +2,6 @@ node_modules/
 dist/
 dist-vite/
 src-tauri/
-src/vendor/
 *.min.js
 *.json
 index.html

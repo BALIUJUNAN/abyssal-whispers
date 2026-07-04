@@ -138,7 +138,7 @@ test('Event chain references are valid', function () {
 // === Validator integration: no error-level failures ===
 test('Validator reports no errors (warnings OK)', function () {
   const { validateGameData } = require(
-    path.join(SRC, 'data', 'validators', 'validateGameData.cjs')
+    path.join(SRC, '..', 'scripts', 'validators', 'validateGameData.cjs')
   );
   const results = validateGameData(base, ch2plus, meta);
   const errors = results.filter((r) => r.level === 'error');
@@ -157,7 +157,9 @@ if (failed > 0) process.exit(1);
 // === Migration Compat Tests ===
 
 test('setNpcTrust always writes to resolved id', function () {
-  const { resolveNpcId } = require(path.join(SRC, 'data', 'registry', 'npcRegistry.cjs'));
+  const { resolveNpcId } = require(
+    path.join(SRC, 'data', 'registry', 'npcRegistry.js')
+  );
   const s = { npcTrust: {} };
   // Simulate setNpcTrust: always write to resolved id
   const id = resolveNpcId('玛莎·格雷');
@@ -167,7 +169,9 @@ test('setNpcTrust always writes to resolved id', function () {
 });
 
 test('getNpcTrust reads legacy Chinese keys via id resolution', function () {
-  const { resolveNpcId } = require(path.join(SRC, 'data', 'registry', 'npcRegistry.cjs'));
+  const { resolveNpcId } = require(
+    path.join(SRC, 'data', 'registry', 'npcRegistry.js')
+  );
   // npcTrust has Chinese key, query by id → should find via fallback
   const s1 = { npcTrust: { '玛莎·格雷': 2 } };
   const id = resolveNpcId('martha_grey');
@@ -182,7 +186,7 @@ test('getNpcTrust reads legacy Chinese keys via id resolution', function () {
 
 test('resolveNpcId resolves all 8 core NPCs', function () {
   const { resolveNpcId, NPC_REGISTRY } = require(
-    path.join(SRC, 'data', 'registry', 'npcRegistry.cjs')
+    path.join(SRC, 'data', 'registry', 'npcRegistry.js')
   );
   const entries = Object.entries(NPC_REGISTRY);
   assert.ok(entries.length === 8, 'Expected 8 NPCs, got ' + entries.length);
@@ -194,7 +198,7 @@ test('resolveNpcId resolves all 8 core NPCs', function () {
 
 test('Validator baseline: no new Chinese ref debt', function () {
   const { validateGameData } = require(
-    path.join(SRC, 'data', 'validators', 'validateGameData.cjs')
+    path.join(SRC, '..', 'scripts', 'validators', 'validateGameData.cjs')
   );
   const results = validateGameData(base, ch2plus, meta);
   const baselineErrors = results.filter((r) => r.level === 'error' && r.rule.includes('BASELINE'));
@@ -209,7 +213,7 @@ test('Validator baseline: no new Chinese ref debt', function () {
 
 test('resolveItemId resolves all 54 unique items from game data', function () {
   const { resolveItemId, ITEM_REGISTRY } = require(
-    path.join(SRC, 'data', 'registry', 'itemRegistry.cjs')
+    path.join(SRC, 'data', 'registry', 'itemRegistry.js')
   );
   const gameItems = new Set();
   for (const evt of base.events || []) {
@@ -226,7 +230,7 @@ test('resolveItemId resolves all 54 unique items from game data', function () {
 });
 
 test('normalizeItemRef handles strings and objects', function () {
-  const { normalizeItemRef } = require(path.join(SRC, 'data', 'registry', 'itemRegistry.cjs'));
+  const { normalizeItemRef } = require(path.join(SRC, 'data', 'registry', 'itemRegistry.js'));
   const ref1 = normalizeItemRef('银质匕首');
   assert.strictEqual(ref1.id, 'silver_dagger');
   assert.strictEqual(ref1.name, '银质匕首');
@@ -236,7 +240,7 @@ test('normalizeItemRef handles strings and objects', function () {
 });
 
 test('migrateInventory converts Chinese names to ids', function () {
-  const { migrateInventory } = require(path.join(SRC, 'data', 'registry', 'itemRegistry.cjs'));
+  const { migrateInventory } = require(path.join(SRC, 'data', 'registry', 'itemRegistry.js'));
   const old = [
     { id: '手电筒', name: '手电筒', uses: 10 },
     { id: '干粮', name: '干粮', uses: 2 },
@@ -247,7 +251,7 @@ test('migrateInventory converts Chinese names to ids', function () {
 });
 
 test('Item registry: no duplicate aliases', function () {
-  const { ITEM_REGISTRY } = require(path.join(SRC, 'data', 'registry', 'itemRegistry.cjs'));
+  const { ITEM_REGISTRY } = require(path.join(SRC, 'data', 'registry', 'itemRegistry.js'));
   const seen = {};
   const dupes = [];
   for (const [id, entry] of Object.entries(ITEM_REGISTRY)) {
@@ -260,7 +264,7 @@ test('Item registry: no duplicate aliases', function () {
 });
 
 test('Item registry: all ids are snake_case', function () {
-  const { ITEM_REGISTRY } = require(path.join(SRC, 'data', 'registry', 'itemRegistry.cjs'));
+  const { ITEM_REGISTRY } = require(path.join(SRC, 'data', 'registry', 'itemRegistry.js'));
   const bad = Object.keys(ITEM_REGISTRY).filter((id) => !/^[a-z][a-z0-9_]*$/.test(id));
   assert.deepStrictEqual(bad, [], 'Non-snake_case ids: ' + bad.join(', '));
 });
@@ -269,7 +273,7 @@ test('Item registry: all ids are snake_case', function () {
 
 test('createRegistryHelpers: resolveId, getName, has, migrateKeys', function () {
   const { createRegistryHelpers } = require(
-    path.join(SRC, 'data', 'registry', 'registryUtils.cjs')
+    path.join(SRC, 'data', 'registry', 'registryUtils.js')
   );
   const reg = {
     alpha: { name: '甲', aliases: ['A'] },
@@ -295,7 +299,7 @@ test('createRegistryHelpers: resolveId, getName, has, migrateKeys', function () 
 
 test('createRegistryHelpers: migrateArray', function () {
   const { createRegistryHelpers } = require(
-    path.join(SRC, 'data', 'registry', 'registryUtils.cjs')
+    path.join(SRC, 'data', 'registry', 'registryUtils.js')
   );
   const reg = { x: { name: 'X物', aliases: [] }, y: { name: 'Y物', aliases: ['why'] } };
   const h = createRegistryHelpers(reg);
@@ -305,12 +309,12 @@ test('createRegistryHelpers: migrateArray', function () {
 });
 
 test('npcRegistry uses registryUtils when available', function () {
-  const utils = require(path.join(SRC, 'data', 'registry', 'registryUtils.cjs'));
+  const utils = require(path.join(SRC, 'data', 'registry', 'registryUtils.js'));
   // Make createRegistryHelpers global for npcRegistry
   global.createRegistryHelpers = utils.createRegistryHelpers;
   // Clear require cache
-  delete require.cache[require.resolve(path.join(SRC, 'data', 'registry', 'npcRegistry.cjs'))];
-  const npc = require(path.join(SRC, 'data', 'registry', 'npcRegistry.cjs'));
+  delete require.cache[require.resolve(path.join(SRC, 'data', 'registry', 'npcRegistry.js'))];
+  const npc = require(path.join(SRC, 'data', 'registry', 'npcRegistry.js'));
   assert.strictEqual(npc.resolveNpcId('玛莎·格雷'), 'martha_grey');
   assert.strictEqual(npc.getNpcName('martha_grey'), '玛莎·格雷');
   const migrated = npc.migrateNpcKeys({ '玛莎·格雷': 3, '希尔达·莫里斯': 5 });

@@ -90,3 +90,18 @@ export function runPostReducerEffects(effects, dispatch) {
     handler(fx, dispatch);
   }
 }
+
+// ── Effects Dispatch Target (migrated from gameReducer.js) ──
+// gameReducer.js was a 41-line shell that dynamically imported this module
+// to avoid circular deps. After merging, flushEffectsBuffer calls
+// runPostReducerEffects directly (same module, no import needed).
+
+var _effectsDispatch = null;
+export function setEffectsDispatch(dispatch) { _effectsDispatch = dispatch; }
+
+export function flushEffectsBuffer(effects) {
+  if (!effects || effects.length === 0) return;
+  if (typeof _effectsDispatch === 'function') {
+    runPostReducerEffects(effects, _effectsDispatch);
+  }
+}

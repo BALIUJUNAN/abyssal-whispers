@@ -7,14 +7,12 @@
 //   commitSelectedEvent — writes cooldown/count/tracking state (only for final pick)
 // P0-2: trigger.probability moved from checkTriggerExtended hard filter to weight modifier
 //
-// BUILD ORDER DEPENDENCY (build.py REDUCER_FILES):
-//   This file MUST be loaded AFTER:
-//     engine/EventEngine.js      — provides getCooldownDecayFactor, getBehaviorWeightMultiplier
-//     systems/resourceNarrative.js — provides getResourceEventWeightModifier
-//     systems/fearLens.js          — provides getFearEventWeightModifier (used by exploreSlice)
-//     systems/worldDecay.js        — provides getAreaCorruptionMultiplier
-//     reducers/sanReducer.js       — provides getSanWeightMultiplier
-//   At bundle time, these are concatenated before this file in index.html.
+// ESM import dependency (loaded automatically by Vite):
+//   engine/EventEngine.js      — provides getCooldownDecayFactor, getBehaviorWeightMultiplier
+//   systems/resourceNarrative.js — provides getResourceEventWeightModifier
+//   systems/fearLens.js          — provides getFearEventWeightModifier (used by exploreSlice)
+//   systems/worldDecay.js        — provides getAreaCorruptionMultiplier
+//   reducers/sanReducer.js       — provides getSanWeightMultiplier
 //   getEventWeight() uses typeof guards for optional dependencies.
 
 import { getPhase } from '../engine/WorldTimeSystem.js';

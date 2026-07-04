@@ -9,7 +9,6 @@ on:
 
 env:
   NODE_VERSION: 22.15.0
-  PYTHON_VERSION: '3.12'
 
 jobs:
   # ══════════════════════════════════════════════════
@@ -25,16 +24,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
       - run: npm ci
       - run: npm test
       - run: npm run lint:schema
       - run: npm run lint:engine
       - run: npm run lint:mod
       - run: npm run build
-      - run: npm run build:single
       - run: npm run format:check
 
   # ══════════════════════════════════════════════════
@@ -89,28 +84,6 @@ jobs:
           path: dist/
           retention-days: 14
 
-  build-legacy:
-    name: Legacy Build
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: npm ci
-      - run: npm run build:single
-      - run: test -f index.html && echo "index.html size: $(wc -c < index.html) bytes"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: single-${{ github.sha }}
-          path: index.html
-          retention-days: 14
-
   format-check:
     name: Format
     runs-on: ubuntu-latest
@@ -121,8 +94,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - continue-on-error: true
       - run: npm run format:check
+        continue-on-error: true
 
   # ══════════════════════════════════════════════════
   # Develop → GitHub Pages 预览部署
@@ -130,7 +103,7 @@ jobs:
   deploy-preview:
     name: Deploy Preview
     if: github.ref == 'refs/heads/develop'
-    needs: [lint, test, build-legacy]
+    needs: [lint, test, build-vite]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -140,22 +113,19 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
       - run: npm ci
       - run: npm test
-      - run: npm run build:single
+      - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: preview-${{ github.sha }}
-          path: index.html
+          path: dist/index.html
           retention-days: 30
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./dist
           keep_files: true
           destination_dir: preview
           custom_index: index.html
@@ -167,7 +137,7 @@ jobs:
   release:
     name: Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [lint, test, build-legacy]
+    needs: [lint, test, build-vite]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -179,12 +149,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
       - run: npm ci
       - run: npm test
-      - run: npm run build:single
+      - run: npm run build
       - name: Generate changelog
         id: changelog
         run: |
@@ -204,4 +171,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           generate_release_notes: true
-          files: index.html
+          files: dist/index.html

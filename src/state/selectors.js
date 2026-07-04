@@ -43,9 +43,10 @@ export function useSanVisual() {
 }
 export function useSanStageClasses(allowVisualFX) {
   var san = useGameStore(_selSan);
+  var gd = useGameStore(function (s) { return s._GD || {}; });
   return useMemo(function () {
-    return getSanStageClasses(san, allowVisualFX, { GD: window.GD || {} });
-  }, [san, allowVisualFX]);
+    return getSanStageClasses(san, allowVisualFX, { GD: gd });
+  }, [san, allowVisualFX, gd]);
 }
 export function usePerceptionLevels() {
   var san = useGameStore(_selSan);

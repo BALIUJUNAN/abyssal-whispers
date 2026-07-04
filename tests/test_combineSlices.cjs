@@ -6,7 +6,7 @@
 
 const path = require('path');
 const { createSlice, combineSlices, ownedFieldChange, getOwnedFields }
-  = require(path.join(__dirname, '..', 'src', 'engine', 'combineSlices.js'));
+  = require(path.join(__dirname, '..', 'src', 'state', 'combineSlices.js'));
 
 // ═══════════════════════════════════════════════════════════════
 // Test harness

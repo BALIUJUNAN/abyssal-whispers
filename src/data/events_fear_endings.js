@@ -11,7 +11,6 @@
 // Integration:
 //   endingReducer.js → CONDITION_VAR_MAP must include `fear_primary`
 //   loopReducer.js → fear ending flags persist across loops
-//   build.py → REDUCER_FILES must include this file before endingReducer
 
 // ── 恐惧专属结局：深海恐惧 ────────────────────────────────
 // 「归海」— 恐惧的终点不是逃离，是回到恐惧的源头

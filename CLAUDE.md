@@ -2,7 +2,7 @@
 
 ## 前置检查
 
-每次对话开始时，先读 `mistake.txt`。每次改代码前，对照已记录的同类模式。每次踩坑后，**立即**合并追加到 `mistake.txt`（按类别归并，不重复造条目）。
+每次对话开始时，先读 `docs/adr/README.md` 索引，再读相关的 ADR 条目。每次改代码前，对照已记录的同类模式。每次踩坑后，**立即**合并追加到对应 ADR（按 `docs/adr/` 中的编号和类别归并，不重复造条目）。`mistake.txt` 保留作为原始记录，不再追加。
 
 ## Reducer 三条铁律
 
@@ -29,16 +29,15 @@ slice handler 调用时传入 `c.rng`：
 const text = getMotifFlavorText('fog', s.safehouseCorruption, ctx, c.rng);
 ```
 
-## 新增文件双注册
+## 新增文件注册
 
-新增 `.js` 文件后必须：① 目标消费方写 ESM import；② 加入 `build.py` 的 `REDUCER_FILES`（位置在依赖方之前）。运行 `python scripts/check_build_imports.py` 验证。
+新增 `.js` 文件后必须在目标消费方写 ESM import。Vite ESM 构建会自动解析依赖图。
 
 ## 构建验证
 
 - 重构后检查产物是否残留未编译 JSX（搜索 `return\s*\(\s*<[a-zA-Z]`）
 - 新增文件后运行 `python scripts/check_build_imports.py`
-- 修改后运行 `python build.py --no-babel` 确认拼接构建成功
-- 同时运行 `npm run build` 确认 Vite ESM 构建成功
+- 修改后运行 `npm run build` 确认 Vite ESM 构建成功
 - 运行 `node tests/test_full_flow.mjs` 确认完整流程测试通过
 - **事件迭代后**：运行 `npm run lint:narrative` 抽检叙事质量（随机 50 条，按风格指南打分），确保禁用词为零、平均分不低于 60
 - **NPC 台词修改后**：运行 `npm run lint:npc` 校验对话一致性，确保无时间线/数字/状态矛盾

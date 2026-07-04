@@ -1,4 +1,4 @@
-// src/engine/combineSlices.js — Slice composition framework
+// src/state/combineSlices.js — Slice composition framework
 // Supports two slice styles:
 //   A) Legacy: { name, handler } — single switch/case function (current style)
 //   B) Declarative: { name, reducers, before, after, ownedFields } — createSlice output

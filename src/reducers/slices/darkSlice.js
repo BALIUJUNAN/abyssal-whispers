@@ -17,7 +17,7 @@ export function handleDarkAction(s, action, c, ctx) {
       c.bt.fusion_and_self_harm_total = (c.bt.fusion_and_self_harm_total || 0) + 1;
       const sanLoss = rand(3, 10, c.rng);
       applySanLoss(s, sanLoss);
-      modHumanity(s, -10, '用刀在自己身上刻下符号');
+      modHumanity(s, -10, '用刀在自己身上刻下符号', c.rng);
       addRunMemory(
         s,
         '第' + c.bt.self_harm_ritual_count + '次。刀锋划过皮肤的时候，你觉得你正在写下什么东西。',
@@ -45,7 +45,7 @@ export function handleDarkAction(s, action, c, ctx) {
       c.bt.cult_leader_score = (c.bt.cult_leader_score || 0) + 1;
       const sanLoss = rand(2, 5, c.rng);
       applySanLoss(s, sanLoss);
-      modHumanity(s, -8, '向镇民散布不祥的预言');
+      modHumanity(s, -8, '向镇民散布不祥的预言', c.rng);
       c.narr(
         'system',
         '你站在镇中心的井边，对路过的人低声说出预言。他们的表情从怀疑变成了恐惧。但恐惧中有一丝——期待。SAN -' +
@@ -68,7 +68,7 @@ export function handleDarkAction(s, action, c, ctx) {
       const removed = s.clues.pop();
       const removedName = typeof removed === 'string' ? removed : (removed?.name || removed?.id || '未知');
       s.mythosLevel = (s.mythosLevel || 0) + 1;
-      modHumanity(s, -5, '吞噬了一条线索——让真相永远消失');
+      modHumanity(s, -5, '吞噬了一条线索——让真相永远消失', c.rng);
       c.narr(
         'system',
         '你把笔记本上的一页撕下来，放进嘴里。纸是苦的。但你咽下去的时候，某种知识进入了你的血液。线索「' +
@@ -92,7 +92,7 @@ export function handleDarkAction(s, action, c, ctx) {
       s.hp = Math.max(1, s.hp - hpLoss);
       s.maxSan = Math.max(10, s.maxSan - 5);
       applySanLoss(s, rand(5, 15, c.rng));
-      modHumanity(s, -25, '为了力量献祭了自己的一部分');
+      modHumanity(s, -25, '为了力量献祭了自己的一部分', c.rng);
       addRunMemory(
         s,
         '你割下了自己的一部分。不是血肉——是更重要的东西。然后你感觉到了它。力量。冰冷，安静，确凿。',
@@ -121,7 +121,7 @@ export function handleDarkAction(s, action, c, ctx) {
       c.bt.sacred_desecration_count = (c.bt.sacred_desecration_count || 0) + 1;
       const sanLoss = rand(4, 12, c.rng);
       applySanLoss(s, sanLoss);
-      modHumanity(s, -15, '亵渎了神圣之地');
+      modHumanity(s, -15, '亵渎了神圣之地', c.rng);
       c.narr(
         'system',
         '你找到了角落里那座被遗忘的神龛。你做了不可挽回的事。地面在你脚下微微震动——然后停了。仿佛某种东西屏住了呼吸。SAN -' +
@@ -150,7 +150,7 @@ export function handleDarkAction(s, action, c, ctx) {
       c.bt.loop_break_attempts = (c.bt.loop_break_attempts || 0) + 1;
       const sanLoss = rand(8, 20, c.rng);
       applySanLoss(s, sanLoss);
-      modHumanity(s, -25, '试图破坏封印');
+      modHumanity(s, -25, '试图破坏封印', c.rng);
       addRunMemory(s, '你把手放在封印上。然后你推了。', 'death');
       c.narr(
         'system',

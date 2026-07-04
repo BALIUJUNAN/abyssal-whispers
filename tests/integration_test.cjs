@@ -304,6 +304,7 @@ if ((ch2.endings || []).filter((e) => e.afterglow).length < 5) {
 
 // Code integration
 const exp = fs2.readFileSync('src/reducers/slices/exploreSlice.js', 'utf8');
+const expConsequence = fs2.readFileSync('src/systems/explore/eventConsequenceSystem.js', 'utf8');
 const checks = [
   'function applyQualityTier',
   'function applyMetaEffect',
@@ -311,7 +312,10 @@ const checks = [
   '_npcTrustLocked',
 ];
 for (const c of checks) {
-  if (!exp.includes(c)) {
+  const content = ['function applyQualityTier', 'function applyMetaEffect', '_npcTrustLocked'].includes(c)
+    ? expConsequence
+    : exp;
+  if (!content.includes(c)) {
     console.log('  FATAL: missing in exploreSlice: ' + c);
     process.exit(1);
   }
@@ -377,12 +381,7 @@ if (!pt.includes('hasTriggered')) {
   process.exit(1);
 }
 
-// P2-6: areaInvestigationDetails.js registered
-const build = fs2.readFileSync('build.py', 'utf8');
-if (!build.includes('areaInvestigationDetails')) {
-  console.log('  FATAL: areaInvestigationDetails.js not in build.py');
-  process.exit(1);
-}
+// P2-6: areaInvestigationDetails.js registered (verified via ESM import)
 
 console.log('\n========================================');
 console.log('  FULL INTEGRATION TEST PASSED');

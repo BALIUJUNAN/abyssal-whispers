@@ -44,6 +44,7 @@ _extract*.py
 # Build output
 dist/
 dist-vite/
+index.html
 
 # Operations log (local only, never commit)
 .ops-log.json

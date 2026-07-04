@@ -2,8 +2,7 @@
 
 import { resolveClueName } from './clueNameMap.js';
 
-// GD 和 ctx 将在 bundle 时由 app.jsx 中的全局变量提供
-// build.py 会剥离 import/export 语句，所以这些函数可以直接使用同作用域的 GD
+// ESM module: GD 通过 ctx 参数传入，不依赖全局变量
 
 export function initSkills() {
   const base = {};

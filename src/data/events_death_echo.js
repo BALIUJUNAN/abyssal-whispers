@@ -384,5 +384,5 @@ export const EVENTS = [
   },
 ];
 
-// Getter for bundled build (import alias stripped by build.py)
+// Accessor for event pool
 export function getDeathEchoEvents() { return EVENTS; }

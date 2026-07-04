@@ -3669,7 +3669,7 @@ function getResourceEventWeightModifier(evt, state) {
 // SECTION 3: Daily Resource Processing
 // =============================================
 
-function processDailyResources(state, rng) {
+function processDailyResources(state, rng, ctx) {
   // Declare food BEFORE use to avoid var-hoisting shadowing the starvation check
   var food = state.food || 0;
   var actions = state._dayActions || [];
@@ -3690,7 +3690,7 @@ function processDailyResources(state, rng) {
   // falls back to danger_level >= 5 for backward compatibility.
   // NOTE: lighthouse (level 5) has infection_risk=false in game data — narrative exclusion.
   var areaData =
-    getAreaInfo(state.currentArea, { GD: (typeof window !== 'undefined' && window.GD) || {} });
+    getAreaInfo(state.currentArea, { GD: ctx?.GD || {} });
   var isInfectious = areaData
     ? !!areaData.infection_risk
     : ['deep_catacombs', 'ruins_of_yith', 'forbidden_grove'].indexOf(state.currentArea) >= 0;
@@ -4279,9 +4279,9 @@ function checkSanLegacy(prevState) {
  * @param {object} c - reducer context
  * @param {string} actionType - the dispatched action type
  */
-function applySanConsequences(s, c, actionType) {
+function applySanConsequences(s, c, actionType, ctx) {
   var stage = getCurrentSanStage(s.san, {
-    GD: (typeof window !== 'undefined' && window.GD) || {},
+    GD: ctx?.GD || {},
   });
   var level = stage.level;
 
@@ -4632,11 +4632,10 @@ var NPC_CONTEXTUAL_LINES = {
   ],
 };
 
-// NPC_THREAD_QUESTIONS — Dialogue follow-up system (depth 0→1→2→3)
-// Each thread is a progressive questioning chain that reveals NPC backstory.
-// Depth 1: available at trust ≥ 2 (1 AP)
-// Depth 2: available at trust ≥ 3 (1 AP), requires depth 1 completed
-// Depth 3: auto-reveal at trust ≥ 4, awards clue + trust
+// NPC_THREAD_QUESTIONS — Dialogue tree system (depth 0→1→2→3 with branching)
+// Each thread is a progressive questioning chain with optional branching at depth2.
+// Branching: at depth2, player chooses a direction → different depth3 outcome.
+// State: npcThreads["NPC_threadId"] = { depth, branch, flags, resolved }
 var NPC_THREAD_QUESTIONS = {
   '老费舍': [
     {
@@ -4644,15 +4643,37 @@ var NPC_THREAD_QUESTIONS = {
       label: '关于灯塔 keeper 的事',
       trustReq: 2,
       depth1: {
-        response: '（他手上的动作停了一下。）灯灭了三天。他去修灯，然后没有回来。不是第一次。但这次……海面上有东西。不只是浪。',
+        text: '（他手上的动作停了一下。）灯灭了三天。他去修灯，然后没有回来。不是第一次。但这次……海面上有东西。不只是浪。',
       },
       depth2: {
         trustReq: 3,
-        response: '（他左右看了看，压低声音。）最后见他那天，他说听到了"下面有人在叫他"。灯塔下面只有岩石。没有路。',
+        text: '（他左右看了看，压低声音。）最后见他那天，他说听到了"下面有人在叫他"。灯塔下面只有岩石。没有路。',
+        choices: [
+          { text: '追问"下面"是什么', branch: 'below', trustReq: 3 },
+          { text: '问他 lighthouse keeper 的名字', branch: 'name', trustReq: 3 },
+        ],
+      },
+      branches: {
+        below: {
+          depth3: {
+            text: '（他摇头。）我不知道。但他那天的日记里写了一个词——反复写。"Kthulhu"。不是英语。不是任何我能认出的语言。但他写得很熟练。像在练习。',
+            clue: 'clue_lighthouse_kthulhu',
+            trustGain: 1,
+            flags: ['fisher_knows_name'],
+          },
+        },
+        name: {
+          depth3: {
+            text: '（他沉默了很久。）名字……我忘了。不，不是忘了。是我不能说。说了之后，我就真的看不见他了。',
+            clue: 'clue_lighthouse_keepersecret',
+            trustGain: 1,
+            flags: ['fisher_hides_name'],
+          },
+        },
       },
       depth3: {
         trustReq: 4,
-        response: '（沉默了很久。他从网兜底层摸出一张皱巴巴的纸片。）这是他的。我在灯塔脚下捡到的。上面的符号……我不认识。但你的表情说明你认识。',
+        text: '（沉默了很久。他从网兜底层摸出一张皱巴巴的纸片。）这是他的。我在灯塔脚下捡到的。上面的符号……我不认识。但你的表情说明你认识。',
         clue: 'clue_lighthouse_note',
         trustGain: 1,
       },
@@ -4662,14 +4683,14 @@ var NPC_THREAD_QUESTIONS = {
       label: '你儿子的事',
       trustReq: 3,
       depth1: {
-        response: '（脸色变了。）不要提他。他已经不在这个镇上了。去了什么地方——没有地址，没有回信。我最后一次见他，他说他要"去更靠近水的地方"。',
+        text: '（脸色变了。）不要提他。他已经不在这个镇上了。去了什么地方——没有地址，没有回信。我最后一次见他，他说他要"去更靠近水的地方"。',
       },
       depth2: {
         trustReq: 4,
-        response: '（他的手在抖。）有时候我在码头能闻到他的味道。不是烟——是海水的味道。但他从来没有出海。',
+        text: '（他的手在抖。）有时候我在码头能闻到他的味道。不是烟——是海水的味道。但他从来没有出海。',
       },
       depth3: {
-        response: '（他把补好的渔网放在一边，从口袋里掏出一块石头——上面有类似指纹的纹路，但纹路走向不对。）他在海边捡到这个。说"能听到声音"。我想他现在能听到很多声音。',
+        text: '（他把补好的渔网放在一边，从口袋里掏出一块石头——上面有类似指纹的纹路，但纹路走向不对。）他在海边捡到这个。说"能听到声音"。我想他现在能听到很多声音。',
         clue: 'clue_fisher_son_stone',
         trustGain: 1,
       },
@@ -4682,14 +4703,37 @@ var NPC_THREAD_QUESTIONS = {
       label: '你研究的封印到底是什么？',
       trustReq: 2,
       depth1: {
-        response: '封印不是锁。是阀门。它控制的不是什么东西出不来——是控制什么东西不能进来。或者说……进来多少。',
+        text: '封印不是锁。是阀门。它控制的不是什么东西出不来——是控制什么东西不能进来。或者说……进来多少。',
       },
       depth2: {
         trustReq: 3,
-        response: '我的理论是：每次"第十三声钟响"，不是钟在响。是另一侧在敲门。封印把门从这边顶住——但顶门的东西在消耗。',
+        text: '我的理论是：每次"第十三声钟响"，不是钟在响。是另一侧在敲门。封印把门从这边顶住——但顶门的东西在消耗。',
+        choices: [
+          { text: '问"另一侧"是什么', branch: 'other_side', trustReq: 3 },
+          { text: '问封印的"消耗"从何而来', branch: 'cost', trustReq: 3 },
+        ],
+      },
+      branches: {
+        other_side: {
+          depth3: {
+            text: '（他合上笔记本，看了你很久。）"另一侧"不是一个地方。是一种意识。群体意识。集体想象。当足够多的人相信同一个故事时，故事就有了重量。第十三声钟响时——故事醒了。',
+            clue: 'clue_seal_other_side',
+            trustGain: 1,
+            flags: ['elias_theory_collective'],
+          },
+        },
+        cost: {
+          depth3: {
+            text: '（他苦笑。）我祖母的日记。她的祖母的日记。封印的维护者每一代都在减少。不是死亡——是"遗忘"。维护封印需要记忆。用自己的记忆加固封印。每一代，维护者就忘记更多。我祖母忘记了她的名字。我母亲忘记了她的孩子。我现在……（他停顿）……我正在忘记为什么而来。',
+            clue: 'clue_seal_cost_memory',
+            trustGain: 1,
+            flags: ['elias_forgetting'],
+          },
+        },
       },
       depth3: {
-        response: '（他递给你一张手绘的结构图，角落有一个你从未见过的符号。）莫里斯家族的血液能重新激活封印的关键节点。这就是希尔达重要的原因——不是因为她"了解"封印。是因为她是封印的一部分。',
+        trustReq: 4,
+        text: '（他递给你一张手绘的结构图，角落有一个你从未见过的符号。）莫里斯家族的血液能重新激活封印的关键节点。这就是希尔达重要的原因——不是因为她"了解"封印。是因为她是封印的一部分。',
         clue: 'clue_elias_seal_diagram',
         trustGain: 1,
       },
@@ -4702,15 +4746,38 @@ var NPC_THREAD_QUESTIONS = {
       label: '你的家族……',
       trustReq: 2,
       depth1: {
-        response: '（她的表情变了——不是惊讶，是某种你无法命状的释然。）你终于问了。我一直在等有人问。我祖母告诉我：莫里斯家的血不是用来流的。是用来写的。',
+        text: '（她的表情变了——不是惊讶，是某种你无法命状的释然。）你终于问了。我一直在等有人问。我祖母告诉我：莫里斯家的血不是用来流的。是用来写的。',
       },
       depth2: {
         trustReq: 3,
-        response: '每个莫里斯女嗣出生时手腕上都有一个胎记。形状和封印的符号完全一致。我们不是封印的守护者。我们是封印的钥匙。',
+        text: '每个莫里斯女嗣出生时手腕上都有一个胎记。形状和封印的符号完全一致。我们不是封印的守护者。我们是封印的钥匙。',
+        choices: [
+          { text: '问"钥匙"的具体含义', branch: 'key_meaning', trustReq: 3 },
+          { text: '问她的胎记现在怎样', branch: 'mark_now', trustReq: 3 },
+        ],
+      },
+      branches: {
+        key_meaning: {
+          depth3: {
+            text: '（她沉默了很久。）钥匙不是开锁的。是"被锁的"。封印需要一个人格作为锚点——一个持续存在的、有意识的人格来维持封印的结构。我是锚点。我的血在维持封印。我的记忆在加固封印。每一次重绘，我就失去一点自己。',
+            clue: 'clue_hilda_anchor',
+            trustGain: 1,
+            flags: ['hilda_is_anchor'],
+          },
+        },
+        mark_now: {
+          depth3: {
+            text: '（她挽起袖子。你看见了一个发光的、脉动的符号，像活的一样。）它在生长。每次封印波动，它就扩大一点。伊莱亚斯说我的血液能重绘封印——但重绘需要"消耗"标记的一部分。我不知道重绘完那天，我还会不会记得我是谁。',
+            clue: 'clue_hilda_seal_mark',
+            trustGain: 1,
+            flags: ['hilda_mark_growing'],
+          },
+        },
       },
       depth3: {
-        response: '（她挽起袖子。你看见了一个发光的、脉动的符号，像活的一样。）伊莱亚斯需要我的血来重绘封印。但每一次重绘，我的记忆就会被"读"一次——然后消失一点。我已经不记得我妹妹的脸了。',
-        clue: 'clue_hilda_seal_mark',
+        trustReq: 4,
+        text: '（她把袖子拉下来，动作很轻。）伊莱亚斯需要我的血。但不是现在。再等几天。我想……我想再记住一些东西。',
+        clue: 'clue_hilda_delay',
         trustGain: 1,
       },
     },
@@ -4722,14 +4789,37 @@ var NPC_THREAD_QUESTIONS = {
       label: '教堂地下室……',
       trustReq: 2,
       depth1: {
-        response: '（她停顿了很久。）教堂下面有东西。不是老鼠，不是积水。是声音。一种……有节奏的、宏大的声音。只有我在值班的深夜能听到。',
+        text: '（她停顿了很久。）教堂下面有东西。不是老鼠，不是积水。是声音。一种……有节奏的、宏大的声音。只有我在值班的深夜能听到。',
       },
       depth2: {
         trustReq: 3,
-        response: '地下室的墙上有雕刻。不是哥特式——比那古老得多。我对比过伊莱亚斯教授图纸上的符号。完全一致。 sealing。同一个封印。教堂和灯塔下面封印的是同一个东西。',
+        text: '地下室的墙上有雕刻。不是哥特式——比那古老得多。我对比过伊莱亚斯教授图纸上的符号。完全一致。同一个封印。教堂和灯塔下面封印的是同一个东西。',
+        choices: [
+          { text: '问那个"声音"具体是什么', branch: 'sound', trustReq: 3 },
+          { text: '问她是否见过其他人下去', branch: 'others', trustReq: 3 },
+        ],
+      },
+      branches: {
+        sound: {
+          depth3: {
+            text: '（她皱眉。）不是语言。是……震动。一种通过骨头传播的低频。我有时候在教堂里站着不动的时候能感觉到——脚底在震。不是风，不是地铁。是下面有什么东西在"呼吸"。',
+            clue: 'clue_church_frequency',
+            trustGain: 1,
+            flags: ['isabella_feels_vibration'],
+          },
+        },
+        others: {
+          depth3: {
+            text: '（她摇头，但犹豫了一下。）有一个夜班保安。他说他见过"穿灰色衣服的人"在地下室走动。但人事记录里没有这个人。上周……他不来了。我打他电话，是空号。',
+            clue: 'clue_church_security',
+            trustGain: 1,
+            flags: ['isabella_security_missing'],
+          },
+        },
       },
       depth3: {
-        response: '（她给你看了一张手抄的段落，墨水颜色深浅不一，像是断断续续写了很多次。）"当守门人忘记自己是谁时，门将从内部打开。"——我越来越怀疑，"守门人"不是指封印的维护者。是指封印本身。',
+        trustReq: 4,
+        text: '（她给你看了一张手抄的段落，墨水颜色深浅不一，像是断断续续写了很多次。）"当守门人忘记自己是谁时，门将从内部打开。"——我越来越怀疑，"守门人"不是指封印的维护者。是指封印本身。',
         clue: 'clue_isabella_church_text',
         trustGain: 1,
       },
@@ -4742,15 +4832,38 @@ var NPC_THREAD_QUESTIONS = {
       label: '你的任务是什么？',
       trustReq: 2,
       depth1: {
-        response: '（他看了你一眼，确认四周无人。）镇上有军事遗留资产。不能落入任何一方手中——军方、教会、深海相关方。我的工作是确保它们保持……不可用状态。',
+        text: '（他看了你一眼，确认四周无人。）镇上有军事遗留资产。不能落入任何一方手中——军方、教会、深海相关方。我的工作是确保它们保持……不可用状态。',
       },
       depth2: {
         trustReq: 3,
-        response: '灯塔下面有一个 bunker。军方 1958 年建的。里面有通讯设备——仍然能发出信号。我最近截获了一段加密通讯。发件地址……是灯塔 keeper 的名字。他已经三天没有上来过了。',
+        text: '灯塔下面有一个 bunker。军方 1958 年建的。里面有通讯设备——仍然能发出信号。我最近截获了一段加密通讯。发件地址……是灯塔 keeper 的名字。他已经三天没有上来过了。',
         clue: 'clue_joshua_bunker',
+        choices: [
+          { text: '问 bunker 里具体有什么', branch: 'bunker_contents', trustReq: 3 },
+          { text: '问军方为什么建在灯塔下', branch: 'why_lighthouse', trustReq: 3 },
+        ],
+      },
+      branches: {
+        bunker_contents: {
+          depth3: {
+            text: '（他压低声音。）1958 年的档案里写了三个字："收容物"。没有更多解释。但 bunker 的电路图上有一个房间标注为"样本库"。样本。复数。军方在这里收容过……某种东西。不止一个。',
+            clue: 'clue_bunker_samples',
+            trustGain: 1,
+            flags: ['joshua_knows_samples'],
+          },
+        },
+        why_lighthouse: {
+          depth3: {
+            text: '（他冷笑。）灯塔的位置不是随机的。它建在封印的一个节点上。军方 1950 年代就知道下面有东西。他们建 bunker 不是为了"研究"——是为了"压制"。他们在封印上盖了一层混凝土。',
+            clue: 'clue_bunker_seal',
+            trustGain: 1,
+            flags: ['joshua_knows_seal'],
+          },
+        },
       },
       depth3: {
-        response: '（他递给你一把钥匙。） bunker 的备用钥匙。我守不住这个秘密太久了。但记住——一旦你下去，军方会有反应。他们不需要人来保护资产。他们只需要确保没有人知道。',
+        trustReq: 4,
+        text: '（他递给你一把钥匙。） bunker 的备用钥匙。我守不住这个秘密太久了。但记住——一旦你下去，军方会有反应。他们不需要人来保护资产。他们只需要确保没有人知道。',
         trustGain: 1,
       },
     },
@@ -4762,15 +4875,37 @@ var NPC_THREAD_QUESTIONS = {
       label: '你最近进的货……',
       trustReq: 2,
       depth1: {
-        response: '（他压低声音。）有一批货是从海上漂过来的。包装上有奇怪的符号。我已经没有胆子再进了——但港口那边的"批发商"还在卖。',
+        text: '（他压低声音。）有一批货是从海上漂过来的。包装上有奇怪的符号。我已经没有胆子再进了——但港口那边的"批发商"还在卖。',
       },
       depth2: {
         trustReq: 3,
-        response: '漂过来的东西不只是货物。有盐。不是海盐——结晶形态不对。而且每包下面都压着一片碎贝壳。不是沃切斯特海滩的贝壳。是深海的。',
-        clue: 'clue_tommy_deep_shells',
+        text: '漂过来的东西不只是货物。有盐。不是海盐——结晶形态不对。而且每包下面都压着一片碎贝壳。不是沃切斯特海滩的贝壳。是深海的。',
+        choices: [
+          { text: '问"批发商"是谁', branch: 'supplier', trustReq: 3 },
+          { text: '问那个符号像什么', branch: 'symbol', trustReq: 3 },
+        ],
+      },
+      branches: {
+        supplier: {
+          depth3: {
+            text: '（他摇头。）我不知道他的名字。但他每次来都戴着一顶黑色的礼帽，帽檐压得很低。他的车上有一个瓶子——里面装着蓝色的液体。我见过一次他倒了一点在手上……然后他的手开始发光。不是反射。是自己在亮。',
+            clue: 'clue_supplier_glow',
+            trustGain: 1,
+            flags: ['tommy_sees_supplier'],
+          },
+        },
+        symbol: {
+          depth3: {
+            text: '（他画了一个圈，里面有一条波浪线。）这个。我在每个漂来的包裹上都见过。后来我在教堂的地下室也见过——刻在石头上。我不知道它是什么意思，但每次看到它，我的指甲下面就开始发痒。',
+            clue: 'clue_supplier_symbol',
+            trustGain: 1,
+            flags: ['tommy_symbol_on_nails'],
+          },
+        },
       },
       depth3: {
-        response: '（他给你看了一张从包裹里掉出来的纸片，上面只有一个词，用墨水写的，已经褪色了。）"醒"。批发商说这是"祝福"。我越来越不确定了。',
+        trustReq: 4,
+        text: '（他给你看了一张从包裹里掉出来的纸片，上面只有一个词，用墨水写的，已经褪色了。）"醒"。批发商说这是"祝福"。我越来越不确定了。',
         trustGain: 1,
       },
     },
@@ -4782,15 +4917,38 @@ var NPC_THREAD_QUESTIONS = {
       label: '你笔记本上写了什么？',
       trustReq: 2,
       depth1: {
-        response: '（他合上本子，看了你三秒。）不是写出来的。是记录下来的。这座城市在每个细节上都在偏离它的本来面目。我在记"偏差"。',
+        text: '（他合上本子，看了你三秒。）不是写出来的。是记录下来的。这座城市在每个细节上都在偏离它的本来面目。我在记"偏差"。',
       },
       depth2: {
         trustReq: 3,
-        response: '昨天我在市政厅的记录里查到一个名字——"J. 沃德"。1904 年的市政文件。但伊莱亚斯·沃德今年才来的。除非……（他翻到某一页）这不是第一次有人姓沃德。上一次是 1847 年。同一个签名笔迹。',
+        text: '昨天我在市政厅的记录里查到一个名字——"J. 沃德"。1904 年的市政文件。但伊莱亚斯·沃德今年才来的。除非……（他翻到某一页）这不是第一次有人姓沃德。上一次是 1847 年。同一个签名笔迹。',
         clue: 'clue_lovecraft_ward_name',
+        choices: [
+          { text: '问"偏差"的具体例子', branch: 'deviation', trustReq: 3 },
+          { text: '问他怎么知道笔迹是同一个人的', branch: 'handwriting', trustReq: 3 },
+        ],
+      },
+      branches: {
+        deviation: {
+          depth3: {
+            text: '（他翻到某一页，指着一段文字。）"市政厅门前有一棵橡树。"——我上周去看。那里没有树。但市政厅 1904 年的照片里，树在那里。而且照片的阴影方向……和太阳的实际方向相反。不是拍摄角度问题。是方向本身。',
+            clue: 'clue_deviation_oak',
+            trustGain: 1,
+            flags: ['lovecraft_deviation_oak'],
+          },
+        },
+        handwriting: {
+          depth3: {
+            text: '（他递给你一张放大镜。）1847 年的签名和今年的签名。你看——笔画的角度完全一致。不是"相似"。是完全一致。误差在 0.01 度以内。人手写不出这种东西。这是……复制。',
+            clue: 'clue_deviation_handwriting',
+            trustGain: 1,
+            flags: ['lovecraft_copy_signature'],
+          },
+        },
       },
       depth3: {
-        response: '（他把笔记本翻到最后一页。一片空白。）有时候文字会自己消失。不是被擦掉——是被"重写"了。我昨天记录了完整的事件序列。今天早上再看——变成了别的东西。我怀疑记录本身也在被侵蚀。',
+        trustReq: 4,
+        text: '（他把笔记本翻到最后一页。一片空白。）有时候文字会自己消失。不是被擦掉——是被"重写"了。我昨天记录了完整的事件序列。今天早上再看——变成了别的东西。我怀疑记录本身也在被侵蚀。',
         trustGain: 1,
       },
     },
@@ -7405,7 +7563,7 @@ function getSupplementEvents() { return supplement_events; }
 // Module: events_ch2plus
 // Events: 70
 
-const EVENTS = [
+const _events_ch2plusEvents = [
 
   {
     id: 'evt_deep_one_patrol',
@@ -11216,6 +11374,7 @@ const EVENTS = [
   },
 
 ];
+var ch2plusEvents = _events_ch2plusEvents;
 
 // === systems/eventRarity.js ===
 // src/systems/eventRarity.js - Event Rarity System
@@ -12246,19 +12405,25 @@ function getMoralTier(moralScore) {
 }
 
 // === utils/npcLocation.js ===
-// src/utils/npcLocation.js — NPC location lookup (schedule-based)
+// src/utils/npcLocation.js — NPC location lookup
 //
-// Zero imports — depends only on global GD and state parameter.
-// Placed early in REDUCER_FILES so it can be imported by extendedEvents.js
-// and other files that need NPC presence checks.
+// Uses autonomous NPC positions from state.npcLocations (computed daily by npcSchedule.js).
+// Falls back to schedule-based lookup if npcLocations not yet computed.
 
 function getNpcsHere(state) {
-  const npcs = GD.npcs || GD.module3_npcs || [];
-  return npcs.filter((n) => {
+  var npcs = GD.npcs || GD.module3_npcs || [];
+  return npcs.filter(function (n) {
     if (state.npcStates[n.name]?.dead) return false;
-    const d = ((state.day - 1) % 5) + 1;
-    const sch = (n.schedule || []).find((x) => x.startsWith('day' + d));
-    return sch && (sch.split(':')[1] || '').trim() === state.currentArea;
+    var loc = state.npcLocations?.[n.name];
+    if (!loc) {
+      // Fallback: compute from schedule
+      var schedule = n.schedule || [];
+      if (schedule.length === 0) return (n.location || 'town_center') === state.currentArea;
+      var dayOfCycle = ((state.day - 1) % 5) + 1;
+      var entry = schedule.find(function (s) { return s.startsWith('day' + dayOfCycle + ':'); });
+      loc = entry ? entry.split(':')[1] : (n.location || 'town_center');
+    }
+    return loc === state.currentArea;
   });
 }
 
@@ -13432,7 +13597,7 @@ const DESC = {
 // === data/events_loop.js ===
 // 轮回专属事件扩展 - 74 events (70 + 4 §2补充)
 // Directions: 轮回低语(20), 记忆碎片(15), 轮回矛盾(12), 墙中之物(10), 世界修正(8), 轮回终点暗示(5), 高轮回深度(4)
-const EVENTS = [
+const _events_loopEvents = [
   // =============================================
   // 轮回低语 (20) - loop >= 2, random replacement
   // =============================================
@@ -15434,7 +15599,7 @@ var loopEvents = _events_loopEvents;
 // === data/events_humanity.js ===
 // 人性值驱动事件 - 54 events
 // Directions: 善行回报(15), 恶行反噬(15), 人性摇摆(10), 集体态度(8), 特殊交易(6)
-const EVENTS = [
+const _events_humanityEvents = [
   // =============================================
   // 善行回报 (15) - humanity >= 70, random
   // =============================================
@@ -17143,7 +17308,7 @@ var humanityEvents = _events_humanityEvents;
 // === data/events_mythos.js ===
 // 神话知识等级事件 - 64 events (60 + 4 §2补充)
 // Directions: 神话感知(20), 禁忌知识(15), 神话反噬(12), 旧日回响(8), 超越者视角(5), 深层禁忌(4)
-const EVENTS = [
+const _events_mythosEvents = [
   // =============================================
   // 神话感知 (20) - mythos >= 5, hidden things
   // =============================================
@@ -18879,7 +19044,7 @@ var mythosEvents = _events_mythosEvents;
 // === data/events_resource.js ===
 // 资源压力与生存抉择事件 - 61 events (55 + 6 §2补充)
 // Directions: 食物抉择(15), 光源衰竭(12), 药品短缺(10), 安全屋入侵(10), 极端环境(8), 生存任务链(6)
-const EVENTS = [
+const _events_resourceEvents = [
   // =============================================
   // 食物抉择 (15) - food <= 2, humanity中等
   // =============================================
@@ -20777,7 +20942,7 @@ var resourceEvents = _events_resourceEvents;
 // NPC交叉与关系网事件 - 75 events (65 + 10 §1补充)
 // Directions: 双人对话(20), 秘密交换(15), 三角关系(10), 信任连锁(12), 联合对抗(8)
 // §1补充: 死后遗产(4), 关系网任务链(4), 组队前置(2)
-const EVENTS = [
+const _events_npcCrossEvents = [
   // =============================================
   // 双人对话 (20) - 两个NPC信任>=2, 同一区域
   // =============================================
@@ -23721,7 +23886,7 @@ var npcCrossEvents = _events_npcCrossEvents;
 // === data/events_area_deep.js ===
 // 区域专属深层事件 - 120 events (15 per area for 8 areas)
 // Each area gets 12-15 deep events
-const EVENTS = [
+const _events_areaDeepEvents = [
   // === town_center (15) ===
   {
     id: 'area_town_center_001',
@@ -27409,7 +27574,7 @@ var areaDeepEvents = _events_areaDeepEvents;
 // === data/events_ending.js ===
 // 结局前置与后置事件 - 55 events
 // Directions: 结局预兆(20), 结局余波(20), 结局交织(15)
-const EVENTS = [
+const _events_endingEvents = [
   // =============================================
   // 结局预兆 (20) - 满足某结局大部分条件但尚未触发
   // =============================================
@@ -29035,7 +29200,7 @@ var endingEvents = _events_endingEvents;
 // Directions: 日常观察(20), 自然异常(15), 城镇低语(15), 个人记忆(12), 时间错位(10), 区域沉默(9), 结局余波(3)
 // P0完成: 全部84事件已添加 distortion_variants —— 引擎 getDistortionVariant() 直接可用
 // P0完成: 9个"某地沉默"从模板复制升级为各区域独立叙事 + SAN/轮回变体
-const EVENTS = [
+const _events_silentEvents = [
   // 日常观察 (20) — normalcy_anchor 事件，san_low 下变成"不安"
   {
     id: 'silent_daily_001',
@@ -31907,7 +32072,7 @@ AREA_INVESTIGATION_DETAILS;
 // 移除: 选择消失(6) → 合并到 meta_choice_001 作为后果
 // §3.3: 5个事件添加实质性游戏后果
 // §3.4: 全部 once_ever + SAN < 15 + 每轮最多1次
-const EVENTS = [
+const _events_metaEvents = [
   // ── 玩家身份揭示 (5) — S tier，终极元叙事 ──
   // §3.3 后果: meta_identity_005 触发后，某个NPC信任锁定为0 + 解锁成就
   {
@@ -35275,7 +35440,7 @@ function injectBehaviorEndings(GD) {
 // 死亡回声事件 - 死亡类型的轮回污染
 // 每种死亡类型对应一个回声事件，在下一周目触发
 // 注意：这些事件独立于 599 核心事件池，通过 extendedEventsInit 单独加载
-const EVENTS = [
+const _events_deathEchoEvents = [
   // HP 死亡回声 (6)
   {
     id: 'death_echo_drowning',
@@ -40194,8 +40359,8 @@ var FRAUD_HINTS = {
  * @param {function} [rng] - seeded random (optional, for future probabilistic variants)
  * @returns {{ displayMult: number, realMult: number, active: boolean, tier: number, description: string }}
  */
-function getResourceFraudState(san, rng) {
-  var stage = getCurrentSanStage(san, { GD: (typeof window !== 'undefined' && window.GD) || {} });
+function getResourceFraudState(san, rng, gd) {
+  var stage = getCurrentSanStage(san, { GD: gd || {} });
   var level = stage.level || 0;
 
   for (var i = 0; i < FRAUD_TIERS.length; i++) {
@@ -40227,7 +40392,7 @@ function getResourceFraudState(san, rng) {
  */
 function applyResourceFraud(gains, san, rng) {
   if (!gains) return gains;
-  var fraud = getResourceFraudState(san, rng);
+  var fraud = getResourceFraudState(san, rng, {});
   if (!fraud.active || fraud.realMult >= 1.0) return gains;
 
   var modified = { ...gains };
@@ -40277,7 +40442,7 @@ function applyResourceFraud(gains, san, rng) {
  * @returns {number} inflated or accurate count for display
  */
 function getDisplayedResource(resourceType, actualCount, san) {
-  var fraud = getResourceFraudState(san);
+  var fraud = getResourceFraudState(san, null, {});
   if (!fraud.active) return actualCount;
 
   // Only inflate "positive" resources (what player has gained)
@@ -40462,7 +40627,7 @@ function applyLegacyEffects(state, eff, rng) {
   // At low SAN, the player SEES inflated resource counts but GETS reduced actual gains.
   // This hook modifies positive resource GAINS only — consumption/loss is never affected.
   // Covers: event resource drops, NPC gifts, exploration rewards, safehouse finds.
-  var fraud = getResourceFraudState(state.san || 60);
+  var fraud = getResourceFraudState(state.san || 60, null, {});
   var _rand = rng ? function () { return rng.next(); } : Math.random;
   if (fraud.active && fraud.realMult < 1.0) {
     // Food gain (legacy format): reduce by realMult
@@ -41069,10 +41234,6 @@ function createRegistryHelpers(registry, opts) {
   };
 }
 
-try {
-  module.exports = { createRegistryHelpers };
-} catch (e) {}
-
 // === data/registry/npcRegistry.js ===
 // src/data/registry/npcRegistry.js — NPC identity registry
 // Phase B: uses createRegistryHelpers for shared logic.
@@ -41131,8 +41292,8 @@ var NPC_REGISTRY = {
   },
 };
 
-// Create helpers via registryUtils (if available)
-var _h = typeof createRegistryHelpers === 'function' ? createRegistryHelpers(NPC_REGISTRY) : null;
+// Create helpers via registryUtils (ESM import — always available)
+var _h = createRegistryHelpers(NPC_REGISTRY);
 
 var NPC_NAME_TO_ID = _h
   ? _h.nameToId
@@ -41157,10 +41318,6 @@ function getNpcName(input) {
 function migrateNpcKeys(obj) {
   return _h ? _h.migrateKeys(obj) : obj;
 }
-
-try {
-  module.exports = { NPC_REGISTRY, NPC_NAME_TO_ID, resolveNpcId, getNpcName, migrateNpcKeys };
-} catch (e) {}
 
 // === data/registry/areaRegistry.js ===
 // src/data/registry/areaRegistry.cjs — Area identity registry
@@ -41201,12 +41358,9 @@ function getAreaName(id) {
   return entry ? entry.name : id;
 }
 
-try {
-  module.exports = { AREA_REGISTRY, AREA_NAME_TO_ID, resolveAreaId, getAreaName };
-} catch (e) {}
-
 // === data/registry/itemRegistry.js ===
 // src/data/registry/itemRegistry.js
+
 var ITEM_REGISTRY = {
   flashlight: { name: '手电筒', aliases: [], type: 'light', stackable: false },
   notebook: { name: '笔记本和笔', aliases: ['笔记本'], type: 'tool', stackable: false },
@@ -41283,8 +41437,8 @@ CLUE_ITEMS.forEach(function (name, i) {
     ITEM_REGISTRY[id] = { name: name, aliases: [], type: 'clue', stackable: false };
 });
 
-// Create helpers via registryUtils (if available)
-var _ih = typeof createRegistryHelpers === 'function' ? createRegistryHelpers(ITEM_REGISTRY) : null;
+// Create helpers via registryUtils (ESM import — always available)
+var _ih = createRegistryHelpers(ITEM_REGISTRY);
 
 var ITEM_NAME_TO_ID = _ih ? _ih.nameToId : {};
 (function () {
@@ -41374,20 +41528,6 @@ function getItemCount(s, itemInput) {
   });
   return item ? item.uses || 1 : 0;
 }
-try {
-  module.exports = {
-    ITEM_REGISTRY,
-    ITEM_NAME_TO_ID,
-    resolveItemId,
-    getItemName,
-    normalizeItemRef,
-    migrateInventory,
-    addItem,
-    removeItem,
-    hasItem,
-    getItemCount,
-  };
-} catch (e) {}
 
 // === reducers/saveMigration.js ===
 // src/reducers/saveMigration.js - Save data migration & persistence filtering
@@ -42616,7 +42756,7 @@ function getLegacyForCategory(category) {
  * @param {object|null} [rng] - seeded RNG
  */
 function applyDeathLegacy(s, legacy, narr, ctx, rng) {
-  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
+  var GD = ctx?.GD || {};
   var _rand = makeRand(rng);
 
   if (!legacy || !legacy.effects) return;
@@ -42631,8 +42771,7 @@ function applyDeathLegacy(s, legacy, narr, ctx, rng) {
         s.san = Math.min(s.san, s.maxSan);
         narr(
           'system',
-          '你感到某种结构性的变化——你的精神承受上限下降了。'
-            + eff.value + '。'
+          '你感到某种结构性的变化——你的精神承受上限下降了 ' + Math.abs(eff.value) + ' 点。'
             + '但你也感受到了一些防护正在你周围形成。'
         );
         break;
@@ -42643,7 +42782,7 @@ function applyDeathLegacy(s, legacy, narr, ctx, rng) {
         s.food = Math.min(s.maxFood || 5, (s.food || 0) + eff.value);
         narr(
           'system',
-          '沃切斯特在你的口袋里留了些食物。' + eff.value + '份。'
+          '沃切斯特在你的口袋里留了 ' + eff.value + ' 份食物。'
             + '但这也意味着你的身体已经适应了更少的需求——行动范围缩小了。'
         );
         break;
@@ -42678,7 +42817,7 @@ function applyDeathLegacy(s, legacy, narr, ctx, rng) {
         }
         narr(
           'system',
-          '沃切斯特让一些人开始用不同的眼光看你。' + eff.value + '。'
+          '沃切斯特让一些人开始用不同的眼光看你。信任降低了 ' + Math.abs(eff.value) + ' 点。'
             + '但你注意到了一些以前没注意到的东西——\n'
             + '某些人看向你时的犹豫。某些话题被刻意绕开。'
         );
@@ -47943,7 +48082,8 @@ function createWorldState() {
     npcStates: {},
     npcRelations: {},
     factionStanding: {},          // faction_id → -10..+10
-    npcThreads: {},               // npcName → { depth: 0-2, resolved: bool }
+    npcLocations: {},             // npcName → areaId (daily autonomous position)
+    npcThreads: {},               // npcName_depth → { depth, resolved }
     _dailyNpcTalks: {},           // npcName → day number (resets each day)
     _pendingDelayedEffects: [],   // scheduled moral dilemma delayed effects
     sealState: STARTING_STATE.SEAL_STATE,
@@ -51618,13 +51758,14 @@ function getUICorruptionLayer(san, loopCount, safehouseCorruption) {
   return 0; // clean — 理智
 }
 
-function modHumanity(state, amount, reason) {
+function modHumanity(state, amount, reason, rng) {
   state.humanityScore = clamp((state.humanityScore ?? 50) + amount, 0, 100);
   if (Math.abs(amount) >= 5) {
     const narr = state.narrative;
     const label = amount > 0 ? '人性光辉' : '人性暗面';
+    var _rand = rng ? rng.next.bind(rng) : Math.random;
     narr.push({
-      id: Date.now() + Math.random(),
+      id: _rand() * 0xFFFFFF | 0,
       type: 'system',
       text: '【' + label + '】' + reason,
       isSpecial: true,
@@ -51726,7 +51867,7 @@ function buildDeathRecap(state, deathContext = null) {
 
 function applyBlessing(state, blessing, narr, ctx) {
   if (!blessing) return;
-  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
+  var GD = ctx?.GD || {};
   const eff = blessing.effect || {};
   narr('system', '【恩赐·' + blessing.name + '】' + blessing.description, { isSpecial: true });
   if (eff.type === 'unlock_knowledge' && eff.knowledge_id) {
@@ -51753,7 +51894,7 @@ function applyBlessing(state, blessing, narr, ctx) {
 }
 
 function getAvailableSafehouses(state, ctx) {
-  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
+  var GD = ctx?.GD || {};
   const alts = GD.systems?.safehouse?.relocation_rules?.alternative_safehouses || [];
   return alts.filter((sh) => {
     const npcName = sh.unlock_condition.includes('伊莱亚斯')
@@ -51796,7 +51937,7 @@ const _DEATH_SAN_TYPES = [
  * @param {object} [ctx]      - { GD } game data context
  */
 function applyDeathResolution(s, deathCtx, narr, ctx) {
-  var GD = ctx?.GD || (typeof window !== 'undefined' && window.GD) || {};
+  var GD = ctx?.GD || {};
   s.deathContext = deathCtx;
   s.lastDeathType = deathCtx.type;
   s.lastDeathMode = deathCtx.mode;
@@ -52154,7 +52295,8 @@ function buildReducerCtx(s, opts, corruptFn) {
   const _corruptText = corruptFn || function (t) { return t; };
   const effects = [];
   const narr = (type, text, extra = {}) => {
-    const entry = { id: Date.now() + Math.random(), type, text, ...extra };
+    var _rand = (opts && opts.rng) ? opts.rng.next.bind(opts.rng) : Math.random;
+    const entry = { id: _rand() * 0xFFFFFF | 0, type, text, ...extra };
     if (
       _narrCorrLayer > 0 &&
       (type === 'system' || type === 'event') &&
@@ -55812,7 +55954,7 @@ function handleNpcAction(s, action, c, ctx) {
           applySanLoss(s, corrLoss);
           c.narr('system', npc.name + '的状态不对劲。SAN -' + corrLoss);
         }
-        if (trust >= 3) modHumanity(s, -5, '明知' + npc.name + '已被腐蚀仍继续利用');
+        if (trust >= 3) modHumanity(s, -5, '明知' + npc.name + '已被腐蚀仍继续利用', c.rng);
       } else {
         const sanRec = GD.npcs?.find((n) => n.name === npc.name)?.san_recovery_effect;
         if (sanRec && sanRec.normal_chat) {
@@ -55842,20 +55984,52 @@ function handleNpcAction(s, action, c, ctx) {
       }
       // NPC 记忆渐进深化系统（数据在 appHelpers.js 模块级，避免每次 TALK_NPC 重分配）
       handleNpcMemoryTier(s, npc, c.narr, c.rng);
-      // 对话追问系统：展示可用的追问线（信任≥2 解锁第一层）
+      // 对话追问系统：展示可用的追问线（信任≥2 解锁第一层，支持 depth2 分支）
       if (!ns.corrupted && NPC_THREAD_QUESTIONS[npc.name]) {
         var availableThreads = [];
         var allThreads = NPC_THREAD_QUESTIONS[npc.name];
         for (var ti = 0; ti < allThreads.length; ti++) {
           var thread = allThreads[ti];
           var threadState = (s.npcThreads || {})[npc.name + '_' + thread.id];
-          if (!threadState || threadState.resolved) continue;
-          if (threadState.depth === undefined || threadState.depth === 0) {
-            if (trust >= (thread.trustReq || 2)) availableThreads.push({ thread: thread, nextDepth: 1 });
-          } else if (threadState.depth === 1) {
-            if (trust >= (thread.depth2 && thread.depth2.trustReq ? thread.depth2.trustReq : 3)) availableThreads.push({ thread: thread, nextDepth: 2 });
-          } else if (threadState.depth === 2) {
-            if (trust >= (thread.depth3 && thread.depth3.trustReq ? thread.depth3.trustReq : 4)) availableThreads.push({ thread: thread, nextDepth: 3 });
+          if (threadState && threadState.resolved) continue;
+          var curDepth = threadState ? threadState.depth : 0;
+          // depth 0 → depth 1: show thread entry
+          if (curDepth === 0) {
+            if (trust >= (thread.trustReq || 2)) {
+              availableThreads.push({ thread: thread, nextDepth: 1, branch: null });
+            }
+          }
+          // depth 1 → depth 2: show depth2 text + choices (if any)
+          else if (curDepth === 1) {
+            var d2 = thread.depth2 || {};
+            var d2TrustReq = d2.trustReq || 3;
+            if (trust >= d2TrustReq) {
+              if (d2.choices && d2.choices.length > 0) {
+                // Show branch choices
+                for (var ci = 0; ci < d2.choices.length; ci++) {
+                  var ch = d2.choices[ci];
+                  if (trust >= (ch.trustReq || d2TrustReq)) {
+                    availableThreads.push({ thread: thread, nextDepth: 2, branch: ch.branch, choiceText: ch.text });
+                  }
+                }
+              } else {
+                // Linear: auto-advance to depth3
+                availableThreads.push({ thread: thread, nextDepth: 3, branch: null });
+              }
+            }
+          }
+          // depth 2 → depth 3: show branch outcome (if branch chosen) or default depth3
+          else if (curDepth === 2) {
+            var d3TrustReq = (thread.depth3 && thread.depth3.trustReq) || 4;
+            if (trust >= d3TrustReq) {
+              var chosenBranch = threadState.branch;
+              if (chosenBranch && thread.branches && thread.branches[chosenBranch]) {
+                availableThreads.push({ thread: thread, nextDepth: 3, branch: chosenBranch, isOutcome: true });
+              } else if (!chosenBranch) {
+                // Show default depth3 (no branching was available)
+                availableThreads.push({ thread: thread, nextDepth: 3, branch: null, isOutcome: true });
+              }
+            }
           }
         }
         if (availableThreads.length > 0) {
@@ -55944,7 +56118,7 @@ function handleNpcAction(s, action, c, ctx) {
               }
               // Same-tier loss: handled by existing narr above, no extra noise
             }
-            modHumanity(s, 3, '与' + npc.name + '建立真诚的联系');
+            modHumanity(s, 3, '与' + npc.name + '建立真诚的联系', c.rng);
             addRunMemory(s, npc.name + '开始相信你。', 'npc');
             // Keep dialog open with updated trust & layer
             const newLayer = npc.trust_layers
@@ -55985,7 +56159,7 @@ function handleNpcAction(s, action, c, ctx) {
             redeemed: true,
           });
           c.bt.redeemed_npcs = (c.bt.redeemed_npcs || 0) + 1;
-          modHumanity(s, 15, '选择自己承担代价，救赎' + npc.name);
+          modHumanity(s, 15, '选择自己承担代价，救赎' + npc.name, c.rng);
         } else {
           c.narr('system', '你尝试与' + npc.name + '建立更深的联系，但对方的状态似乎无法挽回。');
         }
@@ -55998,7 +56172,7 @@ function handleNpcAction(s, action, c, ctx) {
           silenceEntries.length > 0 ? pick(silenceEntries, c.rng) : '你没有回答。沉默也是一种回答。'
         );
         applySanLoss(s, 1);
-        modHumanity(s, -5, '在' + npc.name + '面前选择沉默，隐瞒真相');
+        modHumanity(s, -5, '在' + npc.name + '面前选择沉默，隐瞒真相', c.rng);
         addRunMemory(s, '你没有回答。沉默也被记录了。', 'humanity');
       } else if (choice === 'share_food') {
         if (s._dailyTrustGains && s._dailyTrustGains[npc.name]) {
@@ -56028,11 +56202,11 @@ function handleNpcAction(s, action, c, ctx) {
             if (choice_data) {
               c.narr('system', choice_data.description || '你把食物分给了' + npc.name + '。');
               if (choice_data.humanity_impact)
-                modHumanity(s, choice_data.humanity_impact, '把食物分给' + npc.name);
+                modHumanity(s, choice_data.humanity_impact, '把食物分给' + npc.name, c.rng);
               if (choice_data.effect) c.narr('system', choice_data.effect);
             } else {
               c.narr('system', '你把食物分给了' + npc.name + '。对方默默接了过去。');
-              modHumanity(s, 2, '把食物分给' + npc.name);
+              modHumanity(s, 2, '把食物分给' + npc.name, c.rng);
             }
             const newTrust = Math.min(5, curTrust + 1);
             setNpcTrust(s, npc.name, newTrust);
@@ -56068,7 +56242,7 @@ function handleNpcAction(s, action, c, ctx) {
           setNpcState(s, npc.name, { ...ns, dead: true, killedByPlayer: true });
           const sanLoss = rand(4, 12, c.rng);
           applySanLoss(s, sanLoss);
-          modHumanity(s, -20, '亲手杀害了' + npc.name);
+          modHumanity(s, -20, '亲手杀害了' + npc.name, c.rng);
           addRunMemory(s, '你杀了' + npc.name + '。', 'death');
           c.narr(
             'system',
@@ -56114,7 +56288,7 @@ function handleNpcAction(s, action, c, ctx) {
           c.narr('system', '你没有时间仔细处理，但你尽力隐藏了能隐藏的一切。');
         }
         applySanLoss(s, 2);
-        modHumanity(s, -5, '冷静地隐藏了' + npc.name + '的尸体');
+        modHumanity(s, -5, '冷静地隐藏了' + npc.name + '的尸体', c.rng);
         s.pendingNpc = null;
       } else if (choice === 'post_kill_cannibal') {
         c.bt.cannibalism_count = (c.bt.cannibalism_count || 0) + 1;
@@ -56122,7 +56296,7 @@ function handleNpcAction(s, action, c, ctx) {
         s.starvationDays = 0; // 饥饿解除
         const sanLoss = rand(8, 20, c.rng);
         applySanLoss(s, sanLoss);
-        modHumanity(s, -30, '食用了' + npc.name + '的肉体');
+        modHumanity(s, -30, '食用了' + npc.name + '的肉体', c.rng);
         addRunMemory(s, '你吃了' + npc.name + '。饥饿比道德更真实。', 'death');
         c.narr('system', '你做了无法挽回的事。食物+2。某种东西在你体内扎了根。SAN -' + sanLoss, {
           isSpecial: true,
@@ -56148,7 +56322,7 @@ function handleNpcAction(s, action, c, ctx) {
           setNpcState(s, npc.name, { ...ns, dead: true, manipulatedDeath: true });
           const sanLoss = rand(3, 8, c.rng);
           applySanLoss(s, sanLoss);
-          modHumanity(s, -15, '操纵导致' + npc.name + '的死亡');
+          modHumanity(s, -15, '操纵导致' + npc.name + '的死亡', c.rng);
           addRunMemory(s, '你说了一些话。' + npc.name + '走向了危险。', 'death');
           c.narr(
             'system',
@@ -56189,7 +56363,7 @@ function handleNpcAction(s, action, c, ctx) {
         propagateTrustChange(npc.name, -2, s, c); propagateFactionStanding(npc.name, -2, s);
         const gain = rand(2, 6, c.rng);
         s.money = (s.money || 0) + gain;
-        modHumanity(s, -12, '把' + npc.name + '当作资源利用');
+        modHumanity(s, -12, '把' + npc.name + '当作资源利用', c.rng);
         addRunMemory(s, '你利用了' + npc.name + '。效率很高。', 'npc');
         c.narr(
           'system',
@@ -56212,7 +56386,7 @@ function handleNpcAction(s, action, c, ctx) {
           c.bt.same_npc_harm_max || 0,
           c.bt._npc_harm_tally[npc.name]
         );
-        modHumanity(s, -20, '背叛了高度信任的' + npc.name);
+        modHumanity(s, -20, '背叛了高度信任的' + npc.name, c.rng);
         addRunMemory(s, '你背叛了' + npc.name + '。信任是一种货币。你把它兑现了。', 'npc');
         c.narr(
           'system',
@@ -56232,7 +56406,7 @@ function handleNpcAction(s, action, c, ctx) {
         applySanLoss(s, sanLoss);
         s.pollution = Math.min(1, (s.pollution || 0) + 0.1);
         c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
-        modHumanity(s, -8, '与' + npc.name + '发生了禁忌的亲密');
+        modHumanity(s, -8, '与' + npc.name + '发生了禁忌的亲密', c.rng);
         c.narr(
           'system',
           '你靠近了' +
@@ -56256,7 +56430,7 @@ function handleNpcAction(s, action, c, ctx) {
           setNpcState(s, npc.name, { ...ns, follower: true });
           const sanLoss = rand(2, 6, c.rng);
           applySanLoss(s, sanLoss);
-          modHumanity(s, -10, '将' + npc.name + '引入歧途，建立邪教追随');
+          modHumanity(s, -10, '将' + npc.name + '引入歧途，建立邪教追随', c.rng);
           addRunMemory(s, npc.name + '开始追随你。不是信任——是信仰。', 'npc');
           c.narr(
             'system',
@@ -56289,39 +56463,88 @@ function handleNpcAction(s, action, c, ctx) {
         s.pendingNpc = null;
       }
 
-      // 对话追问系统：处理追问选择
+      // 对话追问系统：处理追问选择（支持 depth2 分支）
       if (choice && choice.startsWith('probe_')) {
-        var _threadId = choice.slice(6);
-        var _threads = NPC_THREAD_QUESTIONS[npc.name] || [];
+        // Parse: probe_{threadId} or probe_{threadId}_{branch}
+        var _raw = choice.slice(6);
+        var _threadId = _raw;
+        var _branch = null;
+        // Match against known thread IDs to separate id from branch suffix
+        var _probeThreads = NPC_THREAD_QUESTIONS[npc.name] || [];
+        for (var _pi = 0; _pi < _probeThreads.length; _pi++) {
+          var _tid = _probeThreads[_pi].id;
+          if (_raw === _tid) { _threadId = _tid; break; }
+          if (_raw.startsWith(_tid + '_')) { _threadId = _tid; _branch = _raw.slice(_tid.length + 1); break; }
+        }
+        var _threads = _probeThreads;
         var _thread = _threads.find(function (t) { return t.id === _threadId; });
         if (_thread) {
-          var _threadState = (s.npcThreads || {})[npc.name + '_' + _threadId] || { depth: 0 };
+          var _threadState = (s.npcThreads || {})[npc.name + '_' + _threadId] || { depth: 0, flags: [] };
           var _nextDepth = _threadState.depth + 1;
           var _responseText = '';
           var _clueAwarded = null;
           var _trustAward = 0;
+          var _flagsToSet = [];
+          var _resolved = false;
+
           // Check trust gate for next depth
           var _nextTrustReq = _nextDepth === 1 ? (_thread.trustReq || 2) : (_nextDepth === 2 ? (_thread.depth2 && _thread.depth2.trustReq || 3) : (_thread.depth3 && _thread.depth3.trustReq || 4));
+
           if (trust < _nextTrustReq) {
             _responseText = npc.name + '似乎不想再深入这个话题了。';
           } else if (_nextDepth === 1) {
-            _responseText = _thread.depth1 ? _thread.depth1.response : '';
+            // Depth 1: always linear (no branching yet)
+            _responseText = _thread.depth1 ? _thread.depth1.text || _thread.depth1.response || '' : '';
           } else if (_nextDepth === 2) {
-            _responseText = _thread.depth2 ? _thread.depth2.response : '';
-            if (_thread.depth2 && _thread.depth2.clue && !hasClueId(s.clues, _thread.depth2.clue)) {
-              _clueAwarded = _thread.depth2.clue;
+            // Depth 2: if player just chose a branch, show branch-specific depth3 outcome
+            if (_branch && _thread.branches && _thread.branches[_branch]) {
+              var _brData = _thread.branches[_branch];
+              if (_brData.depth3) {
+                _responseText = _brData.depth3.text || '';
+                _clueAwarded = _brData.depth3.clue || null;
+                _trustAward = _brData.depth3.trustGain || 0;
+                _flagsToSet = _brData.depth3.flags || [];
+                _resolved = true;
+              }
+            } else {
+              // No branch chosen yet: show depth2 text
+              _responseText = _d2.text || _d2.response || '';
+              if (_d2.clue && !hasClueId(s.clues, _d2.clue)) _clueAwarded = _d2.clue;
             }
           } else if (_nextDepth >= 3) {
-            _responseText = _thread.depth3 ? _thread.depth3.response : '';
-            _clueAwarded = _thread.depth3 ? _thread.depth3.clue : null;
-            _trustAward = _thread.depth3 ? (_thread.depth3.trustGain || 0) : 0;
-            _threadState.resolved = true;
+            // Depth 3: show branch-specific outcome (using stored branch) or default
+            var _activeBranch = _branch || _threadState.branch;
+            if (_activeBranch && _thread.branches && _thread.branches[_activeBranch]) {
+              var _br3 = _thread.branches[_activeBranch];
+              _responseText = _br3.depth3 ? (_br3.depth3.text || '') : '';
+              _clueAwarded = _br3.depth3 ? _br3.depth3.clue : null;
+              _trustAward = _br3.depth3 ? (_br3.depth3.trustGain || 0) : 0;
+              _flagsToSet = _br3.depth3 ? (_br3.depth3.flags || []) : [];
+            } else {
+              _responseText = _d3.text || _d3.response || '';
+              _clueAwarded = _d3.clue || null;
+              _trustAward = _d3.trustGain || 0;
+            }
+            _resolved = true;
           }
+
+          // Deduct AP for probe action
+          if (_nextDepth >= 1 && _nextDepth <= 2) {
+            s.ap = Math.max(0, s.ap - 1);
+          }
+
           // Update thread state
           if (!s.npcThreads) s.npcThreads = {};
-          s.npcThreads[npc.name + '_' + _threadId] = { depth: _nextDepth, resolved: _threadState.resolved || false };
+          s.npcThreads[npc.name + '_' + _threadId] = {
+            depth: _resolved ? 3 : _nextDepth,
+            branch: _threadState.branch,
+            flags: _threadState.flags.concat(_flagsToSet),
+            resolved: _resolved,
+          };
+
           // Narrate response
           if (_responseText) c.narr('system', npc.name + '："' + _responseText + '"');
+
           // Award clue
           if (_clueAwarded && !hasClueId(s.clues, _clueAwarded)) {
             var _clueName = resolveClueName(_clueAwarded) || _clueAwarded;
@@ -56329,6 +56552,7 @@ function handleNpcAction(s, action, c, ctx) {
             c.narr('system', '【线索获得】' + _clueName, { isSpecial: true });
             if (c.effects) c.effects.push({ type: 'AUDIO_PLAY', id: 'clue_found' });
           }
+
           // Award trust
           if (_trustAward > 0) {
             var _newTrust = Math.min(5, trust + _trustAward);
@@ -56337,24 +56561,13 @@ function handleNpcAction(s, action, c, ctx) {
             propagateFactionStanding(npc.name, _trustAward, s);
             c.narr('system', npc.name + '对你的信任加深了。（' + trust + '→' + _newTrust + '）');
           }
-          // Update pendingNpc with remaining available threads
-          var _remainingThreads = [];
-          var _allThreads = NPC_THREAD_QUESTIONS[npc.name] || [];
-          for (var ri = 0; ri < _allThreads.length; ri++) {
-            var _rt = _allThreads[ri];
-            var _rtState = (s.npcThreads || {})[npc.name + '_' + _rt.id];
-            if (_rtState && _rtState.resolved) continue;
-            var _rtDepth = _rtState ? _rtState.depth : 0;
-            var _rtNextDepth = _rtDepth + 1;
-            var _rtTrustReq = _rtNextDepth === 1 ? (_rt.trustReq || 2) : (_rtNextDepth === 2 ? (_rt.depth2 && _rt.depth2.trustReq || 3) : (_rt.depth3 && _rt.depth3.trustReq || 4));
-            if (getNpcTrust(s, npc.name) >= _rtTrustReq) {
-              _remainingThreads.push({ thread: _rt, nextDepth: _rtNextDepth });
+
+          // Set flags
+          for (var fi = 0; fi < _flagsToSet.length; fi++) {
+            if (!s._dialogueFlags) s._dialogueFlags = [];
+            if (s._dialogueFlags.indexOf(_flagsToSet[fi]) < 0) {
+              s._dialogueFlags.push(_flagsToSet[fi]);
             }
-          }
-          if (_remainingThreads.length > 0) {
-            s.pendingNpc = Object.assign({}, s.pendingNpc, { availableThreads: _remainingThreads, trust: getNpcTrust(s, npc.name) });
-          } else {
-            s.pendingNpc = Object.assign({}, s.pendingNpc, { trust: getNpcTrust(s, npc.name) });
           }
         }
       }
@@ -56527,6 +56740,206 @@ function _processRestRecovery(s, c, shStage, ctx) {
   s.harborRiskReduction = 0;
 }
 
+// === systems/npcSchedule.js ===
+// src/systems/npcSchedule.js — NPC autonomous movement system
+//
+// NPCs are not static. Each day, they may move to a different area based on:
+//   - Corruption level (corrupted NPCs drift toward dangerous areas)
+//   - Trust toward player (high trust → seek player's location)
+//   - SAN state (low SAN → isolate in safe areas)
+//   - Random drift (10% chance to move to adjacent area)
+//   - Base schedule (day1-5 rotation as default)
+//
+// When two NPCs occupy the same area, their relationship changes:
+//   - Positive affinity → both gain slight trust toward player
+//   - Conflict → both lose slight trust toward player
+//
+// This system makes the world feel alive — NPCs have independent lives.
+
+// Area safety classification (for corruption/isolation movement)
+var AREA_SAFETY = {
+  town_center: 'safe',
+  voxchester_manor: 'safe',
+  whispering_forest: 'medium',
+  harbor_district: 'medium',
+  ruins_of_yith: 'medium',
+  forbidden_grove: 'medium',
+  catacombs_entrance: 'dangerous',
+  deep_catacombs: 'dangerous',
+  lighthouse: 'dangerous',
+};
+
+// Adjacent areas (for random drift movement)
+var AREA_ADJACENCY = {
+  town_center: ['harbor_district', 'whispering_forest', 'voxchester_manor'],
+  harbor_district: ['town_center', 'lighthouse', 'catacombs_entrance'],
+  whispering_forest: ['town_center', 'forbidden_grove', 'ruins_of_yith'],
+  voxchester_manor: ['town_center', 'forbidden_grove'],
+  catacombs_entrance: ['harbor_district', 'deep_catacombs'],
+  ruins_of_yith: ['whispering_forest', 'forbidden_grove'],
+  lighthouse: ['harbor_district'],
+  forbidden_grove: ['whispering_forest', 'voxchester_manor', 'ruins_of_yith'],
+  deep_catacombs: ['catacombs_entrance'],
+};
+
+/**
+ * Compute daily NPC locations. Called at day start.
+ * Mutates state.npcLocations.
+ *
+ * @param {object} state - mutable game state
+ * @param {object} [GD] - game data (optional, uses global GD if not provided)
+ */
+function computeDailyNpcLocations(state, GD, rng) {
+  GD = GD || {};
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  var npcs = GD.npcs || [];
+  if (!state.npcLocations) state.npcLocations = {};
+
+  // Get player's current area for trust-seek behavior
+  var playerArea = state.currentArea || 'town_center';
+
+  for (var i = 0; i < npcs.length; i++) {
+    var npc = npcs[i];
+    if (state.npcStates[npc.name]?.dead) {
+      // Dead NPCs don't move (body stays where it was)
+      continue;
+    }
+
+    var ns = getNpcState(state, npc.name);
+    var trust = getNpcTrust(state, npc.name);
+    var baseLocation = _getScheduledLocation(npc, state.day);
+    var finalLocation = baseLocation;
+
+    // Movement rules (applied in priority order)
+    // 1. Corruption override: corrupted NPCs gravitate to dangerous areas
+    if (ns.corrupted && _rand() < 0.4) {
+      var dangerAreas = Object.keys(AREA_SAFETY).filter(function (a) { return AREA_SAFETY[a] === 'dangerous'; });
+      finalLocation = dangerAreas[Math.floor(_rand() * dangerAreas.length)];
+    }
+    // 2. Trust seek: high-trust NPCs may seek out the player
+    else if (trust >= 3 && _rand() < 0.2) {
+      finalLocation = playerArea;
+    }
+    // 3. Isolation: low-SAN NPCs move to safe areas
+    else if (state.san < 30 && _rand() < 0.15) {
+      var safeAreas = Object.keys(AREA_SAFETY).filter(function (a) { return AREA_SAFETY[a] === 'safe'; });
+      finalLocation = safeAreas[Math.floor(_rand() * safeAreas.length)];
+    }
+    // 4. Random drift: 10% chance to move to adjacent area
+    else if (_rand() < 0.1) {
+      var adj = AREA_ADJACENCY[baseLocation] || [];
+      if (adj.length > 0) {
+        finalLocation = adj[Math.floor(_rand() * adj.length)];
+      }
+    }
+
+    state.npcLocations[npc.name] = finalLocation;
+  }
+}
+
+/**
+ * Get NPCs currently at the given area.
+ * Falls back to schedule-based lookup if npcLocations not yet computed.
+ *
+ * @param {object} state - game state
+ * @param {string} areaId - area to check
+ * @returns {Array} NPCs in that area
+ */
+function getNpcLocations(state, areaId, GD) {
+  var npcs = (GD?.npcs || GD?.module3_npcs || []);
+  return npcs.filter(function (n) {
+    if (state.npcStates[n.name]?.dead) return false;
+    var loc = state.npcLocations?.[n.name];
+    if (!loc) {
+      // Fallback: use schedule
+      loc = _getScheduledLocation(n, state.day);
+    }
+    return loc === areaId;
+  });
+}
+
+/**
+ * Process NPC encounters: when two NPCs share an area, their relationship evolves.
+ * Called after computeDailyNpcLocations.
+ *
+ * @param {object} state - mutable game state
+ * @param {object} [c] - reducer context for narration
+ */
+function processNpcEncounters(state, c, GD) {
+  var npcs = (GD?.npcs || GD?.module3_npcs || []);
+  var areaMap = {};
+  for (var i = 0; i < npcs.length; i++) {
+    var npc = npcs[i];
+    if (state.npcStates[npc.name]?.dead) continue;
+    var loc = state.npcLocations?.[npc.name] || _getScheduledLocation(npc, state.day);
+    if (!areaMap[loc]) areaMap[loc] = [];
+    areaMap[loc].push(npc.name);
+  }
+
+  var encounters = [];
+  for (var area in areaMap) {
+    var here = areaMap[area];
+    if (here.length < 2) continue;
+    // Check all pairs
+    for (var a = 0; a < here.length; a++) {
+      for (var b = a + 1; b < here.length; b++) {
+        var nameA = here[a];
+        var nameB = here[b];
+        var relKey = nameA + '-' + nameB;
+        var relKeyRev = nameB + '-' + nameA;
+        var rel = NPC_RELATIONSHIPS[relKey] || NPC_RELATIONSHIPS[relKeyRev];
+        if (!rel) continue;
+        if (rel.affinity >= 2) {
+          // Friendly encounter: both gain slight trust toward player
+          var trustBoost = Math.round(rel.moralWeight * 0.3);
+          setNpcTrust(state, nameA, Math.min(5, getNpcTrust(state, nameA) + trustBoost));
+          setNpcTrust(state, nameB, Math.min(5, getNpcTrust(state, nameB) + trustBoost));
+          encounters.push({ area: area, npcs: [nameA, nameB], type: 'friendly', boost: trustBoost });
+        } else if (rel.conflict) {
+          // Conflict encounter: both lose slight trust
+          var trustLoss = Math.round(rel.moralWeight * -0.2);
+          setNpcTrust(state, nameA, Math.max(0, getNpcTrust(state, nameA) + trustLoss));
+          setNpcTrust(state, nameB, Math.max(0, getNpcTrust(state, nameB) + trustLoss));
+          encounters.push({ area: area, npcs: [nameA, nameB], type: 'conflict', loss: trustLoss });
+        }
+      }
+    }
+  }
+
+  if (encounters.length > 0 && c && c.narr) {
+    for (var j = 0; j < encounters.length; j++) {
+      var enc = encounters[j];
+      var areaName = _getAreaDisplayName(enc.area, GD);
+      if (enc.type === 'friendly') {
+        c.narr('system', enc.npcs[0] + '和' + enc.npcs[1] + '在' + areaName + '遇见了。他们交谈了片刻。');
+      } else {
+        c.narr('system', enc.npcs[0] + '和' + enc.npcs[1] + '在' + areaName + '发生了争执。');
+      }
+    }
+  }
+}
+
+// ── Private helpers ──
+
+function _getScheduledLocation(npc, day) {
+  var schedule = npc.schedule || [];
+  if (schedule.length === 0) return npc.location || 'town_center';
+  var dayOfCycle = ((day - 1) % 5) + 1;
+  var entry = schedule.find(function (s) { return s.startsWith('day' + dayOfCycle + ':'); });
+  if (!entry) return npc.location || 'town_center';
+  return entry.split(':')[1] || npc.location || 'town_center';
+}
+
+function _getAreaDisplayName(areaId, GD) {
+  try {
+    var areas = (GD?.areas || []);
+    var area = areas.find(function (a) { return a.id === areaId; });
+    return area ? area.name : areaId;
+  } catch (e) {
+    return areaId;
+  }
+}
+
 // === systems/daily/dayAdvance.js ===
 // src/systems/daily/dayAdvance.js — Daily REST: day clock advance, chapter transition, motif text, AP pollution
 // Extracted from reducers/slices/dailySlice.js
@@ -56537,6 +56950,10 @@ function _processRestRecovery(s, c, shStage, ctx) {
 function _advanceDayClock(s, c, ctx) {
   const oldDay = s.day;
   s.day++;
+  // Compute NPC autonomous movement for the new day
+  computeDailyNpcLocations(s, ctx?.GD, c.rng);
+  // Process NPC encounters (same-area interactions)
+  processNpcEncounters(s, c, ctx?.GD);
   // Fire any delayed moral effects scheduled by MORAL_DILEMMAS
   processDelayedEffects(s, s.day, c);
   // eventBus: notify listeners of day transition
@@ -56812,7 +57229,7 @@ function _processNightEffects(s, c, ctx) {
     const bwfx = checkBreakWallEvent(s, c.narr, GD, c.rng);
     if (bwfx) c.effects.push(...bwfx);
   }
-  processDailyResources(s, c.rng);
+  processDailyResources(s, c.rng, ctx);
   {
     const resNarr = getResourceNarrative(s, c.rng);
     if (resNarr) c.narr('system', resNarr, { isSpecial: true });
@@ -57035,7 +57452,7 @@ function handleDarkAction(s, action, c, ctx) {
       c.bt.fusion_and_self_harm_total = (c.bt.fusion_and_self_harm_total || 0) + 1;
       const sanLoss = rand(3, 10, c.rng);
       applySanLoss(s, sanLoss);
-      modHumanity(s, -10, '用刀在自己身上刻下符号');
+      modHumanity(s, -10, '用刀在自己身上刻下符号', c.rng);
       addRunMemory(
         s,
         '第' + c.bt.self_harm_ritual_count + '次。刀锋划过皮肤的时候，你觉得你正在写下什么东西。',
@@ -57063,7 +57480,7 @@ function handleDarkAction(s, action, c, ctx) {
       c.bt.cult_leader_score = (c.bt.cult_leader_score || 0) + 1;
       const sanLoss = rand(2, 5, c.rng);
       applySanLoss(s, sanLoss);
-      modHumanity(s, -8, '向镇民散布不祥的预言');
+      modHumanity(s, -8, '向镇民散布不祥的预言', c.rng);
       c.narr(
         'system',
         '你站在镇中心的井边，对路过的人低声说出预言。他们的表情从怀疑变成了恐惧。但恐惧中有一丝——期待。SAN -' +
@@ -57086,7 +57503,7 @@ function handleDarkAction(s, action, c, ctx) {
       const removed = s.clues.pop();
       const removedName = typeof removed === 'string' ? removed : (removed?.name || removed?.id || '未知');
       s.mythosLevel = (s.mythosLevel || 0) + 1;
-      modHumanity(s, -5, '吞噬了一条线索——让真相永远消失');
+      modHumanity(s, -5, '吞噬了一条线索——让真相永远消失', c.rng);
       c.narr(
         'system',
         '你把笔记本上的一页撕下来，放进嘴里。纸是苦的。但你咽下去的时候，某种知识进入了你的血液。线索「' +
@@ -57110,7 +57527,7 @@ function handleDarkAction(s, action, c, ctx) {
       s.hp = Math.max(1, s.hp - hpLoss);
       s.maxSan = Math.max(10, s.maxSan - 5);
       applySanLoss(s, rand(5, 15, c.rng));
-      modHumanity(s, -25, '为了力量献祭了自己的一部分');
+      modHumanity(s, -25, '为了力量献祭了自己的一部分', c.rng);
       addRunMemory(
         s,
         '你割下了自己的一部分。不是血肉——是更重要的东西。然后你感觉到了它。力量。冰冷，安静，确凿。',
@@ -57139,7 +57556,7 @@ function handleDarkAction(s, action, c, ctx) {
       c.bt.sacred_desecration_count = (c.bt.sacred_desecration_count || 0) + 1;
       const sanLoss = rand(4, 12, c.rng);
       applySanLoss(s, sanLoss);
-      modHumanity(s, -15, '亵渎了神圣之地');
+      modHumanity(s, -15, '亵渎了神圣之地', c.rng);
       c.narr(
         'system',
         '你找到了角落里那座被遗忘的神龛。你做了不可挽回的事。地面在你脚下微微震动——然后停了。仿佛某种东西屏住了呼吸。SAN -' +
@@ -57168,7 +57585,7 @@ function handleDarkAction(s, action, c, ctx) {
       c.bt.loop_break_attempts = (c.bt.loop_break_attempts || 0) + 1;
       const sanLoss = rand(8, 20, c.rng);
       applySanLoss(s, sanLoss);
-      modHumanity(s, -25, '试图破坏封印');
+      modHumanity(s, -25, '试图破坏封印', c.rng);
       addRunMemory(s, '你把手放在封印上。然后你推了。', 'death');
       c.narr(
         'system',
@@ -57579,10 +57996,10 @@ var systemSlice = {
   },
 
   // ── afterDispatch: runs after every domain handler ──
-  after: function (s, action, c) {
+  after: function (s, action, c, ctx) {
     // 0. SAN consequence chain: level-based logical consequences (fake options, fake trust, AP steal, weight shift)
     //    NPC_RESPONSE and EXPLORE are handled in their respective slices; applySanConsequences skips them.
-    applySanConsequences(s, c, action.type);
+    applySanConsequences(s, c, action.type, ctx);
 
     // 1. AP 偷取检测（旧系统：_apLies 污染态，仅对特定 action 生效）
     //    level 5+ 的强制 AP 偷取已由 applySanConsequences -> tryApSteal 处理
@@ -59094,15 +59511,33 @@ function disconnectDevtools() {
 // Architecture:
 //   dispatch(action):
 //     1. systemSlice.before  (cross-cutting: tracking, profiling, _apBefore)
-//     2. Slice action        (mutates draft directly — single produce via immer middleware)
-//     3. systemSlice.after   (cross-cutting: AP steal, AP audio, SAN consequences)
+//     2. Slice action         (via combineSlices dispatch map → handler mutates draft)
+//     3. systemSlice.after    (cross-cutting: AP steal, AP audio, SAN consequences)
 //     4. Persist effects to state._effects
-//     5. flushEffectsBuffer  (side effects dispatched async via effectExecutor)
+//     5. flushEffectsBuffer   (side effects dispatched async via effectExecutor)
 //
-// All 6 domain slices migrated: uiSlice, dailySlice, exploreSlice, npcSlice, darkSlice, coreSlice
-// Each handler mutates draft in-place, collects effects via c.effects (buildSliceCtx closure).
-// createGameReducer bridge removed — single produce path only.
+// Slice dispatch is data-driven: combineSlices builds a dispatch map from
+// createSlice configs. Each slice handler mutates the immer draft in-place.
+// The if/else-if router was replaced by the combineSlices dispatch map (v0.9.8).
 // DevTools: opt-in via @xyflow/zustand-devtools (see import above).
+
+// ═══════════════════════════════════════════════════════════════
+//  Slice dispatch map — built once via combineSlices
+// ═══════════════════════════════════════════════════════════════
+
+var coreSlice = createSlice({ name: 'core', handler: handleCoreAction });
+var adventureSlice = createSlice({ name: 'adventure', handler: handleAdventureAction });
+var loopSlice = createSlice({ name: 'loop', handler: handleLoopAction });
+var dailySlice = createSlice({ name: 'daily', handler: handleDailyAction });
+var exploreSlice = createSlice({ name: 'explore', handler: handleExploreAction });
+var npcSlice = createSlice({ name: 'npc', handler: handleNpcAction });
+var darkSlice = createSlice({ name: 'dark', handler: handleDarkAction });
+var uiSlice = createSlice({ name: 'ui', handler: handleUiAction });
+
+var createRootReducer = combineSlices([
+  coreSlice, adventureSlice, loopSlice, dailySlice,
+  exploreSlice, npcSlice, darkSlice, uiSlice, systemSlice,
+]);
 
 // Disable Immer auto-freeze in dev mode. Auto-freeze recursively freezes all
 // state objects, which triggers forceStoreRerender inside React's passive effects
@@ -59138,11 +59573,12 @@ var PLACEHOLDER = {
 //  Key difference: operates on immer draft directly (no produce wrapper).
 // ═══════════════════════════════════════════════════════════════
 
-function buildSliceCtx(draft, rng, corruptFn) {
+function buildSliceCtx(draft, rng, corruptFn, actIdx) {
   var effects = [];
+  var _narrLocalSeq = 0;
   var narr = function (type, text, extra) {
     extra = extra || {};
-    var entry = { id: Date.now() + Math.random(), type: type, text: text };
+    var entry = { id: (actIdx || 0) * 1000 + (++_narrLocalSeq), type: type, text: text };
     for (var k in extra) entry[k] = extra[k];
     // Apply fear corruption to system/event narration
     if (corruptFn && (type === 'system' || type === 'event') && !extra.isSpecial && !extra.isEffect && !extra.madness) {
@@ -59231,72 +59667,13 @@ var useGameStore = create(
 
           // Build lightweight context (replaces buildReducerCtx — no module-level buffer)
           var ctx = { GD: GD };
-          var c = buildSliceCtx(draft, rng, corruptFn);
+          var c = buildSliceCtx(draft, rng, corruptFn, actIdx);
 
-          // systemSlice.before runs for ALL actions
-          systemSlice.before && systemSlice.before(draft, action, c, ctx);
-
-          // ── Route to migrated slice actions (draft mutation, no double produce) ──
-          var actionType = action.type;
-
-          // dailySlice: REST, WORK, BUY_FOOD
-          if (actionType === 'REST' || actionType === 'WORK' || actionType === 'BUY_FOOD') {
-            handleDailyAction(draft, action, c, ctx);
-          }
-          // exploreSlice: MOVE, EXPLORE, DO_SKILL_CHECK
-          else if (actionType === 'MOVE' || actionType === 'EXPLORE' || actionType === 'DO_SKILL_CHECK') {
-            handleExploreAction(draft, action, c, ctx);
-          }
-          // npcSlice: TALK_NPC, NPC_RESPONSE
-          else if (actionType === 'TALK_NPC' || actionType === 'NPC_RESPONSE') {
-            handleNpcAction(draft, action, c, ctx);
-          }
-          // darkSlice: SELF_HARM, SPREAD_PROPHECY, CONSUME_ARCHIVE, SELF_SACRIFICE, DESECRATE, BREAK_SEAL
-          else if (actionType === 'SELF_HARM' || actionType === 'SPREAD_PROPHECY'
-            || actionType === 'CONSUME_ARCHIVE' || actionType === 'SELF_SACRIFICE'
-            || actionType === 'DESECRATE' || actionType === 'BREAK_SEAL') {
-            handleDarkAction(draft, action, c, ctx);
-          }
-          // coreSlice: START_GAME, SET_DIFFICULTY, SET_ARCHETYPE, ROLL_STATS, SWITCH_SAFEHOUSE, GLITCH_PULSE, RESIST_SAN_DRAIN
-          else if (actionType === 'START_GAME' || actionType === 'SET_DIFFICULTY'
-            || actionType === 'SET_ARCHETYPE' || actionType === 'ROLL_STATS'
-            || actionType === 'SWITCH_SAFEHOUSE' || actionType === 'GLITCH_PULSE'
-            || actionType === 'GLITCH_PULSE_CLEAR' || actionType === 'RESIST_SAN_DRAIN') {
-            handleCoreAction(draft, action, c, ctx);
-          }
-          // adventureSlice: BEGIN_ADVENTURE
-          else if (actionType === 'BEGIN_ADVENTURE') {
-            handleAdventureAction(draft, action, c, ctx);
-          }
-          // loopSlice: NEW_GAME, CONTINUE_GAME, LOOP_SHOP_PURCHASE
-          else if (actionType === 'NEW_GAME' || actionType === 'CONTINUE_GAME'
-            || actionType === 'LOOP_SHOP_PURCHASE') {
-            handleLoopAction(draft, action, c, ctx);
-          }
-          // uiSlice: CHOICE_SELECT, DISMISS_PENDING, CLEAR_TRANSITION, AUDIO_MUTE_TOGGLE, etc.
-          else if (actionType === 'CHOICE_SELECT'
-            || actionType === 'DISMISS_PENDING'
-            || actionType === 'CLEAR_TRANSITION'
-            || actionType === 'AUDIO_MUTE_TOGGLE'
-            || actionType === 'ACCESSIBILITY_TOGGLE'
-            || actionType === 'GAMBLE_CHOICE'
-            || actionType === 'START_PROLOGUE'
-            || actionType === 'PROLOGUE_CHOICE'
-            || actionType === 'COMPLETE_PROLOGUE'
-            || actionType === 'DISMISS_GUIDE'
-            || actionType === 'SKIP_PROLOGUE'
-            || actionType === 'MARK_NOTEBOOK_OPENED'
-            || actionType === 'SET_META_FIELD'
-            || actionType === 'DELAYED_NARRATE'
-            || actionType === 'USE_ITEM'
-          ) {
-            handleUiAction(draft, action, c, ctx);
-          }
-          // Unhandled action types are silently ignored (all domain actions covered above)
-
-          // ── systemSlice.after (cross-cutting post-dispatch) ──
-          // Runs for ALL actions, including non-migrated slices
-          systemSlice.after && systemSlice.after(draft, action, c, ctx);
+          // ── Dispatch via combineSlices root reducer ──
+          // systemSlice.before / domain handler / systemSlice.after
+          // are all managed by the combined reducer's before/after hooks.
+          var rootReducer = createRootReducer({ GD: GD });
+          rootReducer(draft, action, c);
 
           // ── Collect all effects ──
           var allEffects = c.effects ? c.effects.slice() : [];
@@ -59442,9 +59819,10 @@ function useSanVisual() {
 }
 function useSanStageClasses(allowVisualFX) {
   var san = useGameStore(_selSan);
+  var gd = useGameStore(function (s) { return s._GD || {}; });
   return useMemo(function () {
-    return getSanStageClasses(san, allowVisualFX, { GD: window.GD || {} });
-  }, [san, allowVisualFX]);
+    return getSanStageClasses(san, allowVisualFX, { GD: gd });
+  }, [san, allowVisualFX, gd]);
 }
 function usePerceptionLevels() {
   var san = useGameStore(_selSan);
@@ -61892,7 +62270,7 @@ function NPCDialog({ npc, trust, layer, dispatch, state }) {
                 </div>
               )}
             </div>
-            {/* 追问组 — dialogue follow-up threads */}
+            {/* 追问组 — dialogue follow-up threads with branching */}
             {state.pendingNpc && state.pendingNpc.availableThreads && state.pendingNpc.availableThreads.length > 0 && (
               <div className="npc-dialog-group">
                 <div className="npc-dialog-group-title" onClick={() => toggleGroup('probe')}>
@@ -61901,14 +62279,29 @@ function NPCDialog({ npc, trust, layer, dispatch, state }) {
                 {!collapsedGroups.probe && (
                   <div className="npc-dialog-group-body">
                     {state.pendingNpc.availableThreads.map(function (t) {
+                      // Branch choice at depth2: show choice text, dispatch branch id
+                      if (t.branch && t.choiceText) {
+                        return (
+                          <button
+                            key={t.thread.id + '_' + t.branch}
+                            className="btn btn-sm"
+                            style={{ color: 'var(--cyan)', fontSize: '0.72rem' }}
+                            onClick={() => doResponse('probe_' + t.thread.id + '_' + t.branch)}
+                          >
+                            {t.choiceText}
+                            <span className="cost">1 AP</span>
+                          </button>
+                        );
+                      }
+                      // Thread entry (depth1) or outcome (depth3)
                       return (
                         <button
-                          key={t.thread.id}
+                          key={t.thread.id + (t.branch || '')}
                           className="btn btn-sm"
-                          style={{ color: 'var(--gold)', fontSize: '0.72rem' }}
+                          style={{ color: t.isOutcome ? 'var(--text-dim)' : 'var(--gold)', fontSize: '0.72rem' }}
                           onClick={() => doResponse('probe_' + t.thread.id)}
                         >
-                          {t.thread.label}
+                          {t.isOutcome ? '继续追问...' : t.thread.label}
                           <span className="cost">1 AP</span>
                         </button>
                       );

@@ -10,7 +10,7 @@ import { audioManager } from '../managers/AudioManager.js';
 import { addUiToast, removeUiToast, notifySave } from '../state/uiStore.js';
 import { triggerSanLossFlash, triggerDayCriticalSurge } from '../systems/sanVisualCorruption.js';
 
-// dispatch is injected by app.jsx bootstrap — avoids circular import (useGameStore → gameReducer → slices → ...)
+// dispatch is injected by app.jsx bootstrap — avoids circular import (useGameStore → effectExecutor → ...)
 var _dispatch = null;
 
 export function setDispatch(fn) { _dispatch = fn; }

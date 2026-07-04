@@ -7,7 +7,7 @@
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
     "beforeDevCommand": "node dev-server.cjs",
-    "beforeBuildCommand": "python build.py && node build-web.cjs"
+    "beforeBuildCommand": "npm run build"
   },
   "app": {
     "windows": [

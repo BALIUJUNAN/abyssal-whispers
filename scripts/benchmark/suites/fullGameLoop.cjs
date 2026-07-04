@@ -5,7 +5,7 @@
 var path = require('path');
 var SRC = path.join(__dirname, '..', '..', '..', 'src');
 
-var combineSlices = require(path.join(SRC, 'engine', 'combineSlices.js'));
+var combineSlices = require(path.join(SRC, 'state', 'combineSlices.js'));
 var gameConstants = require(path.join(SRC, 'state', 'gameConstants.js'));
 
 // ── Build realistic slice set ──

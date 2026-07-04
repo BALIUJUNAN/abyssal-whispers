@@ -12,7 +12,6 @@
 // Integration:
 //   eventRarity.js → checkLegendaryTrigger() gates these
 //   extendedEvents.js → getEventRarityWeight() reduces weight to 0.12x
-//   build.py → must list this file in REDUCER_FILES before extendedEvents
 
 import { hasClueId } from '../utils/clueNameMap.js';
 
