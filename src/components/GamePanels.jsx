@@ -6,6 +6,7 @@ import { StatBar, CollapsibleSection, NarrativeBlock } from './GameCommon.jsx';
 import { isPhantomExpired } from '../systems/textVariants.js';
 import { getPerceptionLevels } from '../systems/sanityVisual.js';
 import { NPCDialog } from './NPCDialog.jsx';
+import { CombatPanel } from './CombatPanel.jsx';
 import { CitySketchMap } from './CitySketchMap.jsx';
 import { NarrativeVirtualList, useVirtualList } from './VirtualList.jsx';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
@@ -21,6 +22,8 @@ import { enhanceDeathSummary, generateAfterglow, enhanceEventDescription, genera
 import { hasClueId, resolveClueName } from '../utils/clueNameMap.js';
 import { uiStore } from '../state/uiStore.js';
 
+import { getInputResistanceLevel, getInputResistanceClass } from '../systems/inputResistance.js';
+import { getShopDef, isShopItemUnlocked } from './ShopModal.jsx';
 export const LeftPanel = memo(function LeftPanel({ state }) {
   const seal = useMemo(
     () =>
@@ -333,6 +336,9 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
   // 操作分组折叠状态
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const toggleActionGroup = (g) => setCollapsedGroups((prev) => ({ ...prev, [g]: !prev[g] }));
+  // 感知污染 — 输入阻尼层 CSS class
+  var _irLevel = getInputResistanceLevel(state, { GD });
+  var inputResistClass = getInputResistanceClass(_irLevel);
 
   // Virtual scroll for narrative (50+ items)
   var narrativeBlocks = state.narrative.filter(function (b) { return !isPhantomExpired(b); });
@@ -970,6 +976,11 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
             />
           )}
         </div>
+      )}
+
+      {/* Combat panel — renders when combat is active */}
+      {state.combat && state.combat.active && (
+        <CombatPanel combatState={state.combat} state={state} dispatch={dispatch} ctx={{GD}} />
       )}
     </div>
   );

@@ -8,7 +8,7 @@ import {
   EXTENDED_POOL_TARGET,
   shouldTriggerMissing600,
   createMissing600Event,
-} from './events_missing_600.js';
+} from './events/events_missing_600.js';
 import { ENDING_PLAYER_BECOMES_EVENT, injectMissingEnding } from './ending_missing_600.js';
 
 let passed = 0;
@@ -392,15 +392,15 @@ assert(
 // =============================================
 console.log('\n=== Test Suite 8: Event Isolation ===');
 
-import { EVENTS as loop_events } from './events_loop.js';
-import { EVENTS as humanity_events } from './events_humanity.js';
-import { EVENTS as mythos_events } from './events_mythos.js';
-import { EVENTS as resource_events } from './events_resource.js';
-import { EVENTS as npc_events } from './events_npc_cross.js';
-import { EVENTS as area_events } from './events_area_deep.js';
-import { EVENTS as ending_events } from './events_ending.js';
-import { EVENTS as silent_events } from './events_silent.js';
-import { EVENTS as meta_events } from './events_meta.js';
+import { EVENTS as loop_events } from './events/events_loop.js';
+import { EVENTS as humanity_events } from './events/events_humanity.js';
+import { EVENTS as mythos_events } from './events/events_mythos.js';
+import { EVENTS as resource_events } from './events/events_resource.js';
+import { EVENTS as npc_events } from './events/events_npc_cross.js';
+import { EVENTS as area_events } from './events/events_area_deep.js';
+import { EVENTS as ending_events } from './events/events_ending.js';
+import { EVENTS as silent_events } from './events/events_silent.js';
+import { EVENTS as meta_events } from './events/events_meta.js';
 
 const all_files = [
   ...loop_events,
@@ -427,7 +427,7 @@ assert(all_files.length === EXTENDED_COUNT, `Total across all files is ${EXTENDE
 console.log('\n=== Test Suite 9: Death System ===');
 
 import { resolveDeath, inferDeathType, getDeathTypeLabel } from '../reducers/deathSystem.js';
-import { EVENTS as deathEchoEvents } from './events_death_echo.js';
+import { EVENTS as deathEchoEvents } from './events/events_death_echo.js';
 
 // resolveDeath returns null when alive
 assert(resolveDeath(makeState({ hp: 5, san: 5 })) === null, 'resolveDeath returns null when alive');

@@ -1,0 +1,4256 @@
+{
+  "areas": [
+    {
+      "id": "harbor_district",
+      "name": "雾港码头区",
+      "type": "港口",
+      "description": "浓重的海雾终年不散，即使在正午时分，阳光也难以穿透这层灰白色的帷幕。码头的木板在脚下发出腐朽的呻吟，海水中弥漫着一股混合了鱼腥和某种更古老、更令人不安的甜腻气息。系缆桩上缠绕着不是来自任何已知海洋生物的粘液，滑腻而冰冷。远处的灯塔每到午夜便会闪烁一种不自然的绿光，但没有人在操作它。废弃的渔船随潮水漂来漂去，船舱中偶尔传出敲击声。码头尽头有一扇被铁链锁住的仓库门，门上刻满了无法辨认的符号，铁链上的锁已经锈蚀，但无论用多大力气都无法打开。深夜时分，水面下隐约可见游动的巨大阴影，那不是鱼，绝不是鱼。",
+      "danger_level": 3,
+      "chapter_unlock": "chapter_1",
+      "mythos_visibility_level": 1,
+      "connected_areas": [
+        "town_center",
+        "lighthouse"
+      ],
+      "narrative_function": "失踪案核心区域，潮汐与海洋异常的源头",
+      "gameplay_function": "失踪案调查、NPC对话、海洋异常观察",
+      "main_clue_chain": "chain_harbor_disappearances",
+      "early_game_alias": "雾港码头区",
+      "hidden_features": [
+        "锈蚀的钥匙碎片",
+        "水下洞穴入口（需潜水技能）",
+        "码头工人日记残页"
+      ],
+      "layout_variants": [
+        {
+          "id": "harbor_normal",
+          "weight": 5,
+          "description": "标准布局：三个栈桥，仓库在尽头"
+        },
+        {
+          "id": "harbor_flooded",
+          "weight": 2,
+          "description": "涨潮变体：第二个栈桥被淹没，但露出了水下的石阶"
+        },
+        {
+          "id": "harbor_wrecked",
+          "weight": 2,
+          "description": "搁浅变体：一艘货船搁浅在码头中央，船舱可探索"
+        },
+        {
+          "id": "harbor_dark",
+          "weight": 1,
+          "description": "暗影变体：所有灯光熄灭，需要手电筒，但隐藏通道更容易发现"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "潮汐时刻表",
+          "水手小刀",
+          "生锈的铁钩",
+          "密封的漂流瓶",
+          "半截渔网",
+          "油布包裹",
+          "深海之水",
+          "银质匕首"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_harbor_fog_shift",
+          "name": "雾气流动",
+          "description": "一阵浓雾突然涌来又退去，码头的布局似乎发生了微妙变化——某个栈桥消失了",
+          "effect": {
+            "侦查": -5,
+            "duration_minutes": 30
+          }
+        },
+        {
+          "id": "micro_harbor_smell",
+          "name": "异臭",
+          "description": "一阵混合了鱼腥和甜腻的气味扑面而来，你的胃开始翻腾",
+          "effect": {
+            "HP": -1
+          }
+        },
+        {
+          "id": "micro_harbor_splash",
+          "name": "水面异动",
+          "description": "水面突然炸开一团水花，但你没有看到任何东西落水",
+          "effect": {
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_harbor_rope",
+          "name": "缠绕的缆绳",
+          "description": "你被一根湿滑的缆绳绊倒，膝盖擦伤",
+          "effect": {
+            "HP": -1,
+            "DEX检定": -5
+          }
+        },
+        {
+          "id": "micro_harbor_light",
+          "name": "灯塔闪烁",
+          "description": "远处的灯塔突然闪了一下绿光，随即熄灭",
+          "effect": {
+            "神秘学": 2
+          }
+        },
+        {
+          "id": "micro_harbor_bird",
+          "name": "沉默的海鸥",
+          "description": "一群海鸥停在码头上，一动不动地盯着你，没有发出任何声音",
+          "effect": {
+            "SAN": -1
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_harbor_shadow",
+        "evt_fisherman_warning",
+        "evt_warehouse_key",
+        "evt_deep_one_patrol",
+        "evt_drowned_voice",
+        "evt_ch2_fisherman_net",
+        "evt_ch3_fisher_memory",
+        "evt_ch5_deep_ones_tide",
+        "evt_ch5_fisher_answer",
+        "evt_ch5_escape_boat"
+      ],
+      "resource_pressure": {
+        "food_availability": "moderate",
+        "light_requirement": "moderate",
+        "rest_safety": "low",
+        "required_light_level": 1,
+        "food_consumption_modifier": 1.2,
+        "fatigue_gain": 10,
+        "infection_risk": 10,
+        "safe_rest_available": false
+      },
+      "imagery_focus": {
+        "primary": [
+          "潮汐",
+          "鱼腥"
+        ],
+        "secondary": [
+          "失踪船员",
+          "海底歌声"
+        ],
+        "avoid_repeating": [
+          "甜腻气味",
+          "绿光",
+          "非欧几里得"
+        ]
+      },
+      "chapter_1_role": "fully_accessible"
+    },
+    {
+      "id": "town_center",
+      "name": "沃切斯特镇中心",
+      "type": "城镇",
+      "description": "鹅卵石街道在雨后泛着暗沉的光泽，两侧的维多利亚式建筑虽然外表还算完整，但窗后的窗帘永远紧闭。市政厅前的广场上矗立着一座建城者雕像，雕像的面容在岁月侵蚀下变得模糊不清，但那双手——那双手的姿势绝非祈祷，更像是在召唤什么东西。教堂的钟声每天敲响十三下，而不是十二下，没有人愿意谈论这件事。杂货店的货架上摆满了奇怪的罐头，标签上的文字不属于任何已知语言。街道上偶尔能遇到行人，但他们总是低着头匆匆走过，从不对视。夜幕降临时，镇中心的路灯会亮起一种偏黄的光晕，光晕中似乎有东西在游动。公告栏上贴满了失踪人口的告示，日期跨度长达三年。",
+      "danger_level": 2,
+      "chapter_unlock": "chapter_1",
+      "mythos_visibility_level": 1,
+      "connected_areas": [
+        "harbor_district",
+        "whispering_forest",
+        "voxchester_manor",
+        "catacombs_entrance"
+      ],
+      "narrative_function": "信息集散地，第一章起点，十三声钟响核心舞台",
+      "gameplay_function": "情报收集、NPC对话、道具购买、线索整理",
+      "main_clue_chain": "chain_heretical_ritual",
+      "early_game_alias": "沃切斯特镇中心",
+      "hidden_features": [
+        "市政厅密室入口",
+        "教堂地下室通道",
+        "古书《扎尔之卷》线索碎片"
+      ],
+      "layout_variants": [
+        {
+          "id": "town_normal",
+          "weight": 5,
+          "description": "标准布局：广场、教堂、杂货店、市政厅"
+        },
+        {
+          "id": "town_market",
+          "weight": 2,
+          "description": "集市变体：广场上出现临时摊位，可购买随机道具"
+        },
+        {
+          "id": "town_fog",
+          "weight": 2,
+          "description": "浓雾变体：能见度极低，街道走向略有变化"
+        },
+        {
+          "id": "town_crowd",
+          "weight": 1,
+          "description": "人群变体：居民异常聚集在广场上，面朝同一方向静立"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "旧报纸",
+          "蜡烛",
+          "铁钉",
+          "褪色的照片",
+          "教堂祈祷书",
+          "杂货店罐头"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_town_clock",
+          "name": "时钟停摆",
+          "description": "路过钟表店时，所有钟表同时停止了",
+          "effect": {
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_town_stare",
+          "name": "被注视",
+          "description": "你感到背后有人在看你，但转身只看到一个关上的窗帘",
+          "effect": {
+            "心理学": 1
+          }
+        },
+        {
+          "id": "micro_town_poster",
+          "name": "新告示",
+          "description": "公告栏上多了一张新的失踪告示，日期是今天",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_town_cat",
+          "name": "炸毛的猫",
+          "description": "一只黑猫弓着背对着你身后某个方向嘶叫，随即消失在巷子里",
+          "effect": {
+            "侦查方向提示": true
+          }
+        },
+        {
+          "id": "micro_town_graffiti",
+          "name": "新的涂鸦",
+          "description": "墙上出现了昨天还没有的螺旋形涂鸦，颜料还是湿的",
+          "effect": {
+            "神秘学": 1,
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_town_silence",
+          "name": "突然的寂静",
+          "description": "所有声音同时消失——风声、脚步声、远处的海浪声——持续了三秒后恢复",
+          "effect": {
+            "SAN": -2
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_strange_clock",
+        "evt_missing_poster",
+        "evt_church_bell",
+        "evt_beggar_clue",
+        "evt_vendor_suspicious",
+        "evt_ch2_martha_backroom",
+        "evt_ch2_church_basement",
+        "evt_ch3_elias_pages",
+        "evt_ch3_safehouse_corruption",
+        "evt_ch4_martha_betrayal",
+        "evt_ch4_elias_confession",
+        "evt_ch5_elias_lie",
+        "evt_ch5_martha_remembers"
+      ],
+      "resource_pressure": {
+        "food_availability": "moderate",
+        "light_requirement": "low",
+        "rest_safety": "moderate",
+        "required_light_level": 0,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 5,
+        "infection_risk": 0,
+        "safe_rest_available": true
+      },
+      "imagery_focus": {
+        "primary": [
+          "钟声",
+          "公告栏"
+        ],
+        "secondary": [
+          "居民沉默",
+          "路灯黄晕"
+        ],
+        "avoid_repeating": [
+          "低语",
+          "螺旋",
+          "触手"
+        ]
+      },
+      "chapter_1_role": "fully_accessible"
+    },
+    {
+      "id": "whispering_forest",
+      "name": "低语森林",
+      "type": "森林",
+      "description": "沃切斯特北部的古老森林，当地人从不在日落后踏入其中。树木高大得不自然，树冠遮天蔽日，即使白天也如同黄昏。地面上覆盖着厚厚的腐叶层，踩上去会发出令人牙酸的声响，仿佛踩在某种活物的躯体上。空气中弥漫着一股潮湿的泥土气息，夹杂着隐约的花香——那是一种没有人能辨认出品种的花。森林深处传来持续不断的低语声，像是数百人在同时说着不同的话语，但当你停下脚步仔细聆听时，又只剩下风声。树木的排列暗含某种几何规律，不是自然形成的。有些树干上刻着螺旋形的标记，触摸它们时指尖会传来轻微的震动。森林最深处有一片圆形空地，地面上嵌满了白色的石块，排列成一个巨大的眼睛形状。",
+      "danger_level": 4,
+      "chapter_unlock": "chapter_2",
+      "mythos_visibility_level": 2,
+      "connected_areas": [
+        "town_center",
+        "forbidden_grove",
+        "ruins_of_yith"
+      ],
+      "narrative_function": "非人意识的延伸，梦境污染的源头",
+      "gameplay_function": "森林探索、古树接触、梦境事件、夜魔遭遇",
+      "main_clue_chain": "chain_morris_family",
+      "early_game_alias": "北边的林子",
+      "hidden_features": [
+        "伊塔库亚的祭坛",
+        "夜魔巢穴入口",
+        "被遗忘的猎人小屋"
+      ],
+      "layout_variants": [
+        {
+          "id": "forest_normal",
+          "weight": 4,
+          "description": "标准布局：密林小径、圆形空地、巨橡树"
+        },
+        {
+          "id": "forest_maze",
+          "weight": 2,
+          "description": "迷宫变体：小径分叉更多，容易迷失方向（侦查检定才能找到正确路径）"
+        },
+        {
+          "id": "forest_clearing",
+          "weight": 2,
+          "description": "空地变体：出现多个空地，每个空地有不同发现"
+        },
+        {
+          "id": "forest_dark",
+          "weight": 2,
+          "description": "黑暗变体：树冠完全遮蔽天空，所有区域变为黑暗区域"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "苔藓标本",
+          "折断的箭头",
+          "猎人的烟斗",
+          "鸟巢中的骨片",
+          "树脂块",
+          "腐朽的皮靴",
+          "螺旋铜镜",
+          "月光熏香"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_forest_root",
+          "name": "绊脚的树根",
+          "description": "一根树根突然缠住了你的脚踝，你挣脱后发现树根上长着眼睛状的纹路",
+          "effect": {
+            "HP": -1,
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_forest_scent",
+          "name": "迷醉花香",
+          "description": "一股甜美的花香袭来，你感到一阵困倦，差点在树下睡着",
+          "effect": {
+            "AP临时": -1
+          }
+        },
+        {
+          "id": "micro_forest_silence",
+          "name": "骤然寂静",
+          "description": "所有的虫鸣和风声瞬间消失，持续十秒后恢复",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_forest_mushroom",
+          "name": "发光菌丝",
+          "description": "脚下的菌丝发出微弱的蓝光，照亮了一个隐藏的树洞",
+          "effect": {
+            "侦查": 5
+          }
+        },
+        {
+          "id": "micro_forest_shadow",
+          "name": "树影移动",
+          "description": "树的影子没有随着光源移动——它在自行爬行",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_forest_bird",
+          "name": "倒挂的鸟",
+          "description": "一只鸟倒挂在树枝上，用人类的声音说了一个词，随即死去",
+          "effect": {
+            "SAN": -1
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_forest_whisper",
+        "evt_nightgaunt_sighting",
+        "evt_mushroom_circle",
+        "evt_lost_trail",
+        "evt_ancient_stone",
+        "evt_ch2_tide_table",
+        "evt_ch2_fog_direction"
+      ],
+      "resource_pressure": {
+        "food_availability": "low",
+        "light_requirement": "high",
+        "rest_safety": "very_low",
+        "required_light_level": 2,
+        "food_consumption_modifier": 1.5,
+        "fatigue_gain": 15,
+        "infection_risk": 10,
+        "safe_rest_available": false
+      },
+      "imagery_focus": {
+        "primary": [
+          "花香",
+          "树影"
+        ],
+        "secondary": [
+          "迷路"
+        ],
+        "avoid_repeating": [
+          "眼睛",
+          "深渊",
+          "绿光"
+        ]
+      },
+      "chapter_1_role": "rumor_only"
+    },
+    {
+      "id": "voxchester_manor",
+      "name": "沃切斯特庄园",
+      "type": "古宅",
+      "description": "矗立在镇中心南侧山丘上的巨大哥特式宅邸，属于沃切斯特创始家族——莫里斯家族的最后一位继承人。庄园已有超过百年历史，外墙的石砖爬满了暗绿色的藤蔓，尖顶在阴沉的天空下如同指向某种不可名状之物的手指。走进大门，迎面而来的是混合了灰尘、霉菌和某种甜腻香料的气味。大厅中悬挂着莫里斯家族历代的肖像画，每一幅画中人的眼睛都在不同的角度似乎在注视着你。楼梯在夜间会自行发出咯吱声，但上去查看却空无一人。三楼的走廊尽头有一扇从未被打开的门，门缝中偶尔会渗出冰冷的气流。庄园的地下室比建筑本身更大——向下延伸的台阶远超应有的深度。书房中散落着大量关于召唤仪式的笔记，墨迹似乎是用某种不寻常的液体书写的。",
+      "danger_level": 3,
+      "chapter_unlock": "chapter_3",
+      "mythos_visibility_level": 3,
+      "connected_areas": [
+        "town_center",
+        "catacombs_entrance"
+      ],
+      "narrative_function": "莫里斯家族秘密的载体，封印真相的线索源",
+      "gameplay_function": "庄园探索、希尔达对话、地下室调查、家族秘密揭示",
+      "main_clue_chain": "chain_morris_family",
+      "early_game_alias": "山丘上的大宅",
+      "hidden_features": [
+        "莫里斯家族秘密实验室",
+        "召唤法阵残片",
+        "地下室深层通道"
+      ],
+      "layout_variants": [
+        {
+          "id": "manor_normal",
+          "weight": 4,
+          "description": "标准布局：大厅、书房、地下室入口、三楼走廊"
+        },
+        {
+          "id": "manor_locked",
+          "weight": 2,
+          "description": "上锁变体：多个房间被锁，需要钥匙或锁匠技能"
+        },
+        {
+          "id": "manor_renovated",
+          "weight": 2,
+          "description": "翻新变体：部分房间出现新的装饰，隐藏线索位置改变"
+        },
+        {
+          "id": "manor_cursed",
+          "weight": 2,
+          "description": "诅咒变体：走廊会自行改变连接，空间异常（SAN每进入-1）"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "银烛台",
+          "家族纹章戒指",
+          "干枯的玫瑰",
+          "生锈的门把手",
+          "旧日记本",
+          "破碎的眼镜"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_manor_creak",
+          "name": "楼梯呻吟",
+          "description": "楼上空无一人，但楼梯发出了有人走下来的咯吱声",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_manor_cold",
+          "name": "冰冷气流",
+          "description": "一股冰冷的气流从三楼走廊尽头的门缝中吹出，带着一股甜腻的霉味",
+          "effect": {
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_manor_portrait",
+          "name": "肖像微笑",
+          "description": "你路过大厅时，莫里斯家族肖像画中的某个人对你微笑了",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_manor_candle",
+          "name": "自燃蜡烛",
+          "description": "走廊中的蜡烛突然自行点燃，火焰呈不自然的蓝绿色",
+          "effect": {
+            "神秘学": 1
+          }
+        },
+        {
+          "id": "micro_manor_floor",
+          "name": "地板倾斜",
+          "description": "走廊的地板突然倾斜了五度，又缓缓恢复水平",
+          "effect": {
+            "SAN": -1,
+            "闪避": -5
+          }
+        },
+        {
+          "id": "micro_manor_voice",
+          "name": "低沉低语",
+          "description": "从墙壁内部传来低沉的低语声，用你听不懂的语言说着什么",
+          "effect": {
+            "SAN": -2
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_portrait_watch",
+        "evt_basement_depth",
+        "evt_library_secret",
+        "evt_servant_ghost",
+        "evt_hidden_ritual",
+        "evt_ch3_hilda_bloodline",
+        "evt_ch4_hilda_choice",
+        "evt_ch5_hilda_sacrifice"
+      ],
+      "resource_pressure": {
+        "food_availability": "low",
+        "light_requirement": "moderate",
+        "rest_safety": "moderate",
+        "required_light_level": 1,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 8,
+        "infection_risk": 5,
+        "safe_rest_available": true
+      },
+      "imagery_focus": {
+        "primary": [
+          "肖像",
+          "家族记录"
+        ],
+        "secondary": [
+          "地下室深度"
+        ],
+        "avoid_repeating": [
+          "低语",
+          "触手",
+          "绿光"
+        ]
+      },
+      "chapter_1_role": "rumor_only"
+    },
+    {
+      "id": "catacombs_entrance",
+      "name": "地下墓穴入口",
+      "type": "地下墓穴",
+      "description": "隐藏在镇中心教堂下方的入口，只有在特定条件下才会显现——通常是在午夜钟声敲响第十三下之后。入口是一道沉重的石门，上面刻满了密密麻麻的符号，这些符号在火把的光芒下似乎在缓慢蠕动。门后是一条向下延伸的石阶，潮湿而滑腻，墙壁上每隔几步就嵌着一盏早已熄灭的油灯。空气中弥漫着腐烂的气味和一种更深层的、来自大地深处的矿物质气息。向下走得越深，温度就越低，直到呼吸都在面前凝成白雾。墓穴的第一层是标准的安葬室，石棺整齐排列，但许多石棺的盖子已经被从内部推开。更深处传来水滴声和一种低沉的、持续的嗡鸣，如同大地本身在呼吸。墙壁上偶尔会出现新的刻痕——有人还活着，在这里。",
+      "danger_level": 4,
+      "chapter_unlock": "chapter_3",
+      "mythos_visibility_level": 3,
+      "connected_areas": [
+        "voxchester_manor",
+        "deep_catacombs",
+        "town_center"
+      ],
+      "narrative_function": "地下世界的入口，封印的外围区域",
+      "gameplay_function": "墓穴探索、封印线索、食尸鬼遭遇、地下暗河",
+      "main_clue_chain": "chain_heretical_ritual",
+      "early_game_alias": "教堂下面的地下室",
+      "hidden_features": [
+        "通往深层的隐藏通道",
+        "古代封印核心",
+        "深渊之眼的低语"
+      ],
+      "layout_variants": [
+        {
+          "id": "cata_normal",
+          "weight": 4,
+          "description": "标准布局：石阶、安葬室、石棺走廊"
+        },
+        {
+          "id": "cata_flooded",
+          "weight": 2,
+          "description": "水淹变体：部分通道被地下水淹没，需要游泳技能"
+        },
+        {
+          "id": "cata_collapse",
+          "weight": 2,
+          "description": "坍塌变体：部分通道被堵死，需要攀爬或寻找新路径"
+        },
+        {
+          "id": "cata_living",
+          "weight": 2,
+          "description": "活化变体：墙壁在脉动，通道如同血管般蠕动"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "油灯残骸",
+          "骨质匕首",
+          "石棺碎片",
+          "铜制十字架",
+          "发霉的裹尸布",
+          "矿石标本"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_cata_drip",
+          "name": "异常水滴",
+          "description": "天花板滴下的水落在你手上——是温的，带着铁锈的气味",
+          "effect": {
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_cata_scuttle",
+          "name": "爬行声",
+          "description": "黑暗中传来密集的爬行声，从四面八方靠近又远去",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_cata_inscription",
+          "name": "新刻痕",
+          "description": "墙壁上出现了一道新的刻痕——你确定刚才这里还没有",
+          "effect": {
+            "侦查": 2
+          }
+        },
+        {
+          "id": "micro_cata_smell",
+          "name": "腐败气息",
+          "description": "一阵浓烈的腐臭从某个方向吹来，夹杂着一种你无法描述的甜味",
+          "effect": {
+            "HP": -1,
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_cata_light",
+          "name": "地下磷光",
+          "description": "墙壁上的苔藓发出微弱的磷光，照亮了一条你之前没注意到的岔路",
+          "effect": {
+            "侦查": 5
+          }
+        },
+        {
+          "id": "micro_cata_breath",
+          "name": "大地呼吸",
+          "description": "地面微微隆起又落下，如同大地在呼吸。你的脚步声传向了很远的地方",
+          "effect": {
+            "SAN": -2
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_tomb_open",
+        "evt_underground_river",
+        "evt_living_mural",
+        "evt_ghoul_nest",
+        "evt_seal_chamber",
+        "evt_ch3_catacomb_names",
+        "evt_ch4_catacomb_heartbeat"
+      ],
+      "resource_pressure": {
+        "food_availability": "none",
+        "light_requirement": "critical",
+        "rest_safety": "very_low",
+        "required_light_level": 3,
+        "food_consumption_modifier": 1.3,
+        "fatigue_gain": 20,
+        "infection_risk": 15,
+        "safe_rest_available": false
+      },
+      "imagery_focus": {
+        "primary": [
+          "石棺",
+          "冷空气"
+        ],
+        "secondary": [
+          "封印符号"
+        ],
+        "avoid_repeating": [
+          "甜腻气味",
+          "螺旋",
+          "被注视"
+        ]
+      },
+      "chapter_1_role": "rumor_only"
+    },
+    {
+      "id": "ruins_of_yith",
+      "name": "伊斯遗迹",
+      "type": "遗迹",
+      "description": "低语森林深处的一片古老石质建筑群，其风格不属于任何已知的古代文明。石块巨大得难以置信，最小的也有数吨重，拼接的缝隙精确到连刀片都无法插入。建筑的几何角度在某些地方违反了欧几里得定律——墙壁可能同时是垂直的和水平的。遗迹中心是一座高塔，但这座塔看起来像是向下建造的，塔顶深入地下，而塔基朝向天空。每当满月之夜，塔尖会发出微弱的紫罗兰色光芒。遗迹中散落着奇怪的装置碎片，材质既不是金属也不是石头，触摸时会感到温暖。地面上刻满了复杂到令人眩晕的图案，长时间注视会导致头痛和方向感丧失。偶尔能听到遗迹深处传来金属碰撞的声音，像是有什么东西在里面运转。",
+      "danger_level": 5,
+      "chapter_unlock": "chapter_4",
+      "mythos_visibility_level": 4,
+      "connected_areas": [
+        "whispering_forest",
+        "deep_catacombs"
+      ],
+      "narrative_function": "伊斯伟大种族的遗产，时间与记忆的交叉点",
+      "gameplay_function": "遗迹探索、时间机器接触、伊斯回声、维度异常",
+      "main_clue_chain": "chain_morris_family",
+      "early_game_alias": "森林深处的废墟",
+      "hidden_features": [
+        "伊斯之伟大种族的时间机器残骸",
+        "未来记忆碎片",
+        "时空裂隙入口"
+      ],
+      "layout_variants": [
+        {
+          "id": "yith_normal",
+          "weight": 3,
+          "description": "标准布局：入口广场、倒塔、装置碎片区"
+        },
+        {
+          "id": "yith_active",
+          "weight": 2,
+          "description": "激活变体：部分装置恢复运作，出现时空异常"
+        },
+        {
+          "id": "yith_inverted",
+          "weight": 2,
+          "description": "倒转变体：重力方向异常，部分区域需要攀爬天花板"
+        },
+        {
+          "id": "yith_memory",
+          "weight": 3,
+          "description": "记忆变体：遗迹恢复古代面貌，伊斯人幻影出没"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "奇异金属碎片",
+          "晶体粉末",
+          "刻有星图的石板",
+          "温热的圆盘",
+          "发光的棱柱",
+          "时空尘埃",
+          "星图石板",
+          "维度碎片"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_yith_angle",
+          "name": "角度错乱",
+          "description": "你走过一个转角，但感觉地面变成了天花板，三秒后恢复正常",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_yith_echo",
+          "name": "时间回声",
+          "description": "你听到了自己五分钟前的脚步声，从前方传来",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_yith_warm",
+          "name": "温暖碎片",
+          "description": "一块装置碎片发出温暖的光，你触摸后脑海中闪过一帧紫色天空",
+          "effect": {
+            "SAN": -2,
+            "神秘学": 2
+          }
+        },
+        {
+          "id": "micro_yith_geometry",
+          "name": "几何脉动",
+          "description": "地面的图案开始缓慢旋转，如同活物般脉动",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_yith_metal",
+          "name": "金属碰撞",
+          "description": "深处传来有节奏的金属碰撞声，像是某种机器在运转",
+          "effect": {
+            "侦查方向提示": true
+          }
+        },
+        {
+          "id": "micro_yith_vision",
+          "name": "幻视",
+          "description": "一瞬间你看到了遗迹的过去——光芒四射、飞行器穿梭——随即恢复废墟原貌",
+          "effect": {
+            "SAN": -2,
+            "克苏鲁神话": 1
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_yithian_echo",
+        "evt_geometry_trap",
+        "evt_time_slip",
+        "evt_great_race_spirit",
+        "evt_ancient_machine",
+        "evt_ch4_false_solution",
+        "evt_ch5_nyarlathotep_offer",
+        "evt_ch5_yog_gate",
+        "evt_ch5_loop_breaker",
+        "evt_ch5_humanity_judgement"
+      ],
+      "resource_pressure": {
+        "food_availability": "none",
+        "light_requirement": "moderate",
+        "rest_safety": "extremely_low",
+        "required_light_level": 1,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 25,
+        "infection_risk": 5,
+        "safe_rest_available": false
+      },
+      "imagery_focus": {
+        "primary": [
+          "时间错位",
+          "几何异常"
+        ],
+        "secondary": [],
+        "avoid_repeating": [
+          "低语",
+          "触手",
+          "深渊"
+        ]
+      },
+      "chapter_1_role": "locked",
+      "infection_risk": true
+    },
+    {
+      "id": "lighthouse",
+      "name": "灰烬灯塔",
+      "type": "禁地",
+      "description": "矗立在码头区最远端海角上的古老灯塔，建于1847年，但据说地基的历史要久远得多。灯塔外墙的石头呈现出一种不自然的灰白色，像是被什么东西灼烧过。塔内的螺旋楼梯通向顶部的灯室，但很少有人能走完全程——大多数人会在途中感到极度的眩晕和恐惧，被迫返回。灯室中的巨大透镜早已碎裂，但每到午夜，一种绿莹莹的光芒仍然会从碎片中发出。灯塔的地下室隐藏着一条通往海面以下的隧道，隧道尽头是一个天然洞穴，洞穴中有一个深不见底的水池。当地人说，灯塔的建造者——一个名叫以诺·沃特的疯狂工程师——曾在这里举行过某种仪式，之后便消失了。灯塔周围的海域是深潜者活动最频繁的区域。",
+      "danger_level": 5,
+      "chapter_unlock": "chapter_2",
+      "mythos_visibility_level": 2,
+      "connected_areas": [
+        "harbor_district"
+      ],
+      "narrative_function": "召唤信号的源头，深海真相的揭示地",
+      "gameplay_function": "灯塔探索、以诺日记、海底神殿入口、深潜者祭祀",
+      "main_clue_chain": "chain_harbor_disappearances",
+      "early_game_alias": "码头尽头的旧灯塔",
+      "hidden_features": [
+        "以诺·沃特的地下室",
+        "通往海底神殿的隧道",
+        "深潜者祭祀场"
+      ],
+      "layout_variants": [
+        {
+          "id": "light_normal",
+          "weight": 4,
+          "description": "标准布局：螺旋楼梯、灯室、地下室"
+        },
+        {
+          "id": "light_flooded",
+          "weight": 3,
+          "description": "涨潮变体：地下室被海水淹没，隧道入口显露"
+        },
+        {
+          "id": "light_active",
+          "weight": 2,
+          "description": "发光变体：绿光持续照射，深潜者在附近聚集"
+        },
+        {
+          "id": "light_extending",
+          "weight": 1,
+          "description": "延伸变体：楼梯比平时更长，地下室更深"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "以诺·沃特的日记碎片",
+          "锈蚀的灯芯",
+          "海盐结晶",
+          "透镜碎片",
+          "潮汐贝壳",
+          "旧绳索",
+          "深海之水",
+          "守护符文"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_light_dizzy",
+          "name": "螺旋眩晕",
+          "description": "攀爬螺旋楼梯时，强烈的眩晕感袭来，你差点从楼梯上跌落",
+          "effect": {
+            "HP": -2
+          }
+        },
+        {
+          "id": "micro_light_green",
+          "name": "绿光脉动",
+          "description": "碎裂的透镜碎片发出脉动的绿光，频率与你的心跳同步",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_light_sea",
+          "name": "海中歌声",
+          "description": "从灯塔底部传来模糊的歌声——来自海底深处",
+          "effect": {
+            "SAN": -2,
+            "聆听": 2
+          }
+        },
+        {
+          "id": "micro_light_salt",
+          "name": "盐渍墙壁",
+          "description": "墙壁上的盐渍形成了一个清晰的手掌印——从内部",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_light_wind",
+          "name": "逆向风",
+          "description": "灯塔顶部吹来的风是向上吸的，你的头发和衣物朝塔顶飘去",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_light_flash",
+          "name": "记忆闪回",
+          "description": "一瞬间你看到了灯塔完好时的样子——以诺·沃特正在灯室中举行仪式",
+          "effect": {
+            "SAN": -2,
+            "历史": 3
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_lighthouse_light",
+        "evt_enoch_diary",
+        "evt_underwater_temple",
+        "evt_deep_one_ritual",
+        "evt_cthulhu_dream",
+        "evt_ch2_lighthouse_keeper",
+        "evt_ch3_lighthouse_water",
+        "evt_ch5_cthulhu_dream",
+        "evt_ch5_deep_ones_tide",
+        "evt_ch5_broken_seal"
+      ],
+      "resource_pressure": {
+        "food_availability": "none",
+        "light_requirement": "high",
+        "rest_safety": "very_low",
+        "required_light_level": 2,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 20,
+        "infection_risk": 20,
+        "safe_rest_available": false
+      },
+      "imagery_focus": {
+        "primary": [
+          "绿光",
+          "螺旋楼梯"
+        ],
+        "secondary": [
+          "海底通道"
+        ],
+        "avoid_repeating": [
+          "低语",
+          "触手",
+          "甜腻气味"
+        ]
+      },
+      "chapter_1_role": "rumor_only",
+      "infection_risk": false
+    },
+    {
+      "id": "forbidden_grove",
+      "name": "禁忌之林",
+      "type": "禁地",
+      "description": "低语森林最深处的一片被当地人视为绝对禁区的区域。这里的树木与外围截然不同——树干漆黑如炭，树皮上浮现出类似人脸的纹路，枝叶散发出微弱的荧光绿光。地面上覆盖着厚厚的苔藓，苔藓下隐约可见累累白骨，既有动物的也有人类的。空气中弥漫着一种令人作呕的甜香，吸入后会感到轻微的愉悦感和强烈的困倦。林地中心矗立着一棵巨大的古树，树干直径超过十米，树冠高耸入云。古树的根部缠绕着一座石质祭坛，祭坛上刻满了奈亚拉托提普的印记。这里是一切低语声的源头——那不是风声，而是古树本身在说话。祭坛周围的土壤永远是湿润的，呈暗红色。",
+      "danger_level": 5,
+      "chapter_unlock": "chapter_4",
+      "mythos_visibility_level": 4,
+      "connected_areas": [
+        "whispering_forest"
+      ],
+      "narrative_function": "古树的意志，奈亚拉托提普的印记",
+      "gameplay_function": "古树对话、祭祀记忆、森林守卫者、奈亚拉托提普低语",
+      "main_clue_chain": "chain_harbor_disappearances",
+      "early_game_alias": "森林最深处的禁区",
+      "hidden_features": [
+        "奈亚拉托提普的面具碎片",
+        "古代祭祀记忆",
+        "通往幻梦境的裂缝"
+      ],
+      "layout_variants": [
+        {
+          "id": "grove_normal",
+          "weight": 3,
+          "description": "标准布局：骨地、古树、祭坛"
+        },
+        {
+          "id": "grove_dense",
+          "weight": 3,
+          "description": "密林变体：枝叶更密，甜香更浓，SAN每5分钟额外-1"
+        },
+        {
+          "id": "grove_awake",
+          "weight": 2,
+          "description": "苏醒变体：古树发出低沉的呻吟，树枝开始移动"
+        },
+        {
+          "id": "grove_dream",
+          "weight": 2,
+          "description": "梦境变体：幻梦境的裂缝打开，出现不属于现实的景象"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "黑色种子壳",
+          "祭祀骨片",
+          "面具碎片",
+          "暗红苔藓",
+          "古树枝条",
+          "花粉结晶",
+          "月光熏香",
+          "腐蚀之血"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_grove_sweet",
+          "name": "致幻甜香",
+          "description": "浓烈的甜香涌入鼻腔，你的四肢变得沉重，思维变得模糊",
+          "effect": {
+            "AP临时": -1,
+            "意志检定": -10
+          }
+        },
+        {
+          "id": "micro_grove_face",
+          "name": "树皮面孔",
+          "description": "一棵树的树皮突然形成了人脸的形状，嘴巴无声地张合",
+          "effect": {
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_grove_bone",
+          "name": "踩碎白骨",
+          "description": "你踩到了苔藓下的白骨，断裂声在寂静中格外清晰",
+          "effect": {
+            "SAN": -1,
+            "潜行": -5
+          }
+        },
+        {
+          "id": "micro_grove_pulse",
+          "name": "古树脉动",
+          "description": "古树的树干传来有节奏的脉动，如同心脏跳动",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_grove_hands",
+          "name": "树枝之手",
+          "description": "一根树枝末端的手掌突然握住了你的手腕，力道惊人，随后松开",
+          "effect": {
+            "HP": -1,
+            "SAN": -1
+          }
+        },
+        {
+          "id": "micro_grove_red",
+          "name": "暗红渗出",
+          "description": "祭坛周围的土壤渗出了暗红色的液体，散发出铁锈般的气味",
+          "effect": {
+            "SAN": -2
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_grove_guardian",
+        "evt_sacrificial_memory",
+        "evt_tree_speech",
+        "evt_nyarlathotep_whisper",
+        "evt_bone_garden",
+        "evt_ch5_nyarlathotep_offer",
+        "evt_ch5_shoggoth_break",
+        "evt_ch5_player_vessel",
+        "evt_ch5_humanity_judgement"
+      ],
+      "resource_pressure": {
+        "food_availability": "none",
+        "light_requirement": "moderate",
+        "rest_safety": "extremely_low",
+        "required_light_level": 1,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 25,
+        "infection_risk": 20,
+        "safe_rest_available": false
+      },
+      "imagery_focus": {
+        "primary": [
+          "古树",
+          "祭坛"
+        ],
+        "secondary": [
+          "梦境裂缝"
+        ],
+        "avoid_repeating": [
+          "绿光",
+          "非欧几里得",
+          "甜腻气味"
+        ]
+      },
+      "chapter_1_role": "locked",
+      "infection_risk": true
+    },
+    {
+      "id": "deep_catacombs",
+      "name": "深渊墓穴",
+      "type": "地下墓穴",
+      "description": "地下墓穴最深层的区域，这里的建筑风格已经完全脱离了人类的范畴。墙壁由一种半透明的黑色石材构成，内部似乎有脉络在缓慢流动，如同活物的血管。空气中充斥着低沉的嗡鸣声，频率低到几乎感知不到，但会让牙齿隐隐作痛。这个层级的通道不是固定的——它们会在你转身后改变走向，空间本身似乎在呼吸和蠕动。中央区域是一个巨大的穹顶空间，穹顶上嵌满了发光的矿物晶体，排列成一幅星图——但那不是地球能看到的星空。穹顶下方是一个深不见底的竖井，竖井壁上刻满了螺旋形的阶梯向下延伸，看不到尽头。竖井底部偶尔传来震动和声响，如同心跳。这里是《扎尔之卷》中提到的'深渊之眼'——一切封印的中心。",
+      "danger_level": 5,
+      "chapter_unlock": "chapter_4",
+      "mythos_visibility_level": 5,
+      "connected_areas": [
+        "catacombs_entrance",
+        "ruins_of_yith"
+      ],
+      "narrative_function": "封印核心所在，深渊之眼的所在地，终局抉择的舞台",
+      "gameplay_function": "封印仪式、修格斯遭遇、维度裂隙、终局抉择",
+      "main_clue_chain": "all_chains_converge",
+      "early_game_alias": "地下深处",
+      "hidden_features": [
+        "扎尔之卷的最后一页",
+        "古神封印核心",
+        "虚空之门"
+      ],
+      "layout_variants": [
+        {
+          "id": "deep_normal",
+          "weight": 3,
+          "description": "标准布局：穹顶大厅、竖井、螺旋阶梯"
+        },
+        {
+          "id": "deep_shifting",
+          "weight": 3,
+          "description": "蠕动变体：通道持续变化，每次进入需要重新探索"
+        },
+        {
+          "id": "deep_lit",
+          "weight": 2,
+          "description": "发光变体：所有晶体亮起，区域变为明亮，但景象令人疯狂"
+        },
+        {
+          "id": "deep_void",
+          "weight": 2,
+          "description": "虚空变体：竖井边缘的空间开始扭曲，通往虚空之门"
+        }
+      ],
+      "item_placement_pool": {
+        "pool_size": 3,
+        "candidates": [
+          "黑色结晶",
+          "脉络样本",
+          "星图残片",
+          "虚空尘埃",
+          "封印碎片",
+          "深渊之水",
+          "深渊水晶",
+          "守护符文",
+          "圣水"
+        ],
+        "placement_note": "每次游戏随机选取3个放在区域内可搜索位置"
+      },
+      "micro_events": [
+        {
+          "id": "micro_deep_shift",
+          "name": "通道蠕动",
+          "description": "你身后的通道改变了方向——来时的路消失了",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_deep_crystal",
+          "name": "晶体共鸣",
+          "description": "穹顶的晶体同时发光，排列出一个新的星图——是你从未见过的星座",
+          "effect": {
+            "SAN": -2,
+            "神秘学": 2
+          }
+        },
+        {
+          "id": "micro_deep_heartbeat",
+          "name": "深渊心跳",
+          "description": "竖井底部传来一声沉重的心跳声，整个空间都在共振",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_deep_void",
+          "name": "虚空凝视",
+          "description": "你感到有东西在从竖井底部看着你——不是用眼睛，而是用存在本身",
+          "effect": {
+            "SAN": -3
+          }
+        },
+        {
+          "id": "micro_deep_blood",
+          "name": "脉络脉动",
+          "description": "墙壁中的脉络突然加速流动，发出暗红色的光",
+          "effect": {
+            "SAN": -2
+          }
+        },
+        {
+          "id": "micro_deep_whisper",
+          "name": "深渊低语",
+          "description": "一个声音直接在你的脑海中响起：'你终于来了'",
+          "effect": {
+            "SAN": -2
+          }
+        }
+      ],
+      "events_pool": [
+        "evt_shoggoth_encounter",
+        "evt_seal_ritual",
+        "evt_void_whisper",
+        "evt_elder_sign",
+        "evt_dimensional_rift",
+        "evt_ch4_ritual_missing",
+        "evt_ch4_catacomb_heartbeat",
+        "evt_ch5_final_ritual_begin",
+        "evt_ch5_ritual_interrupt",
+        "evt_ch5_cthulhu_dream",
+        "evt_ch5_shoggoth_break",
+        "evt_ch5_hilda_sacrifice",
+        "evt_ch5_player_vessel",
+        "evt_ch5_broken_seal",
+        "evt_ch5_loop_breaker",
+        "evt_ch5_humanity_judgement"
+      ],
+      "resource_pressure": {
+        "food_availability": "none",
+        "light_requirement": "critical",
+        "rest_safety": "impossible",
+        "required_light_level": 3,
+        "food_consumption_modifier": 1.5,
+        "fatigue_gain": 30,
+        "infection_risk": 25,
+        "safe_rest_available": false
+      },
+      "imagery_focus": {
+        "primary": [
+          "星图",
+          "竖井"
+        ],
+        "secondary": [
+          "封印核心"
+        ],
+        "avoid_repeating": [
+          "低语",
+          "被注视",
+          "花香"
+        ]
+      },
+      "chapter_1_role": "locked",
+      "infection_risk": true
+    }
+  ],
+  "npcs": [
+    {
+      "id": "伊莱亚斯·沃德",
+      "name": "伊莱亚斯·沃德",
+      "role": "退休大学教授（神秘学）",
+      "location": "town_center",
+      "schedule": [
+        "day1:town_center",
+        "day2:town_center",
+        "day3:voxchester_manor",
+        "day4:town_center",
+        "day5:catacombs_entrance"
+      ],
+      "personality": "谨慎，博学，隐藏着深深的恐惧",
+      "background": "伊莱亚斯曾是密斯卡托尼克大学的教授，二十年前因研究过于深入被逐出学术界。他来到沃切斯特是因为确信这座城市是某个古老封印的所在地。他的研究笔记中记载了大量关于古神的信息，但长期接触这些知识让他的精神状态岌岌可危。他偶尔会在对话中突然停顿，盯着虚空中的某一点，喃喃自语着无法理解的词句。",
+      "possible_interactions": [
+        "提供关于沃切斯特历史的关键线索",
+        "解读《扎尔之卷》残页",
+        "触发任务'教授的秘密'（他有未公开的研究笔记）"
+      ],
+      "sanity_impact": -3,
+      "trust_threshold": 2,
+      "trust_layers": [
+        {
+          "level": 0,
+          "dialogue": "他抬起头，手指还夹着一支没点燃的烟斗。镜片后面的目光快速扫过你的脸，又垂回去。\n\n「你好。新来的？」\n\n他拉开抽屉，翻找着什么，金属钥匙和纸片碰出细碎的声响。窗台上摆着几本翻到脱线的旧书，封面上的烫金字已经磨光了。\n\n「图书馆在三街区往北，地方志在二楼靠窗的书架上。有的……出版年份早了些，纸页发脆，翻的时候轻一点。」\n\n他拧开台灯又关上，重复了两次。\n\n「抱歉。有份资料该整理了。」",
+          "unlocks": [],
+          "hint": "他不断看表，想尽快结束对话"
+        },
+        {
+          "level": 1,
+          "dialogue": "他这次没有看表。从书架上抽出一本蓝色封皮的地方志，翻开折角的一页，指给你看。\n\n「1692年，一拨清教徒从波士顿南下，在这里落脚。建城文献上写的是'晨星指引了我们的道路'。」\n\n他的手指点在一幅手绘地图上，地图边缘画着藤蔓图案，和教堂门框上的浮雕很像。\n\n「有意思的是，建城之后三年的记录全部缺失了。档案室里那段时间是空白。不是烧了，不是丢了——就从来没存在过。」\n\n他摘下眼镜擦拭，镜片上有细小的指纹。\n\n「镇上的人偶尔会提起一些……传闻。雾天里听到钟声多敲一下之类的。当作怪谈听听就好。」\n\n他的语气在最后两个字上刻意加重了。",
+          "unlocks": [
+            "沃切斯特建城年代线索"
+          ],
+          "hint": "他开始愿意多说几句"
+        },
+        {
+          "level": 2,
+          "dialogue": "他把门反锁了。窗帘也拉上，只留了一盏台灯。空气里有一股旧纸和干烟草的味道。\n\n「我不是普通的历史教授。或者说，我曾经不是。」\n\n他从书桌底部拉出一个上锁的铁盒子，钥匙就挂在脖子上。盒子打开的瞬间，你闻到一股海水晒干后的咸腥味。\n\n「密斯卡托尼克大学，1926年开除我的理由是'学术方向偏离正统'。实际上是因为我提交了一篇论文，论证新英格兰海岸存在非人类文明的物理证据。」\n\n他把几页泛黄的笔记推到你面前，上面的字迹工整但偶尔出现剧烈的抖动，像写的人在某个瞬间失去了对手指的控制。\n\n「晨星会。建城的那批清教徒自称晨星会。他们不是来拓荒的。」\n\n他的声音压得很低，头微微偏向窗户一侧。",
+          "unlocks": [
+            "晨星会线索",
+            "解读服务"
+          ],
+          "hint": "他的眼神变得认真"
+        },
+        {
+          "level": 3,
+          "dialogue": "他的手在抖。不是因为冷。\n\n「1923年大雾之后，我开始在码头做夜间观测。」他把一张手绘的海图摊开，上面用红墨水圈出了三个位置。「每隔十七天，退潮到最低点的时候，码头东侧的水下会出现光。不是水面反射，是从海底透上来的。」\n\n他指着最外圈的红圈。\n\n「我亲眼看过。一次。在望远镜里。水下有什么东西在移动，轮廓很大，遮住了海底的反光。然后它的——我不知道该叫什么——眼睛，睁开了一只。磷绿色的。」\n\n他停了很久，像是在吞咽什么。\n\n「封印是有寿命的。晨星会的记录里写得很清楚。我花了二十年才读到那本记录。」\n\n他看着你的眼睛。\n\n「你知道它什么时候到期吗？」",
+          "unlocks": [
+            "封印失效时间",
+            "深潜者祭祀地点"
+          ],
+          "hint": "他压低声音，环顾四周"
+        },
+        {
+          "level": 4,
+          "dialogue": "他从衣柜最深处拖出一个牛皮纸包，用麻绳捆着，打了三个死结。解开的时候他的手指不太听使唤，试了四次。\n\n「这是我全部的研究笔记。从1919年到1926年。」\n\n纸包打开的时候，几张夹在里面的照片滑了出来。照片上是码头、教堂地下室、还有一张——灯塔下方，水面上浮着一个巨大的几何形状阴影，边缘有规律的锯齿。\n\n「开除我的那天，学术委员会审阅了这些笔记。他们说我在伪造证据。」\n\n他把笔记本翻到最后一页。上面只有一句话，用红墨水写的，字迹和他之前的完全不同——像是另一个人握着他的手写的。\n\n「它还记得你的名字。」\n\n他把笔记本合上，推到你面前。手指按在封面上没有松开。\n\n「帮我看完。我……一个人的话，我怕我看不完。」",
+          "unlocks": [
+            "研究笔记（神秘学+5）",
+            "教授的秘密任务"
+          ],
+          "hint": "他的手在颤抖"
+        },
+        {
+          "level": 5,
+          "dialogue": "他深吸了一口气。然后又深吸了一口。像是做了某种决定。\n\n他从墙壁的暗格里取出一个密封的铜管，铜管表面刻满了你见过的螺旋符号。打开铜管的时候，里面传来一声极轻的叹息——不是他的。\n\n一张羊皮纸，薄得几乎透光。上面的文字不是英语，甚至不是拉丁文。笔触流畅得不像是人类的手能写出来的。\n\n「《扎尔之卷》第四卷，第一百一十三页。我从晨星会密室里带出来的。」\n\n他把羊皮纸放在桌上，手指悬在纸面上方没有触碰。\n\n「上面记载了封印的原始仪式。但仪式需要一件东西——一件活的东西。所以我一直在找替代方案。」\n\n他看你的眼神平静了许多，像是一个扛了二十年的重物终于放下了。\n\n「现在你看到了。我看不到的路，也许你能看到。」",
+          "unlocks": [
+            "扎尔之卷碎片",
+            "替代封印方案线索"
+          ],
+          "hint": "他看起来如释重负"
+        }
+      ],
+      "secrets": [
+        "他知道封印即将失效的准确时间",
+        "他曾亲眼见过深潜者的祭祀",
+        "他书房的暗格里藏着《扎尔之卷》的一页真迹"
+      ],
+      "trust_profile": {
+        "surface_reliability": 7,
+        "betrayal_risk": 3,
+        "corruption_risk": 5,
+        "emotional_anchor_strength": 4,
+        "recommended_player_reading": "知识可靠，但精神不稳定。可以信任他提供的学术信息，但要注意他的精神状态可能影响判断。"
+      },
+      "chapter_1_availability": "core",
+      "san_recovery_effect": {
+        "normal_chat": "减少错误仪式风险",
+        "cost": "可能增加神话知识污染",
+        "description": "伊莱亚斯解读资料成功时减少错误仪式风险，但解读过程可能增加神话知识污染。"
+      }
+    },
+    {
+      "id": "玛莎·格雷",
+      "name": "玛莎·格雷",
+      "role": "码头酒吧老板娘",
+      "location": "harbor_district",
+      "schedule": [
+        "day1:harbor_district",
+        "day2:harbor_district",
+        "day3:town_center",
+        "day4:harbor_district",
+        "day5:harbor_district"
+      ],
+      "personality": "豪爽，精明，对危险视而不见的务实主义者",
+      "background": "玛莎经营着码头区唯一的酒吧'沉锚酒馆'，她的酒吧是水手、走私客和各种边缘人物的聚集地。她见多识广，对沃切斯特的黑暗面了如指掌，但选择性地忽略那些超出常理的部分。她的丈夫五年前出海后再也没有回来，但她从未停止在酒吧里为他留一个位置。偶尔有醉酒的水手声称在深海中看到了她丈夫的面孔——但那面孔已经不再完全是人类的了。",
+      "possible_interactions": [
+        "提供码头区情报和水手动向",
+        "出售特殊道具（可疑来源）",
+        "触发任务'消失的船员'（她知道一艘失踪货船的秘密）"
+      ],
+      "sanity_impact": -1,
+      "trust_threshold": 2,
+      "trust_layers": [
+        {
+          "level": 0,
+          "dialogue": "她用一块灰色的棉布擦着杯子，柜台上有三排酒瓶，标签褪色得几乎看不清字。吧台最右边的凳子上放着一杯没有动过的黑啤酒，泡沫已经散了。\n\n「新面孔？进来坐，外头风大。」\n\n她从柜台底下拿出一瓶没贴标签的威士忌，瓶身是深绿色的。酒倒进杯子里的时候带着一股海盐的咸味。\n\n「码头的事？跟海打交道的人哪天不倒霉。上周有个渔夫说看见水下有光，喝多了吧。这里的酒能让人忘掉不少东西。」\n\n她把杯子推过来，手指上有一道发白的旧疤。",
+          "unlocks": [
+            "码头区基本情报"
+          ],
+          "hint": "她笑着说'你问太多了，先喝一杯吧'"
+        },
+        {
+          "level": 1,
+          "dialogue": "她把抹布搭在肩上，在你对面坐下来。木板凳发出一声低响。桌上多了两杯酒，她没说是什么时候倒的。\n\n「你真想知道码头的事？」她把声音放低了半度，但嘴角还带着笑。「那我告诉你几段，当作下酒菜。」\n\n「上个月，三号泊位的水手捞上来一截绳子。不是缆绳，是一种没见过的材质，滑腻腻的，上面还粘着贝壳。他拿给船长看，船长让他扔了。」她把杯底在桌面上转了一圈。「那个水手第二天就辞职了。」\n\n「还有。渔民们最近打上来的鱼，有些胃里是空的，但鱼鳃是蓝色的。蓝色的。谁见过蓝色的鱼鳃？」\n\n她把酒杯推过来。\n\n「不过话说回来，你要是缺什么——绷带、火柴、威士忌——跟我说就行。老店的好处就是什么都有一点。」",
+          "unlocks": [
+            "道具商店开放"
+          ],
+          "hint": "她开始认真回答你的问题"
+        },
+        {
+          "level": 2,
+          "dialogue": "酒馆里没有其他客人。她检查了一遍门窗，把门闩推上了。\n\n「你是个实在人，我不跟你兜圈子。」\n\n她走到吧台后面，弯腰搬开一个装着空酒瓶的木箱。木箱下面是一块可以掀开的地板，露出一段向下的石阶。石阶上长着深绿色的苔藓，散发着一股潮湿的、带着铁锈味的空气。\n\n「这条通道通往码头下面的废弃仓库群。走私的——不是烟酒。」\n\n她的手指无意识地摸着那道手腕上的旧疤。\n\n「有些东西不是从海里游上来的。是从这些通道里走上来的。1923年之后。」\n\n她蹲下来，把地板块合上，又把木箱推回原位。\n\n「我把特殊的东西也放在通道尽头。你需要的时候，自己去看。」",
+          "unlocks": [
+            "走私通道入口",
+            "特殊道具商店"
+          ],
+          "hint": "她压低声音，环顾四周"
+        },
+        {
+          "level": 3,
+          "dialogue": "她从柜台下面拿出一个锡盒，打开。里面是一枚银色的结婚戒指，表面发黑了，内侧刻着J.M.——她丈夫名字的缩写。\n\n「吉姆。吉姆·格雷。五年前出海，再没回来。」\n\n她把戒指放在桌上，金属碰到木头发出一声轻响。\n\n「第一年，我以为他死了。第二年，有人告诉我他在码头附近的渔船上见过他。第三年——」她停了一下，拇指沿着戒指边缘慢慢摩擦。「第三个年头，有个喝醉的老水手跟我说，他在深夜的海面上看到过吉姆。说他站在没过膝盖的海水里，面朝大海，一动不动。」\n\n她的声音没有发抖，但她把另一只手压在桌面上，像是在按住什么。\n\n「那片海域。海面以下有些不该存在的东西。吉姆不是唯一的。很多出海没回来的人——他们可能回来了。只是……」\n\n她把戒指收回锡盒，合上盖子。\n\n「不是他们了。」",
+          "unlocks": [
+            "丈夫的秘密",
+            "深潜者混血线索"
+          ],
+          "hint": "她的表情变得阴沉"
+        },
+        {
+          "level": 4,
+          "dialogue": "她从酒馆阁楼的横梁后面取下一个帆布包，拉链已经锈死了，她用刀子割开。里面是一本航海日志，封皮被海水泡得发硬发皱。\n\n「奥德赛号。1919年注册，1922年失踪。最后一份日志是三副写的。」\n\n她翻开日志。字迹还算清晰，但越往后越潦草，到最后一页已经不成字了，全是上下的竖线。三副在最后一页只写了一句话。\n\n「海底有城。」\n\n日志中间夹着几张坐标纸，上面标注了精确的经纬度。\n\n「那个位置。水很深。但退潮到最低点的时候——极低的那种，十七年一次——如果你站在码头最东端往海面看。」\n\n她的眼眶是红的，但她没在哭。\n\n「你能看到建筑的轮廓。在水下。我已经看到了两次了。」\n\n她把日志和坐标纸一起推给你。",
+          "unlocks": [
+            "航海日志",
+            "海底神殿位置线索"
+          ],
+          "hint": "她的眼眶泛红"
+        },
+        {
+          "level": 5,
+          "dialogue": "酒馆打烊之后，只剩你们两个人。她把所有的灯都关了，只留了一根蜡烛。烛光把她的影子投在墙上。\n\n「你帮了我很多。有些事我欠你一个真相。」\n\n她缓缓把左臂的袖子卷到肘部。皮肤从手腕到手肘的范围内，布满了细密的灰绿色鳞片，在烛光下泛着潮湿的光泽。像鱼鳞，但排列方式更像某种螺旋纹样。\n\n「三个月前开始的。先是皮肤发痒，然后指甲变厚，再然后……」她把手翻过来，手背上的鳞片边缘翘起了一片，下面的皮肤是淡紫色的。「我能在涨潮的时候听到声音。不是海浪——是一种歌。从海底传上来的。」\n\n她把袖子放下来。\n\n「吉姆能听到。我知道他也能。这就是他为什么站在海里的原因。」\n\n她把蜡烛吹灭了。黑暗里只剩下她低沉的声音。\n\n「我的时间不多了。在潮水把我带走之前——你想知道什么，问吧。」",
+          "unlocks": [
+            "深潜者语言翻译线索",
+            "钥匙之血线索"
+          ],
+          "hint": "她挽起袖子，露出手臂上灰绿色的鳞片"
+        }
+      ],
+      "secrets": [
+        "她丈夫是深潜者混血",
+        "酒吧地下室通往走私通道",
+        "她保留着一艘失踪货船的航海日志"
+      ],
+      "trust_profile": {
+        "surface_reliability": 7,
+        "betrayal_risk": 5,
+        "corruption_risk": 3,
+        "emotional_anchor_strength": 8,
+        "recommended_player_reading": "中高可靠，情感动机强。她的善意是真实的，但失踪的丈夫可能成为她做出危险选择的动机。"
+      },
+      "chapter_1_availability": "core",
+      "san_recovery_effect": {
+        "normal_chat": "SAN+1, 疲劳-1",
+        "description": "与玛莎正常聊天能让人感到一丝温暖，暂时忘记恐惧。"
+      },
+      "corruption_triggers": [
+        {
+          "id": "martha_harbor_watch",
+          "trigger": "player_asked_harbor_watch",
+          "description": "你让她在码头守夜——她听到了不该听到的声音。",
+          "humanity_cost": -5,
+          "dialogue_before": "你说码头有异常？我可以帮你看一眼。",
+          "dialogue_after": "昨晚……昨晚我听到了我丈夫的声音。在水里。他在叫我。"
+        },
+        {
+          "id": "martha_deep_one_encounter",
+          "trigger": "player_brought_deep_one_scale_to_inn",
+          "description": "你把深海之鳞带到了酒馆。玛莎触碰了它。",
+          "humanity_cost": -3,
+          "dialogue_before": "这是什么？我从来没见过这样的……",
+          "dialogue_after": "自从碰了那个东西，我的手一直在出汗。洗不掉。"
+        }
+      ]
+    },
+    {
+      "id": "约书亚·布莱克",
+      "name": "约书亚·布莱克",
+      "role": "前海军陆战队员，现流浪汉",
+      "location": "harbor_district",
+      "schedule": [
+        "day1:harbor_district",
+        "day2:town_center",
+        "day3:harbor_district",
+        "day4:whispering_forest",
+        "day5:harbor_district"
+      ],
+      "personality": "偏执，暴力倾向，但偶尔展现惊人的清醒",
+      "background": "约书亚曾是一名英勇的海军陆战队员，退役后来到沃切斯特做灯塔守望者。三个月后他失踪了整整一周，被发现时蜷缩在码头区的垃圾桶旁，全身颤抖，喃喃说着'它醒了'。从那以后他就成了一个流浪汉，时而清醒时而癫狂。清醒时他是一个出色的战斗员和情报源，癫狂时他会突然尖叫着扑向看不见的东西。他的身体上有奇怪的疤痕，排列成螺旋形状，据他说是'它们'留下的标记。",
+      "possible_interactions": [
+        "提供战斗技巧训练",
+        "讲述他在灯塔附近的恐怖经历",
+        "触发任务'灯塔守望者'（他曾在灯塔中发现秘密）"
+      ],
+      "sanity_impact": -5,
+      "trust_threshold": 4,
+      "trust_layers": [
+        {
+          "level": 0,
+          "dialogue": "他缩在码头的木箱后面，破军毯裹到下巴。你靠近的时候他猛地抬头，瞳孔缩成针尖大小，手指抠进木板里。\n\n「你！你身上有味道！」\n\n他的嗓音劈裂了。手指松开木板，上面留下四道深沟。他向后退了半步，后背撞上生锈的铁链，铁链哗啦一声晃了。\n\n然后他突然安静下来。盯着你的鞋看了一会儿。\n\n「……烟。你有烟吗。」\n\n他的手指在发抖。指甲缝里有黑色的泥，洗不掉的那种。",
+          "unlocks": [],
+          "hint": "他盯着你看了一会儿，突然大喊'你身上有味道！'"
+        },
+        {
+          "level": 1,
+          "dialogue": "他接过你递来的烟，手指在发抖，但点烟的动作出奇地稳。火柴划了两下才着。\n\n「……灯塔。」\n\n他吸了一口，烟雾从鼻孔里喷出来，遮住了半张脸。透过烟雾，他的眼神比刚才清明了一些。\n\n「灯塔外面有路。绕过礁石区往北走，沙滩尽头有个铁门，锈得快烂了。门后面是旧储藏室。」\n\n他又吸了一口。这次手没有抖。\n\n「我在那里待过三个月。守灯。」他把烟灰弹在膝盖上。「后来……后来我不去了。」\n\n他突然抬头看你，眼睛里的光像被什么东西掐灭了又重新亮起来。\n\n「门旁边墙上画了东西。白色的。你到了就知道我说的是什么。」",
+          "unlocks": [
+            "灯塔外围情报"
+          ],
+          "hint": "他安静地接过你给的东西"
+        },
+        {
+          "level": 2,
+          "dialogue": "他坐直了。这是你第一次见他不再缩成一团。破军毯掉在地上，露出他穿着的旧海军陆战队外套，肩膀上的军衔标识已经被剪掉了。\n\n「三个月。我在灯塔里待了三个月。」\n\n他的声音变得清晰，语速很慢，像在小心翼翼地踩过一片雷区。\n\n「头两个星期很正常。灯塔的灯每隔十二秒转一圈，海面很平静。然后第三个星期的夜里，雾来了——不是从海面上来的。是从灯塔里面。从墙壁里。」\n\n他把手臂伸出来，卷起袖子。前臂内侧有一道锯齿状的疤痕，像是被什么东西抓过，伤口边缘的皮肤颜色不正常——不是愈合的粉色，而是灰绿色。\n\n「灯灭了之后我下楼检查。储藏室地板下面有空间。很大。里面有……」\n\n他突然停住了。眼睛看向码头方向的海面，瞳孔又开始收缩。\n\n「……有台阶。一直往下。我没走到底。」\n\n他重新缩回毯子里。但他的声音没有断。\n\n「你要去的话。把灯带上。不要关灯。」",
+          "unlocks": [
+            "灯塔守望者任务",
+            "战斗技巧训练"
+          ],
+          "hint": "他的眼神变得清明，开始讲述"
+        },
+        {
+          "level": 3,
+          "dialogue": "他站起来。第一次。你注意到他比你想象的要高，至少一米八五，但他的背弓着，像是在缩矮自己。\n\n「你不会信的。」\n\n他脱下外套。汗衫下面，整个后背暴露在码头的冷风里。你的呼吸停了半拍。\n\n他的后背上布满了疤痕。不是普通的疤痕——它们呈螺旋形排列，从肩胛骨一直延伸到腰际。每一条疤痕都精确地平行于相邻的一条，间距完全均匀。刀子做不到这种精度。\n\n「它们留下的。」他的声音很平。「那天晚上，我在灯塔地下室。我摸到了台阶的尽头。有水。很冷。然后有什么东西……碰了我。」\n\n他穿上外套，动作很慢。\n\n「不是手。不是爪子。像是某种——印记。直接印在皮肤下面。」\n\n他转过头，看着海面。\n\n「从那以后我就能分辨它们。水下面移动的那些。」他指了指海面上某个你看不到的东西。「它们最近靠得越来越近了。」",
+          "unlocks": [
+            "灯塔地下室情报",
+            "深潜者标记信息"
+          ],
+          "hint": "他脱下外套，露出遍布螺旋疤痕的后背"
+        },
+        {
+          "level": 4,
+          "dialogue": "他在和你说话的间隙，低头看了一眼自己的手。然后把手翻过来。\n\n他的手指之间有一层半透明的薄膜。很薄，但在码头灰白的日光下，那层薄膜折射出了不属于人类皮肤的颜色——蓝灰色，带着油脂般的光泽。\n\n「十七天。」他说。「每隔十七天。下一次是四天后。」\n\n他把手合上，藏进袖子里。但你知道他已经不打算再藏太久了。\n\n「它们有规律。月圆之后的第九天，潮水退到最低。然后灯塔下面那些台阶会全部露出水面。它们会从台阶走上来。」\n\n他的眼睛里有一种奇怪的冷静。不是镇定，是放弃之后的清明。\n\n「台阶通向海面以下的东西。我在地下室最深处看到了——光。不是灯塔的光。是建筑的光。水下有城市。」\n\n他盯着海面看了很久。\n\n「你知道怎么进灯塔了。但我告诉你一件事：进去了，可能走不回来。我走出来了。代价是这些。」\n\n他把手指间的薄膜展示给你看。薄膜的边缘已经在和手指的皮肤融合了。",
+          "unlocks": [
+            "深潜者祭祀日期",
+            "海底神殿入口信息"
+          ],
+          "hint": "他看着自己的手，手指间出现了蹼状薄膜"
+        },
+        {
+          "level": 5,
+          "dialogue": "他把破军毯叠好，放在木箱上面。动作整齐，像是部队里的习惯。然后他站起来，把腰挺直了——他看起来完全是另一个人。\n\n「我欠你一个。」\n\n他的眼神干净得让你不认识了。没有恐惧，没有癫狂，只有一种军人特有的、看过了太多东西之后的平静。\n\n「灯塔。我进去过一次，知道里面的结构。地下三层。每层都有岔路，大部分是死胡同。但有一条路一直通到底。」\n\n他从外套口袋里掏出一把生锈的铁钥匙，钥匙柄上刻着一个螺旋。\n\n「第三层的门，这个能开。门后面是控制室。灯塔下面的很多东西都可以从那里控制。」\n\n他把钥匙放在你手里。钥匙是凉的，比金属应该有的温度还要低。\n\n「带我去。在那里面我比任何人都好用。」他攥了一下拳头，骨节发出一声脆响。「但有个条件——到了最下面的时候，如果我不像我了，你就动手。」\n\n他看着你的眼睛。\n\n「别犹豫。」",
+          "unlocks": [
+            "战斗同伴（斗殴+20）",
+            "灯塔完整攻略"
+          ],
+          "hint": "他站起来，说'带我去。我知道怎么进去'"
+        }
+      ],
+      "secrets": [
+        "他看到了灯塔下的海底神殿",
+        "他知道深潜者的下一个祭祀日期",
+        "他身上有深潜者的标记，正在缓慢变化"
+      ],
+      "trust_profile": {
+        "surface_reliability": 4,
+        "betrayal_risk": 7,
+        "corruption_risk": 8,
+        "emotional_anchor_strength": 3,
+        "recommended_player_reading": "高危险，高痛苦，低理性稳定。他的疯狂是真实的，但他知道的事情也可能是真的。"
+      },
+      "chapter_1_availability": "rumor_only",
+      "san_recovery_effect": {}
+    },
+    {
+      "id": "希尔达·莫里斯",
+      "name": "希尔达·莫里斯",
+      "role": "莫里斯家族最后的继承人",
+      "location": "voxchester_manor",
+      "schedule": [
+        "day1:voxchester_manor",
+        "day2:voxchester_manor",
+        "day3:town_center",
+        "day4:voxchester_manor",
+        "day5:voxchester_manor"
+      ],
+      "personality": "高贵而忧郁，隐藏着家族的黑暗秘密",
+      "background": "希尔达是莫里斯家族的最后一位直系后裔，独自守着这座庞大的庄园。她的家族是沃切斯特的建立者之一，也是封印《扎尔之卷》的守护者家族。然而封印的维持需要代价——每一代莫里斯家族成员都会在三十岁前发疯或失踪。希尔达今年二十八岁，她已经能感觉到那股来自地下的拉扯。她在清醒的时刻会努力寻找解除诅咒的方法，但夜晚来临时，她会在走廊中游荡，用一种不属于她的声音低语着古老的语言。",
+      "possible_interactions": [
+        "提供庄园的完整布局和暗道信息",
+        "讲述莫里斯家族与古老封印的关系",
+        "触发任务'家族的诅咒'（解锁庄园深层区域）"
+      ],
+      "sanity_impact": -4,
+      "trust_threshold": 3,
+      "trust_layers": [
+        {
+          "level": 0,
+          "dialogue": "她站在门廊里，一只手扶着半开的橡木门。门轴发出一声低沉的摩擦。她的目光落在你身上停了两秒，像在辨认什么。\n\n「请问你有什么事？」\n\n她的声音很轻。门厅的深处在燃烧着一盏油灯，光线只够照到门框内侧的浮雕——藤蔓缠绕着一把断剑的图案，刻痕里积着灰。\n\n「庄园不接待访客。镇上的图书馆有地方志。」\n\n她往后退了一步。你看到她的手指握在门板边缘，关节发白。门缝在收窄。\n\n「……走廊到了傍晚会很难走。小心脚下。」",
+          "unlocks": [],
+          "hint": "她站在门口，没有邀请你进去的意思"
+        },
+        {
+          "level": 1,
+          "dialogue": "这次她没有站在门口挡你。门廊的台阶她让人扫过了，橡木门半开着。她站在玄关的穿衣镜前，看到你进来，在镜子里和你对视了一眼。\n\n「你上次问的事。我查了一下。」\n\n她带你走过一条走廊。地板的木板踩上去会发出嘎吱声，有些板子明显比其他的颜色新。\n\n「莫里斯庄园建于1698年。建城的第六年。建城者的家族——其中三个家族里只有莫里斯家留到了现在。其他两个……」她在一幅油画前停了一下。画上是三个家庭的合影，两侧的两个人面部被用颜料涂掉了。「没有后人。」\n\n她推开一楼起居室的门，阳光从落地窗照进来，照亮了房间里保存完好的维多利亚式家具。\n\n「一楼你可以随意参观。壁炉上有个保险箱，密码是我母亲的名字。」\n\n她转过身，袖口上沾了些灰尘。\n\n「你不像普通的旅人。」",
+          "unlocks": [
+            "庄园基本布局"
+          ],
+          "hint": "她微微点头，示意你可以参观一楼"
+        },
+        {
+          "level": 2,
+          "dialogue": "她坐在二楼书房的扶手椅里，膝盖上放着一本打开的相册。你进去的时候她没有合上。\n\n「每一代莫里斯家长子，都在这张椅子上拍过一张肖像。」\n\n相册翻到了1890年代。一个年轻男人坐在同一把椅子上，表情阴沉。下一页是另一个人，更年轻的女人，眼睛下面有很深的黑眼圈。\n\n「他们在我之前都……离开了。不是去世。是离开。」\n\n她把相册翻到最后一页。空白的。但纸面上有浅浅的压痕，像是曾经放过一张照片后来被取走了。\n\n「我们家族有一个——我不知道该怎么说——一个责任。建城的时候就有了。那些消失的家族不是没有后人。是后人都不在了。」\n\n她的手指在空白页上摩挲。\n\n「书房的钥匙在壁炉台上。你可以看任何你想看的东西。」\n\n她站起来走到窗边。窗外的花园修剪得很整齐，但靠近围墙的灌木丛明显过度生长了，像是在遮挡什么。",
+          "unlocks": [
+            "莫里斯家族历史",
+            "书房访问权"
+          ],
+          "hint": "她的表情变得忧郁"
+        },
+        {
+          "level": 3,
+          "dialogue": "她带你走到一楼走廊尽头。墙上挂着一幅巨大的壁毯，深红色的底，织着金色的星形图案。她伸手摸了壁毯的一角。\n\n「我祖父死在这面墙后面。」\n\n她把壁毯掀开。后面是一扇铁门，和墙上其他部分的颜色一模一样，铁门上没有把手，只有中央有一个圆形的凹槽，凹槽里有类似锁孔的东西——但不是钥匙孔，更像是指纹槽。\n\n「莫里斯家族封印了什么东西。就在这座庄园下面。我们家的人守了三百多年。」\n\n她把右手放在凹槽上。铁门发出一声低沉的震动，但没有打开。她把手收回来，指尖上有一层薄薄的红——不是血，是铁锈和某种矿物质混合的颜色。\n\n「门需要莫里斯家的血脉才能打开。但最近——」她的声音低下去。「最近我不碰它的时候，它也在响。」\n\n走廊的灯闪了一下。\n\n「楼下的东西在变强。」她把壁毯放回原位。「我要你帮我确认一件事。在它打开之前。」",
+          "unlocks": [
+            "封印家族真相",
+            "地下室入口",
+            "家族的诅咒任务"
+          ],
+          "hint": "她带你来到地下室入口前"
+        },
+        {
+          "level": 4,
+          "dialogue": "她打开铁门的时候，手在抖。门后的石阶向下延伸，空气从下面涌上来——冷的，带着一股岩石受潮后特有的酸味。\n\n「我祖父。艾尔德里奇·莫里斯。」她一边下台阶一边说，声音在石壁上弹来弹去。「他是莫里斯家最后一个真正理解封印的人。也是最后一个疯掉的。」\n\n台阶尽头是一间地下室，比你想的大得多。墙壁上贴满了手写的公式和符号，墨迹有些已经渗进了石壁的纹理里。中央是一张巨大的石桌，桌上散落着烧焦的纸片和几支碎裂的玻璃试管。\n\n「他在这里做了三十年的实验。」她指了指墙角一个被砸坏的铁柜。「他试图——用科学的方法——加强封印。用电流，用化学试剂，用……」\n\n她蹲下来，从碎石堆里捡起一块金属碎片。碎片的一面刻着螺旋符号，另一面是电烙铁灼烧的痕迹。\n\n「他失败了。1921年的冬天，他自己走进了那扇门。」她站起来。「那扇门在他走进去之后反锁了。从里面。」\n\n石桌的抽屉里有一个小本子，封面上写着日期，停在了1921年12月31日。",
+          "unlocks": [
+            "疯狂实验室位置",
+            "封印失效详情",
+            "召唤法阵残片"
+          ],
+          "hint": "她的手在颤抖，声音变得沙哑"
+        },
+        {
+          "level": 5,
+          "dialogue": "她坐在祖父实验室的石桌边上，把双手交叠放在膝盖上。地下室的灯光只照亮了她的上半身。\n\n「我二十八岁了。」\n\n她的声音平静得不像在谈论自己的事。\n\n「莫里斯家的每一代继承人，活不过三十。不是病死的。是——被拉走的。」她低头看了一眼自己的手。「我能感觉到。从地下。每夜每夜。它知道我在这里。」\n\n她站起来，走向地下室最深处的墙壁。那面墙上有一个她祖父留下的法阵残片——金属镶嵌在石头里，构成一个不完整的圆。\n\n「我不是在守封印。我就是封印的一部分。」\n\n她转过身，在灯光下你看到她的瞳孔边缘有一圈极淡的银色——不是光线反射，像是从虹膜内部渗出来的。\n\n「完整封印需要莫里斯的血脉。需要——活的。」她停了一下。「仪式的核心步骤，我已经读到了。」\n\n她伸出手。\n\n「我不会再逃了。但我要你帮我做一个选择。」",
+          "unlocks": [
+            "活体钥匙真相",
+            "封印仪式完整步骤",
+            "牺牲结局条件"
+          ],
+          "hint": "她握住你的手，说'我知道你会做出正确的选择'"
+        }
+      ],
+      "secrets": [
+        "她体内流淌着封印之力",
+        "地下室深处有她祖父的疯狂实验室",
+        "她其实是封印的活体钥匙"
+      ],
+      "trust_profile": {
+        "surface_reliability": 6,
+        "betrayal_risk": 6,
+        "corruption_risk": 4,
+        "emotional_anchor_strength": 6,
+        "recommended_player_reading": "情感可信，但自保动机强。莫里斯家族的诅咒让她习惯于保护自己优先。"
+      },
+      "chapter_1_availability": "rumor_only",
+      "san_recovery_effect": {}
+    },
+    {
+      "id": "汤米·陈",
+      "name": "汤米·陈",
+      "role": "杂货店老板，业余摄影师",
+      "location": "town_center",
+      "schedule": [
+        "day1:town_center",
+        "day2:town_center",
+        "day3:harbor_district",
+        "day4:town_center",
+        "day5:town_center"
+      ],
+      "personality": "开朗，好奇心旺盛，对超自然事物着迷",
+      "background": "汤米是沃切斯特少数几个看起来还算正常的居民之一。他在镇中心经营着一家杂货店，同时也是个业余摄影师，经常背着相机在城里四处拍照。他的照片质量很高，但最近冲洗出来的照片中总是出现一些奇怪的现象——建筑物的阴影中多了一个人影、海面上浮现出巨大的轮廓、某些居民的面部在照片中扭曲变形。他自己也注意到了这些异常，但出于记者般的好奇心，他不但没有停止拍摄，反而更加频繁地出没于各个区域。",
+      "possible_interactions": [
+        "出售各种道具和补给品",
+        "提供他拍摄的可疑照片作为线索",
+        "触发任务'暗房中的显影'（他的照片中出现了不该存在的东西）"
+      ],
+      "sanity_impact": -2,
+      "trust_threshold": 2,
+      "trust_layers": [
+        {
+          "level": 0,
+          "dialogue": "他正把一罐番茄豆放在货架上，看到你进来，手里的罐子差点滑落，赶紧用胳膊肘夹住。\n\n「嘿！欢迎光临陈氏杂货！」\n\n货架上的商品挤得满满当当：蜡烛、火柴、粗线团、罐头食品。柜台后面的墙上钉着一张照片——码头的日出，拍得很漂亮，光线是从海面折射上来的橘红色。照片的一角有褶皱。\n\n「我自己拍的。蹲了三个早上才赶上那束光。这地方虽然小，拍出来的效果很好。」\n\n他从柜台底下掏出一叠照片，犹豫了一下，又塞了回去。\n\n「最近冲洗出来总有些……斑点。大概是显影液用太久了吧，哈哈。」",
+          "unlocks": [
+            "杂货店道具商店"
+          ],
+          "hint": "他笑着说'要买点什么？拍照五毛钱一张！'"
+        },
+        {
+          "level": 1,
+          "dialogue": "他把店门口挂的「营业中」牌子翻了一面，走到柜台后面，从下面拉出一个纸箱。纸箱里装着几十张散乱的照片，都是他冲洗的。\n\n「看看这些。」\n\n第一张：码头远景，画面正常。但码头的影子里多了一个人形轮廓——很高，比例不对，手臂的长度超出了正常范围。\n\n第二张：海面。照片右上角有一个模糊的白色光斑，不是镜头的反光——光斑呈半圆形，弧度很大，像是什么巨大物体的局部。\n\n「这些不是我拍坏的。」他把照片摊在柜台上，手指点着第一张上的影子。「这张是上个月拍的。我当时没看到这个人。冲洗出来才发现。」\n\n他又翻出第三张。这张更清楚：教堂钟楼，夜景。钟楼的十字架上蹲着一个形状，翅膀——不，不像是翅膀，像是展开的褶皱。\n\n「我一开始以为是底片过期了。换了新的，还是这样。」\n\n他把照片收起来，犹豫了一下。\n\n「暗房里有更多。你自己去看？」",
+          "unlocks": [
+            "可疑照片线索",
+            "暗房任务"
+          ],
+          "hint": "他犹豫了一下，从柜台下拿出一叠照片"
+        },
+        {
+          "level": 2,
+          "dialogue": "他把暗房的门锁上，红色的安全灯嗡嗡地响。整面墙上挂着冲洗出来的照片，用棉线连着，像是某种时间线。\n\n「我按照时间顺序整理的。你看看。」\n\n墙上从左到右，照片里的异常越来越频繁。早期的照片只是零星的影子。到了中间一段——大约三周前的照片——海面上开始规律性地出现光斑，每次出现在同一个位置。\n\n「每周三次。从午夜到凌晨两点。固定位置。」他在一张地图上圈出了标记。「码头东侧，灯塔西侧，中间那片海域。」\n\n最后几张照片让他停下了。其中一张是近距离拍摄的码头木板——木板上有一层粘液，粘液表面印着一种三趾的脚印。每个脚印大约有餐盘大小。\n\n「我不只是拍照。我在跟踪它们。」\n\n他摘下眼镜擦了擦，手有点不稳。\n\n「你不觉得这些太巧合了吗？」",
+          "unlocks": [
+            "深潜者活动轨迹照片",
+            "封印核心照片"
+          ],
+          "hint": "他的表情变得严肃，说'你不觉得这些太巧合了吗？'"
+        },
+        {
+          "level": 3,
+          "dialogue": "他把店门关了，挂上「今日休息」的牌子。然后从暗房的暗格里取出一个牛皮纸信封，信封用红色蜡封了口。\n\n「这些我没有给任何人看过。」\n\n蜡封上有一个螺旋形图案。\n\n信封里是五张照片。前四张拍的是同一个场景——码头深夜，月光下，十几个人形的影子站在齐腰深的海水中。他们面朝同一方向，身体微微摇晃，像是在吟唱。照片的曝光时间很长，水面上有模糊的白色线条，可能是声波。\n\n第五张是那群人转过来的瞬间。月光照到了他们的脸——不完全是脸。面部轮廓有某种鱼鳍状的结构，皮肤在月光下呈灰白色。\n\n「两周前的月圆之夜。十七天周期的那个晚上。」他的声音压得很低。「我藏在码头的仓库里拍的。他们持续了大约二十分钟，然后像泡沫一样沉下去了。」\n\n他把照片放回信封。\n\n「接下来的话不要告诉任何人。我需要你帮我确认一件事。」",
+          "unlocks": [
+            "祭祀仪式照片",
+            "深潜者出没规律"
+          ],
+          "hint": "他把门关上，说'接下来的话不要告诉任何人'"
+        },
+        {
+          "level": 4,
+          "dialogue": "他检查了一下相机。徕卡I型，镜头擦得发亮。他在检查的时候手指很稳，和平时聊天时判若两人。\n\n「我已经拍了三个月了。我有经验——知道什么时候该按快门，什么时候该屏住呼吸。」\n\n他把相机的肩带挂在脖子上，又从柜台底下拿出一支手电筒和一卷胶卷。那是一台德国造的徕卡，他当宝贝一样护着。\n\n「如果你要去那些地方——灯塔、地下通道、或者码头下面——带上我。我帮你拍。照片比记忆可靠，不会因为害怕就变形。」\n\n他停了一下。\n\n「我跟你去。但你要保护我。我只会拍照，不会打架。」\n\n他拉上外套的拉链，在镜子里看了一眼自己。\n\n「而且我有直觉——有些东西，用相机拍下来之后，它就不再是不可理解的了。变成了一张照片，变成了证据。」他拍了拍相机。「变成了你能处理的东西。」",
+          "unlocks": [
+            "情报同伴（侦查+10）",
+            "每日照片情报"
+          ],
+          "hint": "他检查相机，说'我跟你去，但你要保护我'"
+        },
+        {
+          "level": 5,
+          "dialogue": "他把杂货店锁了。不是打烊——是把门锁上，窗帘拉上，柜台上的灯全关了。只有暗房的红灯亮着。\n\n他从储物架最顶层搬下来一个军用弹药箱。绿色的，上面用白漆喷着编号。箱子很重，他搬的时候手臂上的青筋鼓了起来。\n\n「我父亲留下的。他一战时候在法国前线做过战地摄影师。」\n\n他打开箱子。里面整整齐齐码着十几卷未冲洗的底片，装在密封的金属罐里。每个罐子上贴着一张小纸条，写着日期和时间。\n\n「最近三个月的。每次我按下快门，都知道里面会有什么。所以我没有冲洗。」\n\n他把最下面的一罐底片拿出来，在红灯下转了转。金属罐表面凝结了一层水雾，凉的。\n\n「我从来没敢打开这个。」他把它放在你面前。「你来决定要不要看。」\n\n他在红灯下坐下来，背对着你。\n\n「看完之后，如果需要，帮我把这些送到波士顿的报社。不署名。」",
+          "unlocks": [
+            "全部底片（揭示隐藏真相）",
+            "终极照片线索"
+          ],
+          "hint": "他把一个密封的铁盒推到你面前，说'我从来没敢打开这个'"
+        }
+      ],
+      "secrets": [
+        "他的照片记录了深潜者的活动轨迹",
+        "暗房中冲洗出一张封印核心的照片",
+        "他无意中拍到了一次祭祀仪式的全过程"
+      ],
+      "trust_profile": {
+        "surface_reliability": 6,
+        "betrayal_risk": 2,
+        "corruption_risk": 3,
+        "emotional_anchor_strength": 6,
+        "recommended_player_reading": "低恶意，高事故风险。他的好奇心大于判断力，可能会无意中把你也拖入危险。"
+      },
+      "chapter_1_availability": "core",
+      "san_recovery_effect": {
+        "normal_chat": "增加侦查线索",
+        "description": "汤米展示照片证据，增加侦查线索但不直接扣SAN。"
+      }
+    },
+    {
+      "id": "伊莎贝拉·韦伯",
+      "name": "伊莎贝拉·韦伯",
+      "role": "教堂执事，秘密异端研究者",
+      "location": "town_center",
+      "schedule": [
+        "day1:town_center",
+        "day2:catacombs_entrance",
+        "day3:town_center",
+        "day4:whispering_forest",
+        "day5:catacombs_entrance"
+      ],
+      "personality": "表面虔诚，内心已被古老知识腐蚀",
+      "background": "伊莎贝拉是沃切斯特教堂的执事，表面上是一位虔诚的信徒，但实际上她已经偏离正统信仰多年。她在教堂地下室中发现了一本古代文献，其中记载的并非基督教教义，而是某种更古老、更原始的信仰体系。这本书逐渐改变了她的认知，她开始相信所谓的'神'并非一个，而是无数个沉睡在不同维度的庞大存在。她每天的十三下钟声实际上是一种祈祷仪式，向深渊中的某个存在传递信号。她的皮肤下偶尔能看到蠕动的纹路，像是有什么东西在皮下爬行。",
+      "possible_interactions": [
+        "提供教堂和墓穴的入口信息",
+        "讲述关于十三下钟声的秘密",
+        "触发任务'异端之书'（她私藏了一本禁书）"
+      ],
+      "sanity_impact": -6,
+      "trust_threshold": 3,
+      "trust_layers": [
+        {
+          "level": 0,
+          "dialogue": "教堂里弥漫着蜡烛燃烧的微甜气味和旧木头的酸味。她站在侧祭坛旁，手里的抹布在铜烛台上慢慢转动，烛光在她的侧脸上投下一层暖色。\n\n「愿主赐你平安。」\n\n她把烛台放回原处，朝你的方向转过身。彩窗的光线落在她的肩膀上，把那件黑色长袍照出深紫色的纹路。\n\n「你看起来很疲惫。侧翼的祈祷室一直开着，蜡烛够用。那里的窗户面朝内院，很安静。」\n\n远处的钟楼传来一声闷响，像是什么东西落在了铜壁上。\n\n「……风。」她说。手指无意识地摸了一下手腕内侧。",
+          "unlocks": [],
+          "hint": "她温柔地说'你看起来很疲惫，要不要休息一下？'"
+        },
+        {
+          "level": 1,
+          "dialogue": "她领你沿着侧廊走过一排长椅，木地板在脚下发出有节奏的吱呀声。走廊尽头的墙上挂着历任执事的肖像，油画颜料在昏暗的光线下显得厚重。\n\n「教堂建于1720年。第一任执事叫塞缪尔·晨。」她在第七幅肖像前停了一下。画上的人眼睛被画成了深蓝色，和其他肖像不同——其他都是棕色的。「他是建城者之一。」\n\n她继续往前走，推开一扇侧门。门后是一间小礼拜堂，彩窗的光线从上方洒下来，地面的石板上刻着一些磨损的纹路。\n\n「这座教堂和普通的教堂有一点不同。」她蹲下来，手指拂过石板上的纹路——那些不是磨损，是刻上去的。「这些纹路在教堂下面还有一层。更大。贯穿整个地基。」\n\n她站起来，拍了拍裙摆上的灰。\n\n「这座教堂……有些祈祷不需要用嘴。」",
+          "unlocks": [
+            "教堂基本情报"
+          ],
+          "hint": "她低声说'这座教堂……有些祈祷不需要用嘴'"
+        },
+        {
+          "level": 2,
+          "dialogue": "她站在钟楼的入口前。生锈的铁门半掩着，门缝里透出一股冷风和极淡的硫磺味。\n\n「钟楼里的钟，1720年波士顿铸造。本该只有十二下。」\n\n她推开门。铁门在石壁上刮出一声尖响。螺旋楼梯向上延伸，消失在黑暗里。每一级台阶的边缘都被磨圆了——被无数双脚踩出来的。\n\n「但每天午夜，它会响十三下。」她停在第三级台阶上，回头看你。「多出来的一下。不是机械故障。我请修钟匠检查过三次。钟的机械结构没有问题。」\n\n她往上走了几步，手指沿着墙壁摸索。在第五级台阶旁边的墙壁上有一个浅浅的凹槽，形状不规则，像是有人用手硬抠出来的。\n\n「第十三下之后。」她的声音降了下来。「地下室里会有回响。不是钟声的回响——是另一种声音。从地下传上来的。」\n\n她退回楼梯口。\n\n「地下室入口在祭坛后面的石板下面。」",
+          "unlocks": [
+            "钟声秘密",
+            "地下室入口位置"
+          ],
+          "hint": "她的眼神变得狂热，说'你听到了对吧？第十三声'"
+        },
+        {
+          "level": 3,
+          "dialogue": "她把祈祷室的门反锁了。室内只有一盏油灯。你注意到她的脖子上挂着一枚坠子，之前被衣领遮住了——银质的，螺旋形，和教堂石板上刻的纹路一模一样。\n\n「我不是你想象的那种执事。」\n\n她把袖子卷到肘部。左手前臂上有一片纹身——不是普通的纹身，线条嵌入皮肤的方式更像是烙印，呈现暗红色。纹身的内容是螺旋与放射线的组合，图案在她肌肉运动时似乎有轻微的位移。\n\n「晨星会。三百多年前建城的那批人。他们不信仰上帝。」\n\n她的眼睛在油灯的光里反射出一种不正常的亮度。不是灯光，像是从瞳孔内部透出来的。\n\n「他们信仰的东西在地下面。封印着。但最近——封印开始松了。你能感觉到吗？」\n\n她把手臂伸到你面前，纹路的边缘有一层细小的裂纹。\n\n「我们都听到了呼唤。它不只是声音——是一种震动，从脚底板传上来的。在第十三下钟声之后。」\n\n她把手收回来。\n\n「你想知道更多的话。地下室里有我收藏的一些——文献。」",
+          "unlocks": [
+            "晨星会情报",
+            "异端之书任务",
+            "封印解除仪式线索"
+          ],
+          "hint": "她露出手臂上的螺旋纹身，说'我们都听到了呼唤'"
+        },
+        {
+          "level": 4,
+          "dialogue": "地下室比你想象的深。空气湿冷，石壁上有凝结的水珠。她走到最深处的一个壁龛前，蹲下来，移开一块松动的石砖。后面是一个凹槽，里面放着一本用油布包裹的书。\n\n油布解开的时候散发出一股浓烈的、介于海藻和铁锈之间的气味。书的封面是一种你不认识的深色皮革，触感湿润，像是还有生命。\n\n「这是晨星会从海底带上来的。」她翻开第一页。书页不是纸——某种半透明的薄片，在光线下能看到内部的纤维结构，像甲壳。「上面记载的不是祷告词。是……一些频率。一些声音。」\n\n她翻到中间某一页。页面上画着一个复杂的几何图形，线条精确得不像手绘的。\n\n「按照这些图案排列蜡烛，用特定的频率吟唱——理论上可以建立某种……连接。」她的手指描过图形的边缘。「我试过。最外围的那个。成功了。」\n\n她合上书。她的皮肤上有一些细纹路在微微蠕动，靠近手背的位置，在灯光下若隐若现。\n\n「我需要告诉你的是——连接一旦建立，就很难切断。」她看着你的眼睛。「你确定要往下走吗？」",
+          "unlocks": [
+            "禁书内容（克苏鲁神话+5，SAN-5）",
+            "召唤仪式知识"
+          ],
+          "hint": "她打开一本散发着异味的古书"
+        },
+        {
+          "level": 5,
+          "dialogue": "她站在地下室最深处，面朝那面嵌着晨星会符号的墙壁。油灯在她身后，影子被拉得很长。\n\n「最后的仪式。三天后。月圆之夜的第十七天。」\n\n她转过身。油灯照亮了她左手前臂上的纹身——纹路已经不再是暗红色了，呈现出一种蓝灰色的金属光泽，边缘和皮肤之间的界限变得模糊。她的手指比上次见面时更细长了，关节处的皮肤微微发皱。\n\n「我不会停下来的。我不打算停下来。」她的声音平静，像是在陈述天气。「封印打开之后，下面会涌上来。不是洪水。是——」\n\n她停了一下，在寻找合适的词。\n\n「——是一种古老的东西。比这座教堂古老，比沃切斯特古老。它会改变一切。」\n\n她从脖子上取下那枚螺旋形的银质坠子。坠子的金属链条在她手心里留下了红色的压痕。\n\n「你可以选择阻止我。仪式的步骤我已经告诉你了——有办法破坏。也可以选择站到我这边。」\n\n她的眼睛在黑暗中发出淡淡的光。\n\n「你将成为新世界的见证者。或者——旧世界的殉葬者。」",
+          "unlocks": [
+            "最终仪式步骤",
+            "bad_ritual结局条件",
+            "阻止仪式的方法"
+          ],
+          "hint": "她张开双臂，说'你将成为新世界的见证者，或者——旧世界的殉葬者'"
+        }
+      ],
+      "secrets": [
+        "她是晨星会最后的成员之一",
+        "她正在策划一场解除封印的仪式",
+        "教堂地下室直通地下墓穴的核心区域"
+      ],
+      "trust_profile": {
+        "surface_reliability": 5,
+        "betrayal_risk": 7,
+        "corruption_risk": 8,
+        "emotional_anchor_strength": 4,
+        "recommended_player_reading": "高风险，可能敌对，也可能救赎。不要完全信任她，也不要完全放弃她。"
+      },
+      "chapter_1_availability": "limited_appearance",
+      "san_recovery_effect": {},
+      "corruption_triggers": [
+        {
+          "id": "isabella_ritual_pressure",
+          "trigger": "player_accused_isabella_heretic",
+          "description": "你当面指控伊莎贝拉是异端。她的眼神变得空洞。",
+          "humanity_cost": -5,
+          "dialogue_before": "你不知道你在说什么。",
+          "dialogue_after": "你说得对。我确实是。一直都是。"
+        }
+      ]
+    },
+    {
+      "id": "老费舍",
+      "name": "老费舍",
+      "role": "老渔夫，深潜者混血后裔",
+      "location": "harbor_district",
+      "schedule": [
+        "day1:harbor_district",
+        "day2:harbor_district",
+        "day3:harbor_district",
+        "day4:harbor_district",
+        "day5:harbor_district"
+      ],
+      "personality": "沉默寡言，眼神中带着非人的冷漠",
+      "background": "老费舍是沃切斯特最年长的渔夫之一，已经在这里打了六十年的鱼。很少有人注意到他的异常——他从不脱鞋，从不在人前更衣，他的皮肤呈现出一种不自然的灰绿色调。事实上，他是深潜者与人类的混血后裔，血脉中的非人成分随着年龄增长越来越明显。他能听到海面下深潜者的歌声，能感受到即将到来的潮汐变化。但他拒绝响应血脉的召唤，这让他承受着巨大的痛苦。他知道自己终将回归大海，但在此之前，他想帮助那些尚且保持着人类心智的人。",
+      "possible_interactions": [
+        "提供深海和潮汐的准确信息",
+        "以隐晦的方式警告玩家远离某些区域",
+        "触发任务'海之呼唤'（他正在抵抗血脉中的召唤）"
+      ],
+      "sanity_impact": -4,
+      "trust_threshold": 3,
+      "trust_layers": [
+        {
+          "level": 0,
+          "dialogue": "他坐在码头的系缆桩上，一动不动地盯着海面。海风把他的帽檐吹得翻了起来，他没有去扶。你的影子投到他脚边，他才转过头。\n\n目光在你的鞋上停了两秒。然后看回海面。\n\n「……嗯。」\n\n他拿起身边的鱼线，手指粗得像钳子，关节处有一层灰绿色的硬皮。鱼钩上没有饵。\n\n「三点半退潮。风偏北。」\n\n他吐出一口含着咸味的唾沫，声音像砂纸磨过铁皮。\n\n「晚上别来。」",
+          "unlocks": [],
+          "hint": "他只是盯着海面，像没听到你说话"
+        },
+        {
+          "level": 1,
+          "dialogue": "他还是没有看你。眼睛盯着海面，手里的鱼线一直在动。但今天他多了一句话。\n\n「明天。下午三点左右。潮水会退到比平时低两尺。码头东边会露出一片石头。」\n\n他把鱼钩从水里拉上来。钩子上缠着一缕深绿色的海藻，海藻的茎比你的小指还粗，质感像橡胶——不像植物。\n\n「石头上面有东西。你到时候自己去看。」\n\n他把海藻从鱼钩上扯下来，扔进水里。海藻没有浮起来，直接沉了下去，速度比正常的植物快得多。\n\n他从口袋里掏出一张揉皱的纸片，上面用铅笔歪歪扭扭地画了一排数字和箭头。像是某种潮汐表，但标了一些奇怪的符号。\n\n「退潮时间。风向。这些你拿去。」他头也不回。「别拖到太阳下山。」",
+          "unlocks": [
+            "潮汐时刻表",
+            "天气预报"
+          ],
+          "hint": "他头也不回地说'明天潮水不对，别去码头'"
+        },
+        {
+          "level": 2,
+          "dialogue": "他突然转过头来。这是你第一次看到他的正脸这么近。他的眼球表面有一层薄膜，像鱼眼一样反光，但不完全——薄膜上布满了细密的纹路，像干涸的河床。\n\n「月圆的时候。码头尽头往海面看。」\n\n他站起来，关节发出声响。鞋底踩在木板上，声音沉闷。你注意到他的鞋——靴子，高筒的，从来不脱。\n\n「它们从海里出来。不走码头。走码头下面的岩石。你听——」\n\n他竖起手指。你什么都没听到。但他显然听到了——他的眼球表面的薄膜在微微颤动。\n\n「晚上十一点到凌晨一点。那些时候，别靠近码头东端。也别去灯塔下面的沙滩。」\n\n他重新坐下，把鱼线抛进水里。\n\n「森林北边的路，只有白天安全。沼泽地不管什么时候都不要去。」他停了停。「如果你非要走夜路——沿着教堂走，它们不太靠近教堂。」\n\n他的鱼线突然绷紧了。他没有拉。过了三秒，鱼线松了。\n\n「不是鱼。」",
+          "unlocks": [
+            "深潜者出没规律",
+            "安全区域标识"
+          ],
+          "hint": "他压低声音说'月圆的时候，别看水面'"
+        },
+        {
+          "level": 3,
+          "dialogue": "他把靴子脱了。\n\n这是你第一次看到他的脚——或者说，你理解了他为什么不脱鞋的原因。脚踝以下的皮肤完全覆盖着灰绿色的鳞片，紧密排列，像蛇鳞但更硬。脚趾之间的蹼是半透明的，能看到下面血管的颜色——深蓝，几乎发黑。\n\n「六十年了。」他用脚趾在木板上敲了一下，发出一声闷响。「一直控制得住。最近——越来越难。」\n\n他把裤腿卷到膝盖。膝盖以上的皮肤还是人类的，但膝盖正下方开始出现鳞片的过渡区——像白癜风那样的色块，但质地不同。\n\n「潮水大的时候。我能在水下听到声音。不是水声——是歌。从很深很深的地方传上来的。没有歌词。但我知道它在说什么。」\n\n他把裤腿放下来，重新穿上靴子。动作很慢，像是在穿铠甲。\n\n「它在叫那些有血脉的人回家。渔民里有些人的祖上也……沾过。」他看向远处的海面。「我能分辨谁被叫过。看他们的眼睛。」",
+          "unlocks": [
+            "深潜者语言基础",
+            "混血者情报"
+          ],
+          "hint": "他卷起裤腿，露出脚踝处灰绿色的鳞片"
+        },
+        {
+          "level": 4,
+          "dialogue": "他开始说话的时候，声音变了。不是人声了——是一种低沉的嗡鸣，从胸腔深处发出来的，像大提琴最低的那根弦在震动。持续了两秒，然后他的声音切回正常的人声。\n\n「刚才那句。你听不懂的。翻译过来是：'继承者正在靠近'。」\n\n他用手在码头的甲板上画了一张图。线条准确、快速，像是已经画过无数次。一个等边三角形，中心一个圆，三角形顶点各有一条向外的射线。\n\n「海底神殿。在这里。」他点了点三角形的中心。「码头东端正下方。退潮到最低点的时候，如果你站在码头最东端往海面看——能看到建筑物的尖顶。」\n\n他站起来，走到码头边缘，往下看。海水清澈见底。\n\n「它们在扩建。」他的声音又切回了嗡鸣，然后是人声。「下面的城市比二十年前大了一倍。新的石墙是从海床上开采的。每天都有石块运输的声音。」\n\n他的眼球表面的薄膜比上次更厚了。\n\n「我血管里的东西。它们叫它'钥匙之血'。因为——打开什么东西的时候需要。」他没有继续解释。",
+          "unlocks": [
+            "海底神殿位置",
+            "深潜者语言翻译",
+            "钥匙之血情报"
+          ],
+          "hint": "他的声音变成了低沉的嗡鸣，随后翻译道'他们在呼唤继承者'"
+        },
+        {
+          "level": 5,
+          "dialogue": "他坐在码头的边缘。靴子脱在一旁。双脚泡在海水里。潮水正在涨上来，已经没过了他的脚踝。他没有缩回来。\n\n「我还能说话的天数不多了。你看得出来。」\n\n他的脚完全浸泡在水里，鳞片在日光下闪着油亮的光泽。水面上偶尔冒出气泡，从他的脚边浮上来。\n\n「钥匙之血。你需要的话，我可以给你。」他低头看着水中的脚。「方法很老。在手臂上划一道口子，血流进石碗里，石碗放在封印的缺口上。就够了。」\n\n他沉默了一会儿。\n\n「不过有另一条路。」他用湿漉漉的手指朝码头西边指了指。「码头西侧。有一艘船。船况还可以。够一个人开到波士顿。如果你不想干了——随时可以走。」\n\n潮水涨到了他的小腿。他的眼睛半闭着，脸上的表情说不清是痛苦还是安宁。\n\n「在海水把我带走之前。让我做最后一件人事。」\n\n他把手伸向你。手掌上覆盖着一层薄薄的鳞片，但手指的形状还是人的。\n\n「你选。」",
+          "unlocks": [
+            "钥匙之血（封印道具）",
+            "逃生船路线",
+            "escape结局条件"
+          ],
+          "hint": "他说'我的时间不多了。在海水把我带走之前，让我做最后一件人事'"
+        }
+      ],
+      "secrets": [
+        "他知道海底神殿的准确位置",
+        "他能翻译深潜者的语言",
+        "他体内有解除封印所需的'钥匙之血'"
+      ],
+      "trust_profile": {
+        "surface_reliability": 8,
+        "betrayal_risk": 2,
+        "corruption_risk": 7,
+        "emotional_anchor_strength": 7,
+        "recommended_player_reading": "高可靠，高腐化风险，低主动背叛。他的混血身份让他知道太多，但他选择保护人类。"
+      },
+      "chapter_1_availability": "core",
+      "san_recovery_effect": {
+        "normal_chat": "降低当晚码头事件风险10%",
+        "description": "老费舍提供潮汐建议，让你对码头的夜晚有所准备。"
+      },
+      "corruption_triggers": [
+        {
+          "id": "fisher_tide_questioned",
+          "trigger": "player_insisted_fisher_explain_tide",
+          "description": "你逼老费舍说出潮汐的秘密。他看向海的眼神变了。",
+          "humanity_cost": -3,
+          "dialogue_before": "年轻人，有些事不该问。",
+          "dialogue_after": "我什么都说了。你还想知道什么？……不，你不会想知道的。"
+        }
+      ]
+    },
+    {
+      "id": "埃德加·洛夫克拉夫特",
+      "name": "埃德加·洛夫克拉夫特",
+      "role": "作家，偶尔的调查员",
+      "location": "town_center",
+      "schedule": [
+        "day1:town_center",
+        "day2:whispering_forest",
+        "day3:town_center",
+        "day4:voxchester_manor",
+        "day5:town_center"
+      ],
+      "personality": "神经质，才华横溢，对黑暗有病态的迷恋",
+      "background": "一位从普罗维登斯来到沃切斯特取材的作家。他正在创作一部关于古老恐怖的小说，选择沃切斯特是因为这里的氛围完美契合他的创作需求。然而他不知道的是，他的创作并非完全来自想象——他的梦境正在接收来自虚空深处的信息。他笔下的故事越来越多地与现实重合，甚至预言了尚未发生的事件。他本人对此半信半疑，但最近他开始在深夜收到匿名信件，信中用他小说中的语言写着警告。",
+      "possible_interactions": [
+        "分享他收集的都市传说和怪谈",
+        "提供文学性的线索解读",
+        "触发任务'未完成的手稿'（他的小说中预言了即将发生的事）"
+      ],
+      "sanity_impact": -3,
+      "trust_threshold": 3,
+      "trust_layers": [
+        {
+          "level": 0,
+          "dialogue": "他在镇广场的长椅上坐着，膝盖顶着一本翻开的笔记本，钢笔夹在耳朵上。雾气把他的头发打湿了，贴在额头上，他似乎没注意到。\n\n「这地方的雾——你闻到没有？有股腥味，不是鱼的腥。」\n\n他拔下钢笔，在纸上飞快地画了几笔。你瞥了一眼，像是某种螺旋形的符号，但他说那只是随手涂的。\n\n「我在写东西。一座小镇，海雾，失踪的渔民，钟每天多敲一下。编辑嫌太阴暗，可这镇子上发生的事不需要我编。」\n\n他停下笔。钟楼在雾里只剩一个模糊的轮廓，轮廓顶端有个东西在动——不是旗子，旗杆是空的。可能是风向标。可能是别的什么。\n\n他把笔记本合上，塞进大衣口袋。\n\n「……我得走了。天黑前回旅馆比较好。」",
+          "unlocks": [],
+          "hint": "他匆匆收拾笔记本，走的时候回头看了一眼钟楼"
+        },
+        {
+          "level": 1,
+          "dialogue": "他合上笔记本，又翻开另一本。这本比第一本旧，封皮磨损得更厉害，边缘翘起了，像是被人翻了几百遍。\n\n「你不觉得这地方有些——怎么说——积累？」他用钢笔在空中画了个圈，指了指整个沃切斯特。「怪谈这东西是有沉积的。一个地方发生的事越多，后面的故事就越像真的。」\n\n他翻到中间一页，上面密密麻麻地记录了几十条短句。字迹很潦草，但措辞很有讲究——像是小说家的笔触。\n\n「码头区的渔民说1923年大雾之后，有人看见海面上漂着一整排空船。没有船员。船上锅里的汤还是热的。」\n\n他又翻了一页。\n\n「教堂的执事每天午夜敲十三下钟。每个居民都听过，但没有人在乎。就像习惯了空气里的灰尘。」\n\n他把笔记本递给你。你注意到最后一页的边缘画着一个螺旋符号，和他之前在广场上涂的那个一模一样。\n\n「我记录了很多。有些是听来的，有些是我亲眼看到的。」他压低声音。「亲眼看到的那些，比听说的要……具体得多。」",
+          "unlocks": [
+            "都市传说情报",
+            "文学性线索解读"
+          ],
+          "hint": "他翻开笔记本，说'我记录了一些有趣的故事'"
+        },
+        {
+          "level": 2,
+          "dialogue": "他的手停在笔记本中间那一页，没有翻下去。你看到他的手腕在发抖，钢笔尖在纸面上留下了一个越来越大的墨点。\n\n「问题不是这些故事像不像真的。问题是——」\n\n他把笔记本翻到最新的几页。第一页写着一个日期。日记格式。他念了出来。\n\n「'周三。码头区发现三具渔民尸体。死因不明。面部表情——'」他的声音卡了一下。「'——像是微笑。但肌肉已经僵硬了。'这是上周三。」\n\n下一页。另一个日期。\n\n「'周四。教堂钟楼在下午三点自行响了七下。没有人的时候。钟楼门锁着。'」\n\n他合上笔记本，把笔记本放在椅子上，双手抱头。\n\n「我昨天写的东西，今天就发生了。」他的声音从指缝里传出来，闷闷的。「不是巧合。不是我的观察力强。是我写的时候——我知道它会发生。」\n\n他抬起头。镜片后面的眼睛布满血丝。\n\n「你知道小说家最害怕什么吗？不是写不出东西。是写出来的东西变成了真的。」",
+          "unlocks": [
+            "预言性手稿",
+            "未完成的手稿任务"
+          ],
+          "hint": "他不安地说'我昨天写的东西，今天就发生了'"
+        },
+        {
+          "level": 3,
+          "dialogue": "他从笔记本最后的夹层里取出三封信。信封没有寄信人地址，没有邮票。信封的纸质很粗糙，摸上去有颗粒感，像砂纸。\n\n「这些是我上周收到的。每天一封。第三封之后就没有了。」\n\n第一封信。他拆开。信纸上的字迹不是墨水写的——更像是某种深色的液体自然渗入纸张纤维形成的，像血管纹路。\n\n信的内容只有一句话：「你笔下第三页的咒语是对的。但发音错了。」\n\n他把信递给你。你碰到信纸的瞬间，指尖有一种微弱的刺痛感，像静电，但温度更低。\n\n「第三页的咒语。」他翻开笔记本，翻到第三页。上面确实有一段自创的咒语式文字——他用小说家的语言虚构的仪式台词。\n\n第二封信的内容更短：「别去灯塔。」\n\n他没有打开第三封。信封封口处有液体干涸的痕迹——不是胶水，颜色发暗，像血。\n\n「手稿第三页上的咒语。是我随便编的。不可能是真的。」他的手指在信封边缘徘徊。「除非——」\n\n他没有说完。",
+          "unlocks": [
+            "匿名信线索",
+            "手稿中的召唤咒语"
+          ],
+          "hint": "他颤抖着递给你一封信，信纸上的墨迹在蠕动"
+        },
+        {
+          "level": 4,
+          "dialogue": "他坐在椅子上，笔放在桌上。没有在写。眼睛直视前方，焦点不在任何具体的东西上。像是在看一面你自己看不到的墙。\n\n「三天。」\n\n他的嘴唇动了。声音很轻。\n\n「三天后。灯塔的光会灭掉。从外面看不到光。但如果你在灯塔附近——」他眨了一下眼，像是有什么东西从他的眼球表面滑过去了。「——你会看到里面有人在动。不是活人。是影子。」\n\n他的手握紧了钢笔，又松开。\n\n「这个能力不是天生的。是来了沃切斯特之后才有的。」他把笔记本翻到最前面，扉页上有一行小字：「1926年3月。沃切斯特。第一章。」\n\n「第一张有预言性质的手稿，是3月12号写的。那天晚上我做了一个梦——梦里有螺旋形的走廊，走不到尽头。第二天我写下来了。四天之后，教堂地下室被人发现确实有一条螺旋形的走廊。」\n\n他摘下眼镜擦了擦。你看到他眼白上有极细的红色纹路，像毛细血管扩张了。\n\n「我不知道这是天赋还是——什么别的东西在用我。」\n\n他把眼镜重新戴上。镜片反光。\n\n「但有一件事我可以确定。我手上的笔——有时候不是我握着的。」",
+          "unlocks": [
+            "通灵者能力",
+            "未来事件预知"
+          ],
+          "hint": "他的眼睛失去焦点，说'我看到了……三天后，灯塔的光……'"
+        },
+        {
+          "level": 5,
+          "dialogue": "他的笔记本摊开在桌上。钢笔放在旁边，笔尖朝向东方。这个放法是有意的——你之前没注意过，但他在所有的稿纸上都把文字从左向右排列，始终朝东。\n\n「如果你需要。我可以每天为你写一段。」他拿起钢笔，在手指间转了一圈。「不是占卜。不是预言。是——某种介于两者之间的东西。」\n\n他低下头，在纸上写了一行字。写了之后他没有停下来。笔在纸上继续走，速度越来越快，字迹不再是他的——笔画更长，转折更锐利，像是另一种书写习惯接管了他的手。\n\n持续了大约十秒。然后笔停了。他把手松开，钢笔滚了两圈。\n\n纸上写的是：「门开的时候，钥匙不应该是活的。把血换成石头。封印的石碗里有刻痕。找到没有刻痕的那一个。」\n\n他读完自己写的东西，表情空白。\n\n「我不知道那是什么意思。但它会是对的。就像之前每一次一样。」\n\n他把笔记本合上。手指停在封面上，拇指按着那个螺旋符号。\n\n「我的笔不再属于我了。」他的声音很轻。「但如果你需要——让它为你书写未来。」",
+          "unlocks": [
+            "每日预知服务",
+            "尤格-索托斯连接线索",
+            "通灵者真相"
+          ],
+          "hint": "他说'我的笔不再属于我。但如果你需要——让它为你书写未来'"
+        }
+      ],
+      "secrets": [
+        "他的梦境实际上是尤格-索托斯的信息传递",
+        "他的手稿中隐藏着真实的召唤咒语",
+        "他是一个天然的'通灵者'，但自己不知道"
+      ],
+      "trust_profile": {
+        "surface_reliability": 5,
+        "betrayal_risk": 3,
+        "corruption_risk": 7,
+        "emotional_anchor_strength": 5,
+        "recommended_player_reading": "低主动恶意，高梦境泄露风险。他的灵感来自不该接触的地方，但他的善意是真诚的。"
+      },
+      "chapter_1_availability": "rumor_only",
+      "san_recovery_effect": {}
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_harbor_shadow",
+      "name": "水面下的阴影",
+      "type": "怪物遭遇",
+      "event_classification": "horror",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "你正在码头边行走，月光在水面上铺开一层银色的薄纱。突然，水面下的月光被什么东西遮挡了——一个巨大的、缓慢移动的阴影从深水中升起。它不是任何你认识的海洋生物。那阴影有着不规则的轮廓，偶尔伸出类似触手的附属物，在离水面不到两米的地方盘旋。你感到一种原始的恐惧攫住了你的心脏。阴影停了下来，似乎在感知你的存在。然后，一只巨大的、泛着磷光的眼睛在黑暗中睁开，直直地看向你。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=harbor_district，时间=夜晚，概率35%",
+      "distortion_trigger": 50,
+      "distortion_text": "水面下的阴影。你看到了它不，你成为了它。一瞬间，你从水下看到了自己的脸。那张脸在微笑。",
+      "false_memory": "你记得看到了水下的阴影。但你的衣服是干的。你真的去过码头吗？",
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 40,
+        "success": {
+          "text": "你辨认出那是一群从海里来的身影，记住了它们的行进路线",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你被恐惧攫住，无法移动，错过了观察机会",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "水面下的阴影升起来了。不是从水里——是从你的胸腔里。你低头看了一眼，你的胸口是透明的。里面有什么东西在游动。",
+        "san_mid": "水面下的阴影。你看到了它——不，你成为了它。一瞬间，你从水下看到了自己的脸。那张脸在微笑。",
+        "corruption_high": "阴影已经不在水下了。它在你身后。你不需要回头——你能感觉到它的温度。和你的体温一样。",
+        "fear_ocean": "水面上的月光碎了。每一片碎片里都映着一只眼睛。它们都在看你。你数不清有多少只。",
+        "fear_body": "阴影有你的轮廓。它在模仿你的每一个动作。但它的动作比你慢了半拍——或者说，你比它快了半拍。"
+      },
+      "unreliable_narration_level": 0
+    },
+    {
+      "id": "evt_fisherman_warning",
+      "name": "渔夫的警告",
+      "type": "NPC互动",
+      "event_classification": "investigation",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.5,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "一个满脸风霜的老渔夫叫住了你，他的眼睛浑浊但锐利。'你不该来这里，'他说，声音沙哑得像是喉咙里有沙子。'最近的潮水不对劲。每天退潮的时候，你会看到海底露出来的东西——那些建筑，那些不应该在那里的东西。上周三，我的渔网捞上来一块石头，上面刻着我看不懂的字。我把石头扔回了海里，但那天晚上，我听到了歌声。从海底传来的歌声。'他的手在颤抖。'如果你聪明的话，就离开这个城市。趁你还走得掉。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "潮汐时刻表"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -1,
+      "original_condition": "区域=harbor_district，白天，概率50%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "心理学",
+        "threshold": 30,
+        "success": {
+          "text": "你感觉到他说的每一个字都是真的，恐惧深入骨髓",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你觉得他只是个迷信的老头",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "老费舍在说话。但他的嘴没有动。声音从他的耳朵里流出来，像水一样。",
+        "san_mid": "渔夫的警告。他说的每个字都在你的笔记本上自行出现了。你没有在写。",
+        "corruption_high": "他看着你的眼睛说：\"你已经听过这段话了。上一次你没有听。\"",
+        "fear_isolation": "他试图警告你。但你听不懂他的话了。不是因为他说的是外语——是因为你已经忘了怎么听。"
+      },
+      "unreliable_narration_level": 2
+    },
+    {
+      "id": "evt_warehouse_key",
+      "name": "仓库的异响",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "你经过码头尽头那扇锁着的仓库门时，听到里面传来了声音。不是敲击声，不是叫声——是一种有节奏的、低沉的嗡鸣，如同某种巨大机器的运转。铁链在微微颤动，门缝中渗出一股冰冷的气流。你注意到铁链的锁上有一个奇怪的凹痕，形状与你之前在某处看到的符号相似。地面上散落着一些粘液痕迹，通向仓库侧面的一个破损窗户。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "仓库钥匙碎片",
+          "粘液样本"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=harbor_district，任意时间，概率25%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "锁匠",
+        "threshold": 35,
+        "success": {
+          "text": "你设法撬开了锁，发现仓库内部通向地下通道",
+          "effects": {}
+        },
+        "failure": {
+          "text": "锁纹丝不动，但你从破损窗户看到了里面的部分景象",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "钥匙在你手里。它在动。不是因为你的手在抖——是钥匙自己在动。",
+        "san_mid": "仓库的异响。你打开门的时候，里面站着一个人。不——是一个你自己的倒影。倒影把钥匙递给你。",
+        "corruption_high": "仓库里没有异响。从来没有。但你的口袋里多了一把钥匙。你不记得它是什么时候出现的。",
+        "fear_control": "钥匙的齿纹在变化。每次你看它，它的形状都不一样。它在适应某个你还没有找到的锁。"
+      },
+      "unreliable_narration_level": 2
+    },
+    {
+      "id": "evt_drowned_voice",
+      "name": "溺亡者的声音",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.15,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "你独自站在码头边，四周安静得不正常。突然，水面上浮起了无数气泡，气泡破裂时发出的声音汇聚成一个声音——一个你认得的声音。那是你失踪已久的亲人的声音，正在呼唤你的名字。'下来吧，'那个声音说，'水下很温暖，我们都来了。你看——'水面变得透明，你看到了水下的景象：数十个人影在水中缓缓游动，他们的面孔平静而空洞，嘴角挂着微笑。你的亲人的面孔也在其中，正在向你招手。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "溺亡者的手镯"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -5,
+      "original_condition": "区域=harbor_district，时间=夜晚，概率15%",
+      "distortion_trigger": 50,
+      "distortion_text": "你亲人的声音从水下传来。下来吧，它说，水下很温暖。你向前走了一步。你的鞋湿了。你什么时候走到水边的？",
+      "false_memory": "你记得听到了亲人的声音。但你没有亲人。你确定吗？",
+      "skill_check": {
+        "skill": "意志",
+        "threshold": 60,
+        "success": {
+          "text": "你咬破舌尖，用疼痛唤醒自己，后退离开",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你向水面踏出了一步，差点跌入海中",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": "第一章仅在深夜主动探索时触发，白天/黄昏不触发",
+      "distortion_variants": {
+        "san_low": "声音在叫你的名字。不是你现在的名字——是你还没有用过的名字。",
+        "san_mid": "溺亡者在唱歌。歌词是你的日记内容。从明天的日记。",
+        "corruption_high": "你已经听了一整天了。你不确定声音是来自水下还是来自你的头骨内部。",
+        "fear_ocean": "水面上出现了嘴。很多嘴。它们在同步说话。说的是你小时候的事。只有你知道的事。",
+        "fear_knowledge": "声音在告诉你一个真相。一个你已经知道但不愿意承认的真相。你试图忘记，但声音不让你忘。"
+      },
+      "unreliable_narration_level": 3
+    },
+    {
+      "id": "evt_strange_clock",
+      "name": "十三声钟响",
+      "type": "神秘事件",
+      "event_classification": "horror",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 0.4,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "教堂的钟声响了。一下，两下，三下——你下意识地数着。当第十二声落下时，你松了口气，准备离开。但第十三声响了。那声音比之前的任何一声都要低沉，都要悠长，它在建筑物之间回荡，在你的骨骼中共鸣。随着这第十三声钟响，街道上的灯光同时闪烁了一下。你看到远处有一个身影——不，是好几个身影——在阴影中穿行，它们的动作不像是行走，更像是滑动。钟声结束后，一切恢复了正常。但你知道，有什么东西被唤醒了。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": [
+          "伊莎贝拉·韦伯_ritual_active"
+        ]
+      },
+      "sanity_damage": -3,
+      "original_condition": "区域=town_center，时间=午夜，概率100%（每日触发）",
+      "distortion_trigger": 60,
+      "distortion_text": "钟声响了。不是十三声是十四声。不，等等，是十三声。你确定吗？你数了三遍。每一遍都是不同的数字。",
+      "false_memory": "你记得钟声响了十三声。但你的笔记本上写着十一声。那是你的笔迹吗？",
+      "skill_check": {
+        "skill": "神秘学",
+        "threshold": 25,
+        "success": {
+          "text": "你认出这是一种古老的声音仪式，用来唤醒沉睡的存在",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你觉得只是钟表坏了",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "钟声响了十三下。然后第十四下。你数了——但你的手指不够用了。你有十四根手指吗？",
+        "san_mid": "十三声钟响。你发现自己在跟着钟声呼吸。每一次钟响，你的肺就少装一口气。",
+        "corruption_high": "钟声没有停。它在你的血管里响。你的脉搏就是钟声的节奏。",
+        "fear_control": "钟声在控制你。每响一下，你的身体就做出一个动作。不是你选择的动作。"
+      },
+      "unreliable_narration_level": 3
+    },
+    {
+      "id": "evt_missing_poster",
+      "name": "失踪者名单",
+      "type": "线索",
+      "event_classification": "investigation",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.4,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "你在公告栏前停下脚步，上面贴满了失踪人口的告示。一张张面孔在泛黄的纸张上注视着你——有老人，有年轻人，有孩子。你注意到一个规律：失踪者的日期不是随机的。每七天会有一批人失踪，而失踪的日期恰好与潮汐大潮重合。最新的告示是三天前的，上面的照片是一个面带微笑的年轻女子。有人用红笔在告示下面写了一行字：'第47个。他们在计数。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "失踪者名单副本"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=town_center，白天，概率40%",
+      "distortion_trigger": 70,
+      "distortion_text": "公告栏上贴满了失踪告示。你仔细数了数四十七张。不，四十八张。不，最新的一张上面的照片是你。",
+      "false_memory": "你记得看到了失踪者名单。但当你回头去找时，公告栏上什么都没有。",
+      "skill_check": {
+        "skill": "图书馆利用",
+        "threshold": 30,
+        "success": {
+          "text": "你在档案馆找到了更完整的失踪记录，可以追溯到三年前",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你只记住了大概的日期规律",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "告示上的照片换了。现在是你。但你没有失踪——你明明就在这里。对吧？",
+        "san_mid": "失踪者名单。你数了一下。少了一个人。你很确定少了一个人。但你记不起是谁。",
+        "corruption_high": "告示上写着：\"失踪时间：现在。\"你看了看手表。表停了。",
+        "fear_isolation": "名单上的名字你都认识。都是你。不同的你。每一个你都在不同的时间失踪了。"
+      },
+      "unreliable_narration_level": 2
+    },
+    {
+      "id": "evt_church_bell",
+      "name": "教堂深处的低语",
+      "type": "神秘事件",
+      "event_classification": "investigation",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "你推开教堂沉重的木门，里面空无一人。烛台上蜡烛整齐地燃烧着，火焰纹丝不动——没有风，但火焰似乎在朝着同一个方向微微倾斜，指向通往地下室的入口。圣坛上的圣经被翻开了，但页面上的文字不是你认识的任何一种语言，那些字母在烛光下仿佛在蠕动。你听到地下室传来了低语声，那是一个女人的声音，在念诵着什么。声音中有种令人不安的节奏感，像是祈祷，但内容让你的头脑隐隐作痛。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "扭曲的圣经页"
+        ],
+        "npc_changes": [
+          "伊莎贝拉·韦伯_trust-1"
+        ]
+      },
+      "sanity_damage": -4,
+      "original_condition": "区域=town_center，概率20%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "聆听",
+        "threshold": 40,
+        "success": {
+          "text": "你听清了祈祷的内容——那是在请求某个存在睁开眼睛",
+          "effects": {}
+        },
+        "failure": {
+          "text": "声音突然停止，你感到一阵强烈的被注视感",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "低语声在说你的名字。不是用声音——是用教堂墙壁的震动。你把耳朵贴在墙上。墙是温的。",
+        "san_mid": "教堂深处的低语。它们在祈祷。祈祷的对象是你。",
+        "corruption_high": "你走进教堂。十字架转了一个角度面向你。蜡烛自己亮了。没有人在这里。但长椅上坐满了人。",
+        "fear_knowledge": "低语声在读一本书。你听出来了——那是你还没有写的书。内容是你在沃切斯特的最后一天。"
+      },
+      "unreliable_narration_level": 3
+    },
+    {
+      "id": "evt_beggar_clue",
+      "name": "疯乞丐的预言",
+      "type": "NPC互动",
+      "event_classification": "investigation",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "一个衣衫褴褛的乞丐突然抓住了你的手臂，他的力量大得惊人。他的眼睛——瞳孔完全扩散，整个眼眶漆黑如深渊。他凑近你的脸，呼吸中带着一股腐烂的气味。'你看得到对吧？你看得到它们在墙后面移动。'他的声音突然变得异常清晰，'月亮将不再升起，海浪将吞没灯塔，而树将在午夜开花。当第十三声钟响与潮汐共鸣时，封印就会——'他的话戛然而止，眼睛恢复了正常。他松开你，茫然地环顾四周，仿佛刚才的一切从未发生。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "疯乞丐的涂鸦（暗含地图线索）"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -2,
+      "original_condition": "区域=town_center，概率30%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "心理学",
+        "threshold": 35,
+        "success": {
+          "text": "你意识到他在被什么东西'使用'，那些话是被植入的预言",
+          "effects": {}
+        },
+        "failure": {
+          "text": "你觉得他只是个疯子，但他的话在你脑海中挥之不去",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "乞丐在笑。他的牙齿上有字。你凑近看——是你自己的名字。",
+        "san_mid": "疯乞丐的预言。他说的每一句话都成真了。包括最后一句：\"你会忘记这段对话。\"",
+        "corruption_high": "乞丐不是疯了。他只是比你更清醒。他看到了你看不到的东西——你身后的东西。"
+      },
+      "unreliable_narration_level": 3
+    },
+    {
+      "id": "evt_vendor_suspicious",
+      "name": "可疑的摊贩",
+      "type": "NPC互动",
+      "event_classification": "investigation",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "你在广场的角落发现了一个临时摊位。摊主是一个你从未见过的中年男人——他的衣服太过整洁，不像是沃切斯特的居民。摊位上摆满了各种奇怪的物品：刻着符号的石头、装着不明液体的瓶子、泛黄的古书。他看到你时露出了热情的微笑：新面孔！一定是为了那些事来的吧？他压低声音：我卖的东西在别处买不到。深海的东西，森林的东西，地下深处的东西——都是真货。他拿起一个装着暗绿色鳞片的小瓶子：这个，从码头区弄来的。保证是从码头区弄来的鳞片。",
+      "effects": {
+        "HP": 0,
+        "items": [
+          "可疑商品目录"
+        ],
+        "npc_changes": []
+      },
+      "sanity_damage": -1,
+      "original_condition": "区域=town_center，概率25%",
+      "distortion_trigger": null,
+      "distortion_text": null,
+      "false_memory": null,
+      "skill_check": {
+        "skill": "心理学",
+        "threshold": 30,
+        "success": {
+          "text": "你注意到他的手指上有一个螺旋形的纹身——与晨星会的标记相同",
+          "effects": {}
+        },
+        "failure": {
+          "text": "他看起来只是一个普通的商人，但他的商品来源令人怀疑",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "chapter_1_san_note": null,
+      "distortion_variants": {
+        "san_low": "摊贩的货物在动。不是风吹的。它们在呼吸。每一个包裹里都有一个小小的、跳动的心脏。",
+        "san_mid": "可疑的摊贩。他的眼睛不眨。你数了三十秒。一次都没有。",
+        "corruption_high": "他卖的东西你都见过。在你的梦里。每一个物品都对应一个你已经遗忘的记忆。"
+      },
+      "unreliable_narration_level": 2
+    },
+    {
+      "id": "evt_ch1_grocery_supply",
+      "name": "杂货店买补给",
+      "type": "正常事件",
+      "event_classification": "normal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "杂货店老板正在整理货架。店里弥漫着蜡烛和肥皂的气味，货架上的商品摆放整齐，标价清晰。你买了一些补给品。老板找零时手指微微发抖，但笑容是真诚的。",
+      "effects": {
+        "food": 1
+      },
+      "sanity_damage": 0,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
+    },
+    {
+      "id": "evt_ch1_martha_polish",
+      "name": "玛莎擦杯子",
+      "type": "正常事件",
+      "event_classification": "normal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center",
+          "harbor_district"
+        ],
+        "time_phase": [
+          "afternoon",
+          "evening"
+        ],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "玛莎·格雷站在吧台后面，慢条斯理地擦着一个已经很干净的啤酒杯。吧台尽头有一个座位，放着一条叠好的围巾。\"给我丈夫留的，\"她注意到你的目光，\"他出海了，很快就会回来的。\"她的声音很轻，像在说服自己。",
+      "effects": {},
+      "sanity_damage": 0,
+      "san_recovery": 1,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 2
+    },
+    {
+      "id": "evt_ch1_fisher_mending",
+      "name": "老费舍修补渔网",
+      "type": "正常事件",
+      "event_classification": "normal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.35,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "老费舍蹲在码头边修补渔网，手指灵活得不像他那个年纪的人。\"潮汐不对，\"他头也不抬地说，\"这个月的潮位比往年低了三尺。你要去码头就别在黄昏后。\"他没有解释原因。",
+      "effects": {
+        "harbor_night_risk_reduction": 0.1
+      },
+      "sanity_damage": 0,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
+    },
+    {
+      "id": "evt_ch1_tommy_photo",
+      "name": "汤米展示照片",
+      "type": "正常事件",
+      "event_classification": "normal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon",
+          "evening"
+        ],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "汤米兴奋地掏出一张刚洗出来的照片给你看——码头的全景，阳光正好。\"天气好的时候还是不错的，对吧？\"他笑着说。照片里一切正常，只是栈桥尽头有团模糊的影子，也许是镜头污渍。",
+      "effects": {
+        "investigation_bonus": 2
+      },
+      "sanity_damage": 0,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 2
+    },
+    {
+      "id": "evt_ch1_bell_excuse",
+      "name": "镇民避谈钟声",
+      "type": "正常事件",
+      "event_classification": "normal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.4,
+        "requires": [
+          "evt_strange_clock"
+        ],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "你向路过的镇民询问教堂钟声的事。\"老钟坏了好几年了，\"一个中年男人摆摆手，\"齿轮错位，修不好。不是什么大事。\"他加快脚步离开了，像是怕你继续追问。",
+      "effects": {},
+      "sanity_damage": 0,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 0
+    },
+    {
+      "id": "evt_ch1_sailor_weather",
+      "name": "水手谈天气",
+      "type": "正常事件",
+      "event_classification": "normal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "evening"
+        ],
+        "probability": 0.3,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "两个水手坐在码头边喝酒，谈论最近的捕捞量。\"今年鱼少得可怜，\"其中一个说，\"连海鸥都不来了。可能是暖流偏了。\"另一个咕哝了几句，把空酒瓶扔进海里。瓶子漂了一会儿，沉了。",
+      "effects": {},
+      "sanity_damage": 0,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
+    },
+    {
+      "id": "evt_ch1_streetlamp_out",
+      "name": "雨中路灯熄灭",
+      "type": "轻微异常",
+      "event_classification": "minor_abnormal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "evening"
+        ],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "雨下大了。街角的路灯忽闪了几下，熄灭了。黑暗持续了大约十秒，灯又亮了。什么都没有发生。但你的影子在灯光恢复的瞬间，朝相反的方向动了一下。也许是错觉。",
+      "effects": {},
+      "sanity_damage": -1,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "unreliable_narration_level": 0
+    },
+    {
+      "id": "evt_ch1_poster_removed",
+      "name": "有人撕掉告示",
+      "type": "轻微异常",
+      "event_classification": "minor_abnormal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "你看到一个穿深色外套的人站在公告栏前，撕下了一张失踪告示，仔细叠好放进口袋。他注意到你在看他，微微点头示意，然后走进了旁边的小巷。告示栏上少了一张纸，但你不确定上面写的是谁的名字。",
+      "effects": {
+        "investigation_bonus": 1
+      },
+      "sanity_damage": -1,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "unreliable_narration_level": 0
+    },
+    {
+      "id": "evt_ch1_cat_stare",
+      "name": "码头的猫",
+      "type": "正常事件",
+      "event_classification": "normal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "morning",
+          "afternoon"
+        ],
+        "probability": 0.25,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "一只花斑猫从缆绳堆后面探出头来，歪着脑袋看你。它脖子上系着一条褪色的丝带，像是某个孩子系上去的。你蹲下来伸出手，它犹豫了一下，蹭了蹭你的手指，然后跳上栈桥的栏杆消失了。",
+      "effects": {
+        "fatigue": -1
+      },
+      "sanity_damage": 0,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
+    },
+    {
+      "id": "evt_ch1_church_organ",
+      "name": "教堂风琴声",
+      "type": "正常事件",
+      "event_classification": "normal",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "town_center"
+        ],
+        "time_phase": [
+          "morning"
+        ],
+        "probability": 0.2,
+        "requires": [],
+        "forbidden_flags": [],
+        "chapter": 1
+      },
+      "description": "教堂里传来风琴声，有人在练习一首赞美诗。旋律有些跑调，但演奏者很认真。门半开着，你看到一个白发老妇坐在风琴前，闭着眼睛沉浸在音乐中。这是沃切斯特里为数不多的正常声音。",
+      "effects": {
+        "san": 1
+      },
+      "sanity_damage": 0,
+      "chapter_1_eligible": true,
+      "normalcy_anchor": true,
+      "unreliable_narration_level": 1
+    },
+    {
+      "id": "evt_day1_harbor_shadow_light",
+      "name": "水面少了一块月光",
+      "type": "氛围事件",
+      "event_classification": "horror",
+      "chapter": 1,
+      "trigger": {
+        "areas": [
+          "harbor_district"
+        ],
+        "time_phase": [
+          "midnight"
+        ],
+        "probability": 1,
+        "requires": [],
+        "forbidden_flags": [
+          "evt_day1_harbor_shadow_light"
+        ],
+        "chapter": 1
+      },
+      "description": "你站在码头尽头。水面很平。月光落在上面，铺了一层银色的薄片。\n\n然后——少了一块。\n\n不是波浪。水面没有动。月光少了一块，像被什么东西从下面遮住了。拳头大小。它没有移动，就停在那里。\n\n你数了六秒。六秒后月光回来了，水面恢复完整。\n\n你没有看到任何东西从水下浮上来。但你知道有什么东西在。",
+      "effects": {
+        "HP": 0,
+        "items": [],
+        "npc_changes": []
+      },
+      "sanity_damage": -3,
+      "distortion_trigger": 50,
+      "distortion_text": "水面少了一块月光。不，是你的视野少了一块。有一瞬间你看不到那个方向的任何东西。",
+      "false_memory": "你记得水面少了一块月光。但你不记得自己为什么会在码头。",
+      "skill_check": {
+        "skill": "侦查",
+        "threshold": 25,
+        "success": {
+          "text": "你注意到水面上的月光缺失形状不规则——不是圆形，更像是某种符号的轮廓",
+          "effects": {}
+        },
+        "failure": {
+          "text": "也许是云遮住了月亮",
+          "effects": {}
+        },
+        "critical_failure": {
+          "range": [
+            96,
+            100
+          ],
+          "text": "检定大失败——你遭遇了最糟糕的结果",
+          "effects": {}
+        }
+      },
+      "choices": [],
+      "chapter_1_eligible": true,
+      "normalcy_anchor": false,
+      "distortion_variants": {
+        "san_low": "月光缺了一块。不是被云挡住了。是被吃掉了。你能看到缺口的边缘在咀嚼。",
+        "san_mid": "水面少了一块月光。你伸手去摸——手指穿过了水面。下面不是水。是空气。是另一个地方。",
+        "corruption_high": "月光回来了。但它照出的不是你的影子。是一个你从未见过的人的影子。那个人正在看着你。",
+        "fear_ocean": "水面下的月光在说话。不是比喻——是真的在说话。它在说：\"回来。\""
+      },
+      "unreliable_narration_level": 0
+    }
+  ],
+  "items": [
+    {
+      "id": "flashlight",
+      "name": "手电筒",
+      "type": "tool",
+      "uses": 10,
+      "consume_on_use": true,
+      "use_hint": "照亮前方",
+      "use_text": "你打开手电筒，光柱刺破了黑暗。视野清晰了许多。",
+      "effects": []
+    },
+    {
+      "id": "notebook",
+      "name": "笔记本和笔",
+      "type": "tool",
+      "uses": -1,
+      "consume_on_use": false,
+      "use_hint": "查看线索",
+      "use_text_ref": "clue_count",
+      "effects": []
+    },
+    {
+      "id": "first_aid_kit",
+      "name": "急救包",
+      "type": "consumable",
+      "uses": 3,
+      "consume_on_use": true,
+      "use_hint": "HP +1d3",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "HP",
+          "amount_dice": "1d3",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "id": "pocket_watch",
+      "name": "怀表",
+      "type": "tool",
+      "uses": -1,
+      "consume_on_use": false,
+      "use_hint": "查看时间",
+      "use_text_ref": "show_day",
+      "effects": []
+    },
+    {
+      "id": "deep_one_scale",
+      "name": "深海之鳞",
+      "type": "passive",
+      "uses": -1,
+      "consume_on_use": false,
+      "passive_effect": {
+        "type": "monster_damage_reduction",
+        "amount": -3
+      },
+      "effects": []
+    },
+    {
+      "id": "glowing_mushroom",
+      "name": "发光蘑菇",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "SAN +3",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "SAN",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "id": "lens_fragment",
+      "name": "透镜碎片",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "SAN -2, 侦查+10(3天)",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "SAN",
+          "amount": -2
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "lens_active"
+        }
+      ]
+    },
+    {
+      "id": "zar_scroll_fragment",
+      "name": "扎尔之卷碎片",
+      "type": "key_item",
+      "uses": -1,
+      "consume_on_use": false,
+      "effects": []
+    },
+    {
+      "id": "drowned_bracelet",
+      "name": "溺亡者的手镯",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "HP +5, SAN -3",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "HP",
+          "amount": 5
+        },
+        {
+          "type": "modify_stat",
+          "target": "SAN",
+          "amount": -3
+        }
+      ]
+    },
+    {
+      "id": "dark_door_key",
+      "name": "暗门钥匙",
+      "type": "key_item",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "解锁深层墓穴",
+      "effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "deep_catacombs_unlocked"
+        }
+      ]
+    },
+    {
+      "id": "ghoul_artifact",
+      "name": "食尸鬼秘物",
+      "type": "passive",
+      "uses": -1,
+      "consume_on_use": false,
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "SAN",
+          "amount": -5
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "ghoul_knowledge"
+        }
+      ]
+    },
+    {
+      "id": "ancient_tree_seed",
+      "name": "古树种子",
+      "type": "key_item",
+      "uses": -1,
+      "consume_on_use": false,
+      "effects": []
+    },
+    {
+      "id": "silver_amulet",
+      "name": "银质护身符",
+      "type": "passive",
+      "uses": -1,
+      "consume_on_use": false,
+      "passive_effect": {
+        "type": "san_protection",
+        "amount": 2
+      },
+      "effects": []
+    },
+    {
+      "id": "deep_sea_water",
+      "name": "深海之水",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "SAN +2",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "SAN",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "silver_dagger",
+      "name": "银质匕首",
+      "type": "passive",
+      "uses": -1,
+      "consume_on_use": false,
+      "passive_effect": {
+        "type": "monster_hp_reduction",
+        "amount": -3
+      },
+      "effects": []
+    },
+    {
+      "id": "moonlight_incense",
+      "name": "月光熏香",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "下次NPC信任+2",
+      "effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "incense_active"
+        }
+      ]
+    },
+    {
+      "id": "star_map_tablet",
+      "name": "星图石板",
+      "type": "key_item",
+      "uses": -1,
+      "consume_on_use": false,
+      "effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "all_areas_revealed"
+        }
+      ]
+    },
+    {
+      "id": "dimension_fragment",
+      "name": "维度碎片",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "传送至任意区域",
+      "effects": []
+    },
+    {
+      "id": "guardian_rune",
+      "name": "守护符文",
+      "type": "passive",
+      "uses": -1,
+      "consume_on_use": false,
+      "passive_effect": {
+        "type": "no_monster_encounters"
+      },
+      "effects": []
+    },
+    {
+      "id": "corrupted_blood",
+      "name": "腐蚀之血",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "HP +3, SAN -5",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "HP",
+          "amount": 3
+        },
+        {
+          "type": "modify_stat",
+          "target": "SAN",
+          "amount": -5
+        }
+      ]
+    },
+    {
+      "id": "holy_water",
+      "name": "圣水",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "净化腐蚀NPC",
+      "effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "holy_water_used"
+        }
+      ]
+    },
+    {
+      "id": "spiral_copper_mirror",
+      "name": "螺旋铜镜",
+      "type": "passive",
+      "uses": -1,
+      "consume_on_use": false,
+      "passive_effect": {
+        "type": "madness_immunity"
+      },
+      "effects": []
+    },
+    {
+      "id": "abyss_crystal",
+      "name": "深渊水晶",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "SAN +5",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "SAN",
+          "amount": 5
+        }
+      ]
+    },
+    {
+      "id": "dock_diary",
+      "name": "码头工人日记",
+      "type": "key_item",
+      "uses": -1,
+      "consume_on_use": false,
+      "effects": []
+    },
+    {
+      "id": "time_fragment",
+      "name": "时间碎片",
+      "type": "key_item",
+      "uses": -1,
+      "consume_on_use": false,
+      "effects": []
+    },
+    {
+      "id": "tidal_schedule",
+      "name": "潮汐时刻表",
+      "type": "key_item",
+      "uses": -1,
+      "consume_on_use": false,
+      "passive_effect": {
+        "type": "modify_event_weight",
+        "area": "harbor_district",
+        "time": "night",
+        "modifier": 0.7
+      },
+      "effects": []
+    },
+    {
+      "id": "tommy_photo",
+      "name": "汤米的照片",
+      "type": "key_item",
+      "uses": -1,
+      "consume_on_use": false,
+      "effects": [
+        {
+          "type": "add_clue",
+          "clue_id": "photo_clue"
+        }
+      ]
+    },
+    {
+      "id": "candles",
+      "name": "蜡烛",
+      "type": "consumable",
+      "uses": 3,
+      "consume_on_use": true,
+      "use_hint": "进入墓穴需要",
+      "effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "candle_lit"
+        }
+      ]
+    },
+    {
+      "id": "dried_rations",
+      "name": "压缩干粮",
+      "type": "consumable",
+      "uses": 3,
+      "consume_on_use": true,
+      "use_hint": "食物 +1",
+      "effects": [
+        {
+          "type": "modify_resource",
+          "resource": "food",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "canned_food",
+      "name": "罐头",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "食物 +1",
+      "effects": [
+        {
+          "type": "modify_resource",
+          "resource": "food",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "fish_catch",
+      "name": "鲜鱼",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "食物 +2",
+      "effects": [
+        {
+          "type": "modify_resource",
+          "resource": "food",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "press_pass",
+      "name": "记者通行证",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "对话获取线索数+1"
+    },
+    {
+      "id": "lockpick_set",
+      "name": "撬锁工具",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "检定阈值-10"
+    },
+    {
+      "id": "reference_book",
+      "name": "参考书",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "线索自动关联"
+    },
+    {
+      "id": "medical_bag",
+      "name": "医疗包",
+      "type": "consumable",
+      "uses": 5,
+      "consume_on_use": true,
+      "use_hint": "急救效果翻倍",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "HP",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "id": "trench_knife",
+      "name": "战壕刀",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "斗殴检定+10"
+    },
+    {
+      "id": "spirit_board",
+      "name": "通灵板",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "感知污染源"
+    },
+    {
+      "id": "explorer_staff",
+      "name": "探险家手杖",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "攀爬检定+5"
+    },
+    {
+      "id": "clue_notes",
+      "name": "线索笔记",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "记录线索"
+    },
+    {
+      "id": "master_key",
+      "name": "万能钥匙",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "锁匠检定+10"
+    },
+    {
+      "id": "corrupt_eye",
+      "name": "堕落者之眼",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "侦查检定+5，SAN-1"
+    },
+    {
+      "id": "guardian_charm",
+      "name": "守护者护符",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "意志检定+5"
+    },
+    {
+      "id": "transcendence_shard",
+      "name": "超越者碎片",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "神秘学检定+5"
+    },
+    {
+      "id": "warehouse_key_fragment",
+      "name": "仓库钥匙碎片",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "slime_sample",
+      "name": "粘液样本",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "missing_persons_copy",
+      "name": "失踪者名单副本",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "twisted_bible_page",
+      "name": "扭曲的圣经页",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "mad_beggar_graffiti",
+      "name": "疯乞丐的涂鸦（暗含地图线索）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "nightgaunt_feather",
+      "name": "夜魔羽毛（黑色，冰冷）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "soaked_notes",
+      "name": "湿透的笔记（可阅读）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "torn_coat",
+      "name": "撕裂的外套",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "stele_rubbing",
+      "name": "石碑拓片",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "locked_metal_box",
+      "name": "金属盒子（锁住）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "chain_key_clue",
+      "name": "铁链钥匙线索",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "torn_paper",
+      "name": "碎纸条",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "ceramic_fragment",
+      "name": "陶瓷碎片（可作为标记物）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "river_water_sample",
+      "name": "暗河水样",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "riverbed_fragment",
+      "name": "河底碎片（未知材质）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "mural_copy",
+      "name": "壁画临摹（含隐藏通道线索）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "yithian_memory",
+      "name": "伊斯记忆碎片（可学习）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "shoggoth_residue",
+      "name": "修格斯残留物（未知用途）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "seal_ritual_record",
+      "name": "封印仪式记录（关键线索）",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "void_echo_memory",
+      "name": "虚空回响记忆（永久效果：克苏鲁神话+3）",
+      "type": "clue",
+      "uses": -1,
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "克苏鲁神话",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "id": "elder_sign_rubbing",
+      "name": "旧印拓片（关键道具：可在封印仪式中使用）",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "可在封印仪式中使用"
+    },
+    {
+      "id": "enoch_diary",
+      "name": "以诺·沃特的日记",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "undersea_temple_sketch",
+      "name": "海底神殿草图",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "deep_one_offering",
+      "name": "深潜者祭品碎片",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "cthulhu_dream_memory",
+      "name": "克苏鲁之梦记忆",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "ritual_memory_fragment",
+      "name": "祭祀记忆碎片",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "nyarlathotep_mark",
+      "name": "奈亚拉托提普印记",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "bone_garden_record",
+      "name": "骨之花园记录",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "stele_rubbing_fragment",
+      "name": "石碑拓片碎片",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "yithian_remnant_memory",
+      "name": "伊斯人残影记忆",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "machine_blueprint_fragment",
+      "name": "机器示意图残片",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "morris_seal_record",
+      "name": "莫里斯家族封印记录",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "seal_crystal",
+      "name": "封印水晶",
+      "type": "quest",
+      "uses": -1,
+      "use_hint": "封印仪式关键道具"
+    },
+    {
+      "id": "suspicious_catalog",
+      "name": "可疑商品目录",
+      "type": "clue",
+      "uses": -1
+    },
+    {
+      "id": "bandage",
+      "name": "绷带",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "HP +2",
+      "effects": [
+        {
+          "type": "modify_stat",
+          "target": "HP",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "food_ration",
+      "name": "干粮",
+      "type": "consumable",
+      "uses": 1,
+      "consume_on_use": true,
+      "use_hint": "食物 +1",
+      "effects": [
+        {
+          "type": "modify_resource",
+          "resource": "food",
+          "amount": 1
+        }
+      ]
+    }
+  ],
+  "event_chains": [
+    {
+      "id": "chain_harbor_investigation",
+      "name": "码头暗流",
+      "trigger": "evt_warehouse_key成功",
+      "sequence": [
+        "evt_warehouse_key",
+        "evt_deep_one_patrol",
+        "evt_drowned_voice"
+      ],
+      "description": "从仓库异响开始，你一步步深入码头的黑暗秘密",
+      "chain_reward": "完成链后解锁：码头工人日记（揭示海底神殿入口线索）",
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_harbor_investigation_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_dockworker_diary"
+        }
+      ]
+    },
+    {
+      "id": "chain_forest_descent",
+      "name": "森林深处",
+      "trigger": "evt_forest_whisper成功",
+      "sequence": [
+        "evt_forest_whisper",
+        "evt_ancient_stone",
+        "evt_tree_speech"
+      ],
+      "description": "从林中低语到古树之语，你逐渐理解了森林的意志",
+      "chain_reward": "完成链后解锁：古树种子+森林守护者认同（禁忌之林危险等级-1）",
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_forest_descent_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_ancient_tree_seed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "forest_guardian_approval"
+        }
+      ]
+    },
+    {
+      "id": "chain_manor_secrets",
+      "name": "庄园迷踪",
+      "trigger": "evt_basement_depth成功",
+      "sequence": [
+        "evt_portrait_watch",
+        "evt_basement_depth",
+        "evt_library_secret"
+      ],
+      "description": "从肖像的注视到禁忌书架，莫里斯家族的秘密逐渐揭开",
+      "chain_reward": "完成链后解锁：封印仪式图谱+希尔达信任+3",
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_manor_secrets_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_seal_ritual_blueprint"
+        },
+        {
+          "type": "modify_npc_trust",
+          "npc_id": "希尔达·莫里斯",
+          "amount": 3
+        }
+      ]
+    },
+    {
+      "id": "chain_catacomb_horror",
+      "name": "墓穴惊魂",
+      "trigger": "evt_tomb_open成功",
+      "sequence": [
+        "evt_tomb_open",
+        "evt_living_mural",
+        "evt_ghoul_nest"
+      ],
+      "description": "从被打开的石棺到食尸鬼巢穴，墓穴的恐怖层层深入",
+      "chain_reward": "完成链后解锁：食尸鬼秘物+墓穴隐藏通道地图",
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_catacomb_horror_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_ghoul_relic"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_catacomb_hidden_passage_map"
+        }
+      ]
+    },
+    {
+      "id": "chain_yith_knowledge",
+      "name": "伊斯之谜",
+      "trigger": "evt_yithian_echo成功",
+      "sequence": [
+        "evt_yithian_echo",
+        "evt_geometry_trap",
+        "evt_time_slip"
+      ],
+      "description": "从回声到时间滑移，你触及了伊斯伟大种族的遗产",
+      "chain_reward": "完成链后解锁：时间碎片+时间机器修复知识（解锁超越者结局）",
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_yith_knowledge_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_time_shard"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_time_machine_repair_knowledge"
+        },
+        {
+          "type": "unlock_final_option",
+          "option_id": "transcendence_ending_unlocked"
+        }
+      ]
+    },
+    {
+      "id": "chain_lighthouse_truth",
+      "name": "灯塔真相",
+      "trigger": "evt_lighthouse_light成功",
+      "sequence": [
+        "evt_lighthouse_light",
+        "evt_enoch_diary",
+        "evt_cthulhu_dream"
+      ],
+      "description": "从不应存在的光到克苏鲁的梦，灯塔的秘密呼唤着你",
+      "chain_reward": "完成链后解锁：以诺·沃特的地下室钥匙+深潜者祭祀日期",
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_lighthouse_truth_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_enoch_basement_key"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_deep_diver_ritual_date"
+        }
+      ]
+    },
+    {
+      "id": "chain_city_conspiracy",
+      "name": "城市暗流",
+      "trigger": "evt_missing_poster+evt_church_bell均触发",
+      "sequence": [
+        "evt_missing_poster",
+        "evt_church_bell",
+        "evt_beggar_clue",
+        "evt_strange_clock"
+      ],
+      "description": "从失踪者名单到十三声钟响，你发现了城市表面下的暗流",
+      "chain_reward": "完成链后解锁：晨星会情报+伊莎贝拉真实目的线索",
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_city_conspiracy_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_morningstar_intel"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_isabella_truth"
+        }
+      ]
+    }
+  ],
+  "clue_chains": [
+    {
+      "id": "chain_harbor",
+      "name": "港口失踪案",
+      "chapter": 3,
+      "description": "从失踪告示出发，追踪码头区的异常，最终揭开海底真相",
+      "clue_category": "surface_to_mechanism",
+      "clues": [
+        {
+          "id": "clue_1_1",
+          "name": "失踪者名单",
+          "source": "evt_missing_poster",
+          "type": "surface",
+          "chapter": 1,
+          "weight": 3,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_1_2",
+          "name": "潮汐时刻表",
+          "source": "evt_fisherman_warning",
+          "type": "surface",
+          "chapter": 1,
+          "weight": 2,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_1_3",
+          "name": "酒馆传闻",
+          "source": "玛莎·格雷 trust≥1",
+          "type": "surface",
+          "chapter": 1,
+          "weight": 2,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_1_4",
+          "name": "仓库异响",
+          "source": "evt_warehouse_key",
+          "type": "surface",
+          "chapter": 1,
+          "weight": 3,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_2_1",
+          "name": "潮汐与失踪的关联",
+          "source": "clue_1_1 + clue_1_2",
+          "type": "mechanism",
+          "chapter": 2,
+          "weight": 4,
+          "unlocks": "码头区深层调查",
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_2_2",
+          "name": "灯塔绿光是信号",
+          "source": "evt_lighthouse_light + 老费舍信任≥2",
+          "type": "mechanism",
+          "chapter": 2,
+          "weight": 5,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_2_3",
+          "name": "海底有建筑",
+          "source": "evt_underwater_temple",
+          "type": "mechanism",
+          "chapter": 2,
+          "weight": 5,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_3_1",
+          "name": "深潜者的祭祀周期",
+          "source": "老费舍信任≥4 + 约书亚信任≥3",
+          "type": "mechanism",
+          "chapter": 3,
+          "weight": 6,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_3_2",
+          "name": "钥匙之血",
+          "source": "老费舍信任≥5",
+          "type": "ending",
+          "chapter": 3,
+          "weight": 8,
+          "unlocks": null,
+          "required_for_endings": [
+            "ending_good_seal_restored",
+            "ending_hidden_sacrifice"
+          ]
+        }
+      ],
+      "chain_reward": "完成全链后解锁：海底神殿完整地图 + 深潜者祭祀日期 + 封印仪式关键材料位置",
+      "chapter_1_focus": true,
+      "required_for": [],
+      "optional_reveals": [],
+      "false_interpretations": [],
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_harbor_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_undersea_temple_map"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_deep_diver_ritual_date"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_seal_ritual_material_location"
+        }
+      ]
+    },
+    {
+      "id": "chain_morris",
+      "name": "莫里斯家族诅咒",
+      "chapter": 4,
+      "description": "从庄园调查出发，揭开莫里斯家族与封印的关系，最终理解活体钥匙的真相",
+      "clue_category": "mechanism_to_ending",
+      "clues": [
+        {
+          "id": "clue_m_1",
+          "name": "肖像的注视",
+          "source": "evt_portrait_watch",
+          "type": "surface",
+          "chapter": 3,
+          "weight": 2,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_m_2",
+          "name": "不应该存在的深度",
+          "source": "evt_basement_depth",
+          "type": "surface",
+          "chapter": 3,
+          "weight": 3,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_m_3",
+          "name": "禁忌书架",
+          "source": "evt_library_secret",
+          "type": "surface",
+          "chapter": 3,
+          "weight": 4,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_m_4",
+          "name": "莫里斯家族与封印的关系",
+          "source": "希尔达信任≥3",
+          "type": "mechanism",
+          "chapter": 3,
+          "weight": 5,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_m_5",
+          "name": "活体钥匙的真相",
+          "source": "希尔达信任≥5 + 封印仪式残页",
+          "type": "ending",
+          "chapter": 4,
+          "weight": 9,
+          "unlocks": null,
+          "required_for_endings": [
+            "ending_hidden_sacrifice"
+          ]
+        },
+        {
+          "id": "clue_m_6",
+          "name": "替代封印方案",
+          "source": "伊莱亚斯信任≥5 + 古树种子",
+          "type": "ending",
+          "chapter": 4,
+          "weight": 8,
+          "unlocks": null,
+          "required_for_endings": [
+            "ending_good_seal_restored"
+          ]
+        }
+      ],
+      "chain_reward": "完成全链后解锁：庄园地下室完整地图 + 希尔达信任+3 + 封印仪式图谱",
+      "chapter_1_focus": false,
+      "required_for": [],
+      "optional_reveals": [],
+      "false_interpretations": [],
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_morris_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_manor_basement_map"
+        },
+        {
+          "type": "modify_npc_trust",
+          "npc_id": "希尔达·莫里斯",
+          "amount": 3
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_seal_ritual_blueprint"
+        }
+      ]
+    },
+    {
+      "id": "chain_heretical",
+      "name": "教堂异端仪式",
+      "chapter": 4,
+      "description": "从十三声钟响出发，调查教堂秘密，最终面对伊莎贝拉的异端仪式",
+      "clue_category": "surface_to_ending",
+      "clues": [
+        {
+          "id": "clue_h_1",
+          "name": "十三声钟响",
+          "source": "evt_strange_clock",
+          "type": "surface",
+          "chapter": 1,
+          "weight": 3,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_h_2",
+          "name": "教堂深处的低语",
+          "source": "evt_church_bell",
+          "type": "surface",
+          "chapter": 1,
+          "weight": 3,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_h_3",
+          "name": "疯乞丐的预言",
+          "source": "evt_beggar_clue",
+          "type": "surface",
+          "chapter": 1,
+          "weight": 2,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_h_4",
+          "name": "伊莎贝拉的真面目",
+          "source": "伊莎贝拉信任≥3",
+          "type": "mechanism",
+          "chapter": 2,
+          "weight": 5,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_h_5",
+          "name": "异端仪式的步骤",
+          "source": "伊莎贝拉信任≥4 + 禁书",
+          "type": "mechanism",
+          "chapter": 3,
+          "weight": 6,
+          "unlocks": null,
+          "required_for_endings": []
+        },
+        {
+          "id": "clue_h_6",
+          "name": "阻止仪式的方法",
+          "source": "伊莎贝拉信任≥5 + 教堂地下室调查",
+          "type": "ending",
+          "chapter": 4,
+          "weight": 8,
+          "unlocks": null,
+          "required_for_endings": [
+            "ending_good_seal_restored"
+          ]
+        },
+        {
+          "id": "clue_h_7",
+          "name": "加入仪式的后果",
+          "source": "伊莎贝拉信任≥5",
+          "type": "ending",
+          "chapter": 4,
+          "weight": 7,
+          "unlocks": null,
+          "required_for_endings": [
+            "ending_bad_ritual"
+          ]
+        }
+      ],
+      "chain_reward": "完成全链后解锁：伊莎贝拉真实目的 + 教堂地下室完整地图 + 异端仪式阻止/参与选项",
+      "chapter_1_focus": true,
+      "required_for": [],
+      "optional_reveals": [],
+      "false_interpretations": [],
+      "completion_effects": [
+        {
+          "type": "add_flag",
+          "flag_id": "chain_heretical_completed"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_isabella_truth"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_church_basement_map"
+        },
+        {
+          "type": "add_flag",
+          "flag_id": "has_heretical_ritual_option"
+        }
+      ]
+    }
+  ]
+}

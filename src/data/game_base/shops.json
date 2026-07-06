@@ -1,0 +1,52 @@
+[
+  {
+    "id": "tommy_shop",
+    "name": "陈氏杂货店",
+    "owner": "汤米·陈",
+    "area": "town_center",
+    "unlock_trust": 0,
+    "description": "汤米从柜台下面搬出几个纸箱，里面整齐码着各种日用品。",
+    "items": [
+      {
+        "id": "food_ration",
+        "name": "干粮",
+        "price": 5
+      },
+      {
+        "id": "bandage",
+        "name": "绷带",
+        "price": 4
+      },
+      {
+        "id": "flashlight",
+        "name": "手电筒",
+        "price": 8
+      }
+    ]
+  },
+  {
+    "id": "martha_shop",
+    "name": "码头酒馆补给",
+    "owner": "玛莎·格雷",
+    "area": "harbor_district",
+    "unlock_trust": 1,
+    "description": "玛莎从吧台后面拿出一些补给品，推到你面前。",
+    "items": [
+      {
+        "id": "food_ration",
+        "name": "干粮",
+        "price": 4
+      },
+      {
+        "id": "bandage",
+        "name": "绷带",
+        "price": 3
+      },
+      {
+        "id": "glowing_mushroom",
+        "name": "发光蘑菇",
+        "price": 12
+      }
+    ]
+  }
+]

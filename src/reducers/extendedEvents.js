@@ -26,8 +26,8 @@ import {
   shouldTriggerMissing600,
   createMissing600Event,
   MISSING_600_EVENT_ID,
-} from '../data/events_missing_600.js';
-import { checkOmens } from '../data/events_omens_600.js';
+} from '../data/events/events_missing_600.js';
+import { checkOmens } from '../data/events/events_omens_600.js';
 import { getEventRarityWeight, checkLegendaryTrigger, checkSecretTrigger, getRarityHint } from '../systems/eventRarity.js';
 
 // =============================================

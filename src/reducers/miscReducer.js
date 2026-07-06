@@ -168,6 +168,47 @@ export function useItemByDef(state, item, narr, ctx) {
   return !!def.consume_on_use;
 }
 
+/**
+ * Buy an item from a town shop (GD.shops data-driven).
+ * @param {object} state - game state (draft)
+ * @param {string} shopId - shop id from GD.shops
+ * @param {string} itemId - item id from shop definition
+ * @param {Function} narr - narration function
+ * @param {object} ctx - { GD }
+ * @returns {boolean} true if purchase succeeded
+ */
+export function buyFromShop(state, shopId, itemId, narr, ctx) {
+  var GD = ctx.GD;
+  if (!GD || !GD.shops) return false;
+  var shop = (GD.shops || []).find(function (s) { return s.id === shopId; });
+  if (!shop) return false;
+  var item = (shop.items || []).find(function (i) { return i.id === itemId; });
+  if (!item) return false;
+  if ((state.money || 0) < item.price) {
+    narr('system', '金钱不足。');
+    return false;
+  }
+  // Deduct money
+  state.money = (state.money || 0) - item.price;
+  // Add item to inventory
+  var inv = state.inventory || [];
+  // Check if item already exists in inventory (stackable like food)
+  var existing = inv.find(function (i) { return i.id === itemId; });
+  if (existing && existing.uses !== -1) {
+    existing.uses = (existing.uses || 1) + 1;
+  } else {
+    var newItem = {
+      id: itemId,
+      name: item.name,
+      uses: itemId === 'food_ration' ? 1 : (itemId === 'bandage' ? 1 : (itemId === 'flashlight' ? 10 : -1)),
+    };
+    inv.push(newItem);
+  }
+  state.inventory = inv;
+  narr('system', '购买了 ' + item.name + '。金钱 -' + item.price);
+  return true;
+}
+
 // === Settings Persistence (was settingsReducer.js) ===
 
 // src/reducers/settingsReducer.js - 持久化设置管理
@@ -176,41 +217,25 @@ export const SETTINGS_KEY = 'coc_game_settings';
 export const SETTINGS_VERSION = '1.1.0';
 
 export const DEFAULT_SETTINGS = {
-  // Audio (legacy fields kept for compat)
+  // Audio
   volume: 80,
   ambientVolume: 80,
   effectVolume: 80,
   uiVolume: 80,
-  // Audio (granular)
-  masterVolume: 80,
-  musicVolume: 60,
-  sfxVolume: 80,
-  voiceVolume: 70,
-  muteAll: false,
   // Display
   narrativeFontSize: 'medium',
-  fontSize: 16,
-  lineHeight: 1.6,
-  fontFamily: 'serif',
   // Accessibility
   visualDistortion: true,
   suddenSounds: true,
   flickerEffect: true,
   reduceMotion: false,
-  highContrast: false,
   // Visual pollution
   visualPollution: 50,
   interactionPollution: 50,
   metaPollution: 50,
   lightPollutionMode: false,
-  screenShake: true,
-  textCorruption: true,
-  vignetteIntensity: 1.0,
   // Gameplay
-  autoSave: true,
   showGuideHints: true,
-  skipSeenText: false,
-  confirmActions: false,
 };
 
 export function loadSettings() {

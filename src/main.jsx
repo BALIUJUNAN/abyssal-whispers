@@ -21,7 +21,7 @@ window.produce = produce;
 
 // Static JSON imports — Vite bundles these into the JS bundle at build time.
 // vite-plugin-singlefile then inlines the entire bundle into the HTML.
-import gameBase from '../game_base.json';
+import gameBase from './data/game_base/index.js';
 import gameCh2plus from '../game_ch2plus.json';
 import gameMeta from '../game_meta.json';
 

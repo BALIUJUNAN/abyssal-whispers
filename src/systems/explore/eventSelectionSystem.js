@@ -10,8 +10,8 @@ import {
   commitSelectedEvent,
   getEventWeight,
 } from '../../reducers/extendedEvents.js';
-import { shouldTriggerMissing600, createMissing600Event } from '../../data/events_missing_600.js';
-import { checkOmens } from '../../data/events_omens_600.js';
+import { shouldTriggerMissing600, createMissing600Event } from '../../data/events/events_missing_600.js';
+import { checkOmens } from '../../data/events/events_omens_600.js';
 import { getFearEventWeightModifier } from '../../systems/fearLens.js';
 import { getRarityHint } from '../../systems/eventRarity.js';
 import { shouldBlockLethalEvent } from '../../systems/firstLoopBalance.js';

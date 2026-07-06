@@ -4,7 +4,7 @@
 import re
 from collections import defaultdict
 
-with open('src/data/events_area_deep.js', encoding='utf-8') as f:
+with open('src/data/events/events_area_deep.js', encoding='utf-8') as f:
     text = f.read()
 
 ENTRY_PAT = re.compile(r"(\w+):\s*'((?:[^'\\]|\\.)*)'")

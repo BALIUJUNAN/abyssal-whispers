@@ -19,7 +19,7 @@ import {
 import { getAreaSceneImage } from '../../portraitMap.js';
 import { checkSanLegacy } from '../../systems/sanConsequenceChain.js';
 import { getLegacyForCategory, applyDeathLegacy } from '../../systems/deathLegacies.js';
-import { getDeathCountMetaEvent } from '../../data/events_death_count_meta.js';
+import { getDeathCountMetaEvent } from '../../data/events/events_death_count_meta.js';
 import { syncTriggeredSet, hasTriggered } from '../../utils/triggeredSet.js';
 import { genObjectives } from '../objectiveReducer.js';
 import { getChapterForDay } from '../chapterReducer.js';

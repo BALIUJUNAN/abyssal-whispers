@@ -4,6 +4,7 @@ import { applyMythosAliases, maybeCorruptNpcName } from '../systems/textVariants
 import { applyTextFragmentation } from '../systems/textFragmentation.js';
 import { generateNpcDialogue, isGlmAvailable } from '../systems/llmNarrative.js';
 import { getContextualLine } from '../systems/npcDialogue.js';
+import { getNpcPerceptionVariant } from '../systems/npcPerceptionVariants.js';
 import { getChoiceDelay } from '../engine/PollutionManager.js';
 import { checkTrustGate } from '../utils/trustGates.js';
 import { getNpcImage } from '../portraitMap.js';
@@ -35,7 +36,7 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
   // Contextual line (trust/san/loop/legacy-aware short dialogue)
   const ctxLine = useMemo(() => {
     if (!state || !npc) return null;
-    try { return getContextualLine(npc.name, state); } catch (e) { return null; }
+    try { return getContextualLine(npc.name, state, null); } catch (e) { return null; }
   }, [npc?.name, state?.san, state?.loopCount, state?.npcTrust?.[npc?.name], state?.lastDeathType]);
   // 对话分组折叠状态：交谈/帮助 默认展开，特殊 默认折叠
   const [collapsedGroups, setCollapsedGroups] = useState({
@@ -123,6 +124,27 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
         <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: '0.3rem' }}>
           {npc.role}
         </div>
+        {/* NPC perception variant — SAN-dependent description */}
+        {(() => {
+          try {
+            var pv = getNpcPerceptionVariant(npc.name, state || {}, { GD });
+            if (pv && pv.text) {
+              return (
+                <div style={{
+                  fontSize: '0.68rem',
+                  color: 'var(--text-dim)',
+                  marginBottom: '0.3rem',
+                  fontStyle: 'italic',
+                  lineHeight: '1.5',
+                  opacity: 0.85,
+                }}>
+                  {pv.text}
+                </div>
+              );
+            }
+          } catch (e) { /* silent */ }
+          return null;
+        })()}
         <div
           style={{
             fontSize: '0.75rem',

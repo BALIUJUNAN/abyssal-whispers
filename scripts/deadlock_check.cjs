@@ -85,7 +85,7 @@ const EXPLORE_DANGER_SAN = 3;      // 探索遇险 SAN-3
 const WORK_AREAS = ['town_center', 'harbor_district'];
 
 // ══════════════════════════════════════════════════════════════════
-// 兜底事件（来自 src/data/events_resource.js）
+// 兜底事件（来自 src/data/events/events_resource.js）
 // 在非工作区域/资源枯竭时提供生存机会
 // ══════════════════════════════════════════════════════════════════
 

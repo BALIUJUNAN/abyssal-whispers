@@ -23,7 +23,7 @@ import {
   getPrologueEvent,
 } from '../prologueReducer.js';
 import { addRunMemory, applyDeathResolution } from '../../utils/appHelpers.js';
-import { getItemDef, useItemByDef } from '../miscReducer.js';
+import { getItemDef, useItemByDef, buyFromShop } from '../miscReducer.js';
 import { hasClueId } from '../../utils/clueNameMap.js';
 import { initSkills } from '../../utils/gameHelpers.js';
 import { processFakeChoice } from '../../systems/sanConsequenceChain.js';
@@ -337,6 +337,12 @@ export function handleUiAction(draft, action, c, ctx) {
       c.narr(action.narrType || 'system', action.text, action.extra || {});
       return null;
     }
+    case 'BUY_FROM_SHOP': {
+      buyFromShop(draft, action.shopId, action.itemId, c.narr, ctx);
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'item_gain' });
+      draft.objectives = checkObjCompletion(draft.objectives, draft);
+      return null;
+    }
     case 'USE_ITEM': {
       var item = action.item;
       if (!item) return null;
@@ -356,6 +362,14 @@ export function handleUiAction(draft, action, c, ctx) {
         }
       }
       draft.objectives = checkObjCompletion(draft.objectives, draft);
+      return null;
+    }
+    case 'OPEN_SHOP': {
+      draft.activeShop = action.shopId || null;
+      return null;
+    }
+    case 'CLOSE_SHOP': {
+      draft.activeShop = null;
       return null;
     }
     default:

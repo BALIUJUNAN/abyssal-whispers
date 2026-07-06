@@ -134,6 +134,15 @@ export function useMoney() { return useGameStore(_selMoney); }
 export function usePollution() { return useGameStore(_selPollution); }
 export function useHumanityScore() { return useGameStore(_selHumanityScore); }
 
+// Game state (used by app.jsx for direct logic)
+export function useEnding() { return useGameStore(function (s) { return s.ending; }); }
+export function useEndingCoins() { return useGameStore(function (s) { return s.endingCoins; }); }
+export function useLoopShopTier() { return useGameStore(function (s) { return s.loopShopTier; }); }
+export function useTutorialSeen() { return useGameStore(function (s) { return s.tutorialSeen; }); }
+export function useLevel13GlitchScheduled() { return useGameStore(function (s) { return s._level13GlitchScheduled; }); }
+export function useAccessibilityOptions() { return useGameStore(function (s) { return s.accessibilityOptions; }); }
+export function useGlitchPulse() { return useGameStore(function (s) { return s.glitchPulse; }); }
+
 // UI state
 export function useUiState(selector) {
   if (selector) return useUiStore(selector);
@@ -150,71 +159,6 @@ export function useEventTriggered(eventId) {
 export function useLongTermEffectsCount() { return useGameStore(_selLongTermEffectsCount); }
 export function useMadnessActive() { return useGameStore(_selMadnessActive); }
 
-// ── Combined selectors ──
-// CRITICAL: subscribe to primitives only, use useMemo to create the combined object.
-// Zustand 5.0.14 has no equalityFn; React's Object.is sees new objects as changes.
-
-export function useAppGameData() {
-  var screen = useGameStore(function (s) { return s.screen; });
-  var day = useGameStore(_selDay);
-  var san = useGameStore(_selSan);
-  var hp = useGameStore(function (s) { return s.hp; });
-  var maxHp = useGameStore(function (s) { return s.maxHp; });
-  var ap = useGameStore(function (s) { return s.ap; });
-  var maxAp = useGameStore(function (s) { return s.maxAp; });
-  var loopCount = useGameStore(_selLoopCount);
-  var currentArea = useGameStore(_selCurrentArea);
-  var safehouseCorruption = useGameStore(_selSafehouseCorruption);
-  var pollution = useGameStore(_selPollution);
-  var money = useGameStore(_selMoney);
-  var food = useGameStore(_selFood);
-  var inventory = useGameStore(function (s) { return s.inventory; });
-  var clues = useGameStore(function (s) { return s.clues; });
-  var narrative = useGameStore(function (s) { return s.narrative; });
-  var eventLog = useGameStore(function (s) { return s.eventLog; });
-  var pendingEvent = useGameStore(function (s) { return s.pendingEvent; });
-  var pendingNpc = useGameStore(function (s) { return s.pendingNpc; });
-  var pendingGamble = useGameStore(function (s) { return s.pendingGamble; });
-  var pendingChoice = useGameStore(function (s) { return s.pendingChoice; });
-  var transition = useGameStore(function (s) { return s.transition; });
-  var madnessActive = useGameStore(_selMadnessActive);
-  var ending = useGameStore(function (s) { return s.ending; });
-  var endingCoins = useGameStore(function (s) { return s.endingCoins; });
-  var loopShopTier = useGameStore(function (s) { return s.loopShopTier; });
-  var visitedAreas = useGameStore(function (s) { return s.visitedAreas; });
-  var sealState = useGameStore(_selSealState);
-  var weather = useGameStore(_selWeather);
-  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
-  var _level13GlitchScheduled = useGameStore(function (s) { return s._level13GlitchScheduled; });
-  var glitchPulse = useGameStore(function (s) { return s.glitchPulse; });
-  var stats_run = useGameStore(function (s) { return s.stats_run; });
-  var accessibilityOptions = useGameStore(function (s) { return s.accessibilityOptions; });
-
-  return useMemo(function () {
-    return {
-      screen: screen, day: day, san: san, hp: hp, maxHp: maxHp,
-      ap: ap, maxAp: maxAp, loopCount: loopCount, currentArea: currentArea,
-      safehouseCorruption: safehouseCorruption, pollution: pollution,
-      money: money, food: food, inventory: inventory, clues: clues,
-      narrative: narrative, eventLog: eventLog,
-      pendingEvent: pendingEvent, pendingNpc: pendingNpc,
-      pendingGamble: pendingGamble, pendingChoice: pendingChoice,
-      transition: transition, madnessActive: madnessActive,
-      ending: ending, endingCoins: endingCoins, loopShopTier: loopShopTier,
-      visitedAreas: visitedAreas, sealState: sealState, weather: weather,
-      currentSafehouse: currentSafehouse,
-      _level13GlitchScheduled: _level13GlitchScheduled, glitchPulse: glitchPulse,
-      stats_run: stats_run, accessibilityOptions: accessibilityOptions,
-    };
-  }, [screen, day, san, hp, maxHp, ap, maxAp, loopCount, currentArea,
-      safehouseCorruption, pollution, money, food, inventory, clues,
-      narrative, eventLog, pendingEvent, pendingNpc, pendingGamble, pendingChoice,
-      transition, madnessActive, ending, endingCoins, loopShopTier, visitedAreas,
-      sealState, weather, currentSafehouse, _level13GlitchScheduled, glitchPulse,
-      stats_run, accessibilityOptions]);
-}
-
-// Other batch selectors — use useMemo for the same reason
 export function useGameLayoutData() {
   var screen = useGameStore(function (s) { return s.screen; });
   var day = useGameStore(_selDay);

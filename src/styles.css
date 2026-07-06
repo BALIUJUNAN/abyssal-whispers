@@ -1537,6 +1537,25 @@ body::before {
   opacity: 0.6;
 }
 
+/* ── 感知污染：输入阻尼层 ── */
+.input-resist-light .action-btn {
+  transition: opacity 0.05s linear;
+}
+.input-resist-medium .action-btn {
+  transition: opacity 0.08s linear;
+}
+.input-resist-medium .action-btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.9);
+}
+.input-resist-heavy .action-btn {
+  transition: opacity 0.12s linear, transform 0.15s ease;
+}
+.input-resist-heavy .action-btn:active {
+  transform: translateY(2px);
+  filter: brightness(0.8) saturate(0.7);
+}
+
 /* Danger action group */
 .action-group.danger .action-group-title {
   color: var(--danger2);

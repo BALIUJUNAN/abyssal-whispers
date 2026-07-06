@@ -5,7 +5,7 @@
  *
  * Checks:
  *   - game_base.json events, npcs, areas, items
- *   - All extended event JS files (src/data/events_*.js)
+ *   - All extended event JS files (src/data/events/events_*.js)
  *   - Reports schema violations with field-level detail
  *
  * Exit code: 0 = all valid, 1 = violations found, 2 = load error
@@ -54,7 +54,7 @@ async function main() {
 
   // ── Validate extended event JS files ──
   console.log('\n=== Validating extended events ===');
-  const dataDir = path.resolve(__dirname, '../src/data');
+  const dataDir = path.resolve(__dirname, '../src/data/events');
   const eventFiles = fs.readdirSync(dataDir)
     .filter(f => f.startsWith('events_') && f.endsWith('.js') && !f.includes('test_'));
 

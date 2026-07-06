@@ -96,7 +96,7 @@ export function _executeTalkNpc(s, action, c, ctx) {
     }
     // SAN level observation: NPCs notice player's deteriorating mental state
     if (!dayLine && !weatherLine && s.san < 40) {
-      var sanLine = getSanLevelLine(npc.name, s.san);
+      var sanLine = getSanLevelLine(npc.name, s.san, c.rng);
       if (sanLine && (c.rng ? c.rng.next() : Math.random()) < 0.25) {
         c.narr('system', npc.name + '看着你说：「' + sanLine + '」', { isSpecial: true });
       }

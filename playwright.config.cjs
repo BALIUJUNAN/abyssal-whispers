@@ -2,7 +2,7 @@ const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './tests/e2e',
-  testMatch: '*.cjs',
+  testMatch: '*.spec.cjs',
   timeout: 60000,
   retries: 0,
   use: {
@@ -15,6 +15,13 @@ module.exports = defineConfig({
     launchOptions: {
       executablePath: 'C:/Users/vic15/AppData/Local/ms-playwright/chromium-1223/chrome-win64/chrome.exe',
     },
+  },
+  // Auto-start dev server for E2E tests
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 30000,
   },
   projects: [
     {

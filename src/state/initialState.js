@@ -172,6 +172,7 @@ function createRuntimeState() {
     _apOffset: 0,                   // [runtime] — display = real + offset (player sees more than real)
     _bellPressure: 0,               // [persisted] — days since player investigated the thirteen bells
     eventCooldowns: {},             // [persisted]
+    combat: null,                   // [runtime] — active combat state (null when not in combat)
   };
 }
 

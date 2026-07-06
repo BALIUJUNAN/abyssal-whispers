@@ -3,146 +3,59 @@
 // In Vite (ESM), these imports resolve to real modules.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { produce } from 'immer';
 
 // Granular Zustand selectors — replaces useSyncExternalStore(getState())
 import {
-  useAppGameData,
   useSan,
   useSanStageClasses,
   useDay,
   useLoopCount,
   useCurrentArea,
+  useEnding,
+  useEndingCoins,
+  useLoopShopTier,
+  useTutorialSeen,
+  useLevel13GlitchScheduled,
+  useAccessibilityOptions,
+  useSafehouseCorruption,
+  useGlitchPulse,
 } from './state/selectors.js';
-import { useScreen, getDispatch, seedGameStore, useGameStore } from './state/useGameStore.js';
+import { useScreen, getDispatch, useGameStore } from './state/useGameStore.js';
 
 // ── Core reducers & systems ──
 import { rand, d100, d3, clamp, pick, rollDice, shuffle } from './reducers/utils.js';
-import {
-  getPhase,
-  getSealState,
-  getSealStateId,
-  getWeather,
-  getAreaInfo,
-  getConnectedAreas,
-} from './engine/WorldTimeSystem.js';
-import { getDistortedName } from './systems/textVariants.js';
-import {
-  getSanTextVariant,
-  getSanSceneVariant,
-  processSanLoss,
-  rollMadness,
-} from './reducers/sanReducer.js';
-import {
-  getSafehouseStage,
-  processSafehouseNight,
-  getItemDef,
-  useItemByDef,
-  loadSettings,
-  saveSettings,
-} from './reducers/miscReducer.js';
-import {
-  checkTrigger,
-  selectEvent,
-  doSkillCheck,
-  getGambleOptions,
-  processNormalAnchorEvent,
-} from './reducers/eventReducer.js';
-import { applyEffects, applyLegacyEffects } from './reducers/effectReducer.js';
-import { genObjectives, checkObjCompletion } from './reducers/objectiveReducer.js';
-import {
-  saveGame,
-  loadGame,
-  clearSave,
-  hasSave,
-  getAllSlots,
-  autoSave,
-  manualSave,
-  loadSlot,
-  deleteSlotById,
-  migrateOldSave,
-  exportSave,
-  importSave,
-  configureSaveManager,
-  enforceSaveFormatFreeze,
-  validateSaveFormat,
-} from './engine/SaveManager.js';
-import {
-  loadAchievements,
-  saveAchievements,
-  checkAchievements,
-  getAchievementDef,
-  getAllAchievements,
-  incrementStat,
-  resetRunStats,
-} from './reducers/achievementReducer.js';
-import { getPollutionText, initLoopState } from './reducers/loopReducer.js';
-import {
-  getChapterForDay,
-  getMythosCap,
-  getChapterAlias,
-  checkChapterTransition,
-  getMotifFlavorText,
-  getMonsterManifestation,
-} from './reducers/chapterReducer.js';
-import { checkConclusions, checkFalseInterpretations } from './reducers/conclusionReducer.js';
-import { checkEnding } from './reducers/endingReducer.js';
-import {
-  checkNPCCorruption,
-  applyNPCCorruption,
-  setCorruptionFlag,
-} from './reducers/npcReducer.js';
-import {
-  selectEventV2,
-  checkTriggerExtended,
-  resetDailyCategoryCounts,
-  buildPreviousRunSummary,
-  applyExtendedEffect,
-  getEligibleEvents,
-  chooseWeightedEvent,
-  commitSelectedEvent,
-  getEventWeight,
-} from './reducers/extendedEvents.js';
-import {
-  ensureExtendedState,
-  mergeExtendedEvents,
-  loadChapterData,
-} from './reducers/extendedEventsLoader.js';
-import { shouldTriggerMissing600, createMissing600Event } from './data/events_missing_600.js';
-import { checkOmens } from './data/events_omens_600.js';
+
+import { configureSaveManager, enforceSaveFormatFreeze } from './engine/SaveManager.js';
+import { loadAchievements, saveAchievements, checkAchievements, getAchievementDef } from './reducers/achievementReducer.js';
+
+import { shouldTriggerMissing600, createMissing600Event } from './data/events/events_missing_600.js';
+import { checkOmens } from './data/events/events_omens_600.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
-import { resolveDeath } from './reducers/deathSystem.js';
+
 import { getGuideStep } from './systems/firstRunGuide.js';
-import { getSanLossPresentation, getSanStageFeedback } from './systems/sanFeedback.js';
-import { PROLOGUE_EVENTS } from './data/prologue_events.js';
-import {
-  initPrologueState,
-  handlePrologueChoice,
-  handleSkipPrologue,
-  getPrologueEvent,
-  getPrologueSceneOrder,
-} from './reducers/prologueReducer.js';
-import {
-  getFearEventWeightModifier,
-  applyFearLens,
-  getFearNpcLine,
-  applyFearCorruption,
-} from './systems/fearLens.js';
+import { getSanStageFeedback } from './systems/sanFeedback.js';
 
-// ── Engine & runtime ──
-import { recordActionHistory } from './engine/EventEngine.js';
-import { runPostReducerEffects } from './runtime/effectExecutor.js';
+import { applyFearCorruption } from './systems/fearLens.js';
 
-// ── Reducer slice handlers ──
-import { handleCoreAction } from './reducers/slices/coreSlice.js';
-import { handleExploreAction } from './reducers/slices/exploreSlice.js';
-import { handleNpcAction } from './reducers/slices/npcSlice.js';
-import { handleDailyAction } from './reducers/slices/dailySlice.js';
-import { handleDarkAction } from './reducers/slices/darkSlice.js';
-import { handleUiAction } from './reducers/slices/uiSlice.js';
+// ── Phase 1 custom hooks ──
+import {
+  useSeedStore,
+  useMigrateOldSaves,
+  useAudioSettingsInit,
+  useAudioAutoplayUnlock,
+  useReducedMotion,
+  useNotebookTutorialSync,
+  usePageZoom,
+  useEndingCgPreload,
+  useChapterLazyLoad,
+  useAchievementCheck,
+  useSanLossHint,
+  useBootHint,
+  useLevel13Glitch,
+} from './hooks/index.js';
 
 // ── Utilities ──
-import { addRunMemory, preloadEndingCGs, buildReducerCtx, checkKnowledgeEarned, checkBreakWallEvent, checkSilentEvent } from './utils/appHelpers.js';
+
 import { createSeededRng } from './utils/seededRng.js';
 import { getCorruptionLevel } from './utils/gameHelpers.js';
 import { createErrorTracker } from './utils/errorTracker.js';
@@ -158,7 +71,6 @@ enforceSaveFormatFreeze();
 
 // ── State stores ──
 import { uiStore, useUiStore, addUiToast, removeUiToast, notifySave, updateSettings } from './state/uiStore.js';
-import { useSanVisual, useSanLevel, useNpcTrust, useEventLogLength } from './state/selectors.js';
 
 // ── Event side effects (must be imported once to activate handlers) ──
 import { setDispatch } from './runtime/eventSideEffects.js';
@@ -172,12 +84,7 @@ import { InteractiveTownMap, HotspotNode, MapPaths } from './components/Interact
 import { AreaPanelModal } from './components/AreaPanelModal.jsx';
 import { FloatingInfoBar, NarrativeFloatingPanel } from './components/FloatingInfoBar.jsx';
 import { GameLayout } from './components/GameLayout.jsx';
-import {
-  TOWN_HOTSPOTS,
-  getVisibleHotspots,
-  isHotspotUnlocked,
-  getHotspotState,
-} from './data/townHotspots.js';
+
 import { audioManager } from './managers/AudioManager.js';
 import { TitleScreen } from './components/TitleScreen.jsx';
 import { AppToast } from './components/AppToast.jsx';
@@ -194,14 +101,14 @@ import {
   RightPanel,
   NotebookModal,
 } from './components/GamePanels.jsx';
+import { ShopModal } from './components/ShopModal.jsx';
 
 // GAME_DATA placeholder is replaced at build time by build.py.
 // In Vite, __GAME_DATA__ is set on window by main.vite.jsx before this module loads.
 
-const { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback, memo } = React;
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
 const GD = initExtendedEvents(__GAME_DATA__);
-const ctx = { GD };
 /* [TRACKER-INIT] 初始化 — GD 之后，dispatch 之前 */
 const errorTracker = createErrorTracker();
 if (typeof window !== 'undefined') {
@@ -215,8 +122,9 @@ if (typeof window !== 'undefined') {
 function getCorruptedSystemText(baseText, layer, rng) {
   // Fear lens corruption: prologue-derived fear-specific UI corruption
   // Applied before generic corruption
-  if (layer > 0 && _currentFearTuning && _currentFearTuning.primary) {
-    const fearCorrupted = applyFearCorruption({ fearTuning: _currentFearTuning }, baseText, layer, rng);
+  var fearTuning = useGameStore.getState().fearTuning;
+  if (layer > 0 && fearTuning && fearTuning.primary) {
+    const fearCorrupted = applyFearCorruption({ fearTuning: fearTuning }, baseText, layer, rng);
     if (fearCorrupted !== baseText) return fearCorrupted;
   }
   var _rand = rng ? rng.next.bind(rng) : Math.random;
@@ -246,8 +154,8 @@ function getCorruptedSystemText(baseText, layer, rng) {
 
 // checkBreakWallEvent moved to src/utils/appHelpers.js (now accepts GD as 3rd param)
 
-// Fear lens: module-level reference for corruption function
-let _currentFearTuning = null;
+// GD is intentionally module-level: initialized once by initExtendedEvents.
+// Store holds state._GD (same object ref). Prefer state._GD or props; never use window.GD (ADR-018).
 
 /**
  * P0-3: Check if a critical progress guard should fire.
@@ -283,23 +191,76 @@ function App() {
   var san = useSan();
   var currentArea = useCurrentArea();
   var sanStage = useSanStageClasses(true);
-  var game = useAppGameData(); // combined: hp, ap, inventory, narrative, etc.
+  // ── Granular selectors (replaces useAppGameData 34-field combined) ──
+  var gameEnding = useEnding();
+  var gameEndingCoins = useEndingCoins();
+  var gameLoopShopTier = useLoopShopTier();
+  var gameTutorialSeen = useTutorialSeen();
+  var gameLevel13Glitch = useLevel13GlitchScheduled();
+  var gameAccessibility = useAccessibilityOptions();
+  var gameSafehouseCorruption = useSafehouseCorruption();
+  var gameGlitchPulse = useGlitchPulse();
 
-  var stateRef = React.useRef(game);
+    // Combined game object for child components (built from granular subscriptions)
+  // Fields for children (PrologueScreen, CharCreation, EndingScreen, DevPanel, ShopModal)
+  var gameHp = useGameStore(function (s) { return s.hp; });
+  var gameMaxHp = useGameStore(function (s) { return s.maxHp; });
+  var gameAp = useGameStore(function (s) { return s.ap; });
+  var gameMaxAp = useGameStore(function (s) { return s.maxAp; });
+  var gameMoney = useGameStore(function (s) { return s.money; });
+  var gameFood = useGameStore(function (s) { return s.food; });
+  var gameInventory = useGameStore(function (s) { return s.inventory; });
+  var gameClues = useGameStore(function (s) { return s.clues; });
+  var gameNarrative = useGameStore(function (s) { return s.narrative; });
+  var gameEventLog = useGameStore(function (s) { return s.eventLog; });
+  var gamePendingEvent = useGameStore(function (s) { return s.pendingEvent; });
+  var gamePendingNpc = useGameStore(function (s) { return s.pendingNpc; });
+  var gamePendingGamble = useGameStore(function (s) { return s.pendingGamble; });
+  var gamePendingChoice = useGameStore(function (s) { return s.pendingChoice; });
+  var gameTransition = useGameStore(function (s) { return s.transition; });
+  var gameMadnessActive = useGameStore(function (s) { return s.madnessActive; });
+  var gameVisitedAreas = useGameStore(function (s) { return s.visitedAreas; });
+  var gameSealState = useGameStore(function (s) { return s.sealState; });
+  var gameWeather = useGameStore(function (s) { return s.weather; });
+  var gameCurrentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
+  var gameStatsRun = useGameStore(function (s) { return s.stats_run; });
+  var gameSkills = useGameStore(function (s) { return s.skills; });
+  var gameObjectives = useGameStore(function (s) { return s.objectives; });
+  var gameLongTermEffects = useGameStore(function (s) { return s.longTermEffects; });
+  var gamePollution = useGameStore(function (s) { return s.pollution; });
+
+  var game = useMemo(function () {
+    return {
+      ending: gameEnding, endingCoins: gameEndingCoins, loopShopTier: gameLoopShopTier,
+      tutorialSeen: gameTutorialSeen, _level13GlitchScheduled: gameLevel13Glitch,
+      accessibilityOptions: gameAccessibility, safehouseCorruption: gameSafehouseCorruption,
+      glitchPulse: gameGlitchPulse,
+      screen: screen, day: day, san: san,
+      hp: gameHp, maxHp: gameMaxHp, ap: gameAp, maxAp: gameMaxAp,
+      loopCount: loopCount, currentArea: currentArea,
+      pollution: gamePollution, money: gameMoney, food: gameFood,
+      inventory: gameInventory, clues: gameClues,
+      narrative: gameNarrative, eventLog: gameEventLog,
+      pendingEvent: gamePendingEvent, pendingNpc: gamePendingNpc,
+      pendingGamble: gamePendingGamble, pendingChoice: gamePendingChoice,
+      transition: gameTransition, madnessActive: gameMadnessActive,
+      visitedAreas: gameVisitedAreas,
+      sealState: gameSealState, weather: gameWeather,
+      currentSafehouse: gameCurrentSafehouse,
+      stats_run: gameStatsRun,
+      skills: gameSkills, objectives: gameObjectives,
+      longTermEffects: gameLongTermEffects,
+    };
+  }, [gameEnding, gameEndingCoins, gameLoopShopTier, gameTutorialSeen,
+      gameLevel13Glitch, gameAccessibility, gameSafehouseCorruption, gameGlitchPulse,
+      screen, day, san, loopCount, currentArea,
+      gameHp, gameMaxHp, gameAp, gameMaxAp, gamePollution, gameMoney, gameFood,
+      gameInventory, gameClues, gameNarrative, gameEventLog,
+      gamePendingEvent, gamePendingNpc, gamePendingGamble, gamePendingChoice,
+      gameTransition, gameMadnessActive, gameVisitedAreas,
+      gameSealState, gameWeather, gameCurrentSafehouse,
+      gameStatsRun, gameSkills, gameObjectives, gameLongTermEffects]);var stateRef = React.useRef(game);
   stateRef.current = game;
-  // Seed Zustand store on mount (may already be seeded by main.jsx in dev mode)
-  React.useEffect(function () {
-    var storeState = useGameStore.getState();
-    if (!storeState._GD) {
-      seedGameStore(GD);
-    }
-    // 移除加载层
-    var ls = document.getElementById('loading-screen');
-    if (ls) {
-      ls.classList.add('fade-out');
-      setTimeout(function () { ls.remove(); }, 700);
-    }
-  }, []);
 
   /* [TRACKER-DISPATCH] 包装 dispatch — 自动记录每步操作 */
   var dispatch = React.useCallback(function (action) {
@@ -322,6 +283,7 @@ function App() {
   var _uiUgcOpen = useUiStore(function (s) { return s.ugcOpen; });
   var _uiNotebookOpen = useUiStore(function (s) { return s.notebookOpen; });
   var _uiNotebookEverOpened = useUiStore(function (s) { return s.notebookEverOpened; });
+  var _uiActiveShop = useUiStore(function (s) { return s.activeShop; });
   var _uiSettings = useUiStore(function (s) { return s.settings; });
   var _uiSaveTick = useUiStore(function (s) { return s.saveTick; });
   var _uiToasts = useUiStore(function (s) { return s.toasts; });
@@ -330,76 +292,29 @@ function App() {
       settingsOpen: _uiSettingsOpen, saveLoadOpen: _uiSaveLoadOpen,
       saveLoadMode: _uiSaveLoadMode, achOpen: _uiAchOpen, ugcOpen: _uiUgcOpen,
       notebookOpen: _uiNotebookOpen, notebookEverOpened: _uiNotebookEverOpened,
+      activeShop: _uiActiveShop,
       settings: _uiSettings, saveTick: _uiSaveTick, toasts: _uiToasts,
     };
   }, [_uiSettingsOpen, _uiSaveLoadOpen, _uiSaveLoadMode, _uiAchOpen, _uiUgcOpen,
-      _uiNotebookOpen, _uiNotebookEverOpened, _uiSettings, _uiSaveTick, _uiToasts]);
+      _uiNotebookOpen, _uiNotebookEverOpened, _uiActiveShop,
+      _uiSettings, _uiSaveTick, _uiToasts]);
   const settings = ui.settings;
   const savedExists = useMemo(() => hasSave(), [ui.saveTick]);
 
-  // Achievement checking
-  useEffect(() => {
-    const achData = loadAchievements();
-    const newUnlocks = checkAchievements(game, achData.unlocked, achData.stats);
-    if (newUnlocks.length > 0) {
-      achData.unlocked.push(...newUnlocks);
-      saveAchievements(achData);
-      newUnlocks.forEach((id) => {
-        const def = getAchievementDef(id);
-        if (def) addUiToast({ id, def, type: 'achievement' });
-      });
-    }
-  }, [day, game.ending, (game.visitedAreas || []).length, (game.clues || []).length]);
-
-  useEffect(() => {
-    migrateOldSave();
-  }, []);
-
-  useEffect(() => {
-    audioManager._volumeScale = settings.volume / 100;
-    audioManager._userVolumeScale = settings.volume / 100;
-    audioManager._ambientScale = (settings.ambientVolume ?? 80) / 100;
-    audioManager._effectScale = (settings.effectVolume ?? 80) / 100;
-    audioManager._uiScale = (settings.uiVolume ?? 80) / 100;
-    audioManager.suddenMuted = !settings.suddenSounds;
-  }, []); // Audio settings only — game state sync moved to seedState
-
-  // 笔记本打开 → 同步标记引导已读（uiStore → game state）
-  useEffect(() => {
-    if (ui.notebookEverOpened && !(game.tutorialSeen || {}).notebook_opened) {
-      dispatch({ type: 'MARK_NOTEBOOK_OPENED' });
-    }
-  }, [ui.notebookEverOpened]);
-
-  // 页面缩放初始化：基础 zoom 1.1x，slider 100 = 1.1x 实际缩放
-  useEffect(() => {
-    var BASE_ZOOM = 1.1;
-    var scale = settings.pageScale ?? 100;
-    var actualZoom = (scale / 100) * BASE_ZOOM;
-    document.documentElement.style.zoom = actualZoom.toString();
-    // 防止缩放 >1 时出现滚动条 (clip 不创建滚动容器，不影响 fixed 定位子元素)
-    // Safari <16 不支持 clip，hidden 作为 fallback
-    document.documentElement.style.overflow = 'clip';
-    document.body.style.overflow = 'clip';
-  }, [settings.pageScale]);
-
-  // Audio autoplay unlock: browsers block audio until first user gesture
-  useEffect(() => {
-    var handler = function () {
-      audioManager.unlock();
-      window.removeEventListener('click', handler);
-      window.removeEventListener('touchstart', handler);
-      window.removeEventListener('keydown', handler);
-    };
-    window.addEventListener('click', handler, { once: false });
-    window.addEventListener('touchstart', handler, { once: false });
-    window.addEventListener('keydown', handler, { once: false });
-    return function () {
-      window.removeEventListener('click', handler);
-      window.removeEventListener('touchstart', handler);
-      window.removeEventListener('keydown', handler);
-    };
-  }, []);
+  // ── Phase 1 custom hooks (replaces 13 useEffect blocks) ──
+  useSeedStore(GD);
+  useMigrateOldSaves();
+  useAudioSettingsInit(settings);
+  useAudioAutoplayUnlock();
+  useNotebookTutorialSync(ui.notebookEverOpened, gameTutorialSeen, getDispatch());
+  usePageZoom(settings);
+  useEndingCgPreload(san, screen, sanStage);
+  useChapterLazyLoad(GD, day, screen);
+  useReducedMotion(settings);
+  var l13IntervalRef = useLevel13Glitch(gameLevel13Glitch, screen, getDispatch());
+  var bootHintVisible = useBootHint(screen, day);
+  var sanHintVisible = useSanLossHint(san, screen);
+  useAchievementCheck(game);
 
   const handleSettingsChange = (s) => {
     updateSettings(s);
@@ -418,96 +333,19 @@ function App() {
     notifySave('从存档中醒来', 'load');
   };
 
-  // 结局CG预加载：SAN < 30 时静默预加载，暗示结局临近
-  // P1-A: SSOT — preload ending CGs at explanation_loss (level >= 3)
-  useEffect(() => {
-    if (screen === 'game' && sanStage.level >= 3) preloadEndingCGs();
-  }, [san, screen]);
-
-  // Lazy-load ch2+ game data (web mode only — skipped if already merged at build time)
-  // Chapter-gated: load ch2+ at day 5, meta at day 10 (reduces initial load)
-  useEffect(() => {
-    if (screen !== 'game') return;
-    if (!GD._extendedEventsLoaded) return;
-    try {
-      if (day >= 5) loadChapterData(GD, 'ch2plus', 'game_ch2plus.json');
-      if (day >= 10) loadChapterData(GD, 'meta', 'game_meta.json');
-    } catch (e) {
-      /* non-fatal: game continues with existing data */
-    }
-  }, [day, screen]);
-
-  // SAN visual corruption: now handled by <SanPollutionLayer> component (see render below)
-
-  // ── Reduced motion: sync settings → body data attribute ──
-  useEffect(() => {
-    try {
-      document.body.setAttribute(
-        'data-reduced-motion',
-        settings.reducedMotion ? 'true' : 'false'
-      );
-    } catch (e) {}
-  }, [settings.reducedMotion]);
-
-  // Level 13 (十三钟响): periodic reality distortion glitch pulses
-  const l13IntervalRef = useRef(null);
-  useEffect(function () {
-    if (game._level13GlitchScheduled && screen === 'game' && !l13IntervalRef.current) {
-      l13IntervalRef.current = setInterval(function () {
-        if (Math.random() < 0.5) {
-          dispatch({ type: 'GLITCH_PULSE', strength: 3 + Math.floor(Math.random() * 5) });
-        }
-      }, 15000 + Math.floor(Math.random() * 10000));
-    }
-    if (!game._level13GlitchScheduled && l13IntervalRef.current) {
-      clearInterval(l13IntervalRef.current);
-      l13IntervalRef.current = null;
-    }
-    return function () {
-      if (l13IntervalRef.current) {
-        clearInterval(l13IntervalRef.current);
-        l13IntervalRef.current = null;
-      }
-    };
-  }, [game._level13GlitchScheduled, screen]);
-
-  // ── 轻提示：前传结束进入正片时 ──
-  const bootHintShown = useRef(false);
-  const [bootHintVisible, setBootHintVisible] = useState(false);
-  useEffect(() => {
-    if (screen === 'game' && day === 1 && !bootHintShown.current) {
-      bootHintShown.current = true;
-      setBootHintVisible(true);
-      var t = setTimeout(function () { setBootHintVisible(false); }, 8000);
-      return function () { clearTimeout(t); };
-    }
-  }, [screen, day]);
-
-  // ── 轻提示：第一次掉 SAN ──
-  const sanHintShown = useRef(false);
-  const [sanHintVisible, setSanHintVisible] = useState(false);
-  useEffect(() => {
-    if (screen === 'game' && san < 75 && !sanHintShown.current) {
-      sanHintShown.current = true;
-      setSanHintVisible(true);
-      var t = setTimeout(function () { setSanHintVisible(false); }, 2500);
-      return function () { clearTimeout(t); };
-    }
-  }, [san, screen]);
-
   // ── Compute game screen vars (needed when screen === 'game') ──
   const corrLevel = getCorruptionLevel(san, loopCount);
   const areas = GD.areas || GD.module2_areas || [];
-  const visualDistortion = game.accessibilityOptions?.visual_distortion;
+  const visualDistortion = gameAccessibility?.visual_distortion;
   const allowVisualFX = visualDistortion !== false;
   const sanClasses = sanStage; // already computed by useSanStageClasses
-  const sanFeedback = getSanStageFeedback(san, ctx);
+  const sanFeedback = getSanStageFeedback(san, { GD });
   const _vtClass = sanClasses.vtClass;
   const sanStageClass = sanClasses.stageClass;
   const sanClass = sanClasses.sanClass;
 
   // ── Determine active screen key for ScreenTransition ──
-  var _screenKey = game.ending ? 'ending' : screen;
+  var _screenKey = gameEnding ? 'ending' : screen;
 
   return (
     <>
@@ -523,8 +361,8 @@ function App() {
             }}
             onSettingsOpen={() => useUiStore.setState({ settingsOpen: true })}
             onAchOpen={() => useUiStore.setState({ achOpen: true })}
-            endingCoins={game.endingCoins || 0}
-            loopShopTier={game.loopShopTier || 0}
+            endingCoins={gameEndingCoins || 0}
+            loopShopTier={gameLoopShopTier || 0}
             loopCount={loopCount || 0}
             onShopPurchase={(item) => {
               dispatch({ type: 'LOOP_SHOP_PURCHASE', itemId: item.id, cost: item.cost });
@@ -550,8 +388,8 @@ function App() {
           />
         )}
 
-        {game.ending && (
-          <EndingScreen ending={game.ending} state={game} dispatch={dispatch} />
+        {gameEnding && (
+          <EndingScreen ending={gameEnding} state={game} dispatch={dispatch} />
         )}
 
         {screen === 'game' && !game.ending && (
@@ -560,8 +398,8 @@ function App() {
             <SanPollutionLayer
               san={san}
               loopCount={loopCount}
-              corruption={game.safehouseCorruption || 0}
-              glitchPulse={game.glitchPulse || 0}
+              corruption={gameSafehouseCorruption || 0}
+              glitchPulse={gameGlitchPulse || 0}
               enabled={allowVisualFX}
               intensity={settings.visualPollution ?? 50}
               interactionPollution={settings.interactionPollution ?? 50}
@@ -580,7 +418,7 @@ function App() {
               }
             >
               {settings?.showGuideHints !== false && (() => {
-                const _guide = getGuideStep(game, ctx);
+                const _guide = getGuideStep(game, { GD });
                 return _guide ? (
                   <div className="guide-hint" style={{
                     position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
@@ -593,7 +431,7 @@ function App() {
                   </div>
                 ) : null;
               })()}
-              <GameLayout state={game} dispatch={dispatch} areas={areas} settings={settings} />
+              <GameLayout dispatch={dispatch} areas={areas} settings={settings} />
             </div>
           </>
         )}
@@ -624,6 +462,16 @@ function App() {
         open={!!ui.notebookOpen}
         onClose={() => useUiStore.setState({ notebookOpen: false })}
         state={game}
+      />
+      <ShopModal
+        open={!!ui.activeShop}
+        shopId={ui.activeShop}
+        onClose={() => useUiStore.setState({ activeShop: null })}
+        state={game}
+        ctx={{ GD }}
+        onPurchase={function (shopId, item) {
+          dispatch({ type: 'BUY_FROM_SHOP', shopId: shopId, itemId: item.id });
+        }}
       />
       {ui.ugcOpen && (
         <Modal

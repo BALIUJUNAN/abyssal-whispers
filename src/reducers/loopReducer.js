@@ -18,12 +18,12 @@ import { decayDeathFragments } from '../systems/deathLegacies.js';
 
 // Parse loop_memory_effect text and apply mechanical bonuses.
 // Maps narrative descriptions to game-state changes.
-function applyLoopMemoryEffects(f, s, ctx) {
+function applyLoopMemoryEffects(f, s, ctx, rng) {
   var GD = ctx.GD;
   var effect = s.ending?.loop_memory_effect;
   if (!effect || typeof effect !== 'string') return;
 
-  var rng = makeRand(null);
+  var _rand = makeRand(rng);
 
   // Pattern: "NPC名字 trust+X" or "所有NPC trust+X" → boost that NPC's trust
   var npcTrustMatch = effect.match(/([一-鿿·NPC\s]+?)\s*信任\+(\d+)/g);
@@ -444,7 +444,7 @@ export function initLoopState(f, s, ctx, options = {}) {
   }
 
   // ── 11) 轮回记忆效应（来自上一轮结局的 loop_memory_effect） ──
-  applyLoopMemoryEffects(f, s, ctx);
+  applyLoopMemoryEffects(f, s, ctx, rng);
 
   // ── 11b) 封印知识持久化 ──
   // What the player learned about the seal persists across loops

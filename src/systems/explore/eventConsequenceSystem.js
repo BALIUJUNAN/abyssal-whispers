@@ -11,6 +11,7 @@ import { getAreaCorruptionNarrative } from '../../systems/worldDecay.js';
 import { adjustMonsterChance } from '../../systems/firstLoopBalance.js';
 import { setNpcTrust, getNpcState, hasClueId, applyDeathResolution, checkWrongInference } from '../../utils/appHelpers.js';
 import { resolveClueName } from '../../utils/clueNameMap.js';
+import { initCombat } from '../../systems/combatSystem.js';
 
 // §3.3: Meta event real consequences
 export function applyMetaEffect(effectType, state, evt, c) {
@@ -129,7 +130,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
   checkChainCompletion(s, c.narr);
   checkWrongInference(s, c.narr, GD);
   // Conclusions
-  const newConclusions = checkConclusions(s, ctx);
+  const newConclusions = checkConclusions(s, { GD });
   for (const conc of newConclusions) {
     s.discoveredConclusions.push(conc.id);
     c.narr('system', '【结论达成】' + conc.name, { isSpecial: true });
@@ -145,18 +146,19 @@ export function _postExploreProcessing(evt, s, c, GD) {
     });
   }
   // False interpretations
-  const falseInts = checkFalseInterpretations(s, ctx, c.rng);
+  const falseInts = checkFalseInterpretations(s, { GD }, c.rng);
   for (const fi of falseInts)
     c.narr(
       'system',
       '【注意】你隐约觉得"' + fi.interpretation + '"这个想法不太对劲。' + (fi.consequence || ''),
       { isSpecial: true }
     );
-  // Monster manifestation
+  // Monster manifestation — combat initiation
+  var combatInitiated = false;
   const adjMonsterChance = adjustMonsterChance(GAME_BALANCE.MONSTER_MANIFEST_CHANCE, s);
   if ((c.rng ? c.rng.next() : Math.random()) < adjMonsterChance) {
     const creature = pick(['deep_ones', 'night_gaunts', 'shoggoth'], c.rng);
-    const manifest = getMonsterManifestation(creature, s.day, ctx, c.rng);
+    const manifest = getMonsterManifestation(creature, s.day, { GD }, c.rng);
     if (manifest) {
       const stageNames = {
         absence: '异常',
@@ -169,6 +171,16 @@ export function _postExploreProcessing(evt, s, c, GD) {
         'system',
         '【' + (stageNames[manifest.stage] || '异常') + '】' + manifest.manifestation
       );
+      // Initiate combat for partial/full presence (direct state mutation, no dispatch needed)
+      if ((manifest.stage === 'partial_presence' || manifest.stage === 'full_presence') && !combatInitiated) {
+        var cs = initCombat(creature, manifest.stage, s);
+        if (cs) {
+          s.combat = cs;
+          s._combatActionCount = (s._combatActionCount || 0) + 1;
+          c.effects.push({ type: 'AUDIO_PLAY', id: 'wall_break' });
+          combatInitiated = true;
+        }
+      }
     }
   }
   // Behavior tracking

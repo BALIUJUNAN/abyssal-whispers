@@ -5,6 +5,7 @@
 
 import { selectContextualLine } from '../data/npcContextualLines.js';
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
+import { makeRand } from '../reducers/utils.js';
 
 /**
  * Get a contextual greeting/line for an NPC based on full game state.
@@ -15,7 +16,7 @@ import { getSanStageFromGD } from '../reducers/sanReducer.js';
  * @param {object} state - game state
  * @returns {{ text: string, tags: string[] }|null}
  */
-export function getContextualLine(npcName, state) {
+export function getContextualLine(npcName, state, rng) {
   // Priority 1: day-specific lines (key milestone days)
   if (state.day) {
     var dayLine = getDaySpecificLine(npcName, state.day);
@@ -33,17 +34,18 @@ export function getContextualLine(npcName, state) {
   if (ctx) return ctx;
 
   // Priority 4: corruption/infection lines (existing system)
+  var _rand = makeRand(rng);
   var variant = getNpcDialogueVariant(npcName, 0, state);
   if (variant === 'infection_hallucination') {
     var infLines = NPC_INFECTION_LINES[npcName];
     if (infLines && infLines.length > 0) {
-      return { text: infLines[Math.floor(Math.random() * infLines.length)], tags: ['infection'] };
+      return { text: infLines[_rand(0, infLines.length - 1)], tags: ['infection'] };
     }
   }
   if (variant === 'heavy_corruption' || variant === 'light_corruption') {
     var corLines = (NPC_CORRUPTION_LINES[npcName] || {})[variant === 'heavy_corruption' ? 'heavy' : 'light'];
     if (corLines && corLines.length > 0) {
-      return { text: corLines[Math.floor(Math.random() * corLines.length)], tags: ['corruption'] };
+      return { text: corLines[_rand(0, corLines.length - 1)], tags: ['corruption'] };
     }
   }
 
@@ -74,7 +76,7 @@ export function getWeatherLine(npcName, weather) {
  * NPCs notice and comment on the player's deteriorating mental state.
  * Returns the highest-tier line the player qualifies for, or null.
  */
-export function getSanLevelLine(npcName, san) {
+export function getSanLevelLine(npcName, san, rng) {
   var sanData = NPC_SAN_LEVEL_LINES[npcName];
   if (!sanData) return null;
   // SAN stages: mild_erosion [55-74] → t1, perception_shift [40-54] → t2,
@@ -88,7 +90,8 @@ export function getSanLevelLine(npcName, san) {
   if (!applicableTier) return null;
   var lines = sanData[applicableTier];
   if (!lines || lines.length === 0) return null;
-  return lines[Math.floor(Math.random() * lines.length)];
+  var _rand = makeRand(rng);
+  return lines[_rand(0, lines.length - 1)];
 }
 
 // === Multi-Version Dialogue Selector ===

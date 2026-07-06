@@ -1,0 +1,351 @@
+{
+  "core_loop": {
+    "description": "每日12 AP，探索区域、对话NPC、调查物品、触发事件。HP=0死亡/SAN=0疯狂，触发轮回。28天倒计时，封印状态逐步恶化。",
+    "action_points_per_day": 12,
+    "day_length": 28,
+    "ap_costs": "每日行动循环：玩家每天有12个行动点（AP），每次行动消耗1-3AP。探索新区域消耗2AP，区域内移动消耗1AP，与NPC对话消耗1AP，调查物品消耗1AP，使用道具消耗1AP，战斗消耗2-3AP。每日结束时未使用的AP会转化为休息恢复（HP恢复1点，SAN恢复1d3-1点，最低0）。当HP≤0时角色死亡，当SAN≤0时角色疯狂，均触发重开流程。",
+    "daily_events": "每天午夜自动触发'第十三声钟响'事件，之后随机抽取一个该区域事件池中的事件作为夜间事件。夜间事件的SAN损失加倍。",
+    "death_triggers": {
+      "hp_zero": "角色死亡，触发轮回",
+      "san_zero": "角色疯狂，触发轮回"
+    },
+    "difficulty_levels": {
+      "normal": {
+        "san_loss_multiplier": 1,
+        "monster_hp_multiplier": 1,
+        "skill_check_bonus": 0
+      },
+      "hard": {
+        "san_loss_multiplier": 1.5,
+        "monster_hp_multiplier": 1.3,
+        "skill_check_bonus": -10
+      },
+      "nightmare": {
+        "san_loss_multiplier": 2,
+        "monster_hp_multiplier": 1.5,
+        "skill_check_bonus": -20
+      }
+    },
+    "weather_system": ""
+  },
+  "world": {
+    "setting": "公元1926年，美国马萨诸塞州东南海岸，一座名为沃切斯特（Voxchester）的古老港口城市。这座城市曾因繁荣的海运贸易而闻名，但自1923年那场莫名的大雾之后，一切都变了。码头区的工人开始失踪，渔夫们声称在深海中看到了不应存在的东西——巨大的、蠕动的阴影在月光下缓缓移动。城中的学者们夜夜被噩梦折磨，醒来后疯狂地在笔记本上描绘着螺旋状的符号和无数触手纠缠的图案。沃切斯特建城于1692年，由一群自称'晨星会'的清教徒建立。他们带来的不仅仅是信仰，还有一本用非人类语言写成的古书——《扎尔之卷》。三百年来，这本书被秘密保管在城市地下的石室中，据说它的存在维持着某种古老的封印。如今，封印正在松动。深潜者从海岸线的裂隙中爬出，夜魔在森林中低语，而城市地下那无尽的墓穴网络中，传来了沉闷的、有节奏的敲击声——仿佛某个庞然之物正在苏醒。玩家扮演一位因种种原因来到沃切斯特的调查员：也许是受失踪亲友之托，也许是受学术机构之邀，也许只是在错误的时间出现在了错误的地点。无论是哪种原因，一旦踏入这座城市，就再也无法轻易离开。街道会在夜间改变布局，港口的船只莫名搁浅，而城中居民的眼神中隐藏着某种非人的狂热。玩家必须在这座逐渐被疯狂吞噬的城市中寻找真相，收集散落在各处的线索，与尚存理智的NPC合作，在理智崩塌之前揭开古老封印的秘密。然而，真相本身或许就是最大的诅咒——当你凝视深渊时，深渊也在凝视着你。",
+    "game_rules": "1. 玩家通过文字指令探索区域、与NPC对话、调查物品、使用道具。2. 每次行动消耗行动点（AP），每日有固定行动点数。3. 遭遇事件时进行技能检定（d100），低于技能值为成功，大失败（96-100）触发严重后果。4. HP归零则角色死亡，SAN归零则角色疯狂，均触发重开流程。5. 每轮死亡后保留：已解锁的知识碎片（永久解锁区域暗道）、已确认的NPC信任（部分NPC记忆保留）、成就标记。6. 地图区域随机排列，事件池每轮洗牌，NPC位置和状态随机化。7. 收集足够线索可解锁结局判定，结局好坏取决于SAN值、线索数量、NPC存活数。",
+    "mythos_logic": "克苏鲁神话是本世界的底层真实。古神（Great Old Ones）如克苏鲁、哈斯塔等真实存在，但处于沉睡或封印状态。外神（Outer Gods）如阿撒托斯、尤格-索托斯的影响以梦境、幻觉、知识污染的形式渗透现实。深潜者（Deep Ones）是克苏鲁的仆从种族，与海岸城市的居民有古老的混血契约。夜魔（Night-Gaunts）栖息于森林和山巅，是尤格-索托斯的眷族。接触神话知识会直接侵蚀理智（SAN值），越是深入了解真相，越是难以维持人类的认知框架。某些区域存在'现实薄弱点'，那里的物理法则不再可靠，空间可能折叠，时间可能倒流。古神的梦境会周期性影响城市，触发'疯狂之夜'事件，所有NPC行为模式改变，新怪物出现。",
+    "day_phases": [
+      {
+        "id": "morning",
+        "name": "清晨",
+        "time_range": "06:00-12:00",
+        "event_weight_modifier": {
+          "怪物遭遇": 0.5,
+          "神秘事件": 0.7,
+          "线索": 1.5,
+          "NPC互动": 1.3,
+          "陷阱": 0.8
+        },
+        "description": "阳光尚可穿透薄雾，居民活动频繁，危险相对较低"
+      },
+      {
+        "id": "afternoon",
+        "name": "午后",
+        "time_range": "12:00-18:00",
+        "event_weight_modifier": {
+          "怪物遭遇": 0.7,
+          "神秘事件": 1,
+          "线索": 1.2,
+          "NPC互动": 1.2,
+          "陷阱": 1
+        },
+        "description": "日光渐弱，码头的雾气开始加重"
+      },
+      {
+        "id": "evening",
+        "name": "傍晚",
+        "time_range": "18:00-00:00",
+        "event_weight_modifier": {
+          "怪物遭遇": 1.3,
+          "神秘事件": 1.2,
+          "线索": 0.8,
+          "NPC互动": 0.7,
+          "陷阱": 1.3
+        },
+        "description": "黑暗降临，街道上行人减少，非人之物开始活跃"
+      },
+      {
+        "id": "midnight",
+        "name": "深夜",
+        "time_range": "00:00-06:00",
+        "event_weight_modifier": {
+          "怪物遭遇": 2,
+          "神秘事件": 2,
+          "线索": 0.5,
+          "NPC互动": 0.3,
+          "陷阱": 1.5
+        },
+        "description": "万物沉眠，唯有深渊在呼吸，SAN损失加倍"
+      }
+    ],
+    "seal_state_machine": [
+      {
+        "id": "intact",
+        "name": "封印完整",
+        "trigger_day": 1,
+        "description": "封印仍在运作，城市的异常尚可解释为巧合",
+        "global_modifier": {
+          "san_loss_multiplier": 0.8,
+          "monster_event_chance": 0.5,
+          "npc_corruption_rate": 0.02
+        },
+        "npc_behavior_change": "NPC大多保持正常，只有少数感知敏锐者察觉异常"
+      },
+      {
+        "id": "weakening",
+        "name": "封印松动",
+        "trigger_day": 7,
+        "description": "第七天，封印出现第一道裂隙。夜间事件频率增加，深潜者开始在浅水区出没",
+        "global_modifier": {
+          "san_loss_multiplier": 1,
+          "monster_event_chance": 1,
+          "npc_corruption_rate": 0.05
+        },
+        "npc_behavior_change": "部分NPC开始出现异常行为，约书亚进入更频繁的癫狂周期"
+      },
+      {
+        "id": "critical",
+        "name": "封印危急",
+        "trigger_day": 14,
+        "description": "第十四天，深潜者大潮。潮水将非人之物推上岸，灯塔绿光整夜不灭",
+        "global_modifier": {
+          "san_loss_multiplier": 1.5,
+          "monster_event_chance": 1.8,
+          "npc_corruption_rate": 0.1
+        },
+        "npc_behavior_change": "NPC信任阈值+1（更难获取信任），消失概率翻倍，伊莎贝拉的仪式加速"
+      },
+      {
+        "id": "collapsing",
+        "name": "封印濒临崩溃",
+        "trigger_day": 21,
+        "description": "疯狂之夜：天空变色，森林低语声变为呐喊，墓穴中的敲击声震耳欲聋",
+        "global_modifier": {
+          "san_loss_multiplier": 2,
+          "monster_event_chance": 2.5,
+          "npc_corruption_rate": 0.2
+        },
+        "npc_behavior_change": "所有NPC进入危机状态，希尔达可能自行进入深渊墓穴，老费舍濒临血脉失控"
+      },
+      {
+        "id": "broken",
+        "name": "封印破碎",
+        "trigger_day": 28,
+        "description": "若到第28天仍未完成任何结局条件，封印自动破碎，触发bad_ritual结局",
+        "global_modifier": {
+          "san_loss_multiplier": 3,
+          "monster_event_chance": 5,
+          "npc_corruption_rate": 0.5
+        },
+        "npc_behavior_change": "强制结局判定"
+      }
+    ],
+    "countdown": {
+      "seal_status": {
+        "type": "string",
+        "values": [
+          "intact",
+          "weakening",
+          "critical",
+          "collapsing",
+          "broken"
+        ],
+        "starting": "intact",
+        "description": "封印的当前状态，决定全局难度和事件概率"
+      },
+      "city_corruption_level": {
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "starting": 0,
+        "daily_increase": 5,
+        "description": "城市腐败度，每日自动上升，玩家行为可加速或延缓"
+      }
+    },
+    "mythos_name_control": {
+      "description": "神话专名控制——早中期避免直接使用克苏鲁、奈亚拉托提普等专名，优先通过痕迹、梦境、信号、仪式残留、NPC误读和空间异常表现",
+      "rules": [
+        {
+          "chapter": 1,
+          "rule": "禁止所有神话专名，只允许模糊化称呼"
+        },
+        {
+          "chapter": 2,
+          "rule": "禁止神话专名，允许暗示性描述"
+        },
+        {
+          "chapter": 3,
+          "rule": "部分专名可通过禁书阅读或高神话知识出现"
+        },
+        {
+          "chapter": 4,
+          "rule": "专名可通过NPC对话或遗迹探索出现"
+        },
+        {
+          "chapter": 5,
+          "rule": "无限制"
+        }
+      ],
+      "name_aliases": {
+        "deep_ones": {
+          "chapter_1": "海里的东西",
+          "chapter_2": "从海里爬上来的灰色身影",
+          "chapter_3": "深潜者",
+          "chapter_4_plus": "深潜者"
+        },
+        "shoggoth": {
+          "chapter_1": "黑色淤泥般的生物",
+          "chapter_2": "流动的黑色胶状物",
+          "chapter_3": "修格斯",
+          "chapter_4_plus": "修格斯"
+        },
+        "nyarlathotep": {
+          "chapter_1": "戴面具的神",
+          "chapter_2": "它",
+          "chapter_3": "奈亚拉托提普（仅通过禁书）",
+          "chapter_4_plus": "奈亚拉托提普"
+        },
+        "cthulhu": {
+          "chapter_1": "门后的存在",
+          "chapter_2": "海底的巨大阴影",
+          "chapter_3": "克苏鲁（仅通过禁书或高神话知识）",
+          "chapter_4_plus": "克苏鲁"
+        },
+        "yog_sothoth": {
+          "chapter_1": "星辰之外的凝视",
+          "chapter_2": "它",
+          "chapter_3": "尤格-索托斯（仅通过遗迹）",
+          "chapter_4_plus": "尤格-索托斯"
+        }
+      },
+      "detection_conditions": {
+        "description": "玩家何时能听到真名",
+        "conditions": [
+          {
+            "condition": "克苏鲁神话>=10",
+            "effect": "NPC对话中偶尔出现真名"
+          },
+          {
+            "condition": "阅读禁书",
+            "effect": "文本中出现真名"
+          },
+          {
+            "condition": "chapter>=3",
+            "effect": "高信任NPC可能说出真名"
+          },
+          {
+            "condition": "进入ruins_of_yith",
+            "effect": "遗迹中出现伊斯相关专名"
+          }
+        ]
+      }
+    },
+    "horror_density_control": {
+      "core_principle": "不是所有文本、所有UI、所有房间都持续异常。异常只有在正常背景中才有冲击力。",
+      "per_chapter": {
+        "chapter_1": {
+          "abnormal_ratio_max": 0.15,
+          "description": "85%的文本应为正常或仅轻微可疑"
+        },
+        "chapter_2": {
+          "abnormal_ratio_max": 0.25,
+          "description": "75%正常，开始引入声音和水的异常"
+        },
+        "chapter_3": {
+          "abnormal_ratio_max": 0.35,
+          "description": "65%正常，封印结构显露"
+        },
+        "chapter_4": {
+          "abnormal_ratio_max": 0.5,
+          "description": "50%正常，空间和认知开始不可靠"
+        },
+        "chapter_5": {
+          "abnormal_ratio_max": 0.7,
+          "description": "30%正常，强烈污染但仍需喘息空间"
+        }
+      },
+      "per_area": {
+        "town_center": {
+          "abnormal_ratio_max": 0.1,
+          "description": "镇中心应始终感觉基本正常"
+        },
+        "harbor_district": {
+          "abnormal_ratio_max": 0.2,
+          "description": "码头有异常但居民仍在生活"
+        },
+        "safehouse": {
+          "abnormal_ratio_max": 0.15,
+          "description": "安全屋初期应感觉安全"
+        },
+        "whispering_forest": {
+          "abnormal_ratio_max": 0.4,
+          "description": "森林本身就不正常"
+        },
+        "voxchester_manor": {
+          "abnormal_ratio_max": 0.3,
+          "description": "庄园有怪异但有希尔达维持表面秩序"
+        },
+        "catacombs_entrance": {
+          "abnormal_ratio_max": 0.5,
+          "description": "地下本身就更危险"
+        },
+        "lighthouse": {
+          "abnormal_ratio_max": 0.35,
+          "description": "灯塔有异常但约书亚的存在提供锚点"
+        },
+        "ruins_of_yith": {
+          "abnormal_ratio_max": 0.6,
+          "description": "遗迹本身就是超自然的"
+        },
+        "forbidden_grove": {
+          "abnormal_ratio_max": 0.55,
+          "description": "禁忌之林本身就危险"
+        },
+        "deep_catacombs": {
+          "abnormal_ratio_max": 0.7,
+          "description": "深渊墓穴允许高度异常"
+        }
+      },
+      "normalcy_anchors": {
+        "description": "每章保留的正常锚点——这些元素应始终感觉安全或正常，直到系统明确改变它们",
+        "chapter_1_anchors": [
+          "玛莎的酒馆白天营业，有客人喝酒聊天",
+          "杂货店老板汤米在推销他的商品",
+          "镇中心的街道上有行人在走路",
+          "教堂白天开放，有居民在祈祷",
+          "码头白天有渔民在工作"
+        ],
+        "chapter_2_anchors": [
+          "玛莎的酒馆仍然营业，但客人变少了",
+          "杂货店仍然开着，但货架上的商品变少了",
+          "镇中心白天仍有行人，但他们走得更快了"
+        ],
+        "chapter_3_anchors": [
+          "玛莎的酒馆还在，但角落那张空桌的酒杯一直在那里",
+          "希尔达白天在庄园大厅看书，表面正常"
+        ],
+        "chapter_4_anchors": [
+          "玛莎的酒馆还在营业，但灯光变暗了"
+        ],
+        "chapter_5_anchors": []
+      },
+      "sequence_rule": {
+        "rule": "连续3个异常事件后必须插入1个正常事件或沉默事件",
+        "normal_event_examples": [
+          "你在杂货店买了一罐罐头。老板找了零钱。一切正常。",
+          "你回到安全屋，喝了一杯水。水是凉的。你感到疲倦。",
+          "你在码头看到渔民在修补渔网。他们没有看你。",
+          "教堂的钟声在正午响了十二下。你数了。是十二下。"
+        ]
+      }
+    }
+  }
+}

@@ -10,8 +10,8 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_%2B_singlefile-green)
-![Tests](https://img.shields.io/badge/tests-608_passed_%2F_0_failed-brightgreen)
-![Version](https://img.shields.io/badge/version-0.9.7-orange)
+![Tests](https://img.shields.io/badge/tests-648_passed_%2F_0_failed-brightgreen)
+![Version](https://img.shields.io/badge/version-0.9.8-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
 
@@ -72,7 +72,7 @@ npm run tauri:build
 
 | 维度           | 数据                                                                                                                        |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **独立事件**   | **629 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆 + 10 痕迹连锁） + 102 结局，全部含 quality_tier / trigger 条件，**589 个事件含 SAN/轮回 distortion variants（覆盖率 93%，其中 23 个引用共享模板，消除逐字重复）** |
+| **独立事件**   | **629 个**（599 扩展事件 + 120 补充事件 + 90 ch2plus + 20 基础 + 17 死亡回声 + 3 预兆 + 10 痕迹连锁） + 102 结局，全部含 quality_tier / trigger 条件，**589 个事件含 SAN/轮回 distortion variants（覆盖率 93%，54 个引用 5 套共享模板，消除逐字重复）** |
 | **行为结局**   | **36 条** — 由你的选择模式触发，非预设分支                                                                                  |
 | **主线结局**   | **10 条** — 封印守护者 / 希尔达抉择 / 老费舍血脉 / 第十二声钟 / 海上逃离 / 证据逃离 / 异端黎明 / 深渊吞噬 / 超越 / 循环真相 |
 | **结局余韵**   | 每条结局附带可解锁的 Afterglow 文本（条件触发）                                                                             |
@@ -90,10 +90,10 @@ npm run tauri:build
 | **布局模式**   | 2 种 — 暗黑地牢风格全景地图 / 经典三栏面板                                                                                  |
 | **转场动画**   | **Canvas 程序化转场** — 噪声擦拭 / 墨汁渗透 / 虚空之环 / 故障切片 4 种效果 + 主题音效联动 + 可关闭                          |
 | **AI 叙事增强**| GLM-4.7 Flash — 9 个场景动态生成，离线优先                                                                   |
-| **代码规模**   | 50,000+ 行 JS/JSX — 120+ 个源文件                                                                                           |
+| **代码规模**   | 60,282 行 JS/JSX — 120+ 个源文件                                                                                           |
 | **数据校验**   | Zod Schema 855条数据全量校验                                                                                                 |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
-| **测试覆盖**   | 12 个套件 536 项（完整流程 48 + 事件 lint 100 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + 其他 86），拼接/Vite 双构建验证                                                          |
+| **测试覆盖**   | 15 个套件 648 项（完整流程 48 + 事件 lint 100 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + slice handler 单元测试 40 + 其他 86），拼接/Vite 双构建验证                                                          |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -497,14 +497,14 @@ COC/
 ├── index.html                # Vite 开发入口
 ├── vite.config.js            # Vite 配置（dev server + build + 路径别名 + singlefile）
 ├── package.json              # npm scripts: dev / build / verify / tauri / test suites
-├── game_base.json            # 主数据（构建时从 src/data/ 复制）
+├── game_base.json            # 主数据 canonical 源（脚本/校验工具使用，游戏代码通过 src/data/game_base/index.js 导入）
 ├── game_ch2plus.json         # 二周目+数据
 ├── game_meta.json            # Meta 层数据
 │
 ├── assets/webp/              # 138 张 WebP 图片素材
 ├── audio/                    # 53 个音频文件（WAV + MP3）
 │
-├── src/                      # 57,000+ 行 JS/JSX/TS，130+ 个源文件
+├── src/                      # 60,282 行 JS/JSX，130+ 个源文件
 │   │   ├── initialState.js        # 游戏初始状态定义（72 行）
 │   │   ├── gameConstants.js       # GAME_BALANCE 集中化平衡常量（40 行）
 │   │   ├── difficultyState.js     # 难度 applyDifficultyToState（~60 行）
@@ -576,6 +576,38 @@ COC/
 │   │   ├── objectiveReducer.js     # 任务目标（102 行）
 │   │   └── utils.js                # reducer 共用工具函数（50 行）
 │   │
+│   ├── hooks/                # 13 个自定义 hooks（250 行）— 从 app.jsx 提取的 useEffect 逻辑
+│   │   ├── index.js              # barrel export
+│   │   ├── useSeedStore.js       # Zustand store 初始化 + loading 层移除
+│   │   ├── useMigrateOldSaves.js # 旧存档格式迁移
+│   │   ├── useAudioSettingsInit.js # 音频设置同步
+│   │   ├── useAudioAutoplayUnlock.js # 浏览器音频解锁
+│   │   ├── useReducedMotion.js   # reduced-motion 属性同步
+│   │   ├── useNotebookTutorialSync.js # 笔记本引导同步
+│   │   ├── usePageZoom.js        # 页面缩放控制
+│   │   ├── useEndingCgPreload.js # 结局 CG 预加载
+│   │   ├── useChapterLazyLoad.js # 章节数据懒加载
+│   │   ├── useAchievementCheck.js # 成就检测 + toast
+│   │   ├── useSanLossHint.js     # 第一次掉 SAN 轻提示
+│   │   ├── useBootHint.js        # 前传结束轻提示
+│   │   └── useLevel13Glitch.js   # 十三钟响脉冲
+│   │
+│   ├── hooks/                # 13 个自定义 hooks（250 行）— 从 app.jsx 提取的 useEffect 逻辑
+│   │   ├── index.js              # barrel export
+│   │   ├── useSeedStore.js       # Zustand store 初始化 + loading 层移除
+│   │   ├── useMigrateOldSaves.js # 旧存档格式迁移
+│   │   ├── useAudioSettingsInit.js # 音频设置同步
+│   │   ├── useAudioAutoplayUnlock.js # 浏览器音频解锁
+│   │   ├── useReducedMotion.js   # reduced-motion 属性同步
+│   │   ├── useNotebookTutorialSync.js # 笔记本引导同步
+│   │   ├── usePageZoom.js        # 页面缩放控制
+│   │   ├── useEndingCgPreload.js # 结局 CG 预加载
+│   │   ├── useChapterLazyLoad.js # 章节数据懒加载
+│   │   ├── useAchievementCheck.js # 成就检测 + toast
+│   │   ├── useSanLossHint.js     # 第一次掉 SAN 轻提示
+│   │   ├── useBootHint.js        # 前传结束轻提示
+│   │   └── useLevel13Glitch.js   # 十三钟响脉冲
+│   │
 │   ├── systems/              # 22 个游戏系统（~4,800 行）
 │   │   ├── sanityVisual.js         # SAN 视觉呈现系统（290 行）— 颜色/文本腐蚀/CSS类/Canvas参数
 │   │   ├── earlyHooks.js           # Day 1-3 感官锚点（82 行）— 十三声钟入口+区域低语
@@ -597,7 +629,6 @@ COC/
 │   │   ├── balanceSimulator.js     # 平衡模拟器（~280 行）— 28天蒙特卡洛/13级难度/恐惧画像/graduated protection/封印状态
 │   │   ├── textVariants.js         # 文本重复控制 — 4层污染变体 + 难度文本替换（~230 行）
 │   │   ├── llmNarrative.js         # AI 叙事增强层（~320 行）— 9个LLM增强函数（事件/NPC/死亡/Meta/余韵/SAN腐蚀/人格反思/轮回开场/存档名污染）
-│   │   └── gameSettings.js         # 设置系统 — 无障碍+音量+视觉+LLM控制（~110 行）
 │   │
 │   ├── utils/                # 9 个工具模块（1,600+ 行）
 │   │   ├── appHelpers.js           # 游戏核心辅助函数（274 行）
@@ -614,23 +645,30 @@ COC/
 │   ├── data/                 # 38+ 个数据文件 — 855+ 事件 + 结局余韵 + loop_memory_effect
 │   │   │
 │   │   │   ── 扩展事件（619 个，9 个方向） ──
-│   │   ├── events_loop.js          # 轮回锁定事件（701 行）
-│   │   ├── events_npc_cross.js     # NPC 跨角色事件（853 行）
-│   │   ├── events_mythos.js        # 神话知识事件（610 行）
-│   │   ├── events_resource.js      # 资源压力事件（664 行）
-│   │   ├── events_humanity.js      # 人性抉择事件（1706 行，54 事件，6 子类型模板化）
-│   │   ├── events_area_deep.js     # 区域深层事件（143 行）
-│   │   ├── events_silent.js        # 静默事件（104 行）
-│   │   ├── events_omens_600.js     # 征兆事件（102 行）
-│   │   ├── events_missing_600.js   # 失踪事件（143 行）
-│   │   ├── events_ending.js        # 结局事件（70 行）
-│   │   ├── events_death_echo.js    # 死亡回声（27 行）
-│   │   ├── events_meta.js          # Meta 叙事事件（31 行）
-│   │   ├── events_supplement.js    # 后7区补充事件（120 个，56KB）
-│   │   ├── npcContextualLines.js   # NPC 上下文对话（143 条，8 NPC × 7 类型）
+│   │   ├── events/               # 事件数据目录（18 文件 / 860 事件 / 26,253 行）
+│   │   │   ├── INDEX.md          # 自动生成事件索引
+│   │   │   ├── events_loop.js          # 轮回锁定事件（701 行）
+│   │   │   ├── events_npc_cross.js     # NPC 跨角色事件（853 行）
+│   │   │   ├── events_mythos.js        # 神话知识事件（610 行）
+│   │   │   ├── events_resource.js      # 资源压力事件（664 行）
+│   │   │   ├── events_humanity.js      # 人性抉择事件（1706 行，54 事件，6 子类型模板化）
+│   │   │   ├── events_area_deep.js     # 区域深层事件（143 行）
+│   │   │   ├── events_silent.js        # 静默事件（104 行）
+│   │   │   ├── events_omens_600.js     # 征兆事件（102 行）
+│   │   │   ├── events_missing_600.js   # 失踪事件（143 行）
+│   │   │   ├── events_ending.js        # 结局事件（70 行）
+│   │   │   ├── events_death_echo.js    # 死亡回声（27 行）
+│   │   │   ├── events_meta.js          # Meta 叙事事件（31 行）
+│   │   │   ├── events_supplement.js    # 后7区补充事件（120 个，56KB）
+│   │   │   ├── events_legendary.js     # 传奇事件
+│   │   │   ├── events_ch2plus.js       # ch2+ 事件
+│   │   │   ├── events_fear_endings.js  # 恐惧结局事件
+│   │   │   └── events_death_count_meta.js # 死亡计数元事件
+│   │   │
+│   │   │   ── 聚合索引（stay in src/data/） ──
 │   │   ├── extended_events_index.js # 扩展事件汇总索引（76 行）
 │   │   │
-│   │   │   ── 结局系统 ──
+│   │   │   ── 结局系统 ──│   │   │   ── 结局系统 ──
 │   │   ├── behavior_endings.js     # 36 种行为结局（710 行）
 │   │   ├── ending_missing_600.js   # 第 600 号隐藏结局（72 行）
 │   │   │
@@ -644,7 +682,15 @@ COC/
 │   │   ├── ugcSchema.js            # UGC 模组 JSON Schema + 扩展实体验证（~950 行）
 │   │   │
 │   │   │   ── 核心 JSON 数据（支持懒加载） ──
-│   │   ├── game_base.json          # 主游戏数据 — 区域/NPC/物品/SAN配置（8,325 行）
+│   │   ├── game_base/              # 主游戏数据目录（拆分为 6 领域文件 + 聚合 index.js）
+│   │   │   ├── index.js           # 聚合导出（向后兼容，替代原 game_base.json import）
+│   │   │   ├── design_intent.json # 设计意图、文本风格（910 行）
+│   │   │   ├── balance.json       # core_loop + world 配置（7,108 行）
+│   │   │   ├── systems.json       # 系统配置（58,123 行）
+│   │   │   ├── narrative.json     # areas/npcs/events/items/chains（83,958 行）
+│   │   │   ├── shops.json         # 商店配置（543 行）
+│   │   │   └── vertical_slice.json # 垂直切片配置（1,114 行）
+│   │   ├── game_base.json         # 主游戏数据 — 脚本/校验工具 canonical 源（8,410 行）
 │   │   ├── game_ch2plus.json       # 二周目+ 事件与数据（4,065 行）
 │   │   ├── game_meta.json          # Meta 层叙事数据（2,508 行）
 │   │   │
@@ -685,7 +731,7 @@ COC/
 │   │   └── ...
 │
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 14 个测试套件（608 tests）
+├── tests/                    # 15 个测试套件（648 tests）
 │   ├── test_effect_protocol.cjs       # 效果协议测试（19 tests）
 │   ├── test_game_data_protocol.cjs    # 游戏数据协议测试（10 tests）
 │  ├── test_event_system.cjs          # 事件系统测试（19 tests）
@@ -707,6 +753,15 @@ COC/
 │   ├── test_balance_system.mjs         # 平衡系统测试（96 tests）
 │   │                                  #   10 维度：配置完整性/单调性/保护倍率/graduated protection/恐惧画像/难度梯度/消耗速率/封印递增/可复现性/输出结构
 │   └── integration_test.cjs           # 集成测试（19 tests）
+│   │
+│   ├── unit/                    # 单元测试
+│   │   ├── sliceHandlers.test.mjs  # Slice handler 核心分支测试（40 tests）
+│   │   │                           #   dailySlice(WORK/REST) / darkSlice(SELF_HARM/SPREAD_PROPHECY)
+│   │   │                           #   coreSlice(SET_DIFFICULTY/SET_ARCHETYPE/ROLL_STATS)
+│   │   │                           #   loopSlice(NEW_GAME) / exploreSlice(MOVE/EXPLORE)
+│   │   │                           #   npcSlice(TALK_NPC) + RNG 确定性验证
+│   │   └── mocks/                # 测试 mock
+│   │       └── saveManager.mjs   # SaveManager no-op mock（localStorage/save 副作用隔离）
 │
 ├── mods/                     # UGC 模组
 │   └── examples/             # 示例模组
@@ -721,6 +776,8 @@ COC/
 │   ├── lint_san_mutations.cjs      # SAN mutation 静态检查（禁止直接 clamp）
 │   ├── lint_engine_boundary.cjs    # 引擎边界检查（零游戏导入）
 │   ├── validate_data.cjs           # Zod Schema 数据校验 CLI
+│   ├── count_events.mjs            # 事件文件统计（自动生成 events/INDEX.md）
+│   ├── split_game_base.mjs         # game_base.json 拆分为领域目录（可重复运行）
 │   ├── mod_validate.cjs            # UGC 模组校验
 │   ├── mod_preview.cjs             # UGC 模组预览
 │   └── mod_pack.cjs                # UGC 模组打包
@@ -802,7 +859,7 @@ getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
        │     ├── san-stage-N CSS类    → hue-rotate/tremble/glow/flicker 动画
        │     ├── CorruptibleChoice    → 阶段感知 Hover 延迟 + 渐进文字腐化
        │     └── AbyssPopup           → Meta 消息弹出（60-120s / 30-60s）
-       └── app.jsx             → san-stage-N CSS类注入 + 破壁事件 + CG预加载
+       └── app.jsx             → 游戏路由 + hooks 编排 + 子组件 props 分发（438 行，原 678 行）
 ```
 
 修改 JSON 中的 `san_stages` 范围或效果参数，所有系统自动跟随。无硬编码阈值。
@@ -1270,6 +1327,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **0.9.7** | 2026-07-02 | **工程质量升级：build.py 退役 + ESM 清算 + 内容质量验证** — ①删除 `build.py` 和 `build-web.cjs`，Vite + vite-plugin-singlefile 为唯一构建系统，消除双注册/构建顺序依赖债务；②`.cjs` 校验工具从 `src/data/validators/` 迁移至 `scripts/validators/`，与 ESM 游戏数据目录彻底分离；③`src/` 目录全部 `.cjs` 残留清零，ESM import 完全接管；④Zod 数据验证接入 main.jsx bootstrap，malformed 数据不再静默失败；⑤`s.clues` 混合类型归一化，10 个 push 点统一为 `{id, name}` 对象格式，消除 `[object Object]` 显示 bug；⑥`.gitattributes` 引入 + `git add --renormalize`，CRLF 编码警告全部消除；⑦`tests/test_effect_protocol.cjs` Test 17 从 build order 校验迁移为 ESM import 存在性验证；⑧`loop_contradiction_001` 叙事文本重写（75→99分），消除唯一 B 级事件；⑨全量测试 608 passed / 0 failed / 14 suites |
+| **0.9.8** | 2026-07-07 | **架构重构：useEffect 拆分 + 全局变量治理 + 事件数据归拢 + E2E 测试** — ①app.jsx 从 678 行瘦身至 438 行（-35%）：13 个 useEffect 块拆分为 `src/hooks/` 下 13 个自定义 hooks（useSeedStore/useMigrateOldSaves/useAudioSettingsInit/useAudioAutoplayUnlock/useReducedMotion/useNotebookTutorialSync/usePageZoom/useEndingCgPreload/useChapterLazyLoad/useAchievementCheck/useSanLossHint/useBootHint/useLevel13Glitch），每个职责独立可测试；②模块级变量治理：删除 `const ctx = { GD }`（替换为内联 `{ GD }`），`_currentFearTuning` 迁移到 Zustand store（`state.fearTuning`），GD 保留模块级并添加 ADR-018 合规注释；③`useAppGameData()` 移除（死代码，零组件消费），App 改用 granular selectors + useMemo 构建 game 对象；④事件数据归拢：18 个 `events_*.js` 从 `src/data/` 移入 `src/data/events/`，统一路径，更新 9 个文件的导入；⑤Playwright E2E 骨架：4 个测试文件（game-startup/first-san-loss/settings-persistence/save-load/explore-actions），自动启动 dev server；⑥清理 71 个未使用导入；全量测试 48/48 passed，Vite build 1.26s |
 | **0.9.6** | 2026-06-30 | **Zustand 5 迁移修复 + 每日流程领域拆分** — ①dailySlice 按领域拆分为 7 个独立系统文件（foodSystem/safehouseSystem/restRecovery/dayAdvance/dayCritical/nightEffects/dayOpen），从 594 行瘦身至 108 行纯调度层；②修复 Zustand 5.0.14 不支持 equalityFn 导致所有返回对象的 selector 触发无限重渲染（Maximum update depth exceeded），全部改用 useMemo 缓存；③修复 `buildSliceCtx` 缺失 `view` 属性导致区域场景图永远显示默认变体；④修复 Immer autoFreeze 冻结 GD 导致 `initExtendedEvents` 报错；⑤修复 `uiStore.settings: null` 导致渲染阶段 `set()` 调用；⑥`main.jsx` 静态 JSON import 替代 fetch()；⑦`seedGameStore` 移至 React 渲染前执行；⑧所有 selector 函数提取为模块级常量（稳定引用）；⑨`ScreenTransition` 修复 children 缓存导致同屏更新失效；⑩关闭 Immer autoFreeze 避免开发模式冻结问题；⑪mistake.txt 新增条目 #46（Zustand 5 equalityFn 缺失） |
 | **0.9.5** | 2026-06-22 | **扭曲文本模板化 + 文学参照文档化** — ①`distortionTemplates.js` 新建 6 个共享模板（good_return / bad_consequence / trial_early / trial_late / collective / special_trade）+ `DISTORTION_TEMPLATE_MAP` 查找表；②`events_humanity.js` 移除 23 块模板级重复文本（-107 行），添加 23 个 `distortion_template` 字段（+46 行），净省 62 行；③`EventEngine.js` 新增 `injectDistortionTemplates(GD)` 运行时注入器，事件本地含 `corruption_high`/`san_mid` 等独特键时保留本地 variants，其余按 `distortion_template` 字段或 `subtype` 名自动注入；④`extendedEventsInit.js` 注册 injector 调用；⑤文学参照补录：`DESIGN_REFACTOR_NOTES.md` 新增 Lovecraft/Baudelaire/Murakami/Borges/Houellebecq 五作者对照表 + 恐惧结局特殊文本策略说明；⑥`game_base.json` `text_style` 新增 `literary_references` 字段；⑦`mistake.txt` 条目 #44「隐性设计意图未记录」；⑧构建验证：Vite ESM 1.32s + 全测试 48/48 + lint:narrative 27S/20A/3B |
 | **0.9.4** | 2026-06-22 | **Phase 2 体系化升级** — ①轻量事件依赖机制：引擎级 `has_flag`/`add_flag` 软连锁，5 条前置事件 + 5 条回声事件，零 reducer 改造；②玩家痕迹系统扩展：3 试点→9 条痕迹（+森林低语/酒馆硬币/墓穴符号/灯塔信号/庄园日记/森林祭品），跨轮回区域描述自动追加；③NPC 语言指纹规范沉淀：`event_authoring.md` 8 位 NPC 完整指纹（句式/语气/意象/信任递进/轮回记忆/死亡回响/SAN 退化/禁用词）；④测试与平衡体系补全：`balanceSimulator.js` 轻量蒙特卡洛模拟器（13 级难度/恐惧画像/graduated protection/封印状态）+ `test_balance_system.mjs` 96 项平衡测试（10 维度：配置完整性/单调性/保护倍率/graduated protection/恐惧画像/难度梯度/消耗速率/封印递增/可复现性/输出结构）；⑤微恐怖触发率测试：19 个 micro_horror 事件数据完整性验证（weight/probability/once_per_run）；⑥NPC 台词覆盖率测试：8 位 NPC 三级优先级（low/mid/high）全覆盖，memory line 关键词验证；⑦全量回归 536 passed / 0 failed / 12 suites |

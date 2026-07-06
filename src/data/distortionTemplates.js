@@ -1,10 +1,12 @@
 // src/data/distortionTemplates.js
 //
-// Shared distortion variant templates keyed by subtype.
-// Events with generic distortion text reference these instead of
-// duplicating identical blocks across 50+ event objects.
+// Shared distortion variant templates keyed by template name.
+// Events reference these via `distortion_template: '<key>'` field;
+// EventEngine.injectDistortionTemplates() copies template variants
+// into each event's distortion_variants at init time.
 //
-// Priority: event-local distortion_variants > subtype template
+// Active templates: 5 (good_return, bad_consequence, trial, collective, special_trade)
+// Covering 54 humanity events with 0 inline duplication.
 
 // ── 善行回报 (15 events) ──────────────────────────────
 export const TEMPLATE_GOOD_RETURN = {
@@ -28,7 +30,7 @@ export const TEMPLATE_GOOD_RETURN = {
     '但无论如何，你选择相信它。',
 };
 
-// ── 恶行反噬 (14 events; 第15个有专属 corruption_high，见事件本地) ──
+// ── 恶行反噬 (15 events) ──────────────────────────────
 export const TEMPLATE_BAD_CONSEQUENCE = {
   san_low:
     '后果在膨胀。\n' +
@@ -36,6 +38,13 @@ export const TEMPLATE_BAD_CONSEQUENCE = {
     '每一个被你伤害过的人都变成了阴影中的眼睛。\n' +
     '他们在看着你。不是仇恨——是失望。\n' +
     '那种失望比仇恨更让你不安。',
+
+  corruption_high:
+    '环境在呼应你的恶。\n' +
+    '墙壁上的污渍更深了。空气中有一种铁锈和灰烬的味道。\n' +
+    '你经过的地方，阴影似乎变得更浓。\n' +
+    '不是光线变暗了——是你在把光带走。\n' +
+    '你留下的只有暗色的痕迹。',
 
   loop_3_plus:
     '你又回到了同一个场景。\n' +
@@ -45,26 +54,17 @@ export const TEMPLATE_BAD_CONSEQUENCE = {
     '但改变需要先承认错误。而承认错误比走同一条路更难。',
 };
 
-// ── 人性摇摆 — 前期 (7 events) ───────────────────────
-export const TEMPLATE_TRIAL_EARLY = {
+// ── 人性摇摆 — trial_early + trial_late 合并为 TEMPLATE_TRIAL ──
+export const TEMPLATE_TRIAL = {
   san_low:
     '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n' +
     '你分不清这是真实发生的事还是你的大脑在自行填补空白。\n' +
     '你捏了一下手背。疼。至少这部分是真实的。',
 
-  loop_3_plus:
-    '这已经不是你第一次经历这个了。\n' +
-    '你确定——你在之前的循环里见过这一幕。\n' +
-    '但记忆的边缘在模糊。是第几次来着？你数不清了。\n' +
-    '但你知道——它还会再来。',
-};
-
-// ── 人性摇摆 — 后期 (3 events) ───────────────────────
-export const TEMPLATE_TRIAL_LATE = {
-  san_low:
-    '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n' +
-    '你分不清这是真实发生的事还是你的大脑在自行填补空白。\n' +
-    '你捏了一下手背。疼。至少这部分是真实的。',
+  san_mid:
+    '你注意到了一些以前没有注意到的细节。\n' +
+    '空气中的气味变了。墙壁上的纹理似乎在缓慢脉动。\n' +
+    '你觉得它们在有节奏地跳动——像某种巨大的器官。',
 
   loop_3_plus:
     '又一个循环。\n' +
@@ -74,20 +74,8 @@ export const TEMPLATE_TRIAL_LATE = {
     '而是让你在遗忘中一遍遍证明自己。',
 };
 
-// ── 集体态度 (8 events) ──────────────────────────────
-export const TEMPLATE_COLLECTIVE = {
-  san_low:
-    '你的视线在模糊。那些征兆、符号、场景——在你眼前扭曲、重叠、分离。\n' +
-    '你分不清这是真实发生的事还是你的大脑在自行填补空白。\n' +
-    '你捏了一下手背。疼。至少这部分是真实的。',
-
-  loop_3_plus:
-    '又一个循环。\n' +
-    '你站在同一个十字路口，面对同一个选择。\n' +
-    '但你已经不记得上次选了哪条路。\n' +
-    '也许这就是循环的目的——不是让你记住，\n' +
-    '而是让你在遗忘中一遍遍证明自己。',
-};
+// ── 集体态度 (8 events) — 同 TEMPLATE_TRIAL ──
+// DISTORTION_TEMPLATE_MAP.collective 指向 TEMPLATE_TRIAL。
 
 // ── 特殊交易 (6 events) ──────────────────────────────
 export const TEMPLATE_SPECIAL_TRADE = {
@@ -110,14 +98,13 @@ export const TEMPLATE_SPECIAL_TRADE = {
     '你翻了个身。床垫发出的声音不像弹簧——更像某种软体生物的呼吸。',
 };
 
-// ── Master lookup: subtype → template ──────────────────
-// Events set `subtype` field; this map resolves to the template.
-// Override per-event via `distortion_template` field if needed.
+// ── Master lookup ──────────────────────────────────────
+// Events set `distortion_template` field; this map resolves to the template.
+// Override per-event via local distortion_variants if needed.
 export const DISTORTION_TEMPLATE_MAP = {
   good_return: TEMPLATE_GOOD_RETURN,
   bad_consequence: TEMPLATE_BAD_CONSEQUENCE,
-  trial_early: TEMPLATE_TRIAL_EARLY,
-  trial_late: TEMPLATE_TRIAL_LATE,
-  collective: TEMPLATE_COLLECTIVE,
+  trial: TEMPLATE_TRIAL,
+  collective: TEMPLATE_TRIAL,
   special_trade: TEMPLATE_SPECIAL_TRADE,
 };

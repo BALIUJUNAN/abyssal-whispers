@@ -11,9 +11,10 @@ import { AreaPanelModal } from './AreaPanelModal.jsx';
 import { GameHeader, LeftPanel, CenterPanel, RightPanel } from './GamePanels.jsx';
 import { generateMetaCorruptionEvent, generateLoopOpening, generateCorruptedSaveName, isGlmAvailable } from '../systems/llmNarrative.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
+import { getAudioIntrusionLevel, applyAudioIntrusion, getAudioIntrusionDescription } from '../systems/audioIntrusion.js';
 import { uiStore } from '../state/uiStore.js';
 import { useGameLayoutData } from '../state/selectors.js';
-import { getDispatch } from '../state/useGameStore.js';
+import { getDispatch, useGameStore } from '../state/useGameStore.js';
 
 export function GameLayout() {
   // Granular subscription — re-renders only when these fields change
@@ -47,6 +48,35 @@ export function GameLayout() {
       audioManager.playAreaAmbient(currentArea || 'town_center', phase);
     } catch (e) {}
   }, [currentArea, day, audioMuted]);
+
+  // 感知污染 — 音频侵入层：根据 SAN/loop/mythos 调整环境音
+  var _aiSan = useGameStore(function (s) { return s.san; });
+  var _aiLoopCount = useGameStore(function (s) { return s.loopCount; });
+  var _aiCurrentArea = useGameStore(function (s) { return s.currentArea; });
+  var _aiSafehouseCorruption = useGameStore(function (s) { return s.safehouseCorruption; });
+  var _aiMythosLevel = useGameStore(function (s) { return s.mythosLevel; });
+  var _aiInventory = useGameStore(function (s) { return s.inventory; });
+  useEffect(function () {
+    try {
+      if (audioManager.muted) return;
+      var aiState = {
+        san: _aiSan, loopCount: _aiLoopCount, currentArea: _aiCurrentArea,
+        safehouseCorruption: _aiSafehouseCorruption, mythosLevel: _aiMythosLevel,
+        inventory: _aiInventory,
+      };
+      var intrusionLevel = getAudioIntrusionLevel(aiState, { GD });
+      var result = applyAudioIntrusion(intrusionLevel, audioManager, _aiCurrentArea);
+      if (result.volumeScale !== undefined) {
+        var baseVol = audioManager._userVolumeScale || 1;
+        audioManager._volumeScale = baseVol * result.volumeScale;
+      }
+      if (result.silenceNext) {
+        audioManager._silenceNextKeyEvent = true;
+      } else {
+        audioManager._silenceNextKeyEvent = false;
+      }
+    } catch (e) {}
+  }, [_aiSan, _aiLoopCount, _aiCurrentArea, _aiSafehouseCorruption, _aiMythosLevel, _aiInventory, audioMuted]);
 
   // LLM 轮回开场白：新轮回开始时生成既视感叙事
   var loopOpeningFired = useRef(false);

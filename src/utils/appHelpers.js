@@ -17,7 +17,7 @@ import { captureNpcEcho } from '../reducers/npcReducer.js';
 import { getPhase, getAreaInfo } from '../engine/WorldTimeSystem.js';
 import { checkEnding } from '../reducers/endingReducer.js';
 import { generateDeathFragments, decayDeathFragments } from '../systems/deathLegacies.js';
-import { getDeathCountMetaEvent } from '../data/events_death_count_meta.js';
+import { getDeathCountMetaEvent } from '../data/events/events_death_count_meta.js';
 import { audioManager } from '../managers/AudioManager.js';
 
 export function getUICorruptionLayer(san, loopCount, safehouseCorruption) {

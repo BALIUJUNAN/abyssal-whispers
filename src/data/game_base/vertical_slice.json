@@ -1,0 +1,66 @@
+{
+  "chapter": 1,
+  "title": "十三声钟响",
+  "description": "玩家初到沃切斯特，在镇中心和码头之间活动，接触核心NPC，发现钟声和失踪案的初步异常。本章不涉及深层神话实体，只建立\"有什么不对\"的感觉。",
+  "accessible_areas": [
+    "harbor_district",
+    "town_center"
+  ],
+  "rumor_areas": [
+    "whispering_forest",
+    "voxchester_manor",
+    "catacombs_entrance",
+    "lighthouse"
+  ],
+  "locked_areas": [
+    "ruins_of_yith",
+    "forbidden_grove",
+    "deep_catacombs"
+  ],
+  "core_npcs": [
+    "伊莱亚斯·沃德",
+    "玛莎·格雷",
+    "汤米·陈",
+    "老费舍"
+  ],
+  "limited_npcs": [
+    "伊莎贝拉·韦伯"
+  ],
+  "rumor_npcs": [
+    "约书亚·布莱克",
+    "希尔达·莫里斯",
+    "埃德加·洛夫克拉夫特"
+  ],
+  "active_clue_chains": [
+    "chain_harbor",
+    "chain_heretical"
+  ],
+  "event_distribution": {
+    "total_events": 19,
+    "normal_events": 8,
+    "minor_abnormal": 2,
+    "investigation": 6,
+    "horror": 3,
+    "normal_ratio": "40%",
+    "target_ratio": "40% normal / 10% minor abnormal / 35% investigation / 15% horror；另允许一次 scripted opening scare（第十三声钟响），不计入随机池比例。"
+  },
+  "san_cap": -5,
+  "mythos_name_rule": "第一章禁止使用任何神话专名，只用模糊称呼",
+  "day_1_morning_script": [
+    "玩家抵达沃切斯特，听到十三声钟响（evt_strange_clock自动触发）",
+    "前往镇中心，看到公告栏上的失踪告示",
+    "进入杂货店或酒馆，触发一个正常锚点事件（情绪缓冲，必触发）"
+  ],
+  "day_1_afternoon_script": [
+    "前往码头区，接触老费舍和汤米",
+    "潮汐异常初步暗示",
+    "可选：与玛莎对话"
+  ],
+  "playable_goals": [
+    "了解镇中心和码头两个核心区域",
+    "至少与3个核心NPC建立初步对话",
+    "获得\"十三声钟响\"和\"失踪告示\"两条初始线索",
+    "建立安全屋（酒馆二楼）",
+    "SAN不应低于起始值-10"
+  ]
+}

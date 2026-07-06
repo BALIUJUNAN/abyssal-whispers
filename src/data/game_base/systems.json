@@ -1,0 +1,3644 @@
+{
+  "resources": {
+    "description": "精简资源系统——五类核心资源，每种资源承载叙事压力而非数值管理",
+    "design_principle": "资源不是为了数值而存在，而是为了制造选择压力和叙事张力",
+    "resources": {
+      "food": {
+        "name": "食物",
+        "description": "维持人类日常和NPC稳定。最后一份食物的使用方式决定玩家的人性立场。",
+        "max": 5,
+        "starting": 3,
+        "consumption_events": [
+          {
+            "event": "每日自动消耗",
+            "amount": 1,
+            "description": "维持基本生存"
+          },
+          {
+            "event": "给NPC使用",
+            "amount": 1,
+            "description": "降低NPC不稳定状态"
+          },
+          {
+            "event": "安全屋共享",
+            "amount": 1,
+            "description": "提高安全屋NPC士气"
+          }
+        ],
+        "usage_choices": [
+          {
+            "target": "self",
+            "effect": "降低疲劳1级",
+            "humanity_impact": 0
+          },
+          {
+            "target": "joshua",
+            "effect": "降低癫狂概率20%",
+            "humanity_impact": 2,
+            "description": "你把最后一份食物给了一个疯子。但他是人。"
+          },
+          {
+            "target": "tommy",
+            "effect": "他愿意冲洗危险照片",
+            "humanity_impact": 2,
+            "description": "他接过食物时手在发抖。不是因为害怕——是因为很久没人把他当人了。"
+          },
+          {
+            "target": "hilda",
+            "effect": "帮助她熬过血脉低语之夜",
+            "humanity_impact": 3,
+            "description": "她看着你递过来的食物，眼眶红了。三百年了，第一次有人记得她也会饿。"
+          },
+          {
+            "target": "safehouse",
+            "effect": "提高安全屋NPC士气1级",
+            "humanity_impact": 1
+          },
+          {
+            "target": "old_fisher",
+            "effect": "他愿意多说一些关于海的事",
+            "humanity_impact": 2
+          }
+        ],
+        "food_items": [
+          {
+            "name": "干粮",
+            "restore": 1,
+            "description": "硬邦邦的压缩饼干"
+          },
+          {
+            "name": "罐头",
+            "restore": 1,
+            "description": "标签模糊的罐头"
+          },
+          {
+            "name": "面包",
+            "restore": 1,
+            "description": "杂货店买的面包"
+          },
+          {
+            "name": "渔获",
+            "restore": 2,
+            "description": "码头钓上来的鱼，肉质呈灰蓝色"
+          }
+        ],
+        "starvation_effects": {
+          "food_0": "疲劳每日额外+1，NPC不稳定概率+30%，所有社交检定-10"
+        }
+      },
+      "light": {
+        "name": "光源",
+        "description": "光源是现实稳定器。它不只是照亮黑暗，而是抵抗认知污染、维持文本可靠度、识别假选项。",
+        "light_levels": {
+          "0": {
+            "name": "无光",
+            "effects": {
+              "text_reliability": -0.4,
+              "false_option_detection": 0,
+              "hidden_clue_detection": -0.5,
+              "map_corruption_resist": 0,
+              "san_distortion_increase": 0.2,
+              "monster_encounter_multiplier": 2,
+              "description": "在完全黑暗中，你无法确认自己看到的是什么。文本开始变得不可靠。"
+            }
+          },
+          "1": {
+            "name": "弱光",
+            "effects": {
+              "text_reliability": -0.1,
+              "false_option_detection": 0.3,
+              "hidden_clue_detection": 0,
+              "map_corruption_resist": 0.2,
+              "san_distortion_increase": 0.05,
+              "monster_encounter_multiplier": 1.3,
+              "description": "微弱的光芒。你只能看到眼前，但至少你知道眼前是真的。"
+            }
+          },
+          "2": {
+            "name": "稳定光源",
+            "effects": {
+              "text_reliability": 0,
+              "false_option_detection": 0.6,
+              "hidden_clue_detection": 0.3,
+              "map_corruption_resist": 0.5,
+              "san_distortion_increase": 0,
+              "monster_encounter_multiplier": 1,
+              "description": "稳定的光芒。文本可靠，假选项可以被识别。"
+            }
+          },
+          "3": {
+            "name": "仪式级光源",
+            "effects": {
+              "text_reliability": 0.1,
+              "false_option_detection": 0.9,
+              "hidden_clue_detection": 0.6,
+              "map_corruption_resist": 0.8,
+              "san_distortion_increase": -0.05,
+              "monster_encounter_multiplier": 0.7,
+              "description": "强烈的光芒，甚至能驱散部分超自然存在。"
+            }
+          }
+        },
+        "light_items": [
+          {
+            "name": "火柴",
+            "light_level": 1,
+            "duration": 1,
+            "uses": 10,
+            "description": "微弱火光，只能照亮眼前"
+          },
+          {
+            "name": "蜡烛",
+            "light_level": 2,
+            "duration": 3,
+            "uses": 3,
+            "description": "稳定烛光"
+          },
+          {
+            "name": "油灯",
+            "light_level": 2,
+            "duration": 5,
+            "uses": -1,
+            "description": "可重复使用的油灯，需要灯油"
+          },
+          {
+            "name": "灯油",
+            "light_level": 0,
+            "duration": 0,
+            "uses": 3,
+            "description": "补充油灯燃料"
+          },
+          {
+            "name": "手电筒",
+            "light_level": 2,
+            "duration": 8,
+            "uses": 10,
+            "description": "可靠光源"
+          },
+          {
+            "name": "电池",
+            "light_level": 0,
+            "duration": 0,
+            "uses": 2,
+            "description": "补充手电筒"
+          },
+          {
+            "name": "深海之水",
+            "light_level": 3,
+            "duration": 2,
+            "uses": 1,
+            "description": "仪式级光源，但使用后SAN-3"
+          }
+        ]
+      },
+      "medicine": {
+        "name": "药品",
+        "description": "药品用于延后崩溃，不能无代价解决问题。每种药品都有副作用。",
+        "medicine_items": [
+          {
+            "name": "绷带",
+            "heal_hp": 2,
+            "side_effect": "无",
+            "uses": 1,
+            "description": "简单止血"
+          },
+          {
+            "name": "止痛药",
+            "heal_hp": 1,
+            "side_effect": "洞察检定-10持续3回合",
+            "uses": 2,
+            "description": "暂时压制疼痛但降低洞察"
+          },
+          {
+            "name": "镇静剂",
+            "prevent_madness": true,
+            "side_effect": "洞察检定-15持续当日",
+            "uses": 1,
+            "description": "避免一次临时疯狂但降低洞察"
+          },
+          {
+            "name": "吗啡",
+            "heal_hp": 3,
+            "side_effect": "梦境入侵概率+30%持续3日",
+            "uses": 1,
+            "description": "强力止痛但提高梦境入侵概率"
+          },
+          {
+            "name": "消毒酒精",
+            "cure_infection": 20,
+            "side_effect": "可选择用于燃烧而非消毒",
+            "uses": 2,
+            "description": "降低感染或用于燃烧，二者互斥"
+          },
+          {
+            "name": "退烧药",
+            "cure_fever": true,
+            "side_effect": "次日疲劳+1",
+            "uses": 1,
+            "description": "压下高烧但让你昏沉"
+          }
+        ],
+        "dual_use_tension": "消毒酒精是降低感染还是用于燃烧开路，是典型的选择压力"
+      },
+      "tools": {
+        "name": "工具",
+        "description": "工具承担路线选择压力。同一工具在一次游戏中可能只能承担一种用途。",
+        "tool_items": [
+          {
+            "name": "旧绳索",
+            "uses": 1,
+            "possible_uses": [
+              {
+                "use": "进入灯塔地下井",
+                "unlocks": "灯塔地下室深层"
+              },
+              {
+                "use": "救出坍塌墓穴中的NPC",
+                "unlocks": "NPC救援事件"
+              },
+              {
+                "use": "加固安全屋门窗",
+                "unlocks": "安全屋防御+1级"
+              }
+            ],
+            "description": "结实的旧绳索，足够承担一次关键用途"
+          },
+          {
+            "name": "铁撬棍",
+            "uses": 1,
+            "possible_uses": [
+              {
+                "use": "撬开仓库铁门",
+                "unlocks": "码头仓库内部"
+              },
+              {
+                "use": "撬开庄园暗格",
+                "unlocks": "封印仪式图谱"
+              },
+              {
+                "use": "作为武器",
+                "unlocks": "斗殴+10"
+              }
+            ],
+            "description": "沉重的铁撬棍"
+          },
+          {
+            "name": "防水布",
+            "uses": -1,
+            "possible_uses": [
+              {
+                "use": "防雨防潮",
+                "unlocks": "exposure_resist+15"
+              },
+              {
+                "use": "包裹重要物品",
+                "unlocks": "物品防水保护"
+              }
+            ],
+            "description": "可重复使用的防水油布"
+          },
+          {
+            "name": "简易净水片",
+            "uses": 3,
+            "possible_uses": [
+              {
+                "use": "净化饮用水",
+                "unlocks": "感染风险降低"
+              },
+              {
+                "use": "净化仪式用水",
+                "unlocks": "封印仪式辅助"
+              }
+            ],
+            "description": "净化水质的化学片剂"
+          }
+        ],
+        "choice_pressure": "旧绳索只能用一次：进入灯塔井、救人、还是加固安全屋？"
+      },
+      "safehouse_supplies": {
+        "name": "安全屋储备",
+        "description": "维持安全屋运转的综合资源，包括食物储备、灯油、建材等",
+        "components": {
+          "food_stock": {
+            "description": "安全屋食物储备",
+            "max": 10,
+            "starting": 5
+          },
+          "lamp_oil": {
+            "description": "灯油储备",
+            "max": 10,
+            "starting": 5
+          },
+          "barricade_materials": {
+            "description": "建材储备",
+            "max": 5,
+            "starting": 2
+          }
+        },
+        "consumption_rate": {
+          "daily_food": 1,
+          "daily_oil": 1,
+          "npc_presence_extra_food": 0.5
+        }
+      }
+    },
+    "resource_pressure_by_area": {
+      "harbor_district": {
+        "food_availability": "moderate",
+        "light_requirement": "moderate",
+        "rest_safety": "low"
+      },
+      "town_center": {
+        "food_availability": "moderate",
+        "light_requirement": "low",
+        "rest_safety": "moderate"
+      },
+      "whispering_forest": {
+        "food_availability": "low",
+        "light_requirement": "high",
+        "rest_safety": "very_low"
+      },
+      "voxchester_manor": {
+        "food_availability": "low",
+        "light_requirement": "moderate",
+        "rest_safety": "moderate"
+      },
+      "catacombs_entrance": {
+        "food_availability": "none",
+        "light_requirement": "critical",
+        "rest_safety": "very_low"
+      },
+      "ruins_of_yith": {
+        "food_availability": "none",
+        "light_requirement": "moderate",
+        "rest_safety": "extremely_low"
+      },
+      "lighthouse": {
+        "food_availability": "none",
+        "light_requirement": "high",
+        "rest_safety": "very_low"
+      },
+      "forbidden_grove": {
+        "food_availability": "none",
+        "light_requirement": "moderate",
+        "rest_safety": "extremely_low"
+      },
+      "deep_catacombs": {
+        "food_availability": "none",
+        "light_requirement": "critical",
+        "rest_safety": "impossible"
+      }
+    },
+    "pressure_modifiers": {
+      "harbor_district": {
+        "required_light_level": 1,
+        "food_consumption_modifier": 1.2,
+        "fatigue_gain": 10,
+        "infection_risk": 10,
+        "safe_rest_available": false
+      },
+      "town_center": {
+        "required_light_level": 0,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 5,
+        "infection_risk": 0,
+        "safe_rest_available": true
+      },
+      "whispering_forest": {
+        "required_light_level": 2,
+        "food_consumption_modifier": 1.5,
+        "fatigue_gain": 15,
+        "infection_risk": 10,
+        "safe_rest_available": false
+      },
+      "voxchester_manor": {
+        "required_light_level": 1,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 8,
+        "infection_risk": 5,
+        "safe_rest_available": true
+      },
+      "catacombs_entrance": {
+        "required_light_level": 3,
+        "food_consumption_modifier": 1.3,
+        "fatigue_gain": 20,
+        "infection_risk": 15,
+        "safe_rest_available": false
+      },
+      "ruins_of_yith": {
+        "required_light_level": 1,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 25,
+        "infection_risk": 5,
+        "safe_rest_available": false
+      },
+      "lighthouse": {
+        "required_light_level": 2,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 20,
+        "infection_risk": 20,
+        "safe_rest_available": false
+      },
+      "forbidden_grove": {
+        "required_light_level": 1,
+        "food_consumption_modifier": 1,
+        "fatigue_gain": 25,
+        "infection_risk": 20,
+        "safe_rest_available": false
+      },
+      "deep_catacombs": {
+        "required_light_level": 3,
+        "food_consumption_modifier": 1.5,
+        "fatigue_gain": 30,
+        "infection_risk": 25,
+        "safe_rest_available": false
+      }
+    }
+  },
+  "safehouse": {
+    "description": "安全屋系统——从庇护所逐步退化为不可靠空间。恐怖不是一直危险，而是原本安全的地方也开始失效。",
+    "main_safehouse": {
+      "name": "沉锚酒馆二楼",
+      "location": "harbor_district",
+      "owner": "玛莎·格雷",
+      "initial_state": {
+        "food_stock": 5,
+        "lamp_oil": 5,
+        "barricade_integrity": 100,
+        "npc_morale": 80,
+        "contamination": 0,
+        "is_safe": true
+      },
+      "available_functions": {
+        "save_game": true,
+        "rest": true,
+        "organize_clues": true,
+        "store_items": true,
+        "npc_conversation": true,
+        "san_recovery": 2,
+        "fatigue_recovery": 30
+      }
+    },
+    "degradation_stages": [
+      {
+        "stage": 1,
+        "name": "正常",
+        "corruption_range": [
+          0,
+          15
+        ],
+        "description": "安全屋功能完整。灯光稳定，门锁可靠。你可以在夜晚安然入睡。",
+        "is_safe": true,
+        "rest_risk": 0,
+        "visual_changes": [],
+        "narrative_hints": [
+          "一切正常"
+        ],
+        "available_functions": {
+          "save_game": true,
+          "rest": true,
+          "organize_clues": true,
+          "store_items": true,
+          "npc_conversation": true,
+          "san_recovery": 2,
+          "fatigue_recovery": 30
+        }
+      },
+      {
+        "stage": 2,
+        "name": "被注视",
+        "corruption_range": [
+          16,
+          35
+        ],
+        "description": "你总觉得有人在看你。门外偶尔传来脚步声，但打开门后走廊空无一人。墙上的影子偶尔会多出一个。",
+        "is_safe": true,
+        "rest_risk": 0.05,
+        "visual_changes": [
+          "窗外偶尔出现人影",
+          "地板上出现不属于任何人的湿脚印"
+        ],
+        "narrative_hints": [
+          "你关上了窗帘。但你知道，关不关都一样。"
+        ],
+        "available_functions": {
+          "save_game": true,
+          "rest": true,
+          "organize_clues": true,
+          "store_items": true,
+          "npc_conversation": true,
+          "san_recovery": 1,
+          "fatigue_recovery": 25
+        }
+      },
+      {
+        "stage": 3,
+        "name": "不再完全安全",
+        "corruption_range": [
+          36,
+          55
+        ],
+        "description": "日志出现了你不记得写下的字迹。储物箱里的物品位置变了。你睡觉时听到了敲门声——三下，很有节奏。",
+        "is_safe": true,
+        "rest_risk": 0.15,
+        "visual_changes": [
+          "墙上出现螺旋形涂鸦",
+          "镜子中的房间与现实略有不同",
+          "储物箱位置变化"
+        ],
+        "narrative_hints": [
+          "你检查了三遍门锁。每一遍都锁着。但你还是不放心。"
+        ],
+        "available_functions": {
+          "save_game": true,
+          "rest": true,
+          "organize_clues": true,
+          "store_items": true,
+          "npc_conversation": true,
+          "san_recovery": 0,
+          "fatigue_recovery": 20
+        }
+      },
+      {
+        "stage": 4,
+        "name": "安全屋破裂",
+        "corruption_range": [
+          56,
+          75
+        ],
+        "description": "休息时开始触发梦境事件。NPC不愿留宿。食物消耗增加。灯油减少速度加快。玛莎开始回避你的目光。",
+        "is_safe": false,
+        "rest_risk": 0.3,
+        "visual_changes": [
+          "墙壁偶尔脉动",
+          "地板倾斜后恢复",
+          "门锁有时自动打开"
+        ],
+        "narrative_hints": [
+          "玛莎说她听到了地下室的声音。她的表情不太对。"
+        ],
+        "available_functions": {
+          "save_game": true,
+          "rest": true,
+          "organize_clues": false,
+          "store_items": true,
+          "npc_conversation": false,
+          "san_recovery": -1,
+          "fatigue_recovery": 15
+        },
+        "special_events": [
+          {
+            "id": "safehouse_dream",
+            "trigger": "rest",
+            "probability": 0.3,
+            "description": "你梦到了海底的城市。醒来时枕头是湿的。",
+            "san_cost": -2
+          },
+          {
+            "id": "safehouse_visitor",
+            "trigger": "rest",
+            "probability": 0.15,
+            "description": "你半夜醒来，床边站着一个人影。眨眼后消失了。",
+            "san_cost": -3
+          }
+        ]
+      },
+      {
+        "stage": 5,
+        "name": "安全屋失效",
+        "corruption_range": [
+          76,
+          100
+        ],
+        "description": "储物被污染。深潜者在窗外窥探。玛莎可能已经向深潜者告密。你无法安全休息。食物消耗翻倍。灯油加速消耗。",
+        "is_safe": false,
+        "rest_risk": 0.6,
+        "visual_changes": [
+          "墙壁渗出海水",
+          "地板下传来敲击声",
+          "窗外有金色眼睛注视"
+        ],
+        "narrative_hints": [
+          "你已经不确定这里还是不是你的房间了。"
+        ],
+        "available_functions": {
+          "save_game": false,
+          "rest": true,
+          "organize_clues": false,
+          "store_items": false,
+          "npc_conversation": false,
+          "san_recovery": -3,
+          "fatigue_recovery": 10
+        },
+        "special_events": [
+          {
+            "id": "safehouse_deep_one_peep",
+            "trigger": "any",
+            "probability": 0.2,
+            "description": "窗外出现了一张灰绿色的脸。它在微笑。",
+            "san_cost": -4
+          },
+          {
+            "id": "safehouse_martha_betray",
+            "trigger": "rest",
+            "probability": 0.1,
+            "description": "你闻到了海水的味道。玛莎站在门口，眼神空洞。她身后有什么东西在动。",
+            "san_cost": -5,
+            "requires": "玛莎corruption>=60"
+          },
+          {
+            "id": "safehouse_items_corrupted",
+            "trigger": "store_items",
+            "probability": 0.4,
+            "description": "你打开储物箱，里面的物品上覆盖着一层灰色粘液。",
+            "san_cost": -2
+          }
+        ]
+      }
+    ],
+    "degradation_triggers": [
+      {
+        "trigger": "city_corruption上升",
+        "rate": "每10点腐败度退化1阶段"
+      },
+      {
+        "trigger": "玛莎corruption>=60",
+        "effect": "退化速度+50%，Stage 5新增告密事件"
+      },
+      {
+        "trigger": "安全屋内NPC死亡",
+        "effect": "直接退化1阶段"
+      },
+      {
+        "trigger": "玩家SAN<30",
+        "effect": "退化速度+30%"
+      }
+    ],
+    "alternative_safehouses": [
+      {
+        "name": "教授的研究室",
+        "location": "town_center",
+        "unlock_condition": "伊莱亚斯trust>=3",
+        "pros": [
+          "san_recovery+1",
+          "clue_organization"
+        ],
+        "cons": [
+          "研究室本身可能成为污染源",
+          "教授可能在你休息时翻看你的笔记"
+        ]
+      },
+      {
+        "name": "庄园密室",
+        "location": "voxchester_manor",
+        "unlock_condition": "希尔达trust>=4",
+        "pros": [
+          "空间异常区域，怪物不易进入"
+        ],
+        "cons": [
+          "空间本身不稳定",
+          "希尔达的夜晚行为不可预测"
+        ]
+      }
+    ],
+    "relocation_rules": {
+      "description": "如果当前安全屋完全失效，玩家可以尝试寻找替代安全屋",
+      "alternative_safehouses": [
+        {
+          "name": "教授的研究室",
+          "location": "town_center",
+          "unlock_condition": "伊莱亚斯信任≥3",
+          "functions": {
+            "save": true,
+            "organize_clues": true,
+            "san_restore": 1,
+            "fatigue_restore": 20,
+            "npc_conversation": true
+          },
+          "drawback": "教授的研究室本身可能成为污染源"
+        },
+        {
+          "name": "庄园的密室",
+          "location": "voxchester_manor",
+          "unlock_condition": "希尔达信任≥4",
+          "functions": {
+            "save": true,
+            "organize_clues": true,
+            "san_restore": 2,
+            "fatigue_restore": 25,
+            "item_storage": true
+          },
+          "drawback": "庄园本身有空间异常"
+        }
+      ]
+    }
+  },
+  "sanity": {
+    "description": "SAN值代表角色的精神稳定程度。接触知识、遭遇怪物、使用禁忌法术都会降低SAN。",
+    "base_max": "99 - CthulhuMythos",
+    "starting": "POW属性值",
+    "recovery_methods": "SAN可以通过以下方式恢复：与正常NPC交谈（+1d3）、在安全区域休息（+1d3-1）、使用特定道具、找到并阅读安慰性文献。但SAN无法超过上限（99-克苏鲁神话技能值）。",
+    "stage_effects": [
+      {
+        "range": [
+          75,
+          100
+        ],
+        "name": "认知稳定",
+        "description": "世界按你理解的方式运转。几乎无污染。",
+        "ap_modifier": 0,
+        "special_effects": []
+      },
+      {
+        "range": [
+          55,
+          74
+        ],
+        "name": "轻度侵蚀",
+        "description": "隐约不安。文字偶尔出现极轻微阴影。",
+        "ap_modifier": 0,
+        "special_effects": [
+          "侦查-5"
+        ]
+      },
+      {
+        "range": [
+          40,
+          54
+        ],
+        "name": "感知偏移",
+        "description": "明显不安。叙事文本持续颤抖。",
+        "ap_modifier": 0,
+        "special_effects": [
+          "文本幻觉",
+          "每5天10%假事件"
+        ]
+      },
+      {
+        "range": [
+          25,
+          39
+        ],
+        "name": "解释权动摇",
+        "description": "界面开始对抗你。选项文字缓慢自改写。",
+        "ap_modifier": -3,
+        "special_effects": [
+          "AP-3",
+          "权重腐蚀",
+          "虚假记忆",
+          "社交检定-10",
+          "存档名轻度污染"
+        ]
+      },
+      {
+        "range": [
+          10,
+          24
+        ],
+        "name": "现实侵蚀",
+        "description": "惊悚与怀疑。虚假事件概率显著上升。",
+        "ap_modifier": -6,
+        "special_effects": [
+          "AP-6",
+          "虚假消息",
+          "权重剧烈腐蚀",
+          "检定-15",
+          "SAN破壁事件",
+          "日志注入"
+        ]
+      },
+      {
+        "range": [
+          1,
+          9
+        ],
+        "name": "现实崩解",
+        "description": "彻底失控与恐惧。第四面墙完全破裂。",
+        "ap_modifier": 0,
+        "special_effects": [
+          "强制结局判定",
+          "完全疯狂",
+          "伪造系统通知",
+          "物品篡改",
+          "Meta文本"
+        ]
+      }
+    ],
+    "san_loss_scale": {
+      "normal_event": 0,
+      "minor_abnormal": [
+        -1,
+        -2
+      ],
+      "clear_horror": [
+        -3,
+        -5
+      ],
+      "mythos_direct": [
+        -6,
+        -8
+      ],
+      "chapter_1_cap": -5,
+      "skill_check_success_reduction": "30%-60%"
+    },
+    "distortion_stages": {
+      "stable": {
+        "range": [
+          75,
+          100
+        ],
+        "name": "认知稳定",
+        "ui_effects": {
+          "map_names": "standard",
+          "npc_dialogue": "standard",
+          "item_descriptions": "standard",
+          "save_file_names": "standard",
+          "system_messages": "standard",
+          "player_options": "standard",
+          "journal_entries": "standard",
+          "area_connections": "standard"
+        }
+      },
+      "mild_erosion": {
+        "range": [
+          55,
+          74
+        ],
+        "name": "轻度侵蚀",
+        "ui_effects": {
+          "map_names": "偶尔出现一个多余的字或错别字",
+          "npc_dialogue": "NPC偶尔说出不属于当前对话的话，然后恢复正常",
+          "item_descriptions": "道具描述末尾偶尔出现一个不属于描述的词",
+          "save_file_names": "存档名偶尔出现日期偏差",
+          "system_messages": "系统提示偶尔用词微妙不同",
+          "player_options": "偶尔多出一个选项，选择后消失",
+          "journal_entries": "日志中偶尔出现一行不属于你的字迹",
+          "area_connections": "正常"
+        }
+      },
+      "perception_shift": {
+        "range": [
+          40,
+          54
+        ],
+        "name": "感知偏移",
+        "ui_effects": {
+          "map_names": "区域名称偶尔替换为描述性替代",
+          "npc_dialogue": "NPC台词可能出现两个版本，玩家无法确认哪个是真实的",
+          "item_descriptions": "道具描述变得不可靠，可能包含虚假信息",
+          "save_file_names": "存档名被污染，包含不属于你的记忆",
+          "system_messages": "系统提示开始带有主观语气",
+          "player_options": "偶尔出现诱导性选项",
+          "journal_entries": "日志中出现多出的段落，笔迹不属于你",
+          "area_connections": "偶尔显示已锁定的区域为可进入"
+        }
+      },
+      "explanation_loss": {
+        "range": [
+          25,
+          39
+        ],
+        "name": "解释权丧失",
+        "ui_effects": {
+          "map_names": "地图名称被替换为与玩家经历相关的描述",
+          "npc_dialogue": "NPC可能用错误的名字称呼玩家，说出玩家的记忆",
+          "item_descriptions": "道具描述可能否认道具的存在或用途",
+          "save_file_names": "存档名被彻底污染，可能包含警告或低语",
+          "system_messages": "系统提示开始像某个存在在对玩家说话",
+          "player_options": "出现不存在的选项和诱导性选择",
+          "journal_entries": "日志内容被改写，出现不属于你的记忆",
+          "area_connections": "地图连接显示错误，可能通向不存在的区域"
+        }
+      },
+      "reality_dissolution": {
+        "range": [
+          10,
+          24
+        ],
+        "name": "现实崩解",
+        "ui_effects": {
+          "map_names": "地图名称变为直接对玩家的低语或嘲讽",
+          "npc_dialogue": "NPC台词完全不可信，可能是深渊的投射",
+          "item_descriptions": "道具描述被改写为嘲讽或警告",
+          "save_file_names": "存档名成为深渊的留言",
+          "system_messages": "系统提示完全被某个存在控制",
+          "player_options": "选项被污染，真实选项可能隐藏在虚假选项中",
+          "journal_entries": "日志不再是你的记录，而是某种存在的叙述",
+          "area_connections": "地图连接完全不可靠"
+        }
+      },
+      "narrative_death": {
+        "range": [
+          1,
+          9
+        ],
+        "name": "叙事死亡",
+        "ui_effects": {
+          "map_names": "不再显示地图",
+          "npc_dialogue": "不再有NPC对话",
+          "item_descriptions": "道具失去意义",
+          "save_file_names": "存档可能被删除或显示'此人并不存在'",
+          "system_messages": "系统沉默，或只显示'...'或'你在这里'",
+          "player_options": "只剩一个选项，或没有选项",
+          "journal_entries": "日志自动书写，内容不再属于你",
+          "area_connections": "不再显示连接，因为已经没有地方可去"
+        }
+      }
+    },
+    "temporary_madness_table": [
+      {
+        "roll": 1,
+        "name": "恐慌逃跑",
+        "duration": "1d10回合",
+        "description": "角色不顾一切地逃离当前位置，消耗所有剩余AP",
+        "effect": {
+          "行为": "强制移动到随机相邻区域",
+          "AP损失": "全部"
+        }
+      },
+      {
+        "roll": 2,
+        "name": "歇斯底里",
+        "duration": "1d6回合",
+        "description": "角色大笑或大哭，无法进行任何行动",
+        "effect": {
+          "行为": "无法行动",
+          "SAN额外": "-1d3"
+        }
+      },
+      {
+        "roll": 3,
+        "name": "偏执妄想",
+        "duration": "1d8回合",
+        "description": "角色认为NPC都在密谋害自己，拒绝所有对话",
+        "effect": {
+          "行为": "NPC互动禁用",
+          "信任": "-1（所有NPC）"
+        }
+      },
+      {
+        "roll": 4,
+        "name": "暴力发作",
+        "duration": "1d4回合",
+        "description": "角色攻击最近的生物——可能是NPC",
+        "effect": {
+          "行为": "攻击最近NPC或怪物",
+          "HP损失": "对手HP-3或自身HP-3"
+        }
+      },
+      {
+        "roll": 5,
+        "name": "幻觉侵袭",
+        "duration": "1d6回合",
+        "description": "角色看到不存在的怪物或事件",
+        "effect": {
+          "行为": "触发虚假事件描述",
+          "SAN额外": "-1d4"
+        }
+      },
+      {
+        "roll": 6,
+        "name": "失忆症",
+        "duration": "持续到下次休息",
+        "description": "角色忘记最近获得的线索",
+        "effect": {
+          "行为": "丢失最近2条线索记录",
+          "侦查": "-10"
+        }
+      },
+      {
+        "roll": 7,
+        "name": "僵直症",
+        "duration": "1d10回合",
+        "description": "角色无法移动，蜷缩在地",
+        "effect": {
+          "行为": "无法行动，易受攻击",
+          "闪避": "-50"
+        }
+      },
+      {
+        "roll": 8,
+        "name": "强迫行为",
+        "duration": "1d6回合",
+        "description": "角色反复进行无意义的动作（数数、画螺旋）",
+        "effect": {
+          "行为": "AP消耗翻倍",
+          "神秘学": "+5（精神高度集中）"
+        }
+      },
+      {
+        "roll": 9,
+        "name": "幻痛",
+        "duration": "1d4回合",
+        "description": "角色感到全身剧烈疼痛但无外伤",
+        "effect": {
+          "行为": "所有检定-15",
+          "HP": "实际无损失"
+        }
+      },
+      {
+        "roll": 10,
+        "name": "短暂附身",
+        "duration": "1d3回合",
+        "description": "角色被某种存在短暂控制，说出不属于自己的话",
+        "effect": {
+          "行为": "AI控制行动",
+          "克苏鲁神话": "+1d3",
+          "SAN额外": "-1d6"
+        }
+      }
+    ],
+    "sanity_check_table": [
+      {
+        "event_type": "怪物遭遇",
+        "base_san_loss": [
+          5,
+          12
+        ],
+        "fear_check": "POW×5 vs 怪物恐怖值",
+        "failure_penalty": "本回合无法行动+额外SAN-1d6"
+      },
+      {
+        "event_type": "神秘事件",
+        "base_san_loss": [
+          3,
+          8
+        ],
+        "fear_check": "意志 vs 事件强度",
+        "failure_penalty": "额外SAN-1d4"
+      },
+      {
+        "event_type": "陷阱",
+        "base_san_loss": [
+          2,
+          7
+        ],
+        "fear_check": "无",
+        "failure_penalty": "直接承受全部SAN损失"
+      },
+      {
+        "event_type": "线索",
+        "base_san_loss": [
+          1,
+          4
+        ],
+        "fear_check": "无",
+        "failure_penalty": "检定失败可能丢失线索"
+      },
+      {
+        "event_type": "NPC互动",
+        "base_san_loss": [
+          0,
+          3
+        ],
+        "fear_check": "无",
+        "failure_penalty": "信任获取失败"
+      },
+      {
+        "event_type": "接触神话知识",
+        "base_san_loss": [
+          5,
+          10
+        ],
+        "fear_check": "意志≥50",
+        "failure_penalty": "额外SAN-1d6+克苏鲁神话+1"
+      },
+      {
+        "event_type": "使用禁咒",
+        "base_san_loss": [
+          8,
+          15
+        ],
+        "fear_check": "意志≥60",
+        "failure_penalty": "临时疯狂+效果失控"
+      }
+    ],
+    "item_protection": [
+      {
+        "name": "银质护身符",
+        "san_reduction": 2,
+        "description": "佩戴时每次SAN损失减少2点",
+        "stackable": false
+      },
+      {
+        "name": "怀表",
+        "san_reduction": 1,
+        "description": "握住怀表时SAN损失减少1点（熟悉的时间感带来安全感）",
+        "stackable": false
+      },
+      {
+        "name": "手电筒",
+        "san_reduction": 1,
+        "description": "在黑暗区域使用时SAN损失减少1点",
+        "stackable": false,
+        "condition": "仅在黑暗区域有效"
+      },
+      {
+        "name": "笔记本和笔",
+        "san_reduction": 1,
+        "description": "记录线索后SAN恢复+1（理性思维的锚点）",
+        "stackable": false,
+        "condition": "需要在安全区域使用"
+      },
+      {
+        "name": "守护者护符",
+        "san_reduction": 3,
+        "description": "SAN损失额外减少3点（成就解锁道具）",
+        "stackable": true,
+        "stack_with": "银质护身符"
+      }
+    ],
+    "sanity_gamble": {
+      "enabled": true,
+      "trigger_probability": 0.25,
+      "options": [
+        {
+          "id": "safe",
+          "label": "保持距离",
+          "text": "你决定不冒不必要的风险。",
+          "effect": {
+            "type": "modify_stat",
+            "target": "SAN",
+            "amount": 0
+          },
+          "reward_multiplier": 1
+        },
+        {
+          "id": "deep_investigate",
+          "label": "深入探究",
+          "text": "你强迫自己更仔细地观察。有些东西一旦看到就无法忘记。",
+          "cost": {
+            "SAN": {
+              "dice": "1d6",
+              "min": 2,
+              "max": 8
+            }
+          },
+          "reward": {
+            "clue_chance": 0.6,
+            "san_gain_chance": 0.15,
+            "madness_risk": 0.15,
+            "text_on_success": "你发现了关键的细节——某些隐藏在表面之下的联系。",
+            "text_on_madness": "你不该看的。你不该看的。你看到了……不，你什么都没看到。"
+          }
+        }
+      ]
+    },
+    "san_stages": [
+      {
+        "id": "stable",
+        "name": "认知稳定",
+        "range": [
+          75,
+          100
+        ],
+        "level": 0,
+        "ap_modifier": 0,
+        "description": "心智清晰。现实的边界稳固。你能区分内心与外界的差异。",
+        "visual_tier": "clean",
+        "event_weight": {
+          "buffer_boost": 1.3,
+          "horror_penalty": 0.8
+        },
+        "pollution_effects": [],
+        "visual": {
+          "saturation": -2,
+          "vignette": 0,
+          "scanline": 0,
+          "noise": 0,
+          "barrel_distortion": 0,
+          "chromatic_aberration": 0,
+          "rotation": 0,
+          "text_shadow": false,
+          "text_tremble": false,
+          "glow": false,
+          "description": "无视觉污染。微冷色调，轻微饱和衰减。"
+        },
+        "interaction": {
+          "button_delay_ms": 0,
+          "hover_corrupt_ms": 0,
+          "option_rewrite": false,
+          "option_glitch": false,
+          "phantom_options": false,
+          "cursor_corrupt": false,
+          "description": "无交互污染"
+        },
+        "logic": {
+          "text_hallucination": false,
+          "fake_messages": false,
+          "false_memories": false,
+          "weight_corruption": false,
+          "event_distortion_level": 0,
+          "description": "无逻辑污染，事件完全正常"
+        },
+        "meta": {
+          "save_corrupt": false,
+          "title_corrupt": false,
+          "system_fake_errors": false,
+          "fourth_wall_break": false,
+          "description": "无Meta效果"
+        }
+      },
+      {
+        "id": "mild_erosion",
+        "name": "轻度侵蚀",
+        "range": [
+          60,
+          74
+        ],
+        "level": 1,
+        "ap_modifier": 0,
+        "description": "边缘开始模糊。你偶尔不确定自己是否记得某个细节，但无所谓。",
+        "visual_tier": "fogged",
+        "event_weight": {
+          "buffer_boost": 1,
+          "horror_penalty": 1
+        },
+        "pollution_effects": [
+          "视觉-5"
+        ],
+        "visual": {
+          "saturation": -8,
+          "vignette": 0.03,
+          "scanline": 0,
+          "noise": 0,
+          "barrel_distortion": 0,
+          "chromatic_aberration": 0.3,
+          "rotation": 0,
+          "text_shadow": true,
+          "text_tremble": false,
+          "glow": false,
+          "description": "微冷色调+轻微色偏。文字阴影初现。"
+        },
+        "interaction": {
+          "button_delay_ms": 30,
+          "hover_corrupt_ms": 0,
+          "option_rewrite": false,
+          "option_glitch": false,
+          "phantom_options": false,
+          "cursor_corrupt": false,
+          "description": "按钮延迟轻微增加（30ms），近乎不可察觉"
+        },
+        "logic": {
+          "text_hallucination": false,
+          "fake_messages": false,
+          "false_memories": false,
+          "weight_corruption": false,
+          "event_distortion_level": 0,
+          "description": "无逻辑异常，但污染累积开始"
+        },
+        "meta": {
+          "save_corrupt": false,
+          "title_corrupt": false,
+          "system_fake_errors": false,
+          "fourth_wall_break": false,
+          "description": "无Meta效果"
+        }
+      },
+      {
+        "id": "perception_shift",
+        "name": "感知偏移",
+        "range": [
+          50,
+          59
+        ],
+        "level": 2,
+        "ap_modifier": 0,
+        "description": "你注意到事物之间的间隙在扩大。有些声音似乎来自不存在的地方。",
+        "visual_tier": "flickering",
+        "event_weight": {
+          "buffer_boost": 0.8,
+          "horror_penalty": 1.15
+        },
+        "pollution_effects": [
+          "视觉-10",
+          "每5-10%概率触发微事件"
+        ],
+        "visual": {
+          "saturation": -15,
+          "vignette": 0.08,
+          "scanline": 0.3,
+          "noise": 0.05,
+          "barrel_distortion": 0,
+          "chromatic_aberration": 0.5,
+          "rotation": 0,
+          "text_shadow": true,
+          "text_tremble": true,
+          "glow": true,
+          "description": "色偏增强。文字开始轻微抖动+微光。扫描线+噪点初现。"
+        },
+        "interaction": {
+          "button_delay_ms": 80,
+          "hover_corrupt_ms": 0,
+          "option_rewrite": false,
+          "option_glitch": false,
+          "phantom_options": false,
+          "cursor_corrupt": false,
+          "description": "按钮延迟增至80ms。可感知但还不会误操作。"
+        },
+        "logic": {
+          "text_hallucination": true,
+          "fake_messages": false,
+          "false_memories": false,
+          "weight_corruption": true,
+          "event_distortion_level": 1,
+          "description": "文本幻觉激活（词替换）。事件权重开始微偏。"
+        },
+        "meta": {
+          "save_corrupt": false,
+          "title_corrupt": false,
+          "system_fake_errors": false,
+          "fourth_wall_break": false,
+          "description": "无Meta效果"
+        }
+      },
+      {
+        "id": "explanation_loss",
+        "name": "解释丧失",
+        "range": [
+          40,
+          49
+        ],
+        "level": 3,
+        "ap_modifier": -1,
+        "description": "你开始怀疑自己看到的东西。每次选择都像是隔着一层毛玻璃。",
+        "visual_tier": "hostile",
+        "event_weight": {
+          "buffer_boost": 0.7,
+          "horror_penalty": 1.3
+        },
+        "pollution_effects": [
+          "AP-1",
+          "虚假记忆插入",
+          "选项文字改写",
+          "NPC记忆偏差",
+          "任务状态模糊化"
+        ],
+        "visual": {
+          "saturation": -25,
+          "vignette": 0.15,
+          "scanline": 0.6,
+          "noise": 0.12,
+          "barrel_distortion": 0.01,
+          "chromatic_aberration": 1.5,
+          "rotation": 0,
+          "text_shadow": true,
+          "text_tremble": true,
+          "glow": true,
+          "description": "扫描线加重+色差增强。文字抖动。轻微barrel distortion。"
+        },
+        "interaction": {
+          "button_delay_ms": 150,
+          "hover_corrupt_ms": 600,
+          "option_rewrite": true,
+          "option_glitch": true,
+          "phantom_options": false,
+          "cursor_corrupt": false,
+          "description": "选项开始被改写。Hover 600ms后触发扰动。虚假记忆层激活。"
+        },
+        "logic": {
+          "text_hallucination": true,
+          "fake_messages": false,
+          "false_memories": true,
+          "weight_corruption": true,
+          "event_distortion_level": 2,
+          "description": "虚假记忆插入。选项文字改写。NPC记忆偏差加剧。"
+        },
+        "meta": {
+          "save_corrupt": true,
+          "title_corrupt": false,
+          "system_fake_errors": false,
+          "fourth_wall_break": false,
+          "description": "存档名开始出现轻微污染"
+        }
+      },
+      {
+        "id": "cognitive_fog",
+        "name": "认知迷雾",
+        "range": [
+          30,
+          39
+        ],
+        "level": 4,
+        "ap_modifier": -1,
+        "description": "你的思维被一层浓雾包裹。探索事件开始出现看起来有收益、实则扣资源的虚假选项。",
+        "visual_tier": "hostile",
+        "event_weight": {
+          "buffer_boost": 0.6,
+          "horror_penalty": 1.4
+        },
+        "pollution_effects": [
+          "AP-1(累计-2)",
+          "探索虚假选项",
+          "NPC信任伪造准备",
+          "认知偏差-15",
+          "负面事件权重提升"
+        ],
+        "visual": {
+          "saturation": -30,
+          "vignette": 0.2,
+          "scanline": 0.7,
+          "noise": 0.18,
+          "barrel_distortion": 0.02,
+          "chromatic_aberration": 2,
+          "rotation": 0.1,
+          "text_shadow": true,
+          "text_tremble": true,
+          "glow": true,
+          "description": "雾化视觉效果。文字和界面整体模糊。屏幕轻微旋转。"
+        },
+        "interaction": {
+          "button_delay_ms": 200,
+          "hover_corrupt_ms": 800,
+          "option_rewrite": true,
+          "option_glitch": true,
+          "phantom_options": false,
+          "cursor_corrupt": false,
+          "description": "虚假选项出现（探索事件25%）。按钮延迟200ms，Hover扰动800ms。"
+        },
+        "logic": {
+          "text_hallucination": true,
+          "fake_messages": false,
+          "false_memories": true,
+          "weight_corruption": true,
+          "event_distortion_level": 2,
+          "description": "虚假探索选项启动（25%概率）。NPC对话信任伪造准备。"
+        },
+        "meta": {
+          "save_corrupt": true,
+          "title_corrupt": false,
+          "system_fake_errors": false,
+          "fourth_wall_break": false,
+          "description": "存档污染加剧。系统提示开始掺假。"
+        }
+      },
+      {
+        "id": "reality_dissolution",
+        "name": "现实溶解",
+        "range": [
+          15,
+          29
+        ],
+        "level": 5,
+        "ap_modifier": -1,
+        "description": "你不再确定哪些是真实发生的。NPC的信任提示可能是编造的。你感觉有人在偷你的行动力。",
+        "visual_tier": "extreme",
+        "event_weight": {
+          "buffer_boost": 0.5,
+          "horror_penalty": 1.5
+        },
+        "pollution_effects": [
+          "AP-1(累计-3)",
+          "强制AP偷取(30%概率)",
+          "NPC虚假信任(40%概率)",
+          "负面事件权重x1.5",
+          "幻觉系统消息",
+          "关键信息遗忘"
+        ],
+        "visual": {
+          "saturation": -40,
+          "vignette": 0.25,
+          "scanline": 0.9,
+          "noise": 0.25,
+          "barrel_distortion": 0.03,
+          "chromatic_aberration": 3,
+          "rotation": 0.3,
+          "text_shadow": true,
+          "text_tremble": true,
+          "glow": true,
+          "description": "重度视觉扭曲。色差+barrel distortion+旋转。Canvas撕裂效果激活。"
+        },
+        "interaction": {
+          "button_delay_ms": 250,
+          "hover_corrupt_ms": 1000,
+          "option_rewrite": true,
+          "option_glitch": true,
+          "phantom_options": false,
+          "cursor_corrupt": true,
+          "description": "虚假选项50%概率。NPC虚假信任40%概率。按钮延迟250ms，Hover扰动1000ms。UI随机偏移。"
+        },
+        "logic": {
+          "text_hallucination": true,
+          "fake_messages": true,
+          "false_memories": true,
+          "weight_corruption": true,
+          "event_distortion_level": 3,
+          "description": "虚假系统消息。NPC信任伪造触发。负面事件权重x1.5。强制AP偷取30%概率。"
+        },
+        "meta": {
+          "save_corrupt": true,
+          "title_corrupt": false,
+          "system_fake_errors": true,
+          "fourth_wall_break": false,
+          "description": "存档名深度污染。假系统错误消息。"
+        }
+      },
+      {
+        "id": "narrative_death",
+        "name": "叙事死亡",
+        "range": [
+          1,
+          14
+        ],
+        "level": 6,
+        "ap_modifier": -1,
+        "description": "你已不在这个世界里。所有的界面、所有的对话、所有的选择——都是虚构的。你只是在看着它们发生。",
+        "visual_tier": "extreme",
+        "event_weight": {
+          "buffer_boost": 0.4,
+          "horror_penalty": 1.8
+        },
+        "pollution_effects": [
+          "AP全面崩溃",
+          "强制AP偷取(60%概率/次-2)",
+          "虚假信任提示(80%概率)",
+          "负面事件权重x2.0",
+          "假游戏结束画面",
+          "Meta叙事接管"
+        ],
+        "visual": {
+          "saturation": -60,
+          "vignette": 0.4,
+          "scanline": 1,
+          "noise": 0.4,
+          "barrel_distortion": 0.06,
+          "chromatic_aberration": 5,
+          "rotation": 0.8,
+          "text_shadow": true,
+          "text_tremble": true,
+          "glow": true,
+          "description": "叙事死亡层。全面视觉接管。Canvas撕裂+色差爆炸+旋转。标题污染。"
+        },
+        "interaction": {
+          "button_delay_ms": 350,
+          "hover_corrupt_ms": 1200,
+          "option_rewrite": true,
+          "option_glitch": true,
+          "phantom_options": true,
+          "cursor_corrupt": true,
+          "description": "虚假选项70%概率。NPC虚假信任80%概率。按钮延迟350ms。UI全面不可信。假结局画面。"
+        },
+        "logic": {
+          "text_hallucination": true,
+          "fake_messages": true,
+          "false_memories": true,
+          "weight_corruption": true,
+          "event_distortion_level": 4,
+          "description": "全面逻辑接管。虚假系统全面接管。假结局触发。Meta叙事直接介入。"
+        },
+        "meta": {
+          "save_corrupt": true,
+          "title_corrupt": true,
+          "system_fake_errors": true,
+          "fourth_wall_break": true,
+          "description": "存档名彻底污染。标题腐败。假系统通知。第四面墙完全打破。"
+        }
+      }
+    ],
+    "stage_lookup": {
+      "function": "getCurrentSanStage",
+      "description": "所有系统通过此函数获取当前SAN阶段，不再硬编码阈值",
+      "san_zero_handling": "SAN=0 触发死亡，不属于任何阶段"
+    },
+    "accessibility": {
+      "light_pollution_mode": {
+        "description": "大幅降低视觉+交互效果，仅保留核心文字污染",
+        "visual_multiplier": 0.2,
+        "interaction_multiplier": 0.1,
+        "meta_multiplier": 0.5
+      },
+      "sliders": {
+        "visual_pollution": {
+          "min": 0,
+          "max": 100,
+          "default": 50,
+          "label": "视觉污染强度"
+        },
+        "interaction_pollution": {
+          "min": 0,
+          "max": 100,
+          "default": 50,
+          "label": "交互污染强度"
+        },
+        "meta_pollution": {
+          "min": 0,
+          "max": 100,
+          "default": 50,
+          "label": "Meta污染强度"
+        }
+      }
+    }
+  },
+  "player": {
+    "default_template": {
+      "name": "调查员",
+      "description": "一位因种种原因来到沃切斯特的调查者",
+      "base_stats": {
+        "STR": {
+          "dice": "3d6",
+          "multiplier": 5,
+          "example": 50
+        },
+        "CON": {
+          "dice": "3d6",
+          "multiplier": 5,
+          "example": 55
+        },
+        "DEX": {
+          "dice": "3d6",
+          "multiplier": 5,
+          "example": 55
+        },
+        "APP": {
+          "dice": "3d6",
+          "multiplier": 5,
+          "example": 50
+        },
+        "POW": {
+          "dice": "3d6",
+          "multiplier": 5,
+          "example": 60
+        },
+        "INT": {
+          "dice": "2d6+6",
+          "multiplier": 5,
+          "example": 65
+        },
+        "SIZ": {
+          "dice": "2d6+6",
+          "multiplier": 5,
+          "example": 60
+        },
+        "EDU": {
+          "dice": "2d6+6",
+          "multiplier": 5,
+          "example": 70
+        }
+      },
+      "derived_stats": {
+        "HP": "math.floor((CON + SIZ) / 10)",
+        "SAN": "POW",
+        "Luck": {
+          "dice": "3d6",
+          "multiplier": 5,
+          "example": 50
+        },
+        "MP": "math.floor(POW / 5)",
+        "SanityMaximum": "99 - CthulhuMythos"
+      }
+    },
+    "skills": [
+      {
+        "name": "侦查",
+        "base": 25,
+        "category": "感知",
+        "description": "发现隐藏的线索、物品或敌人"
+      },
+      {
+        "name": "聆听",
+        "base": 25,
+        "category": "感知",
+        "description": "听到远处或隐蔽的声音"
+      },
+      {
+        "name": "图书馆利用",
+        "base": 25,
+        "category": "知识",
+        "description": "在书籍和文献中查找信息"
+      },
+      {
+        "name": "历史",
+        "base": 5,
+        "category": "知识",
+        "description": "了解历史事件和人物"
+      },
+      {
+        "name": "神秘学",
+        "base": 5,
+        "category": "知识",
+        "description": "了解神秘学和超自然知识，但接触会降低SAN"
+      },
+      {
+        "name": "克苏鲁神话",
+        "base": 0,
+        "category": "知识",
+        "description": "了解克苏鲁神话知识（每点降低最大SAN值上限）"
+      },
+      {
+        "name": "心理学",
+        "base": 10,
+        "category": "社交",
+        "description": "判断NPC的真实意图"
+      },
+      {
+        "name": "说服",
+        "base": 15,
+        "category": "社交",
+        "description": "说服NPC提供帮助或信息"
+      },
+      {
+        "name": "恐吓",
+        "base": 15,
+        "category": "社交",
+        "description": "用威胁迫使NPC合作"
+      },
+      {
+        "name": "潜行",
+        "base": 20,
+        "category": "行动",
+        "description": "悄无声息地移动"
+      },
+      {
+        "name": "闪避",
+        "base": "math.floor(DEX / 2)",
+        "category": "行动",
+        "description": "躲避攻击或危险"
+      },
+      {
+        "name": "锁匠",
+        "base": 1,
+        "category": "行动",
+        "description": "打开锁住的门或容器"
+      },
+      {
+        "name": "急救",
+        "base": 30,
+        "category": "生存",
+        "description": "治疗轻度伤害"
+      },
+      {
+        "name": "医学",
+        "base": 5,
+        "category": "生存",
+        "description": "治疗严重伤害"
+      },
+      {
+        "name": "博物学",
+        "base": 10,
+        "category": "生存",
+        "description": "识别动植物和自然现象"
+      },
+      {
+        "name": "意志",
+        "base": "math.floor(POW / 2)",
+        "category": "抵抗",
+        "description": "抵抗精神攻击和恐惧"
+      },
+      {
+        "name": "数学",
+        "base": 10,
+        "category": "知识",
+        "description": "解决数学和逻辑问题"
+      },
+      {
+        "name": "攀爬",
+        "base": 20,
+        "category": "行动",
+        "description": "攀爬垂直表面"
+      },
+      {
+        "name": "游泳",
+        "base": 20,
+        "category": "行动",
+        "description": "在水中移动"
+      },
+      {
+        "name": "斗殴",
+        "base": 25,
+        "category": "战斗",
+        "description": "徒手或使用近战武器战斗"
+      }
+    ],
+    "starting_items": {
+      "starting_items": [
+        {
+          "name": "手电筒",
+          "effect": "照亮黑暗区域",
+          "uses": 10,
+          "special": "黑暗区域探索必需品"
+        },
+        {
+          "name": "笔记本和笔",
+          "effect": "记录线索",
+          "uses": -1,
+          "special": "永久道具，用于记录和回顾线索"
+        },
+        {
+          "name": "急救包",
+          "effect": "恢复HP",
+          "uses": 3,
+          "special": "恢复1d3点HP"
+        },
+        {
+          "name": "怀表",
+          "effect": "查看时间",
+          "uses": -1,
+          "special": "追踪每日时间流逝"
+        }
+      ],
+      "discoverable_items": [
+        {
+          "name": "银质护身符",
+          "effect": "SAN损失-2",
+          "uses": -1,
+          "special": "佩戴时每次SAN损失减少2点"
+        },
+        {
+          "name": "透镜碎片",
+          "effect": "照亮隐藏区域",
+          "uses": 5,
+          "special": "可以揭示肉眼不可见的符文和标记"
+        },
+        {
+          "name": "深海之鳞",
+          "effect": "深海通行证",
+          "uses": 3,
+          "special": "使用后深潜者不会主动攻击"
+        },
+        {
+          "name": "古树种子",
+          "effect": "与森林沟通",
+          "uses": 1,
+          "special": "关键剧情道具，在禁忌之林使用"
+        },
+        {
+          "name": "扎尔之卷碎片",
+          "effect": "学习禁咒",
+          "uses": 1,
+          "special": "阅读后习得一个法术，但SAN-10"
+        },
+        {
+          "name": "时间碎片",
+          "effect": "时间感知",
+          "uses": 3,
+          "special": "可以预知接下来5分钟的事件"
+        },
+        {
+          "name": "暗门钥匙",
+          "effect": "开启隐藏通道",
+          "uses": 1,
+          "special": "打开庄园地下室深层通道"
+        },
+        {
+          "name": "发光蘑菇",
+          "effect": "致幻剂/光源",
+          "uses": 2,
+          "special": "使用后短暂看到隐藏维度，但SAN-3"
+        },
+        {
+          "name": "溺亡者的手镯",
+          "effect": "水下呼吸",
+          "uses": 2,
+          "special": "使用后可在水下呼吸5分钟"
+        },
+        {
+          "name": "食尸鬼秘物",
+          "effect": "召唤食尸鬼",
+          "uses": 1,
+          "special": "危险道具，可能召唤敌对食尸鬼"
+        },
+        {
+          "name": "深海之水",
+          "effect": "恢复SAN",
+          "uses": 2,
+          "special": "饮用后SAN恢复1d6，但有20%概率触发深海幻觉"
+        },
+        {
+          "name": "银质匕首",
+          "effect": "驱邪武器",
+          "uses": 3,
+          "special": "对神话生物造成额外伤害，使用后下次怪物遭遇HP损失-3"
+        },
+        {
+          "name": "月光熏香",
+          "effect": "安抚心智",
+          "uses": 2,
+          "special": "使用后下次NPC对话信任获取+2"
+        },
+        {
+          "name": "星图石板",
+          "effect": "揭示区域",
+          "uses": 1,
+          "special": "显示所有未访问区域的名称和危险等级"
+        },
+        {
+          "name": "维度碎片",
+          "effect": "空间跳跃",
+          "uses": 1,
+          "special": "传送到任意已访问区域，不消耗AP"
+        },
+        {
+          "name": "守护符文",
+          "effect": "区域保护",
+          "uses": 2,
+          "special": "使用后当前区域今日不再触发怪物事件"
+        },
+        {
+          "name": "腐蚀之血",
+          "effect": "危险补剂",
+          "uses": 1,
+          "special": "HP+1d6，但克苏鲁神话+2，最大SAN永久-2"
+        },
+        {
+          "name": "圣水",
+          "effect": "净化腐蚀",
+          "uses": 1,
+          "special": "清除一个NPC的腐蚀状态（需在该NPC所在区域使用）"
+        },
+        {
+          "name": "螺旋铜镜",
+          "effect": "反射幻象",
+          "uses": 2,
+          "special": "免疫下一次临时疯狂效果"
+        },
+        {
+          "name": "深渊水晶",
+          "effect": "封印能量",
+          "uses": 1,
+          "special": "封印仪式关键材料，也可直接使用恢复全部SAN（极低概率存活）"
+        }
+      ],
+      "permanent_unlocks": [
+        {
+          "name": "知识碎片·灯塔暗道",
+          "effect": "每次重开后可直接通过灯塔暗道"
+        },
+        {
+          "name": "知识碎片·墓穴捷径",
+          "effect": "每次重开后跳过墓穴第一层"
+        },
+        {
+          "name": "记忆印记·深潜者语言",
+          "effect": "理解深潜者的基本对话"
+        },
+        {
+          "name": "疤痕·螺旋标记",
+          "effect": "某些NPC初始信任+1"
+        }
+      ]
+    },
+    "archetypes": [
+      {
+        "id": "journalist",
+        "name": "记者",
+        "description": "你受报社委托调查沃切斯特的失踪案。",
+        "stat_modifiers": {
+          "EDU": 5,
+          "APP": 5,
+          "POW": -5
+        },
+        "skill_bonuses": {
+          "侦查": 10,
+          "说服": 10,
+          "图书馆利用": 5
+        },
+        "starting_item": "press_pass",
+        "npc_trust_mod": {
+          "玛莎·格雷": 1,
+          "汤米·陈": 1
+        },
+        "special": "对话获取线索数+1"
+      },
+      {
+        "id": "detective",
+        "name": "私家侦探",
+        "description": "失踪者的家属雇佣了你。",
+        "stat_modifiers": {
+          "INT": 5,
+          "DEX": 5,
+          "APP": -5
+        },
+        "skill_bonuses": {
+          "侦查": 15,
+          "潜行": 10,
+          "锁匠": 10
+        },
+        "starting_item": "lockpick_set",
+        "npc_trust_mod": {
+          "伊莱亚斯·沃德": -1
+        },
+        "special": "检定阈值-10（更容易成功）"
+      },
+      {
+        "id": "scholar",
+        "name": "学者",
+        "description": "密斯卡托尼克大学派你来研究异常现象。",
+        "stat_modifiers": {
+          "EDU": 10,
+          "INT": 5,
+          "STR": -5,
+          "CON": -5
+        },
+        "skill_bonuses": {
+          "图书馆利用": 20,
+          "神秘学": 15,
+          "历史": 10
+        },
+        "starting_item": "reference_book",
+        "special": "线索自动关联（看到A线索自动提示B的关联）"
+      },
+      {
+        "id": "doctor",
+        "name": "医生",
+        "description": "你在沃切斯特有一个老病人。",
+        "stat_modifiers": {
+          "CON": 5,
+          "EDU": 5,
+          "POW": -10
+        },
+        "skill_bonuses": {
+          "急救": 20,
+          "医学": 15,
+          "心理学": 10
+        },
+        "starting_item": "medical_bag",
+        "special": "药物效果翻倍"
+      },
+      {
+        "id": "veteran",
+        "name": "退伍军人",
+        "description": "战争结束后，你在沃切斯特寻找平静。",
+        "stat_modifiers": {
+          "STR": 10,
+          "CON": 10,
+          "EDU": -10,
+          "APP": -5
+        },
+        "skill_bonuses": {
+          "斗殴": 20,
+          "闪避": 15,
+          "意志": 10
+        },
+        "starting_item": "trench_knife",
+        "npc_trust_mod": {
+          "老费舍": 1,
+          "希尔达·莫里斯": -2
+        },
+        "special": "SAN损失-1（最低1），但SAN恢复减半"
+      },
+      {
+        "id": "occultist",
+        "name": "通灵者",
+        "description": "你能感知到别人感知不到的东西。代价是它们也能感知到你。",
+        "stat_modifiers": {
+          "POW": 10,
+          "APP": -10
+        },
+        "skill_bonuses": {
+          "神秘学": 20,
+          "心理学": 15,
+          "意志": 10
+        },
+        "starting_item": "spirit_board",
+        "starting_san_penalty": 15,
+        "special": "可感知污染源，但SAN永远无法恢复超过初始值的70%"
+      }
+    ]
+  },
+  "loop": {
+    "description": "多周目记忆与污染系统——每次死亡或重开后，玩家获得收益也继承污染。'知道真相'本身就是诅咒。",
+    "design_philosophy": "重开不是单纯机制，而是污染的一部分。每一次轮回都让你更接近真相，也更接近疯狂。",
+    "retained_knowledge_rules": [
+      {
+        "id": "knowledge_dark_passages",
+        "name": "暗道位置",
+        "description": "知道灯塔暗道和墓穴捷径的位置",
+        "effect": "每次重开后可直接使用暗道"
+      },
+      {
+        "id": "knowledge_npc_weaknesses",
+        "name": "NPC弱点",
+        "description": "知道NPC的隐藏动机和弱点",
+        "effect": "NPC对话选项增加，信任获取速度+20%"
+      },
+      {
+        "id": "knowledge_ritual_words",
+        "name": "仪式词句",
+        "description": "记住封印仪式的关键步骤",
+        "effect": "封印仪式检定阈值-10"
+      },
+      {
+        "id": "knowledge_map_structure",
+        "name": "地图结构记忆",
+        "description": "记住区域布局和连接关系",
+        "effect": "地图显示已探索区域的完整布局"
+      },
+      {
+        "id": "knowledge_clue_relations",
+        "name": "线索关系",
+        "description": "知道哪些线索相互关联",
+        "effect": "线索链自动标记关联线索"
+      },
+      {
+        "id": "knowledge_npc_trust_shadow",
+        "name": "NPC信任残影",
+        "description": "NPC对你的初始态度有所改善",
+        "effect": "部分NPC初始信任+1"
+      }
+    ],
+    "pollution_rules": [
+      {
+        "id": "pollution_san_cap",
+        "name": "SAN上限下降",
+        "description": "你记得太多不应该知道的东西",
+        "effect": "初始SAN上限-5（每轮累积）",
+        "cumulative": true
+      },
+      {
+        "id": "pollution_hallucination_options",
+        "name": "幻觉选项",
+        "description": "开局就出现不属于第一章的选项",
+        "effect": "第一章可能出现后期才有的幻觉选项",
+        "trigger_chance": 0.15
+      },
+      {
+        "id": "pollution_npc_deja_vu",
+        "name": "NPC似曾相识",
+        "description": "某些NPC一开始就认识你",
+        "effect": "NPC对话中出现'你又来了'等内容",
+        "trigger_chance": 0.25
+      },
+      {
+        "id": "pollution_savefile_corruption",
+        "name": "存档标题异常",
+        "description": "存档名从一开始就可能被污染",
+        "effect": "存档名偶尔出现异常文本",
+        "trigger_chance": 0.1
+      },
+      {
+        "id": "pollution_background_rewrite",
+        "name": "角色背景改写",
+        "description": "你的角色背景被悄悄改写",
+        "effect": "角色描述中出现你不记得的细节",
+        "trigger_chance": 0.08
+      },
+      {
+        "id": "pollution_item_description",
+        "name": "道具描述污染",
+        "description": "某些道具从一开始就是污染版描述",
+        "effect": "道具描述包含不属于原始版本的内容",
+        "trigger_chance": 0.12
+      },
+      {
+        "id": "pollution_early_whispers",
+        "name": "第一章低语",
+        "description": "第一章中出现后期才该出现的低语",
+        "effect": "第一章区域出现深渊低语文本",
+        "trigger_chance": 0.1
+      }
+    ],
+    "loop_count_effects": {
+      "loop_1": {
+        "san_cap_reduction": 0,
+        "pollution_intensity": 0,
+        "description": "第一次到达沃切斯特"
+      },
+      "loop_2": {
+        "san_cap_reduction": -5,
+        "pollution_intensity": 0.1,
+        "description": "你好像来过这里"
+      },
+      "loop_3": {
+        "san_cap_reduction": -10,
+        "pollution_intensity": 0.2,
+        "description": "你确定来过这里"
+      },
+      "loop_4": {
+        "san_cap_reduction": -13,
+        "pollution_intensity": 0.35,
+        "description": "你开始记得不应该记得的东西。但记忆开始保护你。"
+      },
+      "loop_5": {
+        "san_cap_reduction": -16,
+        "pollution_intensity": 0.5,
+        "description": "你和这个地方已经无法分离。但你学会了承受。"
+      },
+      "loop_6_plus": {
+        "san_cap_reduction": -16,
+        "pollution_intensity": 0.7,
+        "description": "你就是沃切斯特的一部分。污染取代了惩罚。"
+      }
+    },
+    "npc_deja_vu_rules": [
+      {
+        "threshold": "loop_3",
+        "description": "核心NPC开始轻微识别玩家"
+      },
+      {
+        "threshold": "loop_5",
+        "description": "世界本身开始识别玩家"
+      },
+      {
+        "threshold": "loop_7",
+        "description": "事件文本和UI出现明显污染"
+      }
+    ],
+    "world_recognition_thresholds": [
+      {
+        "loop": 3,
+        "effect": "NPC出现似曾相识台词"
+      },
+      {
+        "loop": 5,
+        "effect": "区域描述出现轮回痕迹"
+      },
+      {
+        "loop": 7,
+        "effect": "UI元素开始异常"
+      }
+    ],
+    "loop_breaker_requirements": [
+      "loop_count >= 5",
+      "multiple_npc_deja_vu_triggered",
+      "completed_clue_chains >= 2",
+      "discovered_loop_pollutes_world",
+      "discovered_loop_is_seal_mechanism"
+    ],
+    "loop_cost": "每次轮回SAN上限永久-5，随机增加一个污染标记",
+    "loop_blessings": {
+      "loop_2": {
+        "name": "记忆残影",
+        "description": "你隐约记得某个区域的暗道位置。你的行动力比上次多了一点。",
+        "effect": {
+          "type": "unlock_knowledge",
+          "knowledge_id": "knowledge_dark_passages",
+          "bonus_ap": 1
+        },
+        "bonus_skill_points": 3
+      },
+      "loop_3": {
+        "name": "似曾相识",
+        "description": "某个NPC对你有一种莫名的熟悉感。你对某个知识产生了本能般的理解。",
+        "effect": {
+          "type": "npc_trust_bonus_and_knowledge",
+          "amount": 1,
+          "target": "random_core",
+          "knowledge_instinct": true
+        }
+      },
+      "loop_4": {
+        "name": "知识残影",
+        "description": "你可以跳过第一章的引子。你的口袋里多了一件你不记得从哪里得到的东西。",
+        "effect": {
+          "type": "skip_intro",
+          "random_rare_item": true
+        }
+      },
+      "loop_5": {
+        "name": "仪式直觉",
+        "description": "你能识破一个假线索。你在标题画面发现了一个新的入口。",
+        "effect": {
+          "type": "identify_false_clue",
+          "unlock_loop_shop": 1
+        }
+      },
+      "loop_6_plus": {
+        "name": "轮回破壁",
+        "description": "世界开始承认你的轮回。你开始收集一种来自污染本身的碎片。",
+        "effect": {
+          "type": "unlock_dialogue",
+          "dialogue_key": "loop_awareness",
+          "pollution_shard": true
+        }
+      },
+      "loop_7_plus": {
+        "name": "轮回商店扩张",
+        "description": "轮回商店解锁更多商品。你可以购买永久抗性。",
+        "effect": {
+          "type": "unlock_loop_shop",
+          "shop_tier": 2
+        }
+      }
+    },
+    "loop_shop": {
+      "currency": "endingCoins",
+      "description": "结局代币 — 每次达成结局获得1枚",
+      "tiers": {
+        "tier_1": {
+          "unlock_condition": "loop >= 5",
+          "items": [
+            {
+              "id": "shop_skill_points",
+              "name": "初始额外技能点",
+              "description": "开局获得3点额外技能点",
+              "cost": 3,
+              "effect": {
+                "type": "bonus_skill_points",
+                "amount": 3
+              }
+            },
+            {
+              "id": "shop_random_rare",
+              "name": "随机稀有物品",
+              "description": "从稀有物品池中随机获得一件",
+              "cost": 5,
+              "effect": {
+                "type": "random_rare_item"
+              }
+            },
+            {
+              "id": "shop_npc_trust",
+              "name": "NPC初始信任",
+              "description": "解锁一个隐藏NPC的初始信任+2",
+              "cost": 7,
+              "effect": {
+                "type": "npc_trust_bonus",
+                "amount": 2,
+                "target": "hidden_npc"
+              }
+            }
+          ]
+        },
+        "tier_2": {
+          "unlock_condition": "loop >= 7",
+          "items": [
+            {
+              "id": "shop_resistance",
+              "name": "永久神话抗性",
+              "description": "神话伤害永久减少10%",
+              "cost": 10,
+              "effect": {
+                "type": "permanent_resistance",
+                "target": "mythos",
+                "amount": 0.1
+              }
+            },
+            {
+              "id": "shop_death_insurance",
+              "name": "轮回记忆保险",
+              "description": "死亡后保留一件关键物品",
+              "cost": 15,
+              "effect": {
+                "type": "death_item_retain"
+              }
+            },
+            {
+              "id": "shop_san_cap_boost",
+              "name": "SAN上限恢复",
+              "description": "SAN上限永久+5（最高恢复到70）",
+              "cost": 12,
+              "effect": {
+                "type": "san_cap_boost",
+                "amount": 5,
+                "max": 70
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "skill_check_template": {
+    "structure": {
+      "skill": "技能名称",
+      "threshold": "检定阈值",
+      "success": {
+        "text": "",
+        "effects": {}
+      },
+      "failure": {
+        "text": "",
+        "effects": {}
+      },
+      "critical_failure": {
+        "range": [
+          96,
+          100
+        ],
+        "text": "",
+        "effects": {}
+      }
+    },
+    "note": "所有事件的skill_check字段统一使用此结构"
+  },
+  "trigger_template": {
+    "structure": {
+      "areas": [
+        "区域ID列表"
+      ],
+      "time_phase": [
+        "morning",
+        "afternoon",
+        "evening",
+        "midnight"
+      ],
+      "probability": "0.0-1.0",
+      "requires": [
+        "所需flag/线索/物品"
+      ],
+      "forbidden_flags": [
+        "禁止触发的flag"
+      ],
+      "chapter": "最低章节要求",
+      "san_below": "SAN低于此值时触发概率修正",
+      "day_range": [
+        1,
+        28
+      ]
+    },
+    "note": "所有事件的trigger字段统一使用此结构，替代旧的自然语言condition"
+  },
+  "progression": {
+    "skill_growth": "技能检定成功时有10%概率该技能+1d3。使用技能书或NPC训练可以额外提升。克苏鲁神话技能只在接触神话知识时增长，且每增长1点，SAN上限永久-1。",
+    "meta_progression": {
+      "description": "角色死亡或疯狂后保留以下进度：",
+      "preserved": [
+        "已解锁的知识碎片（永久显示在地图上的隐藏通道）",
+        "已确认的NPC初始信任等级（部分NPC记忆保留）",
+        "成就标记（累计死亡次数、最深探索深度、最髙SAN损失等）",
+        "解锁的新起始道具（达成特定成就后解锁）"
+      ],
+      "reset": [
+        "所有属性恢复默认",
+        "所有道具清空",
+        "所有技能恢复初始值",
+        "NPC位置和状态重新随机",
+        "区域连接重新随机"
+      ]
+    },
+    "combat_system": {
+      "description": "遭遇怪物时进入战斗回合。每回合选择行动：攻击（使用斗殴或武器技能检定）、逃跑（使用闪避技能检定）、使用道具、尝试沟通（特定怪物可能回应）。怪物有HP、攻击力和特殊能力。战斗中HP归零则死亡。某些怪物对常规武器免疫，需要特殊道具或法术才能伤害。",
+      "fear_check": "遭遇怪物时首先进行恐惧检定（POW×5 vs 怪物恐怖值）。失败则本回合无法行动，SAN额外-1d6。成功则正常行动。"
+    },
+    "achievement_system": {
+      "player_statistics": {
+        "tracked_stats": [
+          {
+            "id": "total_deaths",
+            "name": "累计死亡次数",
+            "description": "角色疯狂或死亡的总次数"
+          },
+          {
+            "id": "total_runs",
+            "name": "累计游戏轮数",
+            "description": "开始新游戏的总次数"
+          },
+          {
+            "id": "deepest_area",
+            "name": "最深探索区域",
+            "description": "到达过危险等级最高的区域"
+          },
+          {
+            "id": "max_san_loss_single",
+            "name": "单次最大SAN损失",
+            "description": "单个事件造成的最大SAN减少量"
+          },
+          {
+            "id": "total_san_loss",
+            "name": "累计SAN损失",
+            "description": "所有游戏中SAN减少的总量"
+          },
+          {
+            "id": "areas_explored",
+            "name": "探索过的区域数",
+            "description": "去过的不同区域总数"
+          },
+          {
+            "id": "events_triggered",
+            "name": "触发的事件数",
+            "description": "经历过的不同事件总数"
+          },
+          {
+            "id": "items_collected",
+            "name": "收集的道具数",
+            "description": "获得过的不同道具总数"
+          },
+          {
+            "id": "npc_max_trust",
+            "name": "NPC最高信任度",
+            "description": "与任何NPC达到过的最高信任等级"
+          },
+          {
+            "id": "npc_survivors",
+            "name": "结局时NPC存活数",
+            "description": "到达结局时仍存活的NPC数量"
+          },
+          {
+            "id": "seals_restored",
+            "name": "成功重铸封印次数",
+            "description": "达成封印重铸结局的次数"
+          },
+          {
+            "id": "successful_checks",
+            "name": "技能检定成功次数",
+            "description": "所有技能检定成功的累计次数"
+          },
+          {
+            "id": "failed_checks",
+            "name": "技能检定失败次数",
+            "description": "所有技能检定失败的累计次数"
+          },
+          {
+            "id": "combat_victories",
+            "name": "战斗胜利次数",
+            "description": "在怪物遭遇中成功脱逃或击败敌人的次数"
+          },
+          {
+            "id": "hidden_areas_found",
+            "name": "发现隐藏区域数",
+            "description": "通过技能检定发现的隐藏特性数量"
+          },
+          {
+            "id": "days_survived_best",
+            "name": "最长存活天数",
+            "description": "单次游戏中存活的最长天数"
+          }
+        ]
+      },
+      "achievements": [
+        {
+          "id": "ach_first_step",
+          "name": "初入深渊",
+          "description": "首次进入沃切斯特",
+          "condition": "total_runs >= 1",
+          "reward": "无",
+          "icon": "door"
+        },
+        {
+          "id": "ach_brave_explorer",
+          "name": "无畏探索者",
+          "description": "在一次游戏中探索全部9个区域",
+          "condition": "单轮areas_explored == 9",
+          "reward": "永久解锁：起始道具'探险家手杖'（侦查+5）",
+          "icon": "compass"
+        },
+        {
+          "id": "ach_seal_keeper",
+          "name": "封印守护者",
+          "description": "成功重铸封印",
+          "condition": "seals_restored >= 1",
+          "reward": "永久解锁：封印守护者称号，下轮起始SAN+10",
+          "icon": "seal"
+        },
+        {
+          "id": "ach_survivor",
+          "name": "生还者",
+          "description": "成功逃离沃切斯特",
+          "condition": "达成ending_good_escape",
+          "reward": "永久解锁：逃生路线记忆，下轮起始道具'渔船钥匙'",
+          "icon": "boat"
+        },
+        {
+          "id": "ach_transcendent",
+          "name": "时间之外的存在",
+          "description": "成为超越者",
+          "condition": "达成ending_hidden_transcendence",
+          "reward": "永久解锁：超越者称号，下轮全属性+5，所有隐藏特性自动可见",
+          "icon": "eye"
+        },
+        {
+          "id": "ach_eternal_guardian",
+          "name": "永恒的守望",
+          "description": "成为最后的守护者",
+          "condition": "达成ending_hidden_sacrifice",
+          "reward": "永久解锁：最后的守护者称号，下轮全技能+5，希尔达初始信任+5",
+          "icon": "shield"
+        },
+        {
+          "id": "ach_abyss_resident",
+          "name": "深渊的居民",
+          "description": "被深渊吞噬",
+          "condition": "达成ending_bad_consumed",
+          "reward": "永久解锁：下轮可选择'堕落者'起始角色",
+          "icon": "abyss"
+        },
+        {
+          "id": "ach_harbinger",
+          "name": "末日的使者",
+          "description": "异端胜利",
+          "condition": "达成ending_bad_ritual",
+          "reward": "永久解锁：下轮NPC初始恐惧值+20",
+          "icon": "doom"
+        },
+        {
+          "id": "ach_wanderer",
+          "name": "徘徊者",
+          "description": "永恒的疯狂",
+          "condition": "达成ending_neutral_madness",
+          "reward": "永久解锁：下轮起始神秘学+10",
+          "icon": "ghost"
+        },
+        {
+          "id": "ach_madness_dance",
+          "name": "疯狂之舞",
+          "description": "触发临时疯狂5次",
+          "condition": "累计临时疯狂次数 >= 5",
+          "reward": "永久解锁：临时疯狂时有20%概率变为有利效果",
+          "icon": "mask"
+        },
+        {
+          "id": "ach_clue_hunter",
+          "name": "真相猎人",
+          "description": "在一次游戏中收集全部关键线索道具",
+          "condition": "单轮收集全部7个关键道具",
+          "reward": "永久解锁：起始道具'线索笔记'（图书馆利用+10）",
+          "icon": "clue"
+        },
+        {
+          "id": "ach_trusted_one",
+          "name": "值得信赖",
+          "description": "与任意NPC达到最高信任等级",
+          "condition": "npc_max_trust == 5",
+          "reward": "永久解锁：NPC初始信任+1",
+          "icon": "handshake"
+        },
+        {
+          "id": "ach_night_walker",
+          "name": "暗夜行者",
+          "description": "在深夜存活10个夜晚",
+          "condition": "累计深夜存活天数 >= 10",
+          "reward": "永久解锁：深夜SAN损失-1",
+          "icon": "moon"
+        },
+        {
+          "id": "ach_mythos_scholar",
+          "name": "禁忌学者",
+          "description": "克苏鲁神话技能达到15",
+          "condition": "克苏鲁神话技能 >= 15",
+          "reward": "永久解锁：起始神秘学+5（SAN上限-5）",
+          "icon": "book"
+        },
+        {
+          "id": "ach_iron_will",
+          "name": "钢铁意志",
+          "description": "在SAN≤10的状态下存活3天",
+          "condition": "SAN<=10持续天数 >= 3",
+          "reward": "永久解锁：SAN<15时的疯狂概率从10%降至5%",
+          "icon": "brain"
+        },
+        {
+          "id": "ach_speed_run",
+          "name": "与时间赛跑",
+          "description": "在7天内完成封印重铸",
+          "condition": "达成封印重铸且存活天数 <= 7",
+          "reward": "永久解锁：每日AP+1",
+          "icon": "clock"
+        },
+        {
+          "id": "ach_pacifist",
+          "name": "和平主义者",
+          "description": "一次游戏中不触发任何战斗事件",
+          "condition": "单轮combat_victories == 0 且 未遭遇怪物",
+          "reward": "永久解锁：怪物遭遇概率-10%",
+          "icon": "dove"
+        },
+        {
+          "id": "ach_lone_wolf",
+          "name": "独行侠",
+          "description": "不与任何NPC对话完成游戏",
+          "condition": "单轮NPC互动次数 == 0 且 达成结局",
+          "reward": "永久解锁：起始属性'孤僻'（社交-10，行动+10）",
+          "icon": "wolf"
+        },
+        {
+          "id": "ach_five_deaths",
+          "name": "不屈的灵魂",
+          "description": "累计死亡5次",
+          "condition": "total_deaths >= 5",
+          "reward": "永久解锁：下轮起始HP+2",
+          "icon": "skull"
+        },
+        {
+          "id": "ach_collector",
+          "name": "收藏家",
+          "description": "收集过所有类型的可发现道具",
+          "condition": "items_collected >= 10",
+          "reward": "永久解锁：起始道具'万能钥匙'（可打开1个锁住的容器）",
+          "icon": "chest"
+        }
+      ],
+      "new_game_plus_rewards": {
+        "description": "二周目及以上继承内容",
+        "always_preserved": [
+          "成就进度",
+          "累计统计数据",
+          "已解锁的永久道具和称号"
+        ],
+        "conditional_preserved": [
+          {
+            "condition": "达成good结局",
+            "preserve": "部分NPC记忆（信任+1）"
+          },
+          {
+            "condition": "达成hidden结局",
+            "preserve": "部分NPC记忆（信任+2）+ 隐藏区域位置"
+          },
+          {
+            "condition": "达成bad结局",
+            "preserve": "无额外保留，但解锁特殊起始角色"
+          }
+        ],
+        "new_game_bonuses": {
+          "description": "根据成就解锁的起始加成叠加",
+          "max_bonus_cap": "起始属性最高不超过base+20，技能最高不超过base+15"
+        }
+      },
+      "unlockable_starting_items": [
+        {
+          "name": "探险家手杖",
+          "source": "ach_brave_explorer",
+          "effect": "侦查+5",
+          "uses": -1
+        },
+        {
+          "name": "线索笔记",
+          "source": "ach_clue_hunter",
+          "effect": "图书馆利用+10",
+          "uses": -1
+        },
+        {
+          "name": "万能钥匙",
+          "source": "ach_collector",
+          "effect": "可打开1个锁住的容器",
+          "uses": 1
+        },
+        {
+          "name": "堕落者之眼",
+          "source": "ach_abyss_resident",
+          "effect": "神秘学+15，每次检定SAN-1",
+          "uses": -1
+        },
+        {
+          "name": "守护者护符",
+          "source": "ach_eternal_guardian",
+          "effect": "SAN损失额外-3（叠加银质护身符）",
+          "uses": -1
+        },
+        {
+          "name": "超越者碎片",
+          "source": "ach_transcendent",
+          "effect": "可预知下一个事件类型",
+          "uses": 3
+        }
+      ]
+    }
+  },
+  "perception_corruption": {
+    "description": "感官污染系统——恐怖长在玩家直觉里，不仅存在于文字里",
+    "core_expression": "玩家越想看清真相，真相越从正面逃走，只在余光里出现",
+    "avoid": "不要使用廉价的全屏泛红。视觉污染应像认知失焦，而不是普通受伤提示。",
+    "corruption_levels": {
+      "focus_distortion_level": {
+        "0": "中心视野清晰，边缘正常",
+        "1": "画面边缘轻微水纹、阴影延迟",
+        "2": "中心交互物偶尔模糊，边缘异常清晰",
+        "3": "悬停目标轻微失焦，余光过度清晰"
+      },
+      "edge_clarity_level": {
+        "0": "边缘正常",
+        "1": "边缘轻微雾化",
+        "2": "边缘出现不属于当前场景的阴影",
+        "3": "边缘清晰度高于中心，仿佛世界不允许玩家正面看见真相"
+      },
+      "audio_intrusion_level": {
+        "0": "自然环境音",
+        "1": "轻微重复音，同一块木板重复嘎吱",
+        "2": "混入极低频嗡鸣、倒放祈祷、远处潮声",
+        "3": "关键事件前绝对静音一秒",
+        "4": "玩家听见自己的名字从非声源位置传来"
+      },
+      "input_resistance_level": {
+        "0": "正常操作",
+        "1": "确认按钮轻微迟滞",
+        "2": "离开水边时按钮短暂下沉",
+        "3": "关闭异常日志时延迟响应",
+        "4": "仪式高潮中确认音效变得沉闷，像敲击湿肉"
+      },
+      "text_unreliability_level": {
+        "0": "文本完全可靠",
+        "1": "偶尔多出一个不属于描述的词",
+        "2": "道具描述末尾出现疑问",
+        "3": "NPC台词出现双版本",
+        "4": "系统提示被某个存在改写"
+      }
+    },
+    "trigger_sources": [
+      {
+        "source": "low_san",
+        "threshold": "SAN<50",
+        "effect": "focus_distortion+1, text_unreliability+1"
+      },
+      {
+        "source": "high_mythos",
+        "threshold": "克苏鲁神话>=10",
+        "effect": "audio_intrusion+1, edge_clarity+1"
+      },
+      {
+        "source": "loop_count",
+        "threshold": "loop>=3",
+        "effect": "text_unreliability+1, input_resistance+1"
+      },
+      {
+        "source": "city_corruption",
+        "threshold": "corruption>=50",
+        "effect": "all_levels+1"
+      },
+      {
+        "source": "contaminated_item",
+        "threshold": "carrying deep_sea_water",
+        "effect": "audio_intrusion+1, edge_clarity+1"
+      },
+      {
+        "source": "reality_thin_area",
+        "threshold": "in deep_catacombs or ruins_of_yith",
+        "effect": "all_levels+1"
+      }
+    ],
+    "audio_design": {
+      "principle": "尽量使用环境音替代传统恐怖BGM",
+      "area_soundscapes": {
+        "town_center": [
+          "远处钟声",
+          "湿石路脚步声",
+          "被雾吞掉的马车声"
+        ],
+        "harbor_district": [
+          "木板呻吟",
+          "潮声",
+          "水下敲击",
+          "远处无法确认的歌声"
+        ],
+        "voxchester_manor": [
+          "画框轻响",
+          "楼梯自鸣",
+          "墙内低语",
+          "房间深处的布料摩擦声"
+        ],
+        "catacombs_entrance": [
+          "水滴",
+          "低频嗡鸣",
+          "石棺内侧抓挠声",
+          "像呼吸一样的风声"
+        ],
+        "safehouse": [
+          "杯子轻碰",
+          "木门受潮膨胀",
+          "楼下玛莎擦杯子的声音",
+          "夜里突然停止的炉火声"
+        ],
+        "whispering_forest": [
+          "树叶沙沙",
+          "低语声",
+          "树枝折断",
+          "远处翅膀拍打"
+        ],
+        "lighthouse": [
+          "螺旋楼梯回声",
+          "海风灌入",
+          "金属锈蚀声",
+          "透镜碎片共振"
+        ],
+        "deep_catacombs": [
+          "心跳般的脉动",
+          "石壁收缩声",
+          "无方向的低语",
+          "呼吸一样的风"
+        ]
+      },
+      "silence_moments": {
+        "description": "绝对静音一秒 + 心跳只能用于关键节点",
+        "triggers": [
+          "第十三声钟响之前",
+          "玩家第一次发现安全屋不安全",
+          "NPC主动牺牲前",
+          "深渊墓穴第一次回应玩家名字时"
+        ]
+      }
+    },
+    "input_resistance": {
+      "principle": "操作污染只在短时间、强叙事节点、低SAN状态或特殊区域中出现。目标是让玩家感到我正在和自己的认知对抗，而不是让游戏难用。",
+      "examples": [
+        {
+          "scene": "阅读禁书",
+          "effect": "翻页动作略微迟滞"
+        },
+        {
+          "scene": "试图离开水边",
+          "effect": "离开按钮短暂下沉"
+        },
+        {
+          "scene": "关闭异常日志",
+          "effect": "关闭按钮延迟响应"
+        },
+        {
+          "scene": "深潜者歌声影响",
+          "effect": "鼠标移动产生轻微拖拽感"
+        },
+        {
+          "scene": "仪式高潮",
+          "effect": "确认按钮音效变得沉闷"
+        }
+      ],
+      "duration_rule": "每次输入阻尼持续不超过3秒，同一场景不超过2次"
+    }
+  },
+  "ui_corruption": {
+    "description": "UI是叙事的一部分。区域名、日志、道具栏、系统提示、选项文字、地图标记都可以被污染。",
+    "design_principles": [
+      "初期污染应轻微、可疑、可被玩家忽略",
+      "中期污染应开始制造认知矛盾",
+      "后期污染可以带有敌意，但不能频繁到影响基础操作",
+      "必须保留可访问性设置：降低视觉扰动、关闭输入阻尼、降低闪烁频率"
+    ],
+    "layers": {
+      "layer_0_clean": {
+        "name": "正常",
+        "trigger": "默认状态",
+        "examples": {
+          "location_name": "沉锚酒馆二楼",
+          "item_message": "你获得了：潮汐时刻表",
+          "system_message": "行动点不足",
+          "option_text": "调查钟楼",
+          "save_name": "Day 2 - Harbor District",
+          "log_entry": "你在码头发现了一串湿脚印。"
+        }
+      },
+      "layer_1_fogged": {
+        "name": "雾化",
+        "trigger": "SAN<70 或 city_corruption>=20",
+        "examples": {
+          "location_name": "沉锚酒馆二楼：门锁是好的",
+          "item_message": "你获得了：潮汐时刻表，纸边有些潮。",
+          "system_message": "行动点不足。你确认自己数对了？",
+          "option_text": "调查钟楼（你记得它在哪个方向吗）",
+          "save_name": "Day 2 - Harbor District [存档正常]",
+          "log_entry": "你在码头发现了一串湿脚印。鞋码和你的一样。"
+        }
+      },
+      "layer_2_repetitive": {
+        "name": "重复",
+        "trigger": "SAN<55 或 loop_count>=3",
+        "examples": {
+          "location_name": "沉锚酒馆二楼 / 沉锚酒馆二楼 / 沉锚酒馆二楼",
+          "item_message": "你获得了：潮汐时刻表。你确认自己刚才没有已经拿过它。",
+          "system_message": "行动点不足。你上次也这么说。",
+          "option_text": "调查钟楼 / 调查钟楼 / 你确定要去吗",
+          "save_name": "Day 2 - 你又回来了",
+          "log_entry": "你在码头发现了一串湿脚印。你昨天也写过这句话。"
+        }
+      },
+      "layer_3_contradictory": {
+        "name": "矛盾",
+        "trigger": "SAN<40 或 mythos>=15",
+        "examples": {
+          "location_name": "沉锚酒馆二楼：门锁是好的，应该是好的",
+          "item_message": "你获得了：潮汐时刻表 / 你失去了：潮汐时刻表",
+          "system_message": "行动点不足。你以为你还有选择吗？",
+          "option_text": "调查钟楼 / 再敲响第十三声",
+          "save_name": "Day 2 - 你确定这是你的记忆吗",
+          "log_entry": "你在码头发现了一串湿脚印。脚印从水边延伸到你站的地方。你没有去过水边。"
+        }
+      },
+      "layer_4_hostile": {
+        "name": "敌意",
+        "trigger": "SAN<25 或 city_corruption>=80",
+        "examples": {
+          "location_name": "安全屋：它知道你在这里",
+          "item_message": "你一直拥有：潮汐时刻表。它只是现在愿意让你看见。",
+          "system_message": "你以为你还有选择吗？",
+          "option_text": "跪下 / 走向水面 / 告诉它你的名字",
+          "save_name": "Day 2 - 它在看着你写入这段存档",
+          "log_entry": "你没有去过码头。你没有看到脚印。你没有写过这段话。"
+        }
+      },
+      "layer_5_abyssal": {
+        "name": "深渊",
+        "trigger": "SAN<=10 或 (mythos>=20 且 loop_count>=5)",
+        "examples": {
+          "location_name": "当前位置：安全 / 当前位置：胃里 / 当前位置：你",
+          "item_message": "潮汐时刻表获得了你。",
+          "system_message": "...",
+          "option_text": "张开双臂",
+          "save_name": "存档已损坏 - 此人并不存在",
+          "log_entry": ""
+        }
+      }
+    },
+    "accessibility_options": {
+      "reduce_visual_distortion": "降低视觉扰动强度50%",
+      "disable_input_resistance": "关闭输入阻尼",
+      "reduce_flicker": "降低闪烁频率",
+      "text_only_mode": "纯文本模式，无视觉污染效果"
+    }
+  },
+  "subjective_reality": {
+    "description": "认知滤镜机制——同一行为在不同SAN状态下，选项文字被主观认知改写。没有绝对客观事实，只有被污染的主观现实。",
+    "design_principle": "不要直接告诉玩家NPC敌对或玩家疯了。让玩家通过选项语言的变化意识到自己的认知正在污染。",
+    "option_variants": {
+      "give_food_to_npc": {
+        "normal": "分享口粮。",
+        "anxious": "把最后一份食物递过去。",
+        "paranoid": "用食物堵住他的嘴。",
+        "abyssal": "喂养它。这样它今晚不会吃你。"
+      },
+      "ask_hilda_about_seal": {
+        "normal": "询问莫里斯家族与封印的关系。",
+        "paranoid": "逼她承认自己是钥匙。",
+        "abyssal": "检查钥匙是否仍会流血。"
+      },
+      "investigate_sound": {
+        "normal": "调查声音来源。",
+        "anxious": "去看看那是什么。",
+        "paranoid": "确认它还没有进来。",
+        "abyssal": "回应它。"
+      },
+      "enter_basement": {
+        "normal": "进入地下室。",
+        "anxious": "往下走。",
+        "paranoid": "它在下面等你。",
+        "abyssal": "回家。"
+      },
+      "talk_to_npc": {
+        "normal": "与他对话。",
+        "anxious": "试探他的反应。",
+        "paranoid": "确认他还是他。",
+        "abyssal": "检查它是否记得你是谁。"
+      },
+      "rest_at_safehouse": {
+        "normal": "休息。",
+        "anxious": "尝试睡一会儿。",
+        "paranoid": "闭上眼。如果你还活着，说明今晚安全。",
+        "abyssal": "闭上眼。它喜欢你闭上眼的时候。"
+      },
+      "use_medicine": {
+        "normal": "使用药品。",
+        "anxious": "吃药压下症状。",
+        "paranoid": "药物能让你分清真假。",
+        "abyssal": "你不确定药片和牙齿哪个更硬。"
+      },
+      "read_forbidden_book": {
+        "normal": "阅读禁书。",
+        "anxious": "翻开那本书。",
+        "paranoid": "它一直在等你翻开它。",
+        "abyssal": "继续阅读。你已经读到第三遍了。"
+      }
+    },
+    "npc_perception_variants": {
+      "description": "同一NPC在高SAN和低SAN下的形象可以不同，但底层关系数值不一定改变",
+      "hilda_morris": {
+        "high_san": "希尔达站在门廊上。她的脸色苍白，但眼神坚定。",
+        "mid_san": "希尔达站在门廊上。她的脸色苍白。她身后的大厅很暗。你不确定她是站在光里还是站在影子里。",
+        "low_san": "希尔达站在门廊上。她在微笑。你确定她在微笑。但她的嘴没有动。"
+      },
+      "old_fisher": {
+        "high_san": "老费舍坐在码头边，看着海面。他的表情平静。",
+        "mid_san": "老费舍坐在码头边，看着海面。他的皮肤在月光下呈现出灰蓝色。可能是光线。",
+        "low_san": "老费舍坐在码头边。他没有看海。海在看他。"
+      },
+      "isabella_weber": {
+        "high_san": "伊莎贝拉在教堂里祈祷。烛光照亮了她的脸。",
+        "mid_san": "伊莎贝拉在教堂里祈祷。烛光朝同一个方向倾斜。她念的不是祈祷词。",
+        "low_san": "伊莎贝拉在教堂里祈祷。你听到了她的声音。但她的嘴没有动。声音来自地下室。"
+      }
+    }
+  },
+  "motifs": {
+    "description": "雾、钟声、水三个核心母题如何对应系统、场景、NPC、资源、结局",
+    "motifs": {
+      "fog": {
+        "name": "雾",
+        "symbolizes": "不可知、记忆模糊、现实边界消失、地图不可靠",
+        "system_correspondence": [
+          "地图随机连接——雾重新排列了街道",
+          "区域名称污染——雾模糊了路标",
+          "记忆衰退地图——雾吞没了已探索区域",
+          "路线被城市改写——雾重新定义了巷子的走向",
+          "玩家笔记出现缺口——雾浸湿了纸页",
+          "NPC对玩家似曾相识但无法确认——雾模糊了面孔"
+        ],
+        "scene_manifestations": {
+          "town_center": "路灯的光晕中有东西在游动",
+          "harbor_district": "浓雾终年不散，码头布局在雾中改变",
+          "whispering_forest": "树冠遮蔽天空，白天也如同黄昏",
+          "voxchester_manor": "庄园被雾气包围，从外面看只有轮廓",
+          "lighthouse": "灯塔绿光穿透雾气，形成光网",
+          "catacombs_entrance": "墓穴入口处渗出冰冷白雾"
+        },
+        "narrative_examples": [
+          "你记得这条巷子通往镇中心。雾散开时，它通往教堂地下室。",
+          "雾从海面升起，但你注意到它避开了灯塔的光。像是有选择地吞没街道。",
+          "你回头看了一眼来时的路。雾已经把你的脚印填平了。"
+        ]
+      },
+      "bell": {
+        "name": "钟声",
+        "symbolizes": "命运、轮回、仪式、不可阻止的时间",
+        "system_correspondence": [
+          "每日午夜第十三声钟响——世界试图完成某种周期",
+          "轮回记忆触发——钟声唤醒前世记忆",
+          "限时选择——钟声逼近第十三声时的压力",
+          "仪式阶段推进——钟声是仪式的计数器",
+          "安全屋退化节点——钟声后安全屋出现新异常",
+          "结局判定前的倒计时——钟声预示终局"
+        ],
+        "key_moment": "第十三声钟响应成为贯穿全局的声音符号。它不是单纯事件，而是世界试图完成某种周期的表现。",
+        "narrative_examples": [
+          "教堂钟声响了十三下。第十三声比前十二声更低，更长，像是从地下回应钟楼。",
+          "你数到十二，准备离开。第十三声替你数了下去。",
+          "没有钟声。是你在响。"
+        ],
+        "isabella_moment": "第十二声落下后，整座教堂都在等待。钟绳在伊莎贝拉掌心颤抖。她闭上眼，松开了手。第十三声没有来。"
+      },
+      "water": {
+        "name": "水",
+        "symbolizes": "深渊、血脉、归海、身份溶解、记忆被浸泡",
+        "system_correspondence": [
+          "深潜者血脉——水是转化的媒介",
+          "老费舍腐化——水在召唤他归海",
+          "码头失踪案——水吞没了人",
+          "灯塔地下水池——水下有城市",
+          "安全屋潮湿化——水渗入安全空间",
+          "道具描述被水污染——纸页被浸湿",
+          "UI边缘水纹——水渗入界面"
+        ],
+        "spreading_rule": "水不只出现在码头。随着城市腐败度上升，水逐渐出现在不该出现的地方：庄园楼梯、教堂长椅下、安全屋二楼、玩家日志纸页之间。",
+        "corruption_spread": {
+          "corruption_0_20": "水只在码头和灯塔出现",
+          "corruption_21_40": "教堂地下室出现水渍，庄园花园喷泉变浑",
+          "corruption_41_60": "庄园楼梯渗水，教堂长椅下有积水",
+          "corruption_61_80": "安全屋二楼墙角渗水，日志纸页边缘发潮",
+          "corruption_81_100": "玩家杯子里的水自己晃动，靴子里有海水"
+        },
+        "narrative_examples": [
+          "你推开安全屋的门。地板上有一小滩水。昨晚没有下雨。",
+          "玛莎的杯子里有水在晃。没有人碰过桌子。",
+          "你的笔记纸页边缘卷了起来。不是因为热——是因为潮。"
+        ]
+      }
+    }
+  },
+  "clue_conclusion": {
+    "description": "结论推导系统——关键结论通过多条证据路径可达，关键证据来源可以随机，但结论本身必须可达",
+    "design_principle": "失踪案与潮汐有关这一结论可以通过不同证据组合达成，而非固定单一来源",
+    "conclusions": [
+      {
+        "id": "conclusion_harbor_tide_link",
+        "name": "失踪案与潮汐有关",
+        "chapter_unlock": 1,
+        "required_evidence_count": 2,
+        "evidence_pool": [
+          {
+            "id": "ev_missing_poster_dates",
+            "source": "evt_missing_poster",
+            "description": "失踪者日期与潮汐大潮重合",
+            "weight": 3,
+            "reliability": 0.9
+          },
+          {
+            "id": "ev_fisher_tide_warning",
+            "source": "evt_fisherman_warning",
+            "description": "渔夫提到退潮时海底露出不该有的东西",
+            "weight": 3,
+            "reliability": 0.8
+          },
+          {
+            "id": "ev_martha_ship_log",
+            "source": "玛莎·格雷 trust>=4",
+            "description": "丈夫航海日志记录了潮汐与异常的关联",
+            "weight": 4,
+            "reliability": 0.95
+          },
+          {
+            "id": "ev_tommy_photo_timestamp",
+            "source": "汤米·陈 trust>=3",
+            "description": "可疑照片时间戳全部对应大潮时刻",
+            "weight": 4,
+            "reliability": 0.85
+          },
+          {
+            "id": "ev_warehouse_wet_marks",
+            "source": "evt_warehouse_key",
+            "description": "仓库湿痕高度与潮汐记录吻合",
+            "weight": 2,
+            "reliability": 0.7
+          },
+          {
+            "id": "ev_old_fisher_silence",
+            "source": "老费舍 trust>=2",
+            "description": "老费舍在大潮前从不出海",
+            "weight": 2,
+            "reliability": 0.6
+          }
+        ],
+        "false_interpretations": [
+          {
+            "interpretation": "只是普通的溺水事件",
+            "consequence": "错过码头深层调查窗口，Day 5前无法进入灯塔"
+          },
+          {
+            "interpretation": "渔夫在撒谎",
+            "consequence": "老费舍信任-2，港口线推进受阻"
+          }
+        ],
+        "unlocks": [
+          "chain_harbor_disappearances_node_3",
+          "灯塔区域解锁条件之一"
+        ],
+        "blocking_if_missed": "若Day 7前未达成，深潜者大潮事件会强制触发但玩家毫无准备",
+        "reasoning_text": "你把失踪告示上的日期和潮汐表放在一起。不是所有失踪都发生在夜里。但它们都发生在涨潮前后。你得到结论：失踪案与潮汐有关。"
+      },
+      {
+        "id": "conclusion_morris_seal_link",
+        "name": "莫里斯家族与封印有关",
+        "chapter_unlock": 2,
+        "required_evidence_count": 2,
+        "evidence_pool": [
+          {
+            "id": "ev_manor_basement",
+            "source": "evt_basement_depth",
+            "description": "地下室深度违反物理法则",
+            "weight": 4,
+            "reliability": 0.9
+          },
+          {
+            "id": "ev_hilda_trust_reveal",
+            "source": "希尔达·莫里斯 trust>=3",
+            "description": "希尔达亲口承认家族与封印的关系",
+            "weight": 5,
+            "reliability": 0.95
+          },
+          {
+            "id": "ev_forbidden_bookshelf",
+            "source": "evt_library_secret",
+            "description": "书架后的封印仪式图谱",
+            "weight": 4,
+            "reliability": 0.9
+          },
+          {
+            "id": "ev_portrait_movement",
+            "source": "evt_portrait_watch",
+            "description": "肖像画眼睛跟随观察者移动",
+            "weight": 2,
+            "reliability": 0.5
+          },
+          {
+            "id": "ev_elias_research",
+            "source": "伊莱亚斯·沃德 trust>=4",
+            "description": "教授研究笔记记载莫里斯家族守护封印三百年",
+            "weight": 5,
+            "reliability": 0.9
+          },
+          {
+            "id": "ev_hidden_ritual_room",
+            "source": "evt_hidden_ritual",
+            "description": "三楼密室壁画完整描绘封印仪式",
+            "weight": 5,
+            "reliability": 0.95
+          }
+        ],
+        "false_interpretations": [
+          {
+            "interpretation": "莫里斯家族只是有钱的怪人",
+            "consequence": "无法理解活体钥匙机制，可能在终局被希尔达替换"
+          },
+          {
+            "interpretation": "地下室只是建筑缺陷",
+            "consequence": "错过庄园深层探索，封印仪式图谱不可得"
+          }
+        ],
+        "unlocks": [
+          "chain_morris_family_node_4",
+          "庄园地下室深层通道"
+        ],
+        "blocking_if_missed": "若未达成，希尔达的隐藏动机无法被察觉",
+        "reasoning_text": "莫里斯家族的名字反复出现在不同的线索里——庄园、墓穴、封印仪式记录。它们不是巧合。你得到结论：莫里斯家族与封印有关。"
+      },
+      {
+        "id": "conclusion_bell_ritual_link",
+        "name": "教堂十三声钟响与解除封印仪式有关",
+        "chapter_unlock": 1,
+        "required_evidence_count": 2,
+        "evidence_pool": [
+          {
+            "id": "ev_isabella_trust",
+            "source": "伊莎贝拉·韦伯 trust>=3",
+            "description": "伊莎贝拉透露钟声是晨星会的祈祷仪式",
+            "weight": 5,
+            "reliability": 0.85
+          },
+          {
+            "id": "ev_church_whisper",
+            "source": "evt_church_bell",
+            "description": "教堂地下室传来念诵声",
+            "weight": 3,
+            "reliability": 0.7
+          },
+          {
+            "id": "ev_beggar_prophecy",
+            "source": "evt_beggar_clue",
+            "description": "疯乞丐预言第十三声钟响与潮汐共鸣时封印就会碎裂",
+            "weight": 3,
+            "reliability": 0.5
+          },
+          {
+            "id": "ev_morning_star_clue",
+            "source": "evt_vendor_suspicious",
+            "description": "可疑摊贩手指上的螺旋纹身与晨星会标记相同",
+            "weight": 2,
+            "reliability": 0.6
+          },
+          {
+            "id": "ev_heretical_book",
+            "source": "伊莎贝拉·韦伯 trust>=4",
+            "description": "异端之书记载了解除封印的完整步骤",
+            "weight": 5,
+            "reliability": 0.9
+          },
+          {
+            "id": "ev_clock_thirteen",
+            "source": "evt_strange_clock",
+            "description": "钟声每天敲响十三下而非十二下",
+            "weight": 2,
+            "reliability": 0.4
+          }
+        ],
+        "false_interpretations": [
+          {
+            "interpretation": "钟坏了",
+            "consequence": "忽略教堂调查，伊莎贝拉仪式进度不受干扰"
+          },
+          {
+            "interpretation": "伊莎贝拉是虔诚信徒",
+            "consequence": "可能协助她收集仪式材料，无意中推进bad_ritual结局"
+          }
+        ],
+        "unlocks": [
+          "chain_heretical_ritual_node_4",
+          "教堂地下室入口"
+        ],
+        "blocking_if_missed": "若Day 14前未达成，伊莎贝拉仪式进入不可逆阶段",
+        "reasoning_text": "第十三声钟响。解除封印的仪式记录。教堂地下室的异端经文。这些碎片拼在一起，指向同一个事实。你得到结论：钟声与封印仪式有关。"
+      },
+      {
+        "id": "conclusion_lighthouse_signal",
+        "name": "灯塔是召唤信号而非普通灯塔",
+        "chapter_unlock": 2,
+        "required_evidence_count": 2,
+        "evidence_pool": [
+          {
+            "id": "ev_enoch_diary",
+            "source": "evt_enoch_diary",
+            "description": "以诺日记记载灯塔建造目的是召唤装置",
+            "weight": 5,
+            "reliability": 0.95
+          },
+          {
+            "id": "ev_lighthouse_green",
+            "source": "evt_lighthouse_light",
+            "description": "绿光与海面升起的雾气同步",
+            "weight": 3,
+            "reliability": 0.7
+          },
+          {
+            "id": "ev_joshua_memory",
+            "source": "约书亚·布莱克 trust>=3",
+            "description": "约书亚在灯塔下的恐怖经历",
+            "weight": 4,
+            "reliability": 0.8
+          },
+          {
+            "id": "ev_old_fisher_lighthouse",
+            "source": "老费舍 trust>=3",
+            "description": "老费舍暗示灯塔与海底活动有关",
+            "weight": 3,
+            "reliability": 0.7
+          }
+        ],
+        "false_interpretations": [
+          {
+            "interpretation": "灯塔是邪恶源头应该破坏",
+            "consequence": "破坏灯塔导致深潜者活动提前爆发，触发wrong_lighthouse_destroy后果"
+          }
+        ],
+        "unlocks": [
+          "灯塔地下室入口",
+          "海底神殿线索"
+        ],
+        "blocking_if_missed": "若未达成且破坏灯塔，触发ending_9_wrong_target",
+        "reasoning_text": "灯塔的光不在照亮航路。它的方向不对。频率不对。它是一个信号——向海里的什么东西发出的信号。你得到结论：灯塔是召唤信号。"
+      },
+      {
+        "id": "conclusion_fisher_key_blood",
+        "name": "老费舍的血是封印仪式的关键材料",
+        "chapter_unlock": 3,
+        "required_evidence_count": 2,
+        "evidence_pool": [
+          {
+            "id": "ev_fisher_scales",
+            "source": "老费舍 trust>=3",
+            "description": "老费舍展示脚踝处灰绿色鳞片",
+            "weight": 4,
+            "reliability": 0.9
+          },
+          {
+            "id": "ev_fisher_deep_song",
+            "source": "老费舍 trust>=4",
+            "description": "老费舍能听到深潜者的歌声并翻译",
+            "weight": 5,
+            "reliability": 0.95
+          },
+          {
+            "id": "ev_hilda_key_blood",
+            "source": "希尔达·莫里斯 trust>=4",
+            "description": "希尔达提到封印需要钥匙之血",
+            "weight": 4,
+            "reliability": 0.85
+          },
+          {
+            "id": "ev_elias_hybrid_research",
+            "source": "伊莱亚斯·沃德 trust>=4",
+            "description": "教授研究笔记记载深潜者混血的血液特性",
+            "weight": 4,
+            "reliability": 0.9
+          },
+          {
+            "id": "ev_seal_ritual_requirements",
+            "source": "evt_seal_ritual",
+            "description": "封印仪式现场的符文暗示需要非纯人类之血",
+            "weight": 3,
+            "reliability": 0.7
+          }
+        ],
+        "false_interpretations": [
+          {
+            "interpretation": "老费舍是怪物应该消灭",
+            "consequence": "钥匙之血线断裂，封印结局需要更大代价"
+          },
+          {
+            "interpretation": "可以用其他血液替代",
+            "consequence": "仪式失败或触发意外后果"
+          }
+        ],
+        "unlocks": [
+          "ending_3条件之一",
+          "封印仪式关键材料"
+        ],
+        "blocking_if_missed": "若老费舍死亡且未达成，封印结局需要希尔达完全牺牲",
+        "reasoning_text": "老费舍的回避。他的伤疤。他从不下水却满身海盐。还有那份提到钥匙之血的仪式记录。你得到结论：老费舍的血是封印的关键。"
+      }
+    ],
+    "evidence_reliability_rules": "证据可靠性影响玩家判断，低可靠性证据可能被SAN阶段的污染扭曲",
+    "randomization_guarantee": "每条结论的证据池中至少有3个来源可以在不同游戏流程中获得，确保结论可达"
+  },
+  "wrong_inference": {
+    "description": "错误推理后果系统——调查游戏不应该只是收集足够线索自动胜利，玩家可能误判，误判要造成后果",
+    "design_philosophy": "真相不会因为你相信它就是真的。错误的信念会导致错误的行动，而错误的行动在沃切斯特是致命的。",
+    "consequences": [
+      {
+        "id": "wrong_lighthouse_destroy",
+        "player_assumption": "灯塔是邪恶源头，应该破坏",
+        "hidden_truth": "灯塔同时是警报器和信号装置，它的存在延缓了深海活动",
+        "consequence": "破坏灯塔后，深潜者活动提前爆发，码头区危险等级+2，深潜者大潮提前3天到来",
+        "delayed_reveal": "老费舍在事后才会告诉你灯塔的真正用途",
+        "affects_world_countdown": {
+          "corruption": 20,
+          "days_accelerated": 3
+        },
+        "affects_npc_trust": {
+          "老费舍": -2,
+          "约书亚": -1
+        },
+        "affects_endings": [
+          "ending_good_seal_restored难度大幅上升"
+        ],
+        "trigger_condition": "玩家对灯塔执行破坏行为"
+      },
+      {
+        "id": "wrong_trust_hilda_completely",
+        "player_assumption": "希尔达是纯粹的盟友，完全信任她",
+        "hidden_truth": "希尔达在寻找替代自己作为活体钥匙的人选，完全信任可能导致被绑定",
+        "consequence": "如果希尔达信任=5且玩家未发现她的隐藏动机，她可能在玩家不知情的情况下将玩家绑定为封印钥匙",
+        "delayed_reveal": "绑定完成后的某个夜晚，玩家会发现自己无法离开沃切斯特",
+        "affects_world_countdown": {
+          "corruption": 0
+        },
+        "affects_npc_trust": {},
+        "affects_endings": [
+          "ending_hidden_sacrifice可能被强制触发"
+        ],
+        "trigger_condition": "希尔达信任=5且玩家未检查她的隐藏动机"
+      },
+      {
+        "id": "wrong_trust_isabella",
+        "player_assumption": "伊莎贝拉是虔诚信徒，可以帮助封印",
+        "hidden_truth": "伊莎贝拉是奈亚拉托提普的信徒，正在策划解除封印的仪式",
+        "consequence": "如果玩家协助伊莎贝拉收集仪式材料，她会利用玩家补全解除封印仪式",
+        "delayed_reveal": "当仪式完成时，玩家才发现自己帮助了错误的一方",
+        "affects_world_countdown": {
+          "corruption": 30,
+          "days_accelerated": 5
+        },
+        "affects_npc_trust": {
+          "伊莱亚斯": -3
+        },
+        "affects_endings": [
+          "ending_bad_ritual可能被强制触发"
+        ],
+        "trigger_condition": "伊莎贝拉信任=5且玩家协助了她的仪式"
+      },
+      {
+        "id": "wrong_kill_all_hybrids",
+        "player_assumption": "所有深潜者混血都是威胁，应该消灭",
+        "hidden_truth": "老费舍是深潜者混血，但他体内有解除封印所需的'钥匙之血'",
+        "consequence": "老费舍死亡后，钥匙之血线断裂，封印结局难度大幅上升，替代方案需要更大的代价",
+        "delayed_reveal": "伊莱亚斯会告诉你钥匙之血的重要性",
+        "affects_world_countdown": {
+          "corruption": 10
+        },
+        "affects_npc_trust": {
+          "伊莱亚斯": -1,
+          "玛莎": -3
+        },
+        "affects_endings": [
+          "ending_good_seal_restored条件变更，需要希尔达完全牺牲"
+        ],
+        "trigger_condition": "玩家攻击或导致老费舍死亡"
+      },
+      {
+        "id": "wrong_overstudy_forbidden",
+        "player_assumption": "研究禁书可以获得更多力量和知识",
+        "hidden_truth": "每一点克苏鲁神话知识都会永久降低SAN上限",
+        "consequence": "获得仪式知识，但SAN上限永久下降。克苏鲁神话≥15后，某些正常NPC对话也会触发SAN损失",
+        "delayed_reveal": "当SAN上限降到某个阈值时，玩家会发现自己的感知开始被永久污染",
+        "affects_world_countdown": {
+          "corruption": 5
+        },
+        "affects_npc_trust": {},
+        "affects_endings": [
+          "ending_hidden_transcendence可能更容易触发，但ending_good_seal_restored更难"
+        ],
+        "trigger_condition": "克苏鲁神话技能≥10"
+      },
+      {
+        "id": "wrong_abandon_npcs",
+        "player_assumption": "NPC只是信息来源，不需要维护关系",
+        "hidden_truth": "NPC的信任影响线索获取、结局触发和世界稳定度",
+        "consequence": "缺乏NPC信任的玩家无法获得机制线索和结局线索，封印结局几乎不可能达成",
+        "delayed_reveal": "当玩家试图进入终局时，发现缺少关键NPC的支持",
+        "affects_world_countdown": {
+          "corruption": 8
+        },
+        "affects_npc_trust": {},
+        "affects_endings": [
+          "大部分结局条件无法满足"
+        ],
+        "trigger_condition": "第14天时没有任何NPC信任≥3"
+      },
+      {
+        "id": "wrong_ignore_survival",
+        "player_assumption": "生存资源不重要，专注于调查",
+        "hidden_truth": "饥饿、疲劳、感染都会影响技能和事件结果",
+        "consequence": "技能检定大幅下降，某些关键调查因为体力不足而失败",
+        "delayed_reveal": "当玩家因为饥饿或疲劳导致关键检定失败时",
+        "affects_world_countdown": {
+          "corruption": 3
+        },
+        "affects_npc_trust": {},
+        "affects_endings": [],
+        "trigger_condition": "food<20或fatigue>70时执行关键检定"
+      },
+      {
+        "id": "wrong_rush_to_abyss",
+        "player_assumption": "越早进入深渊墓穴越好",
+        "hidden_truth": "未收集足够线索就进入深渊墓穴会导致仪式不完整或误判",
+        "consequence": "缺少关键线索时，封印仪式可能失败或触发意外后果",
+        "delayed_reveal": "仪式进行到一半时，玩家发现缺少关键步骤",
+        "affects_world_countdown": {
+          "corruption": 15
+        },
+        "affects_npc_trust": {},
+        "affects_endings": [
+          "ending_good_seal_restored条件不满足"
+        ],
+        "trigger_condition": "未完成至少2条主线线索链就进入deep_catacombs"
+      }
+    ],
+    "false_interpretation_examples": [
+      {
+        "clue": "灯塔绿光",
+        "false_interpretation": "灯塔在召唤怪物",
+        "truth": "灯塔在警告和抑制怪物"
+      },
+      {
+        "clue": "老费舍的鳞片",
+        "false_interpretation": "他是敌人",
+        "truth": "他是抵抗血脉的盟友"
+      },
+      {
+        "clue": "伊莎贝拉的祈祷",
+        "false_interpretation": "她在守护封印",
+        "truth": "她在解除封印"
+      },
+      {
+        "clue": "希尔达的忧郁",
+        "false_interpretation": "她需要保护",
+        "truth": "她在寻找替代品"
+      },
+      {
+        "clue": "十三声钟响",
+        "false_interpretation": "钟坏了",
+        "truth": "异端仪式的信号"
+      }
+    ]
+  }
+}
