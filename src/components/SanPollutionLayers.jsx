@@ -301,7 +301,7 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
   const getCachedVisual = useCallback(function (currentSan) {
     if (currentSan !== cachedSan.current || !cachedVisual.current) {
       cachedSan.current = currentSan;
-      cachedVisual.current = getVisualForSan(currentSan);
+      cachedVisual.current = getVisualForSan(currentSan, { GD: state._GD });
     }
     return cachedVisual.current;
   }, []);

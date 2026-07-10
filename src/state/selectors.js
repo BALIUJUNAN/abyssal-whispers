@@ -39,7 +39,8 @@ var _selLongTermEffectsCount = function (s) { return (s.longTermEffects || []).l
 export function useSan() { return useGameStore(_selSan); }
 export function useSanVisual() {
   var san = useGameStore(_selSan);
-  return useMemo(function () { return getVisualForSan(san); }, [san]);
+  var gd = useGameStore(function (s) { return s._GD || {}; });
+  return useMemo(function () { return getVisualForSan(san, { GD: gd }); }, [san, gd]);
 }
 export function useSanStageClasses(allowVisualFX) {
   var san = useGameStore(_selSan);
@@ -54,13 +55,18 @@ export function usePerceptionLevels() {
   var safehouseCorruption = useGameStore(_selSafehouseCorruption);
   var mythosLevel = useGameStore(_selMythosLevel);
   var pollution = useGameStore(_selPollution);
+  var gd = useGameStore(function (s) { return s._GD || {}; });
   return useMemo(function () {
-    return getPerceptionLevels({ san: san, loopCount: loopCount, safehouseCorruption: safehouseCorruption, mythosLevel: mythosLevel, pollution: pollution });
-  }, [san, loopCount, safehouseCorruption, mythosLevel, pollution]);
+    return getPerceptionLevels(
+      { san: san, loopCount: loopCount, safehouseCorruption: safehouseCorruption, mythosLevel: mythosLevel, pollution: pollution },
+      { GD: gd }
+    );
+  }, [san, loopCount, safehouseCorruption, mythosLevel, pollution, gd]);
 }
 export function useSanLevel() {
   var san = useGameStore(_selSan);
-  return useMemo(function () { return getVisualForSan(san).level; }, [san]);
+  var gd = useGameStore(function (s) { return s._GD || {}; });
+  return useMemo(function () { return getVisualForSan(san, { GD: gd }).level; }, [san, gd]);
 }
 
 // Character — subscribe to primitives, useMemo to create objects

@@ -102,7 +102,7 @@ function _applyVocabShift(text, difficultyLevel) {
  * @param {number} [difficultyLevel] - 1-13, optional difficulty modifier
  * @returns {{ text, action, tier }} action: 'show' | 'variant' | 'skip'
  */
-export function getTrackedText(textId, baseText, pollution, loopCount, seenMap, difficultyLevel) {
+export function getTrackedText(textId, baseText, pollution, loopCount, seenMap, difficultyLevel, rng) {
   const settings = getDifficultyTextSettings(difficultyLevel);
   const seen = seenMap[textId] || 0;
   seenMap[textId] = seen + 1;
@@ -121,7 +121,7 @@ export function getTrackedText(textId, baseText, pollution, loopCount, seenMap, 
 
   // Tier 3: third time — readable corruption (boosted at high difficulty)
   if (seen === 2 && pollution >= tier3PollutionReq) {
-    var corrText = _applyReadableCorruption(baseText, pollution * settings.corruptionBoost);
+    var corrText = _applyReadableCorruption(baseText, pollution * settings.corruptionBoost, rng);
     return { text: _applyVocabShift(corrText, difficultyLevel), action: 'variant', tier: 3 };
   }
 
@@ -129,7 +129,7 @@ export function getTrackedText(textId, baseText, pollution, loopCount, seenMap, 
   if (seen >= 3) {
     if (settings.hintSuppression >= 0.35 && seen === 3 && pollution < 0.3) {
       // At difficulty >= 10 (夜钟+), even seen=3 may still show
-      return { text: _applyReadableCorruption(baseText, pollution * settings.corruptionBoost * 0.5), action: 'variant', tier: 3 };
+      return { text: _applyReadableCorruption(baseText, pollution * settings.corruptionBoost * 0.5, rng), action: 'variant', tier: 3 };
     }
     return { text: _buildSummary(baseText), action: 'skip', tier: 4 };
   }
@@ -174,19 +174,20 @@ function _applySubtleShift(text) {
 // Never replaces more than 3% of characters. Never blocks readability.
 // ═══════════════════════════════════════════════════════
 
-function _applyReadableCorruption(text, pollution) {
+function _applyReadableCorruption(text, pollution, rng) {
   if (!text) return text;
   const chars = text.split('');
   // Cap corruption at 3% — readability is sacred
   const rate = Math.min(0.03, pollution * 0.04);
   let corrupted = 0;
   const maxCorrupted = Math.max(1, Math.floor(chars.length * rate));
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
   const result = chars.map(c => {
     if (corrupted >= maxCorrupted) return c;
-    if (Math.random() < rate && c !== ' ' && c !== '\n' && c !== '，' && c !== '。') {
+    if (_rand() < rate && c !== ' ' && c !== '\n' && c !== '，' && c !== '。') {
       corrupted++;
       // Prefer subtle marks over block characters
-      return pickRandom(['…', '·', c, c]); // 50% chance keep original
+      return pickRandom(['…', '·', c, c], rng); // 50% chance keep original
     }
     return c;
   });
@@ -205,7 +206,10 @@ function _buildSummary(text) {
   return firstSentence.slice(0, 15) + '……你以前来过这里。';
 }
 
-function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function pickRandom(arr, rng) {
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  return arr[Math.floor(_rand() * arr.length)];
+}
 
 /**
  * Create a new seen-text tracking map.
@@ -255,12 +259,13 @@ export function maybeInjectPhantomLog(logArray, san, loopCount, rng) {
  * Probability: 0.3% per render. Resolves on next render.
  * Example: "玛莎" → "玛纱" → "玛莎"
  */
-export function maybeCorruptNpcName(name, san, loopCount) {
+export function maybeCorruptNpcName(name, san, loopCount, rng) {
   if (!name || name.length < 2) return name;
   // P1-A: SSOT — perception_shift (level >= 2) or loop >= 3
   if (getSanStageFromGD(san).level < 2 && loopCount < 3) return name;
   const chance = Math.min(0.003, (70 - san) * 0.00005 + loopCount * 0.0005);
-  if (Math.random() >= chance) return name;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (_rand() >= chance) return name;
   // Swap one character with a visually similar one
   const charSwaps = {
     '莎': '纱', '玛': '码', '希': '稀', '达': '这', '伊': '尹',
@@ -270,7 +275,7 @@ export function maybeCorruptNpcName(name, san, loopCount) {
   };
   const chars = name.split('');
   for (let i = 0; i < chars.length; i++) {
-    if (charSwaps[chars[i]] && Math.random() < 0.5) {
+    if (charSwaps[chars[i]] && _rand() < 0.5) {
       const result = [...chars];
       result[i] = charSwaps[chars[i]];
       return result.join('');
@@ -344,7 +349,7 @@ const MYTHOS_TRUE_NAMES = [
  * @param {object} [opts]      - { npcTrust?: number, isNpcDialogue?: boolean }
  * @returns {string} text with aliases applied
  */
-export function applyMythosAliases(text, currentChapter, mythosLevel, ctx, opts) {
+export function applyMythosAliases(text, currentChapter, mythosLevel, ctx, opts, rng) {
   if (!text) return text;
   const { GD } = ctx;
   const aliases = GD.systems?.mythos?.mythos_name_control?.name_aliases
@@ -385,8 +390,9 @@ export function applyMythosAliases(text, currentChapter, mythosLevel, ctx, opts)
       const parts = result.split(pattern);
       if (parts.length <= 1) continue;
       const rebuilt = [parts[0]];
+      var _rand = rng ? rng.next.bind(rng) : Math.random;
       for (let i = 1; i < parts.length; i++) {
-        if (Math.random() < slipChance) {
+        if (_rand() < slipChance) {
           // Slip: use true name, then immediately "correct" with a hesitation
           rebuilt.push(pattern + '——不对，是' + safeAlias + parts[i]);
         } else {
@@ -446,17 +452,18 @@ export function getDistortedName(area, state) {
   if (daysSince > fadeThreshold) distortChance += (daysSince - fadeThreshold) * 0.1;
 
   distortChance = Math.min(1, distortChance);
-  if (Math.random() >= distortChance) return area.name;
+  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  if (_rand() >= distortChance) return area.name;
 
   var alts = AREA_DISTORTIONS[area.id];
   if (!alts) return area.name;
 
   var idx;
   if (stage.level >= 6) idx = 0;                            // narrative_death: always most distorted
-  else if (stage.level >= 5) idx = Math.random() < 0.6 ? 0 : 1;  // reality_dissolution
-  else if (stage.level >= 4) idx = Math.random() < 0.4 ? 1 : 2;  // cognitive_fog: milder
-  else if (stage.level >= 3) idx = Math.random() < 0.5 ? 1 : 2;  // explanation_loss
-  else if (stage.level >= 2) idx = Math.random() < 0.5 ? 3 : 1;  // perception_shift
+  else if (stage.level >= 5) idx = _rand() < 0.6 ? 0 : 1;  // reality_dissolution
+  else if (stage.level >= 4) idx = _rand() < 0.4 ? 1 : 2;  // cognitive_fog: milder
+  else if (stage.level >= 3) idx = _rand() < 0.5 ? 1 : 2;  // explanation_loss
+  else if (stage.level >= 2) idx = _rand() < 0.5 ? 3 : 1;  // perception_shift
   else idx = 3;                                                    // stable/mild: normal
 
   return alts[idx] || area.name;

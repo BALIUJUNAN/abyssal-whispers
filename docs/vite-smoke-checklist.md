@@ -6,9 +6,8 @@
 
 ```bash
 npm install
-npm test            # 54 tests pass
-npm run verify      # legacy build OK
-npm run dev:vite    # 启动 Vite dev server
+npm test            # 全量测试
+npm run dev         # 启动 Vite dev server
 ```
 
 浏览器打开 http://localhost:3000
@@ -85,8 +84,8 @@ npm run dev:vite    # 启动 Vite dev server
 ## Vite Build 验收（PR 16）
 
 ```bash
-npm run build:vite
-npm run preview:vite
+npm run build
+npm run preview
 ```
 
 浏览器打开 preview 地址，重复上述 1-9 流程。

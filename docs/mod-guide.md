@@ -589,12 +589,7 @@ Event Object
   用文本编辑器创建 my_mod/mod.json
 
 步骤 3：本地验证
-  node -e "
-    const { validateMod } = require('./src/data/ugcSchema.js');
-    const mod = JSON.parse(require('fs').readFileSync('my_mod/mod.json', 'utf8'));
-    const result = validateMod(mod);
-    console.log(result.valid ? '✅ 通过' : '❌ 失败:', result.errors);
-  "
+  npm run mod:validate -- my_mod/mod.json
 
 步骤 4：在游戏中测试
   - 打开游戏 → 点击 🧩 按钮

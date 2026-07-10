@@ -49,12 +49,19 @@ export function saveToSlot(slotId, state) {
 
 /**
  * Load from slot. P0-4: attempts migration instead of deleting on version mismatch.
+ * Also runs security scan on loaded data (non-blocking).
  */
 export function loadFromSlot(slotId) {
   try {
     const raw = localStorage.getItem(SAVE_PREFIX + slotId);
     if (!raw) return null;
     const data = JSON.parse(raw);
+
+    // Security scan (non-blocking — warn but allow load for existing saves)
+    var sec = scanSaveSecurity(data, 'save');
+    if (!sec.safe) {
+      console.warn('[Save] Security scan failed for slot ' + slotId + ':', sec.violations);
+    }
 
     // Version matches — return as-is
     if (data.version === _SAVE_VERSION) {
@@ -249,6 +256,370 @@ export const SAVE_FORMAT_SPEC = {
     ].join(':');
   },
 };
+
+// ────────────────────────────────────────────────
+// SECTION: Save Security (ADR-010)
+// ────────────────────────────────────────────────
+
+// Dangerous key patterns — reject any object containing these at any depth
+var DANGEROUS_KEY_PATTERNS = [
+  '__proto__',
+  'constructor',
+  'prototype',
+  'toString',
+  'valueOf',
+  'toJSON',
+  '__defineGetter__',
+  '__defineSetter__',
+  '__lookupGetter__',
+  '__lookupSetter__',
+];
+
+// Dangerous value patterns — reject any string containing these
+var DANGEROUS_VALUE_PATTERNS = [
+  /\bfunction\s*\(/i,
+  /\beval\s*\(/i,
+  /\bnew\s+Function/i,
+  /\bsetTimeout\s*\(/i,
+  /\bsetInterval\s*\(/i,
+  /\bimport\s*\(/i,
+  /\brequire\s*\(/i,
+  /\bfetch\s*\(/i,
+  /\bXMLHttpRequest/i,
+  /\bdocument\./i,
+  /\bwindow\./i,
+  /\bglobalThis\./i,
+  /\bself\./i,
+  /\bthis\b.*\bconstructor\b/i,
+  /<script/i,
+  /javascript:/i,
+  /on\w+\s*=/i,
+];
+
+var SAVE_MAX_DEPTH = 10;
+var SAVE_MAX_ARRAY_LENGTH = 500;
+
+/**
+ * Deep-scan an object for dangerous keys and values.
+ * Returns { safe: boolean, violations: string[] }
+ */
+function scanSaveSecurity(obj, path) {
+  path = path || '$';
+  var violations = [];
+  var depth = (path.match(/\./g) || []).length;
+
+  if (depth > SAVE_MAX_DEPTH) {
+    violations.push(path + ': exceeds max depth ' + SAVE_MAX_DEPTH);
+    return { safe: false, violations: violations };
+  }
+
+  if (obj && typeof obj === 'object') {
+    if (Array.isArray(obj)) {
+      if (obj.length > SAVE_MAX_ARRAY_LENGTH) {
+        violations.push(path + ': array exceeds max length ' + SAVE_MAX_ARRAY_LENGTH);
+      }
+      for (var i = 0; i < Math.min(obj.length, SAVE_MAX_ARRAY_LENGTH); i++) {
+        var child = scanSaveSecurity(obj[i], path + '[' + i + ']');
+        if (!child.safe) violations.push.apply(violations, child.violations);
+      }
+    } else {
+      // Use Object.getOwnPropertyNames to reliably catch __proto__ and other
+      // special own properties that for...in / hasOwnProperty may miss.
+      var keys = Object.getOwnPropertyNames(obj);
+      for (var ki = 0; ki < keys.length; ki++) {
+        var key = keys[ki];
+        if (DANGEROUS_KEY_PATTERNS.indexOf(key) >= 0) {
+          violations.push(path + '.' + key + ': dangerous key "' + key + '"');
+          continue;
+        }
+        var desc = Object.getOwnPropertyDescriptor(obj, key);
+        if (desc && desc.get && desc.set) continue; // skip accessor properties
+        var val = obj[key];
+        if (typeof val === 'string') {
+          for (var p = 0; p < DANGEROUS_VALUE_PATTERNS.length; p++) {
+            if (DANGEROUS_VALUE_PATTERNS[p].test(val)) {
+              violations.push(path + '.' + key + ': dangerous pattern in string value');
+              break;
+            }
+          }
+        }
+        var child = scanSaveSecurity(val, path + '.' + key);
+        if (!child.safe) violations.push.apply(violations, child.violations);
+      }
+    }
+  }
+
+  return { safe: violations.length === 0, violations: violations };
+}
+
+/**
+ * Deep-clone an object, keeping only whitelisted keys.
+ * Strips unknown keys, enforces type constraints, and sanitizes arrays.
+ */
+function sanitizeSaveState(rawState, allowedKeys) {
+  if (!rawState || typeof rawState !== 'object') return null;
+
+  var state = {};
+  for (var i = 0; i < allowedKeys.length; i++) {
+    var key = allowedKeys[i];
+    if (!Object.prototype.hasOwnProperty.call(rawState, key)) continue;
+    var val = rawState[key];
+
+    // Type enforcement per known key
+    switch (key) {
+      case 'inventory':
+        if (!Array.isArray(val)) { state[key] = []; continue; }
+        state[key] = val.slice(0, 50).map(function (item) {
+          if (item && typeof item === 'object') {
+            return {
+              id: String(item.id || ''),
+              name: String(item.name || ''),
+              uses: typeof item.uses === 'number' ? Math.max(0, item.uses) : 1,
+            };
+          }
+          return { id: String(item || ''), name: String(item || ''), uses: 1 };
+        });
+        continue;
+      case 'clues':
+      case 'flags':
+      case 'visitedAreas':
+      case 'runMemory':
+      case 'eventLog':
+        if (!Array.isArray(val)) { state[key] = []; continue; }
+        state[key] = val.slice(0, key === 'eventLog' ? 200 : 100);
+        continue;
+      case 'behaviorTracking':
+        if (!val || typeof val !== 'object') { state[key] = {}; continue; }
+        var bt = {};
+        for (var bk in val) {
+          if (!Object.prototype.hasOwnProperty.call(val, bk)) continue;
+          var bv = val[bk];
+          if (DANGEROUS_KEY_PATTERNS.indexOf(bk) >= 0) continue;
+          bt[bk] = typeof bv === 'number' ? bv : 0;
+        }
+        state[key] = bt;
+        continue;
+      case 'npcTrust':
+        if (!val || typeof val !== 'object') { state[key] = {}; continue; }
+        var nt = {};
+        for (var nk in val) {
+          if (!Object.prototype.hasOwnProperty.call(val, nk)) continue;
+          if (DANGEROUS_KEY_PATTERNS.indexOf(nk) >= 0) continue;
+          nt[nk] = typeof val[nk] === 'number' ? Math.max(0, Math.min(5, val[nk])) : 0;
+        }
+        state[key] = nt;
+        continue;
+      case 'stats':
+        if (!val || typeof val !== 'object') { state[key] = {}; continue; }
+        var stats = {};
+        for (var sk in val) {
+          if (!Object.prototype.hasOwnProperty.call(val, sk)) continue;
+          stats[sk] = typeof val[sk] === 'number' ? Math.max(0, Math.min(100, val[sk])) : 0;
+        }
+        state[key] = stats;
+        continue;
+      case 'hp':
+      case 'maxHp':
+      case 'san':
+      case 'maxSan':
+      case 'luck':
+      case 'mp':
+      case 'food':
+      case 'money':
+      case 'dayCount':
+      case 'safehouseCorruption':
+      case 'pollution':
+      case 'mythosLevel':
+      case 'humanity':
+      case 'lightLevel':
+        state[key] = typeof val === 'number' ? Math.max(0, val) : 0;
+        continue;
+      case 'currentArea':
+      case 'sealState':
+      case 'weather':
+      case 'archetype':
+        state[key] = typeof val === 'string' ? val : '';
+        continue;
+      default:
+        // Generic object/array/string/number — pass through with basic type check
+        if (val === null || val === undefined) {
+          state[key] = val;
+        } else if (Array.isArray(val)) {
+          state[key] = val.slice(0, SAVE_MAX_ARRAY_LENGTH);
+        } else if (typeof val === 'object') {
+          // Deep clone with dangerous key stripping
+          var clean = {};
+          for (var ck in val) {
+            if (!Object.prototype.hasOwnProperty.call(val, ck)) continue;
+            if (DANGEROUS_KEY_PATTERNS.indexOf(ck) >= 0) continue;
+            clean[ck] = val[ck];
+          }
+          state[key] = clean;
+        } else {
+          state[key] = val;
+        }
+    }
+  }
+
+  return state;
+}
+
+/**
+ * Blocking schema validation for save data imported from external sources.
+ * Returns { valid: boolean, errors: string[], warnings: string[], sanitized: object|null }
+ *
+ * Security checks:
+ *  - Prototype pollution key guard (__proto__, constructor, prototype, etc.)
+ *  - Dangerous value pattern scanning (eval, function(), fetch, etc.)
+ *  - Type validation on all known fields
+ *  - Value range checks
+ *  - Key whitelist enforcement (unknown keys stripped)
+ *  - Array length limits
+ */
+export function validateSaveSchema(saveData) {
+  var errors = [];
+  var warnings = [];
+
+  if (!saveData || typeof saveData !== 'object') {
+    return { valid: false, errors: ['Save data is null or not an object'], warnings: warnings, sanitized: null };
+  }
+
+  // ── Security scan ──
+  var sec = scanSaveSecurity(saveData, 'save');
+  if (!sec.safe) {
+    return { valid: false, errors: sec.violations, warnings: warnings, sanitized: null };
+  }
+
+  // ── Top-level key whitelist ──
+  var topLevelAllowed = SAVE_FORMAT_SPEC.topLevelKeys;
+  for (var key in saveData) {
+    if (!Object.prototype.hasOwnProperty.call(saveData, key)) continue;
+    if (DANGEROUS_KEY_PATTERNS.indexOf(key) >= 0) {
+      errors.push('Dangerous top-level key: "' + key + '"');
+      continue;
+    }
+    if (topLevelAllowed.indexOf(key) < 0) {
+      warnings.push('Unknown top-level key (stripped): "' + key + '"');
+    }
+  }
+
+  // ── Version ──
+  if (typeof saveData.version !== 'string') {
+    errors.push('version must be a string, got ' + typeof saveData.version);
+  }
+
+  // ── Timestamp ──
+  if (saveData.timestamp !== undefined && typeof saveData.timestamp !== 'number') {
+    errors.push('timestamp must be a number, got ' + typeof saveData.timestamp);
+  }
+
+  // ── Meta validation ──
+  if (saveData.meta && typeof saveData.meta === 'object') {
+    for (var mk in saveData.meta) {
+      if (!Object.prototype.hasOwnProperty.call(saveData.meta, mk)) continue;
+      if (DANGEROUS_KEY_PATTERNS.indexOf(mk) >= 0) {
+        errors.push('Dangerous meta key: "' + mk + '"');
+      }
+    }
+    if (typeof saveData.meta.day !== 'number') errors.push('meta.day must be a number');
+    else if (saveData.meta.day < 1 || saveData.meta.day > 9999) errors.push('meta.day out of range: ' + saveData.meta.day);
+    if (typeof saveData.meta.loopCount !== 'number') errors.push('meta.loopCount must be a number');
+    else if (saveData.meta.loopCount < 0 || saveData.meta.loopCount > 9999) errors.push('meta.loopCount out of range');
+    if (typeof saveData.meta.san !== 'number') errors.push('meta.san must be a number');
+    else if (saveData.meta.san < 0 || saveData.meta.san > 100) errors.push('meta.san out of range: ' + saveData.meta.san);
+    if (typeof saveData.meta.hp !== 'number') errors.push('meta.hp must be a number');
+    else if (saveData.meta.hp < 0) errors.push('meta.hp negative: ' + saveData.meta.hp);
+  }
+
+  // ── State validation ──
+  if (!saveData.state || typeof saveData.state !== 'object') {
+    errors.push('Save missing "state" object');
+    return { valid: false, errors: errors, warnings: warnings, sanitized: null };
+  }
+
+  // Security scan on state
+  var stateSec = scanSaveSecurity(saveData.state, 'save.state');
+  if (!stateSec.safe) {
+    errors.push.apply(errors, stateSec.violations);
+  }
+
+  // Build sanitized state (whitelist + type enforcement)
+  var sanitizedState = sanitizeSaveState(saveData.state, SAVE_FORMAT_SPEC.requiredStateKeys);
+
+  // ── Build sanitized wrapper ──
+  var sanitized = {
+    version: typeof saveData.version === 'string' ? saveData.version : '1',
+    timestamp: typeof saveData.timestamp === 'number' ? saveData.timestamp : Date.now(),
+    slotId: typeof saveData.slotId === 'string' ? saveData.slotId : '',
+    meta: saveData.meta && typeof saveData.meta === 'object' ? {
+      day: typeof saveData.meta.day === 'number' ? Math.max(1, Math.min(9999, saveData.meta.day)) : 1,
+      area: typeof saveData.meta.area === 'string' ? saveData.meta.area : '',
+      loopCount: typeof saveData.meta.loopCount === 'number' ? Math.max(0, Math.min(9999, saveData.meta.loopCount)) : 0,
+      san: typeof saveData.meta.san === 'number' ? Math.max(0, Math.min(100, saveData.meta.san)) : 0,
+      hp: typeof saveData.meta.hp === 'number' ? Math.max(0, saveData.meta.hp) : 0,
+    } : { day: 1, area: '', loopCount: 0, san: 0, hp: 0 },
+    state: sanitizedState,
+  };
+
+  return {
+    valid: errors.length === 0,
+    errors: errors,
+    warnings: warnings,
+    sanitized: sanitized,
+  };
+}
+
+/**
+ * Quarantine an imported save: parse JSON → validate schema → return clean data or error.
+ * This function NEVER writes to localStorage. It only returns validated, sanitized data.
+ *
+ * @param {string} jsonString — raw JSON from file import
+ * @returns {{ ok: boolean, data?: object, error?: string, warnings?: string[] }}
+ */
+export function quarantineSave(jsonString) {
+  try {
+    var raw = JSON.parse(jsonString);
+    if (!raw || typeof raw !== 'object') {
+      return { ok: false, error: '存档数据为空或格式错误' };
+    }
+
+    // Validate structure
+    if (!raw.version || !raw.slots) {
+      return { ok: false, error: '存档格式不兼容：缺少 version 或 slots 字段' };
+    }
+
+    var validatedSlots = {};
+    var slots = raw.slots;
+    for (var sid in slots) {
+      if (!Object.prototype.hasOwnProperty.call(slots, sid)) continue;
+      var slotData = slots[sid];
+      if (!slotData || typeof slotData !== 'object') continue;
+      if (AUTO_SLOTS.indexOf(sid) < 0 && MANUAL_SLOTS.indexOf(sid) < 0) continue;
+
+      // Validate each slot's data
+      var slotResult = validateSaveSchema(slotData);
+      if (!slotResult.valid) {
+        return { ok: false, error: '槽位 ' + sid + ' 验证失败: ' + slotResult.errors.join('; ') };
+      }
+
+      // Attempt migration on the sanitized data (skip if migration not configured)
+      var migrated = _migrateSaveData ? _migrateSaveData(slotResult.sanitized, sid) : null;
+      if (migrated && migrated.state) {
+        validatedSlots[sid] = migrated;
+      } else {
+        validatedSlots[sid] = slotResult.sanitized;
+      }
+    }
+
+    if (Object.keys(validatedSlots).length === 0) {
+      return { ok: false, error: '存档中没有有效的槽位数据' };
+    }
+
+    return { ok: true, data: validatedSlots };
+  } catch (e) {
+    return { ok: false, error: 'JSON 解析失败: ' + e.message };
+  }
+}
 
 /**
  * Validate a save object against the frozen format spec.
@@ -557,26 +928,29 @@ export function exportSaveAsText() {
 }
 
 /**
- * 导入存档 JSON 文件. P0-4: attempts migration for each slot.
+ * 导入存档 JSON 文件.
+ * Uses quarantineSave → validateSaveSchema → migrate → write sanitized data.
  */
 export function importSave(jsonString) {
+  var quarantined = quarantineSave(jsonString);
+  if (!quarantined.ok) return { ok: false, error: quarantined.error };
+
   try {
-    const data = JSON.parse(jsonString);
-    if (!data.version || !data.slots) return { ok: false, error: '存档格式不兼容' };
-    Object.entries(data.slots).forEach(([sid, slotData]) => {
-      if ([...AUTO_SLOTS, ...MANUAL_SLOTS].includes(sid) && slotData) {
-        // P0-4: Attempt migration on import too
-        const migrated = _migrateSaveData(slotData, sid);
-        if (migrated && migrated.state) {
-          localStorage.setItem(SAVE_PREFIX + sid, JSON.stringify(migrated));
-        } else if (slotData.state) {
-          // Fallback: save as-is if migration module not available
-          localStorage.setItem(SAVE_PREFIX + sid, JSON.stringify(slotData));
-        }
+    var slots = quarantined.data;
+    var slotCount = 0;
+    Object.keys(slots).forEach(function (sid) {
+      var slotData = slots[sid];
+      if (slotData && slotData.state) {
+        localStorage.setItem(SAVE_PREFIX + sid, JSON.stringify(slotData));
+        slotCount++;
       }
     });
-    return { ok: true };
+    if (slotCount > 0) {
+      return { ok: true };
+    } else {
+      return { ok: false, error: '存档中没有可用的槽位数据' };
+    }
   } catch (e) {
-    return { ok: false, error: '存档格式不兼容' };
+    return { ok: false, error: '写入存档失败: ' + e.message };
   }
 }

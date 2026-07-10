@@ -187,8 +187,8 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
           >
             {ns.corrupted ? '（' + npc.name + '的状态不对，说话含混不清。）' : (() => {
               let dlgText = layer.dialogue;
-              if (state && dlgText && typeof GD !== 'undefined') {
-                dlgText = applyMythosAliases(dlgText, state.currentChapter || 'chapter_1', state.mythosLevel || 0, { GD });
+              if (state && dlgText && state._GD) {
+                dlgText = applyMythosAliases(dlgText, state.currentChapter || 'chapter_1', state.mythosLevel || 0, { GD: state._GD });
               }
               // ── Text Fragmentation: SAN-driven text degradation ──
               // NPC dialogue becomes unreliable at low SAN — words cross out, vanish.
@@ -198,7 +198,7 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
                   isCritical: false,
                   loopCount: state.loopCount || 0,
                   difficultyLevel: state.difficultyLevel || 1,
-                });
+                }, { GD: state._GD });
               }
               return dlgText;
             })()}

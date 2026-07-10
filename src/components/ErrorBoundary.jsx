@@ -13,11 +13,12 @@ export class ErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] 游戏渲染错误:', error, errorInfo);
 
-    // 尝试从全局 errorTracker 获取报告
+    // 从 props 获取 errorTracker
     try {
-      if (typeof window.errorTracker !== 'undefined' && window.errorTracker) {
-        const report = window.errorTracker.exportReport(error, errorInfo);
-        const text = window.errorTracker.renderText(report);
+      var tracker = this.props.errorTracker;
+      if (tracker) {
+        const report = tracker.exportReport(error, errorInfo);
+        const text = tracker.renderText(report);
         this.setState({ errorInfo, reportText: text });
       } else {
         this.setState({ errorInfo, reportText: '' });

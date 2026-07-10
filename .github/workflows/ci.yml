@@ -28,7 +28,7 @@ jobs:
       - run: npm test
       - run: npm run lint:schema
       - run: npm run lint:engine
-      - run: npm run lint:mod
+      - run: npm run mod:validate
       - run: npm run build
       - run: npm run format:check
 

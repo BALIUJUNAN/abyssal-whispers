@@ -12,9 +12,6 @@ module.exports = defineConfig({
     actionTimeout: 10000,
     ignoreHTTPSErrors: true,
     screenshot: 'only-on-failure',
-    launchOptions: {
-      executablePath: 'C:/Users/vic15/AppData/Local/ms-playwright/chromium-1223/chrome-win64/chrome.exe',
-    },
   },
   // Auto-start dev server for E2E tests
   webServer: {

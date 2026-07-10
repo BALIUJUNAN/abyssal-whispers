@@ -81,8 +81,8 @@ export function handleMove(s, action, c, ctx) {
       desc = desc + '\n\n' + cleanVariant;
     }
   }
-  desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
-  desc = applyTextFragmentation(desc, s.san, c.rng, { isCritical: false });
+  desc = applyMythosAliases(desc, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx, undefined, c.rng);
+  desc = applyTextFragmentation(desc, s.san, c.rng, { isCritical: false }, ctx);
   var invDetail = getInvestigationDetail(target, s, c.rng);
   if (invDetail) desc = desc + '\n\n' + invDetail;
   var traceNarr = getPlayerTraceNarrative(target, s);

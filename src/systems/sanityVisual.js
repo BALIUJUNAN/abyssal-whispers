@@ -1,6 +1,6 @@
 // src/systems/sanityVisual.js - SAN visual presentation system
 // Centralizes ALL SAN -> visual/UI/CSS logic. No game-state mutations.
-// Pure computations only; reads GD from window.GD (same as rest of codebase).
+// Pure computations only; reads GD from ctx parameter.
 //
 // Extracted from:
 //   - sanReducer.js  (getSanStage presentation, getSanTextVariant, getSanSceneVariant)
@@ -191,8 +191,8 @@ var _CLEAN_VIS = {
  * @param {number} san
  * @returns {{ sat, vig, scan, noise, barrel, chroma, rot, shadow, tremble, glow, level }}
  */
-export function getVisualForSan(san) {
-  var GD = (typeof window !== 'undefined' && window.GD) || {};
+export function getVisualForSan(san, ctx) {
+  var GD = (ctx && ctx.GD) || {};
   var stages = (GD.systems && GD.systems.sanity && GD.systems.sanity.san_stages) || [];
   if (stages.length === 0) {
     return { sat: 0, vig: 0, scan: 0, noise: 0, barrel: 0, chroma: 0, rot: 0, shadow: false, tremble: false, glow: false, level: 0 };
@@ -271,13 +271,14 @@ export function getSanStageClasses(san, allowVisualFX, ctx) {
  * @param {object} state
  * @returns {{ focus: number, edge: number, audio: number, input: number, text: number }}
  */
-export function getPerceptionLevels(state) {
+export function getPerceptionLevels(state, ctx) {
   var san = state.san || 0;
   var loop = state.loopCount || 0;
   var corr = state.safehouseCorruption || 0;
   var mythos = state.mythosLevel || 0;
   var focus = 0, edge = 0, audio = 0, input = 0, text = 0;
-  var stage = _getStage(san, { GD: (typeof window !== 'undefined' && window.GD) || {} });
+  var GD = (ctx && ctx.GD) || {};
+  var stage = _getStage(san, { GD: GD });
   if (stage.level >= 2) { focus++; text++; }
   if (mythos >= 10) { audio++; edge++; }
   if (loop >= 3) { text++; input++; }

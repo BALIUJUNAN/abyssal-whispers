@@ -69,8 +69,8 @@ export function applyUnreliableNarration(text, unrelLevel, san, pollution, rng) 
   return text;
 }
 
-export function applyTextVariantTracking(evtId, text, pollution, loopCount, seenTexts, difficultyLevel) {
-  var result = getTrackedText(evtId, text, pollution || 0, loopCount || 0, seenTexts, difficultyLevel);
+export function applyTextVariantTracking(evtId, text, pollution, loopCount, seenTexts, difficultyLevel, rng) {
+  var result = getTrackedText(evtId, text, pollution || 0, loopCount || 0, seenTexts, difficultyLevel, rng);
   return result.action !== 'skip' ? result.text : text;
 }
 
@@ -108,9 +108,9 @@ export function renderEventText(evt, s, ctx, c) {
   text = applyResourceTextCorruption(text, s, c.rng);
 
   if (!s.seenEventTexts) s.seenEventTexts = {};
-  text = applyTextVariantTracking(evt.id, text, s.pollution || 0, s.loopCount || 0, s.seenEventTexts, s.difficultyLevel);
+  text = applyTextVariantTracking(evt.id, text, s.pollution || 0, s.loopCount || 0, s.seenEventTexts, s.difficultyLevel, c.rng);
 
-  text = applyMythosAliases(text, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx);
+  text = applyMythosAliases(text, s.currentChapter || 'chapter_1', s.mythosLevel || 0, ctx, undefined, c.rng);
   text = applyLevel13RealityDistortion(text, s.difficultyLevel, c.rng);
 
   var isCriticalEvent = evt.tier === 'signature' || evt.tier === 'ending' || evt.once_per_run;
@@ -119,7 +119,7 @@ export function renderEventText(evt, s, ctx, c) {
     maxSeverity: s.difficultyLevel >= 13 ? 6 : 5,
     loopCount: s.loopCount || 0,
     difficultyLevel: s.difficultyLevel,
-  });
+  }, ctx);
 
   return text;
 }

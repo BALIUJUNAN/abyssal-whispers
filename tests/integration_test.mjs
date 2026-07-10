@@ -1,5 +1,10 @@
 import assert from 'assert';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
 
 function makeState(overrides) {
   return Object.assign(
@@ -214,19 +219,19 @@ console.log('\n=== Integration: Full Data Validation ===');
 
 // Load all events
 const files2 = {
-  loop: 'src/data/events_loop.js',
-  humanity: 'src/data/events_humanity.js',
-  mythos: 'src/data/events_mythos.js',
-  resource: 'src/data/events_resource.js',
-  npc_cross: 'src/data/events_npc_cross.js',
-  area_deep: 'src/data/events_area_deep.js',
-  ending: 'src/data/events_ending.js',
-  silent: 'src/data/events_silent.js',
-  meta: 'src/data/events_meta.js',
+  loop: 'src/data/events/events_loop.js',
+  humanity: 'src/data/events/events_humanity.js',
+  mythos: 'src/data/events/events_mythos.js',
+  resource: 'src/data/events/events_resource.js',
+  npc_cross: 'src/data/events/events_npc_cross.js',
+  area_deep: 'src/data/events/events_area_deep.js',
+  ending: 'src/data/events/events_ending.js',
+  silent: 'src/data/events/events_silent.js',
+  meta: 'src/data/events/events_meta.js',
 };
 let allE = [];
 for (const [n, f] of Object.entries(files2)) {
-  let c = fs.readFileSync(f, 'utf8');
+  let c = fs.readFileSync(join(ROOT, f), 'utf8');
   c = c.replace(
     /import\s*\{[^}]*\}\s*from\s*'[^']*';/g,
     "var DESC={WALL_HAND_REMOVE:'',SYMBOLS_RING_DOOR_HERE:'',SYMBOLS_NOT_CARVED:'',DEEP_EXPLORE_WALL_SKIN:''};"
@@ -282,7 +287,7 @@ if (npc.length !== 75) {
 }
 
 // Loop system
-const base2 = JSON.parse(fs.readFileSync('game_base.json', 'utf8'));
+const base2 = JSON.parse(fs.readFileSync(join(ROOT, 'game_base.json'), 'utf8'));
 console.log('  Loop shop: ' + !!base2.systems.loop.loop_shop);
 console.log('  SAN cap loop4: ' + base2.systems.loop.loop_count_effects.loop_4.san_cap_reduction);
 console.log(
@@ -294,7 +299,7 @@ if (base2.systems.loop.loop_count_effects.loop_4.san_cap_reduction !== -13) {
 }
 
 // Endings
-const ch2 = JSON.parse(fs.readFileSync('game_ch2plus.json', 'utf8'));
+const ch2 = JSON.parse(fs.readFileSync(join(ROOT, 'game_ch2plus.json'), 'utf8'));
 console.log('  Endings: ' + (ch2.endings || []).length);
 console.log('  Afterglow endings: ' + (ch2.endings || []).filter((e) => e.afterglow).length);
 if ((ch2.endings || []).filter((e) => e.afterglow).length < 5) {
@@ -303,10 +308,10 @@ if ((ch2.endings || []).filter((e) => e.afterglow).length < 5) {
 }
 
 // Code integration
-const exp = fs.readFileSync('src/reducers/slices/exploreSlice.js', 'utf8');
-const ep = fs.readFileSync('src/systems/explore/explorePipeline.js', 'utf8');
-const trp = fs.readFileSync('src/systems/explore/textRenderingPipeline.js', 'utf8');
-const expConsequence = fs.readFileSync('src/systems/explore/eventConsequenceSystem.js', 'utf8');
+const exp = fs.readFileSync(join(ROOT, 'src/reducers/slices/exploreSlice.js'), 'utf8');
+const ep = fs.readFileSync(join(ROOT, 'src/systems/explore/explorePipeline.js'), 'utf8');
+const trp = fs.readFileSync(join(ROOT, 'src/systems/explore/textRenderingPipeline.js'), 'utf8');
+const expConsequence = fs.readFileSync(join(ROOT, 'src/systems/explore/eventConsequenceSystem.js'), 'utf8');
 const checks = [
   { pattern: 'function applyQualityTier', file: expConsequence },
   { pattern: 'function applyMetaEffect', file: expConsequence },
@@ -319,28 +324,28 @@ for (const c of checks) {
     process.exit(1);
   }
 }
-const lr = fs.readFileSync('src/reducers/loopReducer.js', 'utf8');
+const lr = fs.readFileSync(join(ROOT, 'src/reducers/loopReducer.js'), 'utf8');
 for (const c of ['sanFloor', 'endingCoins', 'loopShopTier', 'npcRelations', '_npcTrustLocked']) {
   if (!lr.includes(c)) {
     console.log('  FATAL: missing in loopReducer: ' + c);
     process.exit(1);
   }
 }
-const nrd = fs.readFileSync('src/reducers/npcReducer.js', 'utf8');
+const nrd = fs.readFileSync(join(ROOT, 'src/reducers/npcReducer.js'), 'utf8');
 for (const c of ['function setNpcRelation', 'function claimNpcLegacy']) {
   if (!nrd.includes(c)) {
     console.log('  FATAL: missing in npcReducer: ' + c);
     process.exit(1);
   }
 }
-const edr = fs.readFileSync('src/reducers/endingReducer.js', 'utf8');
+const edr = fs.readFileSync(join(ROOT, 'src/reducers/endingReducer.js'), 'utf8');
 for (const c of ['function checkAfterglowUnlock', 'function getEndingRecord']) {
   if (!edr.includes(c)) {
     console.log('  FATAL: missing in endingReducer: ' + c);
     process.exit(1);
   }
 }
-const eev = fs.readFileSync('src/reducers/extendedEvents.js', 'utf8');
+const eev = fs.readFileSync(join(ROOT, 'src/reducers/extendedEvents.js'), 'utf8');
 if (!eev.includes('max_meta_per_run')) {
   console.log('  FATAL: missing max_meta_per_run');
   process.exit(1);
@@ -357,7 +362,7 @@ if (!eev.includes('applyMicroHorrorDilution')) {
 }
 
 // P2-1: micro_horror budget category
-const sil = fs.readFileSync('src/data/events_silent.js', 'utf8');
+const sil = fs.readFileSync(join(ROOT, 'src/data/events/events_silent.js'), 'utf8');
 const silFn = new Function('e', sil.replace(/export const (events|EVENTS)/, 'e.events'));
 const silData = {};
 silFn(silData);
@@ -374,7 +379,7 @@ if (traceEcho.length > 0) {
 }
 
 // P2-6: playerTraces.js has hasTriggered import
-const pt = fs.readFileSync('src/systems/playerTraces.js', 'utf8');
+const pt = fs.readFileSync(join(ROOT, 'src/systems/playerTraces.js'), 'utf8');
 if (!pt.includes('hasTriggered')) {
   console.log('  FATAL: playerTraces.js missing hasTriggered import');
   process.exit(1);

@@ -10,7 +10,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_%2B_singlefile-green)
-![Tests](https://img.shields.io/badge/tests-648_passed_%2F_0_failed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-700_passed_%2F_0_failed-brightgreen)
 ![Version](https://img.shields.io/badge/version-0.9.8-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
@@ -49,7 +49,7 @@ npm run dev
 # 从源码构建（需要 Rust + Node.js 环境）
 npm install
 npm run tauri:build
-# 输出：src-tauri/target/release/abyssal-whispers_0.9.7_x64-setup.exe
+# 输出：src-tauri/target/release/abyssal-whispers_0.9.8_x64-setup.exe
 ```
 
 | 平台        | 状态          | 说明                  |
@@ -90,10 +90,10 @@ npm run tauri:build
 | **布局模式**   | 2 种 — 暗黑地牢风格全景地图 / 经典三栏面板                                                                                  |
 | **转场动画**   | **Canvas 程序化转场** — 噪声擦拭 / 墨汁渗透 / 虚空之环 / 故障切片 4 种效果 + 主题音效联动 + 可关闭                          |
 | **AI 叙事增强**| GLM-4.7 Flash — 9 个场景动态生成，离线优先                                                                   |
-| **代码规模**   | 60,282 行 JS/JSX — 120+ 个源文件                                                                                           |
-| **数据校验**   | Zod Schema 855条数据全量校验                                                                                                 |
+| **代码规模**   | ~54,000 行 JS/JSX — 120+ 个源文件（app.jsx 瘦身至 200 行 thin orchestrator）                                                                                          |
+| **数据校验**   | Zod Schema 855条数据全量校验 + SaveManager 安全扫描（scanSaveSecurity / sanitizeSaveState）                                                                           |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
-| **测试覆盖**   | 15 个套件 648 项（完整流程 48 + 事件 lint 100 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + slice handler 单元测试 40 + 其他 86），拼接/Vite 双构建验证                                                          |
+| **测试覆盖**   | 16 个套件 ~700 项（完整流程 48 + 存档安全 + 事件 lint 100 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + slice handler 单元测试 40 + 其他），拼接/Vite 双构建验证                                                          |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -349,6 +349,12 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **UGC 模组**              | 支持导入自定义事件 JSON + 可视化事件编辑器（Schema 校验 + 实时预览）；Mod 可扩展 5 种实体类型（事件/NPC/物品/区域/结局），自动 ID 冲突前缀 + Dev Mode 热重载                                                              |
 | **ErrorBoundary**         | 渲染崩溃时显示错误报告（含最近30步操作回放），一键复制/重新加载                                     |
 | **Error Tracker**         | 测试期玩家操作追踪模块（可插拔，一行删除即可移除）                                                  |
+| **SaveManager 安全加固**  | ADR-010: 加载存档时深度扫描（__proto__/构造器污染/脚本注入），sanitizeSaveState 白名单清洗（仅允许已知字段），CONTINUE_GAME 仅复制白名单键值对，防止恶意存档数据污染运行时状态 |
+| **ctx.GD 全局变量治理**   | 消除模块级 `window.GD` / `GD` 全局引用：sanityVisual / getVisualForSan / getPerceptionLevels / applyMythosAliases / applyTextFragmentation 全部改为 `ctx.GD` 参数传递，selectors 通过 `state._GD` 订阅，sanReducer 通过 `useGameStore.getState()._GD` 获取 |
+| **bootstrap.js 初始化**   | 单次模块级启动引导（configureSaveManager / enforceSaveFormatFreeze / setDispatch / initExtendedEvents / errorTracker），app.jsx 只 import 一次，不再内联 50+ 行初始化代码 |
+| **useGameData hook**      | 从 app.jsx 提取的游戏状态聚合 hook，granular selectors + useMemo 构建 game 对象，所有消费者（Prologue/CharCreation/Ending/DevPanel/Shop）统一入口 |
+| **useUiState hook**       | 从 app.jsx 提取的 UI 状态聚合 hook，granular uiStore subscriptions + useMemo 构建 ui 对象，reference stability 保证模态框开关不触发无关重渲染 |
+| **GameModals 编排器**     | 从 app.jsx 提取的全局弹窗编排组件（Settings/SaveLoad/Achievement/Notebook/Shop/UGC/Toast/轻提示），app.jsx 不再内联 60+ 行弹窗 JSX |
 | **DevPanel**              | 开发者调试面板（~ / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                           |
 | **AI 叙事增强**           | GLM-4.7 Flash — 9 场景动态生成，离线优先，API 失败自动回退                                          |
 | **SAN mutation 静态检查** | `npm run lint:san` — 扫描全部 reducer，禁止直接 `s.san = clamp(san-...)`，白名单除外                 |
@@ -476,7 +482,7 @@ React 18 + Zustand + Immer middleware + combineSlices 声明式切片
   → src/state/combineSlices.js — createSlice 工厂 + rootReducer 组合器，before/after 三阶段执行
   → 8 个 domain slice（core/explore/npc/daily/dark/ui + systemSlice cross-cutting）— 薄调度层，逻辑委托 src/systems/{explore,npc,daily}/
   → 引擎层 (src/engine/) — 纯 JavaScript，独立 npm 包，零游戏导入，DI 注入
-  │    EventEngine / WorldTimeSystem / SaveManager / PollutionManager
+  │    EventEngine / WorldTimeSystem / SaveManager（含安全扫描）/ PollutionManager
   │    commands.js (类型化 effect 工厂) / eventBus.js (跨 Slice 通信)
   │    EventEngine Section 9: Day-of-Cycle 权重(关键日期超自然×1.8/日常×0.4)
   → 运行时层 (src/runtime/) — post-reducer 副作用执行器（类型分发 + 去重 + effects buffer）
@@ -484,6 +490,8 @@ React 18 + Zustand + Immer middleware + combineSlices 声明式切片
   │    GLM-4.7 Flash — 9 场景动态生成，离线优先，UI层异步，Reducer零侵入
   → NPC对话深化 (systems/npcDialogue.js) — 日期里程碑/天气反应/SAN观察三层扩展
   → 难度系统 (state/difficultyState.js + config/difficulty.js) — 13级梯度 + 模组Hooks
+  → 存档安全（ADR-010）— scanSaveSecurity 深度扫描 + sanitizeSaveState 白名单清洗，防止恶意存档污染
+  → ctx.GD 全局变量治理（ADR-017）— 消除 window.GD / 模块级 GD，改为 ctx.GD 显式传参 + state._GD 订阅
   → JSON 配置驱动 + Zod Schema 校验（855条数据全量 + difficulty_modifiers校验）
   → 章节硬限（Chapter 1 事件池过滤 + AP压限 + Day 3强制过渡）
   → Vite 主线构建（ESM + code-split + 587字节HTML）→ dist/
@@ -510,6 +518,7 @@ COC/
 │   │   ├── difficultyState.js     # 难度 applyDifficultyToState（~60 行）
 │   │   └── transientKeys.js       # 临时状态键定义（23 行）
 │   │
+│   ├── bootstrap.js             # 模块级启动引导（~50 行）— configureSaveManager / format freeze / dispatch wiring / errorTracker
 │   ├── components/           # 16 个 UI 组件（2,895 行）
 │   │   ├── ui/DevPanel.jsx         # 开发者调试面板（79 行，~ 打开）
 │   │   │
@@ -576,8 +585,8 @@ COC/
 │   │   ├── objectiveReducer.js     # 任务目标（102 行）
 │   │   └── utils.js                # reducer 共用工具函数（50 行）
 │   │
-│   ├── hooks/                # 13 个自定义 hooks（250 行）— 从 app.jsx 提取的 useEffect 逻辑
-│   │   ├── index.js              # barrel export
+│   ├── hooks/                # 17 个自定义 hooks（~400 行）— 从 app.jsx 提取的 useEffect 逻辑 + 状态聚合
+│   │   ├── index.js              # barrel export（13 个生命周期 hooks + useGameData + useDispatchWrapper + useUiState）
 │   │   ├── useSeedStore.js       # Zustand store 初始化 + loading 层移除
 │   │   ├── useMigrateOldSaves.js # 旧存档格式迁移
 │   │   ├── useAudioSettingsInit.js # 音频设置同步
@@ -590,23 +599,10 @@ COC/
 │   │   ├── useAchievementCheck.js # 成就检测 + toast
 │   │   ├── useSanLossHint.js     # 第一次掉 SAN 轻提示
 │   │   ├── useBootHint.js        # 前传结束轻提示
-│   │   └── useLevel13Glitch.js   # 十三钟响脉冲
-│   │
-│   ├── hooks/                # 13 个自定义 hooks（250 行）— 从 app.jsx 提取的 useEffect 逻辑
-│   │   ├── index.js              # barrel export
-│   │   ├── useSeedStore.js       # Zustand store 初始化 + loading 层移除
-│   │   ├── useMigrateOldSaves.js # 旧存档格式迁移
-│   │   ├── useAudioSettingsInit.js # 音频设置同步
-│   │   ├── useAudioAutoplayUnlock.js # 浏览器音频解锁
-│   │   ├── useReducedMotion.js   # reduced-motion 属性同步
-│   │   ├── useNotebookTutorialSync.js # 笔记本引导同步
-│   │   ├── usePageZoom.js        # 页面缩放控制
-│   │   ├── useEndingCgPreload.js # 结局 CG 预加载
-│   │   ├── useChapterLazyLoad.js # 章节数据懒加载
-│   │   ├── useAchievementCheck.js # 成就检测 + toast
-│   │   ├── useSanLossHint.js     # 第一次掉 SAN 轻提示
-│   │   ├── useBootHint.js        # 前传结束轻提示
-│   │   └── useLevel13Glitch.js   # 十三钟响脉冲
+│   │   ├── useLevel13Glitch.js   # 十三钟响脉冲
+│   │   ├── useGameData.js        # 游戏状态聚合（granular selectors + useMemo）
+│   │   ├── useDispatchWrapper.js # dispatch 稳定性包装
+│   │   └── useUiState.js         # UI 状态聚合（granular uiStore subscriptions + useMemo）
 │   │
 │   ├── systems/              # 22 个游戏系统（~4,800 行）
 │   │   ├── sanityVisual.js         # SAN 视觉呈现系统（290 行）— 颜色/文本腐蚀/CSS类/Canvas参数
@@ -682,6 +678,7 @@ COC/
 │   │   ├── ugcSchema.js            # UGC 模组 JSON Schema + 扩展实体验证（~950 行）
 │   │   │
 │   │   │   ── 核心 JSON 数据（支持懒加载） ──
+│   │   ├── gameData.js             # mutable GD holder（过渡桥接，模块级 GD 访问）— 新代码优先用 ctx.GD / state._GD
 │   │   ├── game_base/              # 主游戏数据目录（拆分为 6 领域文件 + 聚合 index.js）
 │   │   │   ├── index.js           # 聚合导出（向后兼容，替代原 game_base.json import）
 │   │   │   ├── design_intent.json # 设计意图、文本风格（910 行）
@@ -731,7 +728,7 @@ COC/
 │   │   └── ...
 │
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 15 个测试套件（648 tests）
+├── tests/                    # 16 个测试套件（700+ tests）
 │   ├── test_effect_protocol.cjs       # 效果协议测试（19 tests）
 │   ├── test_game_data_protocol.cjs    # 游戏数据协议测试（10 tests）
 │  ├── test_event_system.cjs          # 事件系统测试（19 tests）
@@ -801,10 +798,14 @@ COC/
 | ---------------------- | ------------------------ | ------- | ----------------------------------- | ------------------------------------------------------ |
 | **EventEngine**        | `engine/`                | 465+    | 三层加权 + Day-of-Cycle权重 + 扭曲模板注入 | behavior画像/冷却衰减/缓冲执行/恐惧权重/关键日期超自然×1.8 + injectDistortionTemplates DI模板注入 |
 | **PollutionManager**   | `engine/`                | 161     | SAN+逻辑+视觉污染                   | 文本幻觉/虚假消息/虚假记忆/权重腐蚀 + 确定性RNG        |
-| **SaveManager**        | `engine/`                | ~230    | 存档系统+版本迁移                   | 6槽位/字段过滤/旧格式兼容/JSON导入导出                    |
+| **SaveManager**        | `engine/`                | ~600   | 存档系统+版本迁移+安全加固            | 6槽位/字段过滤/旧格式兼容/JSON导入导出 + scanSaveSecurity深度扫描 + sanitizeSaveState白名单清洗（ADR-010） |
 | **useGameStore**       | `state/`                 | 143    | Zustand + Immer 桥接层   | dispatch → rootReducer → patch draft → flushEffects |
 | **gameStore**          | `state/`                 | 14     | 旧 Zustand 兼容 facade  | 委托 useGameStore.js                                       |
-| **useUiStore**         | `state/`                 | 89     | UI状态管理               | 模态框/Toast/设置/地图模式/热点状态                        |
+| **bootstrap**          | `bootstrap.js`           | ~50    | 模块级启动引导           | configureSaveManager / format freeze / setDispatch / initExtendedEvents / errorTracker |
+| **useGameData**        | `hooks/`                 | ~102   | 游戏状态聚合 hook        | granular selectors + useMemo，统一 game 对象入口（13 个 selector + 15 个 store 订阅） |
+| **useDispatchWrapper**  | `hooks/`                 | ~30    | dispatch 稳定性包装      | 防止组件重渲染时 dispatch 引用丢失 |
+| **useUiState**         | `hooks/`                 | ~45    | UI 状态聚合 hook         | granular uiStore subscriptions + useMemo，reference stability |
+| **app.jsx**            | `app.jsx`                | 200    | Thin orchestrator        | bootstrap import + hooks compose + screen routing + modals，原 678 行瘦身 70% |
 | **WorldTimeSystem**    | `engine/`                | 97     | 世界状态/封印/天气       | 5阶段封印状态机/区域名称扭曲/安全屋退化 + 确定性RNG       |
 | **effectExecutor**     | `runtime/`               | ~107    | post-reducer 副作用      | EFFECT_HANDLERS 类型分发 / \_fxId 去重 + flushEffectsBuffer |
 | **SAN SSOT**           | `state/` + JSON          | —       | 统一SAN阶段配置          | `getCurrentSanStage()` 全局查询，6阶段×4维度，零硬编码    |
@@ -813,7 +814,6 @@ COC/
 | **InteractiveTownMap** | `components/`            | 339     | 全景城镇地图             | 暗黑地牢风格/9热点/hover光晕/污染变体背景                 |
 | **FloatingInfoBar**    | `components/`            | 140     | 浮动 HUD                 | 位置/时间/SAN/HP/AP/封印/天气全状态                       |
 | **AreaPanelModal**     | `components/`            | 303     | 热点功能面板             | 行动/NPC对话/区域信息三标签页                             |
-| **useUiStore**         | `state/`                 | 89      | UI状态管理                          | 模态框/Toast/设置/地图模式/热点状态                    |
 | **DevPanel**           | `components/ui/`         | 79      | 开发者调试面板                      | ~打开，4标签页：状态+事件池/工具/权重/性能             |
 | **死亡系统**           | `reducers/`              | 383     | 16种死亡×四段叙事                   | 标题→临终→世界处理→残留提示                            |
 | **死亡总结**           | `systems/`               | 300     | 4段叙事死亡总结                     | 死因叙事/发现/世界变化/新目标，不暴露机制               |
@@ -851,18 +851,23 @@ game_base.json  →  san_stages[6]  →  visual / interaction / logic / meta 四
        ▼
 getCurrentSanStage(san, ctx)  ← 定义在 utils.js（bundle 最先加载）
        │
-       ├── sanReducer.js       → getSanStage() 用 stage.level 判断文本变体
+       ├── sanReducer.js       → getSanStage() / getSanStageFromGD() 用 stage.level 判断文本变体（_GD 从 useGameStore 读取）
        ├── PollutionManager.js → 文本幻觉/虚假消息/虚假记忆/权重腐蚀
        ├── EventEngine.js      → getSanWeightMultiplier（6阶段阈值）
        ├── SanPollutionLayer.jsx
-       │     ├── getVisualForSan(san) → 阶段插值 → Canvas 渲染
+       │     ├── getVisualForSan(san, ctx) → 阶段插值 → Canvas 渲染（ctx.GD 替代全局 GD）
        │     ├── san-stage-N CSS类    → hue-rotate/tremble/glow/flicker 动画
        │     ├── CorruptibleChoice    → 阶段感知 Hover 延迟 + 渐进文字腐化
        │     └── AbyssPopup           → Meta 消息弹出（60-120s / 30-60s）
-       └── app.jsx             → 游戏路由 + hooks 编排 + 子组件 props 分发（438 行，原 678 行）
+       └── app.jsx             → thin orchestrator（200 行）— bootstrap + hooks compose + screen routing + modals
 ```
 
 修改 JSON 中的 `san_stages` 范围或效果参数，所有系统自动跟随。无硬编码阈值。
+
+**ctx.GD 全局变量治理**（ADR-017）：
+- 旧方式：`window.GD` 或模块级 `GD` 全局引用（污染管线/selectors/reducer 均依赖隐式全局）
+- 新方式：`ctx.GD` 显式传参（sanityVisual / getVisualForSan / getPerceptionLevels / applyMythosAliases / applyTextFragmentation）+ `state._GD` 组件层订阅 + `useGameStore.getState()._GD` reducer 工具层读取
+- 好处：消除隐式依赖，组件/selector/reducer 可在无全局 GD 环境独立测试
 
 ### 数据驱动设计
 
@@ -1038,12 +1043,11 @@ UGC 模组有严格的安全限制：
 
 **快速测试命令**：
 ```bash
-npm test                  # 全量测试（536 tests / 12 suites）
+npm test                  # 全量测试（700 tests / 16 suites）
 npm run lint:schema       # 数据 Schema 校验
 npm run lint:engine       # 引擎边界检查
 npm run mod:validate      # Mod 格式校验
 npm run build             # Vite 生产构建
-npm run build:single      # Legacy 单文件构建
 ```
 
 ---
@@ -1117,7 +1121,7 @@ npm run build:single      # Legacy 单文件构建
 | **决策** | `src/engine/` 独立为纯 JavaScript ESM 模块，零游戏导入，依赖通过 DI 注入 |
 | **理由** | EventEngine / WorldTimeSystem / SaveManager / PollutionManager 可在无 React 环境运行（模拟器、测试）。TypeScript 文件（.ts）因孤立死代码于 v0.9.8 移除 |
 | **后果** | 引擎层不引用任何 `src/reducers/` 或 `src/components/`；`npm run lint:engine` 自动检查边界 |
-| **相关** | mistake.txt #19（ milestone 死代码 — 未注入 GD）、ADR-029（JS-only 引擎）、ADR-030（CJS 保留策略） |
+| **相关** | mistake.txt #19（ milestone 死代码 — 未注入 GD）、ADR-029（JS-only 引擎）、ADR-030（CJS 保留策略）、ADR-010（SaveManager 安全扫描） |
 
 ### ADR-007: Post-Reducer 副作用执行器
 
@@ -1151,6 +1155,28 @@ npm run build:single      # Legacy 单文件构建
 | **理由** | 消除 ESM + 拼接构建双重作用域下的变量遮蔽风险；未来新增事件文件只需遵循命名约定 |
 | **后果** | 所有导入方（`extended_events_index.js`、测试文件）已同步更新 |
 | **相关** | mistake.txt #36（同名 export 变量遮蔽函数声明） |
+
+### ADR-010: 存档安全扫描（SaveManager Security Scan）
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳（v0.9.8） |
+| **背景** | 存档数据通过 `JSON.parse` 直接进入运行时状态，恶意存档可通过 `__proto__` 污染、构造函数注入、脚本注入等方式攻击 |
+| **决策** | `loadFromSlot` 加载后执行 `scanSaveSecurity()` 深度扫描（危险键模式/危险值正则/深度上限/数组长度上限）；`sanitizeSaveState()` 白名单清洗仅允许已知字段；`CONTINUE_GAME` handler 仅复制 `SAVE_FORMAT_SPEC.requiredStateKeys` + 显式扩展键 |
+| **理由** | 安全扫描非阻塞（警告但允许加载旧存档），新存档写入时自动清洗；白名单复制防止恶意字段通过 CONTINUE_GAME 进入运行时 |
+| **后果** | `SAVE_FORMAT_SPEC` 扩展 `requiredStateKeys` 白名单；`scanSaveSecurity` 递归深度上限 10 层，数组上限 500 元素 |
+| **相关** | `src/engine/SaveManager.js`、`src/reducers/slices/loopSlice.js` |
+
+### ADR-017: ctx.GD 全局变量治理
+
+| 字段 | 内容 |
+|------|------|
+| **状态** | 已采纳（v0.9.8） |
+| **背景** | 大量系统文件通过 `window.GD` 或模块级 `GD` 全局引用读取游戏数据，隐式依赖导致测试困难、重构风险高 |
+| **决策** | 分三层治理：①函数层通过 `ctx.GD` 显式传参（sanityVisual/getVisualForSan/getPerceptionLevels/applyMythosAliases/applyTextFragmentation）；②组件层通过 `state._GD` Zustand 订阅；③reducer 工具层通过 `useGameStore.getState()._GD` 读取 |
+| **理由** | 消除隐式全局依赖，使每个模块可在无全局 GD 环境下独立测试；`state._GD` 作为 Zustand state 的一部分天然支持细粒度订阅 |
+| **后果** | 新代码必须通过 ctx.GD / state._GD / useGameStore.getState()._GD 之一获取 GD；禁止新增 `window.GD` 引用 |
+| **相关** | `src/state/gameData.js`（mutable GD holder，仅作为过渡桥接） |
 
 ---
 
@@ -1192,7 +1218,8 @@ npm run tauri:build      # 桌面版构建（需要 Rust）
 # ── 验证 ──────────────────────────────────────────────
 
 npm run verify           # 完整验证（测试 + Vite 构建）
-npm test                 # 全部测试（536 tests / 12 suites）
+npm test                 # 全部测试（700 tests / 16 suites）
+npm run test:save:security # 存档安全测试（ADR-010: scanSaveSecurity / quarantineSave / 白名单复制）
 npm run format:check     # 代码格式检查（Prettier）
 
 # ── 轮回系统测试 ─────────────────────────────────────
@@ -1266,7 +1293,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 维度                 | 评分       | 状态                                                                                           |
 | -------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
-| **主循环 & Reducer** | **9.5/10** | ✅ 6 legacy slice + systemSlice before/after hooks + combineSlices 组合器 + Zustand+Immer 桥接层 |
+| **主循环 & Reducer** | **9.5/10** | ✅ 6 legacy slice + systemSlice before/after hooks + combineSlices 组合器 + Zustand+Immer 桥接层 + ctx.GD 全局变量治理 |
 | **事件系统**         | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents，629 事件 + 102 结局 + has_flag 软连锁       |
 | **SAN 系统**         | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现                  |
 | **子系统**           | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk                          |
@@ -1318,7 +1345,11 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 - ✅ **封印知识持久化** — `initLoopState` 追踪封印仪式参与(Hilda/Fisher/Isabella)，跨轮解锁特殊对话和事件
 - ✅ **文本重复控制** — `getTrackedText` 4 层分级，`seenEventTexts` 跨轮持久化（loopReducer 搬入）
 - ✅ **体验链测试** — `test_player_experience_loop.cjs` 25 个测试覆盖完整玩家旅程：引导→NPC→SAN→死亡→总结→轮回→差异
-- ✅ **结局可达性测试** — `test_ending_reachability.cjs` 验证 10-15 轮内普通玩家可达多个结局方向
+- ✅ **存档安全测试** — `test_save_security.mjs` 验证 scanSaveSecurity（危险键/值/深度/数组长度）+ quarantineSave + CONTINUE_GAME 白名单复制
+- ✅ **ctx.GD 全局变量治理** — `sanityVisual.js` / `getVisualForSan` / `getPerceptionLevels` / `applyMythosAliases` / `applyTextFragmentation` 全部改为 `ctx.GD` 参数传递，消除隐式全局依赖
+- ✅ **bootstrap.js 启动引导** — 单次模块级初始化（configureSaveManager / format freeze / setDispatch / initExtendedEvents / errorTracker），app.jsx 不再内联 50+ 行启动代码
+- ✅ **useGameData / useUiState 聚合 hook** — granular selectors + useMemo，reference stability，所有消费者统一入口
+- ✅ **GameModals 编排器** — 从 app.jsx 提取的全局弹窗编排组件（Settings/SaveLoad/Achievement/Notebook/Shop/UGC/Toast/轻提示）
 
 ---
 
@@ -1327,7 +1358,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **0.9.7** | 2026-07-02 | **工程质量升级：build.py 退役 + ESM 清算 + 内容质量验证** — ①删除 `build.py` 和 `build-web.cjs`，Vite + vite-plugin-singlefile 为唯一构建系统，消除双注册/构建顺序依赖债务；②`.cjs` 校验工具从 `src/data/validators/` 迁移至 `scripts/validators/`，与 ESM 游戏数据目录彻底分离；③`src/` 目录全部 `.cjs` 残留清零，ESM import 完全接管；④Zod 数据验证接入 main.jsx bootstrap，malformed 数据不再静默失败；⑤`s.clues` 混合类型归一化，10 个 push 点统一为 `{id, name}` 对象格式，消除 `[object Object]` 显示 bug；⑥`.gitattributes` 引入 + `git add --renormalize`，CRLF 编码警告全部消除；⑦`tests/test_effect_protocol.cjs` Test 17 从 build order 校验迁移为 ESM import 存在性验证；⑧`loop_contradiction_001` 叙事文本重写（75→99分），消除唯一 B 级事件；⑨全量测试 608 passed / 0 failed / 14 suites |
-| **0.9.8** | 2026-07-07 | **架构重构：useEffect 拆分 + 全局变量治理 + 事件数据归拢 + E2E 测试** — ①app.jsx 从 678 行瘦身至 438 行（-35%）：13 个 useEffect 块拆分为 `src/hooks/` 下 13 个自定义 hooks（useSeedStore/useMigrateOldSaves/useAudioSettingsInit/useAudioAutoplayUnlock/useReducedMotion/useNotebookTutorialSync/usePageZoom/useEndingCgPreload/useChapterLazyLoad/useAchievementCheck/useSanLossHint/useBootHint/useLevel13Glitch），每个职责独立可测试；②模块级变量治理：删除 `const ctx = { GD }`（替换为内联 `{ GD }`），`_currentFearTuning` 迁移到 Zustand store（`state.fearTuning`），GD 保留模块级并添加 ADR-018 合规注释；③`useAppGameData()` 移除（死代码，零组件消费），App 改用 granular selectors + useMemo 构建 game 对象；④事件数据归拢：18 个 `events_*.js` 从 `src/data/` 移入 `src/data/events/`，统一路径，更新 9 个文件的导入；⑤Playwright E2E 骨架：4 个测试文件（game-startup/first-san-loss/settings-persistence/save-load/explore-actions），自动启动 dev server；⑥清理 71 个未使用导入；全量测试 48/48 passed，Vite build 1.26s |
+| **0.9.8** | 2026-07-07 | **架构重构：useEffect 拆分 + 全局变量治理 + 事件数据归拢 + E2E 测试 + 存档安全加固** — ①app.jsx 从 678 行瘦身至 200 行（-70%）：13 个 useEffect 块拆分为 `src/hooks/` 下 13 个自定义 hooks（useSeedStore/useMigrateOldSaves/useAudioSettingsInit/useAudioAutoplayUnlock/useReducedMotion/useNotebookTutorialSync/usePageZoom/useEndingCgPreload/useChapterLazyLoad/useAchievementCheck/useSanLossHint/useBootHint/useLevel13Glitch），3 个状态聚合 hook（useGameData/useDispatchWrapper/useUiState），`bootstrap.js` 提取模块级启动引导；②全局变量治理：`window.GD` 和模块级 `GD` 全局引用消除，`sanityVisual.js` / `getVisualForSan` / `getPerceptionLevels` / `applyMythosAliases` / `applyTextFragmentation` 全部改为 `ctx.GD` 参数传递，`selectors.js` 通过 `state._GD` 订阅，`sanReducer.js` 通过 `useGameStore.getState()._GD` 读取；③`useAppGameData()` 移除（死代码，零组件消费），App 改用 `useGameData()` + `useUiState()` 聚合 hook；④事件数据归拢：18 个 `events_*.js` 从 `src/data/` 移入 `src/data/events/`，统一路径，更新 9 个文件的导入 + integration_test 路径；⑤Playwright E2E 骨架：4 个测试文件（game-startup/first-san-loss/settings-persistence/save-load/explore-actions），自动启动 dev server；⑥SaveManager 安全加固（ADR-010）：`scanSaveSecurity()` 深度扫描存档 JSON（危险键模式/危险值正则/深度上限 10/数组长度上限 500），`sanitizeSaveState()` 白名单清洗（仅允许 `SAVE_FORMAT_SPEC.requiredStateKeys` + 显式扩展键），`CONTINUE_GAME` handler 白名单复制（loopSlice.js），防止恶意存档数据通过 `__proto__` / 构造器污染 / 脚本注入攻击运行时；⑦loopSlice.js 清理 71 个未使用导入；全量测试通过，Vite build 1.26s |
 | **0.9.6** | 2026-06-30 | **Zustand 5 迁移修复 + 每日流程领域拆分** — ①dailySlice 按领域拆分为 7 个独立系统文件（foodSystem/safehouseSystem/restRecovery/dayAdvance/dayCritical/nightEffects/dayOpen），从 594 行瘦身至 108 行纯调度层；②修复 Zustand 5.0.14 不支持 equalityFn 导致所有返回对象的 selector 触发无限重渲染（Maximum update depth exceeded），全部改用 useMemo 缓存；③修复 `buildSliceCtx` 缺失 `view` 属性导致区域场景图永远显示默认变体；④修复 Immer autoFreeze 冻结 GD 导致 `initExtendedEvents` 报错；⑤修复 `uiStore.settings: null` 导致渲染阶段 `set()` 调用；⑥`main.jsx` 静态 JSON import 替代 fetch()；⑦`seedGameStore` 移至 React 渲染前执行；⑧所有 selector 函数提取为模块级常量（稳定引用）；⑨`ScreenTransition` 修复 children 缓存导致同屏更新失效；⑩关闭 Immer autoFreeze 避免开发模式冻结问题；⑪mistake.txt 新增条目 #46（Zustand 5 equalityFn 缺失） |
 | **0.9.5** | 2026-06-22 | **扭曲文本模板化 + 文学参照文档化** — ①`distortionTemplates.js` 新建 6 个共享模板（good_return / bad_consequence / trial_early / trial_late / collective / special_trade）+ `DISTORTION_TEMPLATE_MAP` 查找表；②`events_humanity.js` 移除 23 块模板级重复文本（-107 行），添加 23 个 `distortion_template` 字段（+46 行），净省 62 行；③`EventEngine.js` 新增 `injectDistortionTemplates(GD)` 运行时注入器，事件本地含 `corruption_high`/`san_mid` 等独特键时保留本地 variants，其余按 `distortion_template` 字段或 `subtype` 名自动注入；④`extendedEventsInit.js` 注册 injector 调用；⑤文学参照补录：`DESIGN_REFACTOR_NOTES.md` 新增 Lovecraft/Baudelaire/Murakami/Borges/Houellebecq 五作者对照表 + 恐惧结局特殊文本策略说明；⑥`game_base.json` `text_style` 新增 `literary_references` 字段；⑦`mistake.txt` 条目 #44「隐性设计意图未记录」；⑧构建验证：Vite ESM 1.32s + 全测试 48/48 + lint:narrative 27S/20A/3B |
 | **0.9.4** | 2026-06-22 | **Phase 2 体系化升级** — ①轻量事件依赖机制：引擎级 `has_flag`/`add_flag` 软连锁，5 条前置事件 + 5 条回声事件，零 reducer 改造；②玩家痕迹系统扩展：3 试点→9 条痕迹（+森林低语/酒馆硬币/墓穴符号/灯塔信号/庄园日记/森林祭品），跨轮回区域描述自动追加；③NPC 语言指纹规范沉淀：`event_authoring.md` 8 位 NPC 完整指纹（句式/语气/意象/信任递进/轮回记忆/死亡回响/SAN 退化/禁用词）；④测试与平衡体系补全：`balanceSimulator.js` 轻量蒙特卡洛模拟器（13 级难度/恐惧画像/graduated protection/封印状态）+ `test_balance_system.mjs` 96 项平衡测试（10 维度：配置完整性/单调性/保护倍率/graduated protection/恐惧画像/难度梯度/消耗速率/封印递增/可复现性/输出结构）；⑤微恐怖触发率测试：19 个 micro_horror 事件数据完整性验证（weight/probability/once_per_run）；⑥NPC 台词覆盖率测试：8 位 NPC 三级优先级（low/mid/high）全覆盖，memory line 关键词验证；⑦全量回归 536 passed / 0 failed / 12 suites |

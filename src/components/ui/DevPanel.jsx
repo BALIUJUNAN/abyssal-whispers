@@ -204,7 +204,7 @@ export var DevPanel = memo(function DevPanel(props) {
           R('Events today', Object.values(state.categoryCountsToday || {}).reduce(function (a, b) { return a + b; }, 0)),
           (function () {
             try {
-              var _gd = (typeof GD !== 'undefined' && GD) || (typeof window !== 'undefined' && window.GD) || {};
+              var _gd = state._GD || {};
               var _total = (_gd.events || []).length;
               var _ext = _gd._extendedEventCount || 0;
               var _base = _gd._baseEventCount || 20;
@@ -296,7 +296,7 @@ export var DevEventExplorer = memo(function DevEventExplorer(props) {
     var fn = typeof explainEventSelection === 'function' ? explainEventSelection : null;
     if (!fn) return;
     try {
-      var ctx = { GD: (typeof GD !== 'undefined' && GD) || (window.GD) || {} };
+      var ctx = { GD: state._GD || {} };
       var result = fn(state.currentArea, state, ctx);
       setReport(result);
     } catch (e) {

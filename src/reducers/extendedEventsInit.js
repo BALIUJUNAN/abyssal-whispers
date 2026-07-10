@@ -104,7 +104,7 @@ export function initExtendedEvents(GD) {
 
   // Inject chapter milestones and forced narrative hooks into GD
   // so checkChapterMilestone() and checkForcedNarrativeHook() can find them
-  // via window.GD._milestones / window.GD._hooks fallback.
+  // on the shared GD object (gameData.js).
   GD._milestones = CHAPTER_MILESTONES;
   GD._hooks = FORCED_NARRATIVE_HOOKS;
 

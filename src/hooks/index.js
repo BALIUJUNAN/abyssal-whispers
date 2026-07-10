@@ -13,3 +13,6 @@ export { useAchievementCheck } from './useAchievementCheck.js';
 export { useSanLossHint } from './useSanLossHint.js';
 export { useBootHint } from './useBootHint.js';
 export { useLevel13Glitch } from './useLevel13Glitch.js';
+export { useGameData } from './useGameData.js';
+export { useDispatchWrapper } from './useDispatchWrapper.js';
+export { useUiState } from './useUiState.js';

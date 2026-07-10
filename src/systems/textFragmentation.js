@@ -178,7 +178,7 @@ var FRAGMENTATION_TIERS = [
  * @param {number} [opts.difficultyLevel=1] - difficulty level modifier
  * @returns {string} fragmented text
  */
-export function applyTextFragmentation(text, san, rng, opts) {
+export function applyTextFragmentation(text, san, rng, opts, ctx) {
   if (!text || typeof text !== 'string') return text;
   if (text.length < 10) return text; // too short to fragment meaningfully
 
@@ -190,10 +190,8 @@ export function applyTextFragmentation(text, san, rng, opts) {
   var difficultyLevel = options.difficultyLevel || 1;
 
   // Get SAN stage
-  var gd = (typeof window !== 'undefined' && window.GD)
-    || (typeof global !== 'undefined' && global.GD)
-    || {};
-  var stage = getCurrentSanStage(san, { GD: gd });
+  var GD = (ctx && ctx.GD) || {};
+  var stage = getCurrentSanStage(san, { GD: GD });
   var level = stage.level || 0;
 
   // Clamp level
@@ -291,11 +289,9 @@ function boostTier(tier, multiplier) {
  * @param {number} san - current SAN
  * @returns {{ level: number, name: string, shouldFragment: boolean, severity: string }}
  */
-export function getFragmentationState(san) {
-  var gd = (typeof window !== 'undefined' && window.GD)
-    || (typeof global !== 'undefined' && global.GD)
-    || {};
-  var stage = getCurrentSanStage(san, { GD: gd });
+export function getFragmentationState(san, ctx) {
+  var GD = (ctx && ctx.GD) || {};
+  var stage = getCurrentSanStage(san, { GD: GD });
   var level = stage.level || 0;
   var tier = FRAGMENTATION_TIERS.filter(function (t) {
     return level >= t.minLevel && level <= t.maxLevel;

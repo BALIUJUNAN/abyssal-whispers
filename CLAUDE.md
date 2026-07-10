@@ -36,7 +36,7 @@ const text = getMotifFlavorText('fog', s.safehouseCorruption, ctx, c.rng);
 ## 构建验证
 
 - 重构后检查产物是否残留未编译 JSX（搜索 `return\s*\(\s*<[a-zA-Z]`）
-- 新增文件后运行 `python scripts/check_build_imports.py`
+- `npm run build` 已覆盖 ESM import 解析验证（Vite 构建在缺失 import 时直接报错），无需单独运行 `check_build_imports.py`
 - 修改后运行 `npm run build` 确认 Vite ESM 构建成功
 - 运行 `node tests/test_full_flow.mjs` 确认完整流程测试通过
 - **事件迭代后**：运行 `npm run lint:narrative` 抽检叙事质量（随机 50 条，按风格指南打分），确保禁用词为零、平均分不低于 60

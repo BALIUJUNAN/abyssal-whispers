@@ -27,14 +27,14 @@ import { getShopDef, isShopItemUnlocked } from './ShopModal.jsx';
 export const LeftPanel = memo(function LeftPanel({ state }) {
   const seal = useMemo(
     () =>
-      (GD.world?.seal_state_machine || []).find((s) => s.id === state.sealState) ||
-      (GD.module8_time_schedule?.seal_state_machine?.states || []).find(
+      (state._GD?.world?.seal_state_machine || []).find((s) => s.id === state.sealState) ||
+      (state._GD?.module8_time_schedule?.seal_state_machine?.states || []).find(
         (s) => s.id === state.sealState
       ),
     [state.sealState]
   );
   const shStage = useMemo(
-    () => getSafehouseStage(state.safehouseCorruption, { GD }),
+    () => getSafehouseStage(state.safehouseCorruption, { GD: state._GD }),
     [state.safehouseCorruption]
   );
   // 快捷键 I：滚动到随身物件
@@ -49,7 +49,7 @@ export const LeftPanel = memo(function LeftPanel({ state }) {
   const altSanRestore = useMemo(() => {
     if (state.currentSafehouse === 'main') return 0;
     return (
-      (GD.systems?.safehouse?.relocation_rules?.alternative_safehouses || []).find(
+      (state._GD?.systems?.safehouse?.relocation_rules?.alternative_safehouses || []).find(
         (a) => a.name === state.currentSafehouse
       )?.functions?.san_restore || 0
     );
@@ -331,13 +331,14 @@ export function clearLlmEventCache() {
 
 export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
   const transitionTimer = useRef(null);
+  const btnIndex = useRef(0);  // replaces window.__n — render-order counter for button keys
   const [forbiddenOpen, setForbiddenOpen] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
   // 操作分组折叠状态
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const toggleActionGroup = (g) => setCollapsedGroups((prev) => ({ ...prev, [g]: !prev[g] }));
   // 感知污染 — 输入阻尼层 CSS class
-  var _irLevel = getInputResistanceLevel(state, { GD });
+  var _irLevel = getInputResistanceLevel(state, { GD: state._GD });
   var inputResistClass = getInputResistanceClass(_irLevel);
 
   // Virtual scroll for narrative (50+ items)
@@ -421,15 +422,15 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
     };
   }, [state.transition, dispatch]);
-  const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD }), [state.currentArea]);
+  const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD: state._GD }), [state.currentArea]);
   const npcs = useMemo(
     () => getNpcsHere(state),
     [state.day, state.currentArea, state.npcStates, state.npcTrust]
   );
-  const areas = GD.areas || GD.module2_areas || [];
+  const areas = state._GD?.areas || state._GD?.module2_areas || [];
   const itemUseInfo = useMemo(() => {
     const m = {};
-    (GD.items || []).forEach((def) => {
+    (state._GD?.items || []).forEach((def) => {
       if (def.use_hint) m[def.name] = def.use_hint;
     });
     return m;
@@ -439,7 +440,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
     const raw =
       state.accessibilityOptions?.visual_distortion === false
         ? { focus: 0, edge: 0, audio: 0, input: 0, text: 0 }
-        : getPerceptionLevels(state);
+        : getPerceptionLevels(state, { GD: state._GD });
     return (
       (raw.text > 0 ? ' perception-text-' + Math.min(3, raw.text) : '') +
       (raw.focus > 1 ? ' perception-focus-' + Math.min(3, raw.focus) : '') +
@@ -454,7 +455,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
   ]);
   // audio perception → volume modulation (multiply user base, don't overwrite)
   const perceptionAudio =
-    state.accessibilityOptions?.visual_distortion === false ? 0 : getPerceptionLevels(state).audio;
+    state.accessibilityOptions?.visual_distortion === false ? 0 : getPerceptionLevels(state, { GD: state._GD }).audio;
   try {
     const baseVol = audioManager._userVolumeScale || 1;
     if (perceptionAudio >= 2) {
@@ -474,7 +475,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
               <div className="transition-chapter-label">— 章节 —</div>
               <div className="transition-chapter-name">
                 {(() => {
-                  const ch = getChapterForDay(state.day, { GD });
+                  const ch = getChapterForDay(state.day, { GD: state._GD });
                   return ch?.name || '未知章节';
                 })()}
               </div>
@@ -631,7 +632,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
         !state.ending && (
           <div className="action-area">
             {(() => {
-              window.__n = 0;
+              btnIndex.current = 0;
               return null;
             })()}
             {(() => {
@@ -671,8 +672,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                 >
                   <span className="btn-hint">
                     {(() => {
-                      window.__n = (window.__n || 0) + 1;
-                      return window.__n;
+                      btnIndex.current += 1;
+                      return btnIndex.current;
                     })()}
                   </span>
                   <span className="action-icon">🔍</span>
@@ -684,8 +685,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                   if (!a) return null;
                   const unlocked = isAreaUnlocked(a, state);
                   const isRumor = a.chapter_1_role === 'rumor_only' && !unlocked;
-                  window.__n = (window.__n || 0) + 1;
-                  const n = window.__n;
+                  btnIndex.current += 1;
+                  const n = btnIndex.current;
                   return (
                     <button
                       key={aid}
@@ -706,8 +707,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                   );
                 })}
                 {npcs.map((npc) => {
-                  window.__n = (window.__n || 0) + 1;
-                  const n = window.__n;
+                  btnIndex.current += 1;
+                  const n = btnIndex.current;
                   return (
                     <button
                       key={npc.name}
@@ -741,8 +742,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     .map((it, i) => {
                       const label = itemUseInfo[it.name];
                       if (!label) return null;
-                      window.__n = (window.__n || 0) + 1;
-                      const n = window.__n;
+                      btnIndex.current += 1;
+                      const n = btnIndex.current;
                       return (
                         <button
                           key={i}
@@ -774,8 +775,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                 {getAvailableSafehouses(state)
                   .filter((sh) => state.currentSafehouse !== sh.name)
                   .map((sh) => {
-                    window.__n = (window.__n || 0) + 1;
-                    const n = window.__n;
+                    btnIndex.current += 1;
+                    const n = btnIndex.current;
                     return (
                       <button
                         key={sh.name}
@@ -790,8 +791,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                   })}
                 {state.currentSafehouse !== 'main' &&
                   (() => {
-                    window.__n = (window.__n || 0) + 1;
-                    const n = window.__n;
+                    btnIndex.current += 1;
+                    const n = btnIndex.current;
                     return (
                       <button
                         className="action-btn"
@@ -804,8 +805,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     );
                   })()}
                 {(() => {
-                  window.__n = (window.__n || 0) + 1;
-                  const n = window.__n;
+                  btnIndex.current += 1;
+                  const n = btnIndex.current;
                   return (
                     <button
                       className="action-btn"
@@ -823,8 +824,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                 })()}
                 {state.currentArea === 'town_center' &&
                   (() => {
-                    window.__n = (window.__n || 0) + 1;
-                    const n = window.__n;
+                    btnIndex.current += 1;
+                    const n = btnIndex.current;
                     const canBuy =
                       state.ap >= 1 &&
                       (state.money || 0) >= 3 &&
@@ -845,8 +846,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     );
                   })()}
                 {(() => {
-                  window.__n = (window.__n || 0) + 1;
-                  const n = window.__n;
+                  btnIndex.current += 1;
+                  const n = btnIndex.current;
                   return (
                     <button className="action-btn" onClick={() => dispatch({ type: 'REST' })} onMouseEnter={() => audioManager.playUI('hover')}>
                       <span className="btn-hint">{n}</span>
@@ -937,8 +938,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                       </div>
                       <div className="action-group-grid forbidden-grid">
                         {dangerActions.map((da) => {
-                          window.__n = (window.__n || 0) + 1;
-                          const n = window.__n;
+                          btnIndex.current += 1;
+                          const n = btnIndex.current;
                           return (
                             <button
                               key={da.type}
@@ -980,7 +981,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
 
       {/* Combat panel — renders when combat is active */}
       {state.combat && state.combat.active && (
-        <CombatPanel combatState={state.combat} state={state} dispatch={dispatch} ctx={{GD}} />
+        <CombatPanel combatState={state.combat} state={state} dispatch={dispatch} ctx={{ GD: state._GD }} />
       )}
     </div>
   );
@@ -1006,11 +1007,11 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
       window.removeEventListener('kbd:showClues', onClues);
     };
   }, []);
-  const areas = GD.areas || GD.module2_areas || [];
-  const npcs = GD.npcs || GD.module3_npcs || [];
-  const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD }), [state.currentArea]);
+  const areas = state._GD?.areas || state._GD?.module2_areas || [];
+  const npcs = state._GD?.npcs || state._GD?.module3_npcs || [];
+  const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD: state._GD }), [state.currentArea]);
   const inProgressConclusions = useMemo(() => {
-    return (GD.systems?.clue_conclusion?.conclusions || [])
+    return (state._GD?.systems?.clue_conclusion?.conclusions || [])
       .filter((c) => !(state.discoveredConclusions || []).includes(c.id))
       .map((conc) => {
         const satisfied = (conc.evidence_pool || []).filter((ev) => {
@@ -1173,7 +1174,7 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
                 恩赐
               </div>
               {state.activeBlessings.map((bkey, i) => {
-                const b = GD.systems?.loop?.loop_blessings?.[bkey];
+                const b = state._GD?.systems?.loop?.loop_blessings?.[bkey];
                 return b ? (
                   <div
                     key={i}
@@ -1259,7 +1260,7 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
               </div>
               <div className="clues-section">
                 {state.discoveredConclusions.map((cid, i) => {
-                  const conc = (GD.systems?.clue_conclusion?.conclusions || []).find(
+                  const conc = (state._GD?.systems?.clue_conclusion?.conclusions || []).find(
                     (c) => c.id === cid
                   );
                   return (
@@ -1330,9 +1331,9 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
 // === 笔记本 Modal ===
 // 独立浮层，不干扰上方数据查看。按 N 键或点击按钮打开。
 export function NotebookModal({ open, onClose, state }) {
-  const chains = useMemo(() => GD.clue_chains || [], []);
+  const chains = useMemo(() => state._GD?.clue_chains || [], []);
   const conclusions = useMemo(
-    () => (GD.systems?.clue_conclusion?.conclusions || []),
+    () => (state._GD?.systems?.clue_conclusion?.conclusions || []),
     []
   );
   // 首次打开高亮：记录是否是第一次打开
@@ -1961,7 +1962,7 @@ export function EndingScreen({ ending, state, dispatch }) {
   );
 }
 
-export function GameHeader({ state, dispatch, areas, onSettingsOpen, onUgcOpen, onSaveOpen }) {
+export function GameHeader({ state, dispatch, areas, GD, onSettingsOpen, onUgcOpen, onSaveOpen }) {
   const area = areas.find((a) => a.id === state.currentArea);
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
   const sanStage = getSanStage(state.san, { GD });

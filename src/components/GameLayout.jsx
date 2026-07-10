@@ -15,6 +15,7 @@ import { getAudioIntrusionLevel, applyAudioIntrusion, getAudioIntrusionDescripti
 import { uiStore } from '../state/uiStore.js';
 import { useGameLayoutData } from '../state/selectors.js';
 import { getDispatch, useGameStore } from '../state/useGameStore.js';
+import { GD } from '../state/gameData.js';
 
 export function GameLayout() {
   // Granular subscription — re-renders only when these fields change
@@ -64,7 +65,7 @@ export function GameLayout() {
         safehouseCorruption: _aiSafehouseCorruption, mythosLevel: _aiMythosLevel,
         inventory: _aiInventory,
       };
-      var intrusionLevel = getAudioIntrusionLevel(aiState, { GD });
+      var intrusionLevel = getAudioIntrusionLevel(aiState, { GD: GD });
       var result = applyAudioIntrusion(intrusionLevel, audioManager, _aiCurrentArea);
       if (result.volumeScale !== undefined) {
         var baseVol = audioManager._userVolumeScale || 1;
@@ -224,6 +225,7 @@ export function GameLayout() {
         state={gl}
         dispatch={dispatch}
         areas={areas}
+        GD={GD}
         onSettingsOpen={() => uiStore.setState({ settingsOpen: true })}
         onUgcOpen={() => uiStore.setState({ ugcOpen: true })}
         onSaveOpen={() => {

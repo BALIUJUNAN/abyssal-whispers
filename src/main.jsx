@@ -8,16 +8,7 @@
 //   2. Import compatibility shim (globalThis bridge for modules not yet migrated to ESM)
 //   3. Import app.jsx (which initializes GD, renders <App />)
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { produce } from 'immer';
 import { validateGameData } from './data/schemas/index.js';
-
-// Install React/ReactDOM/produce as globals for app.jsx and component files
-// that still reference them via globalThis (through vite-compat-shim)
-window.React = React;
-window.ReactDOM = ReactDOM;
-window.produce = produce;
 
 // Static JSON imports — Vite bundles these into the JS bundle at build time.
 // vite-plugin-singlefile then inlines the entire bundle into the HTML.
@@ -44,8 +35,6 @@ try {
 
   // Merge game data (synchronous — all JSON is statically imported)
   const GD = mergeGameData();
-  window.__GAME_DATA__ = GD;
-  window.GD = GD;
   console.log('[Vite] Game data loaded:', GD.events?.length, 'events');
 
   // Validate game data with Zod schemas
@@ -78,6 +67,10 @@ try {
   const { seedGameStore } = await import('./state/useGameStore.js');
   seedGameStore(GD);
   console.log('[Vite] Game store seeded');
+
+  // Populate shared module for module-level consumers (GameLayout, GamePanels)
+  const { GD: gdExport } = await import('./state/gameData.js');
+  Object.assign(gdExport, GD);
 
   // Import app.jsx — triggers module-level init (GD, ReactDOM.createRoot, etc.)
   await import('./app.jsx');

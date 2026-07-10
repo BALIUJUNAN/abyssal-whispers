@@ -103,8 +103,4 @@ export default defineConfig({
       '@engine': resolve(__dirname, 'src/engine'),
     },
   },
-  define: {
-    // Provide GD as a global for gradual migration
-    __GAME_DATA__: 'window.__GAME_DATA__ || {}',
-  },
 });

@@ -1,5 +1,5 @@
 // src/components/GameModals.jsx - Modal components extracted from app.jsx
-// SettingsModal, SaveLoadModal, AchievementGallery
+// SettingsModal, SaveLoadModal, AchievementGallery, GameModals orchestrator
 import { Modal } from './GameCommon.jsx';
 import {
   getAllSlots,
@@ -9,6 +9,11 @@ import {
   exportSaveAsText,
   importSave,
 } from '../engine/SaveManager.js';
+import { useUiStore, notifySave, removeUiToast } from '../state/uiStore.js';
+import { NotebookModal } from './GamePanels.jsx';
+import { ShopModal } from './ShopModal.jsx';
+import { AppToast } from './AppToast.jsx';
+import { UgcPanel } from './UgcImportExport.jsx';
 
 export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, onSaveOpen, onLoadOpen, dispatch }) {
   const update = (key, val) => onChange({ ...settings, [key]: val });
@@ -598,3 +603,78 @@ export function AchievementGallery({ open, onClose }) {
     </Modal>
   );
 }
+
+// ── GameModals orchestrator ──
+// Extracted from app.jsx lines 439-499. Renders all global overlays and modals.
+export function GameModals({
+  game, ui, dispatch, GD, settings, screen,
+  bootHintVisible, sanHintVisible,
+  onSettingsChange, onLoadSlot,
+}) {
+  return (
+    <>
+      <SettingsModal
+        open={ui.settingsOpen}
+        onClose={() => useUiStore.setState({ settingsOpen: false })}
+        settings={settings}
+        onChange={onSettingsChange}
+        onAchOpen={() => useUiStore.setState({ achOpen: true })}
+        onSaveOpen={() => useUiStore.setState({ saveLoadMode: 'save', saveLoadOpen: true })}
+        onLoadOpen={() => useUiStore.setState({ saveLoadMode: 'load', saveLoadOpen: true })}
+        dispatch={dispatch}
+      />
+      <SaveLoadModal
+        open={ui.saveLoadOpen}
+        onClose={() => useUiStore.setState({ saveLoadOpen: false })}
+        state={screen === 'game' ? game : null}
+        onLoad={onLoadSlot}
+        mode={ui.saveLoadMode}
+        onSaved={notifySave}
+      />
+      <AchievementGallery open={ui.achOpen} onClose={() => useUiStore.setState({ achOpen: false })} />
+      <NotebookModal
+        open={!!ui.notebookOpen}
+        onClose={() => useUiStore.setState({ notebookOpen: false })}
+        state={game}
+      />
+      <ShopModal
+        open={!!ui.activeShop}
+        shopId={ui.activeShop}
+        onClose={() => useUiStore.setState({ activeShop: null })}
+        state={game}
+        ctx={{ GD }}
+        onPurchase={function (shopId, item) {
+          dispatch({ type: 'BUY_FROM_SHOP', shopId: shopId, itemId: item.id });
+        }}
+      />
+      {ui.ugcOpen && (
+        <Modal
+          open={ui.ugcOpen}
+          onClose={() => useUiStore.setState({ ugcOpen: false })}
+          title="模组管理"
+          width="720px"
+        >
+          <UgcPanel onClose={() => useUiStore.setState({ ugcOpen: false })} GD={GD} />
+        </Modal>
+      )}
+      {ui.toasts.length > 0 && (
+        <div className="achievement-toast-container">
+          {ui.toasts.map(function (t) {
+            return <AppToast key={t.key} toast={t} onDismiss={() => removeUiToast(t.key)} />;
+          })}
+        </div>
+      )}
+
+      {/* 轻提示：前传结束 → 正片 */}
+      {bootHintVisible && screen === 'game' && (
+        <div className="boot-hint">按 M 切换布局 · 按 J 打开笔记本</div>
+      )}
+
+      {/* 轻提示：第一次掉 SAN */}
+      {sanHintVisible && screen === 'game' && (
+        <div className="san-hint">理智正在流失，世界会逐渐发生变化</div>
+      )}
+    </>
+  );
+}
+

@@ -11,7 +11,7 @@ import { initialState } from '../../state/initialState.js';
 import { initLoopState } from '../loopReducer.js';
 import { buildPreviousRunSummary } from '../extendedEvents.js';
 import { ensureExtendedState } from '../extendedEventsLoader.js';
-import { clearSave } from '../../engine/SaveManager.js';
+import { clearSave, SAVE_FORMAT_SPEC } from '../../engine/SaveManager.js';
 import { rebuildTriggeredSet, rebuildSilentSet } from '../../utils/triggeredSet.js';
 import { initSkills } from '../../utils/gameHelpers.js';
 import { checkSanLegacy } from '../../systems/sanConsequenceChain.js';
@@ -49,11 +49,23 @@ export function handleLoopAction(s, action, c, ctx) {
     }
     case 'CONTINUE_GAME': {
       // Copy saved state fields onto the Immer draft (mutate, don't replace)
+      // ADR-010: whitelist-only copy — never blindly trust imported save data
       const saved = action.savedState;
       const oldDiffLevel = saved?.difficultyLevel;
       if (saved && typeof saved === 'object') {
-        Object.keys(saved).forEach((k) => {
-          s[k] = saved[k];
+        var allowedKeys = SAVE_FORMAT_SPEC.requiredStateKeys.concat(
+          ['difficultyLevel', '_difficultyMigrated', 'purchasedShopItems', 'endingCoins',
+           'currentChapter', 'mythosLevel', 'fearTuning', 'lightPollutionMode',
+           'accessibilityOptions', '_level13GlitchScheduled', 'tutorialSeen']
+        );
+        var allowed = {};
+        for (var ai = 0; ai < allowedKeys.length; ai++) {
+          allowed[allowedKeys[ai]] = true;
+        }
+        Object.keys(saved).forEach(function (k) {
+          if (Object.prototype.hasOwnProperty.call(allowed, k)) {
+            s[k] = saved[k];
+          }
         });
       }
       s.screen = 'game';
