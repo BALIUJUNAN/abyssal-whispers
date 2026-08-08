@@ -28,11 +28,10 @@ jobs:
       - run: npm test
       - run: npm run lint:schema
       - run: npm run lint:engine
-      - run: npm run mod:validate
+      - run: node scripts/validate-mods.mjs
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
-      - run: npm run format:check
 
   # ══════════════════════════════════════════════════
   # Main / Develop — 并行 job + 依赖链

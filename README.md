@@ -1046,7 +1046,8 @@ UGC 模组有严格的安全限制：
 npm test                  # 全量测试（750 tests / 18 suites）
 npm run lint:schema       # 数据 Schema 校验
 npm run lint:engine       # 引擎边界检查
-npm run mod:validate      # Mod 格式校验
+npm run mod:validate -- mods/examples/new-area-lighthouse/mod.json  # 单个 Mod 格式校验
+node scripts/validate-mods.mjs                                      # 批量校验仓库内全部 Mod
 npm run build             # Vite 生产构建
 npx playwright install chromium  # 首次运行浏览器测试前安装 Chromium
 npm run test:e2e          # 16 项浏览器端主流程测试
@@ -1238,7 +1239,8 @@ npm run lint:engine      # 引擎边界检查（src/engine/ 零游戏导入）
 npm run lint:schema      # Zod Schema 数据校验（855条数据 + difficulty_modifiers全量）
 npm run lint:events      # 扩展事件 lint
 npm run test:missing600  # 第 600 号事件测试
-npm run mod:validate     # UGC 模组校验
+npm run mod:validate -- mods/examples/new-area-lighthouse/mod.json  # 单个 UGC 模组校验
+node scripts/validate-mods.mjs                                      # 批量校验仓库内全部 UGC 模组
 npm run mod:preview      # UGC 模组预览
 npm run mod:pack         # UGC 模组打包
 ```
