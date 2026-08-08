@@ -8,7 +8,7 @@
 
 import { pick, getCurrentSanStage, makeRand } from './utils.js';
 import { getSealState } from '../engine/WorldTimeSystem.js';
-import { useGameStore } from '../state/useGameStore.js';
+import { GD as sharedGD } from '../state/gameData.js';
 import {
   buildSanStagePresentation,
   getSanTextVariant,
@@ -29,14 +29,13 @@ export function getSanStage(san, ctx) {
 }
 
 /**
- * Convenience wrapper: getSanStage from Zustand store._GD.
+ * Convenience wrapper: getSanStage from the shared read-only GD holder.
  * For utility/system files that don't receive ctx as a parameter.
  * @param {number} san
  * @returns {{ id, name, level, visual_tier, ... }}
  */
 export function getSanStageFromGD(san) {
-  const gd = useGameStore.getState()._GD || {};
-  return getSanStage(san, { GD: gd });
+  return getSanStage(san, { GD: sharedGD });
 }
 
 export function processSanLoss(base, inv, weather, day, difficulty, ctx) {

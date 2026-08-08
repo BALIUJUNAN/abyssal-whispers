@@ -11,6 +11,7 @@
 // with higher stakes, amplifying inner conflict.
 
 import { MORAL_DILEMMAS } from '../data/npcRelationshipWeb.js';
+import { emit } from '../engine/eventBus.js';
 
 // ═══════════════════════════════════════════════════════════════
 // SECTION 1: Fear → Moral Pressure Mapping

@@ -31,6 +31,8 @@ import { getTrackedText } from '../../systems/textVariants.js';
 import { applyMythosAliases, maybeInjectPhantomNarrative } from '../../systems/textVariants.js';
 import { applyLevel13RealityDistortion } from '../../systems/textVariants.js';
 import { applyTextFragmentation } from '../../systems/textFragmentation.js';
+import { getAreaSceneImage, getEventImage } from '../../portraitMap.js';
+import { makeRand } from '../../reducers/utils.js';
 
 // ── Individual pipeline stages ─────────────────────────────────────
 
@@ -151,6 +153,6 @@ export function narrateEvent(evt, evtText, s, c) {
 // Helper used by applyUnreliableNarration
 function pick(arr, rng) {
   if (!arr || arr.length === 0) return undefined;
-  if (rng && rng.intBetween) return arr[rng.intBetween(0, arr.length - 1)];
-  return arr[Math.floor(Math.random() * arr.length)];
+  var _rand = makeRand(rng);
+  return arr[Math.floor(_rand() * arr.length)];
 }

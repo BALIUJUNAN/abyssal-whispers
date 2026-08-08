@@ -1,6 +1,7 @@
 // src/components/GamePanels.jsx - Game panel components (extracted from app.jsx)
 // LeftPanel, CenterPanel, RightPanel, EndingScreen, GameHeader
 // NPCDialog -> NPCDialog.jsx, CitySketchMap -> CitySketchMap.jsx
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { StatBar, CollapsibleSection, NarrativeBlock } from './GameCommon.jsx';
 import { isPhantomExpired } from '../systems/textVariants.js';
@@ -12,7 +13,7 @@ import { NarrativeVirtualList, useVirtualList } from './VirtualList.jsx';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
 import { getPlayerImage, getNpcImage } from '../portraitMap.js';
 import { getNpcsHere } from '../utils/npcLocation.js';
-import { getAreaDisplayName, isAreaUnlocked } from '../utils/gameHelpers.js';
+import { getAreaDisplayName, getOptionText, isAreaUnlocked } from '../utils/gameHelpers.js';
 import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
 import { getChapterForDay } from '../reducers/chapterReducer.js';
 import { checkAfterglowUnlock, getAfterglowTexts, getEndingTriggerCount } from '../reducers/endingReducer.js';
@@ -21,9 +22,13 @@ import { getSafehouseStage } from '../reducers/miscReducer.js';
 import { enhanceDeathSummary, generateAfterglow, enhanceEventDescription, generateSanCorruptedText, generatePersonalityReflection, generateLoopOpening, isGlmAvailable, clearGlmCache, clearGlmQueue } from '../systems/llmNarrative.js';
 import { hasClueId, resolveClueName } from '../utils/clueNameMap.js';
 import { uiStore } from '../state/uiStore.js';
+import { GD } from '../state/gameData.js';
 
 import { getInputResistanceLevel, getInputResistanceClass } from '../systems/inputResistance.js';
 import { getShopDef, isShopItemUnlocked } from './ShopModal.jsx';
+import { audioManager } from '../managers/AudioManager.js';
+import { CorruptibleChoice } from './SanPollutionLayer.jsx';
+import { getEndingCgImage } from '../portraitMap.js';
 export const LeftPanel = memo(function LeftPanel({ state }) {
   const seal = useMemo(
     () =>
@@ -424,7 +429,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
   }, [state.transition, dispatch]);
   const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD: state._GD }), [state.currentArea]);
   const npcs = useMemo(
-    () => getNpcsHere(state),
+    () => getNpcsHere(state, { GD: state._GD }),
     [state.day, state.currentArea, state.npcStates, state.npcTrust]
   );
   const areas = state._GD?.areas || state._GD?.module2_areas || [];
@@ -570,8 +575,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                 {state.pendingGamble.options.map((opt) => {
                   const label =
                     opt.id === 'safe'
-                      ? getOptionText('gamble_safe', state.san) || opt.label
-                      : getOptionText('gamble_deep', state.san) || opt.label;
+                      ? getOptionText('gamble_safe', state.san, { GD: GD }) || opt.label
+                      : getOptionText('gamble_deep', state.san, { GD: GD }) || opt.label;
                   const risk = opt.cost ? '（SAN损失 1d6）' : '（安全）';
                   return (
                     <CorruptibleChoice
@@ -677,7 +682,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     })()}
                   </span>
                   <span className="action-icon">🔍</span>
-                  {getOptionText('investigate_sound', state.san) || '探索区域'}
+                  {getOptionText('investigate_sound', state.san, { GD: GD }) || '探索区域'}
                   <span className="cost">2 AP</span>
                 </button>
                 {conn.map((aid) => {
@@ -772,7 +777,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                 <span className="action-group-icon">☀️</span>日常行动
               </div>
               <div className={'action-group-grid' + (collapsedGroups.daily ? ' collapsed' : '')}>
-                {getAvailableSafehouses(state)
+                {getAvailableSafehouses(state, { GD: GD })
                   .filter((sh) => state.currentSafehouse !== sh.name)
                   .map((sh) => {
                     btnIndex.current += 1;
@@ -852,7 +857,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     <button className="action-btn" onClick={() => dispatch({ type: 'REST' })} onMouseEnter={() => audioManager.playUI('hover')}>
                       <span className="btn-hint">{n}</span>
                       <span className="action-icon">🏕️</span>
-                      {getOptionText('rest_at_safehouse', state.san) || '结束今日'}
+                      {getOptionText('rest_at_safehouse', state.san, { GD: GD }) || '结束今日'}
                       <span className="cost">休息恢复</span>
                     </button>
                   );

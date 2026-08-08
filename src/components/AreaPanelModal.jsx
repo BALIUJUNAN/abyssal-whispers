@@ -6,8 +6,10 @@
 //   - 右侧：可用行动列表
 //   - 底部：资源消耗提示
 
+import React from 'react';
 const { useState, useEffect, useMemo, useCallback, memo } = React;
 import { NPCDialog } from './NPCDialog.jsx';
+import { GD } from '../state/gameData.js';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
 import { getNpcsHere } from '../utils/npcLocation.js';
 import { getAreaDisplayName } from '../utils/gameHelpers.js';
@@ -16,6 +18,7 @@ import { getSafehouseStage } from '../reducers/miscReducer.js';
 import { getAreaSceneImage, getNpcImage } from '../portraitMap.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { isAreaUnlocked } from '../utils/gameHelpers.js';
+import { isHotspotUnlocked } from '../data/townHotspots.js';
 
 export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
   const [tab, setTab] = useState('actions'); // 'actions' | 'info' | 'npc'
@@ -38,7 +41,10 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
 
   // 该区域的 NPC
   const npcsHere = useMemo(() => {
-    return getNpcsHere({ ...state, currentArea: hotspot.areaId || state.currentArea });
+    return getNpcsHere(
+      { ...state, currentArea: hotspot.areaId || state.currentArea },
+      { GD: GD }
+    );
   }, [state.day, hotspot.areaId, state.npcStates, state.npcTrust]);
 
   // 该区域的连接区域
@@ -164,7 +170,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
       hotspot.actions?.includes('switch_safehouse') &&
       typeof getAvailableSafehouses === 'function'
     ) {
-      const shs = getAvailableSafehouses(state);
+      const shs = getAvailableSafehouses(state, { GD: GD });
       shs
         .filter((sh) => state.currentSafehouse !== sh.name)
         .forEach((sh) => {
@@ -185,7 +191,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
 
     // 如果没有行动且不在该区域 → 显示移动按钮
     if (actions.length === 0 && !isCurrentHotspot && hotspot.areaId) {
-      const unlocked = isHotspotUnlocked(hotspot, state);
+      const unlocked = isHotspotUnlocked(hotspot, state, { GD: GD });
       if (unlocked) {
         actions.push({
           id: 'go_here',

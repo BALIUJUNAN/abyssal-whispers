@@ -30,6 +30,8 @@ jobs:
       - run: npm run lint:engine
       - run: npm run mod:validate
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
       - run: npm run format:check
 
   # ══════════════════════════════════════════════════
@@ -83,6 +85,21 @@ jobs:
           name: vite-${{ github.sha }}
           path: dist/
           retention-days: 14
+
+  e2e:
+    name: Browser E2E
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    needs: build-vite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
 
   format-check:
     name: Format

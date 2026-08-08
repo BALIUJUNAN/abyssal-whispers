@@ -96,8 +96,17 @@ var FRAUD_HINTS = {
  * @returns {{ displayMult: number, realMult: number, active: boolean, tier: number, description: string }}
  */
 export function getResourceFraudState(san, rng, gd) {
-  var stage = getCurrentSanStage(san, { GD: gd || {} });
-  var level = stage.level || 0;
+  var stages = gd?.systems?.sanity?.san_stages;
+  var level;
+  if (Array.isArray(stages) && stages.length > 0) {
+    level = getCurrentSanStage(san, { GD: gd }).level || 0;
+  } else if (san <= 14) level = 6;
+  else if (san <= 29) level = 5;
+  else if (san <= 39) level = 4;
+  else if (san <= 49) level = 3;
+  else if (san <= 59) level = 2;
+  else if (san <= 74) level = 1;
+  else level = 0;
 
   for (var i = 0; i < FRAUD_TIERS.length; i++) {
     var tier = FRAUD_TIERS[i];

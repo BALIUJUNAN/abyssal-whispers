@@ -29,6 +29,8 @@ export function _executeProbeThread(s, npc, trust, choice, c, ctx) {
     var _trustAward = 0;
     var _flagsToSet = [];
     var _resolved = false;
+    var _d2 = _thread.depth2 || {};
+    var _d3 = _thread.depth3 || {};
 
     // Check trust gate for next depth
     var _nextTrustReq = _nextDepth === 1 ? (_thread.trustReq || 2) : (_nextDepth === 2 ? (_thread.depth2 && _thread.depth2.trustReq || 3) : (_thread.depth3 && _thread.depth3.trustReq || 4));

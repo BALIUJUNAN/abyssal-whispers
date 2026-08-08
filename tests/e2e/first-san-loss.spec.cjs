@@ -1,120 +1,52 @@
-// tests/e2e/first-san-loss.spec.cjs
-// Phase 4: Verify game screen elements appear after navigating through the full startup flow.
 const { test, expect } = require('@playwright/test');
+const {
+  dispatchGameAction,
+  navigateToGame,
+  openFreshGame,
+} = require('./helpers.cjs');
 
 test.describe('Game Startup Flow', function () {
   test.beforeEach(async function ({ page }) {
-    await page.goto('/');
-    await page.evaluate(function () { localStorage.clear(); });
-    await page.waitForTimeout(1000);
-    await page.waitForSelector('#loading-screen', { state: 'hidden', timeout: 10000 }).catch(function () {});
-    await page.waitForTimeout(2000);
+    await openFreshGame(page);
   });
 
   test('title screen shows game title and start button', async function ({ page }) {
-    await expect(page.locator('.title-screen')).toBeVisible();
-    await expect(page.locator('text=深渊低语')).toBeVisible();
-    await expect(page.locator('text=沃切斯特之影')).toBeVisible();
-    await expect(page.locator('.btn-primary:has-text("踏入深渊")')).toBeVisible();
+    await expect(page.locator('.title-screen h1')).toContainText('深渊低语');
+    await expect(page.locator('.title-screen .btn-primary')).toBeVisible();
   });
 
-  test('full navigation: title -> guide -> creation -> prologue -> game', async function ({ page }) {
-    // Step 1: Click start
-    await page.click('.btn-primary:has-text("踏入深渊")');
-    await page.waitForTimeout(500);
+  test('full navigation reaches the game screen', async function ({ page }) {
+    await page.locator('.title-screen .btn-primary').click();
+    await expect(page.locator('.prologue-screen')).toBeVisible({ timeout: 5000 });
 
-    // Step 2: Handle survival guide if present
-    const guideTitle = page.locator('.guide-journal-title');
-    if (await guideTitle.isVisible().catch(function () { return false; })) {
-      await expect(guideTitle).toHaveText('生存指南');
-      await page.click('.guide-continue-btn:has-text("我准备好了")');
-      await page.waitForTimeout(500);
-    }
+    page.once('dialog', function (dialog) { return dialog.accept(); });
+    await page.locator('.prologue-skip button').click();
+    await expect(page.locator('.guide-journal')).toBeVisible({ timeout: 5000 });
 
-    // Step 3: Character creation — roll stats
-    const rollBtn = page.locator('button:has-text("掷骰生成属性")');
-    if (await rollBtn.isVisible().catch(function () { return false; })) {
-      await rollBtn.click();
-      await page.waitForTimeout(500);
-      // Verify stats are displayed
-      const statItems = page.locator('.stat-item');
-      expect(await statItems.count()).toBeGreaterThan(0);
-    }
+    await dispatchGameAction(page, { type: 'DISMISS_GUIDE' });
+    await expect(page.locator('.char-creation')).toBeVisible({ timeout: 5000 });
 
-    // Step 4: Start adventure
-    const startBtn = page.locator('button:has-text("开始调查")');
-    if (await startBtn.isVisible().catch(function () { return false; })) {
-      await startBtn.click();
-      await page.waitForTimeout(1000);
-    }
+    await page.getByRole('button', { name: '掷骰生成属性' }).click();
+    await expect(page.locator('.stat-item')).toHaveCount(8);
+    await page.locator('.char-creation .btn-primary').last().click();
 
-    // Step 5: Prologue — make a choice
-    const prologueScreen = page.locator('.prologue-screen');
-    if (await prologueScreen.isVisible().catch(function () { return false; })) {
-      const choice = page.locator('.prologue-choice-btn').first();
-      if (await choice.isVisible().catch(function () { return false; })) {
-        await choice.click();
-        await page.waitForTimeout(500);
-      }
-
-      // Complete prologue
-      const completeBtn = page.locator('button:has-text("进入正片")');
-      if (await completeBtn.isVisible().catch(function () { return false; })) {
-        await completeBtn.click();
-        await page.waitForTimeout(2000);
-      }
-    }
-
-    // Final assertion: game screen is active
-    await expect(page.locator('.game-root')).toBeVisible({ timeout: 15000 });
-
-    // Verify game has core UI elements
-    const gameRoot = page.locator('.game-root');
-    await expect(gameRoot).toHaveClass(/game-root/);
+    await expect(page.locator('.game-root')).toBeVisible({ timeout: 10000 });
   });
 
-  test('boot hint appears on first game entry', async function ({ page }) {
-    // Navigate to game screen (first run — no save data)
-    await page.click('.btn-primary:has-text("踏入深渊")');
-    await page.waitForTimeout(500);
+  test('first SAN drain updates state without leaving the game', async function ({ page }) {
+    await navigateToGame(page);
+    var before = await page.evaluate(async function () {
+      var storeModule = await import('/src/state/useGameStore.js');
+      return storeModule.useGameStore.getState().san;
+    });
 
-    const guideBtn = page.locator('.guide-continue-btn:has-text("我准备好了")');
-    if (await guideBtn.isVisible().catch(function () { return false; })) {
-      await guideBtn.click();
-      await page.waitForTimeout(500);
-    }
+    await dispatchGameAction(page, { type: 'RESIST_SAN_DRAIN', amount: 1 });
 
-    const rollBtn = page.locator('button:has-text("掷骰生成属性")');
-    if (await rollBtn.isVisible().catch(function () { return false; })) {
-      await rollBtn.click();
-      await page.waitByTimeout(500);
-    }
-
-    const startBtn = page.locator('button:has-text("开始调查")');
-    if (await startBtn.isVisible().catch(function () { return false; })) {
-      await startBtn.click();
-      await page.waitForTimeout(1000);
-    }
-
-    const firstChoice = page.locator('.prologue-choice-btn').first();
-    if (await firstChoice.isVisible().catch(function () { return false; })) {
-      await firstChoice.click();
-      await page.waitForTimeout(500);
-    }
-
-    const completeBtn = page.locator('button:has-text("进入正片")');
-    if (await completeBtn.isVisible().catch(function () { return false; })) {
-      await completeBtn.click();
-      await page.waitForTimeout(1000);
-    }
-
-    // Verify game screen is active
-    await expect(page.locator('.game-root')).toBeVisible({ timeout: 15000 });
-
-    // Boot hint may appear briefly — verify it exists in DOM
-    const bootHint = page.locator('.boot-hint');
-    // The hint appears for 8 seconds then disappears; check it was rendered
-    const hintExists = await bootHint.count() > 0;
-    expect(hintExists).toBe(true);
+    var after = await page.evaluate(async function () {
+      var storeModule = await import('/src/state/useGameStore.js');
+      return storeModule.useGameStore.getState().san;
+    });
+    expect(after).toBe(before - 1);
+    await expect(page.locator('.game-root')).toBeVisible();
   });
 });

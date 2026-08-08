@@ -93,10 +93,12 @@ export function buildEventPool(GD, ugcMods) {
  * Call this after initExtendedEvents() during app startup.
  *
  * @param {object} GD - the global game data object
+ * @param {object[]} [ugcMods] - optional explicit mod array; if omitted, reads from localStorage
  * @returns {{ added: number, conflicts: string[] }}
  */
-export function applyUgcToGD(GD) {
-  const { events, ugcCount, conflicts } = buildEventPool(GD);
+export function applyUgcToGD(GD, ugcMods) {
+  const mods = ugcMods || getEnabledMods();
+  const { events, ugcCount, conflicts } = buildEventPool(GD, mods);
 
   // Replace GD.events with the merged pool
   GD.events = events;
@@ -104,7 +106,6 @@ export function applyUgcToGD(GD) {
   GD._ugcConflicts = conflicts;
 
   // Wire up mod difficulty modifiers
-  const mods = getEnabledMods();
   const diffLevel = GD.systems?.difficulty?.current_level || GD.difficultyLevel || 1;
   var totalCorruptionBoost = 1.0;
   var totalNpcTrustMult = 1.0;
@@ -143,11 +144,10 @@ export function applyUgcToGD(GD) {
   }
 
   // Merge extended entity types from enabled mods
-  var modsForMerge = ugcMods || getEnabledMods();
-  mergeNpcs(GD, modsForMerge);
-  mergeItems(GD, modsForMerge);
-  mergeAreas(GD, modsForMerge);
-  mergeEndings(GD, modsForMerge);
+  mergeNpcs(GD, mods);
+  mergeItems(GD, mods);
+  mergeAreas(GD, mods);
+  mergeEndings(GD, mods);
 
   return { added: ugcCount, conflicts };
 }

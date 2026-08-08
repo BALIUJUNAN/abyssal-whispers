@@ -25,7 +25,7 @@ import { _executeTalkNpc } from '../../systems/npc/dialogueSystem.js';
 import { _executeNpcResponse } from '../../systems/npc/npcResponseDispatcher.js';
 
 // Re-export for backward compatibility
-export { _warnTrustDrop } from '../../systems/npc/npcResponseDispatcher.js';
+export { warnTrustDrop as _warnTrustDrop } from '../../systems/npcFeedback.js';
 
 export function handleNpcAction(s, action, c, ctx) {
   var GD = ctx.GD;

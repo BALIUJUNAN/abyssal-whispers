@@ -19,6 +19,7 @@ import { checkEnding } from '../reducers/endingReducer.js';
 import { generateDeathFragments, decayDeathFragments } from '../systems/deathLegacies.js';
 import { getDeathCountMetaEvent } from '../data/events/events_death_count_meta.js';
 import { audioManager } from '../managers/AudioManager.js';
+import { resolveNpcId } from '../data/registry/npcRegistry.js';
 
 export function getUICorruptionLayer(san, loopCount, safehouseCorruption) {
   // P1-A: SAN thresholds derive from stage.level (SSOT, 7 stages)
@@ -168,7 +169,7 @@ export function applyBlessing(state, blessing, narr, ctx) {
 }
 
 export function getAvailableSafehouses(state, ctx) {
-  var GD = ctx?.GD || {};
+  var GD = ctx?.GD || state?._GD || {};
   const alts = GD.systems?.safehouse?.relocation_rules?.alternative_safehouses || [];
   return alts.filter((sh) => {
     const npcName = sh.unlock_condition.includes('伊莱亚斯')
@@ -547,7 +548,7 @@ export function preloadEndingCGs() {
     const end = Math.min(start + 5, ENDING_CGS.length);
     for (let i = start; i < end; i++) {
       const img = new Image();
-      img.src = 'assets/webp_ending/' + encodeURIComponent(ENDING_CGS[i]) + '.webp';
+      img.src = 'webp_ending/' + encodeURIComponent(ENDING_CGS[i]) + '.webp';
     }
     if (end < ENDING_CGS.length) {
       const sched =

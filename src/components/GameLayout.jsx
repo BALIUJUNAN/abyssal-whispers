@@ -4,6 +4,7 @@
 //
 // Performance: uses granular Zustand selectors (not full state prop) to avoid
 // cascading re-renders when unrelated state changes.
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { InteractiveTownMap } from './InteractiveTownMap.jsx';
 import { FloatingInfoBar, NarrativeFloatingPanel } from './FloatingInfoBar.jsx';
@@ -16,6 +17,7 @@ import { uiStore } from '../state/uiStore.js';
 import { useGameLayoutData } from '../state/selectors.js';
 import { getDispatch, useGameStore } from '../state/useGameStore.js';
 import { GD } from '../state/gameData.js';
+import { audioManager } from '../managers/AudioManager.js';
 
 export function GameLayout() {
   // Granular subscription — re-renders only when these fields change

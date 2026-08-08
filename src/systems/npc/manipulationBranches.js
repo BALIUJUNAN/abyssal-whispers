@@ -2,9 +2,9 @@
 // Extracted from npcSlice.js NPC_RESPONSE case.
 
 import { rand, applySanLoss } from '../../reducers/utils.js';
-import { getNpcTrust, setNpcTrust, modHumanity, addRunMemory } from '../../utils/appHelpers.js';
+import { getNpcTrust, setNpcTrust, setNpcState, modHumanity, addRunMemory } from '../../utils/appHelpers.js';
 import { propagateTrustChange, propagateFactionStanding } from '../../systems/npcRelationshipSystem.js';
-import { _warnTrustDrop } from './npcResponseDispatcher.js';
+import { warnTrustDrop } from '../../systems/npcFeedback.js';
 
 export function _executeIncite(s, npc, trust, ns, c, ctx) {
   if (s.ap < 2) {
@@ -80,7 +80,7 @@ export function _executeBetrayNpc(s, npc, trust, ns, c) {
   }
   s.ap -= 1;
   c.bt.betrayed_high_trust_npcs = (c.bt.betrayed_high_trust_npcs || 0) + 1;
-  { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, 0); _warnTrustDrop(c, npc.name, _old, 0);
+  { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, 0); warnTrustDrop(c, npc.name, _old, 0);
     propagateTrustChange(npc.name, -_old, s, c); propagateFactionStanding(npc.name, -_old, s); }
   if (!c.bt._npc_harm_tally) c.bt._npc_harm_tally = {};
   c.bt._npc_harm_tally[npc.name] = (c.bt._npc_harm_tally[npc.name] || 0) + 1;

@@ -8,6 +8,11 @@ module.exports = defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     headless: true,
+    // Local development can reuse an installed Chromium-compatible browser;
+    // CI leaves this unset and uses the Playwright-managed Chromium binary.
+    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+      : {},
     viewport: { width: 1280, height: 720 },
     actionTimeout: 10000,
     ignoreHTTPSErrors: true,

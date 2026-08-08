@@ -8,13 +8,26 @@ import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { audio, hooks, fx } from '../../engine/commands.js';
 import { resetVisualCorruption } from '../../systems/sanVisualCorruption.js';
 import { initialState } from '../../state/initialState.js';
+import { getLoadableStateKeys } from '../saveMigration.js';
 import { initLoopState } from '../loopReducer.js';
 import { buildPreviousRunSummary } from '../extendedEvents.js';
 import { ensureExtendedState } from '../extendedEventsLoader.js';
-import { clearSave, SAVE_FORMAT_SPEC } from '../../engine/SaveManager.js';
+import { clearSave } from '../../engine/SaveManager.js';
 import { rebuildTriggeredSet, rebuildSilentSet } from '../../utils/triggeredSet.js';
 import { initSkills } from '../../utils/gameHelpers.js';
 import { checkSanLegacy } from '../../systems/sanConsequenceChain.js';
+
+function replaceGameState(s, nextState, GD) {
+  Object.keys(s).forEach(function (key) {
+    // Zustand actions are store methods, not game-state fields. _GD is injected
+    // by seedState and must remain available to selectors after a loop reset.
+    if (typeof s[key] !== 'function' && key !== '_GD') delete s[key];
+  });
+  Object.keys(nextState).forEach(function (key) {
+    s[key] = nextState[key];
+  });
+  s._GD = GD;
+}
 
 export function handleLoopAction(s, action, c, ctx) {
   switch (action.type) {
@@ -36,16 +49,23 @@ export function handleLoopAction(s, action, c, ctx) {
       s._level13GlitchScheduled = false;
       // Build previous run summary before reset (extended events system)
       const prevSummary = buildPreviousRunSummary(s);
-      // SAN legacy: save reference to previous state for madness memory injection in BEGIN_ADVENTURE
-      s._prevRunStateForSanLegacy = s;
-      const f = initialState();
+      // Keep only the plain data consumed by checkSanLegacy. Storing the Immer
+      // draft itself would leak a revoked proxy into the next state.
+      const prevSanLegacy = {
+        endingHistory: (s.endingHistory || []).map(function (entry) { return { ...entry }; }),
+        lastDeathType: s.lastDeathType || null,
+        lastDeathMode: s.lastDeathMode || null,
+      };
+      const f = initialState(ctx.GD);
       // 保留难度设置（循环不重置难度）
       f.difficulty = s.difficulty;
       f.difficultyLevel = s.difficultyLevel;
       // P0-L: 全部循环搬入逻辑已提取至 loopReducer.initLoopState()
       initLoopState(f, s, ctx, { prevSummary, rng: c.rng });
+      f._prevRunStateForSanLegacy = prevSanLegacy;
       clearSave();
-      return f;
+      replaceGameState(s, f, ctx.GD);
+      return null;
     }
     case 'CONTINUE_GAME': {
       // Copy saved state fields onto the Immer draft (mutate, don't replace)
@@ -53,11 +73,7 @@ export function handleLoopAction(s, action, c, ctx) {
       const saved = action.savedState;
       const oldDiffLevel = saved?.difficultyLevel;
       if (saved && typeof saved === 'object') {
-        var allowedKeys = SAVE_FORMAT_SPEC.requiredStateKeys.concat(
-          ['difficultyLevel', '_difficultyMigrated', 'purchasedShopItems', 'endingCoins',
-           'currentChapter', 'mythosLevel', 'fearTuning', 'lightPollutionMode',
-           'accessibilityOptions', '_level13GlitchScheduled', 'tutorialSeen']
-        );
+        var allowedKeys = getLoadableStateKeys(ctx.GD);
         var allowed = {};
         for (var ai = 0; ai < allowedKeys.length; ai++) {
           allowed[allowedKeys[ai]] = true;

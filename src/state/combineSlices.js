@@ -59,6 +59,30 @@ export function createSlice(config) {
 }
 
 /**
+ * Error raised when a reducer phase fails. The metadata is kept on the error
+ * so production reports can identify the exact action, phase, and slice.
+ */
+export class SliceDispatchError extends Error {
+  constructor(phase, slice, actionType, cause) {
+    var causeMessage = cause && cause.message ? cause.message : String(cause);
+    super(
+      '[dispatch:' + actionType + '] ' + phase + ' failed in slice "' + slice + '": ' + causeMessage
+    );
+    this.name = 'SliceDispatchError';
+    this.phase = phase;
+    this.slice = slice;
+    this.actionType = actionType;
+    this.cause = cause;
+    if (cause && cause.stack) this.causeStack = cause.stack;
+  }
+}
+
+function throwDispatchError(error, phase, slice, action) {
+  if (error instanceof SliceDispatchError) throw error;
+  throw new SliceDispatchError(phase, slice, action && action.type ? action.type : 'UNKNOWN', error);
+}
+
+/**
  * Compose multiple slice configs into a root reducer factory.
  *
  * Each slice contributes:
@@ -66,10 +90,11 @@ export function createSlice(config) {
  *   - action handlers (by action.type, or legacy switch/case)
  *   - before/after hooks (run around domain handlers)
  *
- * Returns a factory that binds context once and produces a (state, action, c) => state fn.
+ * Returns a factory that binds context once and produces a reducer returning
+ * { state, handled }. Errors propagate so the caller's Immer transaction can roll back.
  *
  * @param {SliceConfig[]} slices
- * @returns {Function} factory: (ctx) => (state, action, c) => state
+ * @returns {Function} factory: (ctx) => (state, action, c) => { state, handled }
  */
 export function combineSlices(slices) {
   var dispatchMap = {};
@@ -86,7 +111,7 @@ export function combineSlices(slices) {
 
     if (slice.handler) {
       dispatchMap._legacy = dispatchMap._legacy || [];
-      dispatchMap._legacy.push(slice.handler);
+      dispatchMap._legacy.push({ slice: slice.name, fn: slice.handler });
     }
 
     if (slice.handlers) {
@@ -97,8 +122,8 @@ export function combineSlices(slices) {
       }
     }
 
-    if (slice.before) beforeHooks.push(slice.before);
-    if (slice.after) afterHooks.push(slice.after);
+    if (slice.before) beforeHooks.push({ slice: slice.name, fn: slice.before });
+    if (slice.after) afterHooks.push({ slice: slice.name, fn: slice.after });
   }
 
   var mergedInit = {};
@@ -124,12 +149,13 @@ export function combineSlices(slices) {
   function _runHook(hooks, phase, state, action, c, ctx) {
     for (var i = 0; i < hooks.length; i++) {
       try {
-        hooks[i](state, action, c, ctx);
-        if (_debug) _logHook(phase, 'hook#' + i, action.type);
+        var entry = hooks[i];
+        entry.fn(state, action, c, ctx);
+        if (_debug) _logHook(phase, entry.slice, action.type);
       } catch (e) {
-        // Hook errors must not block the action dispatch chain.
-        // Log and continue — the domain handler still runs.
-        console.warn('[slice] ' + phase + ' hook error in hook#' + i + ':', e.message);
+        // Hooks contain gameplay mutations, not optional telemetry. Continuing
+        // would commit a partially-applied action, so abort the transaction.
+        throwDispatchError(e, phase, hooks[i].slice, action);
       }
     }
   }
@@ -158,13 +184,13 @@ export function combineSlices(slices) {
       // 2a. Declarative reducers (exact action.type match, all run)
       var dHandlers = dispatchMap[action.type];
       if (dHandlers && dHandlers.length > 0) {
+        handled = true;
         for (var h = 0; h < dHandlers.length; h++) {
           try {
             var entry = dHandlers[h];
-            var result = entry.fn(state, action, c, ctx);
-            if (result) handled = true;
+            entry.fn(state, action, c, ctx);
           } catch (e) {
-            console.warn('[slice] reducer error in ' + dHandlers[h].slice + ':', e.message);
+            throwDispatchError(e, 'reducer', dHandlers[h].slice, action);
           }
         }
       }
@@ -173,13 +199,13 @@ export function combineSlices(slices) {
       if (!handled && dispatchMap._legacy) {
         for (var l = 0; l < dispatchMap._legacy.length; l++) {
           try {
-            var lh = dispatchMap._legacy[l];
-            if (lh(state, action, c, ctx)) {
+            var legacyEntry = dispatchMap._legacy[l];
+            if (legacyEntry.fn(state, action, c, ctx)) {
               handled = true;
               break;
             }
           } catch (e) {
-            console.warn('[slice] legacy handler error:', e.message);
+            throwDispatchError(e, 'reducer', dispatchMap._legacy[l].slice, action);
           }
         }
       }
@@ -187,7 +213,7 @@ export function combineSlices(slices) {
       // ── Phase 3: afterDispatch hooks ──
       _runHook(afterHooks, 'after', state, action, c, ctx);
 
-      return state;
+      return { state: state, handled: handled };
     };
   };
 }

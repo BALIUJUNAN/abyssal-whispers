@@ -2,8 +2,10 @@
 // CorruptibleChoice, AbyssPopup, and injected CSS live here for backward compatibility.
 // The canvas renderer was split into SanPollutionLayers.jsx for layered activation.
 
+import React from 'react';
 import { getVisualForSan } from '../systems/sanityVisual.js';
 import { tickVisualCorruption, getSurgeMultiplier, getFlashAlpha } from '../systems/sanVisualCorruption.js';
+import { GD } from '../state/gameData.js';
 const { useState, useEffect, useRef, useCallback, memo } = React;
 export { getVisualForSan };
 
@@ -48,7 +50,7 @@ export var CorruptibleChoice = memo(function (props) {
   var hoverRef = useRef(false),
     tickRef = useRef(null),
     decayRef = useRef(null);
-  var V = getVisualForSan(san, { GD: state._GD }); // This is called once per render, not in animation loop — OK
+  var V = getVisualForSan(san, { GD: GD }); // This is called once per render, not in animation loop — OK
   // DESIGN_REFACTOR_NOTES.md: "选项自改写只在关键事件触发，普通行动保持轻度"
   // Non-key events: cap at level 2 (visual flicker only, no text rewriting)
   // Level 4 (cognitive_fog): minor option distrust for non-key events
@@ -211,7 +213,7 @@ export function AbyssPopup(props) {
   var timerRef = useRef(null);
   useEffect(
     function () {
-      var _slvl = getVisualForSan(san, { GD: state._GD }).level || 0; // Called once per effect, not in animation loop — OK
+      var _slvl = getVisualForSan(san, { GD: GD }).level || 0; // Called once per effect, not in animation loop — OK
       if (_slvl < 3) {
         setVisible(false);
         return;

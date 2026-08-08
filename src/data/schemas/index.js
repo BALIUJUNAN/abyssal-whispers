@@ -53,8 +53,19 @@ export const EventEffectsSchema = z.object({
   add_item: z.object({ item_id: z.string(), name: z.string().optional(), uses: z.number().optional() }).optional(),
   add_flag: z.string().optional(),
   npc_changes: z.array(z.union([
-    z.object({ name: z.string(), trust: z.number().optional(), state: z.string().optional() }),
-    z.string(), // simple format: just NPC name
+    z.object({
+      name: z.string(),
+      trust: z.number().optional(),
+      state: z.string().optional(),
+      corruption_flag: z.string().optional(),
+    }),
+    z.object({
+      npc: z.string(),
+      trust_change: z.number().optional(),
+      status: z.string().optional(),
+      corruption_flag: z.string().optional(),
+    }),
+    z.string(), // legacy compact format: NPC_trust+1 / NPC_fear / NPC_memory_trigger
   ])).optional(),
   skill_check: z.object({
     skill: z.string(),

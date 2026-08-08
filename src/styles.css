@@ -3941,6 +3941,13 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
 .app-toast.toast-save .app-toast-label {
   color: var(--gold2);
 }
+.app-toast.toast-error {
+  border-color: rgba(196, 72, 72, 0.75);
+  background: linear-gradient(135deg, rgba(42, 18, 22, 0.96), rgba(24, 14, 20, 0.96));
+}
+.app-toast.toast-error .app-toast-label {
+  color: var(--danger2);
+}
 
 /* Achievement gallery */
 .achievement-gallery {
@@ -3992,6 +3999,14 @@ input[type='range'].settings-slider::-webkit-slider-thumb {
   .narrative-text {
     filter: none !important;
   }
+}
+body[data-reduced-motion="true"] * {
+  animation: none !important;
+  transition-duration: 0.01ms !important;
+}
+body[data-reduced-motion="true"] .narrative-area,
+body[data-reduced-motion="true"] .narrative-text {
+  filter: none !important;
 }
 
 /* ==========================================================

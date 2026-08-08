@@ -1,8 +1,7 @@
-// src/systems/npc/npcResponseDispatcher.js — NPC_RESPONSE dispatcher + _warnTrustDrop
+// src/systems/npc/npcResponseDispatcher.js — NPC_RESPONSE dispatcher
 // Extracted from npcSlice.js NPC_RESPONSE case.
 
-import { getNpcTrust } from '../../utils/appHelpers.js';
-import { getTrustTierInfo } from '../../systems/npcFeedback.js';
+import { getNpcState, getNpcTrust } from '../../utils/appHelpers.js';
 import { getDifficultyNpcTrustMultiplier, getDifficultyNpcSuspicion } from '../../systems/npcDialogue.js';
 import { checkTrustGate } from '../../utils/trustGates.js';
 import { getSanStageFromGD } from '../../reducers/sanReducer.js';
@@ -11,15 +10,6 @@ import { _executeTrustUp, _executeGetItem, _executeRedeem, _executeSilence, _exe
 import { _executeAttack, _executePostKillHide, _executePostKillCannibal, _executePostKillLeave } from './combatBranches.js';
 import { _executeIncite, _executeExploitNpc, _executeBetrayNpc } from './manipulationBranches.js';
 import { _executeProbeThread } from './probeThreadSystem.js';
-
-/** Light trust-drop warning — only narrates, no audio. Used for significant drops. */
-export function _warnTrustDrop(c, npcName, oldVal, newVal) {
-  var oldTier = getTrustTierInfo(oldVal);
-  var newTier = getTrustTierInfo(newVal);
-  if (oldTier.id !== newTier.id) {
-    c.narr('system', npcName + '对你的态度变成了「' + newTier.label + '」。', { isEffect: true });
-  }
-}
 
 export function _executeNpcResponse(s, action, c, ctx) {
   if (!s.pendingNpc) return null;

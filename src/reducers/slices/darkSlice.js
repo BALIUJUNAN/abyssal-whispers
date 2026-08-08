@@ -28,7 +28,7 @@ export function handleDarkAction(s, action, c, ctx) {
         '你用刀尖在皮肤上刻下了一个符号。你不知道它是什么意思。但你的手知道。SAN -' + sanLoss,
         { isSpecial: true }
       );
-      if ((c.rng ? c.rng.next() : Math.random()) < 0.3) {
+      if (c.rng.next() < 0.3) {
         s.pollution = Math.min(1, (s.pollution || 0) + 0.05);
         c.narr('system', '符号在皮肤下微微发光，然后暗了下去。');
         c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });

@@ -289,6 +289,13 @@ export function checkSanLegacy(prevState) {
 // Convenience: apply all after-hook SAN consequences
 // ============================================================
 
+const SAN_CONSEQUENCE_ACTIONS = new Set([
+  'MOVE', 'TALK_NPC', 'USE_ITEM', 'REST', 'GAMBLE_CHOICE', 'DO_SKILL_CHECK',
+  'WORK', 'BUY_FOOD', 'COMBAT_ACTION',
+  'SELF_HARM', 'SPREAD_PROPHECY', 'CONSUME_ARCHIVE', 'SELF_SACRIFICE',
+  'DESECRATE', 'BREAK_SEAL',
+]);
+
 /**
  * Apply SAN level-based consequences that run after every action.
  * Fake trust (NPC_RESPONSE) and fake choices (EXPLORE) are handled
@@ -299,17 +306,18 @@ export function checkSanLegacy(prevState) {
  * @param {string} actionType - the dispatched action type
  */
 export function applySanConsequences(s, c, actionType, ctx) {
+  // Lifecycle/UI actions (notably NEW_GAME and CONTINUE_GAME) are state
+  // transitions, not player turns. Applying AP theft here corrupts freshly
+  // reset or loaded state.
+  if (!SAN_CONSEQUENCE_ACTIONS.has(actionType)) return;
+
   var stage = getCurrentSanStage(s.san, {
     GD: ctx?.GD || {},
   });
   var level = stage.level;
 
-  // Fake trust is handled in npcSlice, skip here
-  if (actionType === 'NPC_RESPONSE') return;
-  // Fake choice processing is handled in exploreSlice, skip here
-  if (actionType === 'EXPLORE') return;
-
-  // Forced AP steal for all other action types at level 5+
+  // EXPLORE and NPC_RESPONSE apply their specialized consequences inside the
+  // owning slice, so they are intentionally absent from the whitelist above.
   if (level >= 5) {
     tryApSteal(s, c, level);
   }

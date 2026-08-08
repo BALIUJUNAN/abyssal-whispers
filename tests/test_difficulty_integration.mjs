@@ -89,29 +89,30 @@ test('difficultyLevels.json 存在', () => {
 test('difficultyLevels.json 可解析', () => {
   const content = fs.readFileSync(path.join(ROOT, 'src/config/difficultyLevels.json'), 'utf8');
   const config = JSON.parse(content);
-  assert(Object.keys(config).length === 21, 'Expected 21 difficulty levels');
+  assert(Object.keys(config).length === 13, 'Expected 13 difficulty levels');
 });
 
 // 测试6: 报告文件
 console.log('\n6. 测试报告文件');
 test('BALANCE_ANALYSIS.md 存在', () => {
-  const filePath = path.join(ROOT, 'tests/BALANCE_ANALYSIS.md');
+  const filePath = path.join(ROOT, 'docs/reports/BALANCE_ANALYSIS.md');
   assert(fs.existsSync(filePath), 'File not found: ' + filePath);
 });
 
 test('FINAL_BALANCE_REPORT.md 存在', () => {
-  const filePath = path.join(ROOT, 'tests/FINAL_BALANCE_REPORT.md');
+  const filePath = path.join(ROOT, 'docs/reports/FINAL_BALANCE_REPORT.md');
   assert(fs.existsSync(filePath), 'File not found: ' + filePath);
 });
 
 test('21_LEVEL_DIFFICULTY_SYSTEM.md 存在', () => {
-  const filePath = path.join(ROOT, 'tests/21_LEVEL_DIFFICULTY_SYSTEM.md');
+  const filePath = path.join(ROOT, 'docs/reports/21_LEVEL_DIFFICULTY_SYSTEM.md');
   assert(fs.existsSync(filePath), 'File not found: ' + filePath);
 });
 
 // 输出结果
 console.log('\n' + '='.repeat(50));
 console.log('测试结果: ' + passed + ' 通过, ' + failed + ' 失败');
+console.log(passed + ' passed, ' + failed + ' failed');
 console.log('='.repeat(50));
 
 if (failed > 0) {

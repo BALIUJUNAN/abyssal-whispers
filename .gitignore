@@ -46,6 +46,11 @@ dist/
 dist-vite/
 index.html
 
+# Test output
+test-results/
+playwright-report/
+blob-report/
+
 # Operations log (local only, never commit)
 .ops-log.json
 OPS_LOG.md

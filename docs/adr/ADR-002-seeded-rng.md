@@ -27,3 +27,7 @@
 - ✅ 同一 action index 永远产生相同随机序列
 - ⚠️ rng 可能为 null（如测试环境），需要 fallback 模式
 - ⚠️ 子函数如果内部用了随机，必须把 c 作为参数传入
+
+## 2026-08-08 补充：handler 内禁止随机源降级
+
+Store 创建的 reducer context 保证存在 `c.rng`。因此 slice handler 和它直接调用的流程函数应直接使用 `c.rng.next()`；`c.rng ? ... : Math.random()` 会掩盖 context 接线错误并破坏回放。只有明确设计为可独立调用的叶子工具函数，才允许通过 `makeRand(rng)` 提供无 RNG 兜底。

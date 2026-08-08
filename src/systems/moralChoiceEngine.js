@@ -11,8 +11,9 @@
 //   → emit('MORAL_EVENT', ...) (triggers narrative side effects)
 
 import { propagateReputation, getFactionImpact, computeMoralScore, getMoralTier } from '../data/npcRelationshipWeb.js';
-import { calculateDilemmaIntensity, applyCopingFraming, getMoralPressureEvents, selectMoralDilemma } from './fearMoralModifier.js';
+import { calculateDilemmaIntensity, applyCopingFraming, getFearMoralProfile, getMoralPressureEvents, selectMoralDilemma } from './fearMoralModifier.js';
 import { getShadowNarrativeFlavor, computeShadowScores, getEndingEntropy } from './implicitEndingSystem.js';
+import { emit } from '../engine/eventBus.js';
 
 // ═══════════════════════════════════════════════════════════════
 // SECTION 1: NPC Choice Processing

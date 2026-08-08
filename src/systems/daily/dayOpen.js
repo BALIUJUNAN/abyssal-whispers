@@ -44,7 +44,7 @@ export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues
         var totalW = eligible.reduce(function (t, v) {
           return t + (v.weight || 1);
         }, 0);
-        var r = (c.rng ? c.rng.next() : Math.random()) * totalW;
+        var r = c.rng.next() * totalW;
         var chosen = eligible[0];
         for (var _vi = 0; _vi < eligible.length; _vi++) {
           r -= eligible[_vi].weight || 1;

@@ -1,7 +1,9 @@
 // src/components/FloatingInfoBar.jsx — 暗黑地牢风格浮动信息栏
 // 悬浮在地图上方的 HUD，显示关键状态信息。
 // 设计参考：Darkest Dungeon 的顶部/底部状态栏
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
+import { GD } from '../state/gameData.js';
 import { NarrativeBlock } from './GameCommon.jsx';
 import { uiStore } from '../state/uiStore.js';
 import { NPCDialog } from './NPCDialog.jsx';
@@ -9,6 +11,7 @@ import { getDisplayedAp } from '../utils/appHelpers.js';
 import { getAreaDisplayName } from '../utils/gameHelpers.js';
 import { getSanStage } from '../reducers/sanReducer.js';
 import { resolveClueName } from '../utils/clueNameMap.js';
+import { CorruptibleChoice } from './SanPollutionLayer.jsx';
 // v0.9.0: Fine-grained selectors for components that don't need full state
 import { useSanLevel, useEventLog, useCurrentArea, usePollution } from '../state/selectors.js';
 

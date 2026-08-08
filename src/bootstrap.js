@@ -3,15 +3,20 @@
 // DO NOT import from components or hooks — this file must remain side-effect-only.
 
 import { configureSaveManager, enforceSaveFormatFreeze } from './engine/SaveManager.js';
-import { SAVE_VERSION, migrateSaveData, toPersistedState } from './reducers/saveMigration.js';
+import { SAVE_VERSION, migrateSaveData, toPersistedState, getPersistedStateKeys } from './reducers/saveMigration.js';
 import { setDispatch } from './runtime/eventSideEffects.js';
 import { getDispatch } from './state/useGameStore.js';
 import { initExtendedEvents } from './reducers/extendedEventsInit.js';
-import { createErrorTracker } from './utils/errorTracker.js';
+import { errorTracker } from './utils/errorTracker.js';
 import { GD as sharedGD } from './state/gameData.js';
 
 // ── Engine DI: inject save migration into SaveManager ──
-configureSaveManager({ SAVE_VERSION, migrateSaveData, toPersistedState });
+configureSaveManager({
+  SAVE_VERSION,
+  migrateSaveData,
+  toPersistedState,
+  persistedStateKeys: getPersistedStateKeys(sharedGD),
+});
 
 // ── Save format freeze enforcement ──
 enforceSaveFormatFreeze();
@@ -25,4 +30,4 @@ setDispatch(getDispatch());
 export const GD = initExtendedEvents(sharedGD);
 
 // ── Error tracker singleton ──
-export const errorTracker = createErrorTracker();
+export { errorTracker };

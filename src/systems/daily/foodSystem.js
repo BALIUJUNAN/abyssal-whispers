@@ -38,7 +38,7 @@ export function _processFoodAndStarvation(s, c, ctx) {
     npcs.forEach((npc) => {
       if (
         getNpcTrust(s, npc.name) > 0 &&
-        (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.NPC_TRUST_DECAY_CHANCE
+        c.rng.next() < GAME_BALANCE.NPC_TRUST_DECAY_CHANCE
       )
         setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) - 1));
     });

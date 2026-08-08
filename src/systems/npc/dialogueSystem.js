@@ -63,7 +63,7 @@ export function _executeTalkNpc(s, action, c, ctx) {
       var corrLines = NPC_CORRUPTION_LINES[npc.name];
       if (corrLines) {
         var lines = corrVariant === 'heavy_corruption' ? corrLines.heavy : corrLines.light;
-        if (lines && lines.length > 0 && (c.rng ? c.rng.next() : Math.random()) < 0.4)
+        if (lines && lines.length > 0 && c.rng.next() < 0.4)
           c.narr(
             'system',
             npc.name + ': "' + pick(lines, c.rng) + '"'
@@ -74,7 +74,7 @@ export function _executeTalkNpc(s, action, c, ctx) {
   // Phase 7: NPC fatigue at high loops
   {
     var fatigue = getNpcFatigueEffect(npc.name, s.loopCount, s);
-    if (fatigue && (c.rng ? c.rng.next() : Math.random()) < 0.3) {
+    if (fatigue && c.rng.next() < 0.3) {
       c.narr('system', fatigue.text, { isSpecial: true });
       if (fatigue.trustModifier !== 0)
         setNpcTrust(s, npc.name, Math.max(0, getNpcTrust(s, npc.name) + fatigue.trustModifier));
@@ -84,20 +84,20 @@ export function _executeTalkNpc(s, action, c, ctx) {
   {
     // Day milestone: key days trigger unique NPC reactions (one per day per NPC)
     var dayLine = getDaySpecificLine(npc.name, s.day);
-    if (dayLine && (c.rng ? c.rng.next() : Math.random()) < 0.5) {
+    if (dayLine && c.rng.next() < 0.5) {
       c.narr('system', npc.name + '突然说：' + dayLine, { isSpecial: true });
     }
     // Weather commentary: NPCs react to current weather
     if (s.weather && !dayLine) {
       var weatherLine = getWeatherLine(npc.name, s.weather);
-      if (weatherLine && (c.rng ? c.rng.next() : Math.random()) < 0.3) {
+      if (weatherLine && c.rng.next() < 0.3) {
         c.narr('system', npc.name + '说：「' + weatherLine + '」');
       }
     }
     // SAN level observation: NPCs notice player's deteriorating mental state
     if (!dayLine && !weatherLine && s.san < 40) {
       var sanLine = getSanLevelLine(npc.name, s.san, c.rng);
-      if (sanLine && (c.rng ? c.rng.next() : Math.random()) < 0.25) {
+      if (sanLine && c.rng.next() < 0.25) {
         c.narr('system', npc.name + '看着你说：「' + sanLine + '」', { isSpecial: true });
       }
     }

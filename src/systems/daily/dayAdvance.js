@@ -56,7 +56,7 @@ export function _advanceDayClock(s, c, ctx) {
     else if (_sanLvl >= 3) _apPolluteChance = 0.35;
     else if (s.loopCount >= 3) _apPolluteChance = 0.25;
     else if (s.loopCount >= 1 && _sanLvl >= 2) _apPolluteChance = 0.15;
-    if (_apPolluteChance > 0 && (c.rng ? c.rng.next() : Math.random()) < _apPolluteChance) {
+    if (_apPolluteChance > 0 && c.rng.next() < _apPolluteChance) {
       var _offset = _sanLvl >= 4 ? rand(2, 4, c.rng) : rand(1, 2, c.rng);
       s._apLies = true;
       s._apOffset = _offset;
@@ -144,7 +144,7 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
       );
     }
   }
-  if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MOTIF_TEXT_CHANCE) {
+  if (c.rng.next() < GAME_BALANCE.MOTIF_TEXT_CHANCE) {
     const motifText = getMotifFlavorText(
       pick(['fog', 'bell', 'water'], c.rng),
       s.safehouseCorruption || 0,
@@ -171,7 +171,7 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
   var _sanLvl = getSanStageFromGD(s.san).level;
   if (_sanLvl >= 4) {
     var passiveMadnessChance = _sanLvl >= 5 ? 0.5 : 0.3;
-    if ((c.rng ? c.rng.next() : Math.random()) < passiveMadnessChance) {
+    if (c.rng.next() < passiveMadnessChance) {
       var passiveMad = rollMadness(ctx, c.rng);
       s.madnessActive = passiveMad;
       c.effects.push({ type: 'INCREMENT_STAT', key: 'madness_count' });

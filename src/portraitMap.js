@@ -1,7 +1,9 @@
 // src/portraitMap.js - 立绘/场景图片路径映射
-// 纯数据模块，零依赖，供 app.jsx 使用
+// 纯数据模块，供 app.jsx 使用
 
-export var PORTRAIT_BASE = 'assets/webp/';
+import { NPC_REGISTRY, getNpcName, resolveNpcId } from './data/registry/npcRegistry.js';
+
+export var PORTRAIT_BASE = 'webp/';
 
 export var NPC_IMAGE_MAP = {
   '伊莱亚斯·沃德': { normal: '伊莱亚斯·沃德 正常.webp', corrupted: '伊莱亚斯·沃德 污染.webp' },
@@ -253,7 +255,7 @@ export function getEventImage(eventId) {
 }
 
 // === 结局CG映射 (webp_ending/) ===
-export var ENDING_CG_BASE = 'assets/webp_ending/';
+export var ENDING_CG_BASE = 'webp_ending/';
 
 var ENDING_CG_MAP = {
   // Behavior endings (36)
@@ -380,7 +382,7 @@ var ENDING_TYPEWRITER_PRELUDE = {
   ],
 };
 
-function getEndingCgImage(endingId) {
+export function getEndingCgImage(endingId) {
   if (!endingId) return null;
   var filename = ENDING_CG_MAP[endingId];
   if (!filename) return null;

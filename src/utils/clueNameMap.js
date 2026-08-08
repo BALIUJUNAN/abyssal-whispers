@@ -1,4 +1,8 @@
 // src/utils/clueNameMap.js — 线索 ID → 可读名称映射（惰性求值版）
+import { EXTENDED_EVENT_MODULES } from '../data/extended_events_index.js';
+import { PROLOGUE_EVENTS } from '../data/prologue_events.js';
+import { GD } from '../state/gameData.js';
+
 let _cache = null;
 export function invalidateClueNameCache() {
   _cache = null;

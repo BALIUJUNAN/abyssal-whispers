@@ -100,7 +100,7 @@ export function handleMove(s, action, c, ctx) {
     });
     if (eligible.length > 0) {
       var totalW = eligible.reduce(function (t, v) { return t + (v.weight || 1); }, 0);
-      var r = (c.rng ? c.rng.next() : Math.random()) * totalW;
+      var r = c.rng.next() * totalW;
       var chosen = eligible[0];
       for (var vi = 0; vi < eligible.length; vi++) {
         r -= eligible[vi].weight || 1;
@@ -109,7 +109,7 @@ export function handleMove(s, action, c, ctx) {
       if (chosen.description) desc += '\n\n' + chosen.description;
     }
   }
-  if (lightCorrPenalty > 1 && (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.LIGHT_CORRUPTION_CHANCE)
+  if (lightCorrPenalty > 1 && c.rng.next() < GAME_BALANCE.LIGHT_CORRUPTION_CHANCE)
     desc += '\n\n光线不足。你不确定自己看到的是不是真的。';
   desc = applyResourceTextCorruption(desc, s, c.rng);
   var areaCssClass = 'area-scene-' + target;
@@ -129,7 +129,7 @@ export function handleMove(s, action, c, ctx) {
   if (
     targetArea.micro_events &&
     targetArea.micro_events.length > 0 &&
-    (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MICRO_EVENT_CHANCE
+    c.rng.next() < GAME_BALANCE.MICRO_EVENT_CHANCE
   ) {
     var me = pick(targetArea.micro_events, c.rng);
     var meText = getSanTextVariant(me.description, s.san, pick, ctx, c.rng);
@@ -141,7 +141,7 @@ export function handleMove(s, action, c, ctx) {
         if (k === 'HP') s.hp = clamp(s.hp + v, 0, s.maxHp);
       });
   }
-  if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SILENT_EVENT_ON_MOVE) checkSilentEvent(s, c.narr, target, GD);
+  if (c.rng.next() < GAME_BALANCE.SILENT_EVENT_ON_MOVE) checkSilentEvent(s, c.narr, target, GD);
   var sceneKeyMap = {
     harbor_district: 'harbor_water',
     voxchester_manor: 'hilda_portrait',
@@ -151,7 +151,7 @@ export function handleMove(s, action, c, ctx) {
   if (
     sceneKey &&
     s.san < GAME_BALANCE.SAN_SCENE_VARIANT_GATE &&
-    (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SAN_SCENE_VARIANT_CHANCE
+    c.rng.next() < GAME_BALANCE.SAN_SCENE_VARIANT_CHANCE
   ) {
     var sceneText = getSanSceneVariant(sceneKey, s.san, ctx);
     if (sceneText) c.narr('system', sceneText);

@@ -1,12 +1,13 @@
 // src/reducers/effectReducer.js - Unified effect application system
 // All game effects (items, events, NPCs, areas, endings) go through applyEffects().
 
-import { clamp, rollDice, applySanLoss } from './utils.js';
+import { clamp, rollDice, applySanLoss, makeRand } from './utils.js';
 import { applyExtendedEffect } from './extendedEvents.js';
 import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
 import { incrementStat } from './achievementReducer.js';
 import { resolveClueName } from '../utils/clueNameMap.js';
 import { getResourceFraudState } from '../systems/resourceFraud.js';
+import { audioManager } from '../managers/AudioManager.js';
 
 /**
  * Apply a list of effects to game state.
@@ -16,12 +17,13 @@ import { getResourceFraudState } from '../systems/resourceFraud.js';
  */
 export function applyEffects(state, effects, context) {
   if (!effects) return;
+  context = context || {};
   const effectList = Array.isArray(effects) ? effects : [effects];
   for (const eff of effectList) {
     switch (eff.type) {
       case 'modify_stat': {
         const target = eff.target;
-        const amount = eff.amount_dice ? rollDice(eff.amount_dice) : eff.amount || 0;
+        const amount = eff.amount_dice ? rollDice(eff.amount_dice, context.rng) : eff.amount || 0;
         if (target === 'HP') state.hp = clamp(state.hp + amount, 0, state.maxHp);
         else if (target === 'SAN') applySanLoss(state, -amount);
         else if (state.stats[target] !== undefined)
@@ -135,18 +137,87 @@ export function applyEffects(state, effects, context) {
 }
 
 /**
+ * Apply legacy chapter-event NPC changes.
+ * Supports compact strings plus both structured field conventions found in data.
+ */
+function applyNpcChanges(state, changes) {
+  if (!Array.isArray(changes)) return;
+  if (!state.npcTrust) state.npcTrust = {};
+  if (!state.npcStates) state.npcStates = {};
+
+  for (var i = 0; i < changes.length; i++) {
+    var change = changes[i];
+    var npcId = null;
+    var trustDelta = null;
+    var status = null;
+    var corruptionFlag = null;
+    var compactOp = null;
+
+    if (typeof change === 'string') {
+      var trustMatch = /^(.*)_trust([+-]\d+)$/.exec(change);
+      if (trustMatch) {
+        npcId = trustMatch[1];
+        compactOp = 'trust';
+        trustDelta = Number(trustMatch[2]);
+      } else if (change.endsWith('_memory_trigger')) {
+        npcId = change.slice(0, -'_memory_trigger'.length);
+        compactOp = 'memory_trigger';
+      } else if (change.endsWith('_fear')) {
+        npcId = change.slice(0, -'_fear'.length);
+        compactOp = 'fear';
+      }
+    } else if (change && typeof change === 'object') {
+      npcId = change.name || change.npc || null;
+      trustDelta = typeof change.trust === 'number'
+        ? change.trust
+        : typeof change.trust_change === 'number'
+          ? change.trust_change
+          : null;
+      status = change.state || change.status || null;
+      corruptionFlag = change.corruption_flag || null;
+    }
+
+    if (!npcId) continue;
+    var npcState = state.npcStates[npcId] || { name: npcId };
+
+    if (typeof trustDelta === 'number') {
+      state.npcTrust[npcId] = clamp((state.npcTrust[npcId] || 0) + trustDelta, 0, 5);
+    }
+
+    if (status === 'dead') npcState.dead = true;
+    else if (status === 'alive') npcState.dead = false;
+    else if (status === 'corrupted') npcState.corrupted = true;
+    else if (status) npcState.status = status;
+
+    if (compactOp === 'fear') npcState.fear = true;
+    if (compactOp === 'memory_trigger') npcState.memoryTriggered = true;
+
+    if (corruptionFlag) {
+      npcState.corruptionFlags = npcState.corruptionFlags || {};
+      npcState.corruptionFlags[corruptionFlag] = true;
+      state.metaEventFlags = state.metaEventFlags || {};
+      state.metaEventFlags[corruptionFlag] = true;
+    }
+
+    state.npcStates[npcId] = npcState;
+  }
+}
+
+/**
  * Adapter: converts legacy {HP: 3, SAN: -2, food: 1, add_clue: "..."} event effect format.
  * Also handles extended event formats: npc_trust, safehouseCorruption, add_item, add_run_memory.
  */
 export function applyLegacyEffects(state, eff, rng) {
   if (!eff) return;
+  // Event definitions belong to shared GD and must remain immutable across runs.
+  eff = { ...eff };
 
   // ── Resource Fraud (SSOT: resourceFraud.js) ─────────────────
   // At low SAN, the player SEES inflated resource counts but GETS reduced actual gains.
   // This hook modifies positive resource GAINS only — consumption/loss is never affected.
   // Covers: event resource drops, NPC gifts, exploration rewards, safehouse finds.
-  var fraud = getResourceFraudState(state.san || 60, null, {});
-  var _rand = rng ? function () { return rng.next(); } : Math.random;
+  var fraud = getResourceFraudState(state.san ?? 60, rng);
+  var _rand = makeRand(rng);
   if (fraud.active && fraud.realMult < 1.0) {
     // Food gain (legacy format): reduce by realMult
     if (eff.food && eff.food > 0) {
@@ -180,6 +251,7 @@ export function applyLegacyEffects(state, eff, rng) {
     'add_clue',
     'add_item',
     'npc_trust',
+    'npc_changes',
     'safehouseCorruption',
     'add_run_memory',
     'unlock_ending_condition',
@@ -190,9 +262,9 @@ export function applyLegacyEffects(state, eff, rng) {
     console.warn('[applyLegacyEffects] 未识别字段将被忽略: ' + unknownKeys.join(', '), eff);
   }
   // HP / SAN (both casings)
-  if (eff.HP) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.HP }]);
-  if (eff.hp) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.hp }]);
-  if (eff.san) applyEffects(state, [{ type: 'modify_stat', target: 'SAN', amount: eff.san }]);
+  if (eff.HP) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.HP }], { rng: rng });
+  if (eff.hp) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.hp }], { rng: rng });
+  if (eff.san) applyEffects(state, [{ type: 'modify_stat', target: 'SAN', amount: eff.san }], { rng: rng });
   // Food
   if (eff.food) state._foodDelta = (state._foodDelta || 0) + eff.food;
   // Mythos: SAN门控 — 只有SAN<50或轮回>=3时才能吸收神话知识
@@ -212,7 +284,7 @@ export function applyLegacyEffects(state, eff, rng) {
   if (eff.add_flag) {
     const flags = Array.isArray(eff.add_flag) ? eff.add_flag : [eff.add_flag];
     for (const fid of flags) {
-      applyEffects(state, { type: 'add_flag', flag_id: fid });
+      applyEffects(state, { type: 'add_flag', flag_id: fid }, { rng: rng });
     }
   }
   // Clues (string or array)
@@ -232,7 +304,7 @@ export function applyLegacyEffects(state, eff, rng) {
   }
   // Items
   if (eff.add_item) {
-    applyEffects(state, [{ type: 'add_item', ...eff.add_item }]);
+    applyEffects(state, [{ type: 'add_item', ...eff.add_item }], { rng: rng });
   }
   // NPC trust: { "NPC名": amount }
   if (eff.npc_trust) {
@@ -241,6 +313,9 @@ export function applyLegacyEffects(state, eff, rng) {
       if (state._npcTrustLocked && state._npcTrustLocked[npcId]) continue;
       state.npcTrust[npcId] = Math.min(5, Math.max(0, (state.npcTrust[npcId] || 0) + amount));
     }
+  }
+  if (eff.npc_changes) {
+    applyNpcChanges(state, eff.npc_changes);
   }
   // Safehouse corruption
   if (eff.safehouseCorruption) {

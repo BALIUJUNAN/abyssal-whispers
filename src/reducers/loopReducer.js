@@ -207,8 +207,9 @@ export function initLoopState(f, s, ctx, options = {}) {
   f.lastDeathType = s.hp <= 0 ? 'physical' : s.san <= 0 ? 'mental' : null;
   // SAN崩溃计数跨循环搬入
   f.sanityCollapseCount = (s.sanityCollapseCount || 0);
-  // Carry reference for madness memory injection in BEGIN_ADVENTURE
-  f._prevRunStateForSanLegacy = s._prevRunStateForSanLegacy || s;
+  // loopSlice installs a plain SAN-legacy snapshot after this function returns.
+  // Never retain the mutable/Immer source state here.
+  f._prevRunStateForSanLegacy = null;
 
   // ── 2) 循环计数 & 环境效果 ──
   f.loopCount = (s.loopCount || 0) + 1;

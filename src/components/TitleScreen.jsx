@@ -1,4 +1,5 @@
 // src/components/TitleScreen.jsx — 游戏标题画面
+import React from 'react';
 import { audioManager } from '../managers/AudioManager.js';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 

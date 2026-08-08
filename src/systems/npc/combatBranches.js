@@ -2,10 +2,10 @@
 // Extracted from npcSlice.js NPC_RESPONSE case.
 
 import { rand, applySanLoss } from '../../reducers/utils.js';
-import { getNpcTrust, setNpcTrust, modHumanity, addRunMemory } from '../../utils/appHelpers.js';
+import { getNpcTrust, setNpcTrust, setNpcState, modHumanity, addRunMemory } from '../../utils/appHelpers.js';
 import { propagateTrustChange, propagateFactionStanding } from '../../systems/npcRelationshipSystem.js';
 import { getNpcsHere } from '../../utils/npcLocation.js';
-import { _warnTrustDrop } from './npcResponseDispatcher.js';
+import { warnTrustDrop } from '../../systems/npcFeedback.js';
 
 export function _executeAttack(s, npc, trust, ns, c, ctx) {
   if (s.ap < 2) {
@@ -42,7 +42,7 @@ export function _executeAttack(s, npc, trust, ns, c, ctx) {
   } else {
     const dmg = rand(2, 8, c.rng);
     s.hp = Math.max(0, s.hp - dmg);
-    { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, Math.max(0, _old - 2)); _warnTrustDrop(c, npc.name, _old, Math.max(0, _old - 2));
+    { const _old = getNpcTrust(s, npc.name); setNpcTrust(s, npc.name, Math.max(0, _old - 2)); warnTrustDrop(c, npc.name, _old, Math.max(0, _old - 2));
       propagateTrustChange(npc.name, -2, s, c); propagateFactionStanding(npc.name, -2, s); }
     c.narr(
       'system',
@@ -55,7 +55,7 @@ export function _executeAttack(s, npc, trust, ns, c, ctx) {
         '激烈反抗。HP -' +
         dmg
     );
-    if ((c.rng ? c.rng.next() : Math.random()) < 0.5) {
+    if (c.rng.next() < 0.5) {
       setNpcState(s, npc.name, { ...ns, fled: true });
       c.narr('system', npc.name + '惊恐地逃走了。你可能再也找不到他了。');
     }
@@ -92,7 +92,7 @@ export function _executePostKillCannibal(s, npc, c) {
 
 export function _executePostKillLeave(s, npc, c) {
   s.pendingNpc = null;
-  const witnesses = getNpcsHere(s).filter((n2) => n2.name !== npc.name);
+  const witnesses = getNpcsHere(s, { GD: s._GD }).filter((n2) => n2.name !== npc.name);
   if (witnesses.length > 0) {
     c.narr('system', witnesses[0].name + '看到了刚才发生的事。TA 的眼神里充满了恐惧。');
   }

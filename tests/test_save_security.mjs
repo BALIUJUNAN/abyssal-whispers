@@ -1,6 +1,9 @@
 // tests/test_save_security.mjs — Save import security tests (ADR-010)
 // Tests validateSaveSchema, quarantineSave, and CONTINUE_GAME whitelist copy.
-import { validateSaveSchema, quarantineSave, SAVE_FORMAT_SPEC } from '../src/engine/SaveManager.js';
+import { validateSaveSchema, quarantineSave, SAVE_FORMAT_SPEC, configureSaveManager } from '../src/engine/SaveManager.js';
+import { getPersistedStateKeys } from '../src/reducers/saveMigration.js';
+
+configureSaveManager({ persistedStateKeys: getPersistedStateKeys({}) });
 
 let passed = 0, failed = 0;
 function assert(name, cond) {
@@ -22,9 +25,11 @@ function makeValidSave(overrides) {
       skills: {}, archetype: null,
       inventory: [], clues: [],
       currentArea: 'town_center', visitedAreas: ['town_center'],
-      npcTrust: {}, sealState: 'sealed', weather: 'clear',
-      safehouseCorruption: 0, dayCount: 1,
-      flags: [], eventLog: [], runMemory: [],
+      npcTrust: {}, npcStates: {}, npcRelations: {}, sealState: 'sealed', weather: 'clear',
+      safehouseCorruption: 0, currentSafehouse: 'main',
+      day: 1, ap: 12, maxAp: 12, food: 3, money: 0, loopCount: 0, runSeed: 'test_seed',
+      objectives: [], triggeredEvents: [], triggeredSilentEvents: [],
+      eventLog: [], runMemory: [],
       behaviorTracking: {},
     },
   };
@@ -35,6 +40,22 @@ function makeValidSave(overrides) {
     return cloned;
   }
   return base;
+}
+
+// Persisted nested state must survive sanitization instead of being coerced to 0.
+{
+  var nested = makeValidSave({
+    state: {
+      behaviorTracking: {
+        mercy_shown_count: 2,
+        _npc_harm_tally: { npc_hilda: 1 },
+        _dilemmaChoices: [{ id: 'probe', choice: 'help' }],
+      },
+    },
+  });
+  var nestedResult = validateSaveSchema(nested);
+  assert('nested behavior state preserved', nestedResult.sanitized.state.behaviorTracking._npc_harm_tally.npc_hilda === 1);
+  assert('nested behavior arrays preserved', nestedResult.sanitized.state.behaviorTracking._dilemmaChoices[0].choice === 'help');
 }
 
 function deepMerge(target, source) {

@@ -134,7 +134,7 @@ export function getItemDef(itemId, ctx) {
   return items.find((i) => i.id === itemId);
 }
 
-export function useItemByDef(state, item, narr, ctx) {
+export function useItemByDef(state, item, narr, ctx, rng) {
   const def = getItemDef(item.id, ctx);
   if (!def) return false;
 
@@ -148,7 +148,7 @@ export function useItemByDef(state, item, narr, ctx) {
   }
 
   if (def.effects && def.effects.length > 0) {
-    applyEffects(state, def.effects, { source: 'item_use', item_id: item.id });
+    applyEffects(state, def.effects, { source: 'item_use', item_id: item.id, rng: rng });
     const effectDesc = def.effects
       .map((e) => {
         if (e.type === 'modify_stat') return `${e.target} ${e.amount > 0 ? '+' : ''}${e.amount}`;

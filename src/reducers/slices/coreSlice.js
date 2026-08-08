@@ -17,7 +17,7 @@ export function handleCoreAction(s, action, c, ctx) {
       s.screen = 'prologue';
       s.prologue = initPrologueState();
       s.fearTuning = null;
-      s.skills = initSkills();
+      s.skills = initSkills(ctx);
       return null;
     case 'SET_DIFFICULTY': {
       const lv = action.difficulty;
@@ -35,7 +35,7 @@ export function handleCoreAction(s, action, c, ctx) {
           .base_stats || {};
       const st = {};
       Object.entries(d).forEach(([k, v]) => {
-        st[k] = typeof v === 'object' ? rollDice(v.dice) * (v.multiplier ?? 5) : 50;
+        st[k] = typeof v === 'object' ? rollDice(v.dice, c.rng) * (v.multiplier ?? 5) : 50;
       });
       // Fallback: if base_stats was empty (GD not loaded), use safe defaults
       const _statNames = ['STR', 'CON', 'DEX', 'APP', 'POW', 'INT', 'SIZ', 'EDU'];
@@ -58,11 +58,12 @@ export function handleCoreAction(s, action, c, ctx) {
         if (typeof st[k] === 'number') st[k] = Math.max(1, st[k]);
       });
       s.stats = st;
+      s.statsRolled = true;
       s.maxHp = Math.max(1, Math.floor((st.CON + st.SIZ) / 10));
       s.hp = s.maxHp;
       s.san = st.POW;
       s.maxSan = 99;
-      s.luck = rollDice('3d6') * 5;
+      s.luck = rollDice('3d6', c.rng) * 5;
       s.mp = Math.max(1, Math.floor(st.POW / 5));
       // Occultist SAN penalty: reduced maxSan ceiling, not starting SAN
       if (archDef?.starting_san_penalty) {
@@ -71,7 +72,7 @@ export function handleCoreAction(s, action, c, ctx) {
       }
       // Floor SAN at 40 for Chapter 1 pacing.
       s.san = Math.max(40, s.san);
-      s.skills = { ...initSkills() };
+      s.skills = { ...initSkills(ctx) };
       s.skills['闪避'] = Math.floor(st.DEX / 2);
       s.skills['意志'] = Math.floor(st.POW / 2);
       // Apply archetype skill bonuses (P1-1)

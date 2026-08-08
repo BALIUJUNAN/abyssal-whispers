@@ -10,7 +10,7 @@
 // Moral dilemma choices schedule delayed effects that fire on future days.
 
 import { NPC_RELATIONSHIPS, FACTIONS, MORAL_DILEMMAS } from '../data/npcRelationshipWeb.js';
-import { setNpcTrust, getNpcTrust } from '../utils/appHelpers.js';
+import { getNpcState, setNpcState, setNpcTrust, getNpcTrust } from '../utils/appHelpers.js';
 import { modHumanity } from '../utils/appHelpers.js';
 import { addRunMemory } from '../utils/appHelpers.js';
 

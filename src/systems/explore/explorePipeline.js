@@ -18,7 +18,7 @@ import { doSkillCheck, getGambleOptions, processNormalAnchorEvent } from '../../
 import { _applyMadnessEffects } from './madnessEffectSystem.js';
 import { resolveDeath } from '../../reducers/deathSystem.js';
 import { generateFakeOptions } from '../../systems/sanConsequenceChain.js';
-import { addRunMemory, narrApInsufficient, checkSilentEvent } from '../../utils/appHelpers.js';
+import { addRunMemory, applyDeathResolution, narrApInsufficient, checkSilentEvent } from '../../utils/appHelpers.js';
 import { EARLY_WHISPERS } from '../../systems/earlyHooks.js';
 import { getPollutionText } from '../../reducers/loopReducer.js';
 import { applyFearLens } from '../../systems/fearLens.js';
@@ -27,6 +27,8 @@ import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { getEventImage, getAreaSceneImage } from '../../portraitMap.js';
 import { renderEventText, narrateEvent } from './textRenderingPipeline.js';
 import { pick } from '../../reducers/utils.js';
+import { getPhase } from '../../engine/WorldTimeSystem.js';
+import { maybeInjectPhantomNarrative } from '../../systems/textVariants.js';
 
 // ── Phase 1: Chapter milestone ─────────────────────────────────────
 
@@ -249,7 +251,7 @@ function handlePostProcessing(evt, s, c, GD) {
   _postExploreProcessing(evt, s, c, GD);
 
   // Chapter 1 early whisper: 20% chance on Days 1-3, first loop only
-  if (s.day <= 3 && s.loopCount <= 0 && (c.rng ? c.rng.next() : Math.random()) < 0.2) {
+  if (s.day <= 3 && s.loopCount <= 0 && c.rng.next() < 0.2) {
     var whispers = EARLY_WHISPERS[s.currentArea];
     if (whispers && whispers.length > 0) {
       c.narr('system', pick(whispers, c.rng), { isSpecial: true });

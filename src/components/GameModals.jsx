@@ -14,6 +14,7 @@ import { NotebookModal } from './GamePanels.jsx';
 import { ShopModal } from './ShopModal.jsx';
 import { AppToast } from './AppToast.jsx';
 import { UgcPanel } from './UgcImportExport.jsx';
+import { getAllAchievements, loadAchievements } from '../reducers/achievementReducer.js';
 
 export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, onSaveOpen, onLoadOpen, dispatch }) {
   const update = (key, val) => onChange({ ...settings, [key]: val });

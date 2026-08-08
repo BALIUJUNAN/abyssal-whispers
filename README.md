@@ -10,7 +10,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_%2B_singlefile-green)
-![Tests](https://img.shields.io/badge/tests-700_passed_%2F_0_failed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-750_passed_%2F_0_failed-brightgreen)
 ![Version](https://img.shields.io/badge/version-0.9.8-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
@@ -33,7 +33,7 @@ npm install
 npm run dev          # → http://localhost:3000
 
 # 方式二：构建后预览
-npm run build        # → dist/ (587字节HTML + 分块JS + 音频 + 图片)
+npm run build        # → dist/dev.html（自包含单页）+ audio/
 npx vite preview     # → http://localhost:4173
 
 # 方式三：内容编辑器
@@ -93,7 +93,7 @@ npm run tauri:build
 | **代码规模**   | ~54,000 行 JS/JSX — 120+ 个源文件（app.jsx 瘦身至 200 行 thin orchestrator）                                                                                          |
 | **数据校验**   | Zod Schema 855条数据全量校验 + SaveManager 安全扫描（scanSaveSecurity / sanitizeSaveState）                                                                           |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
-| **测试覆盖**   | 16 个套件 ~700 项（完整流程 48 + 存档安全 + 事件 lint 100 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + slice handler 单元测试 40 + 其他），拼接/Vite 双构建验证                                                          |
+| **测试覆盖**   | **18 个套件、750 项**（完整流程 48 + 存档安全 45 + 回归 13 + combineSlices 78 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + 其他），Vite ESM 构建验证；另有 16 项 Playwright 浏览器流程测试 |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -163,7 +163,7 @@ npm run tauri:build
 - `FloatingInfoBar` — 悬浮 HUD，显示位置/时间/SAN/HP/AP/封印状态/天气等核心信息
 - `AreaPanelModal` — 点击热点后弹出的功能面板（行动/NPC 对话/区域信息）
 
-**经典模式**保持原有 `GamePanels` 三栏布局不变。
+**经典模式**暂时保留原有 `GamePanels` 三栏布局，作为地图模式功能迁移期间的兼容入口；待技能检定、赌博、战斗、物品和禁忌行动完成地图模式覆盖与 E2E 验证后再退役。
 
 ### 理智值 (SAN) 系统
 
@@ -477,9 +477,9 @@ Copyright © 2024-2026 BALIUJUNAN. All Rights Reserved.
 ### 整体架构
 
 ```
-React 18 + Zustand + Immer middleware + combineSlices 声明式切片
+React 19 + Zustand + Immer middleware + combineSlices 声明式切片
   → useGameStore (Zustand + immer) — 唯一游戏状态源，dispatch → rootReducer → flushEffects
-  → src/state/combineSlices.js — createSlice 工厂 + rootReducer 组合器，before/after 三阶段执行
+  → src/state/combineSlices.js — createSlice 工厂 + rootReducer 组合器，before/reducer/after 事务式执行，异常完整回滚
   → 8 个 domain slice（core/explore/npc/daily/dark/ui + systemSlice cross-cutting）— 薄调度层，逻辑委托 src/systems/{explore,npc,daily}/
   → 引擎层 (src/engine/) — 纯 JavaScript，独立 npm 包，零游戏导入，DI 注入
   │    EventEngine / WorldTimeSystem / SaveManager（含安全扫描）/ PollutionManager
@@ -728,7 +728,7 @@ COC/
 │   │   └── ...
 │
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 16 个测试套件（700+ tests）
+├── tests/                    # 18 个测试套件（750 tests）+ 16 项 Playwright E2E
 │   ├── test_effect_protocol.cjs       # 效果协议测试（19 tests）
 │   ├── test_game_data_protocol.cjs    # 游戏数据协议测试（10 tests）
 │  ├── test_event_system.cjs          # 事件系统测试（19 tests）
@@ -1032,10 +1032,10 @@ UGC 模组有严格的安全限制：
 
 | 流水线 | 触发 | 功能 |
 |--------|------|------|
-| **PR Quality Gate** | PR → main/develop | 测试 + 6 项 lint（schema/engine/narrative/npc/mod）+ Vite 构建 + Legacy 构建 + 格式检查，一步失败阻断合入 |
-| **Main CI** | push → main/develop | 5 个并行 job：Lint（schema/engine/narrative/npc/mod）→ Test（10min 超时）→ Vite Build（产物上传）→ Legacy Build（产物上传）→ Format Check |
-| **Preview Deploy** | push → develop | 继承 lint + test + legacy build 结果，构建后部署到 GitHub Pages（`/preview/` 子目录） |
-| **Release** | push tag `v*` | 测试 + Legacy 构建 + 自动生成 changelog + GitHub Release + 上传 `index.html` |
+| **PR Quality Gate** | PR → main/develop | 750 项测试 + lint + Vite 构建 + Chromium E2E + 格式检查，一步失败阻断合入 |
+| **Main CI** | push → main/develop | Lint → Test → Vite Build → Chromium E2E，并独立执行格式检查 |
+| **Preview Deploy** | push → develop | 继承 lint + test + Vite build 结果，构建后部署到 GitHub Pages（`/preview/` 子目录） |
+| **Release** | push tag `v*` | 测试 + Vite 构建 + 自动生成 changelog + GitHub Release |
 
 **Node.js 版本**：22.15.0 LTS（CI + 本地 `.nvmrc` 同步）
 
@@ -1043,11 +1043,13 @@ UGC 模组有严格的安全限制：
 
 **快速测试命令**：
 ```bash
-npm test                  # 全量测试（700 tests / 16 suites）
+npm test                  # 全量测试（750 tests / 18 suites）
 npm run lint:schema       # 数据 Schema 校验
 npm run lint:engine       # 引擎边界检查
 npm run mod:validate      # Mod 格式校验
 npm run build             # Vite 生产构建
+npx playwright install chromium  # 首次运行浏览器测试前安装 Chromium
+npm run test:e2e          # 16 项浏览器端主流程测试
 ```
 
 ---
@@ -1297,7 +1299,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 | **事件系统**         | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents，629 事件 + 102 结局 + has_flag 软连锁       |
 | **SAN 系统**         | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现                  |
 | **子系统**           | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk                          |
-| **构建流程**         | **9.5/10** | ✅ Vite 主线（ESM + HMR）；Legacy 单文件保留；verify 覆盖双构建；注释安全删除 + token 边界保护 |
+| **构建流程**         | **9.5/10** | ✅ Vite + vite-plugin-singlefile 唯一构建链；ESM import 解析、测试与浏览器 E2E 由 CI 验证 |
 | **开发体验**         | **9.5/10** | ✅ DevPanel(~) + 双Store选择器 + 三滑块SAN控制 + GAME_BALANCE 常量                             |
 
 ### 架构优势
@@ -1309,7 +1311,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 - ✅ **Slice 领域拆分** — exploreSlice（928行）和 npcSlice（774行）拆分到 `src/systems/explore/`（3 域文件）和 `src/systems/npc/`（6 域文件），切片文件变为薄调度层（explore ~70行，npc ~55行）
 - ✅ **引擎层纯 JavaScript** — 移除 3 个孤立 `.ts` 文件（EventEngine/PollutionManager/SaveManager）和 `tsconfig.json`，ENGINE_CONTRACT.md 记录 JS-only 规则
 - ✅ **CJS 保留策略** — tests/scripts 保留 CJS（~50 文件），src/ 强制 ESM，ADR-030 记录边界规则
-- ✅ **错误隔离** — 钩子/处理器各自 try/catch，单点失败不阻塞 action 链路
+- ✅ **事务式分发** — before/reducer/after 任一阶段失败即终止，Immer 完整回滚；错误附带 action/slice/phase 并由 Store 统一报告
 - ✅ **JSDoc 类型注解** — SliceConfig/SliceReducer/BeforeHook/AfterHook 四个 typedef，对齐未来 TS 迁移
 - ✅ **SAN SSOT** — `getCurrentSanStage()` 统一查询，6阶段×4维度配置，修改JSON即全局生效
 - ✅ **引擎层独立** — `src/engine/` 5 个引擎模块（纯 JavaScript），核心逻辑与 UI 完全解耦 + 确定性 RNG
@@ -1357,6 +1359,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **未发布** | 2026-08-09 | **稳定性收尾** — 完成 NEW_GAME 与存档往返修复、reducer ctx/RNG/ESM 依赖治理、Immer Map/Set 支持和循环依赖清理；`combineSlices` 改为 fail-fast 事务分发，异常完整回滚并统一记录；测试扩展至 18 套件 750 项，补充回归、未定义变量和浏览器 E2E 检查；地图模式作为默认入口，经典三栏暂留待功能等价后退役。 |
 | **0.9.7** | 2026-07-02 | **工程质量升级：build.py 退役 + ESM 清算 + 内容质量验证** — ①删除 `build.py` 和 `build-web.cjs`，Vite + vite-plugin-singlefile 为唯一构建系统，消除双注册/构建顺序依赖债务；②`.cjs` 校验工具从 `src/data/validators/` 迁移至 `scripts/validators/`，与 ESM 游戏数据目录彻底分离；③`src/` 目录全部 `.cjs` 残留清零，ESM import 完全接管；④Zod 数据验证接入 main.jsx bootstrap，malformed 数据不再静默失败；⑤`s.clues` 混合类型归一化，10 个 push 点统一为 `{id, name}` 对象格式，消除 `[object Object]` 显示 bug；⑥`.gitattributes` 引入 + `git add --renormalize`，CRLF 编码警告全部消除；⑦`tests/test_effect_protocol.cjs` Test 17 从 build order 校验迁移为 ESM import 存在性验证；⑧`loop_contradiction_001` 叙事文本重写（75→99分），消除唯一 B 级事件；⑨全量测试 608 passed / 0 failed / 14 suites |
 | **0.9.8** | 2026-07-07 | **架构重构：useEffect 拆分 + 全局变量治理 + 事件数据归拢 + E2E 测试 + 存档安全加固** — ①app.jsx 从 678 行瘦身至 200 行（-70%）：13 个 useEffect 块拆分为 `src/hooks/` 下 13 个自定义 hooks（useSeedStore/useMigrateOldSaves/useAudioSettingsInit/useAudioAutoplayUnlock/useReducedMotion/useNotebookTutorialSync/usePageZoom/useEndingCgPreload/useChapterLazyLoad/useAchievementCheck/useSanLossHint/useBootHint/useLevel13Glitch），3 个状态聚合 hook（useGameData/useDispatchWrapper/useUiState），`bootstrap.js` 提取模块级启动引导；②全局变量治理：`window.GD` 和模块级 `GD` 全局引用消除，`sanityVisual.js` / `getVisualForSan` / `getPerceptionLevels` / `applyMythosAliases` / `applyTextFragmentation` 全部改为 `ctx.GD` 参数传递，`selectors.js` 通过 `state._GD` 订阅，`sanReducer.js` 通过 `useGameStore.getState()._GD` 读取；③`useAppGameData()` 移除（死代码，零组件消费），App 改用 `useGameData()` + `useUiState()` 聚合 hook；④事件数据归拢：18 个 `events_*.js` 从 `src/data/` 移入 `src/data/events/`，统一路径，更新 9 个文件的导入 + integration_test 路径；⑤Playwright E2E 骨架：4 个测试文件（game-startup/first-san-loss/settings-persistence/save-load/explore-actions），自动启动 dev server；⑥SaveManager 安全加固（ADR-010）：`scanSaveSecurity()` 深度扫描存档 JSON（危险键模式/危险值正则/深度上限 10/数组长度上限 500），`sanitizeSaveState()` 白名单清洗（仅允许 `SAVE_FORMAT_SPEC.requiredStateKeys` + 显式扩展键），`CONTINUE_GAME` handler 白名单复制（loopSlice.js），防止恶意存档数据通过 `__proto__` / 构造器污染 / 脚本注入攻击运行时；⑦loopSlice.js 清理 71 个未使用导入；全量测试通过，Vite build 1.26s |
 | **0.9.6** | 2026-06-30 | **Zustand 5 迁移修复 + 每日流程领域拆分** — ①dailySlice 按领域拆分为 7 个独立系统文件（foodSystem/safehouseSystem/restRecovery/dayAdvance/dayCritical/nightEffects/dayOpen），从 594 行瘦身至 108 行纯调度层；②修复 Zustand 5.0.14 不支持 equalityFn 导致所有返回对象的 selector 触发无限重渲染（Maximum update depth exceeded），全部改用 useMemo 缓存；③修复 `buildSliceCtx` 缺失 `view` 属性导致区域场景图永远显示默认变体；④修复 Immer autoFreeze 冻结 GD 导致 `initExtendedEvents` 报错；⑤修复 `uiStore.settings: null` 导致渲染阶段 `set()` 调用；⑥`main.jsx` 静态 JSON import 替代 fetch()；⑦`seedGameStore` 移至 React 渲染前执行；⑧所有 selector 函数提取为模块级常量（稳定引用）；⑨`ScreenTransition` 修复 children 缓存导致同屏更新失效；⑩关闭 Immer autoFreeze 避免开发模式冻结问题；⑪mistake.txt 新增条目 #46（Zustand 5 equalityFn 缺失） |

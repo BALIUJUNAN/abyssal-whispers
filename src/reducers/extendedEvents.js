@@ -29,6 +29,16 @@ import {
 } from '../data/events/events_missing_600.js';
 import { checkOmens } from '../data/events/events_omens_600.js';
 import { getEventRarityWeight, checkLegendaryTrigger, checkSecretTrigger, getRarityHint } from '../systems/eventRarity.js';
+import {
+  applyBufferEnforcement,
+  getBehaviorWeightMultiplier,
+  getCooldownDecayFactor,
+  getDayCycleWeightMultiplier,
+  getFearProfileMultiplier,
+  getTimeOfDayWeightMultiplier,
+  recordEventCooldown,
+} from '../engine/EventEngine.js';
+import { getResourceEventWeightModifier } from '../systems/resourceNarrative.js';
 
 // =============================================
 // SECTION 1: Extended Trigger Checking
@@ -548,16 +558,6 @@ export function getEventWeight(evt, areaId, state, ctx) {
     weight *= getFearProfileMultiplier(evt, state);
   }
 
-  // Phase 5: SAN-scaled weight — lower SAN boosts horror, higher SAN boosts buffer
-  if (typeof getSanWeightMultiplier === 'function') {
-    weight *= getSanWeightMultiplier(evt, state);
-  }
-
-  // Phase 5: Area corruption multiplier
-  if (typeof getAreaCorruptionMultiplier === 'function') {
-    weight *= getAreaCorruptionMultiplier(evt, state);
-  }
-
   // Narrative Month: Day-of-cycle weight — critical days escalate horror
   if (typeof getDayCycleWeightMultiplier === 'function') {
     weight *= getDayCycleWeightMultiplier(evt, state);
@@ -584,10 +584,10 @@ export function getEventWeight(evt, areaId, state, ctx) {
       const currentChapter = state.currentChapter || 'chapter_1';
       const hdc = GD.systems?.horror_density_control || GD.implementation_notes?.horror_density_control;
       if (hdc) {
+        const todayTypes = state._todayEventTypes || [];
         const chapterRule = hdc.per_chapter?.[currentChapter];
         if (chapterRule && chapterRule.abnormal_ratio_max < 1) {
           // Count how many abnormal events have been triggered today vs total
-          const todayTypes = state._todayEventTypes || [];
           const totalToday = todayTypes.length;
           const abnormalToday = todayTypes.filter(t => abnormalTypes7.includes(t.type)).length;
           const currentRatio = totalToday > 0 ? abnormalToday / totalToday : 0;
@@ -627,7 +627,7 @@ export function getEventWeight(evt, areaId, state, ctx) {
 
   // NPC proximity: npc_initiated events get boosted when player is near relevant NPCs
   if (evt.trigger?.npc_initiated && weight > 0) {
-    var npcsHere = getNpcsHere(state);
+    var npcsHere = getNpcsHere(state, { GD: state._GD });
     var proximityMult = 1.0;
     for (var ni = 0; ni < npcsHere.length; ni++) {
       var npcName = npcsHere[ni].name;

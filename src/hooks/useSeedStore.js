@@ -1,7 +1,7 @@
 // src/hooks/useSeedStore.js
 // Phase 1 extract: useEffect #1 — Seed Zustand store on mount + loading screen removal
 import { useEffect } from 'react';
-import { seedGameStore } from '../state/useGameStore.js';
+import { seedGameStore, useGameStore } from '../state/useGameStore.js';
 
 export function useSeedStore(GD) {
   useEffect(function () {

@@ -428,9 +428,10 @@ export var AREA_DISTORTIONS = {
  *
  * @param {object} area - area object with .id and .name
  * @param {object} state - game state
+ * @param {object|null} rng - optional seeded RNG
  * @returns {string} distorted or original name
  */
-export function getDistortedName(area, state) {
+export function getDistortedName(area, state, rng) {
   if (!area) return '???';
   if (state.areaNameCache && state.areaNameCache[area.id]) return state.areaNameCache[area.id];
 

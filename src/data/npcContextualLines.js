@@ -1,6 +1,8 @@
 // src/data/npcContextualLines.js - Expanded NPC contextual dialogue
 // 8 NPCs, ~170 lines. Support: trust, time, san, loop, items, area, death legacy
 
+import { getPhase } from '../engine/WorldTimeSystem.js';
+
 export function selectContextualLine(npcName, state, opts) {
   var pool = NPC_CONTEXTUAL_LINES[npcName];
   if (!pool || pool.length === 0) return null;

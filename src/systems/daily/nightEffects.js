@@ -30,7 +30,7 @@ export function _processNpcCorruption(s, c, ctx) {
   const sealRate = (sm?.npc_corruption_rate || 0.05) * 0.3;
   (GD.npcs || GD.module3_npcs || []).forEach((npc) => {
     if (getNpcState(s, npc.name).dead || getNpcState(s, npc.name).corrupted) return;
-    if ((c.rng ? c.rng.next() : Math.random()) < sealRate)
+    if (c.rng.next() < sealRate)
       setNpcState(s, npc.name, {
         ...getNpcState(s, npc.name),
         corrupted: true,

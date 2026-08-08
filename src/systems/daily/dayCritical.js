@@ -54,13 +54,13 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
   if (sanFloor > 0 && s.san < sanFloor) {
     s.san = sanFloor;
   }
-  if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.WORLD_DECAY_CHANCE) {
+  if (c.rng.next() < GAME_BALANCE.WORLD_DECAY_CHANCE) {
     const decayText = getWorldDecayNarrative(s.day, s.safehouseCorruption || 0, s);
     if (decayText) c.narr('system', decayText);
   }
   // DESIGN_REFACTOR_NOTES.md: "Day 7后harbor_district自动增加深潜者相关模糊事件"
   // 30% chance of harbor whisper when player rested near harbor, Day 7+
-  if (s.day >= 7 && (c.rng ? c.rng.next() : Math.random()) < 0.3) {
+  if (s.day >= 7 && c.rng.next() < 0.3) {
     var lastArea = s._dayStartArea || s.currentArea || '';
     if (lastArea === 'harbor_district' || lastArea === 'town_center') {
       var harborWhisper = getHarborDeepOneWhisper(s.day, s.safehouseCorruption || 0, s);

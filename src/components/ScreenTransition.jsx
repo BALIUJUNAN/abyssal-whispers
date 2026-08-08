@@ -1,4 +1,5 @@
 // src/components/ScreenTransition.jsx - Screen transition with Canvas + audio
+import React from 'react';
 const { useState, useEffect, useRef } = React;
 import { TransitionCanvas } from "./TransitionCanvas.jsx";
 import { audioManager } from "../managers/AudioManager.js";
@@ -60,7 +61,7 @@ export function ScreenTransition({ screenKey, children, duration }) {
     if (phase === "visible" && screenKey === prevKey.current) {
       setRenderChildren(childrenRef.current);
     }
-  }, [phase, screenKey]);
+  }, [children, phase, screenKey]);
 
   useEffect(function () {
     if (screenKey === prevKey.current) return;

@@ -1,4 +1,5 @@
 // src/components/NPCDialog.jsx - NPC dialog component (extracted from GamePanels.jsx)
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { applyMythosAliases, maybeCorruptNpcName } from '../systems/textVariants.js';
 import { applyTextFragmentation } from '../systems/textFragmentation.js';
@@ -127,7 +128,7 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
         {/* NPC perception variant — SAN-dependent description */}
         {(() => {
           try {
-            var pv = getNpcPerceptionVariant(npc.name, state || {}, { GD });
+            var pv = getNpcPerceptionVariant(npc.name, state || {}, { GD: state?._GD || {} });
             if (pv && pv.text) {
               return (
                 <div style={{

@@ -2,14 +2,17 @@
 //
 // Run: node tests/test_combineSlices.cjs
 // Covers: createSlice, combineSlices, ownedFieldChange, getOwnedFields,
-//         legacy handlers, before/after hooks, error isolation, immer integration.
+//         legacy handlers, before/after hooks, fail-fast errors, Immer rollback.
 
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { produce } from 'immer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import { createSlice, combineSlices, ownedFieldChange, getOwnedFields }
   from '../src/state/combineSlices.js';
+import { useGameStore } from '../src/state/useGameStore.js';
+import { errorTracker } from '../src/utils/errorTracker.js';
 
 // ═══════════════════════════════════════════════════════════════
 // Test harness
@@ -160,8 +163,9 @@ assert(typeof rootReducer === 'function', '2b: rootReducer is function');
 
 // 2c. Dispatch INCREMENT
 var state2 = { count: 0 };
-rootReducer(state2, { type: 'INCREMENT' }, createTestC());
+var handledResult = rootReducer(state2, { type: 'INCREMENT' }, createTestC());
 assertEqual(state2.count, 1, '2c: INCREMENT');
+assertEqual(handledResult.handled, true, '2c: declarative action reports handled');
 
 // 2d. Dispatch SET
 rootReducer(state2, { type: 'SET', payload: 42 }, createTestC());
@@ -172,8 +176,9 @@ rootReducer(state2, { type: 'DECREMENT' }, createTestC());
 assertEqual(state2.count, 41, '2e: DECREMENT');
 
 // 2f. Unhandled action — no change
-rootReducer(state2, { type: 'UNKNOWN' }, createTestC());
+var unknownResult = rootReducer(state2, { type: 'UNKNOWN' }, createTestC());
 assertEqual(state2.count, 41, '2f: UNKNOWN no-op');
+assertEqual(unknownResult.handled, false, '2f: UNKNOWN reports unhandled');
 
 // ── 3. combineSlices — multiple slices ───────────────────
 
@@ -316,13 +321,14 @@ assertEqual(hookLog[1].phase, 'after', '6d: after second');
 // Hooks receive state (mutation visible in after)
 assertEqual(hookLog[1].count, 1, '6e: after sees mutated state');
 
-// ── 7. hook error isolation ──────────────────────────────
+// ── 7. hook errors fail fast ─────────────────────────────
 
-console.log('── 7. hook error isolation ──');
+console.log('── 7. hook errors fail fast ──');
 
 var errorHookSlice = createSlice({
   name: 'errorHook',
-  before: function () {
+  before: function (state) {
+    state.beforeTouched = true;
     throw new Error('before hook error');
   },
   reducers: {
@@ -334,15 +340,19 @@ var errorFactory = combineSlices([errorHookSlice, counterSlice]);
 var errorReducer = errorFactory(ctx);
 
 var state7 = { safe: false, count: 0 };
-// Should not throw — error is caught and logged
+var hookError = null;
 try {
-  errorReducer(state7, { type: 'SAFE' }, createTestC());
-  assertEqual(state7.safe, true, '7a: reducer still runs after hook error');
-  assertEqual(state7.count, 0, '7b: counter slice unaffected');
+  produce(state7, function (draft) {
+    errorReducer(draft, { type: 'SAFE' }, createTestC());
+  });
 } catch (e) {
-  failed++;
-  errors.push('7: hook error not isolated: ' + e.message);
+  hookError = e;
 }
+assert(!!hookError, '7a: before hook error propagates');
+assertEqual(hookError?.phase, 'before', '7b: before phase recorded');
+assertEqual(hookError?.slice, 'errorHook', '7c: hook slice recorded');
+assertEqual(hookError?.actionType, 'SAFE', '7d: hook action recorded');
+assertDeepEqual(state7, { safe: false, count: 0 }, '7e: Immer rolls back before-hook mutation');
 
 // ── 8. before/after hooks with ctx ───────────────────────
 
@@ -414,14 +424,17 @@ var noFieldSlice = createSlice({ name: 'empty' });
 var noMap = getOwnedFields([noFieldSlice]);
 assertDeepEqual(noMap, {}, '10d: empty slice');
 
-// ── 11. Error isolation — reducer errors ─────────────────
+// ── 11. Reducer errors fail fast and roll back ────────────
 
-console.log('── 11. reducer error isolation ──');
+console.log('── 11. reducer errors fail fast ──');
+
+var afterRan = false;
 
 var badSlice = createSlice({
   name: 'bad',
   reducers: {
-    CRASH: function () {
+    CRASH: function (state) {
+      state.partialMutation = true;
       throw new Error('reducer crash');
     },
   },
@@ -429,6 +442,7 @@ var badSlice = createSlice({
 
 var safeSlice = createSlice({
   name: 'safe',
+  after: function () { afterRan = true; },
   reducers: {
     SAFE_ACTION: function (state) { state.safe = true; },
   },
@@ -437,24 +451,80 @@ var safeSlice = createSlice({
 var safeFactory = combineSlices([badSlice, safeSlice]);
 var safeReducer = safeFactory(ctx);
 
-// Try bad action — should not throw
 var state11 = { safe: false };
+var reducerError = null;
 try {
-  safeReducer(state11, { type: 'CRASH' }, createTestC());
-  assertEqual(state11.safe, false, '11a: no crash');
+  produce(state11, function (draft) {
+    safeReducer(draft, { type: 'CRASH' }, createTestC());
+  });
 } catch (e) {
-  failed++;
-  errors.push('11: reducer error not isolated: ' + e.message);
+  reducerError = e;
 }
+assert(!!reducerError, '11a: reducer error propagates');
+assertEqual(reducerError?.phase, 'reducer', '11b: reducer phase recorded');
+assertEqual(reducerError?.slice, 'bad', '11c: reducer slice recorded');
+assertEqual(reducerError?.actionType, 'CRASH', '11d: reducer action recorded');
+assertDeepEqual(state11, { safe: false }, '11e: Immer rolls back reducer mutation');
+assertEqual(afterRan, false, '11f: after hook does not run after reducer failure');
 
 // Safe action after bad slice still works
 try {
-  safeReducer(state11, { type: 'SAFE_ACTION' }, createTestC());
-  assertEqual(state11.safe, true, '11b: safe action works after bad slice');
+  state11 = produce(state11, function (draft) {
+    safeReducer(draft, { type: 'SAFE_ACTION' }, createTestC());
+  });
+  assertEqual(state11.safe, true, '11g: safe action works after failed action');
 } catch (e) {
   failed++;
-  errors.push('11b: ' + e.message);
+  errors.push('11g: ' + e.message);
 }
+
+// Production slices currently use claimed legacy handlers, so their failure
+// path must carry the same metadata and rollback guarantee.
+var legacyCrashSlice = createSlice({
+  name: 'legacyCrash',
+  handler: function (state, action) {
+    if (action.type !== 'LEGACY_CRASH') return false;
+    state.partialLegacyMutation = true;
+    throw new Error('legacy reducer crash');
+  },
+});
+var legacyCrashReducer = combineSlices([legacyCrashSlice])(ctx);
+var legacyBase = { stable: true };
+var legacyError = null;
+try {
+  produce(legacyBase, function (draft) {
+    legacyCrashReducer(draft, { type: 'LEGACY_CRASH' }, createTestC());
+  });
+} catch (e) {
+  legacyError = e;
+}
+assertEqual(legacyError?.phase, 'reducer', '11h: legacy reducer phase recorded');
+assertEqual(legacyError?.slice, 'legacyCrash', '11i: legacy reducer slice recorded');
+assertDeepEqual(legacyBase, { stable: true }, '11j: Immer rolls back legacy mutation');
+
+var afterCrashSlice = createSlice({
+  name: 'afterCrash',
+  reducers: {
+    AFTER_CRASH: function (state) { state.domainMutation = true; },
+  },
+  after: function (state) {
+    state.afterMutation = true;
+    throw new Error('after hook crash');
+  },
+});
+var afterCrashReducer = combineSlices([afterCrashSlice])(ctx);
+var afterBase = { stable: true };
+var afterError = null;
+try {
+  produce(afterBase, function (draft) {
+    afterCrashReducer(draft, { type: 'AFTER_CRASH' }, createTestC());
+  });
+} catch (e) {
+  afterError = e;
+}
+assertEqual(afterError?.phase, 'after', '11k: after-hook phase recorded');
+assertEqual(afterError?.slice, 'afterCrash', '11l: after-hook slice recorded');
+assertDeepEqual(afterBase, { stable: true }, '11m: Immer rolls back domain and after mutations');
 
 // ── 12. Legacy handler with ctx ──────────────────────────
 
@@ -486,6 +556,38 @@ var emptyReducer = emptyFactory(ctx);
 var state13 = { x: 1 };
 emptyReducer(state13, { type: 'ANY' }, createTestC());
 assertEqual(state13.x, 1, '13: empty slices no-op');
+
+// Store boundary: an unowned action must abort the Immer transaction and be
+// attached to the shared error report instead of becoming a silent no-op.
+console.log('── 14. Store dispatch rollback ──');
+
+var storeBefore = useGameStore.getState();
+var indexBefore = storeBefore._actionIndex;
+var dayActionsBefore = JSON.stringify(storeBefore._dayActions || []);
+var trackingBefore = JSON.stringify(storeBefore.behaviorTracking || {});
+var storeError = null;
+var originalConsoleError = console.error;
+console.error = function () {};
+try {
+  useGameStore.getState().dispatch({ type: '__UNOWNED_TEST_ACTION__' });
+} catch (e) {
+  storeError = e;
+} finally {
+  console.error = originalConsoleError;
+}
+var storeAfter = useGameStore.getState();
+assertEqual(storeError?.name, 'UnhandledActionError', '14a: unowned Store action throws in tests');
+assertEqual(storeAfter, storeBefore, '14b: Zustand state reference unchanged after rollback');
+assertEqual(storeAfter._actionIndex, indexBefore, '14c: action index rolls back');
+assertEqual(JSON.stringify(storeAfter._dayActions || []), dayActionsBefore, '14d: before-hook changes roll back');
+assertEqual(JSON.stringify(storeAfter.behaviorTracking || {}), trackingBefore, '14e: profiling changes roll back');
+var trackerReport = errorTracker.toJSON();
+var failedStep = trackerReport.recentSteps
+  .slice()
+  .reverse()
+  .find(function (entry) { return entry.type === '__UNOWNED_TEST_ACTION__'; });
+assertEqual(failedStep?.outcome, 'failed', '14f: failed dispatch is recorded');
+assertEqual(failedStep?.errorContext?.phase, 'routing', '14g: failure report records routing phase');
 
 // ═══════════════════════════════════════════════════════════════
 // Results (compatible with run_all.cjs parsing)

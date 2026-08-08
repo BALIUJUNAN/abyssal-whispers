@@ -4,7 +4,8 @@ import { resolveClueName } from './clueNameMap.js';
 
 // ESM module: GD 通过 ctx 参数传入，不依赖全局变量
 
-export function initSkills() {
+export function initSkills(ctx) {
+  const GD = ctx?.GD || {};
   const base = {};
   (GD.systems?.player?.skills || GD.module5_player?.skills || []).forEach((s) => {
     let v = s.base;
@@ -14,7 +15,8 @@ export function initSkills() {
   return base;
 }
 
-export function getNpcsHere(state) {
+export function getNpcsHere(state, ctx) {
+  const GD = ctx?.GD || {};
   const npcs = GD.npcs || GD.module3_npcs || [];
   return npcs.filter((n) => {
     if (state.npcStates[n.name]?.dead) return false;
@@ -68,7 +70,8 @@ export function applyChainCompletionEffects(state, effects, narr) {
   }
 }
 
-export function checkChainCompletion(state, narr) {
+export function checkChainCompletion(state, narr, ctx) {
+  const GD = ctx?.GD || {};
   const chains = GD.clue_chains || [];
   for (const chain of chains) {
     const chainClues = chain.clues || [];
@@ -147,7 +150,8 @@ export function getCorruptionLevel(san, loopCount) {
   return Math.min(3, sanCorr + loopBonus);
 }
 
-export function getOptionText(key, san) {
+export function getOptionText(key, san, ctx) {
+  const GD = ctx?.GD || {};
   const variants = GD.systems?.subjective_reality?.option_variants?.[key];
   if (!variants) return null;
   return variants[getSanVariant(san)] || variants.normal || null;

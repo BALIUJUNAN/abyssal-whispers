@@ -1,6 +1,8 @@
 // src/components/CombatPanel.jsx — Combat UI panel for monster encounters
 // Renders inside the narrative area when combat is active.
 
+import React from 'react';
+import { getCombatActions } from '../systems/combatSystem.js';
 const { useState, useMemo } = React;
 
 export function CombatPanel({ combatState, state, dispatch, ctx }) {

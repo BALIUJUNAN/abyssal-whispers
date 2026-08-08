@@ -135,10 +135,11 @@ register('SCREEN_SHAKE', function (payload) {
   const root = document.getElementById('app') || document.documentElement;
   if (!root) return;
   const intensity = payload.intensity || 1;
+  const normalizedIntensity = Math.min(3, intensity);
   const duration = payload.duration || 300;
-  root.classList.add('screen-shake-' + Math.min(3, intensity));
+  root.classList.add('screen-shake-' + normalizedIntensity);
   setTimeout(function () {
-    root.classList.remove('screen-shake-' + intensity);
+    root.classList.remove('screen-shake-' + normalizedIntensity);
   }, duration);
 });
 
