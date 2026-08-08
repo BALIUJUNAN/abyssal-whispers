@@ -5,6 +5,8 @@ module.exports = defineConfig({
   testMatch: '*.spec.cjs',
   timeout: 60000,
   retries: 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: process.env.CI ? [['github'], ['line']] : 'list',
   use: {
     baseURL: 'http://127.0.0.1:3000',
     headless: true,

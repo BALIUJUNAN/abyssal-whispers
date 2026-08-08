@@ -49,3 +49,5 @@ Vite 将 `publicDir: 'assets'` 的内容复制到产物根目录，因此源码�
 - Playwright 启动的 E2E 服务固定绑定 `127.0.0.1`，测试端也使用相同地址，避免 CI 中 `localhost` 的 IPv4/IPv6 解析差异。
 - E2E 子进程设置 `BROWSER=none`，禁止 Vite 的 `server.open` 额外拉起系统浏览器；否则测试完成后可能因派生进程未退出而挂住质量门。
 - `webServer.command` 直接启动 Vite 的 Node 入口，避免额外嵌套 npm 子进程，使 Linux CI 能可靠回收测试服务。
+- CI 中的浏览器测试使用单 worker，避免多个完整游戏页面同时初始化造成 runner 资源争抢；本地仍可使用默认并发。
+- CI 启用 Playwright `github` reporter，把失败用例和错误位置写入检查注释，确保无需下载私有任务日志也能诊断。
