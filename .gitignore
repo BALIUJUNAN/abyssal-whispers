@@ -50,6 +50,7 @@ index.html
 test-results/
 playwright-report/
 blob-report/
+debug.log
 
 # Operations log (local only, never commit)
 .ops-log.json
