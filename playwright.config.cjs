@@ -5,10 +5,9 @@ module.exports = defineConfig({
   testMatch: '*.spec.cjs',
   timeout: 60000,
   retries: 0,
-  workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? [['github'], ['line']] : 'list',
   use: {
-    baseURL: 'http://127.0.0.1:3000',
+    baseURL: 'http://localhost:3000',
     headless: true,
     // Local development can reuse an installed Chromium-compatible browser;
     // CI leaves this unset and uses the Playwright-managed Chromium binary.
@@ -22,9 +21,8 @@ module.exports = defineConfig({
   },
   // Auto-start dev server for E2E tests
   webServer: {
-    command: 'node node_modules/vite/bin/vite.js --host 127.0.0.1',
-    url: 'http://127.0.0.1:3000',
-    env: { ...process.env, BROWSER: 'none' },
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },

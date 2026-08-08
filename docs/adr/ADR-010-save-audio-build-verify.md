@@ -46,8 +46,5 @@ Vite 将 `publicDir: 'assets'` 的内容复制到产物根目录，因此源码�
 - 单文件 CLI 的 README 示例必须显式写出 `-- <path>`，不能暗示无参数可运行。
 - 质量门中的批量检查必须覆盖仓库实际样例，不能用一个固定样例代替全量发现。
 - 尚未建立全仓格式化基线时，`format:check` 只能作为独立 advisory job；不得同时在阻塞式质量门中重复执行。待存量文件全部格式化且语法错误清零后，再单独决策是否升级为 blocking check。
-- Playwright 启动的 E2E 服务固定绑定 `127.0.0.1`，测试端也使用相同地址，避免 CI 中 `localhost` 的 IPv4/IPv6 解析差异。
-- E2E 子进程设置 `BROWSER=none`，禁止 Vite 的 `server.open` 额外拉起系统浏览器；否则测试完成后可能因派生进程未退出而挂住质量门。
-- `webServer.command` 直接启动 Vite 的 Node 入口，避免额外嵌套 npm 子进程，使 Linux CI 能可靠回收测试服务。
-- CI 中的浏览器测试使用单 worker，避免多个完整游戏页面同时初始化造成 runner 资源争抢；本地仍可使用默认并发。
 - CI 启用 Playwright `github` reporter，把失败用例和错误位置写入检查注释，确保无需下载私有任务日志也能诊断。
+- Playwright 与 CI Node 版本必须做组合验证。`Playwright 1.61.0 + Node 22.15.0` 会在加载共享 CJS helper 时触发 `context.conditions?.includes is not a function`，表现为全部测试未收集并继发 `No tests found`；升级到 Playwright 1.62.1 后，同一 Node 版本可正确发现全部 16 条测试。
