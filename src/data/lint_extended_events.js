@@ -1,11 +1,12 @@
 // data/lint_extended_events.js — Minimal lint script for extended events
-// Checks: 599 count, unique IDs, event-600 isolation, death-echo isolation,
+// Checks: minimum baseline count, unique IDs, event-600 isolation, death-echo isolation,
 //         required fields present on all events.
 // Run: node src/data/lint_extended_events.js
 
 import { ALL_EXTENDED_EVENTS as allExtended } from './extended_events_index.js';
 
 const REQUIRED_FIELDS = ['id', 'name', 'type', 'trigger', 'description'];
+const MIN_EXPECTED_EVENTS = 599;
 
 let errors = 0;
 let warnings = 0;
@@ -22,12 +23,12 @@ function pass(msg) {
   console.log('  PASS:', msg);
 }
 
-// 1. Count === 599
+// 1. Count must not fall below the established baseline. New events are valid.
 console.log('\n== Pool Integrity ==');
-if (allExtended.length === 599) {
-  pass(`Event count: 599`);
+if (allExtended.length >= MIN_EXPECTED_EVENTS) {
+  pass(`Event count: ${allExtended.length} (minimum ${MIN_EXPECTED_EVENTS})`);
 } else {
-  fail(`Event count: ${allExtended.length} (expected 599)`);
+  fail(`Event count: ${allExtended.length} (minimum ${MIN_EXPECTED_EVENTS})`);
 }
 
 // 2. Unique IDs

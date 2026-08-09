@@ -48,9 +48,6 @@ function getDifficultyModifier(level) {
   const modifiers = { 1: 0.5, 2: 0.7, 3: 1.0, 4: 1.3, 5: 1.5 };
   return modifiers[level] || 1.0;
 }
-;
-  return modifiers[level] || 1.0;
-}
 
 
 
@@ -347,4 +344,3 @@ if(REPORT){
 }
 console.log("");
 console.log("=== COMPLETE ===");
-

@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { dispatchGameAction, openFreshGame } = require('./helpers.cjs');
+const { openFreshGame } = require('./helpers.cjs');
 
 test.describe('Game Startup', function () {
   test.beforeEach(async function ({ page }) {
@@ -26,9 +26,9 @@ test.describe('Game Startup', function () {
     await page.locator('.prologue-skip button').click();
     await expect(page.locator('.guide-journal')).toBeVisible({ timeout: 5000 });
 
-    // The guide's reveal animation is covered separately; dispatch its normal
-    // reducer action here so this navigation test remains fast and deterministic.
-    await dispatchGameAction(page, { type: 'DISMISS_GUIDE' });
+    var continueButton = page.locator('.guide-continue-btn');
+    await expect(continueButton).toBeVisible({ timeout: 10000 });
+    await continueButton.click();
     await expect(page.locator('.char-creation')).toBeVisible({ timeout: 5000 });
   });
 });

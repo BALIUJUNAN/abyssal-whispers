@@ -130,12 +130,18 @@ export function _executeRedeem(s, npc, trust, c, ctx) {
   var rKey = npcRedemptionMap[npc.name];
   var redemption = GD.implementation_notes?.npc_redemption?.characters?.[rKey];
   if (redemption) {
+    var oldTrust = getNpcTrust(s, npc.name);
+    var newTrust = Math.min(5, oldTrust + 3);
+    var trustDelta = newTrust - oldTrust;
     c.narr('system', redemption.redemption_text);
     setNpcState(s, npc.name, {
       ...getNpcState(s, npc.name),
       corrupted: false,
       redeemed: true,
     });
+    setNpcTrust(s, npc.name, newTrust);
+    propagateTrustChange(npc.name, trustDelta, s, c);
+    propagateFactionStanding(npc.name, trustDelta, s);
     c.bt.redeemed_npcs = (c.bt.redeemed_npcs || 0) + 1;
     modHumanity(s, 15, '选择自己承担代价，救赎' + npc.name, c.rng);
   } else {

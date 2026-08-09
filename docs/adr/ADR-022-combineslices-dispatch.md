@@ -44,3 +44,12 @@
 `before`、领域 reducer、`after` 都会修改同一个 Immer draft，其中任何阶段异常后继续运行都会提交部分状态。`combineSlices` 只能为异常补充 action、slice、phase 上下文，随后必须重新抛出；禁止仅 `console.warn` 后继续。Store 在 Immer 事务外统一记录失败：开发和测试环境重新抛出，生产环境显示“操作失败且状态未改变”，两者都不得刷新本轮副作用。
 
 未知 action 也不能默认为成功。root reducer 必须返回 `handled`，Store 对未归属 action 触发同样的回滚与报告流程。错误追踪必须位于 Store 的统一 dispatch 边界，不能只放在 React 包装 hook 中，否则地图模式和后台副作用的直接分发会绕过记录。回归测试至少覆盖 reducer、legacy handler、before/after hook、未知 action、完整回滚、after 不继续执行和失败后下一次正常 action 可恢复。
+
+## 2026-08-09 补充：领域分支必须独占一次玩法结算
+
+领域 handler 若已负责计数器、信任、阵营或人性变更，外层 dispatcher 不得在 handler 返回后再运行一套旧的“补充处理”。handler 可能清空或改写 `pendingNpc` 等路由状态，用变更后的状态判断是否补算会造成分支不一致：多数操作被跳过，少数保留弹窗的操作却重复计数。
+
+- 先确定唯一的结算所有者，再由该 handler 同步完成直接变更和关系涟漪。
+- 不得用 handler 修改后的临时 UI 状态判断是否执行玩法后果。
+- 不得用空 `catch` 将结算异常降级为静默失败；异常必须交给统一事务边界回滚和记录。
+- 回归测试应覆盖计数恰好一次、直接信任、关系传播和阵营变化。

@@ -10,6 +10,8 @@ import { getResourceFraudState } from '../src/systems/resourceFraud.js';
 import { applyUgcToGD } from '../src/utils/buildEventPool.js';
 import { emit } from '../src/engine/eventBus.js';
 import { handleCoreAction } from '../src/reducers/slices/coreSlice.js';
+import { handleNpcAction } from '../src/reducers/slices/npcSlice.js';
+import { getCoverageReport } from '../src/data/registry/eventRegistry.js';
 
 var passed = 0;
 var failed = 0;
@@ -298,6 +300,132 @@ await test('rolling STR=50 still marks character stats as rolled', function () {
   handleCoreAction(state, { type: 'ROLL_STATS' }, c, ctx);
   assert.strictEqual(state.stats.STR, 50);
   assert.strictEqual(state.statsRolled, true);
+});
+
+await test('NPC redemption applies trust, faction and behavior changes exactly once', function () {
+  var npc = { name: '希尔达·莫里斯' };
+  var state = {
+    day: 1,
+    san: 70,
+    humanityScore: 50,
+    narrative: [],
+    runMemory: [],
+    npcTrust: { hilda_morris: 2 },
+    npcStates: { hilda_morris: { corrupted: true } },
+    factionStanding: {},
+    behaviorTracking: { redeemed_npcs: 0 },
+    pendingNpc: { npc: npc, trust: 2, layer: null },
+  };
+  var rng = {
+    next: function () { return 0.1; },
+    intBetween: function (min) { return min; },
+  };
+  var c = {
+    rng: rng,
+    bt: state.behaviorTracking,
+    effects: [],
+    narr: function () {},
+  };
+  var ctx = {
+    GD: {
+      implementation_notes: {
+        npc_redemption: {
+          characters: {
+            hilda_morris: { redemption_text: 'redemption' },
+          },
+        },
+      },
+    },
+  };
+
+  handleNpcAction(state, { type: 'NPC_RESPONSE', choice: 'redeem' }, c, ctx);
+
+  assert.strictEqual(state.behaviorTracking.redeemed_npcs, 1);
+  assert.strictEqual(state.npcTrust.hilda_morris, 5);
+  assert.strictEqual(state.npcStates.hilda_morris.redeemed, true);
+  assert.strictEqual(state.factionStanding.seal_keeper, 2);
+});
+
+await test('successful NPC attack records one kill and one relationship loss', function () {
+  var npc = { name: '希尔达·莫里斯', chapter_1_role: 'core' };
+  var state = {
+    day: 1,
+    ap: 3,
+    hp: 20,
+    san: 70,
+    humanityScore: 50,
+    skills: { 格斗: 100 },
+    narrative: [],
+    runMemory: [],
+    npcTrust: { hilda_morris: 4 },
+    npcStates: { hilda_morris: {} },
+    factionStanding: {},
+    behaviorTracking: { direct_kill_count: 0 },
+    pendingNpc: { npc: npc, trust: 4, layer: null },
+  };
+  var rng = {
+    next: function () { return 0.1; },
+    intBetween: function (min) { return min; },
+  };
+  var c = {
+    rng: rng,
+    bt: state.behaviorTracking,
+    effects: [],
+    narr: function () {},
+  };
+
+  handleNpcAction(state, { type: 'NPC_RESPONSE', choice: 'attack' }, c, { GD: {} });
+
+  assert.strictEqual(state.behaviorTracking.direct_kill_count, 1);
+  assert.strictEqual(state.npcTrust.hilda_morris, 0);
+  assert.strictEqual(state.npcStates.hilda_morris.dead, true);
+  assert.strictEqual(state.factionStanding.seal_keeper, -3);
+  assert.strictEqual(state.pendingNpc.postKill, true);
+});
+
+await test('runtime, desktop and title screen share the package version', function () {
+  var here = dirname(fileURLToPath(import.meta.url));
+  var root = join(here, '..');
+  var packageVersion = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
+  var tauriVersion = JSON.parse(readFileSync(join(root, 'src-tauri', 'tauri.conf.json'), 'utf8')).version;
+  var cargoSource = readFileSync(join(root, 'src-tauri', 'Cargo.toml'), 'utf8');
+  var titleSource = readFileSync(join(root, 'src', 'components', 'TitleScreen.jsx'), 'utf8');
+
+  assert.strictEqual(tauriVersion, packageVersion);
+  assert.strictEqual(cargoSource.match(/^version = "([^"]+)"/m)?.[1], packageVersion);
+  assert.match(titleSource, /v\{packageJson\.version\}/);
+});
+
+await test('NPC response dispatch has no swallowed legacy moral post-processing', function () {
+  var here = dirname(fileURLToPath(import.meta.url));
+  var source = readFileSync(join(here, '..', 'src', 'reducers', 'slices', 'npcSlice.js'), 'utf8');
+  assert.doesNotMatch(source, /processNpcMoralChoice/);
+  assert.doesNotMatch(source, /catch\s*\([^)]*\)\s*\{\s*\}/);
+});
+
+await test('event coverage thresholds ignore contextual non-map scopes', function () {
+  var events = [
+    {
+      id: 'context-only',
+      _raw: { trigger: { areas: ['safehouse'] } },
+      tier: 'normal',
+      type: 'ambient',
+      _category: 'test',
+    },
+    {
+      id: 'world-area',
+      _raw: { trigger: { areas: ['town_center'] } },
+      tier: 'normal',
+      type: 'ambient',
+      _category: 'test',
+    },
+  ];
+  var report = getCoverageReport(events, {
+    areas: [{ id: 'town_center', name: 'Town center' }],
+  });
+
+  assert.strictEqual(report.byArea.safehouse.isCanonical, false);
+  assert.deepStrictEqual(report.underServed.map(function (entry) { return entry.area; }), ['town_center']);
 });
 
 await test('screen shake removes the normalized class', async function () {

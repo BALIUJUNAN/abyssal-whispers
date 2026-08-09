@@ -63,7 +63,8 @@ export default defineConfig({
     react(),
     devHtmlPlugin(),
     viteSingleFile({
-      // Build-only: inline all JS/CSS/JSON into a single self-contained HTML file.
+      // Build-only: inline JS/CSS/JSON into index.html. WebP and audio remain
+      // external media in dist/ and must be shipped with the HTML file.
       // Disabled during dev (HMR needs separate chunks).
       enable: true,
       deleteInlinedFiles: true,

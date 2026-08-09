@@ -131,7 +131,7 @@ export function _executeTalkNpc(s, action, c, ctx) {
         c.narr('system', _npcChatText);
       }
     } else if (trust < 3) {
-      var rec = d3() - 1;
+      var rec = d3(c.rng) - 1;
       if (rec > 0) {
         applySanLoss(s, -rec);
         c.narr('san-recovery', '与' + npc.name + '交谈让你感到些许安慰。SAN +' + rec);

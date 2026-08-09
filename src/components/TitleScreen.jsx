@@ -1,6 +1,7 @@
 // src/components/TitleScreen.jsx — 游戏标题画面
 import React from 'react';
 import { audioManager } from '../managers/AudioManager.js';
+import packageJson from '../../package.json';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
 export const TITLE_TAGLINES = [
@@ -84,7 +85,7 @@ export function TitleScreen({ onStart, onContinue, saveExists, onSettingsOpen, o
             </button>
           )}
         </div>
-        <div className="title-version">ABYSSAL WHISPERS · v1.0</div>
+        <div className="title-version">ABYSSAL WHISPERS · v{packageJson.version}</div>
         <div className="title-corner-btns">
           {onAchOpen && (
             <button className="title-settings-btn" onClick={onAchOpen} title="成就">

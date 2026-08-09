@@ -10,24 +10,26 @@ async function openFreshGame(page) {
   await expect(page.locator('.title-screen')).toBeVisible({ timeout: 30000 });
 }
 
-async function dispatchGameAction(page, action) {
-  await page.evaluate(async function (nextAction) {
-    var storeModule = await import('/src/state/useGameStore.js');
-    storeModule.useGameStore.getState().dispatch(nextAction);
-  }, action);
-}
-
 async function navigateToGame(page) {
-  await dispatchGameAction(page, { type: 'START_GAME' });
-  await dispatchGameAction(page, { type: 'SKIP_PROLOGUE' });
-  await dispatchGameAction(page, { type: 'DISMISS_GUIDE' });
-  await dispatchGameAction(page, { type: 'ROLL_STATS' });
-  await dispatchGameAction(page, { type: 'BEGIN_ADVENTURE' });
+  await page.locator('.title-screen .btn-primary').click();
+  await expect(page.locator('.prologue-screen')).toBeVisible({ timeout: 5000 });
+
+  page.once('dialog', function (dialog) { return dialog.accept(); });
+  await page.locator('.prologue-skip button').click();
+  await expect(page.locator('.guide-journal')).toBeVisible({ timeout: 5000 });
+
+  var continueButton = page.locator('.guide-continue-btn');
+  await expect(continueButton).toBeVisible({ timeout: 10000 });
+  await continueButton.click();
+  await expect(page.locator('.char-creation')).toBeVisible({ timeout: 5000 });
+
+  await page.getByRole('button', { name: '掷骰生成属性' }).click();
+  await expect(page.locator('.stat-item')).toHaveCount(8);
+  await page.locator('.char-creation .btn-primary').last().click();
   await expect(page.locator('.game-root')).toBeVisible({ timeout: 10000 });
 }
 
 module.exports = {
-  dispatchGameAction,
   navigateToGame,
   openFreshGame,
 };

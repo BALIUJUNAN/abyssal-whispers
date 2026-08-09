@@ -48,3 +48,11 @@ Immer 允许在 `produce` 回调中直接修改 draft 对象。但开发者混�
 ## 2026-08-08 补充：state 中存在 Map/Set 时必须启用 Immer 插件
 
 事件去重索引 `_triggeredSet` / `_silentSet` 会在探索 reducer 内读取和修改。Zustand Immer 中间件不会自动启用 Map/Set drafting；Store 初始化必须调用 `enableMapSet()`。否则 action 会在访问 Set 时抛错，再被兼容路由捕获为警告，形成“探索按钮有响应但事件状态没有更新”的静默失败。真实 Store 回归测试必须覆盖一次包含 Set 索引的探索分发。
+
+## 2026-08-09 补充：React 组件读取 Zustand 状态必须订阅
+
+`store.getState()` 或兼容包装器 `uiStore()` 只返回调用瞬间的快照，不会让 React 组件在后续 `setState()` 时重渲染。组件若用快照读取 `activeHotspot`、`activePanel` 等临时 UI 状态，会出现点击已执行但界面只有在另一次无关更新后才偶发出现的时序 bug。
+
+- React 渲染路径必须通过 `useUiStore(selector)` / `useGameStore(selector)` 订阅所需字段。
+- `uiStore.getState()`、`uiStore()` 仅用于事件处理器和非 React 边界的即时读取。
+- E2E 应直接点击当前区域热点并断言面板立即出现，避免等待无关计时器掩盖缺少订阅的问题。

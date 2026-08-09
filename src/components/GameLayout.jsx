@@ -13,7 +13,7 @@ import { GameHeader, LeftPanel, CenterPanel, RightPanel } from './GamePanels.jsx
 import { generateMetaCorruptionEvent, generateLoopOpening, generateCorruptedSaveName, isGlmAvailable } from '../systems/llmNarrative.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { getAudioIntrusionLevel, applyAudioIntrusion, getAudioIntrusionDescription } from '../systems/audioIntrusion.js';
-import { uiStore } from '../state/uiStore.js';
+import { uiStore, useUiStore } from '../state/uiStore.js';
 import { useGameLayoutData } from '../state/selectors.js';
 import { getDispatch, useGameStore } from '../state/useGameStore.js';
 import { GD } from '../state/gameData.js';
@@ -23,10 +23,9 @@ export function GameLayout() {
   // Granular subscription — re-renders only when these fields change
   var gl = useGameLayoutData();
   var dispatch = getDispatch();
-  var ui = uiStore();
-  var uiMode = ui.uiMode || 'town_map';
-  var activeHotspot = ui.activeHotspot;
-  var activePanel = ui.activePanel;
+  var uiMode = useUiStore(function (s) { return s.uiMode; }) || 'town_map';
+  var activeHotspot = useUiStore(function (s) { return s.activeHotspot; });
+  var activePanel = useUiStore(function (s) { return s.activePanel; });
 
   var screen = gl.screen;
   var day = gl.day;

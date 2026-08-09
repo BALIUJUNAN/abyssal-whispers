@@ -1,140 +1,13 @@
-// src/systems/moralChoiceEngine.js — Moral Choice Engine
-// Integrates NPC relationship web, fear moral modifiers, and implicit endings.
-// This is the SINGLE entry point for all moral choice processing.
-//
-// Flow:
-//   Player makes NPC choice → npcSlice calls moralChoiceEngine
-//   → propagateReputation (affects connected NPCs)
-//   → getFactionImpact (affects faction standing)
-//   → recordDilemmaChoice (tracks for endings)
-//   → getMoralPressureEvents (generates atmospheric events)
-//   → emit('MORAL_EVENT', ...) (triggers narrative side effects)
+// src/systems/moralChoiceEngine.js — moral dilemmas, delayed effects and atmosphere.
+// Direct NPC choices are settled once by their domain branch modules.
 
-import { propagateReputation, getFactionImpact, computeMoralScore, getMoralTier } from '../data/npcRelationshipWeb.js';
+import { computeMoralScore, getMoralTier } from '../data/npcRelationshipWeb.js';
 import { calculateDilemmaIntensity, applyCopingFraming, getFearMoralProfile, getMoralPressureEvents, selectMoralDilemma } from './fearMoralModifier.js';
-import { getShadowNarrativeFlavor, computeShadowScores, getEndingEntropy } from './implicitEndingSystem.js';
-import { emit } from '../engine/eventBus.js';
+import { getShadowNarrativeFlavor, getEndingEntropy } from './implicitEndingSystem.js';
+import { makeRand } from '../reducers/utils.js';
 
 // ═══════════════════════════════════════════════════════════════
-// SECTION 1: NPC Choice Processing
-// ═══════════════════════════════════════════════════════════════
-
-/**
- * Process an NPC interaction choice through the moral system.
- * Called by npcSlice when player makes any NPC choice.
- *
- * @param {object} state - game state (will be mutated)
- * @param {string} npcId - NPC being interacted with
- * @param {string} actionType - 'redeem', 'betray', 'exploit', 'attack', 'intimacy', 'preach', 'mercy', 'warn'
- * @param {object} GD - game data
- * @returns {{ reputationRipples: Array, factionChanges: object, moralScoreDelta: number }}
- */
-export function processNpcMoralChoice(state, npcId, actionType, GD) {
-  var bt = state.behaviorTracking || {};
-  var trustDelta = 0;
-  var moralDelta = 0;
-
-  // Calculate trust change
-  switch (actionType) {
-    case 'redeem':
-      trustDelta = 3;
-      moralDelta = 10;
-      bt.redeemed_npcs = (bt.redeemed_npcs || 0) + 1;
-      break;
-    case 'betray':
-      trustDelta = -4;
-      moralDelta = -15;
-      var trust = (state.npcTrust || {})[npcId] || 0;
-      if (trust >= 3) bt.betrayed_high_trust_npcs = (bt.betrayed_high_trust_npcs || 0) + 1;
-      break;
-    case 'exploit':
-      trustDelta = -2;
-      moralDelta = -8;
-      bt.npc_as_resource_count = (bt.npc_as_resource_count || 0) + 1;
-      break;
-    case 'attack':
-      trustDelta = -5;
-      moralDelta = -10;
-      bt.direct_kill_count = (bt.direct_kill_count || 0) + 1;
-      break;
-    case 'intimacy':
-      trustDelta = 1;
-      moralDelta = -2;
-      bt.forbidden_intimacy_flags = (bt.forbidden_intimacy_flags || 0) + 1;
-      break;
-    case 'preach':
-      trustDelta = -1;
-      moralDelta = -5;
-      bt.cult_leader_score = (bt.cult_leader_score || 0) + 1;
-      break;
-    case 'mercy':
-      trustDelta = 2;
-      moralDelta = 8;
-      bt.mercy_shown_count = (bt.mercy_shown_count || 0) + 1;
-      break;
-    case 'warn':
-      trustDelta = 1;
-      moralDelta = 5;
-      bt.warned_npcs_count = (bt.warned_npcs_count || 0) + 1;
-      break;
-    case 'incite':
-      trustDelta = -3;
-      moralDelta = -12;
-      break;
-    default:
-      trustDelta = 0;
-      moralDelta = 0;
-  }
-
-  // Apply trust change
-  if (trustDelta !== 0) {
-    var currentTrust = (state.npcTrust || {})[npcId] || 0;
-    state.npcTrust = state.npcTrust || {};
-    state.npcTrust[npcId] = Math.max(0, Math.min(5, currentTrust + trustDelta));
-  }
-
-  // Propagate reputation through network
-  var ripples = propagateReputation(npcId, trustDelta, state);
-
-  // Apply faction impact
-  var factionImpact = getFactionImpact(npcId,
-    actionType === 'redeem' || actionType === 'mercy' || actionType === 'warn' ? 'help'
-    : actionType === 'betray' || actionType === 'attack' || actionType === 'incite' ? 'harm'
-    : actionType === 'exploit' ? 'exploit'
-    : 'help'
-  );
-
-  // Apply ripple trust changes to state
-  for (var i = 0; i < ripples.ripples.length; i++) {
-    var ripple = ripples.ripples[i];
-    if (ripple.isDirect) continue; // already applied
-    if (ripple.delta === 0) continue;
-    state.npcTrust = state.npcTrust || {};
-    var rt = (state.npcTrust[ripple.npc] || 0);
-    state.npcTrust[ripple.npc] = Math.max(0, Math.min(5, rt + ripple.delta));
-  }
-
-  // Emit moral event for narrative system
-  if (typeof emit !== 'undefined') {
-    emit('MORAL_CHOICE_MADE', {
-      npc: npcId,
-      action: actionType,
-      trustDelta: trustDelta,
-      moralDelta: moralDelta,
-      ripples: ripples.ripples.filter(function (r) { return !r.isDirect; }),
-      day: state.day,
-    });
-  }
-
-  return {
-    reputationRipples: ripples.ripples,
-    factionChanges: factionImpact.factionChanges,
-    moralScoreDelta: moralDelta,
-  };
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SECTION 2: Dilemma Injection into Event System
+// SECTION 1: Dilemma Injection into Event System
 // ═══════════════════════════════════════════════════════════════
 
 /**
@@ -145,7 +18,7 @@ export function processNpcMoralChoice(state, npcId, actionType, GD) {
  * @param {object} GD
  * @returns {object|null} dilemma event data
  */
-export function injectMoralDilemma(state, GD) {
+export function injectMoralDilemma(state, GD, rng) {
   var fear = state.fearTuning || {};
   var primary = fear.primary || 'knowledge';
 
@@ -171,8 +44,8 @@ export function injectMoralDilemma(state, GD) {
   }
 
   // Roll
-  var rng = state._rng || Math;
-  if (rng.next ? rng.next() : Math.random() > chance) return null;
+  var _rand = makeRand(rng || state._rng);
+  if (_rand() > chance) return null;
 
   // Select dilemma
   return selectMoralDilemma(state, GD);
@@ -210,7 +83,7 @@ export function resolveDelayedMoralEffects(state, GD) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SECTION 3: Narrative Integration
+// SECTION 2: Narrative Integration
 // ═══════════════════════════════════════════════════════════════
 
 /**
@@ -261,7 +134,7 @@ export function getMoralDissonance(state) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SECTION 4: Initialization
+// SECTION 3: Initialization
 // ═══════════════════════════════════════════════════════════════
 
 /**

@@ -1,9 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const {
-  dispatchGameAction,
-  navigateToGame,
-  openFreshGame,
-} = require('./helpers.cjs');
+const { openFreshGame } = require('./helpers.cjs');
 
 test.describe('Game Startup Flow', function () {
   test.beforeEach(async function ({ page }) {
@@ -23,7 +19,9 @@ test.describe('Game Startup Flow', function () {
     await page.locator('.prologue-skip button').click();
     await expect(page.locator('.guide-journal')).toBeVisible({ timeout: 5000 });
 
-    await dispatchGameAction(page, { type: 'DISMISS_GUIDE' });
+    var continueButton = page.locator('.guide-continue-btn');
+    await expect(continueButton).toBeVisible({ timeout: 10000 });
+    await continueButton.click();
     await expect(page.locator('.char-creation')).toBeVisible({ timeout: 5000 });
 
     await page.getByRole('button', { name: '掷骰生成属性' }).click();
@@ -34,19 +32,25 @@ test.describe('Game Startup Flow', function () {
   });
 
   test('first SAN drain updates state without leaving the game', async function ({ page }) {
-    await navigateToGame(page);
-    var before = await page.evaluate(async function () {
-      var storeModule = await import('/src/state/useGameStore.js');
-      return storeModule.useGameStore.getState().san;
-    });
+    await page.locator('.title-screen .btn-primary').click();
+    await expect(page.locator('.prologue-screen')).toBeVisible({ timeout: 5000 });
 
-    await dispatchGameAction(page, { type: 'RESIST_SAN_DRAIN', amount: 1 });
+    // Advance through the first three scenes using real player choices.
+    for (var i = 0; i < 3; i++) {
+      var previousTitle = await page.locator('.prologue-scene-title').textContent();
+      await page.locator('.prologue-choice-btn').first().click();
+      await expect.poll(async function () {
+        return page.locator('.prologue-scene-title').textContent();
+      }).not.toBe(previousTitle);
+    }
 
-    var after = await page.evaluate(async function () {
-      var storeModule = await import('/src/state/useGameStore.js');
-      return storeModule.useGameStore.getState().san;
-    });
-    expect(after).toBe(before - 1);
-    await expect(page.locator('.game-root')).toBeVisible();
+    await expect(page.locator('.prologue-scene-title')).toContainText('镜中伤口');
+    var sanDisplay = page.locator('.prologue-footer-item').filter({ hasText: 'SAN：' });
+    var before = Number((await sanDisplay.textContent()).replace(/\D/g, ''));
+    await page.locator('.prologue-choice-btn').first().click();
+    await expect.poll(async function () {
+      return Number((await sanDisplay.textContent()).replace(/\D/g, ''));
+    }).toBe(before - 2);
+    await expect(page.locator('.prologue-screen')).toBeVisible();
   });
 });

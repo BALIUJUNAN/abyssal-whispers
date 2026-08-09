@@ -20,8 +20,15 @@ export function _executeAttack(s, npc, trust, ns, c, ctx) {
   const roll = rand(1, 100, c.rng);
   const success = roll <= fightSkill && roll <= npcDiff;
   if (success) {
+    const oldTrust = getNpcTrust(s, npc.name);
+    const newTrust = 0;
+    const trustDelta = newTrust - oldTrust;
     c.bt.direct_kill_count = (c.bt.direct_kill_count || 0) + 1;
     setNpcState(s, npc.name, { ...ns, dead: true, killedByPlayer: true });
+    setNpcTrust(s, npc.name, newTrust);
+    warnTrustDrop(c, npc.name, oldTrust, newTrust);
+    propagateTrustChange(npc.name, trustDelta, s, c);
+    propagateFactionStanding(npc.name, trustDelta, s);
     const sanLoss = rand(4, 12, c.rng);
     applySanLoss(s, sanLoss);
     modHumanity(s, -20, '亲手杀害了' + npc.name, c.rng);
