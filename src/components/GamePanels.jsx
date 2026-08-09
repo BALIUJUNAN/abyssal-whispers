@@ -18,6 +18,7 @@ import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
 import { getChapterForDay } from '../reducers/chapterReducer.js';
 import { checkAfterglowUnlock, getAfterglowTexts, getEndingTriggerCount } from '../reducers/endingReducer.js';
 import { getSanStage } from '../reducers/sanReducer.js';
+import { getInProgressConclusions } from '../reducers/conclusionReducer.js';
 import { getSafehouseStage } from '../reducers/miscReducer.js';
 import { enhanceDeathSummary, generateAfterglow, enhanceEventDescription, generateSanCorruptedText, generatePersonalityReflection, generateLoopOpening, isGlmAvailable, clearGlmCache, clearGlmQueue } from '../systems/llmNarrative.js';
 import { hasClueId, resolveClueName } from '../utils/clueNameMap.js';
@@ -1016,40 +1017,34 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
   const npcs = state._GD?.npcs || state._GD?.module3_npcs || [];
   const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD: state._GD }), [state.currentArea]);
   const inProgressConclusions = useMemo(() => {
-    return (state._GD?.systems?.clue_conclusion?.conclusions || [])
-      .filter((c) => !(state.discoveredConclusions || []).includes(c.id))
-      .map((conc) => {
-        const satisfied = (conc.evidence_pool || []).filter((ev) => {
-          if (ev.source && state.triggeredEvents.includes(ev.source)) return true;
-          const tm = ev.source && ev.source.match(/^(.+?)\s+trust>=(\d+)$/);
-          if (tm) return getNpcTrust(state, tm[1]) >= parseInt(tm[2]);
-          return false;
-        });
-        const needed = conc.required_evidence_count || 2;
-        if (satisfied.length === 0) return null;
-        return (
-          <div
-            key={conc.id}
-            style={{
-              fontSize: '0.65rem',
-              color: 'var(--text-dim)',
-              padding: '0.15rem 0',
-              borderLeft: '2px solid var(--border)',
-              paddingLeft: '0.4rem',
-              marginBottom: '0.2rem',
-            }}
-          >
-            {conc.name} [{satisfied.length}/{needed}]
-            {satisfied.map((ev, ei) => (
-              <div key={ei} style={{ color: 'var(--blue)', paddingLeft: '0.3rem' }}>
-                · {ev.description.slice(0, 25)}
-              </div>
-            ))}
+    return getInProgressConclusions(state, { GD: state._GD }).map((conc) => (
+      <div
+        key={conc.id}
+        style={{
+          fontSize: '0.65rem',
+          color: 'var(--text-dim)',
+          padding: '0.15rem 0',
+          borderLeft: '2px solid var(--border)',
+          paddingLeft: '0.4rem',
+          marginBottom: '0.2rem',
+        }}
+      >
+        {conc.name} [{conc.satisfiedEvidence.length}/{conc.requiredEvidenceCount}]
+        {conc.satisfiedEvidence.map((ev, ei) => (
+          <div key={ei} style={{ color: 'var(--blue)', paddingLeft: '0.3rem' }}>
+            · {ev.description.slice(0, 25)}
           </div>
-        );
-      })
-      .filter(Boolean);
-  }, [state.discoveredConclusions, state.triggeredEvents, state.npcTrust]);
+        ))}
+      </div>
+    ));
+  }, [
+    state._GD,
+    state.clues,
+    state.discoveredConclusions,
+    state.npcTrust,
+    state.triggeredEvents,
+    state._triggeredSet,
+  ]);
   const tabs = [
     { id: 'map', label: '地图' },
     { id: 'people', label: '人物' },
@@ -1380,6 +1375,15 @@ export function NotebookModal({ open, onClose, state }) {
     return m;
   }, [conclusions]);
 
+  const freeClues = useMemo(() => {
+    const chainClueIds = new Set();
+    chains.forEach((ch) => (ch.clues || []).forEach((cl) => chainClueIds.add(cl.id)));
+    return (state.clues || []).filter((c) => {
+      const id = typeof c === 'object' ? c.id || c.name : c;
+      return !chainClueIds.has(id);
+    });
+  }, [chains, state.clues]);
+
   if (!open) return null;
   const totalClueCount = chains.reduce((t, ch) => t + (ch.clues?.length || 0), 0);
   const foundCount = clueIdSet.size;
@@ -1460,26 +1464,17 @@ export function NotebookModal({ open, onClose, state }) {
           )}
 
           {/* 已收集线索（不在链中的自由线索） */}
-          {useMemo(() => {
-            const chainClueIds = new Set();
-            chains.forEach((ch) => (ch.clues || []).forEach((cl) => chainClueIds.add(cl.id)));
-            const freeClues = (state.clues || []).filter((c) => {
-              const id = typeof c === 'object' ? c.id || c.name : c;
-              return !chainClueIds.has(id);
-            });
-            if (freeClues.length === 0) return null;
-            return (
-              <div className="notebook-section">
-                <div className="notebook-section-title">散落笔记</div>
-                {freeClues.map((c, i) => (
-                  <div key={i} className="notebook-clue clue-found">
-                    <span className="clue-mark">▪</span>
-                    <span className="clue-name">{typeof c === 'object' ? c.name : resolveClueName(c)}</span>
-                  </div>
-                ))}
-              </div>
-            );
-          }, [chains, state.clues])}
+          {freeClues.length > 0 && (
+            <div className="notebook-section">
+              <div className="notebook-section-title">散落笔记</div>
+              {freeClues.map((c, i) => (
+                <div key={i} className="notebook-clue clue-found">
+                  <span className="clue-mark">▪</span>
+                  <span className="clue-name">{typeof c === 'object' ? c.name : resolveClueName(c)}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
         </div>
       </div>

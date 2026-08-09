@@ -171,8 +171,8 @@ export function GameLayout() {
       }
       // N 键打开笔记本
       if (e.key === 'n' || e.key === 'N') {
-        try { uiStore.setState({ notebookOpen: true, notebookEverOpened: true }); } catch (err) {}
-        try { dispatch({ type: 'MARK_NOTEBOOK_OPENED' }); } catch (err) {}
+        uiStore.setState({ notebookOpen: true, notebookEverOpened: true });
+        dispatch({ type: 'MARK_NOTEBOOK_OPENED' });
       }
       // J 键切换到线索标签
       if (e.key === 'j' || e.key === 'J') {

@@ -12,6 +12,10 @@ import { emit } from '../src/engine/eventBus.js';
 import { handleCoreAction } from '../src/reducers/slices/coreSlice.js';
 import { handleNpcAction } from '../src/reducers/slices/npcSlice.js';
 import { getCoverageReport } from '../src/data/registry/eventRegistry.js';
+import {
+  getInProgressConclusions,
+  isEvidenceSatisfied,
+} from '../src/reducers/conclusionReducer.js';
 
 var passed = 0;
 var failed = 0;
@@ -426,6 +430,39 @@ await test('event coverage thresholds ignore contextual non-map scopes', functio
 
   assert.strictEqual(report.byArea.safehouse.isCanonical, false);
   assert.deepStrictEqual(report.underServed.map(function (entry) { return entry.area; }), ['town_center']);
+});
+
+await test('conclusion progress uses evidence_pool and normalized NPC trust keys', function () {
+  var state = {
+    clues: [],
+    triggeredEvents: [],
+    npcTrust: { martha_grey: 4 },
+    discoveredConclusions: [],
+  };
+  var trustEvidence = { source: '玛莎·格雷 trust>=4', description: 'trust evidence' };
+  assert.strictEqual(isEvidenceSatisfied(trustEvidence, state), true);
+
+  var GD = {
+    systems: {
+      clue_conclusion: {
+        conclusions: [
+          {
+            id: 'harbor-truth',
+            name: 'Harbor truth',
+            required_evidence_count: 2,
+            evidence_pool: [
+              trustEvidence,
+              { source: 'evt_harbor_log', description: 'event evidence' },
+            ],
+          },
+        ],
+      },
+    },
+  };
+  var progress = getInProgressConclusions(state, { GD: GD });
+  assert.strictEqual(progress.length, 1);
+  assert.strictEqual(progress[0].satisfiedEvidence.length, 1);
+  assert.strictEqual(progress[0].requiredEvidenceCount, 2);
 });
 
 await test('screen shake removes the normalized class', async function () {

@@ -56,3 +56,10 @@ Immer 允许在 `produce` 回调中直接修改 draft 对象。但开发者混�
 - React 渲染路径必须通过 `useUiStore(selector)` / `useGameStore(selector)` 订阅所需字段。
 - `uiStore.getState()`、`uiStore()` 仅用于事件处理器和非 React 边界的即时读取。
 - E2E 应直接点击当前区域热点并断言面板立即出现，避免等待无关计时器掩盖缺少订阅的问题。
+
+## 2026-08-09 补充：可开关组件的 Hook 必须位于提前返回之前
+
+Modal 常以 `if (!open) return null` 保持挂载但隐藏。所有 `useState`、`useEffect`、`useMemo`、`useRef` 必须在该提前返回之前无条件调用；禁止在 JSX 表达式中临时调用 Hook。否则组件从关闭切换为打开时 Hook 数量变化，生产构建会触发 React #310 并让整个游戏进入 ErrorBoundary。
+
+- 派生列表先在组件顶部通过 Hook 计算，再在 JSX 中按长度决定是否渲染。
+- 浏览器测试必须至少打开一次每个长期挂载的核心 Modal，不能只测试其关闭状态。

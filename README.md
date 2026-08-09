@@ -10,7 +10,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_%2B_singlefile-green)
-![Tests](https://img.shields.io/badge/tests-755_passed_%2F_0_failed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-756_passed_%2F_0_failed-brightgreen)
 ![Version](https://img.shields.io/badge/version-0.9.8-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
@@ -93,7 +93,7 @@ npm run tauri:build
 | **代码规模**   | ~54,000 行 JS/JSX — 120+ 个源文件（app.jsx 瘦身至 200 行 thin orchestrator）                                                                                          |
 | **数据校验**   | Zod Schema 855条数据全量校验 + SaveManager 安全扫描（scanSaveSecurity / sanitizeSaveState）                                                                           |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
-| **测试覆盖**   | **18 个套件、755 项**（完整流程 48 + 存档安全 45 + 回归 18 + combineSlices 78 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + 其他），Vite ESM 构建验证；另有 16 项 Playwright 浏览器流程测试 |
+| **测试覆盖**   | **18 个套件、756 项**（完整流程 48 + 存档安全 45 + 回归 19 + combineSlices 78 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + 其他），Vite ESM 构建验证；另有 18 项 Playwright 浏览器流程测试 |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -728,7 +728,7 @@ COC/
 │   │   └── ...
 │
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 18 个测试套件（755 tests）+ 16 项 Playwright E2E
+├── tests/                    # 18 个测试套件（756 tests）+ 18 项 Playwright E2E
 │   ├── test_effect_protocol.cjs       # 效果协议测试（19 tests）
 │   ├── test_game_data_protocol.cjs    # 游戏数据协议测试（10 tests）
 │  ├── test_event_system.cjs          # 事件系统测试（19 tests）
@@ -1044,14 +1044,14 @@ UGC 模组有严格的安全限制：
 
 **快速测试命令**：
 ```bash
-npm test                  # 全量测试（755 tests / 18 suites）
+npm test                  # 全量测试（756 tests / 18 suites）
 npm run lint:schema       # 数据 Schema 校验
 npm run lint:engine       # 引擎边界检查
 npm run mod:validate -- mods/examples/new-area-lighthouse/mod.json  # 单个 Mod 格式校验
 node scripts/validate-mods.mjs                                      # 批量校验仓库内全部 Mod
 npm run build             # Vite 生产构建
 npx playwright install chromium  # 首次运行浏览器测试前安装 Chromium
-npm run test:e2e          # 16 项浏览器端主流程测试
+npm run test:e2e          # 18 项浏览器端主流程测试
 ```
 
 ---
@@ -1362,7 +1362,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **未发布** | 2026-08-09 | **稳定性与发布收尾** — 完成 NEW_GAME 与存档往返修复、reducer ctx/RNG/ESM 依赖治理、Immer Map/Set 支持和循环依赖清理；`combineSlices` 改为 fail-fast 事务分发，异常完整回滚并统一记录；修复 NPC 救赎/攻击重复结算、地图热点面板未订阅 UI Store 与事件覆盖误报；CI 改为验证真实 `dist` 并部署/打包完整媒体目录，主分支自动发布 Pages、标签生成完整网页 ZIP；版本号统一为 0.9.8，生产依赖审计 0 漏洞；测试扩展至 18 套件 755 项，另有 16 项构建版浏览器 E2E；地图模式作为默认入口，经典三栏暂留待功能等价后退役。 |
+| **未发布** | 2026-08-09 | **稳定性与发布收尾** — 完成 NEW_GAME 与存档往返修复、reducer ctx/RNG/ESM 依赖治理、Immer Map/Set 支持和循环依赖清理；`combineSlices` 改为 fail-fast 事务分发，异常完整回滚并统一记录；修复 NPC 救赎/攻击重复结算、地图热点面板未订阅 UI Store、笔记本条件 Hook 崩溃、地图模式线索/物品快捷键与结论进度协议；地图模式新增可使用物品面板；CI 改为验证真实 `dist` 并部署/打包完整媒体目录，主分支自动发布 Pages、标签生成完整网页 ZIP；版本号统一为 0.9.8，生产依赖审计 0 漏洞；测试扩展至 18 套件 756 项，另有 18 项构建版浏览器 E2E；地图模式作为默认入口，经典三栏暂留待功能等价后退役。 |
 | **0.9.7** | 2026-07-02 | **工程质量升级：build.py 退役 + ESM 清算 + 内容质量验证** — ①删除 `build.py` 和 `build-web.cjs`，Vite + vite-plugin-singlefile 为唯一构建系统，消除双注册/构建顺序依赖债务；②`.cjs` 校验工具从 `src/data/validators/` 迁移至 `scripts/validators/`，与 ESM 游戏数据目录彻底分离；③`src/` 目录全部 `.cjs` 残留清零，ESM import 完全接管；④Zod 数据验证接入 main.jsx bootstrap，malformed 数据不再静默失败；⑤`s.clues` 混合类型归一化，10 个 push 点统一为 `{id, name}` 对象格式，消除 `[object Object]` 显示 bug；⑥`.gitattributes` 引入 + `git add --renormalize`，CRLF 编码警告全部消除；⑦`tests/test_effect_protocol.cjs` Test 17 从 build order 校验迁移为 ESM import 存在性验证；⑧`loop_contradiction_001` 叙事文本重写（75→99分），消除唯一 B 级事件；⑨全量测试 608 passed / 0 failed / 14 suites |
 | **0.9.8** | 2026-07-07 | **架构重构：useEffect 拆分 + 全局变量治理 + 事件数据归拢 + E2E 测试 + 存档安全加固** — ①app.jsx 从 678 行瘦身至 200 行（-70%）：13 个 useEffect 块拆分为 `src/hooks/` 下 13 个自定义 hooks（useSeedStore/useMigrateOldSaves/useAudioSettingsInit/useAudioAutoplayUnlock/useReducedMotion/useNotebookTutorialSync/usePageZoom/useEndingCgPreload/useChapterLazyLoad/useAchievementCheck/useSanLossHint/useBootHint/useLevel13Glitch），3 个状态聚合 hook（useGameData/useDispatchWrapper/useUiState），`bootstrap.js` 提取模块级启动引导；②全局变量治理：`window.GD` 和模块级 `GD` 全局引用消除，`sanityVisual.js` / `getVisualForSan` / `getPerceptionLevels` / `applyMythosAliases` / `applyTextFragmentation` 全部改为 `ctx.GD` 参数传递，`selectors.js` 通过 `state._GD` 订阅，`sanReducer.js` 通过 `useGameStore.getState()._GD` 读取；③`useAppGameData()` 移除（死代码，零组件消费），App 改用 `useGameData()` + `useUiState()` 聚合 hook；④事件数据归拢：18 个 `events_*.js` 从 `src/data/` 移入 `src/data/events/`，统一路径，更新 9 个文件的导入 + integration_test 路径；⑤Playwright E2E 骨架：4 个测试文件（game-startup/first-san-loss/settings-persistence/save-load/explore-actions），自动启动 dev server；⑥SaveManager 安全加固（ADR-010）：`scanSaveSecurity()` 深度扫描存档 JSON（危险键模式/危险值正则/深度上限 10/数组长度上限 500），`sanitizeSaveState()` 白名单清洗（仅允许 `SAVE_FORMAT_SPEC.requiredStateKeys` + 显式扩展键），`CONTINUE_GAME` handler 白名单复制（loopSlice.js），防止恶意存档数据通过 `__proto__` / 构造器污染 / 脚本注入攻击运行时；⑦loopSlice.js 清理 71 个未使用导入；全量测试通过，Vite build 1.26s |
 | **0.9.6** | 2026-06-30 | **Zustand 5 迁移修复 + 每日流程领域拆分** — ①dailySlice 按领域拆分为 7 个独立系统文件（foodSystem/safehouseSystem/restRecovery/dayAdvance/dayCritical/nightEffects/dayOpen），从 594 行瘦身至 108 行纯调度层；②修复 Zustand 5.0.14 不支持 equalityFn 导致所有返回对象的 selector 触发无限重渲染（Maximum update depth exceeded），全部改用 useMemo 缓存；③修复 `buildSliceCtx` 缺失 `view` 属性导致区域场景图永远显示默认变体；④修复 Immer autoFreeze 冻结 GD 导致 `initExtendedEvents` 报错；⑤修复 `uiStore.settings: null` 导致渲染阶段 `set()` 调用；⑥`main.jsx` 静态 JSON import 替代 fetch()；⑦`seedGameStore` 移至 React 渲染前执行；⑧所有 selector 函数提取为模块级常量（稳定引用）；⑨`ScreenTransition` 修复 children 缓存导致同屏更新失效；⑩关闭 Immer autoFreeze 避免开发模式冻结问题；⑪mistake.txt 新增条目 #46（Zustand 5 equalityFn 缺失） |

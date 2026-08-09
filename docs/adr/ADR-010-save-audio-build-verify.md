@@ -69,4 +69,5 @@ Windows 上若 Vite/Preview 进程仍持有 `node_modules` 中的原生绑定，
 - CI 在构建后运行 `node check_build.cjs --dist`，检查 HTML、图片和音频数量及路径。
 - Playwright 的 CI 模式必须针对下载后的生产构建运行 `vite preview`，不能只验证开发服务器。
 - 构建版 E2E 不得在页面上下文动态导入 `/src/...` 来操纵 Store；该路径只由开发服务器提供，正式 `dist/` 必然 404。发布门中的导航、SAN、存读档与探索用例应走玩家可见 UI。
+- 核心 Modal 与快捷键必须通过真实 UI 打开一次，并断言游戏未进入 ErrorBoundary；只验证主页面挂载无法发现条件 Hook 和布局消费者缺失。
 - `main` 部署生产根目录，`develop` 部署 `/preview/`；标签发布复用同一份已验证构建产物，避免二次构建漂移。

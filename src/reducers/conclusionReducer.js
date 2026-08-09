@@ -3,6 +3,7 @@
 import { makeRand } from './utils.js';
 import { hasClueId } from '../utils/clueNameMap.js';
 import { hasTriggered } from '../utils/triggeredSet.js';
+import { resolveNpcId } from '../data/registry/npcRegistry.js';
 
 /**
  * Check if a single evidence source is satisfied by current state.
@@ -15,11 +16,43 @@ export function isEvidenceSatisfied(ev, state) {
   if (trustMatch) {
     const npcName = trustMatch[1];
     const needed = parseInt(trustMatch[2]);
-    return (state.npcTrust[npcName] || 0) >= needed;
+    const trust = state.npcTrust || {};
+    const npcId = resolveNpcId(npcName);
+    return (trust[npcName] ?? trust[npcId] ?? 0) >= needed;
   }
   // Clue-based
   if (ev.source && hasClueId(state.clues, ev.source)) return true;
   return false;
+}
+
+/**
+ * Return undiscovered conclusions for which the player has partial evidence.
+ * UI surfaces must reuse this function instead of maintaining their own copy
+ * of the evidence schema.
+ */
+export function getInProgressConclusions(state, ctx) {
+  const GD = ctx && ctx.GD;
+  const conclusions = GD?.systems?.clue_conclusion?.conclusions || [];
+  const discovered = state.discoveredConclusions || [];
+
+  return conclusions
+    .filter((conc) => !discovered.includes(conc.id))
+    .map((conc) => {
+      const satisfiedEvidence = (conc.evidence_pool || []).filter((ev) =>
+        isEvidenceSatisfied(ev, state)
+      );
+      const requiredEvidenceCount = conc.required_evidence_count || 2;
+      return {
+        ...conc,
+        satisfiedEvidence,
+        requiredEvidenceCount,
+      };
+    })
+    .filter(
+      (conc) =>
+        conc.satisfiedEvidence.length > 0 &&
+        conc.satisfiedEvidence.length < conc.requiredEvidenceCount
+    );
 }
 
 /**

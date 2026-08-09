@@ -5943,6 +5943,9 @@ body[data-reduced-motion="true"] .narrative-text {
 .finfo-pill.clue {
   color: var(--blue2);
 }
+.finfo-pill.inventory {
+  color: var(--accent2);
+}
 
 .finfo-btn {
   width: 26px;
@@ -6016,6 +6019,34 @@ body[data-reduced-motion="true"] .narrative-text {
 .finfo-pill.active {
   background: rgba(59, 130, 246, 0.15);
   border-color: var(--blue2, #3b82f6);
+}
+.inventory-panel-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.inventory-panel-item:last-child {
+  border-bottom: 0;
+}
+.inventory-panel-item-info {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.inventory-panel-item-name {
+  color: var(--text, #ccc);
+}
+.inventory-panel-item-uses,
+.inventory-passive-label {
+  color: var(--text-dim, #888);
+  font-size: 0.65rem;
+}
+.inventory-use-btn {
+  flex: 0 0 auto;
 }
 
 /* ==========================================================
