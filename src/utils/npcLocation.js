@@ -3,11 +3,13 @@
 // Uses autonomous NPC positions from state.npcLocations (computed daily by npcSchedule.js).
 // Falls back to schedule-based lookup if npcLocations not yet computed.
 
+import { getNpcStateByRef } from './npcStateAccess.js';
+
 export function getNpcsHere(state, ctx) {
   var gd = ctx?.GD || state?._GD || {};
   var npcs = gd.npcs || gd.module3_npcs || [];
   return npcs.filter(function (n) {
-    if (state.npcStates[n.name]?.dead) return false;
+    if (getNpcStateByRef(state, n.name).dead) return false;
     var loc = state.npcLocations?.[n.name];
     if (!loc) {
       // Fallback: compute from schedule

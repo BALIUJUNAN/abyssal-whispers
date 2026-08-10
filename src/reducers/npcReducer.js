@@ -2,6 +2,12 @@
 // §1: NPC relationship web + post-death legacy system
 
 import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
+import {
+  getCanonicalNpcId,
+  getNpcStateByRef,
+  mergeNpcStateByRef,
+  setNpcStateByRef,
+} from '../utils/npcStateAccess.js';
 
 /**
  * Check if any NPC corruption triggers are satisfied.
@@ -12,8 +18,9 @@ export function checkNPCCorruption(state, ctx) {
   const npcs = GD.npcs || [];
   const triggered = [];
   for (const npc of npcs) {
-    if (state.npcStates[npc.name]?.corrupted) continue;
-    if (state.npcStates[npc.name]?.dead) continue;
+    var npcState = getNpcStateByRef(state, npc.name);
+    if (npcState.corrupted) continue;
+    if (npcState.dead) continue;
     const triggers = npc.corruption_triggers || [];
     for (const t of triggers) {
       if (hasTriggered(state, t.trigger)) {
@@ -29,11 +36,10 @@ export function checkNPCCorruption(state, ctx) {
  * Apply NPC corruption from a trigger.
  */
 export function applyNPCCorruption(state, npc, trigger, narr) {
-  state.npcStates[npc.name] = {
-    ...state.npcStates[npc.name],
+  mergeNpcStateByRef(state, npc.name, {
     corrupted: true,
     corruptionSource: trigger.id,
-  };
+  });
   narr('system', trigger.description, { isSpecial: true });
   if (trigger.dialogue_after) {
     narr('system', npc.name + '："' + trigger.dialogue_after + '"');
@@ -108,13 +114,11 @@ export function getNpcConnections(state, npcName) {
  * @param {object} legacy - { items: [], knowledge: [], quest: string }
  */
 export function registerNpcLegacy(state, npcName, legacy) {
-  if (!state.npcStates) state.npcStates = {};
-  state.npcStates[npcName] = {
-    ...state.npcStates[npcName],
+  mergeNpcStateByRef(state, npcName, {
     dead: true,
     legacy: legacy,
     legacyClaimed: false,
-  };
+  });
   // Capture echo for next loop (runtime only, not persisted)
   captureNpcEcho(state, npcName);
 }
@@ -127,17 +131,17 @@ export function registerNpcLegacy(state, npcName, legacy) {
  * @param {string} npcName - dead NPC name
  */
 const NPC_AREA_MAP = {
-  '老费舍': 'harbor_district',
-  '玛莎·格雷': 'harbor_district',
-  '伊莱亚斯·沃德': 'town_center',
-  '汤米·陈': 'town_center',
-  '希尔达·莫里斯': 'voxchester_manor',
-  '伊莎贝拉·韦伯': 'town_center',
-  '约书亚·布莱克': 'harbor_district',
-  '埃德加·洛夫克拉夫特': 'town_center',
+  old_fisher: 'harbor_district',
+  martha_grey: 'harbor_district',
+  elias_ward: 'town_center',
+  tommy_chen: 'town_center',
+  hilda_morris: 'voxchester_manor',
+  isabella_weber: 'town_center',
+  joshua_black: 'harbor_district',
+  edgar_lovecraft: 'town_center',
 };
 export function captureNpcEcho(state, npcName) {
-  var area = NPC_AREA_MAP[npcName];
+  var area = NPC_AREA_MAP[getCanonicalNpcId(npcName)];
   if (!area) return;
   if (!state._loopEchoesPending) state._loopEchoesPending = new Set();
   state._loopEchoesPending.add(area);
@@ -163,7 +167,7 @@ export function transferLoopEchoes(fromState, toState) {
  * @returns {object|null} legacy object or null
  */
 export function getAvailableLegacy(state, npcName) {
-  const npcState = state.npcStates?.[npcName];
+  const npcState = getNpcStateByRef(state, npcName);
   if (!npcState || !npcState.dead || npcState.legacyClaimed) return null;
   return npcState.legacy || null;
 }
@@ -173,12 +177,13 @@ export function getAvailableLegacy(state, npcName) {
  * @returns {object} { items: [], knowledge: [], questTriggered: string|null }
  */
 export function claimNpcLegacy(state, npcName, narr) {
-  const npcState = state.npcStates?.[npcName];
+  var npcState = getNpcStateByRef(state, npcName);
   if (!npcState || !npcState.dead || npcState.legacyClaimed)
     return { items: [], knowledge: [], questTriggered: null };
 
+  npcState = { ...npcState, legacyClaimed: true };
+  setNpcStateByRef(state, npcName, npcState);
   const legacy = npcState.legacy || {};
-  npcState.legacyClaimed = true;
 
   // Add items to inventory
   const items = legacy.items || [];

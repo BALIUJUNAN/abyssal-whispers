@@ -87,7 +87,9 @@ export function checkTrustGate(nextTrust, s, npcName) {
       return null;
     }
     if (nextTrust === 5) {
-      if (!hasChain('chain_morris')) return '你还没有揭开莫里斯家族诅咒的真相。完成这条线索链。';
+      const morrisSurfaceCount = morrisClues.filter((id) => hasClue(id)).length;
+      if (morrisSurfaceCount < 2)
+        return '她需要看到你确实调查过庄园。再找到至少两条莫里斯家族的表层线索。';
       return null;
     }
   }
@@ -121,7 +123,9 @@ export function checkTrustGate(nextTrust, s, npcName) {
       return null;
     }
     if (nextTrust === 5) {
-      if (!hasChain('chain_heretical')) return '你还没有揭开教堂异端仪式的真相。完成这条线索链。';
+      const heresySurfaceCount = heresyClues.filter((id) => hasClue(id)).length;
+      if (heresySurfaceCount < 2 && !hasClue('clue_h_5'))
+        return '她只会向真正追查过钟声的人坦白。再找到至少两条教堂线索。';
       return null;
     }
   }

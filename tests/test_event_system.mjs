@@ -1,4 +1,14 @@
 import assert from 'assert';
+import { checkTrigger as checkLegacyTrigger } from '../src/reducers/eventReducer.js';
+import { checkTriggerExtended } from '../src/reducers/extendedEvents.js';
+import { CH2PLUS_EVENTS } from '../src/data/extended_events_index.js';
+import { EVENTS as NPC_CROSS_EVENTS } from '../src/data/events/events_npc_cross.js';
+
+// Exercise the production trigger implementation. The previous local copy of
+// this function could agree with itself while the runtime logic regressed.
+function checkTrigger(evt, state) {
+  return checkTriggerExtended(evt, state, { GD: {} });
+}
 
 function makeState(overrides) {
   return Object.assign(
@@ -11,6 +21,7 @@ function makeState(overrides) {
       pollution: 0,
       currentArea: 'town_center',
       triggeredEvents: [],
+      clues: [],
       runTriggeredExtendedEvents: [],
       everTriggeredEvents: [],
       npcTrust: {},
@@ -40,33 +51,6 @@ function test(name, fn) {
     failed++;
     console.log('  FAIL: ' + name + ' -> ' + e.message);
   }
-}
-
-function checkTrigger(evt, state) {
-  const t = evt.trigger || {};
-  if (t.areas && !t.areas.includes(state.currentArea)) return false;
-  if (t.san_lte != null && state.san > t.san_lte) return false;
-  if (t.min_loop != null && state.loopCount < t.min_loop) return false;
-  if (t.food_lte != null && state.food > t.food_lte) return false;
-  if (t.once_per_run && (state.runTriggeredExtendedEvents || []).includes(evt.id)) return false;
-  if (t.once_ever && (state.everTriggeredEvents || []).includes(evt.id)) return false;
-  if (t.max_meta_per_run) {
-    const c = (state.runTriggeredExtendedEvents || []).filter((id) =>
-      id.startsWith('meta_')
-    ).length;
-    if (c >= t.max_meta_per_run) return false;
-  }
-  if (t.requires_flags) {
-    for (const f of t.requires_flags) if (!(state.triggeredEvents || []).includes(f)) return false;
-  }
-  if (t.npc_alive) {
-    for (const n of t.npc_alive) if (state.npcStates[n] && state.npcStates[n].dead) return false;
-  }
-  if (t.npc_trust_gte) {
-    for (const [n, m] of Object.entries(t.npc_trust_gte))
-      if ((state.npcTrust[n] || 0) < m) return false;
-  }
-  return true;
 }
 
 console.log('=== Trigger Conditions ===');
@@ -111,6 +95,54 @@ test('npc_trust_gte', () => {
   const s = makeState({ npcTrust: { m: 3 } });
   assert.ok(checkTrigger({ trigger: { npc_trust_gte: { m: 2 } } }, s));
   assert.ok(!checkTrigger({ trigger: { npc_trust_gte: { m: 4 } } }, s));
+});
+test('chapter gate blocks future chapters and unlocks at each boundary', () => {
+  assert.ok(!checkTrigger({ trigger: { chapter: 2 } }, makeState({ day: 3 })));
+  assert.ok(checkTrigger({ trigger: { chapter: 2 } }, makeState({ day: 4 })));
+  assert.ok(!checkTrigger({ trigger: { chapter: 3 } }, makeState({ day: 7 })));
+  assert.ok(checkTrigger({ trigger: { chapter: 3 } }, makeState({ day: 8 })));
+  assert.ok(!checkTrigger({ trigger: { chapter: 4 } }, makeState({ day: 14 })));
+  assert.ok(checkTrigger({ trigger: { chapter: 4 } }, makeState({ day: 15 })));
+  assert.ok(!checkTrigger({ trigger: { chapter: 5 } }, makeState({ day: 21 })));
+  assert.ok(checkTrigger({ trigger: { chapter: 5 } }, makeState({ day: 22 })));
+  // chapter is a minimum: earlier investigation events remain available later.
+  assert.ok(checkTrigger({ trigger: { chapter: 2 } }, makeState({ day: 22 })));
+});
+test('real chapter-5 escape event cannot enter the day-8 candidate pool', () => {
+  const evt = CH2PLUS_EVENTS.find((entry) => entry.id === 'evt_ch5_escape_boat');
+  const eventState = makeState({
+    day: 8,
+    currentArea: 'harbor_district',
+    ap: 5,
+    maxAp: 6,
+  });
+  assert.ok(evt);
+  assert.strictEqual(checkTrigger(evt, eventState), false);
+  assert.strictEqual(checkTrigger(evt, { ...eventState, day: 22 }), true);
+  assert.strictEqual(checkLegacyTrigger(evt, eventState), false);
+});
+test('localized NPC event conditions resolve stable runtime IDs', () => {
+  const evt = NPC_CROSS_EVENTS.find((entry) => entry.id === 'npc_cross_death_001');
+  const eventState = makeState({
+    currentArea: 'harbor_district',
+    npcTrust: { martha_grey: 2 },
+    npcStates: {
+      old_fisher: { dead: true },
+      martha_grey: { dead: false },
+    },
+  });
+  assert.ok(evt);
+  assert.strictEqual(checkTrigger(evt, eventState), true);
+  assert.strictEqual(checkLegacyTrigger(evt, eventState), true);
+});
+test('stable NPC event conditions remain compatible with localized old-save keys', () => {
+  const eventState = makeState({
+    npcTrust: { 老费舍: 3 },
+    npcStates: { 老费舍: { dead: true } },
+  });
+  const trigger = { npc_trust_gte: { old_fisher: 3 }, npc_dead: ['old_fisher'] };
+  assert.strictEqual(checkTrigger({ trigger }, eventState), true);
+  assert.strictEqual(checkLegacyTrigger({ trigger }, eventState), true);
 });
 test('food_lte', () => {
   assert.ok(checkTrigger({ trigger: { food_lte: 2 } }, makeState({ food: 1 })));

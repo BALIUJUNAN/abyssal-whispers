@@ -89,6 +89,13 @@ export function applyTextVariantTracking(evtId, text, pollution, loopCount, seen
  * @returns {string} rendered event text
  */
 export function renderEventText(evt, s, ctx, c) {
+  // Event definitions are shared GD. Resolve dynamic descriptions on a shallow
+  // copy so callbacks receive the reducer RNG without mutating the definition.
+  var description = typeof evt.description === 'function'
+    ? evt.description(s, c.rng)
+    : evt.description;
+  evt = { ...evt, description: description == null ? '' : String(description) };
+
   // Pre-processing: mutate evt.description for loop-conditioned variants
   applyDescriptionVariants(evt, s);
   applyEchoOverlay(evt, s);

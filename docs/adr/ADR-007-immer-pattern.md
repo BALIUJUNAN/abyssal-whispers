@@ -6,6 +6,7 @@
 ## Context
 
 Immer 允许在 `produce` 回调中直接修改 draft 对象。但开发者混合了两种模式：
+
 1. 纯 mutation（修改 draft + return undefined）
 2. 纯 return（返回新 state 对象）
 
@@ -35,6 +36,7 @@ Immer 允许在 `produce` 回调中直接修改 draft 对象。但开发者混�
 ## 2026-08-08 补充：过渡容器缓存 React 节点必须同步同屏更新
 
 页面过渡组件可以在跨屏动画期间暂存旧 `children`，但“当前 screenKey 未变化”不代表页面数据未变化。若缓存同步 effect 只依赖 `screenKey`，角色创建中的掷骰、难度和职业选择等同屏更新会被静默冻结。缓存 React 节点时必须把 `children` 纳入依赖，或只在过渡阶段缓存旧节点；E2E 需要覆盖至少一个不改变 screenKey 的交互更新。
+
 - 页面跳转的 E2E 必须断言目标页面真实挂载，避免只验证 action 或 store 字段。
 
 ## 2026-08-08 补充：全量重置也必须遵守 mutation 契约
@@ -63,3 +65,25 @@ Modal 常以 `if (!open) return null` 保持挂载但隐藏。所有 `useState`�
 
 - 派生列表先在组件顶部通过 Hook 计算，再在 JSX 中按长度决定是否渲染。
 - 浏览器测试必须至少打开一次每个长期挂载的核心 Modal，不能只测试其关闭状态。
+
+## 2026-08-09 补充：React 派生计算禁止修改 Store 快照
+
+组件的 `useMemo`、渲染函数和 selector 只能读取 Zustand state。NPC 上下文台词曾在 `useMemo` 中随机选择并写入 `_seenContextualLines`；这既绕过 Immer 事务和订阅通知，也会在重新启用 auto-freeze 时抛错后被 UI `try/catch` 静默吞掉。
+
+- 需要随机并记录“已见”的派生内容必须在所属 action reducer 内用 `c.rng` 生成并写入 state。
+- React 组件只渲染 reducer 已提交的结果，例如 `pendingNpc.contextualLine`。
+- 纯选择函数不得修改传入 state；无 RNG 的只读调用使用稳定 fallback，而不是裸随机。
+
+## 2026-08-09 补充：并行 Set 索引的每个写入点都要同步
+
+`triggeredEvents.push(id)` 与 `_triggeredSet.add(id)` 是一个原子状态协议。仅在 load/NEW_GAME 时重建 Set 不够；线索链完成效果、结局选项、解锁步骤等任何运行时 push 都必须立即调用 `syncTriggeredSet`。否则数组中已有标志，`hasTriggered()` 却持续返回 false，结局或解锁会静默失效。
+
+回归测试应在 `_triggeredSet` 已预先建立的状态下触发新标志，再通过 `hasTriggered()` 断言可见性。
+
+## 2026-08-10 补充：完整游玩审计必须校验数组/索引一致性
+
+跨日关键事件曾直接写入 `triggeredEvents`，却遗漏 `syncTriggeredSet`；单元测试只检查叙事和数值时不会发现，直到后续 `hasTriggered()` 再次选择同一事件或门控失效。所有通过真实 Store 连续执行的游玩审计，都应在每个 action 后验证：持久数组中的每个 ID 必须存在于已建立的并行 Set 中。发现漂移时报告首个 action、日期与 seed，禁止等到存档或结局阶段才定位。
+
+`triggeredSilentEvents` / `_silentSet` 必须遵守完全相同的原子协议；提供 `syncSilentSet`，每个 append 点立即同步，不能因为沉默事件数量较少就只依赖下一次加载重建。
+
+文本压力测试也必须对齐真实调用边界：事件名、按钮 label 和标题不经过正文碎片化管线，不能把它们强行送入 `applyTextFragmentation` 并把空标题误判为运行时 bug；标题只做原始字符串合法性校验，正文才做多 SAN 变换。

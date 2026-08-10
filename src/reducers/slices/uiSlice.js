@@ -27,6 +27,7 @@ import { getItemDef, useItemByDef, buyFromShop } from '../miscReducer.js';
 import { hasClueId } from '../../utils/clueNameMap.js';
 import { initSkills } from '../../utils/gameHelpers.js';
 import { processFakeChoice } from '../../systems/sanConsequenceChain.js';
+import { _postExploreProcessing } from '../../systems/explore/eventConsequenceSystem.js';
 
 export function handleUiAction(draft, action, c, ctx) {
   var GD = ctx.GD;
@@ -72,15 +73,15 @@ export function handleUiAction(draft, action, c, ctx) {
         c.narr('system', fakeResult, { isSpecial: true });
         c.log('选择了虚假选项：' + (choice._originalLabel || choice.label));
       } else {
-        c.narr('system', choice.text, { isSpecial: true });
+        c.narr('system', choice.text || choice.label || '你做出了选择。', { isSpecial: true });
         applyLegacyEffects(draft, choice.effects, c.rng);
       }
       // Death check after choice effects (unified via applyDeathResolution)
       {
-        var deathCtx = resolveDeath(draft, pc.evt, choice);
-        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx);
+        var deathCtx = resolveDeath(draft, pc.evt, choice, c.rng);
+        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx, c.rng);
       }
-      draft.objectives = checkObjCompletion(draft.objectives, draft);
+      _postExploreProcessing(pc.evt, draft, c, GD);
       c.log('选择：' + choice.label);
       return null;
     }
@@ -262,10 +263,10 @@ export function handleUiAction(draft, action, c, ctx) {
       applyLegacyEffects(draft, evt.effects, c.rng);
       // Post-gamble: check death (unified via applyDeathResolution)
       {
-        var deathCtx = resolveDeath(draft, evt, null);
-        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx);
+        var deathCtx = resolveDeath(draft, evt, null, c.rng);
+        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx, c.rng);
       }
-      draft.objectives = checkObjCompletion(draft.objectives, draft);
+      _postExploreProcessing(evt, draft, c, GD);
       c.log('探索(赌博)：' + evt.name);
       return null;
     }

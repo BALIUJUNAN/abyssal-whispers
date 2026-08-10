@@ -53,7 +53,7 @@ export function fireBellEntrance(dispatch) {
   // Phase 4: Clear glitch - 6s total
   setTimeout(function () {
     try {
-      dispatch({ type: 'GLITCH_PULSE_CLEAR' });
+      dispatch({ type: 'GLITCH_PULSE_CLEAR', meta: { consumeGameplayRng: false } });
     } catch (e) {}
   }, 6000);
 }

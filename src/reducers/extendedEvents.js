@@ -39,6 +39,8 @@ import {
   recordEventCooldown,
 } from '../engine/EventEngine.js';
 import { getResourceEventWeightModifier } from '../systems/resourceNarrative.js';
+import { isChapterUnlocked } from './chapterReducer.js';
+import { getNpcStateByRef, getNpcTrustByRef } from '../utils/npcStateAccess.js';
 
 // =============================================
 // SECTION 1: Extended Trigger Checking
@@ -65,7 +67,7 @@ export function checkTriggerExtended(evt, state, ctx) {
     if (!t.time_phase.includes(phase)) return false;
   }
 
-  if (t.chapter && state.day <= 7 && t.chapter > 1) return false;
+  if (!isChapterUnlocked(t.chapter, state.day)) return false;
 
   if (t.requires && t.requires.length > 0) {
     for (const req of t.requires) {
@@ -181,19 +183,19 @@ export function checkTriggerExtended(evt, state, ctx) {
   // NPC trust requirements
   if (t.npc_trust_gte) {
     for (const [npcId, minTrust] of Object.entries(t.npc_trust_gte)) {
-      if ((state.npcTrust[npcId] || 0) < minTrust) return false;
+      if (getNpcTrustByRef(state, npcId) < minTrust) return false;
     }
   }
 
   // NPC alive/dead requirements
   if (t.npc_alive && t.npc_alive.length > 0) {
     for (const npcId of t.npc_alive) {
-      if (state.npcStates[npcId]?.dead) return false;
+      if (getNpcStateByRef(state, npcId).dead) return false;
     }
   }
   if (t.npc_dead && t.npc_dead.length > 0) {
     for (const npcId of t.npc_dead) {
-      if (!state.npcStates[npcId]?.dead) return false;
+      if (!getNpcStateByRef(state, npcId).dead) return false;
     }
   }
 
@@ -631,7 +633,7 @@ export function getEventWeight(evt, areaId, state, ctx) {
     var proximityMult = 1.0;
     for (var ni = 0; ni < npcsHere.length; ni++) {
       var npcName = npcsHere[ni].name;
-      var npcTrust = (state.npcTrust[npcName] || 0);
+      var npcTrust = getNpcTrustByRef(state, npcName);
       var talkedToday = (state._dailyNpcTalks && state._dailyNpcTalks[npcName]) === state.day;
       if (npcTrust >= 3 && !talkedToday) {
         proximityMult = Math.max(proximityMult, 3.0);
@@ -868,7 +870,7 @@ export function checkEndingConditionQuick(state, cond) {
     case 'has_flag':
       return hasTriggered(state, cond.flag_id);
     case 'npc_trust_gte':
-      return (state.npcTrust[cond.npc_id] || 0) >= cond.value;
+      return getNpcTrustByRef(state, cond.npc_id) >= cond.value;
     default:
       return false;
   }

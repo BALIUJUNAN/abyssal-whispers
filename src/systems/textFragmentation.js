@@ -247,7 +247,9 @@ export function applyTextFragmentation(text, san, rng, opts, ctx) {
       if (_rand() < boostedTier.truncateChance && words.length >= 2) {
         result.push(words.slice(0, Math.max(1, words.length - 1)).join('') + '—');
       } else if (_rand() < boostedTier.resetChance) {
-        result.push(midSentenceReset(words.slice(0, Math.max(1, words.length - 1)), _rand));
+        var resetWords = words.slice(0, Math.max(1, words.length - 1));
+        midSentenceReset(resetWords, _rand);
+        result.push(resetWords);
       } else {
         result.push(sentence);
       }

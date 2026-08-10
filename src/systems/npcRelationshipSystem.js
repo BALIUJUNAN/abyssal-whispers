@@ -258,7 +258,7 @@ export function processMoralDilemmaChoice(dilemmaId, choiceId, state, c) {
 
   // Discovery chance (for deception choices)
   if (choice.hiddenCost && choice.hiddenCost.discoveryChance && choice.hiddenCost.discoveryDelay) {
-    var discoveryRoll = (c && c.rng ? c.rng.next() : Math.random());
+    var discoveryRoll = c.rng.next();
     if (discoveryRoll < choice.hiddenCost.discoveryChance) {
       var discDay = (state.day || 1) + choice.hiddenCost.discoveryDelay;
       scheduleDelayedEffect(state, 'npc_discovery', discDay, {

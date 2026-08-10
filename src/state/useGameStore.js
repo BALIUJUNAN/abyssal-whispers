@@ -60,6 +60,7 @@ function prepareAction(action, state) {
   }
   var meta = { ...(action.meta || {}) };
   if (!meta.actionId) {
+    // rng-exempt: tracing identity only; never used to seed gameplay RNG.
     meta.actionId = Date.now() + '_' + Math.random().toString(16).slice(2, 6);
   }
   if (!meta.now) meta.now = Date.now();
@@ -215,7 +216,7 @@ function buildSliceCtx(draft, rng, corruptFn, actIdx) {
     bt: draft.behaviorTracking,
     rng: rng,
     now: function () { return Date.now(); },
-    pick: rng ? rng.pick : function (arr) { return arr[Math.floor(Math.random() * arr.length)]; },
+    pick: rng.pick,
     view: {
       phase: getPhase(draft.ap, draft.maxAp),
       visits: 0,
@@ -282,7 +283,11 @@ export var useGameStore = create(
             var runSeed = draft.runSeed || 'default';
             var actIdx = preparedAction.meta._actionIndex;
             var rng = createSeededRng(runSeed, actIdx);
-            draft._actionIndex = actIdx + 1;
+            // Timer/LLM presentation actions are not allowed to perturb the
+            // gameplay RNG cursor merely because wall-clock timing changed.
+            if (preparedAction.meta.consumeGameplayRng !== false) {
+              draft._actionIndex = actIdx + 1;
+            }
 
             // Build lightweight context (replaces buildReducerCtx — no module-level buffer)
             var ctx = { GD: GD };

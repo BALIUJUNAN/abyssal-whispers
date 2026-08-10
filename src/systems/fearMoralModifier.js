@@ -12,6 +12,7 @@
 
 import { MORAL_DILEMMAS } from '../data/npcRelationshipWeb.js';
 import { emit } from '../engine/eventBus.js';
+import { getNpcTrustByRef } from '../utils/npcStateAccess.js';
 
 // ═══════════════════════════════════════════════════════════════
 // SECTION 1: Fear → Moral Pressure Mapping
@@ -455,9 +456,8 @@ export function selectMoralDilemma(state, GD) {
     var trustOk = true;
     var minTrust = d.triggerConditions.minTrust;
     if (minTrust) {
-      var npcTrust = state.npcTrust || {};
       for (var npc in minTrust) {
-        if ((npcTrust[npc] || 0) < minTrust[npc]) {
+        if (getNpcTrustByRef(state, npc) < minTrust[npc]) {
           trustOk = false;
           break;
         }

@@ -44,7 +44,7 @@ export function _processNpcCorruption(s, c, ctx) {
  */
 export function _processNightEffects(s, c, ctx) {
   var GD = ctx.GD;
-  checkSilentEvent(s, c.narr, 'safehouse', GD);
+  checkSilentEvent(s, c.narr, 'safehouse', GD, c.rng);
   {
     const bwfx = checkBreakWallEvent(s, c.narr, GD, c.rng);
     if (bwfx) c.effects.push(...bwfx);

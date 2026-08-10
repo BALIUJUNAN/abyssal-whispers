@@ -45,6 +45,7 @@ export function handleMove(s, action, c, ctx) {
     return null;
   }
   s.ap -= action.cost || 1;
+  c.effects.push({ type: 'AUDIO_PLAY', id: 'travel_footsteps' });
   if (s.ap <= 2 && s.ap > 0) {
     c.effects.push({ type: 'AUDIO_PLAY', id: 'ui_error' });
   } else if (s.ap <= 0) {
@@ -66,7 +67,9 @@ export function handleMove(s, action, c, ctx) {
     s.stats_run.deepest_area_danger = targetArea.danger_level;
   if (!s.lastVisitedDates) s.lastVisitedDates = {};
   s.lastVisitedDates = { ...s.lastVisitedDates, [target]: s.day };
-  var displayName = getAreaDisplayName(targetArea, s);
+  var displayName = getAreaDisplayName(targetArea, s, c.rng);
+  if (!s.areaNameCache) s.areaNameCache = {};
+  s.areaNameCache[target] = displayName;
   c.narr('system', '你前往了' + displayName + '。');
   var lightCorrPenalty =
     (s.lightLevel || 0) < (targetArea?.resource_pressure?.required_light_level || 0) ? 2 : 1;
@@ -141,7 +144,8 @@ export function handleMove(s, action, c, ctx) {
         if (k === 'HP') s.hp = clamp(s.hp + v, 0, s.maxHp);
       });
   }
-  if (c.rng.next() < GAME_BALANCE.SILENT_EVENT_ON_MOVE) checkSilentEvent(s, c.narr, target, GD);
+  if (c.rng.next() < GAME_BALANCE.SILENT_EVENT_ON_MOVE)
+    checkSilentEvent(s, c.narr, target, GD, c.rng);
   var sceneKeyMap = {
     harbor_district: 'harbor_water',
     voxchester_manor: 'hilda_portrait',

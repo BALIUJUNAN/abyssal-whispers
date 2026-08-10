@@ -10,6 +10,7 @@ import assert from 'assert';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { applyLegacyEffects } from '../src/reducers/effectReducer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -140,7 +141,8 @@ test('No Date.now() or Math.random() in dispatch', function () {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (line.trim().startsWith('//')) continue;
-    if (/Date\.now\(\)/.test(line)) violations.push('useGameStore.dispatch:' + (i + 1) + ': Date.now()');
+    if (/Date\.now\(\)/.test(line))
+      violations.push('useGameStore.dispatch:' + (i + 1) + ': Date.now()');
     if (/Math\.random\(\)/.test(line))
       violations.push('useGameStore.dispatch:' + (i + 1) + ': Math.random()');
   }
@@ -153,29 +155,63 @@ test('No Date.now() or Math.random() in dispatch', function () {
 test('effectExecutor routes AUDIO_PLAY to audioManager.playEffect', function () {
   var calls = [];
   var mockAudioManager = {
-    playEffect: function (id) { calls.push({ fn: 'playEffect', id: id }); },
-    playSkillEffect: function (id) { calls.push({ fn: 'playSkillEffect', id: id }); },
-    playAreaAmbient: function (a, p) { calls.push({ fn: 'playAreaAmbient', area: a, phase: p }); },
-    playSanLoss: function (amt) { calls.push({ fn: 'playSanLoss', amount: amt }); },
-    playUI: function (id) { calls.push({ fn: 'playUI', id: id }); },
-    setMuted: function (m) { calls.push({ fn: 'setMuted', muted: m }); },
+    playEffect: function (id) {
+      calls.push({ fn: 'playEffect', id: id });
+    },
+    playSkillEffect: function (id) {
+      calls.push({ fn: 'playSkillEffect', id: id });
+    },
+    playAreaAmbient: function (a, p) {
+      calls.push({ fn: 'playAreaAmbient', area: a, phase: p });
+    },
+    playSanLoss: function (amt) {
+      calls.push({ fn: 'playSanLoss', amount: amt });
+    },
+    playUI: function (id) {
+      calls.push({ fn: 'playUI', id: id });
+    },
+    setMuted: function (m) {
+      calls.push({ fn: 'setMuted', muted: m });
+    },
     suddenMuted: false,
   };
-  var mockSaveGame = function (s) { calls.push({ fn: 'saveGame' }); };
-  var mockIncrementStat = function (k) { calls.push({ fn: 'incrementStat', key: k }); };
-  var mockDispatch = function (a) { calls.push({ fn: 'dispatch', action: a }); };
+  var mockSaveGame = function (s) {
+    calls.push({ fn: 'saveGame' });
+  };
+  var mockIncrementStat = function (k) {
+    calls.push({ fn: 'incrementStat', key: k });
+  };
+  var mockDispatch = function (a) {
+    calls.push({ fn: 'dispatch', action: a });
+  };
 
   // Simulate the EFFECT_HANDLERS map (mirrors effectExecutor.js)
   var HANDLERS = {
-    AUDIO_PLAY: function (fx) { mockAudioManager.playEffect(fx.id); },
-    AUDIO_SKILL: function (fx) { mockAudioManager.playSkillEffect(fx.id); },
-    AUDIO_AMBIENT: function (fx) { mockAudioManager.playAreaAmbient(fx.area, fx.phase); },
-    AUDIO_SAN_LOSS: function (fx) { mockAudioManager.playSanLoss(fx.amount); },
-    AUDIO_UI: function (fx) { mockAudioManager.playUI(fx.id); },
-    SAVE_GAME: function (fx) { mockSaveGame(fx.state); },
-    INCREMENT_STAT: function (fx) { mockIncrementStat(fx.key); },
+    AUDIO_PLAY: function (fx) {
+      mockAudioManager.playEffect(fx.id);
+    },
+    AUDIO_SKILL: function (fx) {
+      mockAudioManager.playSkillEffect(fx.id);
+    },
+    AUDIO_AMBIENT: function (fx) {
+      mockAudioManager.playAreaAmbient(fx.area, fx.phase);
+    },
+    AUDIO_SAN_LOSS: function (fx) {
+      mockAudioManager.playSanLoss(fx.amount);
+    },
+    AUDIO_UI: function (fx) {
+      mockAudioManager.playUI(fx.id);
+    },
+    SAVE_GAME: function (fx) {
+      mockSaveGame(fx.state);
+    },
+    INCREMENT_STAT: function (fx) {
+      mockIncrementStat(fx.key);
+    },
     NARRATE_DELAYED: function (fx, dispatch) {
-      setTimeout(function () { dispatch({ type: 'DELAYED_NARRATE', text: fx.text }); }, fx.delay);
+      setTimeout(function () {
+        dispatch({ type: 'DELAYED_NARRATE', text: fx.text });
+      }, fx.delay);
     },
   };
 
@@ -198,14 +234,20 @@ test('effectExecutor routes AUDIO_PLAY to audioManager.playEffect', function () 
 
   assert.strictEqual(calls.length, 3, 'Should execute 3 effects');
   assert.deepStrictEqual(calls[0], { fn: 'playEffect', id: 'begin' });
-  assert.deepStrictEqual(calls[1], { fn: 'playAreaAmbient', area: 'town_center', phase: 'morning' });
+  assert.deepStrictEqual(calls[1], {
+    fn: 'playAreaAmbient',
+    area: 'town_center',
+    phase: 'morning',
+  });
   assert.deepStrictEqual(calls[2], { fn: 'incrementStat', key: 'total_runs' });
 });
 
 // Test 7: Effects with same _fxId are deduplicated
 test('Duplicate _fxId effects only execute once (integration)', function () {
   var count = 0;
-  var HANDLER = function () { count++; };
+  var HANDLER = function () {
+    count++;
+  };
   var effects = [
     { type: 'AUDIO_PLAY', id: 'bell', _fxId: 'same_0' },
     { type: 'AUDIO_PLAY', id: 'bell', _fxId: 'same_0' },
@@ -227,7 +269,9 @@ test('Duplicate _fxId effects only execute once (integration)', function () {
 // Test 8: NARRATE_DELAYED effect defers dispatch (not synchronous)
 test('NARRATE_DELAYED defers dispatch via setTimeout', function () {
   var dispatched = [];
-  var mockDispatch = function (a) { dispatched.push(a); };
+  var mockDispatch = function (a) {
+    dispatched.push(a);
+  };
   var timeoutCalled = false;
   var timeoutDelay = null;
 
@@ -267,8 +311,10 @@ test('BEGIN_ADVENTURE action produces AUDIO_PLAY + AUDIO_AMBIENT effects', funct
   var beginBlock = content.slice(beginIdx, endIdx);
 
   // Verify it pushes AUDIO_PLAY effects through the typed command helpers
-  var hasAudioPlay = beginBlock.includes("audio.play('begin')") || beginBlock.includes("type: 'AUDIO_PLAY'");
-  var hasAudioAmbient = beginBlock.includes("audio.ambient(") || beginBlock.includes("type: 'AUDIO_AMBIENT'");
+  var hasAudioPlay =
+    beginBlock.includes("audio.play('begin')") || beginBlock.includes("type: 'AUDIO_PLAY'");
+  var hasAudioAmbient =
+    beginBlock.includes('audio.ambient(') || beginBlock.includes("type: 'AUDIO_AMBIENT'");
   assert.ok(hasAudioPlay, 'Should push AUDIO_PLAY effect (direct or via commands.js)');
   assert.ok(hasAudioAmbient, 'Should push AUDIO_AMBIENT effect (direct or via commands.js)');
 
@@ -285,11 +331,46 @@ test('EXPLORE action produces AUDIO_SKILL + AUDIO_PLAY effects', function () {
   var pipelineContent = fs.readFileSync(pipelinePath, 'utf8');
   var combined = exploreContent + '\n' + pipelineContent;
 
-  assert.ok(combined.includes("case 'EXPLORE'") || exploreContent.includes("case 'EXPLORE'"), 'EXPLORE case should exist');
+  assert.ok(
+    combined.includes("case 'EXPLORE'") || exploreContent.includes("case 'EXPLORE'"),
+    'EXPLORE case should exist'
+  );
 
   // Verify it uses c.effects.push for audio (may be in dispatcher or pipeline)
-  assert.ok(combined.includes("c.effects.push({ type: 'AUDIO_SKILL'"), 'Should push AUDIO_SKILL via effects');
-  assert.ok(combined.includes("c.effects.push({ type: 'AUDIO_PLAY'"), 'Should push AUDIO_PLAY via effects');
+  assert.ok(
+    combined.includes("c.effects.push({ type: 'AUDIO_SKILL'"),
+    'Should push AUDIO_SKILL via effects'
+  );
+  assert.ok(
+    combined.includes("c.effects.push({ type: 'AUDIO_PLAY'"),
+    'Should push AUDIO_PLAY via effects'
+  );
+});
+
+test('legacy effects.items rewards enter canonical inventory', function () {
+  var state = {
+    san: 60,
+    inventory: [],
+    triggeredEvents: [],
+    stats: {},
+    behaviorTracking: {},
+  };
+  applyLegacyEffects(state, { items: ['古树种子', '封印仪式记录（关键线索）'] });
+  assert.ok(
+    state.inventory.some(function (item) {
+      return item.name === '古树种子';
+    })
+  );
+  assert.ok(
+    state.inventory.some(function (item) {
+      return item.name === '封印仪式记录（关键线索）';
+    })
+  );
+  assert.ok(
+    state.inventory.every(function (item) {
+      return /^[a-z0-9_]+$/.test(item.id);
+    })
+  );
 });
 
 // === P2 Verification: Effect buffer safety + eventDebugger dry-run ===
@@ -311,7 +392,9 @@ test('does not leak pending effects across consecutive dispatches', function () 
     }
     // Tag with actionId
     var batchId = (action.meta && action.meta.actionId) || 'anon';
-    effects.forEach(function (fx, i) { fx._fxId = batchId + '_' + i; });
+    effects.forEach(function (fx, i) {
+      fx._fxId = batchId + '_' + i;
+    });
     _pendingEffects = effects;
     return Object.assign({}, state, { lastAction: action.type });
   }
@@ -376,9 +459,7 @@ test('StrictMode reducer replay does not double-execute effects (fxId dedup)', f
   assert.strictEqual(executed.length, 2, 'Second flush: still 2 (deduped by _fxId)');
 
   // New action with different _fxIds should execute
-  var effects_from_action2 = [
-    { type: 'AUDIO_PLAY', id: 'other', _fxId: 'action2_0' },
-  ];
+  var effects_from_action2 = [{ type: 'AUDIO_PLAY', id: 'other', _fxId: 'action2_0' }];
   mockExecutor(effects_from_action2);
   assert.strictEqual(executed.length, 3, 'New action: 3 total (new _fxId executes)');
 });
@@ -411,13 +492,21 @@ test('explainEventSelection does not mutate game state (dry-run)', function () {
     if (/\bstate\.\w+\s*=/.test(line) && !/state\.\w+\s*===/.test(line)) {
       violations.push('line ' + (i + 1) + ': state mutation: ' + line);
     }
-    if (/\bs\.\w+\s*=\s/.test(line) && !/s\.\w+\s*===/.test(line) && !/var |let |const /.test(line)) {
+    if (
+      /\bs\.\w+\s*=\s/.test(line) &&
+      !/s\.\w+\s*===/.test(line) &&
+      !/var |let |const /.test(line)
+    ) {
       violations.push('line ' + (i + 1) + ': draft mutation: ' + line);
     }
     if (/\.push\(|\.pop\(|\.splice\(|\.shift\(/.test(line)) {
       // Only flag pushes on STATE arrays (state.xxx.push or s.xxx.push), not local vars
-      if (/state\.\w+\.push|s\.\w+\.push/.test(line) ||
-          /\btriggeredEvents\.push|\bcooldowns?\[.*\]\s*=|\bclues\.push|\binventory\.push|\bnpcStates/.test(line)) {
+      if (
+        /state\.\w+\.push|s\.\w+\.push/.test(line) ||
+        /\btriggeredEvents\.push|\bcooldowns?\[.*\]\s*=|\bclues\.push|\binventory\.push|\bnpcStates/.test(
+          line
+        )
+      ) {
         violations.push('line ' + (i + 1) + ': state array mutation: ' + line);
       }
     }
@@ -437,7 +526,11 @@ test('explainEventSelection does not mutate game state (dry-run)', function () {
       violations.push('line ' + (i + 1) + ': localStorage (side effect): ' + line);
     }
   }
-  assert.deepStrictEqual(violations, [], 'eventDebugger must be pure (no mutation/determinism/side-effects):\n' + violations.join('\n'));
+  assert.deepStrictEqual(
+    violations,
+    [],
+    'eventDebugger must be pure (no mutation/determinism/side-effects):\n' + violations.join('\n')
+  );
 });
 
 // Test 14: eventDebugger output structure is correct
@@ -466,7 +559,11 @@ test('explainEventSelection returns valid report structure', function () {
 // Test 15: Seeded RNG produces identical sequences for same seed
 test('createSeededRng: same seed+salt produces identical sequence', function () {
   var rngPath = path.join(SRC, 'utils', 'seededRng.js');
-  if (!fs.existsSync(rngPath)) { console.log('  SKIP: seededRng.js not found'); passed--; return; }
+  if (!fs.existsSync(rngPath)) {
+    console.log('  SKIP: seededRng.js not found');
+    passed--;
+    return;
+  }
   var content = fs.readFileSync(rngPath, 'utf8');
   // Verify the module exports createSeededRng and generateRunSeed
   assert.ok(content.includes('export function createSeededRng'), 'Must export createSeededRng');
@@ -476,7 +573,9 @@ test('createSeededRng: same seed+salt produces identical sequence', function () 
   function testRng(seed, salt) {
     var h = 0;
     var s = String(seed || 'default') + '_' + String(salt || 0);
-    for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+    for (var i = 0; i < s.length; i++) {
+      h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+    }
     var state = h >>> 0;
     if (state === 0) state = 1;
     var results = [];
@@ -506,20 +605,26 @@ test('createSeededRng: pick and shuffle are deterministic', function () {
   function makeRng(seed, salt) {
     var h = 0;
     var s = String(seed) + '_' + String(salt);
-    for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
-    var state = (h >>> 0) || 1;
+    for (var i = 0; i < s.length; i++) {
+      h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+    }
+    var state = h >>> 0 || 1;
     function next() {
       state = (state + 0x6d2b79f5) | 0;
       var t = Math.imul(state ^ (state >>> 15), 1 | state);
       t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     }
-    function pick(arr) { return arr[Math.floor(next() * arr.length)]; }
+    function pick(arr) {
+      return arr[Math.floor(next() * arr.length)];
+    }
     function shuffle(arr) {
       var a = arr.slice();
       for (var i = a.length - 1; i > 0; i--) {
         var j = Math.floor(next() * (i + 1));
-        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+        var tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
       }
       return a;
     }
@@ -531,8 +636,12 @@ test('createSeededRng: pick and shuffle are deterministic', function () {
   var items = ['a', 'b', 'c', 'd', 'e'];
 
   // Pick sequence
-  var picks1 = [], picks2 = [];
-  for (var i = 0; i < 20; i++) { picks1.push(rng1.pick(items)); picks2.push(rng2.pick(items)); }
+  var picks1 = [],
+    picks2 = [];
+  for (var i = 0; i < 20; i++) {
+    picks1.push(rng1.pick(items));
+    picks2.push(rng2.pick(items));
+  }
   assert.deepStrictEqual(picks1, picks2, 'pick() sequence identical for same seed');
 
   // Shuffle
@@ -572,9 +681,14 @@ test('ESM imports: all imported source files exist', function () {
       // Skip self-imports (e.g. barrel index.js re-exporting from itself)
       if (path.normalize(resolved) === path.normalize(jsFiles[i])) continue;
       // Verify the imported file exists (.js or .json)
-      var exists = fs.existsSync(resolved) || fs.existsSync(resolved + '.js') || fs.existsSync(resolved + '.json');
+      var exists =
+        fs.existsSync(resolved) ||
+        fs.existsSync(resolved + '.js') ||
+        fs.existsSync(resolved + '.json');
       if (!exists) {
-        violations.push(path.relative(srcDir, jsFiles[i]) + ' imports ' + importTarget + ' (file not found)');
+        violations.push(
+          path.relative(srcDir, jsFiles[i]) + ' imports ' + importTarget + ' (file not found)'
+        );
       }
     }
   }
@@ -584,7 +698,9 @@ test('ESM imports: all imported source files exist', function () {
 // Test 18b: No shadowed 'c' variable bugs in slice handlers
 test('slice handlers: no c.xxx inside .find/.filter/.map callbacks', function () {
   var sliceDir = path.join(SRC, 'reducers', 'slices');
-  var files = fs.readdirSync(sliceDir).filter(function (f) { return f.endsWith('.js'); });
+  var files = fs.readdirSync(sliceDir).filter(function (f) {
+    return f.endsWith('.js');
+  });
   var violations = [];
   for (var fi = 0; fi < files.length; fi++) {
     var content = fs.readFileSync(path.join(sliceDir, files[fi]), 'utf8');
@@ -602,16 +718,29 @@ test('slice handlers: no c.xxx inside .find/.filter/.map callbacks', function ()
       // Pattern: callback param named 'c' then using c.xxx where xxx is a data field
       var callbackMatch = line.match(/\.\s*(find|filter|map|forEach)\s*\(\s*\(([^)]*)\)\s*=>/);
       if (callbackMatch) {
-        var params = callbackMatch[2].split(',').map(function (p) { return p.trim(); });
+        var params = callbackMatch[2].split(',').map(function (p) {
+          return p.trim();
+        });
         // Check if any param is 'c' and the body uses c.something
         if (params.indexOf('c') !== -1 && /\bc\.\w+/.test(line)) {
-          violations.push(files[fi] + ':' + (i + 1) + ': callback param "c" shadows reducer context: ' + line.trim());
+          violations.push(
+            files[fi] +
+              ':' +
+              (i + 1) +
+              ': callback param "c" shadows reducer context: ' +
+              line.trim()
+          );
         }
       }
       // Also check: arrow callback with 'c' param in multi-line patterns
       var arrowC = line.match(/\.\s*(find|filter|map|forEach)\s*\(\s*\(c\)\s*=>/);
-      if (arrowC && /\bc\.(id|name|clues|choices|type|text|weight|area|trigger|effects)\b/.test(line)) {
-        violations.push(files[fi] + ':' + (i + 1) + ': "c." in callback shadows reducer ctx: ' + line.trim());
+      if (
+        arrowC &&
+        /\bc\.(id|name|clues|choices|type|text|weight|area|trigger|effects)\b/.test(line)
+      ) {
+        violations.push(
+          files[fi] + ':' + (i + 1) + ': "c." in callback shadows reducer ctx: ' + line.trim()
+        );
       }
     }
   }

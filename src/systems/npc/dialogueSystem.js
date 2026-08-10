@@ -5,9 +5,10 @@ import { rand, d3, pick, applySanLoss } from '../../reducers/utils.js';
 import { GAME_BALANCE } from '../../state/gameConstants.js';
 import { processSanLoss, getSanTextVariant } from '../../reducers/sanReducer.js';
 import { getFearNpcLine } from '../../systems/fearLens.js';
-import { getNpcDialogueVariant, NPC_CORRUPTION_LINES, getNpcFatigueEffect, getDifficultyNpcTrustMultiplier, getDifficultyNpcSuspicion, getDaySpecificLine, getWeatherLine, getSanLevelLine } from '../../systems/npcDialogue.js';
+import { getContextualLine, getNpcDialogueVariant, NPC_CORRUPTION_LINES, getNpcFatigueEffect, getDifficultyNpcTrustMultiplier, getDifficultyNpcSuspicion, getDaySpecificLine, getWeatherLine, getSanLevelLine } from '../../systems/npcDialogue.js';
 import { handleNpcMemoryTier } from '../../utils/npcMemory.js';
 import { NPC_THREAD_QUESTIONS } from '../../data/npcContextualLines.js';
+import { getAvailableNpcThreads } from './probeThreadSystem.js';
 import { narrApInsufficient, addRunMemory, getNpcTrust, setNpcTrust, modHumanity, getNpcState, setNpcState } from '../../utils/appHelpers.js';
 import { setCorruptionFlag } from '../../reducers/npcReducer.js';
 import { getSanStageFromGD } from '../../reducers/sanReducer.js';
@@ -34,7 +35,15 @@ export function _executeTalkNpc(s, action, c, ctx) {
   var layer = npc.trust_layers
     ? npc.trust_layers.find(function (l) { return l.level === trust; }) || npc.trust_layers[0]
     : null;
-  s.pendingNpc = { npc: npc, trust: trust, layer: layer };
+  var contextualLine = getContextualLine(npc.name, s, c.rng);
+  s.pendingNpc = { npc: npc, trust: trust, layer: layer, contextualLine: contextualLine };
+  if (contextualLine && contextualLine.text) {
+    if (!s._seenContextualLines) s._seenContextualLines = {};
+    if (!s._seenContextualLines[npc.name]) s._seenContextualLines[npc.name] = [];
+    if (s._seenContextualLines[npc.name].indexOf(contextualLine.text) < 0) {
+      s._seenContextualLines[npc.name].push(contextualLine.text);
+    }
+  }
   // Loop text variants: NPC dialogue changes with loop count
   if (s.loopCount > 0) {
     var npcVariantMap = {
@@ -147,52 +156,7 @@ export function _executeTalkNpc(s, action, c, ctx) {
   handleNpcMemoryTier(s, npc, c.narr, c.rng);
   // 对话追问系统：展示可用的追问线（信任≥2 解锁第一层，支持 depth2 分支）
   if (!ns.corrupted && NPC_THREAD_QUESTIONS[npc.name]) {
-    var availableThreads = [];
-    var allThreads = NPC_THREAD_QUESTIONS[npc.name];
-    for (var ti = 0; ti < allThreads.length; ti++) {
-      var thread = allThreads[ti];
-      var threadState = (s.npcThreads || {})[npc.name + '_' + thread.id];
-      if (threadState && threadState.resolved) continue;
-      var curDepth = threadState ? threadState.depth : 0;
-      // depth 0 → depth 1: show thread entry
-      if (curDepth === 0) {
-        if (trust >= (thread.trustReq || 2)) {
-          availableThreads.push({ thread: thread, nextDepth: 1, branch: null });
-        }
-      }
-      // depth 1 → depth 2: show depth2 text + choices (if any)
-      else if (curDepth === 1) {
-        var d2 = thread.depth2 || {};
-        var d2TrustReq = d2.trustReq || 3;
-        if (trust >= d2TrustReq) {
-          if (d2.choices && d2.choices.length > 0) {
-            // Show branch choices
-            for (var ci = 0; ci < d2.choices.length; ci++) {
-              var ch = d2.choices[ci];
-              if (trust >= (ch.trustReq || d2TrustReq)) {
-                availableThreads.push({ thread: thread, nextDepth: 2, branch: ch.branch, choiceText: ch.text });
-              }
-            }
-          } else {
-            // Linear: auto-advance to depth3
-            availableThreads.push({ thread: thread, nextDepth: 3, branch: null });
-          }
-        }
-      }
-      // depth 2 → depth 3: show branch outcome (if branch chosen) or default depth3
-      else if (curDepth === 2) {
-        var d3TrustReq = (thread.depth3 && thread.depth3.trustReq) || 4;
-        if (trust >= d3TrustReq) {
-          var chosenBranch = threadState.branch;
-          if (chosenBranch && thread.branches && thread.branches[chosenBranch]) {
-            availableThreads.push({ thread: thread, nextDepth: 3, branch: chosenBranch, isOutcome: true });
-          } else if (!chosenBranch) {
-            // Show default depth3 (no branching was available)
-            availableThreads.push({ thread: thread, nextDepth: 3, branch: null, isOutcome: true });
-          }
-        }
-      }
-    }
+    var availableThreads = getAvailableNpcThreads(npc.name, trust, s.npcThreads);
     if (availableThreads.length > 0) {
       s.pendingNpc = Object.assign({}, s.pendingNpc, { availableThreads: availableThreads });
     }

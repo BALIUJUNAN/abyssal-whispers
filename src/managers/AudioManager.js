@@ -45,6 +45,17 @@ export const AUDIO_PATHS = {
   skill_success: 'audio/skill_success.wav',
   skill_fail: 'audio/skill_fail.wav',
   skill_critical_fail: 'audio/skill_critical_fail.wav',
+  // Combat actions
+  combat_start: 'audio/combat_start.wav',
+  combat_attack: 'audio/combat_attack.wav',
+  combat_hit: 'audio/combat_hit.wav',
+  combat_miss: 'audio/combat_miss.wav',
+  combat_player_hurt: 'audio/combat_player_hurt.wav',
+  combat_monster_attack: 'audio/combat_monster_attack.wav',
+  combat_flee: 'audio/combat_flee.wav',
+  combat_victory: 'audio/combat_victory.wav',
+  combat_item: 'audio/combat_item.wav',
+  combat_communicate: 'audio/combat_communicate.wav',
   // Loop system
   loop_memory: 'audio/loop_memory_flash.wav',
   loop_pollution: 'audio/loop_pollution_gain.wav',
@@ -52,6 +63,19 @@ export const AUDIO_PATHS = {
   // Area-specific events
   harbor_water_omen: 'audio/harbor_water_omen.wav',
   lighthouse_lens_crack: 'audio/lighthouse_lens_crack.wav',
+  travel_footsteps: 'audio/travel_footsteps.wav',
+  investigate_search: 'audio/investigate_search.wav',
+  // Weather layers
+  weather_rain: 'audio/weather_rain_loop.wav',
+  weather_fog: 'audio/weather_fog_loop.wav',
+  weather_blood_moon: 'audio/weather_blood_moon_loop.wav',
+  // Ending / ritual stingers
+  ending_good: 'audio/ending_good.wav',
+  ending_bad: 'audio/ending_bad.wav',
+  ending_hidden: 'audio/ending_hidden.wav',
+  ending_neutral: 'audio/ending_neutral.wav',
+  ritual_progress: 'audio/ritual_progress.wav',
+  ritual_complete: 'audio/ritual_complete.wav',
   // Begin / first bell
   begin: 'audio/begin_low_bell.mp3',
   // Thirteenth bell entrance — Day 1 delayed hook (bell_reverse layered with low drone)
@@ -73,6 +97,10 @@ export const AUDIO_PATHS = {
   safehouse_breath: 'audio/安全屋像在呼吸.wav',
   safehouse_not_safe: 'audio/不能叫安全屋.wav',
   safehouse_wall: 'audio/不是门外，是墙里.wav',
+  // Non-verbal safehouse replacements
+  safehouse_rest: 'audio/safehouse_rest.wav',
+  safehouse_unsettled: 'audio/safehouse_unsettled.wav',
+  safehouse_corrupt: 'audio/safehouse_corrupt.wav',
 };
 
 // Area → ambient key mapping
@@ -88,6 +116,12 @@ export const AREA_AMBIENT_MAP = {
   forbidden_grove: 'amb_forest',
 };
 
+export const WEATHER_AMBIENT_MAP = {
+  雨天: 'weather_rain',
+  大雾: 'weather_fog',
+  血月: 'weather_blood_moon',
+};
+
 export const SUDDEN_EFFECTS = [
   'san_loss',
   'san_loss_minor',
@@ -99,12 +133,19 @@ export const SUDDEN_EFFECTS = [
   'death_physical',
   'death_mental',
   'death_hybrid',
+  'combat_start',
+  'combat_player_hurt',
+  'combat_monster_attack',
+  'ending_bad',
+  'ending_hidden',
+  'ritual_complete',
 ];
 
 export const audioManager = {
   muted: false,
   suddenMuted: false,
   ambientEl: null,
+  weatherEl: null,
   _volumeScale: 1,
   _userVolumeScale: 1,
   _ambientScale: 1,
@@ -132,11 +173,11 @@ export const audioManager = {
     // Pool full — reuse oldest
     return this._pool[src][0];
   },
-  _play(src, loop = false, category = 'effect') {
+  _play(src, loop = false, category = 'effect', gain = 1) {
     try {
       if (this.muted) return null;
       var catScale =
-        category === 'ambient'
+        category === 'ambient' || category === 'weather'
           ? this._ambientScale
           : category === 'ui'
             ? this._uiScale
@@ -150,11 +191,11 @@ export const audioManager = {
         el.currentTime = 0; // rewind for reuse
       }
       el.loop = loop;
-      el.volume = 0.5 * (this._volumeScale || 1) * catScale;
+      el.volume = clampAudioVolume(0.5 * (this._volumeScale || 1) * catScale * gain);
       var self = this;
       el.play().catch(function () {
         // Autoplay blocked — don't overwrite area/phase already saved by playAreaAmbient
-        if (loop && !self._unlocked && !self._pendingAmbient) {
+        if (loop && category === 'ambient' && !self._unlocked && !self._pendingAmbient) {
           self._pendingAmbient = { src: src };
         }
       });
@@ -201,6 +242,16 @@ export const audioManager = {
       this.ambientEl = this._play(AUDIO_PATHS.ambient_night, true, 'ambient');
     } catch (e) {}
   },
+  playWeatherAmbient(weather) {
+    try {
+      this.stopWeatherAmbient();
+      const key = WEATHER_AMBIENT_MAP[weather];
+      if (!key || this.muted) return;
+      if (!this._unlocked) this._pendingWeather = weather;
+      const gain = key === 'weather_rain' ? 0.34 : key === 'weather_fog' ? 0.27 : 0.31;
+      this.weatherEl = this._play(AUDIO_PATHS[key], true, 'weather', gain);
+    } catch (e) {}
+  },
   playEffect(type) {
     try {
       if (this.suddenMuted && SUDDEN_EFFECTS.includes(type)) return;
@@ -243,14 +294,28 @@ export const audioManager = {
       }
     } catch (e) {}
   },
+  stopWeatherAmbient() {
+    try {
+      if (this.weatherEl) {
+        this.weatherEl.pause();
+        this.weatherEl.currentTime = 0;
+        this.weatherEl.src = '';
+        this.weatherEl = null;
+      }
+    } catch (e) {}
+  },
   setMuted(m) {
     this.muted = m;
-    if (m) this.stopAmbient();
+    if (m) {
+      this.stopAmbient();
+      this.stopWeatherAmbient();
+    }
   },
   // Browser autoplay unlock: call on first user gesture (click/touch/keydown).
   // Creates a silent AudioContext, resumes it, and replays pending ambient.
   _unlocked: false,
   _pendingAmbient: null,
+  _pendingWeather: null,
   unlock() {
     if (this._unlocked) return;
     this._unlocked = true;
@@ -265,6 +330,15 @@ export const audioManager = {
         this._pendingAmbient = null;
         this.playAreaAmbient(area, phase);
       }
+      if (this._pendingWeather) {
+        var weather = this._pendingWeather;
+        this._pendingWeather = null;
+        this.playWeatherAmbient(weather);
+      }
     } catch (e) {}
   },
 };
+
+function clampAudioVolume(value) {
+  return Math.max(0, Math.min(1, value));
+}

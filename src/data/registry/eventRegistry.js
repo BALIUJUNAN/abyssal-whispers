@@ -311,6 +311,7 @@ export function simulateSelection(events, iterations) {
 
   // Monte Carlo simulation
   for (var iter = 0; iter < iterations; iter++) {
+    // rng-exempt: offline coverage Monte Carlo, never used for gameplay selection.
     var r = Math.random() * totalWeight;
     var cum = 0;
     for (var k = 0; k < poolEvents.length; k++) {

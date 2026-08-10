@@ -1,6 +1,13 @@
 // src/utils/gameHelpers.js — 游戏逻辑工具函数（从 app.jsx 提取）
 
-import { resolveClueName } from './clueNameMap.js';
+import { hasClueId, resolveClueName } from './clueNameMap.js';
+import { hasTriggered, syncTriggeredSet } from './triggeredSet.js';
+import { isEvidenceSatisfied } from '../reducers/conclusionReducer.js';
+import { isChapterUnlocked } from '../reducers/chapterReducer.js';
+import {
+  changeNpcTrustByRef,
+  getNpcStateByRef,
+} from './npcStateAccess.js';
 
 // ESM module: GD 通过 ctx 参数传入，不依赖全局变量
 
@@ -19,7 +26,7 @@ export function getNpcsHere(state, ctx) {
   const GD = ctx?.GD || {};
   const npcs = GD.npcs || GD.module3_npcs || [];
   return npcs.filter((n) => {
-    if (state.npcStates[n.name]?.dead) return false;
+    if (getNpcStateByRef(state, n.name).dead) return false;
     const d = ((state.day - 1) % 5) + 1;
     const sch = (n.schedule || []).find((x) => x.startsWith('day' + d));
     return sch && (sch.split(':')[1] || '').trim() === state.currentArea;
@@ -31,15 +38,14 @@ export function applyChainCompletionEffects(state, effects, narr) {
   for (const eff of effects) {
     switch (eff.type) {
       case 'add_flag':
-        if (eff.flag_id && !state.triggeredEvents.includes(eff.flag_id))
+        if (eff.flag_id && !hasTriggered(state, eff.flag_id)) {
           state.triggeredEvents.push(eff.flag_id);
+          syncTriggeredSet(state, eff.flag_id);
+        }
         break;
       case 'modify_npc_trust':
         if (eff.npc_id) {
-          state.npcTrust[eff.npc_id] = Math.min(
-            5,
-            (state.npcTrust[eff.npc_id] || 0) + (eff.amount || 0)
-          );
+          changeNpcTrustByRef(state, eff.npc_id, eff.amount || 0);
         }
         break;
       case 'unlock_area':
@@ -48,10 +54,14 @@ export function applyChainCompletionEffects(state, effects, narr) {
         break;
       case 'unlock_final_option':
       case 'unlock_ritual_step':
-        if (eff.option_id && !state.triggeredEvents.includes(eff.option_id))
+        if (eff.option_id && !hasTriggered(state, eff.option_id)) {
           state.triggeredEvents.push(eff.option_id);
-        if (eff.step_id && !state.triggeredEvents.includes(eff.step_id))
+          syncTriggeredSet(state, eff.option_id);
+        }
+        if (eff.step_id && !hasTriggered(state, eff.step_id)) {
           state.triggeredEvents.push(eff.step_id);
+          syncTriggeredSet(state, eff.step_id);
+        }
         break;
       case 'modify_npc_agency':
         if (eff.npc_id) {
@@ -76,12 +86,8 @@ export function checkChainCompletion(state, narr, ctx) {
   for (const chain of chains) {
     const chainClues = chain.clues || [];
     for (const clue of chainClues) {
-      if (state.clues.some((c) => c.id === clue.id)) continue;
-      if (
-        clue.source &&
-        state.triggeredEvents.includes(clue.source) &&
-        !state.clues.some((c) => c.id === clue.id)
-      ) {
+      if (hasClueId(state.clues || [], clue.id)) continue;
+      if (clue.source && isEvidenceSatisfied({ source: clue.source }, state)) {
         state.clues.push({ id: clue.id, name: clue.name });
         narr('system', '【线索链：' + chain.name + '】发现线索「' + clue.name + '」', {
           isSpecial: true,
@@ -90,10 +96,7 @@ export function checkChainCompletion(state, narr, ctx) {
     }
     if (state.completedChains.includes(chain.id)) continue;
     const allFound =
-      chainClues.length > 0 &&
-      chainClues.every((c) =>
-        state.clues.some((cc) => cc.id === c.id)
-      );
+      chainClues.length > 0 && chainClues.every((c) => hasClueId(state.clues || [], c.id));
     if (allFound) {
       state.completedChains.push(chain.id);
       narr(
@@ -111,7 +114,7 @@ export function checkChainCompletion(state, narr, ctx) {
   for (const chain of eventChains) {
     if (state.completedChains.includes(chain.id)) continue;
     const seq = chain.sequence || [];
-    const allTriggered = seq.length > 0 && seq.every((eid) => state.triggeredEvents.includes(eid));
+    const allTriggered = seq.length > 0 && seq.every((eid) => hasTriggered(state, eid));
     if (allTriggered) {
       state.completedChains.push(chain.id);
       narr(
@@ -130,16 +133,15 @@ export function checkChainCompletion(state, narr, ctx) {
 export function getSanVariant(san) {
   // P1-A: SSOT — variant derived from stage.level
   const stage = getSanStageFromGD(san);
-  if (stage.level >= 3) return 'abyssal';   // explanation_loss
-  if (stage.level >= 2) return 'paranoid';  // perception_shift
-  if (stage.level >= 1) return 'anxious';   // mild_erosion
-  return 'normal';                           // stable
+  if (stage.level >= 3) return 'abyssal'; // explanation_loss
+  if (stage.level >= 2) return 'paranoid'; // perception_shift
+  if (stage.level >= 1) return 'anxious'; // mild_erosion
+  return 'normal'; // stable
 }
 
 // P1-A: SAN thresholds derive from getSanStageFromGD (SSOT)
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
 import { getDistortedName } from '../systems/textVariants.js';
-import { hasClueId } from './clueNameMap.js';
 
 export function getCorruptionLevel(san, loopCount) {
   // SSOT: stage.level maps to corruption levels
@@ -158,14 +160,17 @@ export function getOptionText(key, san, ctx) {
 }
 
 export function isAreaUnlocked(area, state) {
-  if (area.chapter_1_role === 'locked') return false;
-  if (area.chapter_1_role === 'fully_accessible') return true;
+  if (!area) return false;
   const day = state.day || 1;
-  if (area.chapter_unlock === 'chapter_2' && day > 7) return true;
+  // chapter_1_role only describes the area's first-chapter presentation.
+  // The authoritative chapter gate decides when rumor/locked areas become
+  // traversable later in the run.
+  if (!area.chapter_unlock && area.chapter_1_role === 'locked') return false;
+  if (!isChapterUnlocked(area.chapter_unlock, day)) return false;
   if (area.unlock_clue && !hasClueId(state.clues || [], area.unlock_clue)) return false;
-  return false;
+  return true;
 }
 
-export function getAreaDisplayName(area, state) {
-  return getDistortedName(area, state);
+export function getAreaDisplayName(area, state, rng) {
+  return getDistortedName(area, state, rng);
 }

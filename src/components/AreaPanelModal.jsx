@@ -53,6 +53,14 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
     return getConnectedAreas(hotspot.areaId, { GD });
   }, [hotspot.areaId, state.currentArea]);
 
+  // A destination is reachable only when it is adjacent to the player's
+  // current area. `conn` above represents the selected hotspot's neighbours
+  // and is used when the selected hotspot is the current location.
+  const currentAreaConnections = useMemo(() => {
+    if (!state.currentArea) return [];
+    return getConnectedAreas(state.currentArea, { GD });
+  }, [state.currentArea]);
+
   // 可用行动列表
   const availableActions = useMemo(() => {
     const actions = [];
@@ -191,7 +199,8 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
 
     // 如果没有行动且不在该区域 → 显示移动按钮
     if (actions.length === 0 && !isCurrentHotspot && hotspot.areaId) {
-      const unlocked = isHotspotUnlocked(hotspot, state, { GD: GD });
+      const unlocked =
+        isHotspotUnlocked(hotspot, state, { GD: GD }) && (!area || isAreaUnlocked(area, state));
       if (unlocked) {
         actions.push({
           id: 'go_here',
@@ -199,7 +208,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
           label: '前往此处',
           cost: '1 AP',
           costAp: 1,
-          disabled: state.ap < 1 || !conn.includes(hotspot.areaId),
+          disabled: state.ap < 1 || !currentAreaConnections.includes(hotspot.areaId),
           onClick: () => {
             dispatch({ type: 'MOVE', areaId: hotspot.areaId });
             onClose();
@@ -209,7 +218,7 @@ export function AreaPanelModal({ hotspot, state, dispatch, onClose }) {
     }
 
     return actions;
-  }, [state, hotspot, conn, npcsHere]);
+  }, [state, hotspot, area, conn, currentAreaConnections, npcsHere]);
 
   // ESC 关闭
   useEffect(() => {

@@ -68,6 +68,7 @@ function getSealModifier(day) {
 
 // ── 确定性 RNG（xorshift）───────────────────────────────────
 function makeRng(seed) {
+  // rng-exempt: simulator seed creation; supplied seeds remain reproducible.
   let s = seed != null ? seed | 0 : (Math.random() * 0xFFFFFFFF) | 0;
   if (s === 0) s = 1;
   return {
@@ -113,6 +114,7 @@ function applyProtection(rawLoss, level, day, cfg, type) {
 
 // ── 单次 28 天模拟 ──────────────────────────────────────────
 export function simulateRun(opts) {
+  // rng-exempt: simulator entry seed, returned in the simulation result.
   const seed = opts.seed != null ? opts.seed : Math.floor(Math.random() * 0xFFFFFFFF);
   const rng = makeRng(seed);
   const level = opts.difficulty || 1;

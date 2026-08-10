@@ -3,7 +3,7 @@
 
 import { getPhase } from '../engine/WorldTimeSystem.js';
 
-export function selectContextualLine(npcName, state, opts) {
+export function selectContextualLine(npcName, state, opts, rng) {
   var pool = NPC_CONTEXTUAL_LINES[npcName];
   if (!pool || pool.length === 0) return null;
   var time = (opts && opts.time) || "day";
@@ -47,11 +47,9 @@ export function selectContextualLine(npcName, state, opts) {
   var maxP = 0;
   for (var i = 0; i < pool2.length; i++) { if ((pool2[i].priority || 0) > maxP) maxP = pool2[i].priority || 0; }
   var topTier = pool2.filter(function(l) { return (l.priority || 0) === maxP; });
-  var pick = topTier[Math.floor(Math.random() * topTier.length)];
-  if (!state._seenContextualLines) state._seenContextualLines = {};
-  if (!state._seenContextualLines[npcName]) state._seenContextualLines[npcName] = [];
-  if (state._seenContextualLines[npcName].indexOf(pick.text) < 0) state._seenContextualLines[npcName].push(pick.text);
-  return pick;
+  // Selection is pure: Store mutation/seen tracking belongs to TALK_NPC.
+  // A missing RNG uses a stable first-item fallback for read-only callers.
+  return rng ? rng.pick(topTier) : topTier[0];
 }
 
 export var NPC_CONTEXTUAL_LINES = {

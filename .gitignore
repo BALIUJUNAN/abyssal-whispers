@@ -51,6 +51,10 @@ test-results/
 playwright-report/
 blob-report/
 debug.log
+tests/output/
+
+# Archived one-off / migration scripts (history only, not maintained)
+scripts/archive/
 
 # Operations log (local only, never commit)
 .ops-log.json

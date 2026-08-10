@@ -8,6 +8,7 @@ import { triggerDayCriticalSurge, triggerSanLossFlash } from '../sanVisualCorrup
 import { getSanFloor } from '../firstLoopBalance.js';
 import { getWorldDecayNarrative, getHarborDeepOneWhisper } from '../worldDecay.js';
 import { addRunMemory } from '../../utils/appHelpers.js';
+import { syncTriggeredSet } from '../../utils/triggeredSet.js';
 
 /**
  * Process day-specific critical events and world decay atmosphere.
@@ -16,7 +17,9 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
   {
     const dayCrit = getDayCriticalEvent(s.day);
     if (dayCrit && !s.triggeredEvents.includes('day_crit_' + s.day)) {
-      s.triggeredEvents.push('day_crit_' + s.day);
+      const eventId = 'day_crit_' + s.day;
+      s.triggeredEvents.push(eventId);
+      syncTriggeredSet(s, eventId);
       // Narrative Month: Trigger visual surge for critical days
       if (
         s.day === 7 ||

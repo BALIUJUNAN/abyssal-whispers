@@ -1,6 +1,7 @@
 // src/utils/npcMemory.js - NPC loop memory data and logic (extracted from appHelpers.js)
 
 import { pick } from '../reducers/utils.js';
+import { changeNpcTrustByRef, getNpcTrustByRef } from './npcStateAccess.js';
 
 // === NPC Memory Lines (extracted from TALK_NPC in app.jsx to avoid per-call allocation) ===
 export const NPC_MEMORY_LINES = {
@@ -206,9 +207,9 @@ export function handleNpcMemoryTier(s, npc, narr, rng) {
     if (!behaviorMemory[npc.name]) {
       if (!s._npcBehaviorMemory) s._npcBehaviorMemory = {};
       s._npcBehaviorMemory = { ...s._npcBehaviorMemory, [npc.name]: true };
-      const currentTrust = s.npcTrust[npc.name] || 0;
+      const currentTrust = getNpcTrustByRef(s, npc.name);
       if (currentTrust < 3) {
-        s.npcTrust = { ...s.npcTrust, [npc.name]: Math.min(3, currentTrust + 1) };
+        changeNpcTrustByRef(s, npc.name, 1);
         narr('system', '（' + npc.name + '看着你，像是在确认什么。信任度悄然提升。）', {
           isSpecial: true,
         });
@@ -221,9 +222,9 @@ export function handleNpcMemoryTier(s, npc, narr, rng) {
     if (!behaviorMemory[npc.name + '_t5']) {
       if (!s._npcBehaviorMemory) s._npcBehaviorMemory = {};
       s._npcBehaviorMemory = { ...s._npcBehaviorMemory, [npc.name + '_t5']: true };
-      const currentTrust = s.npcTrust[npc.name] || 0;
+      const currentTrust = getNpcTrustByRef(s, npc.name);
       if (currentTrust >= 3 && currentTrust < 5) {
-        s.npcTrust = { ...s.npcTrust, [npc.name]: Math.min(5, currentTrust + 1) };
+        changeNpcTrustByRef(s, npc.name, 1);
         narr('system', '（' + npc.name + '看着你，眼神里多了一层东西——不是困惑，是某种更深的理解。）', {
           isSpecial: true,
         });

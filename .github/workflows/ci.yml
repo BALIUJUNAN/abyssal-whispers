@@ -30,6 +30,8 @@ jobs:
       - run: npm run lint:engine
       - run: npm run lint:undef
       - run: npm run lint:san
+      - run: npm run lint:rng
+      - run: npm run lint:audio
       - run: npm run lint:events
       - run: npm run analyze:events:ci
       - run: npm run lint:narrative
@@ -60,6 +62,8 @@ jobs:
       - run: npm run lint:engine
       - run: npm run lint:undef
       - run: npm run lint:san
+      - run: npm run lint:rng
+      - run: npm run lint:audio
       - run: npm run lint:events
       - run: npm run analyze:events:ci
       - run: npm run lint:narrative

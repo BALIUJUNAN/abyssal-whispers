@@ -7,7 +7,7 @@
  * @param {object} state    - game state (for context: current SAN, maxSan)
  * @returns {{ tier, label, color, duration, screenEffect, soundId, narrative }}
  */
-export function getSanLossPresentation(amount, state) {
+export function getSanLossPresentation(amount, state, rng) {
   const san = state?.san ?? 50;
   const maxSan = state?.maxSan ?? 99;
   const ratio = san / maxSan;
@@ -25,7 +25,7 @@ export function getSanLossPresentation(amount, state) {
         '一阵轻微的寒意。',
         '你眨了眨眼，刚才发生了什么？',
         '远处传来一声叹息。不是风。',
-      ]),
+      ], rng),
     };
   }
 
@@ -37,12 +37,12 @@ export function getSanLossPresentation(amount, state) {
       color: 'var(--danger2, #e67e22)',
       duration: 600,
       screenEffect: 'vignette_flash',
-      soundId: 'san_loss_moderate',
+      soundId: 'san_loss_medium',
       narrative: _pickRandom([
         '你的视线模糊了一瞬。墙壁似乎在呼吸。',
         '有什么东西在你耳边低语。你不想听清它说了什么。',
         '你的手在发抖。这不是恐惧——是更深层的东西。',
-      ]),
+      ], rng),
     };
   }
 
@@ -54,12 +54,12 @@ export function getSanLossPresentation(amount, state) {
       color: 'var(--danger, #c0392b)',
       duration: 1200,
       screenEffect: 'screen_shake',
-      soundId: 'san_loss_severe',
+      soundId: 'san_loss_major',
       narrative: _pickRandom([
         '你的视野扭曲了。现实像湿纸一样皱缩。',
         '你听到了自己的尖叫声——但你的嘴没有张开。',
         '世界裂开了一条缝。你从缝隙里看到了不该看到的东西。',
-      ]),
+      ], rng),
     };
   }
 
@@ -70,12 +70,12 @@ export function getSanLossPresentation(amount, state) {
     color: '#8e44ad',
     duration: 2000,
     screenEffect: 'full_distortion',
-    soundId: 'san_loss_critical',
+    soundId: 'san_critical_breath',
     narrative: _pickRandom([
       '你感到自己正在溶解。不是身体——是更核心的东西。',
       '你试图抓住一个念头。任何念头。但思绪像水一样从指缝间流走。',
       '你看到了沃切斯特的真面目。只有一瞬间。但足够了。',
-    ]),
+    ], rng),
   };
 }
 
@@ -120,6 +120,6 @@ export function getSanStageFeedback(san, ctx) {
   };
 }
 
-function _pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function _pickRandom(arr, rng) {
+  return rng ? rng.pick(arr) : arr[0];
 }

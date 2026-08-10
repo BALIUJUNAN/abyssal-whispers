@@ -34,6 +34,7 @@ const SUITES = [
   { file: 'tests/test_full_flow.mjs', label: 'full_flow' },
   { file: 'tests/test_save_security.mjs', label: 'save_security' },
   { file: 'tests/test_regressions.mjs', label: 'regressions' },
+  { file: 'tests/test_playability_audit.mjs', label: 'playability_audit' },
 ];
 
 let totalPassed = 0;

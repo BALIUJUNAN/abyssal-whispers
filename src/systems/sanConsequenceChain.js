@@ -190,8 +190,7 @@ export function tryApSteal(s, c, level) {
   var params = getApStealParams(level);
   if (params.chance <= 0) return false;
 
-  var _rand = c.rng ? c.rng.next.bind(c.rng) : Math.random;
-  if (_rand() > params.chance) return false;
+  if (c.rng.next() > params.chance) return false;
 
   s.ap = Math.max(0, (s.ap || 0) - params.amount);
   c.narr('system', pick(AP_STEAL_TEXTS, c.rng) + ' AP -' + params.amount, { isEffect: true });

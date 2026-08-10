@@ -34,6 +34,7 @@ export function GameLayout() {
   var ap = gl.ap;
   var maxAp = gl.maxAp;
   var san = gl.san;
+  var weather = gl.weather;
   var audioMuted = gl.audioMuted;
   var deathContext = gl.deathContext;
   var level13Glitch = gl._level13GlitchScheduled;
@@ -50,6 +51,20 @@ export function GameLayout() {
       audioManager.playAreaAmbient(currentArea || 'town_center', phase);
     } catch (e) {}
   }, [currentArea, day, audioMuted]);
+
+  // Weather is a quiet secondary loop layered under the area soundscape.
+  useEffect(() => {
+    try {
+      if (audioManager.muted) {
+        audioManager.stopWeatherAmbient();
+        return;
+      }
+      audioManager.playWeatherAmbient(weather);
+    } catch (e) {}
+    return function () {
+      try { audioManager.stopWeatherAmbient(); } catch (e) {}
+    };
+  }, [weather, audioMuted]);
 
   // 感知污染 — 音频侵入层：根据 SAN/loop/mythos 调整环境音
   var _aiSan = useGameStore(function (s) { return s.san; });
@@ -99,6 +114,7 @@ export function GameLayout() {
             narrType: 'system',
             text: text,
             extra: { isSpecial: true },
+            meta: { consumeGameplayRng: false },
           });
         }
       });
@@ -129,6 +145,7 @@ export function GameLayout() {
           narrType: 'system',
           text: (result.prefix || '[异象]') + ' ' + result.text,
           extra: { isSpecial: true },
+          meta: { consumeGameplayRng: false },
         });
       }
     });

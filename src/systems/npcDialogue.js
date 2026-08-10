@@ -5,8 +5,6 @@
 
 import { selectContextualLine } from '../data/npcContextualLines.js';
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
-import { makeRand } from '../reducers/utils.js';
-
 /**
  * Get a contextual greeting/line for an NPC based on full game state.
  * Combines: contextual lines (trust/time/san/loop/legacy) > corruption > infection > normal.
@@ -30,22 +28,21 @@ export function getContextualLine(npcName, state, rng) {
   }
 
   // Priority 3: contextual lines (trust/time/san/loop/legacy)
-  var ctx = selectContextualLine(npcName, state);
+  var ctx = selectContextualLine(npcName, state, null, rng);
   if (ctx) return ctx;
 
   // Priority 4: corruption/infection lines (existing system)
-  var _rand = makeRand(rng);
   var variant = getNpcDialogueVariant(npcName, 0, state);
   if (variant === 'infection_hallucination') {
     var infLines = NPC_INFECTION_LINES[npcName];
     if (infLines && infLines.length > 0) {
-      return { text: infLines[_rand(0, infLines.length - 1)], tags: ['infection'] };
+      return { text: rng ? rng.pick(infLines) : infLines[0], tags: ['infection'] };
     }
   }
   if (variant === 'heavy_corruption' || variant === 'light_corruption') {
     var corLines = (NPC_CORRUPTION_LINES[npcName] || {})[variant === 'heavy_corruption' ? 'heavy' : 'light'];
     if (corLines && corLines.length > 0) {
-      return { text: corLines[_rand(0, corLines.length - 1)], tags: ['corruption'] };
+      return { text: rng ? rng.pick(corLines) : corLines[0], tags: ['corruption'] };
     }
   }
 
@@ -90,8 +87,7 @@ export function getSanLevelLine(npcName, san, rng) {
   if (!applicableTier) return null;
   var lines = sanData[applicableTier];
   if (!lines || lines.length === 0) return null;
-  var _rand = makeRand(rng);
-  return lines[_rand(0, lines.length - 1)];
+  return rng ? rng.pick(lines) : lines[0];
 }
 
 // === Multi-Version Dialogue Selector ===

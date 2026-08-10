@@ -65,7 +65,8 @@ export function _processFoodAndStarvation(s, c, ctx) {
         residueFlag: 'death_echo_starvation',
       },
       c.narr,
-      ctx
+      ctx,
+      c.rng
     );
     return true;
   }

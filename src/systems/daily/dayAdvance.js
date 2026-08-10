@@ -13,6 +13,7 @@ import {
   getMotifFlavorText,
 } from '../../reducers/chapterReducer.js';
 import { hasClueId } from '../../utils/clueNameMap.js';
+import { syncTriggeredSet } from '../../utils/triggeredSet.js';
 import {
   addRunMemory,
   getNpcState,
@@ -78,7 +79,6 @@ export function _advanceDayClock(s, c, ctx) {
   c.effects.push({ type: 'INCREMENT_STAT', key: 'night_survived' });
   if (s.san <= GAME_BALANCE.LOW_SAN_STAT_THRESHOLD)
     c.effects.push({ type: 'INCREMENT_STAT', key: 'low_san_days' });
-  c.effects.push({ type: 'AUDIO_PLAY', id: rand(0, 1, c.rng) ? 'rest_alt' : 'rest_generic' });
   try {
     const phase = getPhase(s.ap, s.maxAp);
     c.effects.push({ type: 'AUDIO_AMBIENT', area: s.currentArea, phase: phase });
@@ -112,6 +112,7 @@ export function _processChapterAndMotif(s, c, oldDay, ctx) {
   // DESIGN_REFACTOR_NOTES.md: "Day 3结束强制触发教堂地下室或码头仓库过渡事件"
   if (oldDay === 3 && s.loopCount <= 0 && !s.triggeredEvents.includes('evt_day3_transition')) {
     s.triggeredEvents.push('evt_day3_transition');
+    syncTriggeredSet(s, 'evt_day3_transition');
     var hasChurchClue =
       hasClueId(s.clues, 'clue_church') || hasClueId(s.clues, 'evt_church_bell')
         || s.triggeredEvents.includes('evt_church_bell')

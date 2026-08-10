@@ -66,6 +66,17 @@ export function rebuildSilentSet(state) {
 }
 
 /**
+ * Append-time synchronization for triggeredSilentEvents.
+ * Mirrors syncTriggeredSet so an already-built Set never hides new entries.
+ */
+export function syncSilentSet(state, id) {
+  if (!state) return state;
+  if (!state._silentSet) rebuildSilentSet(state);
+  if (state._silentSet) state._silentSet.add(id);
+  return state;
+}
+
+/**
  * O(1) 沉默事件查询。
  */
 export function hasSilentTriggered(state, id) {

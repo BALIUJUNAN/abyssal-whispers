@@ -6,8 +6,17 @@ import { applyExtendedEffect } from './extendedEvents.js';
 import { hasTriggered, syncTriggeredSet } from '../utils/triggeredSet.js';
 import { incrementStat } from './achievementReducer.js';
 import { resolveClueName } from '../utils/clueNameMap.js';
+import { normalizeItemRef } from '../data/registry/itemRegistry.js';
 import { getResourceFraudState } from '../systems/resourceFraud.js';
 import { audioManager } from '../managers/AudioManager.js';
+import {
+  changeNpcTrustByRef,
+  getCanonicalNpcId,
+  getNpcStateByRef,
+  isNpcTrustLockedByRef,
+  mergeNpcStateByRef,
+  setNpcStateByRef,
+} from '../utils/npcStateAccess.js';
 
 /**
  * Apply a list of effects to game state.
@@ -33,7 +42,7 @@ export function applyEffects(state, effects, context) {
       case 'modify_resource': {
         const res = eff.resource || 'food';
         if (res === 'food') {
-          state.food = Math.min(state.maxFood || 5, (state.food || 0) + (eff.amount || 0));
+          state.food = clamp((state.food || 0) + (eff.amount || 0), 0, state.maxFood || 5);
           if (state.food > 0) state.starvationDays = 0; // 饥饿解除
         } else if (res === 'light') {
           state.lightLevel = Math.max(0, Math.min(3, (state.lightLevel || 0) + (eff.amount || 0)));
@@ -77,9 +86,7 @@ export function applyEffects(state, effects, context) {
         break;
       }
       case 'add_clue': {
-        const _clueExists = state.clues.some(
-          (c) => c.id === eff.clue_id
-        );
+        const _clueExists = state.clues.some((c) => c.id === eff.clue_id);
         if (!_clueExists) {
           const _resolved = resolveClueName(eff.clue_id);
           state.clues.push({ id: eff.clue_id, name: _resolved || eff.clue_id });
@@ -105,19 +112,15 @@ export function applyEffects(state, effects, context) {
       case 'modify_npc_trust': {
         const npcId = eff.npc_id;
         // §3.3: NPC trust lock check (meta event consequence)
-        if (state._npcTrustLocked && state._npcTrustLocked[npcId]) break;
-        state.npcTrust[npcId] = Math.min(
-          5,
-          Math.max(0, (state.npcTrust[npcId] || 0) + (eff.amount || 1))
-        );
+        if (isNpcTrustLockedByRef(state, npcId)) break;
+        changeNpcTrustByRef(state, npcId, eff.amount ?? 1);
         break;
       }
       case 'modify_npc_corruption': {
         const npcId2 = eff.npc_id;
-        state.npcStates[npcId2] = {
-          ...state.npcStates[npcId2],
+        mergeNpcStateByRef(state, npcId2, {
           corrupted: eff.corrupted !== undefined ? eff.corrupted : true,
-        };
+        });
         break;
       }
       case 'add_log': {
@@ -168,20 +171,23 @@ function applyNpcChanges(state, changes) {
       }
     } else if (change && typeof change === 'object') {
       npcId = change.name || change.npc || null;
-      trustDelta = typeof change.trust === 'number'
-        ? change.trust
-        : typeof change.trust_change === 'number'
-          ? change.trust_change
-          : null;
+      trustDelta =
+        typeof change.trust === 'number'
+          ? change.trust
+          : typeof change.trust_change === 'number'
+            ? change.trust_change
+            : null;
       status = change.state || change.status || null;
       corruptionFlag = change.corruption_flag || null;
     }
 
     if (!npcId) continue;
-    var npcState = state.npcStates[npcId] || { name: npcId };
+    var stableNpcId = getCanonicalNpcId(npcId);
+    var npcState = { ...getNpcStateByRef(state, npcId) };
+    if (!npcState.name) npcState.name = npcId;
 
     if (typeof trustDelta === 'number') {
-      state.npcTrust[npcId] = clamp((state.npcTrust[npcId] || 0) + trustDelta, 0, 5);
+      changeNpcTrustByRef(state, npcId, trustDelta);
     }
 
     if (status === 'dead') npcState.dead = true;
@@ -199,7 +205,7 @@ function applyNpcChanges(state, changes) {
       state.metaEventFlags[corruptionFlag] = true;
     }
 
-    state.npcStates[npcId] = npcState;
+    setNpcStateByRef(state, stableNpcId, npcState);
   }
 }
 
@@ -227,6 +233,11 @@ export function applyLegacyEffects(state, eff, rng) {
     if (eff.add_item && _rand() > fraud.realMult) {
       delete eff.add_item;
     }
+    if (Array.isArray(eff.items)) {
+      eff.items = eff.items.filter(function () {
+        return _rand() <= fraud.realMult;
+      });
+    }
     // Clue gain: each clue independently passes/fails the realMult check
     if (eff.add_clue) {
       var clues = Array.isArray(eff.add_clue) ? eff.add_clue : [eff.add_clue];
@@ -247,6 +258,12 @@ export function applyLegacyEffects(state, eff, rng) {
     'food',
     'mythos',
     'humanity',
+    'items',
+    'remove_item',
+    'modify_resource',
+    'light',
+    'harbor_night_risk_reduction',
+    'investigation_bonus',
     'add_flag',
     'add_clue',
     'add_item',
@@ -262,11 +279,37 @@ export function applyLegacyEffects(state, eff, rng) {
     console.warn('[applyLegacyEffects] 未识别字段将被忽略: ' + unknownKeys.join(', '), eff);
   }
   // HP / SAN (both casings)
-  if (eff.HP) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.HP }], { rng: rng });
-  if (eff.hp) applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.hp }], { rng: rng });
-  if (eff.san) applyEffects(state, [{ type: 'modify_stat', target: 'SAN', amount: eff.san }], { rng: rng });
+  if (eff.HP)
+    applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.HP }], { rng: rng });
+  if (eff.hp)
+    applyEffects(state, [{ type: 'modify_stat', target: 'HP', amount: eff.hp }], { rng: rng });
+  if (eff.san)
+    applyEffects(state, [{ type: 'modify_stat', target: 'SAN', amount: eff.san }], { rng: rng });
   // Food
   if (eff.food) state._foodDelta = (state._foodDelta || 0) + eff.food;
+  if (eff.light) {
+    applyEffects(state, {
+      type: 'modify_resource',
+      resource: 'light',
+      amount: eff.light,
+    }, { rng: rng });
+  }
+  if (eff.harbor_night_risk_reduction) {
+    state.harborRiskReduction = Math.max(
+      0,
+      (state.harborRiskReduction || 0) + eff.harbor_night_risk_reduction
+    );
+  }
+  if (eff.investigation_bonus) {
+    var existingInvestigationBonus = state.tempSkillBonus?.skill === '侦查'
+      ? state.tempSkillBonus.bonus || 0
+      : 0;
+    state.tempSkillBonus = {
+      skill: '侦查',
+      bonus: existingInvestigationBonus + eff.investigation_bonus,
+      days: 1,
+    };
+  }
   // Mythos: SAN门控 — 只有SAN<50或轮回>=3时才能吸收神话知识
   // 第一章前期玩家不应快速积累mythos，保持"不可知"的恐怖感
   if (eff.mythos != null) {
@@ -306,12 +349,59 @@ export function applyLegacyEffects(state, eff, rng) {
   if (eff.add_item) {
     applyEffects(state, [{ type: 'add_item', ...eff.add_item }], { rng: rng });
   }
+  // Original chapter data uses `items: ["localized name", ...]` while newer
+  // effects use `add_item`. Normalize both through the item registry so event
+  // rewards actually enter the canonical inventory protocol.
+  if (Array.isArray(eff.items)) {
+    for (const itemInput of eff.items) {
+      const item = normalizeItemRef(itemInput);
+      if (!item || !item.id) continue;
+      applyEffects(
+        state,
+        {
+          type: 'add_item',
+          item_id: item.id,
+          name: item.name,
+          uses: item.uses || 1,
+          amount: item.amount || item.uses || 1,
+        },
+        { rng: rng }
+      );
+    }
+  }
+  // Legacy content may spend an inventory item as part of an event trade.
+  // Normalize the same object/string shapes accepted by authored rewards.
+  if (eff.remove_item) {
+    const removals = Array.isArray(eff.remove_item) ? eff.remove_item : [eff.remove_item];
+    for (const removalInput of removals) {
+      const removal = typeof removalInput === 'string'
+        ? { item_id: normalizeItemRef(removalInput)?.id || removalInput }
+        : removalInput;
+      if (removal && removal.item_id) {
+        applyEffects(state, {
+          type: 'remove_item',
+          item_id: removal.item_id,
+          amount: removal.amount,
+        }, { rng: rng });
+      }
+    }
+  }
+  if (eff.modify_resource) {
+    const resourceEffects = Array.isArray(eff.modify_resource)
+      ? eff.modify_resource
+      : [eff.modify_resource];
+    for (const resourceEffect of resourceEffects) {
+      if (resourceEffect && typeof resourceEffect === 'object') {
+        applyEffects(state, { type: 'modify_resource', ...resourceEffect }, { rng: rng });
+      }
+    }
+  }
   // NPC trust: { "NPC名": amount }
   if (eff.npc_trust) {
     for (const [npcId, amount] of Object.entries(eff.npc_trust)) {
       // §3.3: NPC trust lock check (meta event consequence)
-      if (state._npcTrustLocked && state._npcTrustLocked[npcId]) continue;
-      state.npcTrust[npcId] = Math.min(5, Math.max(0, (state.npcTrust[npcId] || 0) + amount));
+      if (isNpcTrustLockedByRef(state, npcId)) continue;
+      changeNpcTrustByRef(state, npcId, amount);
     }
   }
   if (eff.npc_changes) {
@@ -341,7 +431,7 @@ export function applyLegacyEffects(state, eff, rng) {
   }
   // Apply accumulated food delta (fixes dead code — _foodDelta was set but never consumed)
   if (state._foodDelta) {
-    state.food = Math.min(state.maxFood || 5, (state.food || 0) + state._foodDelta);
+    state.food = clamp((state.food || 0) + state._foodDelta, 0, state.maxFood || 5);
     if (state.food > 0) state.starvationDays = 0;
     state._foodDelta = 0;
   }

@@ -16,6 +16,22 @@ import {
   getInProgressConclusions,
   isEvidenceSatisfied,
 } from '../src/reducers/conclusionReducer.js';
+import { createSeededRng } from '../src/utils/seededRng.js';
+import { getSanTextVariant } from '../src/systems/sanityVisual.js';
+import { pick } from '../src/reducers/utils.js';
+import { getSanLevelLine } from '../src/systems/npcDialogue.js';
+import { getDeathMetaEvents } from '../src/data/events/events_death_meta.js';
+import { renderEventText } from '../src/systems/explore/textRenderingPipeline.js';
+import { generateDeathFragments } from '../src/systems/deathLegacies.js';
+import { AUDIO_PATHS, WEATHER_AMBIENT_MAP } from '../src/managers/AudioManager.js';
+import { initCombat, executeCombatAction } from '../src/systems/combatSystem.js';
+import { isAreaUnlocked } from '../src/utils/gameHelpers.js';
+import { applyTextFragmentation } from '../src/systems/textFragmentation.js';
+import { getNpcsHere } from '../src/utils/npcLocation.js';
+import { handleUiAction } from '../src/reducers/slices/uiSlice.js';
+import { getForcedProgressGuard } from '../src/reducers/objectiveReducer.js';
+import { checkEndingLegacy } from '../src/reducers/endingReducer.js';
+import { checkTrustGate } from '../src/utils/trustGates.js';
 
 var passed = 0;
 var failed = 0;
@@ -62,6 +78,33 @@ await test('dice effects consume the reducer RNG', function () {
   var rng = { intBetween: function () { return 4; } };
   applyEffects(state, { type: 'modify_stat', target: 'HP', amount_dice: '2d6' }, { rng: rng });
   assert.strictEqual(state.hp, 9);
+});
+
+await test('area chapter gates unlock every authored region on its configured chapter', function () {
+  var area = function (chapter, role) {
+    return { chapter_unlock: chapter, chapter_1_role: role || 'rumor_only' };
+  };
+  assert.strictEqual(isAreaUnlocked(area('chapter_2'), { day: 3, clues: [] }), false);
+  assert.strictEqual(isAreaUnlocked(area('chapter_2'), { day: 4, clues: [] }), true);
+  assert.strictEqual(isAreaUnlocked(area('chapter_3'), { day: 7, clues: [] }), false);
+  assert.strictEqual(isAreaUnlocked(area('chapter_3'), { day: 8, clues: [] }), true);
+  assert.strictEqual(isAreaUnlocked(area('chapter_4', 'locked'), { day: 14, clues: [] }), false);
+  assert.strictEqual(isAreaUnlocked(area('chapter_4', 'locked'), { day: 15, clues: [] }), true);
+});
+
+await test('low SAN fragmentation keeps short reset sentences type-safe', function () {
+  var values = [0.5, 0, 0.5, 0, 0.5, 0, 0.5, 0];
+  var index = 0;
+  var rng = {
+    next: function () {
+      var value = values[index % values.length];
+      index += 1;
+      return value;
+    },
+  };
+  var rendered = applyTextFragmentation('你来。门开。雾起。钟响。', 0, rng, {}, { GD: {} });
+  assert.strictEqual(typeof rendered, 'string');
+  assert.strictEqual(rendered.includes('undefined'), false);
 });
 
 await test('every slice action case is registered exactly once', function () {
@@ -111,6 +154,102 @@ await test('initialState receives GD explicitly', function () {
   assert.doesNotThrow(function () { initialState(); });
 });
 
+await test('NPC dialogue selection is deterministic and recorded inside TALK_NPC', function () {
+  var here = dirname(fileURLToPath(import.meta.url));
+  var GD = JSON.parse(readFileSync(join(here, '..', 'src', 'data', 'game_base.json'), 'utf8'));
+  var state = initialState(GD);
+  state._GD = GD;
+  state.ap = 12;
+  state.weather = null;
+  var npc = GD.npcs.find(function (entry) { return entry.name === '老费舍'; });
+  var rng = createSeededRng('npc-dialogue-regression', 4);
+  var c = {
+    rng: rng,
+    effects: [],
+    bt: state.behaviorTracking,
+    narr: function () {},
+    log: function () {},
+  };
+
+  handleNpcAction(state, { type: 'TALK_NPC', npc: npc }, c, { GD: GD });
+
+  assert.strictEqual(typeof state.pendingNpc.contextualLine.text, 'string');
+  assert.strictEqual(
+    state._seenContextualLines['老费舍'].includes(state.pendingNpc.contextualLine.text),
+    true
+  );
+  assert.strictEqual(
+    typeof getSanLevelLine('老费舍', 5, createSeededRng('npc-san-line', 1)),
+    'string'
+  );
+});
+
+await test('SAN text corruption uses the supplied RNG for character picks', function () {
+  var ctx = {
+    GD: {
+      systems: {
+        sanity: { san_stages: [{ id: 'narrative_death', range: [0, 10], level: 6 }] },
+      },
+    },
+  };
+  var oldRandom = Math.random;
+  try {
+    Math.random = function () { return 0; };
+    var first = getSanTextVariant(
+      '字'.repeat(2000), 5, pick, ctx, createSeededRng('san-text-regression', 7)
+    );
+    Math.random = function () { return 0.99; };
+    var second = getSanTextVariant(
+      '字'.repeat(2000), 5, pick, ctx, createSeededRng('san-text-regression', 7)
+    );
+    assert.strictEqual(first, second);
+  } finally {
+    Math.random = oldRandom;
+  }
+});
+
+await test('dynamic death-meta descriptions resolve to text before rendering', function () {
+  var evt = getDeathMetaEvents().find(function (entry) {
+    return entry.id === 'death_meta_fragment_echo';
+  });
+  var state = {
+    loopCount: 2,
+    loopEchoes: { deadNpcAreas: [] },
+    deathFragments: [{ text: '测试碎片' }],
+    currentArea: 'town_center',
+    san: 60,
+    pollution: 0,
+    fearTuning: null,
+    lightLevel: 3,
+    infection: 0,
+    fatigue: 0,
+    food: 10,
+    seenEventTexts: {},
+    difficultyLevel: 1,
+    currentChapter: 'chapter_1',
+    mythosLevel: 0,
+  };
+  var ctx = {
+    GD: {
+      systems: { sanity: { san_stages: [{ id: 'stable', range: [0, 100], level: 0 }] } },
+    },
+  };
+  var rendered = renderEventText(
+    { ...evt }, state, ctx, { rng: createSeededRng('death-meta-regression', 1) }
+  );
+  assert.strictEqual(typeof rendered, 'string');
+  assert.strictEqual(rendered.includes('测试碎片'), true);
+});
+
+await test('death fragments are reproducible with the same reducer RNG', function () {
+  var deathCtx = { mode: 'san', day: 9, loop: 2, area: 'harbor_district' };
+  var firstState = { deathFragments: [] };
+  var secondState = { deathFragments: [] };
+  generateDeathFragments(firstState, deathCtx, createSeededRng('death-fragment-regression', 3));
+  generateDeathFragments(secondState, deathCtx, createSeededRng('death-fragment-regression', 3));
+  assert.deepStrictEqual(firstState.deathFragments, secondState.deathFragments);
+});
+
 await test('NEW_GAME replaces state through the real Zustand dispatch path', async function () {
   var storage = new Map();
   globalThis.localStorage = {
@@ -149,6 +288,23 @@ await test('NEW_GAME replaces state through the real Zustand dispatch path', asy
   assert.strictEqual(after._GD, GD);
   assert.strictEqual(typeof after.dispatch, 'function');
   assert.strictEqual(typeof after.seedState, 'function');
+});
+
+await test('presentation-only dispatch does not advance the gameplay RNG cursor', async function () {
+  var here = dirname(fileURLToPath(import.meta.url));
+  var GD = JSON.parse(readFileSync(join(here, '..', 'src', 'data', 'game_base.json'), 'utf8'));
+  var store = (await import('../src/state/useGameStore.js')).useGameStore;
+  store.getState().seedState(GD);
+  store.setState({ _actionIndex: 11, san: 99, glitchPulse: 0 });
+
+  store.getState().dispatch({
+    type: 'GLITCH_PULSE',
+    strength: 4,
+    meta: { consumeGameplayRng: false },
+  });
+
+  assert.strictEqual(store.getState().glitchPulse, 4);
+  assert.strictEqual(store.getState()._actionIndex, 11);
 });
 
 await test('manual save and CONTINUE_GAME preserve the complete persisted state', async function () {
@@ -264,12 +420,135 @@ await test('legacy npc_changes apply trust and state changes', function () {
     ],
   });
 
-  assert.strictEqual(state.npcTrust['希尔达·莫里斯'], 1);
-  assert.strictEqual(state.npcTrust['玛莎·格雷'], 2);
-  assert.strictEqual(state.npcStates['约书亚·布莱克'].memoryTriggered, true);
-  assert.strictEqual(state.npcStates['伊莱亚斯·沃德'].dead, true);
-  assert.strictEqual(state.npcStates['玛莎·格雷'].corruptionFlags.martha_exposed, true);
+  assert.strictEqual(state.npcTrust.hilda_morris, 1);
+  assert.strictEqual(state.npcTrust.martha_grey, 2);
+  assert.strictEqual(state.npcStates.joshua_black.memoryTriggered, true);
+  assert.strictEqual(state.npcStates.elias_ward.dead, true);
+  assert.strictEqual(state.npcStates.martha_grey.corruptionFlags.martha_exposed, true);
+  assert.strictEqual(state.npcTrust['希尔达·莫里斯'], undefined);
   assert.strictEqual(state.metaEventFlags.martha_exposed, true);
+});
+
+await test('localized NPC effects update canonical trust instead of creating shadow keys', function () {
+  var state = {
+    san: 60,
+    loopCount: 0,
+    npcTrust: { martha_grey: 2 },
+    npcStates: {},
+    inventory: [],
+    clues: [],
+    triggeredEvents: [],
+    behaviorTracking: {},
+  };
+  applyLegacyEffects(state, { npc_trust: { '玛莎·格雷': 1 } });
+  applyEffects(state, { type: 'modify_npc_trust', npc_id: '玛莎·格雷', amount: 1 });
+  assert.strictEqual(state.npcTrust.martha_grey, 4);
+  assert.strictEqual(state.npcTrust['玛莎·格雷'], undefined);
+});
+
+await test('canonical death state hides NPCs authored with localized names', function () {
+  var state = {
+    day: 1,
+    currentArea: 'harbor_district',
+    npcStates: { old_fisher: { dead: true } },
+    npcLocations: { '老费舍': 'harbor_district' },
+  };
+  var npcs = getNpcsHere(state, {
+    GD: { npcs: [{ name: '老费舍', location: 'harbor_district', schedule: [] }] },
+  });
+  assert.deepStrictEqual(npcs, []);
+});
+
+await test('choice resolution runs the complete explore post-processing phase', function () {
+  var here = dirname(fileURLToPath(import.meta.url));
+  var GD = JSON.parse(readFileSync(join(here, '..', 'src', 'data', 'game_base.json'), 'utf8'));
+  var state = initialState(GD);
+  var logs = [];
+  var evt = { id: 'test_choice_post', name: '选择后处理', tags: [] };
+  state.pendingChoice = {
+    evt: evt,
+    choices: [{ label: '确认', text: '你作出了选择。', effects: {} }],
+  };
+  var c = {
+    narr: function () {},
+    log: function (message) { logs.push(message); },
+    effects: [],
+    bt: state.behaviorTracking,
+    rng: createSeededRng('choice-post'),
+  };
+  handleUiAction(state, { type: 'CHOICE_SELECT', choiceIdx: 0 }, c, { GD: GD });
+  assert.strictEqual(state.tutorialSeen.first_explore, true);
+  assert.strictEqual(logs.includes('探索：选择后处理'), true);
+});
+
+await test('gamble resolution runs the complete explore post-processing phase', function () {
+  var here = dirname(fileURLToPath(import.meta.url));
+  var GD = JSON.parse(readFileSync(join(here, '..', 'src', 'data', 'game_base.json'), 'utf8'));
+  var state = initialState(GD);
+  var logs = [];
+  var evt = { id: 'test_gamble_post', name: '赌博后处理', sanity_damage: 0, effects: {}, tags: [] };
+  state.pendingGamble = {
+    evt: evt,
+    options: [{ id: 'safe', text: '你及时收手。' }],
+  };
+  var c = {
+    narr: function () {},
+    log: function (message) { logs.push(message); },
+    effects: [],
+    bt: state.behaviorTracking,
+    rng: createSeededRng('gamble-post'),
+  };
+  handleUiAction(state, { type: 'GAMBLE_CHOICE', choiceId: 'safe' }, c, { GD: GD });
+  assert.strictEqual(state.tutorialSeen.first_explore, true);
+  assert.strictEqual(logs.includes('探索：赌博后处理'), true);
+});
+
+await test('overdue critical progress guards cannot expire permanently', function () {
+  var state = {
+    day: 11,
+    clues: [],
+    completedChains: [],
+    triggeredEvents: [
+      'guard_harbor_chain_fired',
+      'guard_morris_chain_fired',
+      'guard_heretical_chain_fired',
+    ],
+  };
+  var rng = { next: function () { return 0.999999; } };
+  var guard = getForcedProgressGuard(state, { GD: {} }, rng);
+  assert.strictEqual(guard.id, 'guard_lighthouse_signal');
+});
+
+await test('day 28 remains playable before the unresolved time-limit ending', function () {
+  var GD = {
+    module7_endings: [
+      { id: 'ending_bad_ritual', name: '异端的胜利', type: 'bad', description: '封印破碎。' },
+    ],
+  };
+  var base = { san: 60, currentArea: 'town_center' };
+  assert.strictEqual(checkEndingLegacy({ ...base, day: 28 }, { GD: GD }), null);
+  assert.strictEqual(checkEndingLegacy({ ...base, day: 29 }, { GD: GD }).id, 'ending_bad_ritual');
+});
+
+await test('max-trust gates do not require the clue chain they are needed to complete', function () {
+  var base = {
+    day: 15,
+    clues: [],
+    visitedAreas: ['voxchester_manor'],
+    completedChains: [],
+    discoveredConclusions: [],
+    behaviorTracking: {},
+  };
+  assert.ok(checkTrustGate(5, base, '希尔达·莫里斯'));
+  assert.strictEqual(
+    checkTrustGate(5, { ...base, clues: [{ id: 'clue_m_1' }, { id: 'clue_m_2' }] }, '希尔达·莫里斯'),
+    null
+  );
+  assert.ok(checkTrustGate(5, base, '伊莎贝拉·韦伯'));
+  assert.strictEqual(
+    checkTrustGate(5, { ...base, clues: [{ id: 'clue_h_1' }, { id: 'clue_h_2' }] }, '伊莎贝拉·韦伯'),
+    null
+  );
 });
 
 await test('applyUgcToGD accepts an explicit empty mod list', function () {
@@ -486,6 +765,51 @@ await test('screen shake removes the normalized class', async function () {
   assert.strictEqual(classes.has('screen-shake-3'), false);
   sideEffects.cleanupSideEffects();
   delete globalThis.document;
+});
+
+await test('non-verbal release audio pack is fully registered', function () {
+  var requiredIds = [
+    'combat_start', 'combat_attack', 'combat_hit', 'combat_miss',
+    'combat_player_hurt', 'combat_monster_attack', 'combat_flee',
+    'combat_victory', 'combat_item', 'combat_communicate',
+    'ending_good', 'ending_bad', 'ending_hidden', 'ending_neutral',
+    'weather_rain', 'weather_fog', 'weather_blood_moon',
+    'safehouse_rest', 'safehouse_unsettled', 'safehouse_corrupt',
+    'travel_footsteps', 'investigate_search', 'ritual_progress', 'ritual_complete',
+  ];
+  for (var i = 0; i < requiredIds.length; i += 1) {
+    assert.match(AUDIO_PATHS[requiredIds[i]] || '', /^audio\/.+\.wav$/);
+  }
+  assert.strictEqual(WEATHER_AMBIENT_MAP['雨天'], 'weather_rain');
+  assert.strictEqual(WEATHER_AMBIENT_MAP['大雾'], 'weather_fog');
+  assert.strictEqual(WEATHER_AMBIENT_MAP['血月'], 'weather_blood_moon');
+});
+
+await test('successful combat attack emits attack, hit and victory audio', function () {
+  var state = {
+    difficulty: 'normal',
+    skills: { 格斗: 100 },
+    inventory: [],
+    hp: 20,
+    maxHp: 20,
+    san: 70,
+    maxSan: 99,
+  };
+  var combat = initCombat('deep_ones', 'trace', state);
+  var effects = [];
+  var c = {
+    rng: {
+      next: function () { return 0.1; },
+      intBetween: function (min) { return min; },
+    },
+    effects: effects,
+    bt: {},
+    narr: function () {},
+  };
+  var result = executeCombatAction(combat, 'attack', {}, state, c, { GD: {} });
+  var ids = effects.map(function (effect) { return effect.id; });
+  assert.strictEqual(result.monsterDefeated, true);
+  assert.deepStrictEqual(ids, ['combat_attack', 'combat_hit', 'combat_victory']);
 });
 
 console.log('');

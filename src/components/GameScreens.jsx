@@ -407,7 +407,7 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
           )}
         </div>
         <div style={{ color: 'var(--text-dim)', fontSize: '0.6rem' }}>
-          预期存活率 {diffConfig.survival} · 平均存活 {diffConfig.days} 天
+          预期存活率 {diffConfig.expected_survival} · 平均存活 {diffConfig.expected_days} 天
         </div>
       </div>
       {archetypes.length > 0 && (

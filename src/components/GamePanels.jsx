@@ -423,7 +423,10 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
     if (!state.transition) return;
     const dur = { move: 800, rest: 1800, 'san-loss': 500, chapter: 2500 }[state.transition] || 800;
     if (transitionTimer.current) clearTimeout(transitionTimer.current);
-    transitionTimer.current = setTimeout(() => dispatch({ type: 'CLEAR_TRANSITION' }), dur);
+    transitionTimer.current = setTimeout(
+      () => dispatch({ type: 'CLEAR_TRANSITION', meta: { consumeGameplayRng: false } }),
+      dur
+    );
     return () => {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
     };
@@ -1614,6 +1617,9 @@ export function EndingScreen({ ending, state, dispatch }) {
           : 'neutral';
   const recap = ending.recap;
   const endingImage = ending.id ? getEndingCgImage(ending.id) : null;
+  useEffect(() => {
+    try { audioManager.playEffect('ending_' + tc); } catch (e) {}
+  }, [ending.id, tc]);
   const isStructured =
     recap && typeof recap === 'object' && !Array.isArray(recap) && recap.deathType;
   const isFirstDeath = state.loopCount === 0 && tc === 'bad';

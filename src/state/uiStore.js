@@ -65,6 +65,7 @@ export const useUiStore = create((set, get) => ({
   },
 
   addToast: (toast) => set((s) => ({
+    // rng-exempt: ephemeral UI identity; never feeds gameplay state or RNG.
     toasts: [...s.toasts, { ...toast, key: Date.now() + '_' + Math.random().toString(36).slice(2, 6) }],
   })),
 

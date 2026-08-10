@@ -15,6 +15,12 @@ import { transferLoopEchoes } from './npcReducer.js';
 import { getLegacyForCategory } from '../systems/deathLegacies.js';
 import { detectPlayerTraces } from '../systems/playerTraces.js';
 import { decayDeathFragments } from '../systems/deathLegacies.js';
+import {
+  changeNpcTrustByRef,
+  getNpcStateByRef,
+  mergeNpcStateByRef,
+  setNpcTrustByRef,
+} from '../utils/npcStateAccess.js';
 
 // Parse loop_memory_effect text and apply mechanical bonuses.
 // Maps narrative descriptions to game-state changes.
@@ -37,13 +43,13 @@ function applyLoopMemoryEffects(f, s, ctx, rng) {
         // Handle "所有NPC" → boost all core NPCs
         if (npcName === '所有NPC' || npcName === '所有 npc') {
           (GD.npcs || []).filter(function (n) { return n.chapter_1_availability === 'core'; }).forEach(function (npc) {
-            f.npcTrust[npc.name] = Math.min(5, (f.npcTrust[npc.name] || 0) + boost);
+            changeNpcTrustByRef(f, npc.name, boost);
           });
         } else {
           // Find matching NPC in GD
           var npc = (GD.npcs || []).find(function (n) { return n.name === npcName; });
           if (npc) {
-            f.npcTrust[npc.name] = Math.min(5, (f.npcTrust[npc.name] || 0) + boost);
+            changeNpcTrustByRef(f, npc.name, boost);
           }
         }
       }
@@ -57,9 +63,10 @@ function applyLoopMemoryEffects(f, s, ctx, rng) {
     var corruptReduction = parseInt(npcCorruptMatch[2], 10);
     var npc2 = (GD.npcs || []).find(function (n) { return n.name === npcName2; });
     if (npc2 && f.npcStates) {
-      var ns = f.npcStates[npc2.name] || { corruption: 0 };
-      ns.corruption = Math.max(0, (ns.corruption || 0) - corruptReduction);
-      f.npcStates[npc2.name] = ns;
+      var ns = getNpcStateByRef(f, npc2.name);
+      mergeNpcStateByRef(f, npc2.name, {
+        corruption: Math.max(0, (ns.corruption || 0) - corruptReduction),
+      });
     }
   }
 
@@ -440,7 +447,7 @@ export function initLoopState(f, s, ctx, options = {}) {
     const coreNpcs = (GD.npcs || []).filter((n) => n.chapter_1_availability === 'core');
     if (coreNpcs.length > 0) {
       const target = pick(coreNpcs, rng);
-      f.npcTrust[target.name] = 1;
+      setNpcTrustByRef(f, target.name, 1);
     }
   }
 

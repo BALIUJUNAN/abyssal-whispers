@@ -21,7 +21,7 @@ export function handleExploreAction(s, action, c, ctx) {
         s.combat = combatState;
         s._combatActionCount = (s._combatActionCount || 0) + 1;
         c.narr('system', '【战斗】' + combatState.creatureName + '出现了！', { isSpecial: true });
-        c.effects.push({ type: 'AUDIO_PLAY', id: 'wall_break' });
+        c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_start' });
       }
       return null;
     }

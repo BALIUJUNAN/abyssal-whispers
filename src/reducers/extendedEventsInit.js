@@ -2,11 +2,16 @@
 // Call this once after GD is loaded, before the first render
 
 import { mergeExtendedEvents } from './extendedEventsLoader.js';
-import { EXTENDED_EVENT_MODULES, EXTENDED_EVENT_STATS, CH2PLUS_EVENTS } from '../data/extended_events_index.js';
+import {
+  EXTENDED_EVENT_MODULES,
+  EXTENDED_EVENT_STATS,
+  CH2PLUS_EVENTS,
+} from '../data/extended_events_index.js';
 import { hasTriggered } from '../utils/triggeredSet.js';
 import { injectMissingEnding } from '../data/ending_missing_600.js';
 import { injectBehaviorEndings } from '../data/behavior_endings.js';
 import { injectFearEndings } from '../data/events/events_fear_endings.js';
+import { injectEndingChoices } from '../data/endingChoiceAdapters.js';
 import { events_legendary } from '../data/events/events_legendary.js';
 import { applyUgcToGD } from '../utils/buildEventPool.js';
 import { getSanStageFromGD } from './sanReducer.js';
@@ -14,8 +19,12 @@ import { getDeathEchoEvents } from '../data/events/events_death_echo.js';
 import { getSupplementEvents } from '../data/events/events_supplement.js';
 import { CHAPTER_MILESTONES, FORCED_NARRATIVE_HOOKS } from '../data/milestones.js';
 import { getDeathMetaEvents } from '../data/events/events_death_meta.js';
-import { generateDeathFragments, checkDeathTruthAssembly } from '../data/events/events_death_meta.js';
-import { getEventRarityWeight, checkLegendaryTrigger, checkSecretTrigger, getRarityHint } from '../systems/eventRarity.js';
+import {
+  getEventRarityWeight,
+  checkLegendaryTrigger,
+  checkSecretTrigger,
+  getRarityHint,
+} from '../systems/eventRarity.js';
 import { injectDistortionTemplates } from '../engine/EventEngine.js';
 import { DISTORTION_TEMPLATE_MAP } from '../data/distortionTemplates.js';
 
@@ -30,7 +39,12 @@ import { DISTORTION_TEMPLATE_MAP } from '../data/distortionTemplates.js';
  * @returns {object} GD with extended events merged in
  */
 export function initExtendedEvents(GD) {
-  if (GD._extendedEventsLoaded) return GD;
+  if (GD._extendedEventsLoaded) {
+    // Saves/tests may reuse an already merged GD object created before this
+    // adapter existed. The injection is idempotent and repairs only empties.
+    injectEndingChoices(GD);
+    return GD;
+  }
 
   // Store base event count BEFORE merging extended events (for getEventStats)
   GD._baseEventCount = (GD.events || []).length;
@@ -78,6 +92,9 @@ export function initExtendedEvents(GD) {
 
   // Inject fear profile exclusive endings into GD.endings
   injectFearEndings(GD);
+
+  // Restore the chapter-five decisions that produce main-ending flags.
+  injectEndingChoices(GD);
 
   // Inject shared distortion text templates for events without local variants
   // (removes ~23 duplicate distortion_variants blocks from events_humanity.js)
@@ -149,7 +166,8 @@ export function getEventStats(GD, state) {
   ]).size;
 
   // P1-A: SSOT — partial unlock at explanation_loss (level >= 3)
-  const meetsPartial = loop >= 5 && mythos >= 15 && getSanStageFromGD(san).level >= 3 && endingsCount >= 3;
+  const meetsPartial =
+    loop >= 5 && mythos >= 15 && getSanStageFromGD(san).level >= 3 && endingsCount >= 3;
 
   // 构建 UI 显示文本
   let displayCount = '599';

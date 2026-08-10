@@ -7,6 +7,64 @@ import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
 import { propagateTrustChange, propagateFactionStanding } from '../../systems/npcRelationshipSystem.js';
 import { NPC_THREAD_QUESTIONS } from '../../data/npcContextualLines.js';
 
+/**
+ * Build the currently actionable follow-up questions for one NPC.
+ * This is shared by TALK_NPC and NPC_RESPONSE so an open dialog cannot keep
+ * stale buttons after a thread advances or resolves.
+ */
+export function getAvailableNpcThreads(npcName, trust, npcThreads) {
+  var availableThreads = [];
+  var allThreads = NPC_THREAD_QUESTIONS[npcName] || [];
+  var threadStates = npcThreads || {};
+  for (var ti = 0; ti < allThreads.length; ti++) {
+    var thread = allThreads[ti];
+    var threadState = threadStates[npcName + '_' + thread.id];
+    if (threadState && threadState.resolved) continue;
+    var curDepth = threadState ? threadState.depth : 0;
+    if (curDepth === 0) {
+      if (trust >= (thread.trustReq || 2)) {
+        availableThreads.push({ thread: thread, nextDepth: 1, branch: null });
+      }
+    } else if (curDepth === 1) {
+      var d2 = thread.depth2 || {};
+      var d2TrustReq = d2.trustReq || 3;
+      if (trust >= d2TrustReq) {
+        if (d2.choices && d2.choices.length > 0) {
+          for (var ci = 0; ci < d2.choices.length; ci++) {
+            var ch = d2.choices[ci];
+            if (trust >= (ch.trustReq || d2TrustReq)) {
+              availableThreads.push({
+                thread: thread,
+                nextDepth: 2,
+                branch: ch.branch,
+                choiceText: ch.text,
+              });
+            }
+          }
+        } else {
+          availableThreads.push({ thread: thread, nextDepth: 3, branch: null });
+        }
+      }
+    } else if (curDepth === 2) {
+      var d3TrustReq = (thread.depth3 && thread.depth3.trustReq) || 4;
+      if (trust >= d3TrustReq) {
+        var chosenBranch = threadState.branch;
+        if (chosenBranch && thread.branches && thread.branches[chosenBranch]) {
+          availableThreads.push({
+            thread: thread,
+            nextDepth: 3,
+            branch: chosenBranch,
+            isOutcome: true,
+          });
+        } else if (!chosenBranch) {
+          availableThreads.push({ thread: thread, nextDepth: 3, branch: null, isOutcome: true });
+        }
+      }
+    }
+  }
+  return availableThreads;
+}
+
 export function _executeProbeThread(s, npc, trust, choice, c, ctx) {
   // Parse: probe_{threadId} or probe_{threadId}_{branch}
   var _raw = choice.slice(6);
@@ -113,6 +171,18 @@ export function _executeProbeThread(s, npc, trust, choice, c, ctx) {
       if (s._dialogueFlags.indexOf(_flagsToSet[fi]) < 0) {
         s._dialogueFlags.push(_flagsToSet[fi]);
       }
+    }
+
+    // Refresh the open dialog from the just-committed thread state. Keeping
+    // the original availableThreads array leaves resolved buttons clickable
+    // forever and turns subsequent clicks into silent no-ops.
+    if (s.pendingNpc) {
+      var _updatedTrust = getNpcTrust(s, npc.name);
+      s.pendingNpc = {
+        ...s.pendingNpc,
+        trust: _updatedTrust,
+        availableThreads: getAvailableNpcThreads(npc.name, _updatedTrust, s.npcThreads),
+      };
     }
   }
 }

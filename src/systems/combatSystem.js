@@ -4,6 +4,7 @@
 
 import { rand } from '../reducers/utils.js';
 import { applySanLoss } from '../reducers/utils.js';
+import { getNpcTrustByRef } from '../utils/npcStateAccess.js';
 
 // ── Monster Templates ──────────────────────────────────────────────
 // Based on GD.systems.progression.combat_system design + game_meta monster_presence data.
@@ -156,6 +157,7 @@ export function executeCombatAction(combatState, actionType, actionPayload, stat
     updated.log.push(combatState.creatureName + '被击败了！');
     c.narr('system', '【战斗胜利】' + updated.creatureName + '倒下了。', { isSpecial: true });
     c.bt.meta_boundary_breaks = (c.bt.meta_boundary_breaks || 0) + 1;
+    c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_victory' });
     return updated;
   }
   if (updated.playerFled) {
@@ -184,6 +186,7 @@ export function processMonsterTurn(combatState, state, c, ctx) {
   var updated = Object.assign({}, combatState);
   var dmg = rand(updated.monsterAttack[0], updated.monsterAttack[1], c.rng);
   var sanDmg = Math.floor(dmg * 0.5);
+  c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_monster_attack' });
 
   // Monster special: 'group' attacks twice
   if (updated.monsterSpecial === 'group' && updated.round >= 2) {
@@ -219,6 +222,7 @@ export function processMonsterTurn(combatState, state, c, ctx) {
 // ── Private Combat Actions ─────────────────────────────────────────
 
 function _doAttack(combat, state, c, ctx) {
+  c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_attack' });
   var fightSkill = state.skills['格斗'] || state.skills['斗殴'] || 20;
   var weaponBonus = 0;
   // Check inventory for weapons
@@ -235,6 +239,7 @@ function _doAttack(combat, state, c, ctx) {
   if (critFail) {
     var dmg = rand(1, 4, c.rng);
     state.hp = Math.max(0, state.hp - dmg);
+    c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_player_hurt' });
     combat.log.push('【大失败】攻击失误！HP -' + dmg);
     c.narr('system', '【攻击】掷骰 ' + roll + ' / 格斗' + fightSkill + ' —— 大失败！你被反击了。HP -' + dmg, { isSpecial: true });
   } else if (success) {
@@ -242,6 +247,7 @@ function _doAttack(combat, state, c, ctx) {
     // Check vulnerability
     var immune = combat.monsterImmuneTo.indexOf('physical') >= 0 && !hasSilverWeapon;
     if (immune) {
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_miss' });
       combat.log.push(combat.creatureName + '免疫物理攻击！');
       c.narr('system', '【攻击】普通武器对 ' + combat.creatureName + ' 无效！', { isSpecial: true });
     } else {
@@ -250,10 +256,12 @@ function _doAttack(combat, state, c, ctx) {
       });
       if (vulnerable) dmg2 = Math.floor(dmg2 * 1.5);
       combat.monsterHp = Math.max(0, combat.monsterHp - dmg2);
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_hit' });
       combat.log.push('【命中】造成 ' + dmg2 + ' 伤害');
       c.narr('system', '【攻击】掷骰 ' + roll + ' / 格斗' + fightSkill + ' —— 命中！造成 ' + dmg2 + ' 伤害', { isSpecial: true });
     }
   } else {
+    c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_miss' });
     combat.log.push('【未命中】攻击偏了');
     c.narr('system', '【攻击】掷骰 ' + roll + ' / 格斗' + fightSkill + ' —— 未命中。', { isSpecial: true });
   }
@@ -265,11 +273,13 @@ function _doFlee(combat, state, c, ctx) {
   var roll = rand(1, 100, c.rng);
   var success = roll <= dodgeSkill;
   var fleeChance = success ? 0.7 : 0.3;
-  if ((c.rng ? c.rng.next() : Math.random()) < fleeChance) {
+  if (c.rng.next() < fleeChance) {
     combat.playerFled = true;
+    c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_flee' });
     combat.log.push('逃跑成功！');
     c.narr('system', '【逃跑】你成功脱离了战斗。', { isSpecial: true });
   } else {
+    c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_monster_attack' });
     combat.log.push('逃跑失败！');
     c.narr('system', '【逃跑】你没能甩掉它。', { isSpecial: true });
     // Monster gets a free hit
@@ -293,6 +303,7 @@ function _doCombatItem(combat, payload, state, c, ctx) {
     return combat;
   }
   var itemDef = COMBAT_ITEMS[itemId];
+  c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_item' });
   if (!itemDef) {
     // Fallback: try GD.items
     var GD = ctx.GD;
@@ -340,6 +351,7 @@ function _doCombatItem(combat, payload, state, c, ctx) {
 }
 
 function _doCommunicate(combat, state, c, ctx) {
+  c.effects.push({ type: 'AUDIO_PLAY', id: 'combat_communicate' });
   var psychSkill = state.skills['心理学'] || 10;
   var occultSkill = state.skills['神秘学'] || 0;
   var roll = rand(1, 100, c.rng);
@@ -348,7 +360,7 @@ function _doCommunicate(combat, state, c, ctx) {
 
   if (success) {
     // Some monsters can be pacified
-    if (combat.creatureType === 'deep_ones' && state.npcTrust && state.npcTrust['老费舍'] >= 3) {
+    if (combat.creatureType === 'deep_ones' && getNpcTrustByRef(state, '老费舍') >= 3) {
       combat.monsterHp = 0; // 老费舍 helps communicate
       combat.log.push('老费舍的信任帮助你与深潜者沟通。它们退去了。');
       c.narr('system', '【沟通】老费舍站出来说了几句话。深潜者缓缓退回了水中。', { isSpecial: true });

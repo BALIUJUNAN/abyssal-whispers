@@ -498,7 +498,7 @@ function matchEndingToAxis(ed) {
  * @param {number} humanity - current humanity score
  * @returns {string} opaque hint text
  */
-export function getOpaqueEndingHint(ending, humanity) {
+export function getOpaqueEndingHint(ending, humanity, rng) {
   var hints = {
     ending_self_harm_ritual: [
       '有人在皮肤上写字。',
@@ -553,7 +553,7 @@ export function getOpaqueEndingHint(ending, humanity) {
   };
 
   var pool = hints[ending.id] || ['某些道路一旦踏上就无法回头。'];
-  return pool[Math.floor(Math.random() * pool.length)];
+  return rng ? rng.pick(pool) : pool[0];
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -567,7 +567,7 @@ export function getOpaqueEndingHint(ending, humanity) {
  * @param {Array} endings - from GD.endings
  * @returns {Array} enriched endings with implicit metadata
  */
-export function enrichBehaviorEndings(endings) {
+export function enrichBehaviorEndings(endings, rng) {
   return endings.map(function (ed) {
     if (ed.type !== 'behavior') return ed;
 
@@ -577,7 +577,7 @@ export function enrichBehaviorEndings(endings) {
       crossDependencies: CROSS_DEPENDENCIES[ed.id] || null,
       exclusions: getExclusionsForEnding(ed.id),
       dormantCounters: getDormantCountersForEnding(ed.id),
-      opaqueHint: ed._opaqueHint || getOpaqueEndingHint(ed, 50),
+      opaqueHint: ed._opaqueHint || getOpaqueEndingHint(ed, 50, rng),
     };
 
     return enriched;

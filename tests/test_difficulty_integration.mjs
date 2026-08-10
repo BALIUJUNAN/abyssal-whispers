@@ -54,6 +54,13 @@ test('DifficultySelect.css 存在', () => {
   assert(fs.existsSync(filePath), 'File not found: ' + filePath);
 });
 
+test('角色创建页使用难度配置的实际展示字段', () => {
+  const content = fs.readFileSync(path.join(ROOT, 'src/components/GameScreens.jsx'), 'utf8');
+  assert(content.includes('diffConfig.expected_survival'), 'Missing expected_survival display');
+  assert(content.includes('diffConfig.expected_days'), 'Missing expected_days display');
+  assert(!content.includes('diffConfig.survival}'), 'Uses nonexistent survival field');
+});
+
 // 测试3: 状态管理
 console.log('\n3. 测试状态管理');
 test('difficultyState.js 存在', () => {
@@ -67,16 +74,16 @@ test('difficultyState.js 可读取', () => {
   assert(content.includes('applyDifficultyProtection'), 'Missing applyDifficultyProtection');
 });
 
-// 测试4: 模拟测试脚本
+// 测试4: 当前维护的模拟测试入口
 console.log('\n4. 测试模拟测试脚本');
-test('sim28balance_final.cjs 存在', () => {
-  const filePath = path.join(ROOT, 'scripts/sim28balance_final.cjs');
+test('simulate_loops.cjs 存在', () => {
+  const filePath = path.join(ROOT, 'scripts/simulate_loops.cjs');
   assert(fs.existsSync(filePath), 'File not found: ' + filePath);
 });
 
-test('sim28balance_21levels.cjs 存在', () => {
-  const filePath = path.join(ROOT, 'scripts/sim28balance_21levels.cjs');
-  assert(fs.existsSync(filePath), 'File not found: ' + filePath);
+test('package.json 使用当前模拟器入口', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  assert(pkg.scripts?.['simulate:loops'] === 'node scripts/simulate_loops.cjs', 'simulate:loops points to an archived simulator');
 });
 
 // 测试5: 配置文件
