@@ -15,6 +15,9 @@ export const STORAGE_VERSION = '1.0.0';
 // ────────────────────────────────────────────────
 
 export function readStore() {
+  if (typeof localStorage === 'undefined') {
+    return { version: STORAGE_VERSION, mods: [] };
+  }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { version: STORAGE_VERSION, mods: [] };
@@ -28,6 +31,7 @@ export function readStore() {
 }
 
 export function writeStore(store) {
+  if (typeof localStorage === 'undefined') return false;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
     return true;

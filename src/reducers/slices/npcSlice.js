@@ -15,9 +15,6 @@ import { checkTrustGate } from '../../utils/trustGates.js';
 import { getNpcsHere } from '../../utils/npcLocation.js';
 import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
 import { getFakeTrustHint, shouldShowFakeTrustHint } from '../../systems/sanConsequenceChain.js';
-// v0.9.0: Moral choice engine — reputation propagation + moral tracking
-import { processNpcMoralChoice } from '../../systems/moralChoiceEngine.js';
-import { propagateTrustChange, propagateFactionStanding } from '../../systems/npcRelationshipSystem.js';
 import { NPC_THREAD_QUESTIONS } from '../../data/npcContextualLines.js';
 
 // Domain logic (src/systems/npc/)
@@ -25,29 +22,18 @@ import { _executeTalkNpc } from '../../systems/npc/dialogueSystem.js';
 import { _executeNpcResponse } from '../../systems/npc/npcResponseDispatcher.js';
 
 // Re-export for backward compatibility
-export { _warnTrustDrop } from '../../systems/npc/npcResponseDispatcher.js';
+export { warnTrustDrop as _warnTrustDrop } from '../../systems/npcFeedback.js';
 
 export function handleNpcAction(s, action, c, ctx) {
-  var GD = ctx.GD;
   switch (action.type) {
     case 'TALK_NPC': {
       return _executeTalkNpc(s, action, c, ctx);
     }
     case 'NPC_RESPONSE': {
-      var result = _executeNpcResponse(s, action, c, ctx);
-      // v0.9.0: Moral choice engine integration
-      // Reputation propagation through NPC relationship network + moral tracking
-      if (s.pendingNpc && action.choice && action.choice !== 'leave') {
-        try {
-          var npc = s.pendingNpc.npc;
-          processNpcMoralChoice(s, npc.name, action.choice, ctx);
-          // Silent propagation — no narrative feedback, the effects just happen
-          // This is intentional: the player feels consequences without being told "X happened because you did Y"
-        } catch (e) {
-          // Moral choice engine is optional — if it fails, the base game continues
-        }
-      }
-      return result;
+      // Each branch owns its state mutations, counters and relationship ripple.
+      // Post-processing here used handler-mutated pendingNpc and could apply the
+      // same moral consequence twice (notably redeem and successful attack).
+      return _executeNpcResponse(s, action, c, ctx);
     }
     default:
       return null;

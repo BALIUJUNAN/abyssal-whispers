@@ -39,7 +39,7 @@ export function handleSkillCheck(s, action, c, ctx) {
         ' —— 成功！'
     );
     c.narr('system', sc.success && sc.success.text ? sc.success.text : (sc.success || '检定成功。'));
-    if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.SKILL_IMPROVE_CHANCE)
+    if (c.rng.next() < GAME_BALANCE.SKILL_IMPROVE_CHANCE)
       s.skills[result.skillName] = (s.skills[result.skillName] || 0) + rand(1, 3, c.rng);
   } else {
     c.effects.push({ type: 'AUDIO_SKILL', id: result.isCritFail ? 'critical_fail' : 'fail' });

@@ -5,12 +5,11 @@
 // Every selector returning an object/array MUST use useMemo to cache the result.
 // All selector functions must be defined at module level (stable refs).
 
+import { useMemo } from 'react';
 import { useGameStore } from './useGameStore.js';
 import { useUiStore } from './uiStore.js';
 import { getVisualForSan, getSanStageClasses, getPerceptionLevels } from '../systems/sanityVisual.js';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
-
-var useMemo = React.useMemo;
 
 // ── Module-level selector functions (stable references) ──
 
@@ -166,27 +165,7 @@ export function useLongTermEffectsCount() { return useGameStore(_selLongTermEffe
 export function useMadnessActive() { return useGameStore(_selMadnessActive); }
 
 export function useGameLayoutData() {
-  var screen = useGameStore(function (s) { return s.screen; });
-  var day = useGameStore(_selDay);
-  var loopCount = useGameStore(_selLoopCount);
-  var currentArea = useGameStore(_selCurrentArea);
-  var ap = useGameStore(function (s) { return s.ap; });
-  var maxAp = useGameStore(function (s) { return s.maxAp; });
-  var san = useGameStore(_selSan);
-  var audioMuted = useGameStore(function (s) { return s.audioMuted; });
-  var deathContext = useGameStore(function (s) { return s.deathContext; });
-  var _level13GlitchScheduled = useGameStore(function (s) { return s._level13GlitchScheduled; });
-  var tutorialSeen = useGameStore(function (s) { return s.tutorialSeen; });
-  var currentSafehouse = useGameStore(function (s) { return s.currentSafehouse; });
-  return useMemo(function () {
-    return {
-      screen: screen, day: day, loopCount: loopCount, currentArea: currentArea,
-      ap: ap, maxAp: maxAp, san: san, audioMuted: audioMuted,
-      deathContext: deathContext, _level13GlitchScheduled: _level13GlitchScheduled,
-      tutorialSeen: tutorialSeen, currentSafehouse: currentSafehouse,
-    };
-  }, [screen, day, loopCount, currentArea, ap, maxAp, san, audioMuted,
-      deathContext, _level13GlitchScheduled, tutorialSeen, currentSafehouse]);
+  return useGameStore();
 }
 
 export function useCenterPanelData() {

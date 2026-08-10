@@ -1,6 +1,7 @@
 // src/components/GamePanels.jsx - Game panel components (extracted from app.jsx)
 // LeftPanel, CenterPanel, RightPanel, EndingScreen, GameHeader
 // NPCDialog -> NPCDialog.jsx, CitySketchMap -> CitySketchMap.jsx
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { StatBar, CollapsibleSection, NarrativeBlock } from './GameCommon.jsx';
 import { isPhantomExpired } from '../systems/textVariants.js';
@@ -12,18 +13,23 @@ import { NarrativeVirtualList, useVirtualList } from './VirtualList.jsx';
 import { getNpcTrust, getDisplayedAp, getAvailableSafehouses } from '../utils/appHelpers.js';
 import { getPlayerImage, getNpcImage } from '../portraitMap.js';
 import { getNpcsHere } from '../utils/npcLocation.js';
-import { getAreaDisplayName, isAreaUnlocked } from '../utils/gameHelpers.js';
+import { getAreaDisplayName, getOptionText, isAreaUnlocked } from '../utils/gameHelpers.js';
 import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
 import { getChapterForDay } from '../reducers/chapterReducer.js';
 import { checkAfterglowUnlock, getAfterglowTexts, getEndingTriggerCount } from '../reducers/endingReducer.js';
 import { getSanStage } from '../reducers/sanReducer.js';
+import { getInProgressConclusions } from '../reducers/conclusionReducer.js';
 import { getSafehouseStage } from '../reducers/miscReducer.js';
 import { enhanceDeathSummary, generateAfterglow, enhanceEventDescription, generateSanCorruptedText, generatePersonalityReflection, generateLoopOpening, isGlmAvailable, clearGlmCache, clearGlmQueue } from '../systems/llmNarrative.js';
 import { hasClueId, resolveClueName } from '../utils/clueNameMap.js';
 import { uiStore } from '../state/uiStore.js';
+import { GD } from '../state/gameData.js';
 
 import { getInputResistanceLevel, getInputResistanceClass } from '../systems/inputResistance.js';
 import { getShopDef, isShopItemUnlocked } from './ShopModal.jsx';
+import { audioManager } from '../managers/AudioManager.js';
+import { CorruptibleChoice } from './SanPollutionLayer.jsx';
+import { getEndingCgImage } from '../portraitMap.js';
 export const LeftPanel = memo(function LeftPanel({ state }) {
   const seal = useMemo(
     () =>
@@ -417,14 +423,17 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
     if (!state.transition) return;
     const dur = { move: 800, rest: 1800, 'san-loss': 500, chapter: 2500 }[state.transition] || 800;
     if (transitionTimer.current) clearTimeout(transitionTimer.current);
-    transitionTimer.current = setTimeout(() => dispatch({ type: 'CLEAR_TRANSITION' }), dur);
+    transitionTimer.current = setTimeout(
+      () => dispatch({ type: 'CLEAR_TRANSITION', meta: { consumeGameplayRng: false } }),
+      dur
+    );
     return () => {
       if (transitionTimer.current) clearTimeout(transitionTimer.current);
     };
   }, [state.transition, dispatch]);
   const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD: state._GD }), [state.currentArea]);
   const npcs = useMemo(
-    () => getNpcsHere(state),
+    () => getNpcsHere(state, { GD: state._GD }),
     [state.day, state.currentArea, state.npcStates, state.npcTrust]
   );
   const areas = state._GD?.areas || state._GD?.module2_areas || [];
@@ -570,8 +579,8 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                 {state.pendingGamble.options.map((opt) => {
                   const label =
                     opt.id === 'safe'
-                      ? getOptionText('gamble_safe', state.san) || opt.label
-                      : getOptionText('gamble_deep', state.san) || opt.label;
+                      ? getOptionText('gamble_safe', state.san, { GD: GD }) || opt.label
+                      : getOptionText('gamble_deep', state.san, { GD: GD }) || opt.label;
                   const risk = opt.cost ? '（SAN损失 1d6）' : '（安全）';
                   return (
                     <CorruptibleChoice
@@ -677,7 +686,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     })()}
                   </span>
                   <span className="action-icon">🔍</span>
-                  {getOptionText('investigate_sound', state.san) || '探索区域'}
+                  {getOptionText('investigate_sound', state.san, { GD: GD }) || '探索区域'}
                   <span className="cost">2 AP</span>
                 </button>
                 {conn.map((aid) => {
@@ -772,7 +781,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                 <span className="action-group-icon">☀️</span>日常行动
               </div>
               <div className={'action-group-grid' + (collapsedGroups.daily ? ' collapsed' : '')}>
-                {getAvailableSafehouses(state)
+                {getAvailableSafehouses(state, { GD: GD })
                   .filter((sh) => state.currentSafehouse !== sh.name)
                   .map((sh) => {
                     btnIndex.current += 1;
@@ -852,7 +861,7 @@ export const CenterPanel = memo(function CenterPanel({ state, dispatch }) {
                     <button className="action-btn" onClick={() => dispatch({ type: 'REST' })} onMouseEnter={() => audioManager.playUI('hover')}>
                       <span className="btn-hint">{n}</span>
                       <span className="action-icon">🏕️</span>
-                      {getOptionText('rest_at_safehouse', state.san) || '结束今日'}
+                      {getOptionText('rest_at_safehouse', state.san, { GD: GD }) || '结束今日'}
                       <span className="cost">休息恢复</span>
                     </button>
                   );
@@ -1011,40 +1020,34 @@ export const RightPanel = memo(function RightPanel({ state, dispatch }) {
   const npcs = state._GD?.npcs || state._GD?.module3_npcs || [];
   const conn = useMemo(() => getConnectedAreas(state.currentArea, { GD: state._GD }), [state.currentArea]);
   const inProgressConclusions = useMemo(() => {
-    return (state._GD?.systems?.clue_conclusion?.conclusions || [])
-      .filter((c) => !(state.discoveredConclusions || []).includes(c.id))
-      .map((conc) => {
-        const satisfied = (conc.evidence_pool || []).filter((ev) => {
-          if (ev.source && state.triggeredEvents.includes(ev.source)) return true;
-          const tm = ev.source && ev.source.match(/^(.+?)\s+trust>=(\d+)$/);
-          if (tm) return getNpcTrust(state, tm[1]) >= parseInt(tm[2]);
-          return false;
-        });
-        const needed = conc.required_evidence_count || 2;
-        if (satisfied.length === 0) return null;
-        return (
-          <div
-            key={conc.id}
-            style={{
-              fontSize: '0.65rem',
-              color: 'var(--text-dim)',
-              padding: '0.15rem 0',
-              borderLeft: '2px solid var(--border)',
-              paddingLeft: '0.4rem',
-              marginBottom: '0.2rem',
-            }}
-          >
-            {conc.name} [{satisfied.length}/{needed}]
-            {satisfied.map((ev, ei) => (
-              <div key={ei} style={{ color: 'var(--blue)', paddingLeft: '0.3rem' }}>
-                · {ev.description.slice(0, 25)}
-              </div>
-            ))}
+    return getInProgressConclusions(state, { GD: state._GD }).map((conc) => (
+      <div
+        key={conc.id}
+        style={{
+          fontSize: '0.65rem',
+          color: 'var(--text-dim)',
+          padding: '0.15rem 0',
+          borderLeft: '2px solid var(--border)',
+          paddingLeft: '0.4rem',
+          marginBottom: '0.2rem',
+        }}
+      >
+        {conc.name} [{conc.satisfiedEvidence.length}/{conc.requiredEvidenceCount}]
+        {conc.satisfiedEvidence.map((ev, ei) => (
+          <div key={ei} style={{ color: 'var(--blue)', paddingLeft: '0.3rem' }}>
+            · {ev.description.slice(0, 25)}
           </div>
-        );
-      })
-      .filter(Boolean);
-  }, [state.discoveredConclusions, state.triggeredEvents, state.npcTrust]);
+        ))}
+      </div>
+    ));
+  }, [
+    state._GD,
+    state.clues,
+    state.discoveredConclusions,
+    state.npcTrust,
+    state.triggeredEvents,
+    state._triggeredSet,
+  ]);
   const tabs = [
     { id: 'map', label: '地图' },
     { id: 'people', label: '人物' },
@@ -1375,6 +1378,15 @@ export function NotebookModal({ open, onClose, state }) {
     return m;
   }, [conclusions]);
 
+  const freeClues = useMemo(() => {
+    const chainClueIds = new Set();
+    chains.forEach((ch) => (ch.clues || []).forEach((cl) => chainClueIds.add(cl.id)));
+    return (state.clues || []).filter((c) => {
+      const id = typeof c === 'object' ? c.id || c.name : c;
+      return !chainClueIds.has(id);
+    });
+  }, [chains, state.clues]);
+
   if (!open) return null;
   const totalClueCount = chains.reduce((t, ch) => t + (ch.clues?.length || 0), 0);
   const foundCount = clueIdSet.size;
@@ -1455,26 +1467,17 @@ export function NotebookModal({ open, onClose, state }) {
           )}
 
           {/* 已收集线索（不在链中的自由线索） */}
-          {useMemo(() => {
-            const chainClueIds = new Set();
-            chains.forEach((ch) => (ch.clues || []).forEach((cl) => chainClueIds.add(cl.id)));
-            const freeClues = (state.clues || []).filter((c) => {
-              const id = typeof c === 'object' ? c.id || c.name : c;
-              return !chainClueIds.has(id);
-            });
-            if (freeClues.length === 0) return null;
-            return (
-              <div className="notebook-section">
-                <div className="notebook-section-title">散落笔记</div>
-                {freeClues.map((c, i) => (
-                  <div key={i} className="notebook-clue clue-found">
-                    <span className="clue-mark">▪</span>
-                    <span className="clue-name">{typeof c === 'object' ? c.name : resolveClueName(c)}</span>
-                  </div>
-                ))}
-              </div>
-            );
-          }, [chains, state.clues])}
+          {freeClues.length > 0 && (
+            <div className="notebook-section">
+              <div className="notebook-section-title">散落笔记</div>
+              {freeClues.map((c, i) => (
+                <div key={i} className="notebook-clue clue-found">
+                  <span className="clue-mark">▪</span>
+                  <span className="clue-name">{typeof c === 'object' ? c.name : resolveClueName(c)}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
         </div>
       </div>
@@ -1614,6 +1617,9 @@ export function EndingScreen({ ending, state, dispatch }) {
           : 'neutral';
   const recap = ending.recap;
   const endingImage = ending.id ? getEndingCgImage(ending.id) : null;
+  useEffect(() => {
+    try { audioManager.playEffect('ending_' + tc); } catch (e) {}
+  }, [ending.id, tc]);
   const isStructured =
     recap && typeof recap === 'object' && !Array.isArray(recap) && recap.deathType;
   const isFirstDeath = state.loopCount === 0 && tc === 'bad';

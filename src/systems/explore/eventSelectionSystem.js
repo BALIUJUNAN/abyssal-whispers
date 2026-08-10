@@ -44,7 +44,7 @@ export function _selectExploreEvent(s, ctx, GD, c) {
           const totalW = fearScored.reduce(function (a, b) {
             return a + b.weight;
           }, 0);
-          let roll = (c.rng ? c.rng.next() : Math.random()) * totalW;
+          let roll = c.rng.next() * totalW;
           for (const item of fearScored) {
             roll -= item.weight;
             if (roll <= 0) {
@@ -73,7 +73,7 @@ export function _selectExploreEvent(s, ctx, GD, c) {
             : allEvts);
         if (
           shouldTriggerMissing600(s, extEvts) &&
-          (c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.MISSING_600_CHANCE
+          c.rng.next() < GAME_BALANCE.MISSING_600_CHANCE
         ) {
           evt = createMissing600Event(s);
           commitSelectedEvent(evt, s);

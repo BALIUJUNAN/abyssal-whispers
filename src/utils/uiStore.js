@@ -2,7 +2,10 @@
 // Replaces useState for all non-gameplay UI state: modals, toasts, settings.
 // Works with flat bundle + global React. No npm dependency.
 
-const _useSyncExternalStore = React.useSyncExternalStore;
+import { useSyncExternalStore } from 'react';
+import { loadSettings, saveSettings } from '../reducers/miscReducer.js';
+
+const _useSyncExternalStore = useSyncExternalStore;
 
 function createUiStore(initialState) {
   let state = typeof initialState === 'function' ? initialState() : { ...initialState };

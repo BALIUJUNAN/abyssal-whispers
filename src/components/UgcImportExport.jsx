@@ -2,6 +2,7 @@
 // Import/Export/Enable/Disable mods from localStorage.
 // Uses React Hooks. No external state management required.
 
+import React from 'react';
 const { useState, useEffect, useCallback, useMemo } = React;
 
 import {
@@ -231,6 +232,8 @@ export function UgcPanel({ onClose, GD }) {
           <>
             <ModListView
               mods={mods}
+              devMode={devMode}
+              setDevMode={setDevMode}
               onToggle={handleToggle}
               onUninstall={handleUninstall}
               onExport={handleExport}
@@ -353,7 +356,7 @@ function ExampleGallery({ onInstall, installedIds }) {
 // SECTION 3: Mod List View
 // ────────────────────────────────────────────────
 
-function ModListView({ mods, onToggle, onUninstall, onExport, onSelect, onImport }) {
+function ModListView({ mods, devMode, setDevMode, onToggle, onUninstall, onExport, onSelect, onImport }) {
   return (
     <>
       <div className="ugc-toolbar">

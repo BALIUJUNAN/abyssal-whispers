@@ -27,11 +27,35 @@ import { getItemDef, useItemByDef, buyFromShop } from '../miscReducer.js';
 import { hasClueId } from '../../utils/clueNameMap.js';
 import { initSkills } from '../../utils/gameHelpers.js';
 import { processFakeChoice } from '../../systems/sanConsequenceChain.js';
+import { _postExploreProcessing } from '../../systems/explore/eventConsequenceSystem.js';
 
 export function handleUiAction(draft, action, c, ctx) {
   var GD = ctx.GD;
 
   switch (action.type) {
+    case 'ADD_NARRATIVE': {
+      var narrativeEntry = action.entry || {};
+      if (narrativeEntry.text) {
+        var narrativeExtra = { ...narrativeEntry };
+        delete narrativeExtra.text;
+        delete narrativeExtra.type;
+        c.narr(narrativeEntry.type || 'normal', narrativeEntry.text, narrativeExtra);
+      }
+      return null;
+    }
+    case 'ADD_EVENT_LOG': {
+      var logEntry = action.entry || {};
+      if (logEntry.text) {
+        draft.eventLog.push({
+          day: logEntry.day || draft.day,
+          text: logEntry.text,
+          type: logEntry.type || 'event',
+          timestamp: logEntry.timestamp || c.now(),
+        });
+        if (draft.eventLog.length > 200) draft.eventLog = draft.eventLog.slice(-200);
+      }
+      return null;
+    }
     case 'CHOICE_SELECT': {
       var pc = draft.pendingChoice;
       if (!pc) return null;
@@ -49,15 +73,15 @@ export function handleUiAction(draft, action, c, ctx) {
         c.narr('system', fakeResult, { isSpecial: true });
         c.log('选择了虚假选项：' + (choice._originalLabel || choice.label));
       } else {
-        c.narr('system', choice.text, { isSpecial: true });
+        c.narr('system', choice.text || choice.label || '你做出了选择。', { isSpecial: true });
         applyLegacyEffects(draft, choice.effects, c.rng);
       }
       // Death check after choice effects (unified via applyDeathResolution)
       {
-        var deathCtx = resolveDeath(draft, pc.evt, choice);
-        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx);
+        var deathCtx = resolveDeath(draft, pc.evt, choice, c.rng);
+        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx, c.rng);
       }
-      draft.objectives = checkObjCompletion(draft.objectives, draft);
+      _postExploreProcessing(pc.evt, draft, c, GD);
       c.log('选择：' + choice.label);
       return null;
     }
@@ -170,7 +194,7 @@ export function handleUiAction(draft, action, c, ctx) {
         }
         // Independent reward check
         var reward = opt.reward || {};
-        var r = (c.rng ? c.rng.next() : Math.random());
+        var r = c.rng.next();
         if (r < reward.clue_chance) {
           // Clue found — causal feedback
           var _GD = GD;
@@ -239,10 +263,10 @@ export function handleUiAction(draft, action, c, ctx) {
       applyLegacyEffects(draft, evt.effects, c.rng);
       // Post-gamble: check death (unified via applyDeathResolution)
       {
-        var deathCtx = resolveDeath(draft, evt, null);
-        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx);
+        var deathCtx = resolveDeath(draft, evt, null, c.rng);
+        if (deathCtx) applyDeathResolution(draft, deathCtx, c.narr, ctx, c.rng);
       }
-      draft.objectives = checkObjCompletion(draft.objectives, draft);
+      _postExploreProcessing(evt, draft, c, GD);
       c.log('探索(赌博)：' + evt.name);
       return null;
     }
@@ -310,7 +334,7 @@ export function handleUiAction(draft, action, c, ctx) {
     case 'COMPLETE_PROLOGUE': {
       // 前传完成，显示生存指南（首次）或直接进入角色创建
       draft.screen = draft.guideSeen ? 'creation' : 'guide';
-      draft.skills = initSkills();
+      draft.skills = initSkills(ctx);
       draft.prologue.completed = true;
       return null;
     }
@@ -322,7 +346,7 @@ export function handleUiAction(draft, action, c, ctx) {
     case 'SKIP_PROLOGUE': {
       handleSkipPrologue(draft);
       draft.screen = draft.guideSeen ? 'creation' : 'guide';
-      draft.skills = initSkills();
+      draft.skills = initSkills(ctx);
       return null;
     }
     case 'MARK_NOTEBOOK_OPENED': {
@@ -351,7 +375,7 @@ export function handleUiAction(draft, action, c, ctx) {
       var def = getItemDef(item.id, ctx);
       if (!def) return null;
       // Apply item effects
-      var consumed = useItemByDef(draft, item, c.narr, ctx);
+      var consumed = useItemByDef(draft, item, c.narr, ctx, c.rng);
       c.effects.push({ type: 'AUDIO_PLAY', id: 'item_use' });
       // Consume item if flagged
       if (consumed) {

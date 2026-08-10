@@ -178,7 +178,7 @@ export function getCoverageReport(events, GD) {
   // Initialize area counts from GD if available
   var gdAreas = (GD && GD.areas) ? GD.areas : [];
   for (var a = 0; a < gdAreas.length; a++) {
-    areas[gdAreas[a].id] = { count: 0, events: [], label: gdAreas[a].name || gdAreas[a].id };
+    areas[gdAreas[a].id] = { count: 0, events: [], label: gdAreas[a].name || gdAreas[a].id, isCanonical: true };
   }
 
   for (var i = 0; i < events.length; i++) {
@@ -204,7 +204,10 @@ export function getCoverageReport(events, GD) {
         var areaId = evtAreas[j];
         if (areaId === '*') continue; // wildcard
         if (!areas[areaId]) {
-          areas[areaId] = { count: 0, events: [], label: areaId };
+          // Some events use contextual scopes (for example safehouse/tavern)
+          // that are not explorable world areas. Keep them visible in the
+          // report, but do not judge them by world-area coverage thresholds.
+          areas[areaId] = { count: 0, events: [], label: areaId, isCanonical: gdAreas.length === 0 };
         }
         areas[areaId].count++;
         areas[areaId].events.push(e.id);
@@ -219,6 +222,7 @@ export function getCoverageReport(events, GD) {
   var overServed = [];
   for (var areaId in areas) {
     var a = areas[areaId];
+    if (!a.isCanonical) continue;
     if (a.count < 10) underServed.push({ area: areaId, count: a.count, label: a.label, severity: a.count < 5 ? 'critical' : 'warn' });
     else if (a.count > 150) overServed.push({ area: areaId, count: a.count, label: a.label });
   }
@@ -307,6 +311,7 @@ export function simulateSelection(events, iterations) {
 
   // Monte Carlo simulation
   for (var iter = 0; iter < iterations; iter++) {
+    // rng-exempt: offline coverage Monte Carlo, never used for gameplay selection.
     var r = Math.random() * totalWeight;
     var cum = 0;
     for (var k = 0; k < poolEvents.length; k++) {

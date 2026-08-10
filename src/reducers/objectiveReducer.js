@@ -101,13 +101,14 @@ export function getForcedProgressGuard(state, ctx, rng) {
   var _rand = makeRand(rng);
   for (const guard of CRITICAL_PROGRESS_GUARDS) {
     if (triggered.includes(guard.guardFlag)) continue;
-    if (day > guard.deadlineDay) continue;
     if ((state.completedChains || []).includes(guard.chainId)) continue;
     const foundCount = guard.requiredClues.filter((x) => hasClueId(clues, x)).length;
     if (foundCount >= guard.minCluesNeeded) continue;
     const daysUntilDeadline = guard.deadlineDay - day;
     if (daysUntilDeadline > 2) continue;
-    const fireProbability = daysUntilDeadline <= 0 ? 0.9 : daysUntilDeadline === 1 ? 0.6 : 0.3;
+    // A deadline is a guarantee, not the final chance to make progress. Once
+    // reached or overdue, the guard fires deterministically on the next explore.
+    const fireProbability = daysUntilDeadline <= 0 ? 1 : daysUntilDeadline === 1 ? 0.6 : 0.3;
     if (_rand() >= fireProbability) continue;
     return guard;
   }

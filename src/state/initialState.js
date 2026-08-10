@@ -18,9 +18,10 @@ import { STARTING_STATE, STAT_DEFAULTS, STAT_NAMES, STARTING_ITEM_ID_MAP } from 
  * Character attributes — stats, HP, SAN, skills, inventory.
  * Mostly [persisted]. maxHp is [derived] from CON+SIZ but cached for performance.
  */
-function createCharacterState() {
+function createCharacterState(GD) {
   return {
     stats: { ...STAT_DEFAULTS },
+    statsRolled: false,
     hp: STARTING_STATE.HP,
     maxHp: STARTING_STATE.MAX_HP,
     san: STARTING_STATE.SAN,
@@ -61,6 +62,8 @@ function createWorldState() {
     currentSafehouse: STARTING_STATE.CURRENT_SAFEHOUSE,
     harborRiskReduction: 0,
     areaNameCache: {},
+    _npcTrustLocked: {},
+    _sealKnowledge: {},
     retainedKnowledge: [],
     lastVisitedDates: {},
     lastDeathType: null,
@@ -154,6 +157,7 @@ function createRuntimeState() {
       pseudo_error_style: 'immersive',
     },
     glitchPulse: 0,                 // [runtime] — canvas distortion intensity (0=off, 1-10=strength)
+    _level13GlitchScheduled: false, // [persisted] — restores the level 13 runtime scheduler after load
     // Daily tracking (rebuilt each day)
     _dayActions: [],                // [runtime]
     _dayStartArea: null,            // [runtime]
@@ -250,6 +254,15 @@ function createPersistenceState() {
     endingCoins: 0,                 // [persisted]
     loopShopTier: 0,                // [persisted]
     purchasedShopItems: [],         // [persisted]
+    _shopBonusSkillPoints: 0,       // [persisted] — permanent shop effect for the next adventure
+    _shopNpcTrustBonus: 0,          // [persisted]
+    _shopMythosResistance: 0,       // [persisted]
+    _shopDeathInsurance: false,     // [persisted]
+    _shopSanCapBoost: 0,            // [persisted]
+    _shopRandomRare: false,         // [persisted]
+    _deathInsuranceItem: null,      // [persisted] — consumed by BEGIN_ADVENTURE
+    _inheritanceNarrative: null,    // [persisted] — consumed by BEGIN_ADVENTURE
+    _savePollution: null,           // [persisted] — temporary save-slot name corruption
     runMemory: [],                  // [persisted] — max 12 entries
     runSeed: generateRunSeed(),     // [persisted] — deterministic RNG seed for this run
   };
@@ -259,9 +272,10 @@ function createPersistenceState() {
  * Public API: create the full initial game state.
  * Merges all sub-state sections and applies extended state defaults.
  */
-export const initialState = () => {
+export const initialState = (GD) => {
+  GD = GD || {};
   const base = {
-    ...createCharacterState(),
+    ...createCharacterState(GD),
     ...createWorldState(),
     ...createProgressState(),
     ...createResourceState(),

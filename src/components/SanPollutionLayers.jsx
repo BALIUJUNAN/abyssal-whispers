@@ -16,9 +16,10 @@
 // and returns true/false (drawn this frame). The parent skips ctx operations
 // for layers that return false.
 
-import { useEffect, useRef, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { getVisualForSan } from '../systems/sanityVisual.js';
 import { tickVisualCorruption, getSurgeMultiplier, getFlashAlpha } from '../systems/sanVisualCorruption.js';
+import { GD } from '../state/gameData.js';
 
 // ── Performance tier constants ──
 
@@ -301,7 +302,7 @@ export var SanPollutionLayer = memo(function SanPollutionLayer(props) {
   const getCachedVisual = useCallback(function (currentSan) {
     if (currentSan !== cachedSan.current || !cachedVisual.current) {
       cachedSan.current = currentSan;
-      cachedVisual.current = getVisualForSan(currentSan, { GD: state._GD });
+      cachedVisual.current = getVisualForSan(currentSan, { GD: GD });
     }
     return cachedVisual.current;
   }, []);

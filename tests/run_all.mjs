@@ -30,6 +30,11 @@ const SUITES = [
   { file: 'tests/test_achievement_reducer.mjs', label: 'achievement_reducer' },
   { file: 'tests/test_chapter_reducer.mjs', label: 'chapter_reducer' },
   { file: 'tests/integration_test.mjs', label: 'integration' },
+  { file: 'tests/test_difficulty_integration.mjs', label: 'difficulty_integration' },
+  { file: 'tests/test_full_flow.mjs', label: 'full_flow' },
+  { file: 'tests/test_save_security.mjs', label: 'save_security' },
+  { file: 'tests/test_regressions.mjs', label: 'regressions' },
+  { file: 'tests/test_playability_audit.mjs', label: 'playability_audit' },
 ];
 
 let totalPassed = 0;

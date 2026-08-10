@@ -5,7 +5,7 @@ import { clamp, pick, makeRand } from '../reducers/utils.js';
 import { hasClueId } from './clueNameMap.js';
 export { hasClueId };
 import { buildDeathSummary } from '../systems/deathSummary.js';
-import { hasTriggered, syncTriggeredSet } from './triggeredSet.js';
+import { hasTriggered, syncTriggeredSet, syncSilentSet } from './triggeredSet.js';
 import { generatePersonalityReport } from '../data/behavior_endings.js';
 // P1-A: use getSanStageFromGD instead of hardcoded SAN thresholds
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
@@ -19,6 +19,13 @@ import { checkEnding } from '../reducers/endingReducer.js';
 import { generateDeathFragments, decayDeathFragments } from '../systems/deathLegacies.js';
 import { getDeathCountMetaEvent } from '../data/events/events_death_count_meta.js';
 import { audioManager } from '../managers/AudioManager.js';
+import { resolveNpcId } from '../data/registry/npcRegistry.js';
+import {
+  getNpcStateByRef,
+  getNpcTrustByRef,
+  setNpcStateByRef,
+  setNpcTrustByRef,
+} from './npcStateAccess.js';
 
 export function getUICorruptionLayer(san, loopCount, safehouseCorruption) {
   // P1-A: SAN thresholds derive from stage.level (SSOT, 7 stages)
@@ -139,7 +146,7 @@ export function buildDeathRecap(state, deathContext = null) {
 }
 
 
-export function applyBlessing(state, blessing, narr, ctx) {
+export function applyBlessing(state, blessing, narr, ctx, rng) {
   if (!blessing) return;
   var GD = ctx?.GD || {};
   const eff = blessing.effect || {};
@@ -151,7 +158,7 @@ export function applyBlessing(state, blessing, narr, ctx) {
   if (eff.type === 'npc_trust_bonus') {
     const coreNpcs = (GD.npcs || []).filter((n) => n.chapter_1_availability === 'core');
     if (coreNpcs.length > 0) {
-      const t = pick(coreNpcs);
+      const t = pick(coreNpcs, rng);
       setNpcTrust(state, t.name, getNpcTrust(state, t.name) + (eff.amount || 1));
     }
   }
@@ -161,14 +168,14 @@ export function applyBlessing(state, blessing, narr, ctx) {
   if (blessing.bonus_skill_points) {
     const skills = Object.keys(state.skills);
     if (skills.length > 0) {
-      const sk = pick(skills);
+      const sk = pick(skills, rng);
       state.skills[sk] = (state.skills[sk] || 0) + blessing.bonus_skill_points;
     }
   }
 }
 
 export function getAvailableSafehouses(state, ctx) {
-  var GD = ctx?.GD || {};
+  var GD = ctx?.GD || state?._GD || {};
   const alts = GD.systems?.safehouse?.relocation_rules?.alternative_safehouses || [];
   return alts.filter((sh) => {
     const npcName = sh.unlock_condition.includes('伊莱亚斯')
@@ -209,8 +216,9 @@ const _DEATH_SAN_TYPES = [
  * @param {object} deathCtx   - from resolveDeath()
  * @param {function} narr     - narrative pusher
  * @param {object} [ctx]      - { GD } game data context
+ * @param {object} [rng]      - seeded reducer RNG
  */
-export function applyDeathResolution(s, deathCtx, narr, ctx) {
+export function applyDeathResolution(s, deathCtx, narr, ctx, rng) {
   var GD = ctx?.GD || {};
   s.deathContext = deathCtx;
   s.lastDeathType = deathCtx.type;
@@ -266,7 +274,7 @@ export function applyDeathResolution(s, deathCtx, narr, ctx) {
   if (!s.tutorialSeen.first_death) s.tutorialSeen = { ...s.tutorialSeen, first_death: true };
 
   // ── Death fragments: narrative legacy across loops ──
-  generateDeathFragments(s, deathCtx, null);
+  generateDeathFragments(s, deathCtx, rng);
 
   // ── Death count meta: check if threshold crossed ──
   var totalDeaths = s.stats_run?.deaths || 0;
@@ -547,7 +555,7 @@ export function preloadEndingCGs() {
     const end = Math.min(start + 5, ENDING_CGS.length);
     for (let i = start; i < end; i++) {
       const img = new Image();
-      img.src = 'assets/webp_ending/' + encodeURIComponent(ENDING_CGS[i]) + '.webp';
+      img.src = 'webp_ending/' + encodeURIComponent(ENDING_CGS[i]) + '.webp';
     }
     if (end < ENDING_CGS.length) {
       const sched =
@@ -618,8 +626,8 @@ export function buildReducerCtx(s, opts, corruptFn) {
     // P_NEXT: Seeded RNG — all story-affecting randomness should use c.rng
     rng: (opts && opts.rng) || null,
     now: (opts && opts.now) || Date.now(),
-    // Deterministic pick — uses rng if available, falls back to Math.random
-    pick: (opts && opts.rng) ? opts.rng.pick : function (arr) { return arr[Math.floor(Math.random() * arr.length)]; },
+    // Legacy standalone callers without RNG use a stable, non-random fallback.
+    pick: (opts && opts.rng) ? opts.rng.pick : function (arr) { return arr[0]; },
   };
 }
 
@@ -627,29 +635,17 @@ export function buildReducerCtx(s, opts, corruptFn) {
 // Resolve npcTrust key: tries direct key first, then resolveNpcId fallback.
 // Works with both Chinese name keys (old) and stable id keys (new).
 export function getNpcTrust(s, name) {
-  if (s.npcTrust[name] !== undefined) return s.npcTrust[name];
-  if (typeof resolveNpcId === 'function') {
-    var id = resolveNpcId(name);
-    if (id !== name && s.npcTrust[id] !== undefined) return s.npcTrust[id];
-  }
-  return 0;
+  return getNpcTrustByRef(s, name);
 }
 export function setNpcTrust(s, name, value) {
-  // Always write to resolved id — state naturally converges to id keys
-  var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
-  s.npcTrust[id] = Math.max(0, Math.min(5, value));
+  setNpcTrustByRef(s, name, value);
 }
 export function getNpcState(s, name) {
-  if (s.npcStates[name]) return s.npcStates[name];
-  if (typeof resolveNpcId === 'function') {
-    var id = resolveNpcId(name);
-    if (id !== name && s.npcStates[id]) return s.npcStates[id];
-  }
-  return {};
+  return getNpcStateByRef(s, name);
 }
 export function setNpcState(s, name, value) {
   var id = typeof resolveNpcId === 'function' ? resolveNpcId(name) : name;
-  s.npcStates[id] = value;
+  setNpcStateByRef(s, name, value);
   // Capture echo for next loop if NPC just died
   if (value.dead) captureNpcEcho(s, id);
 }
@@ -717,7 +713,7 @@ export function checkBreakWallEvent(state, narr, GD, rng) {
   const r = _rand();
   const fx = [
     { type: 'AUDIO_PLAY', id: 'wall_break' },
-    { type: 'AUDIO_PLAY', id: 'safehouse_wall' },
+    { type: 'AUDIO_PLAY', id: 'safehouse_corrupt' },
     { type: 'AUDIO_PLAY', id: 'bell_wrong' },
   ];
   if (r < 0.33) {
@@ -761,7 +757,7 @@ export function checkBreakWallEvent(state, narr, GD, rng) {
 
 // === Silent Event Check (moved from app.jsx) ===
 // GD passed explicitly to avoid implicit global dependency.
-export function checkSilentEvent(state, narr, location, GD) {
+export function checkSilentEvent(state, narr, location, GD, rng) {
   const pool = (GD.implementation_notes?.silent_events?.event_pool || []).filter((e) => {
     if (e.location !== location) return false;
     if (e.repeat_behavior === 'only_once' && state.triggeredSilentEvents.includes(e.id))
@@ -778,8 +774,9 @@ export function checkSilentEvent(state, narr, location, GD) {
     return true;
   });
   if (pool.length === 0) return false;
-  const evt = pick(pool);
+  const evt = pick(pool, rng);
   state.triggeredSilentEvents.push(evt.id);
+  syncSilentSet(state, evt.id);
   narr('system', evt.text);
   if (evt.mechanical_effect?.san) {
     state.san = clamp(state.san + evt.mechanical_effect.san, 0, state.maxSan);

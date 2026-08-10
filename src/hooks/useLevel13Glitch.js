@@ -12,6 +12,7 @@ export function useLevel13Glitch(scheduled, screen, dispatch) {
           dispatch({
             type: 'GLITCH_PULSE',
             strength: 3 + Math.floor(Math.random() * 5),
+            meta: { consumeGameplayRng: false },
           });
         }
       }, 15000 + Math.floor(Math.random() * 10000));

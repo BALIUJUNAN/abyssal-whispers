@@ -7,9 +7,14 @@
 //   - 可点击热点（区域 + NPC + 建筑）带 hover 光晕
 //   - 点击热点弹出 AreaPanelModal（功能面板）
 //   - 浮动信息栏覆盖在地图上方
+import React from 'react';
 import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
+import { GD } from '../state/gameData.js';
 import { uiStore } from '../state/uiStore.js';
 import { getVisibleHotspots, getHotspotState, isHotspotUnlocked } from '../data/townHotspots.js';
+import { MAP_EDGES, MAP_LAYOUT } from '../data/mapConstants.js';
+import { audioManager } from '../managers/AudioManager.js';
+import { addUiToast } from '../state/uiStore.js';
 
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 
@@ -133,13 +138,13 @@ function getMapBackground(state) {
   const san = state.san || 60;
 
   // 高污染 → 崩坏版本
-  if (pollution > 0.6) return 'assets/webp/沃切斯特全景 崩坏.webp';
+  if (pollution > 0.6) return 'webp/沃切斯特全景 崩坏.webp';
 
   // 低SAN → 深夜版本
-  if (san <= 30) return 'assets/webp/沃切斯特全景 深夜.webp';
+  if (san <= 30) return 'webp/沃切斯特全景 深夜.webp';
 
   // 默认白天版本
-  return 'assets/webp/沃切斯特全景 白天.webp';
+  return 'webp/沃切斯特全景 白天.webp';
 }
 
 // === 主组件：InteractiveTownMap ===
@@ -153,8 +158,8 @@ export function InteractiveTownMap({ state, dispatch }) {
 
   // 可见热点
   const hotspots = useMemo(() => {
-    return getVisibleHotspots(state);
-  }, [state.currentArea, state.visitedAreas?.length, state.day, state.clues?.length]);
+    return getVisibleHotspots(state, { GD: GD });
+  }, [state.currentArea, state.visitedAreas?.length, state.day, state.clues?.length, state.npcTrust]);
 
   // NPC 指示器：哪些热点区域当前有 NPC
   const npcsByArea = useMemo(() => {
@@ -189,7 +194,7 @@ export function InteractiveTownMap({ state, dispatch }) {
         } else {
           // 不在该区域 → 执行 MOVE action
           const conn = getConnectedAreas(state.currentArea, { GD });
-          if (conn.includes(hotspot.areaId) && isHotspotUnlocked(hotspot, state) && state.ap >= 1) {
+          if (conn.includes(hotspot.areaId) && isHotspotUnlocked(hotspot, state, { GD: GD }) && state.ap >= 1) {
             dispatch({ type: 'MOVE', areaId: hotspot.areaId });
             // 移动后打开该区域面板
             setTimeout(() => {
@@ -329,7 +334,7 @@ export function InteractiveTownMap({ state, dispatch }) {
         <div className="town-map-hotspots">
           {hotspots.map((hotspot) => {
             const hotspotState =
-              hotspot.type === 'area' ? getHotspotState(hotspot, state) : 'available';
+              hotspot.type === 'area' ? getHotspotState(hotspot, state, { GD: GD }) : 'available';
             const isCurrent = state.currentArea === (hotspot.areaId || hotspot.id);
             const npcHere = npcsByArea[hotspot.areaId]?.length > 0;
 

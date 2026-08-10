@@ -1,5 +1,7 @@
 // src/components/ErrorBoundary.jsx - React ErrorBoundary with error tracker integration
 
+import React from 'react';
+
 export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);

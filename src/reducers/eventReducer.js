@@ -5,6 +5,8 @@ import { getPhase } from '../engine/WorldTimeSystem.js';
 import { checkTriggerExtended, selectEventV2 } from './extendedEvents.js';
 import { hasClueId } from '../utils/clueNameMap.js';
 import { hasTriggered } from '../utils/triggeredSet.js';
+import { isChapterUnlocked } from './chapterReducer.js';
+import { getNpcStateByRef, getNpcTrustByRef } from '../utils/npcStateAccess.js';
 
 export function checkTrigger(evt, state) {
   const t = evt.trigger;
@@ -14,7 +16,7 @@ export function checkTrigger(evt, state) {
     const phase = getPhase(state.ap, state.maxAp);
     if (!t.time_phase.includes(phase)) return false;
   }
-  if (t.chapter && state.day <= 7 && t.chapter > 1) return false;
+  if (!isChapterUnlocked(t.chapter, state.day)) return false;
 
   // ── 资源条件（food_lte / money_lte / starvation_day_gte）──
   if (t.food_lte !== undefined && (state.food || 0) > t.food_lte) return false;
@@ -24,12 +26,17 @@ export function checkTrigger(evt, state) {
   // ── NPC 条件（npc_alive / npc_trust_gte）──
   if (t.npc_alive && t.npc_alive.length > 0) {
     for (const npcName of t.npc_alive) {
-      if (state.npcStates?.[npcName]?.dead) return false;
+      if (getNpcStateByRef(state, npcName).dead) return false;
+    }
+  }
+  if (t.npc_dead && t.npc_dead.length > 0) {
+    for (const npcName of t.npc_dead) {
+      if (!getNpcStateByRef(state, npcName).dead) return false;
     }
   }
   if (t.npc_trust_gte) {
     for (const [npcName, minTrust] of Object.entries(t.npc_trust_gte)) {
-      if ((state.npcTrust?.[npcName] || 0) < minTrust) return false;
+      if (getNpcTrustByRef(state, npcName) < minTrust) return false;
     }
   }
 
@@ -166,10 +173,8 @@ export function processNormalAnchorEvent(evt, state) {
     text = '风琴声让你的心绪平静了下来。SAN +1';
   } else if (evt.id === 'evt_ch1_fisher_mending') {
     text = '老费舍的建议让你对码头的夜晚有所准备。当晚码头事件风险降低。';
-    state.harborRiskReduction = (state.harborRiskReduction || 0) + 0.1;
   } else if (evt.id === 'evt_ch1_tommy_photo') {
     text = '汤米的照片提供了侦查线索。侦查检定临时+2。';
-    state.tempSkillBonus = { skill: '侦查', bonus: 2, days: 1 };
   } else if (evt.id === 'evt_ch1_cat_stare') {
     text = '那只猫让你紧绷的神经放松了一些。疲劳 -1。';
   } else {

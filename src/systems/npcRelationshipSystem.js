@@ -10,7 +10,7 @@
 // Moral dilemma choices schedule delayed effects that fire on future days.
 
 import { NPC_RELATIONSHIPS, FACTIONS, MORAL_DILEMMAS } from '../data/npcRelationshipWeb.js';
-import { setNpcTrust, getNpcTrust } from '../utils/appHelpers.js';
+import { getNpcState, setNpcState, setNpcTrust, getNpcTrust } from '../utils/appHelpers.js';
 import { modHumanity } from '../utils/appHelpers.js';
 import { addRunMemory } from '../utils/appHelpers.js';
 
@@ -258,7 +258,7 @@ export function processMoralDilemmaChoice(dilemmaId, choiceId, state, c) {
 
   // Discovery chance (for deception choices)
   if (choice.hiddenCost && choice.hiddenCost.discoveryChance && choice.hiddenCost.discoveryDelay) {
-    var discoveryRoll = (c && c.rng ? c.rng.next() : Math.random());
+    var discoveryRoll = c.rng.next();
     if (discoveryRoll < choice.hiddenCost.discoveryChance) {
       var discDay = (state.day || 1) + choice.hiddenCost.discoveryDelay;
       scheduleDelayedEffect(state, 'npc_discovery', discDay, {

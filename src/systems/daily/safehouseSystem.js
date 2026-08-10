@@ -20,7 +20,7 @@ export function _processSafehouseAndWorldDecay(s, c, ctx) {
   const visStage = getSafehouseVisualStage(s.safehouseCorruption || 0);
   const shStage = getSafehouseStage(s.safehouseCorruption, ctx);
   c.effects.push({ type: 'AUDIO_PLAY', id: visStage.sound });
-  if (visStage.atmosphere && (c.rng ? c.rng.next() : Math.random()) < 0.5)
+  if (visStage.atmosphere && c.rng.next() < 0.5)
     c.narr('system', visStage.atmosphere, { isSpecial: true });
   {
     const pollutionEvt = getSafehousePollutionEvent(visStage.stage, null, c.rng);

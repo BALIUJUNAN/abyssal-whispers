@@ -77,3 +77,12 @@ export function getTrustTierInfo(value) {
   };
   return { ...tier, description: descriptions[tier.id] || '' };
 }
+
+/** Light trust-drop warning — only narrates when the relationship tier changes. */
+export function warnTrustDrop(c, npcName, oldVal, newVal) {
+  var oldTier = getTrustTierInfo(oldVal);
+  var newTier = getTrustTierInfo(newVal);
+  if (oldTier.id !== newTier.id) {
+    c.narr('system', npcName + '对你的态度变成了「' + newTier.label + '」。', { isEffect: true });
+  }
+}

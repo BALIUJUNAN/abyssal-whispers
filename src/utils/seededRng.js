@@ -86,5 +86,6 @@ export function createSeededRng(seed, salt) {
  * Called once per NEW_GAME.
  */
 export function generateRunSeed() {
+  // rng-exempt: this creates the seed itself; replay uses the stored result.
   return 'run_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
 }

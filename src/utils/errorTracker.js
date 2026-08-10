@@ -94,6 +94,25 @@ export function createErrorTracker() {
     },
 
     /**
+     * Attach the final outcome to an already-recorded dispatch step.
+     * Failed dispatches retain reducer metadata for the exported report.
+     */
+    complete(entry, outcome) {
+      if (!entry) return null;
+      outcome = outcome || {};
+      entry.outcome = outcome.ok === false ? 'failed' : 'succeeded';
+      if (outcome.error) {
+        entry.error = {
+          name: outcome.error.name || 'Error',
+          message: outcome.error.message || String(outcome.error),
+          stack: outcome.error.stack || '',
+        };
+      }
+      if (outcome.context) entry.errorContext = outcome.context;
+      return entry;
+    },
+
+    /**
      * 导出错误报告（供 ErrorBoundary 或手动调用）
      * @param {Error} error - 错误对象
      * @param {React.ErrorInfo} [errorInfo] - React 错误信息
@@ -112,6 +131,9 @@ export function createErrorTracker() {
         type: s.type,
         actionPreview: simplifyAction(s.action),
         hasSnapshot: s.isSnapshot || false,
+        outcome: s.outcome || 'pending',
+        dispatchError: s.error || null,
+        errorContext: s.errorContext || null,
       }));
 
       // 收集 state 快照
@@ -358,3 +380,7 @@ export function generateSummary(error, steps) {
 
   return summaries;
 }
+
+// Shared tracker used by every dispatch path. Keeping this singleton in the
+// leaf utility module lets the Store record map-mode and background actions too.
+export const errorTracker = createErrorTracker();

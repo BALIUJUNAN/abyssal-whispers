@@ -1,9 +1,9 @@
 // src/components/NPCDialog.jsx - NPC dialog component (extracted from GamePanels.jsx)
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { applyMythosAliases, maybeCorruptNpcName } from '../systems/textVariants.js';
 import { applyTextFragmentation } from '../systems/textFragmentation.js';
 import { generateNpcDialogue, isGlmAvailable } from '../systems/llmNarrative.js';
-import { getContextualLine } from '../systems/npcDialogue.js';
 import { getNpcPerceptionVariant } from '../systems/npcPerceptionVariants.js';
 import { getChoiceDelay } from '../engine/PollutionManager.js';
 import { checkTrustGate } from '../utils/trustGates.js';
@@ -33,11 +33,8 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
     }).catch(function () { /* abort 导致的拒绝静默处理 */ });
     return function () { abortCtrl.abort(); };
   }, [npc.name, trust, layer && layer.dialogue]);
-  // Contextual line (trust/san/loop/legacy-aware short dialogue)
-  const ctxLine = useMemo(() => {
-    if (!state || !npc) return null;
-    try { return getContextualLine(npc.name, state, null); } catch (e) { return null; }
-  }, [npc?.name, state?.san, state?.loopCount, state?.npcTrust?.[npc?.name], state?.lastDeathType]);
+  // Selected inside TALK_NPC with c.rng; rendering stays read-only.
+  const ctxLine = state?.pendingNpc?.contextualLine || null;
   // 对话分组折叠状态：交谈/帮助 默认展开，特殊 默认折叠
   const [collapsedGroups, setCollapsedGroups] = useState({
     talk: false,
@@ -127,7 +124,7 @@ export function NPCDialog({ npc, trust, layer, dispatch, state }) {
         {/* NPC perception variant — SAN-dependent description */}
         {(() => {
           try {
-            var pv = getNpcPerceptionVariant(npc.name, state || {}, { GD });
+            var pv = getNpcPerceptionVariant(npc.name, state || {}, { GD: state?._GD || {} });
             if (pv && pv.text) {
               return (
                 <div style={{

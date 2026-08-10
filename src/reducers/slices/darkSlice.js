@@ -14,6 +14,7 @@ export function handleDarkAction(s, action, c, ctx) {
       }
       s.ap -= 2;
       c.bt.self_harm_ritual_count = (c.bt.self_harm_ritual_count || 0) + 1;
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'ritual_progress' });
       c.bt.fusion_and_self_harm_total = (c.bt.fusion_and_self_harm_total || 0) + 1;
       const sanLoss = rand(3, 10, c.rng);
       applySanLoss(s, sanLoss);
@@ -28,7 +29,7 @@ export function handleDarkAction(s, action, c, ctx) {
         '你用刀尖在皮肤上刻下了一个符号。你不知道它是什么意思。但你的手知道。SAN -' + sanLoss,
         { isSpecial: true }
       );
-      if ((c.rng ? c.rng.next() : Math.random()) < 0.3) {
+      if (c.rng.next() < 0.3) {
         s.pollution = Math.min(1, (s.pollution || 0) + 0.05);
         c.narr('system', '符号在皮肤下微微发光，然后暗了下去。');
         c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
@@ -119,6 +120,7 @@ export function handleDarkAction(s, action, c, ctx) {
       }
       s.ap -= 2;
       c.bt.sacred_desecration_count = (c.bt.sacred_desecration_count || 0) + 1;
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'ritual_progress' });
       const sanLoss = rand(4, 12, c.rng);
       applySanLoss(s, sanLoss);
       modHumanity(s, -15, '亵渎了神圣之地', c.rng);
@@ -146,7 +148,7 @@ export function handleDarkAction(s, action, c, ctx) {
         setCorruptionFlag(s, 'destroyed_time_core');
       s.sealState = 'critical';
       s.pollution = Math.min(1, (s.pollution || 0) + 0.2);
-      c.effects.push({ type: 'AUDIO_PLAY', id: 'loop_pollution' });
+      c.effects.push({ type: 'AUDIO_PLAY', id: 'ritual_complete' });
       c.bt.loop_break_attempts = (c.bt.loop_break_attempts || 0) + 1;
       const sanLoss = rand(8, 20, c.rng);
       applySanLoss(s, sanLoss);

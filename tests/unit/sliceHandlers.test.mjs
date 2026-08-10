@@ -33,7 +33,7 @@ globalThis.GD = baseData;
 
 // Configure SaveManager before any module imports it
 try {
-  var saveMgr = await import(testPath('src/engine/SaveManager.js'));
+  var saveMgr = await import('../../src/engine/SaveManager.js');
   saveMgr.configureSaveManager({ toPersistedState: function (s) { return s; } });
 } catch (e) {
   // SaveManager may not be available in all test environments
@@ -241,14 +241,14 @@ console.log('=== coreSlice ===');
 console.log('=== loopSlice ===');
 
 {
-  // NEW_GAME: returns new state with day=1, loopCount incremented
+  // NEW_GAME: replaces game fields in place with day=1, loopCount incremented
   var s = createDraft({ day: 15, loopCount: 2 });
   var c = createMockCtx();
   var ctx = { GD: baseData };
   var result = handleLoopAction(s, { type: 'NEW_GAME' }, c, ctx);
-  assert('NEW_GAME returns new state', result && typeof result === 'object');
-  assert('NEW_GAME day=1', result.day === 1);
-  assert('NEW_GAME loopCount incremented', result.loopCount === 3);
+  assert('NEW_GAME uses Immer mutation contract', result === null);
+  assert('NEW_GAME day=1', s.day === 1);
+  assert('NEW_GAME loopCount incremented', s.loopCount === 3);
 }
 
 // ─── exploreSlice ────────────────────────────────────────────────

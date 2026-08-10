@@ -3,6 +3,7 @@
 import { rand, makeRand } from './utils.js';
 import { getSealState } from '../engine/WorldTimeSystem.js';
 import { getSanStageFromGD } from './sanReducer.js';
+import { getNpcStateByRef } from '../utils/npcStateAccess.js';
 import { applyEffects } from './effectReducer.js';
 
 // === Safehouse Degradation (was safehouseReducer.js) ===
@@ -110,7 +111,7 @@ export function processSafehouseNight(state, ctx, rng) {
   // Degradation triggers
   // P1-A: SSOT — explanation_loss (level >= 3) boosts corruption rate
   if (getSanStageFromGD(state.san).level >= 3) baseGain = Math.round(baseGain * 1.3);
-  if (state.npcStates['玛莎·格雷']?.corrupted) baseGain = Math.round(baseGain * 1.5); // Martha corrupted: +50%
+  if (getNpcStateByRef(state, '玛莎·格雷').corrupted) baseGain = Math.round(baseGain * 1.5); // Martha corrupted: +50%
   // DESIGN_REFACTOR_NOTES.md: "每轮回+2天腐蚀进度（loop 3后生效）"
   // After loop 3, the safehouse starts to remember. The walls know you've been here before.
   if ((state.loopCount || 0) >= 3) {
@@ -134,7 +135,7 @@ export function getItemDef(itemId, ctx) {
   return items.find((i) => i.id === itemId);
 }
 
-export function useItemByDef(state, item, narr, ctx) {
+export function useItemByDef(state, item, narr, ctx, rng) {
   const def = getItemDef(item.id, ctx);
   if (!def) return false;
 
@@ -148,7 +149,7 @@ export function useItemByDef(state, item, narr, ctx) {
   }
 
   if (def.effects && def.effects.length > 0) {
-    applyEffects(state, def.effects, { source: 'item_use', item_id: item.id });
+    applyEffects(state, def.effects, { source: 'item_use', item_id: item.id, rng: rng });
     const effectDesc = def.effects
       .map((e) => {
         if (e.type === 'modify_stat') return `${e.target} ${e.amount > 0 ? '+' : ''}${e.amount}`;

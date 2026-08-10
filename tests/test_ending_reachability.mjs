@@ -1,165 +1,398 @@
 /**
- * tests/test_ending_reachability.cjs
- * Ending reachability test.
+ * tests/test_ending_reachability.mjs
+ * Real ending-condition, clue-chain and final-choice integration tests.
  */
 import assert from 'assert';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+import {
+  CONDITION_VAR_MAP,
+  checkEndingDataDriven,
+  checkSingleCondition,
+  parseConditionString,
+} from '../src/reducers/endingReducer.js';
+import { injectBehaviorEndings } from '../src/data/behavior_endings.js';
+import { FEAR_ENDINGS, injectFearEndings } from '../src/data/events/events_fear_endings.js';
+import { ENDING_EVENT_CHOICES, injectEndingChoices } from '../src/data/endingChoiceAdapters.js';
+import { applyLegacyEffects } from '../src/reducers/effectReducer.js';
+import { ENDING_FLAG_RESOLVERS } from '../src/systems/endingStateResolver.js';
+import { checkChainCompletion } from '../src/utils/gameHelpers.js';
+import { hasTriggered, rebuildTriggeredSet } from '../src/utils/triggeredSet.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const ROOT = path.resolve(__dirname, '..');
+const baseData = JSON.parse(fs.readFileSync(path.join(ROOT, 'game_base.json'), 'utf8'));
+const chapterData = JSON.parse(fs.readFileSync(path.join(ROOT, 'game_ch2plus.json'), 'utf8'));
+
 let passed = 0;
 let failed = 0;
 
 function test(name, fn) {
-  try { fn(); passed++; console.log('  PASS: ' + name); }
-  catch (e) { failed++; console.log('  FAIL: ' + name + ' -> ' + (e.message || String(e)).split(String.fromCharCode(10))[0]); }
-}
-
-let GD = {};
-try { GD = JSON.parse(fs.readFileSync(path.join(ROOT, 'game_base.json'), 'utf8')); }
-catch (e) {}
-
-let _seed = 42;
-function seedRng(s) { _seed = s; }
-function srand() { _seed ^= _seed << 13; _seed ^= _seed >> 17; _seed ^= _seed << 5; return (_seed >>> 0) / 4294967296; }
-function randInt(min, max) { return Math.floor(srand() * (max - min + 1)) + min; }
-function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-
-function checkEndings(s) {
-  const bt = s.behaviorTracking || {};
-  const endings = [];
-  if (s.hp <= 0 || s.san <= 0) endings.push({ id: 'death' });
-  if (s.day > 28 && s.hp > 0 && s.san > 0) endings.push({ id: 'survival' });
-  if ((s.clues || []).length >= 5 && (s.discoveredConclusions || []).length >= 1) endings.push({ id: 'investigator' });
-  if (Object.values(s.npcTrust || {}).filter(v => v >= 4).length >= 3) endings.push({ id: 'social' });
-  if ((bt.self_harm_ritual_count || 0) + (bt.sacred_desecration_count || 0) >= 5) endings.push({ id: 'dark' });
-  if ((bt.cult_leader_score || 0) >= 5) endings.push({ id: 'cult' });
-  if ((s.humanityScore ?? 50) >= 80) endings.push({ id: 'humanity' });
-  if ((s.visitedAreas || []).length >= 8) endings.push({ id: 'explorer' });
-  return endings;
-}
-
-function simLoop(s, maxDays) {
-  for (let d = 1; d <= maxDays; d++) {
-    if (d > 1) s.ap = s.maxAp || 12;
-    let safety = 0;
-    while (s.ap > 0 && safety < 30) {
-      safety++;
-      const r = srand();
-      if (r < 0.3 && s.ap >= 2) {
-        s.ap -= 2;
-        if (srand() < 0.35) { s.clues = s.clues || []; s.clues.push({ id: 'c' + s.clues.length }); }
-        if (srand() < 0.15) s.san = clamp(s.san - randInt(1, 3), 0, s.maxSan);
-        const areas = GD.areas || [];
-        const a = areas[Math.floor(srand() * areas.length)];
-        if (a && !s.visitedAreas.includes(a.id)) s.visitedAreas.push(a.id);
-      } else if (r < 0.5 && s.ap >= 1) {
-        s.ap -= 1;
-        const npcs = GD.npcs || [];
-        const npc = npcs[Math.floor(srand() * npcs.length)];
-        if (npc) s.npcTrust[npc.name] = (s.npcTrust[npc.name] || 0) + (srand() < 0.5 ? 1 : 0);
-      } else if (r < 0.6 && s.ap >= 2) {
-        s.ap -= 2; s.money += randInt(3, 10); s.behaviorTracking.work_count++;
-      } else if (r < 0.65) {
-        s.ap = 0; s.food = Math.max(0, (s.food || 0) - 1);
-        if (s.food > 0) { s.hp = clamp(s.hp + 1, 0, s.maxHp); s.san = clamp(s.san + 1, 0, s.maxSan); }
-        else { s.hp = Math.max(0, s.hp - 1); }
-        s.day++;
-      } else { s.ap -= 1; }
-      if (s.hp <= 0 || s.san <= 0) break;
-    }
-    if (s.hp <= 0 || s.san <= 0) break;
-    if (s.day > 28) break;
+  try {
+    fn();
+    passed++;
+    console.log('  PASS: ' + name);
+  } catch (error) {
+    failed++;
+    console.log('  FAIL: ' + name + ' -> ' + (error.message || String(error)).split('\n')[0]);
   }
-  return s;
 }
 
-function mkState() {
-  return {
-    day: 1, ap: 12, maxAp: 12, hp: 11, maxHp: 11, san: 60, maxSan: 99,
-    currentArea: 'town_center', visitedAreas: ['town_center'],
-    clues: [], npcTrust: {}, npcStates: {}, triggeredEvents: [],
-    stats_run: { deaths: 0, runs: 0 }, food: 3, maxFood: 5, money: 5,
-    loopCount: 0, pollution: 0, retainedKnowledge: [], discoveredConclusions: [],
-    mythosLevel: 0, humanityScore: 50, activeBlessings: [], endingCoins: 0,
-    loopShopTier: 0, ending: null, endingHistory: [], previousEndings: [],
-    behaviorTracking: { self_harm_ritual_count: 0, sacred_desecration_count: 0, cannibalism_count: 0, cult_leader_score: 0, work_count: 0, harbor_visits: 0, loop_break_attempts: 0, _npc_harm_tally: {} },
-    deathContext: null, starvationDays: 0, safehouseCorruption: 0, npcRelations: {},
-    previousDeathContext: null, lastDeathType: null, lastDeathMode: null,
-    prologue: null, fearTuning: null, _npcTrustLocked: {}, inventory: [], skills: {},
-    longTermEffects: [], screen: 'game',
+function makeState(overrides) {
+  var defaults = {
+    day: 20,
+    hp: 10,
+    maxHp: 10,
+    san: 60,
+    maxSan: 99,
+    currentArea: 'town_center',
+    visitedAreas: ['town_center'],
+    clues: [],
+    completedChains: [],
+    discoveredConclusions: [],
+    inventory: [],
+    npcTrust: {},
+    npcStates: {},
+    skills: {},
+    triggeredEvents: [],
+    unlockedEndingConditions: [],
+    everTriggeredEvents: [],
+    retainedKnowledge: [],
+    fearTuning: null,
+    mythosLevel: 0,
+    humanityScore: 50,
+    infection: 0,
+    loopCount: 0,
+    pollution: 0,
+    safehouseCorruption: 0,
+    sealState: 'intact',
+    difficultyLevel: 1,
+    behaviorTracking: {},
+    _sealKnowledge: {},
   };
+  var state = {
+    ...defaults,
+    ...(overrides || {}),
+    behaviorTracking: {
+      ...defaults.behaviorTracking,
+      ...((overrides && overrides.behaviorTracking) || {}),
+    },
+  };
+  rebuildTriggeredSet(state);
+  return state;
 }
 
-function transition(s) {
-  const f = mkState();
-  f.loopCount = (s.loopCount || 0) + 1;
-  f.loopShopTier = s.loopShopTier || 0;
-  if (f.loopCount >= 5 && f.loopShopTier < 1) f.loopShopTier = 1;
-  if (f.loopCount >= 7 && f.loopShopTier < 2) f.loopShopTier = 2;
-  f.retainedKnowledge = [...(s.retainedKnowledge || [])];
-  f.discoveredConclusions = [...(s.discoveredConclusions || [])];
-  f.humanityScore = s.humanityScore ?? 50;
-  f.endingCoins = s.endingCoins || 0;
-  f.clues = []; f.visitedAreas = ['town_center']; f.npcTrust = {};
-  const lk = f.loopCount <= 5 ? 'loop_' + f.loopCount : 'loop_6_plus';
-  const eff = GD.systems && GD.systems.loop && GD.systems.loop.loop_count_effects && GD.systems.loop.loop_count_effects[lk];
-  if (eff) { f.maxSan = Math.max(10, 99 + (eff.san_cap_reduction || 0)); f.pollution = eff.pollution_intensity || 0; }
-  f.pollution = Math.min(1, (f.pollution || 0) + (f.loopCount >= 6 ? 0.08 : 0.05) * f.loopCount);
-  const bt = s.behaviorTracking || {};
-  Object.keys(bt).forEach(k => { if (k !== '_npc_harm_tally' && k !== 'sleep_streak') f.behaviorTracking[k] = bt[k] || 0; });
-  return f;
+function assertEndingReachable(endingId, state) {
+  assert.ok(
+    chapterData.endings.some(function (entry) {
+      return entry.id === endingId;
+    }),
+    'missing ending definition: ' + endingId
+  );
+  // Use the complete main-ending list so an earlier broad condition cannot
+  // silently make a later ending unreachable through ordering.
+  var result = checkEndingDataDriven(state, { GD: { endings: chapterData.endings } });
+  assert.ok(result, endingId + ' should match its gameplay-produced state');
+  assert.strictEqual(result.id, endingId);
+}
+
+function collectLeaves(condition) {
+  if (!condition || typeof condition !== 'object') return [];
+  if (condition.type === 'and_group' || condition.type === 'or_group') {
+    return condition.conditions.flatMap(collectLeaves);
+  }
+  return [condition];
 }
 
 console.log('=== Ending Reachability Tests ===');
 
-test('E1: death ending reachable in 15 loops', () => {
-  seedRng(42); let s = mkState(); let found = false;
-  for (let i = 0; i < 15; i++) { s = simLoop(s, 28); if (checkEndings(s).some(e => e.id === 'death')) { found = true; break; } s = transition(s); }
-  assert.ok(found);
+test('condition parser supports string equality and rejects unknown variables', function () {
+  var ocean = makeState({ fearTuning: { primary: 'ocean' } });
+  assert.strictEqual(
+    checkSingleCondition(ocean, parseConditionString('fear_primary == ocean')),
+    true
+  );
+  assert.strictEqual(
+    checkSingleCondition(ocean, parseConditionString('fear_primary == body')),
+    false
+  );
+  assert.strictEqual(
+    checkSingleCondition(ocean, parseConditionString('unknown_counter == value')),
+    false
+  );
 });
 
-test('E2: explorer ending reachable in 10 loops', () => {
-  seedRng(100); let s = mkState(); let found = false;
-  for (let i = 0; i < 10; i++) { s = simLoop(s, 28); if (checkEndings(s).some(e => e.id === 'explorer')) { found = true; break; } s = transition(s); }
-  assert.ok(found);
+test('condition parser preserves AND-before-OR precedence', function () {
+  var state = makeState({ san: 0, completedChains: ['chain_a', 'chain_b'] });
+  var condition = parseConditionString(
+    'player_san <= 0 OR player_san_very_low AND clue_chains_insufficient OR mythos_high_humanity_low'
+  );
+  assert.strictEqual(checkSingleCondition(state, condition), true);
 });
 
-test('E3: social ending reachable in 10 loops', () => {
-  seedRng(200); let s = mkState(); let found = false;
-  for (let i = 0; i < 10; i++) { s = simLoop(s, 28); if (checkEndings(s).some(e => e.id === 'social')) { found = true; break; } s = transition(s); }
-  assert.ok(found);
+test('all registered ending strings use supported grammar and variables', function () {
+  var GD = { endings: [...(baseData.endings || []), ...(chapterData.endings || [])] };
+  injectBehaviorEndings(GD);
+  injectFearEndings(GD);
+  var errors = [];
+  for (const ending of GD.endings) {
+    var strings = [
+      ...(ending.conditions || ending.required_conditions || []),
+      ...(ending.blocking_conds || ending.blocking_conditions || []),
+    ].filter(function (entry) {
+      return typeof entry === 'string';
+    });
+    for (const source of strings) {
+      var leaves = collectLeaves(parseConditionString(source));
+      for (const leaf of leaves) {
+        if (leaf.type === 'always_true') errors.push(ending.id + ': unsupported "' + source + '"');
+        if (leaf.varName && !CONDITION_VAR_MAP[leaf.varName]) {
+          errors.push(ending.id + ': unknown variable ' + leaf.varName);
+        }
+      }
+    }
+  }
+  assert.deepStrictEqual(errors, []);
 });
 
-test('E4: at least 1 ending in 15 loops (balanced)', () => {
-  seedRng(42); let s = mkState(); let all = new Set();
-  for (let i = 0; i < 15; i++) { s = simLoop(s, 28); checkEndings(s).forEach(e => all.add(e.id)); s = transition(s); }
-  assert.ok(all.size >= 1, 'got: ' + [...all].join(', '));
+test('every semantic main-ending flag has a resolver or final-choice producer', function () {
+  var producedFlags = new Set();
+  for (const choices of Object.values(ENDING_EVENT_CHOICES)) {
+    for (const choice of choices) {
+      var flags = choice.effects && choice.effects.add_flag;
+      if (!Array.isArray(flags)) flags = flags ? [flags] : [];
+      flags.forEach(function (flag) {
+        producedFlags.add(flag);
+      });
+    }
+  }
+
+  var missing = [];
+  for (const ending of chapterData.endings) {
+    for (const source of ending.required_conditions || []) {
+      for (const leaf of collectLeaves(parseConditionString(source))) {
+        if (
+          leaf.type === 'has_flag' &&
+          !ENDING_FLAG_RESOLVERS[leaf.flag_id] &&
+          !producedFlags.has(leaf.flag_id)
+        ) {
+          missing.push(ending.id + ': ' + leaf.flag_id);
+        }
+      }
+    }
+  }
+  assert.deepStrictEqual(missing, []);
 });
 
-test('E5: multiple ending directions in 15 loops', () => {
-  seedRng(42); let s = mkState(); let all = new Set();
-  for (let i = 0; i < 15; i++) { s = simLoop(s, 28); checkEndings(s).forEach(e => all.add(e.id)); s = transition(s); }
-  assert.ok(all.size >= 2, 'got ' + all.size + ': ' + [...all].join(', '));
+const MAIN_ENDING_STATES = {
+  ending_seal_player_keeper: makeState({
+    san: 65,
+    completedChains: ['chain_harbor', 'chain_morris'],
+    npcTrust: { old_fisher: 5 },
+    npcStates: { hilda_morris: { redeemed: true } },
+    triggeredEvents: ['has_complete_seal_ritual', 'player_chose_self_sacrifice_in_final'],
+  }),
+  ending_seal_hilda_choice: makeState({
+    completedChains: ['chain_morris'],
+    npcTrust: { hilda_morris: 5 },
+    npcStates: { hilda_morris: { redeemed: true } },
+    triggeredEvents: ['player_told_full_truth_to_hilda'],
+  }),
+  ending_seal_old_fisher_blood: makeState({
+    completedChains: ['chain_harbor'],
+    discoveredConclusions: ['conclusion_fisher_key_blood'],
+    npcTrust: { old_fisher: 5 },
+  }),
+  ending_isabella_twelfth_bell: makeState({
+    completedChains: ['chain_heretical'],
+    discoveredConclusions: ['conclusion_bell_ritual_link'],
+    npcStates: { isabella_weber: { redeemed: true } },
+    triggeredEvents: ['nyarlathotep_deception_proven'],
+  }),
+  ending_escape_by_sea: makeState({
+    san: 45,
+    safehouseCorruption: 20,
+    npcTrust: { old_fisher: 3 },
+    inventory: [{ id: 'clue_item_0', name: '潮汐时刻表', uses: 1 }],
+    triggeredEvents: ['evt_ch5_escape_boat_route_confirmed'],
+  }),
+  ending_evidence_escape: makeState({
+    sealState: 'critical',
+    npcTrust: { elias_ward: 4 },
+    triggeredEvents: [
+      'evt_ch1_tommy_photo',
+      'evt_ch5_escape_boat_route_confirmed',
+      'player_left_city',
+    ],
+  }),
+  ending_heretical_dawn: makeState({
+    sealState: 'broken',
+    triggeredEvents: ['player_joined_isabella_ritual'],
+  }),
+  ending_abyss_consumed: makeState({
+    currentArea: 'deep_catacombs',
+    sealState: 'critical',
+    san: 0,
+    completedChains: ['chain_a', 'chain_b'],
+  }),
+  ending_transcendence: makeState({
+    san: 65,
+    mythosLevel: 20,
+    completedChains: ['chain_yith_knowledge'],
+    inventory: [{ id: 'clue_item_21', name: '时间碎片', uses: 1 }],
+    triggeredEvents: ['evt_geometry_trap_skill_success'],
+  }),
+  ending_loop_truth: makeState({
+    loopCount: 5,
+    pollution: 0.2,
+    completedChains: ['chain_harbor', 'chain_morris'],
+    _sealKnowledge: { attemptedRituals: ['evt_seal_ritual'], hildaInvolved: true },
+  }),
+};
+
+for (const [endingId, state] of Object.entries(MAIN_ENDING_STATES)) {
+  test('main ending reachable: ' + endingId, function () {
+    assertEndingReachable(endingId, state);
+  });
+}
+
+const FEAR_ENDING_STATES = {
+  ocean: makeState({
+    fearTuning: { primary: 'ocean' },
+    visitedAreas: new Array(10).fill('harbor_district'),
+    san: 25,
+    loopCount: 3,
+    behaviorTracking: { sea_acceptance_flags: 3, direct_kill_count: 0 },
+  }),
+  body: makeState({
+    fearTuning: { primary: 'body' },
+    infection: 5,
+    san: 30,
+    loopCount: 2,
+    behaviorTracking: { fusion_accepted_count: 3, hoarded_food_max: 0 },
+  }),
+  control: makeState({
+    fearTuning: { primary: 'control' },
+    difficultyLevel: 10,
+    behaviorTracking: {
+      meta_boundary_breaks: 4,
+      loop_break_attempts: 3,
+      save_delete_attempts: 1,
+      safehouse_stay_days: 0,
+    },
+  }),
+  isolation: makeState({
+    fearTuning: { primary: 'isolation' },
+    san: 35,
+    loopCount: 2,
+    npcTrust: { martha_grey: 2 },
+    behaviorTracking: { safehouse_stay_days: 12, low_intervention_count: 8, redeemed_npcs: 0 },
+  }),
+  knowledge: makeState({
+    fearTuning: { primary: 'knowledge' },
+    san: 30,
+    loopCount: 3,
+    mythosLevel: 20,
+    behaviorTracking: { clue_finds: 25, archive_consumed_count: 8, hoarded_food_max: 0 },
+  }),
+  morality: makeState({
+    fearTuning: { primary: 'morality' },
+    loopCount: 2,
+    npcTrust: { hilda_morris: 5, old_fisher: 5, martha_grey: 5 },
+    behaviorTracking: {
+      redeemed_npcs: 2,
+      self_sacrifice_for_power: 1,
+      direct_kill_count: 0,
+      cannibalism_count: 0,
+    },
+  }),
+};
+
+for (const fearEnding of FEAR_ENDINGS) {
+  test('fear ending reachable: ' + fearEnding.id, function () {
+    var GD = { endings: [] };
+    injectFearEndings(GD);
+    var result = checkEndingDataDriven(FEAR_ENDING_STATES[fearEnding.fear_required], { GD: GD });
+    assert.ok(result, fearEnding.id + ' should be reachable');
+    assert.strictEqual(result.id, fearEnding.id);
+  });
+}
+
+test('real clue chains resolve events, stable NPC ids, items and composite sources', function () {
+  var state = makeState({
+    triggeredEvents: [
+      'evt_missing_poster',
+      'evt_fisherman_warning',
+      'evt_warehouse_key',
+      'evt_lighthouse_light',
+      'evt_underwater_temple',
+      'evt_portrait_watch',
+      'evt_basement_depth',
+      'evt_library_secret',
+      'evt_seal_ritual',
+      'evt_strange_clock',
+      'evt_church_bell',
+      'evt_beggar_clue',
+      'evt_ch2_church_basement',
+    ],
+    npcTrust: {
+      martha_grey: 1,
+      old_fisher: 5,
+      joshua_black: 3,
+      hilda_morris: 5,
+      elias_ward: 5,
+      isabella_weber: 5,
+    },
+  });
+  applyLegacyEffects(state, {
+    items: ['封印仪式记录（关键线索）', '古树种子', '扭曲的圣经页'],
+  });
+  checkChainCompletion(state, function () {}, { GD: { clue_chains: baseData.clue_chains } });
+
+  assert.deepStrictEqual([...state.completedChains].sort(), [
+    'chain_harbor',
+    'chain_heretical',
+    'chain_morris',
+  ]);
+  assert.strictEqual(hasTriggered(state, 'chain_harbor_completed'), true);
+  assert.strictEqual(hasTriggered(state, 'chain_morris_completed'), true);
+  assert.strictEqual(hasTriggered(state, 'chain_heretical_completed'), true);
+  assert.ok(
+    state.inventory.some(function (item) {
+      return item.name === '古树种子';
+    })
+  );
 });
 
-test('E6: ending system infrastructure exists', () => {
-  // Check that ending reducer file exists and exports checkEnding
-  const endingPath = path.join(ROOT, 'src', 'reducers', 'endingReducer.js');
-  const deathPath = path.join(ROOT, 'src', 'reducers', 'deathSystem.js');
-  assert.ok(fs.existsSync(endingPath), 'endingReducer.js should exist');
-  assert.ok(fs.existsSync(deathPath), 'deathSystem.js should exist');
-  const endingContent = fs.readFileSync(endingPath, 'utf8');
-  assert.ok(endingContent.includes('checkEnding'), 'should export checkEnding');
-  const deathContent = fs.readFileSync(deathPath, 'utf8');
-  assert.ok(deathContent.includes('resolveDeath'), 'should export resolveDeath');
-  assert.ok(deathContent.includes('getDeathText'), 'should export getDeathText');
+test('chapter-five ending choices are injected once and produce canonical flags', function () {
+  var GD = { events: JSON.parse(JSON.stringify(chapterData.events)) };
+  injectEndingChoices(GD);
+  injectEndingChoices(GD);
+  var expected = [
+    'evt_ch5_final_ritual_begin',
+    'evt_ch5_fisher_answer',
+    'evt_ch5_escape_boat',
+    'evt_ch5_nyarlathotep_offer',
+  ];
+  for (const eventId of expected) {
+    var event = GD.events.find(function (entry) {
+      return entry.id === eventId;
+    });
+    assert.ok(event && event.choices.length >= 2, eventId + ' should expose player decisions');
+  }
+
+  var state = makeState();
+  var finalEvent = GD.events.find(function (entry) {
+    return entry.id === 'evt_ch5_final_ritual_begin';
+  });
+  applyLegacyEffects(state, finalEvent.choices[0].effects);
+  assert.strictEqual(hasTriggered(state, 'has_complete_seal_ritual'), true);
+  assert.strictEqual(hasTriggered(state, 'player_chose_self_sacrifice_in_final'), true);
 });
 
 console.log('');
 console.log('=== Ending Reachability Tests ===');
 console.log('  ' + passed + ' passed, ' + failed + ' failed');
-if (failed > 0 && typeof process !== 'undefined') process.exit(1);
+if (failed > 0) process.exit(1);

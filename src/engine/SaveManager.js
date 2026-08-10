@@ -12,12 +12,18 @@ var _toPersistedState = null;
 
 /**
  * Inject save migration dependencies. Call once at app startup.
- * @param {{ SAVE_VERSION?: number, migrateSaveData?: function, toPersistedState?: function }} deps
+ * @param {{ SAVE_VERSION?: number, migrateSaveData?: function, toPersistedState?: function, persistedStateKeys?: string[] }} deps
  */
 export function configureSaveManager(deps) {
-  if (deps.SAVE_VERSION != null) _SAVE_VERSION = deps.SAVE_VERSION;
+  if (deps.SAVE_VERSION != null) {
+    _SAVE_VERSION = deps.SAVE_VERSION;
+    SAVE_FORMAT_SPEC.currentVersion = _SAVE_VERSION;
+  }
   if (deps.migrateSaveData) _migrateSaveData = deps.migrateSaveData;
   if (deps.toPersistedState) _toPersistedState = deps.toPersistedState;
+  if (Array.isArray(deps.persistedStateKeys)) {
+    SAVE_FORMAT_SPEC.allowedStateKeys = Array.from(new Set(deps.persistedStateKeys));
+  }
 }
 
 /**
@@ -235,12 +241,20 @@ export const SAVE_FORMAT_SPEC = {
   requiredStateKeys: [
     'stats', 'hp', 'maxHp', 'san', 'maxSan', 'luck', 'mp',
     'skills', 'archetype', 'inventory', 'clues',
-    'currentArea', 'visitedAreas', 'npcTrust', 'sealState',
-    'weather', 'safehouseCorruption', 'dayCount',
-    'flags', 'eventLog', 'runMemory',
+    'currentArea', 'visitedAreas', 'npcTrust', 'npcStates', 'npcRelations',
+    'sealState', 'weather', 'safehouseCorruption', 'currentSafehouse',
+    'day', 'ap', 'maxAp', 'food', 'money', 'loopCount', 'runSeed',
+    'objectives', 'triggeredEvents', 'triggeredSilentEvents',
+    'eventLog', 'runMemory',
     'behaviorTracking',
   ],
-  transientKeys: ['_effects', '_lastAction', '_runtime', '_debug', '_actionHistory'],
+  // configureSaveManager replaces this with the complete list generated from
+  // initialState. The fallback keeps standalone engine tests functional.
+  allowedStateKeys: [],
+  transientKeys: [
+    '_GD', '_effects', '_lastAction', '_runtime', '_debug', '_actionHistory',
+    '_actionIndex', '_triggeredSet', '_silentSet', 'areaNameCache', 'glitchPulse',
+  ],
   /**
    * Compute a checksum of the save format structure.
    * Used to detect unexpected format drift between versions.
@@ -252,10 +266,13 @@ export const SAVE_FORMAT_SPEC = {
       this.topLevelKeys.length,
       this.metaKeys.length,
       this.requiredStateKeys.length,
+      this.allowedStateKeys.length,
       this.transientKeys.length,
     ].join(':');
   },
 };
+
+SAVE_FORMAT_SPEC.allowedStateKeys = SAVE_FORMAT_SPEC.requiredStateKeys.slice();
 
 // ────────────────────────────────────────────────
 // SECTION: Save Security (ADR-010)
@@ -298,6 +315,7 @@ var DANGEROUS_VALUE_PATTERNS = [
 
 var SAVE_MAX_DEPTH = 10;
 var SAVE_MAX_ARRAY_LENGTH = 500;
+var SAVE_MAX_STRING_LENGTH = 10000;
 
 /**
  * Deep-scan an object for dangerous keys and values.
@@ -356,6 +374,30 @@ function scanSaveSecurity(obj, path) {
  * Deep-clone an object, keeping only whitelisted keys.
  * Strips unknown keys, enforces type constraints, and sanitizes arrays.
  */
+function sanitizeJsonValue(value, depth) {
+  depth = depth || 0;
+  if (depth > SAVE_MAX_DEPTH) return null;
+  if (value === null || value === undefined) return value;
+  if (typeof value === 'string') return value.slice(0, SAVE_MAX_STRING_LENGTH);
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  if (typeof value === 'boolean') return value;
+  if (Array.isArray(value)) {
+    return value.slice(0, SAVE_MAX_ARRAY_LENGTH).map(function (entry) {
+      return sanitizeJsonValue(entry, depth + 1);
+    });
+  }
+  if (typeof value === 'object') {
+    var clean = {};
+    for (var key in value) {
+      if (!Object.prototype.hasOwnProperty.call(value, key)) continue;
+      if (DANGEROUS_KEY_PATTERNS.indexOf(key) >= 0) continue;
+      clean[key] = sanitizeJsonValue(value[key], depth + 1);
+    }
+    return clean;
+  }
+  return null;
+}
+
 function sanitizeSaveState(rawState, allowedKeys) {
   if (!rawState || typeof rawState !== 'object') return null;
 
@@ -390,14 +432,7 @@ function sanitizeSaveState(rawState, allowedKeys) {
         continue;
       case 'behaviorTracking':
         if (!val || typeof val !== 'object') { state[key] = {}; continue; }
-        var bt = {};
-        for (var bk in val) {
-          if (!Object.prototype.hasOwnProperty.call(val, bk)) continue;
-          var bv = val[bk];
-          if (DANGEROUS_KEY_PATTERNS.indexOf(bk) >= 0) continue;
-          bt[bk] = typeof bv === 'number' ? bv : 0;
-        }
-        state[key] = bt;
+        state[key] = sanitizeJsonValue(val, 0);
         continue;
       case 'npcTrust':
         if (!val || typeof val !== 'object') { state[key] = {}; continue; }
@@ -426,18 +461,31 @@ function sanitizeSaveState(rawState, allowedKeys) {
       case 'mp':
       case 'food':
       case 'money':
-      case 'dayCount':
+      case 'day':
+      case 'ap':
+      case 'maxAp':
+      case 'loopCount':
+      case 'difficultyLevel':
       case 'safehouseCorruption':
       case 'pollution':
       case 'mythosLevel':
-      case 'humanity':
+      case 'humanityScore':
       case 'lightLevel':
+      case 'maxFood':
+      case 'fatigue':
+      case 'maxFatigue':
+      case 'infection':
+      case 'maxInfection':
         state[key] = typeof val === 'number' ? Math.max(0, val) : 0;
         continue;
       case 'currentArea':
       case 'sealState':
       case 'weather':
       case 'archetype':
+      case 'currentSafehouse':
+      case 'currentChapter':
+      case 'difficulty':
+      case 'runSeed':
         state[key] = typeof val === 'string' ? val : '';
         continue;
       default:
@@ -445,16 +493,9 @@ function sanitizeSaveState(rawState, allowedKeys) {
         if (val === null || val === undefined) {
           state[key] = val;
         } else if (Array.isArray(val)) {
-          state[key] = val.slice(0, SAVE_MAX_ARRAY_LENGTH);
+          state[key] = sanitizeJsonValue(val, 0);
         } else if (typeof val === 'object') {
-          // Deep clone with dangerous key stripping
-          var clean = {};
-          for (var ck in val) {
-            if (!Object.prototype.hasOwnProperty.call(val, ck)) continue;
-            if (DANGEROUS_KEY_PATTERNS.indexOf(ck) >= 0) continue;
-            clean[ck] = val[ck];
-          }
-          state[key] = clean;
+          state[key] = sanitizeJsonValue(val, 0);
         } else {
           state[key] = val;
         }
@@ -544,7 +585,7 @@ export function validateSaveSchema(saveData) {
   }
 
   // Build sanitized state (whitelist + type enforcement)
-  var sanitizedState = sanitizeSaveState(saveData.state, SAVE_FORMAT_SPEC.requiredStateKeys);
+  var sanitizedState = sanitizeSaveState(saveData.state, SAVE_FORMAT_SPEC.allowedStateKeys);
 
   // ── Build sanitized wrapper ──
   var sanitized = {

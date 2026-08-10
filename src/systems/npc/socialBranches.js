@@ -7,13 +7,12 @@ import { getSanStageFromGD, getSanTextVariant } from '../../reducers/sanReducer.
 import { getDifficultyNpcTrustMultiplier, getDifficultyNpcSuspicion } from '../../systems/npcDialogue.js';
 import { getFakeTrustHint } from '../../systems/sanConsequenceChain.js';
 import { computeNpcFeedback, getTrustTierInfo } from '../../systems/npcFeedback.js';
-import { getNpcTrust, setNpcTrust, modHumanity, addRunMemory, narrApInsufficient } from '../../utils/appHelpers.js';
+import { getNpcState, getNpcTrust, setNpcState, setNpcTrust, modHumanity, addRunMemory, narrApInsufficient } from '../../utils/appHelpers.js';
 import { checkTrustGate } from '../../utils/trustGates.js';
 import { hasClueId, resolveClueName } from '../../utils/clueNameMap.js';
 import { setCorruptionFlag } from '../../reducers/npcReducer.js';
 import { propagateTrustChange, propagateFactionStanding } from '../../systems/npcRelationshipSystem.js';
 import { checkObjCompletion } from '../../reducers/objectiveReducer.js';
-import { _warnTrustDrop } from './npcResponseDispatcher.js';
 
 export function _executeTrustUp(s, npc, trust, ns, c, ctx) {
   // Daily limit: each NPC can only gain trust once per day
@@ -30,7 +29,7 @@ export function _executeTrustUp(s, npc, trust, ns, c, ctx) {
   // Feature 2: High difficulty suspicion — NPC may refuse at difficulty >= 7
   var _trustMult = getDifficultyNpcTrustMultiplier(s.difficultyLevel);
   var _suspicion = getDifficultyNpcSuspicion(s.difficultyLevel);
-  if (_suspicion > 0 && (c.rng ? c.rng.next() : Math.random()) < _suspicion * 0.15) {
+  if (_suspicion > 0 && c.rng.next() < _suspicion * 0.15) {
     c.narr('system', npc.name + '看着你，似乎在犹豫什么。' + (s.difficultyLevel >= 13 ? '现在不是合适的时候。' : '今天……不太方便。'));
     s.pendingNpc = null;
     return;
@@ -42,7 +41,7 @@ export function _executeTrustUp(s, npc, trust, ns, c, ctx) {
     s.pendingNpc = null;
     return;
   }
-  if (ns.corrupted && (c.rng ? c.rng.next() : Math.random()) < 0.6) {
+  if (ns.corrupted && c.rng.next() < 0.6) {
     c.narr('system', npc.name + '似乎很热情地回应你，但你隐约感到有些不对劲。');
     s.pendingNpc = null;
     return;
@@ -131,12 +130,18 @@ export function _executeRedeem(s, npc, trust, c, ctx) {
   var rKey = npcRedemptionMap[npc.name];
   var redemption = GD.implementation_notes?.npc_redemption?.characters?.[rKey];
   if (redemption) {
+    var oldTrust = getNpcTrust(s, npc.name);
+    var newTrust = Math.min(5, oldTrust + 3);
+    var trustDelta = newTrust - oldTrust;
     c.narr('system', redemption.redemption_text);
     setNpcState(s, npc.name, {
       ...getNpcState(s, npc.name),
       corrupted: false,
       redeemed: true,
     });
+    setNpcTrust(s, npc.name, newTrust);
+    propagateTrustChange(npc.name, trustDelta, s, c);
+    propagateFactionStanding(npc.name, trustDelta, s);
     c.bt.redeemed_npcs = (c.bt.redeemed_npcs || 0) + 1;
     modHumanity(s, 15, '选择自己承担代价，救赎' + npc.name, c.rng);
   } else {

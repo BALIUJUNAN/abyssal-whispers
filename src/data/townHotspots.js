@@ -9,6 +9,7 @@
 
 import { isAreaUnlocked } from '../utils/gameHelpers.js';
 import { getAvailableSafehouses } from '../utils/appHelpers.js';
+import { getConnectedAreas } from '../engine/WorldTimeSystem.js';
 
 export const TOWN_HOTSPOTS = [
   // ─── 核心区域（9个） ────────────────────────────────────────
@@ -208,9 +209,9 @@ export const TOWN_HOTSPOTS = [
     description: '如果酒馆不再安全，这里也许可以。',
     glowColor: '#5a8a5a',
     actions: ['switch_safehouse'],
-    visibleWhen: (state) => {
-      const shs = getAvailableSafehouses ? getAvailableSafehouses(state) : [];
-      return shs.length > 1;
+    visibleWhen: (state, ctx) => {
+      const shs = getAvailableSafehouses(state, ctx);
+      return shs.length > 0;
     },
   },
 ];
@@ -223,17 +224,18 @@ export function getHotspotById(id) {
   return TOWN_HOTSPOTS.find((h) => h.id === id) || null;
 }
 
-export function getVisibleHotspots(state) {
+export function getVisibleHotspots(state, ctx) {
   return TOWN_HOTSPOTS.filter((h) => {
     // 区域热点：始终显示（但可能灰显/锁定）
     if (h.type === 'area') return true;
     // 建筑热点：根据 visibleWhen 条件判断
-    if (h.visibleWhen) return h.visibleWhen(state);
+    if (h.visibleWhen) return h.visibleWhen(state, ctx);
     return true;
   });
 }
 
-export function isHotspotUnlocked(hotspot, state) {
+export function isHotspotUnlocked(hotspot, state, ctx) {
+  const GD = ctx?.GD || {};
   if (hotspot.unlocked === true) return true;
   if (hotspot.unlocked === false) {
     // 使用 areaRegistry 的解锁逻辑
@@ -248,7 +250,7 @@ export function isHotspotUnlocked(hotspot, state) {
 export function getHotspotState(hotspot, state, ctx) {
   if (hotspot.type !== 'area') return 'available';
   if (state.currentArea === hotspot.areaId) return 'current';
-  if (!isHotspotUnlocked(hotspot, state)) return 'locked';
+  if (!isHotspotUnlocked(hotspot, state, ctx)) return 'locked';
   const conn =
     ctx && typeof getConnectedAreas === 'function' ? getConnectedAreas(state.currentArea, ctx) : [];
   if (conn.includes(hotspot.areaId)) return 'reachable';

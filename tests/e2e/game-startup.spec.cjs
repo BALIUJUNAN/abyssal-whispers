@@ -1,56 +1,34 @@
-// tests/e2e/game-startup.spec.cjs
-// Phase 4: Verify the game starts correctly from title screen to game screen.
 const { test, expect } = require('@playwright/test');
+const { openFreshGame } = require('./helpers.cjs');
 
 test.describe('Game Startup', function () {
+  test.beforeEach(async function ({ page }) {
+    await openFreshGame(page);
+  });
+
   test('title screen loads with correct content', async function ({ page }) {
-    await page.goto('/');
-    // Wait for loading screen to disappear
-    await page.waitForSelector('#loading-screen', { state: 'hidden', timeout: 10000 }).catch(function () {});
-    await page.waitForTimeout(2000);
-
-    // Verify title screen content
-    await expect(page.locator('.title-screen')).toBeVisible();
-    await expect(page.locator('text=深渊低语')).toBeVisible();
-    await expect(page.locator('text=沃切斯特之影')).toBeVisible();
-    await expect(page.locator('.btn-primary')).toBeVisible();
+    await expect(page.locator('.title-screen h1')).toContainText('深渊低语');
+    await expect(page.locator('.title-screen h2')).toContainText('沃切斯特之影');
+    await expect(page.locator('.title-screen .btn-primary')).toBeVisible();
   });
 
-  test('start button navigates to character creation', async function ({ page }) {
-    await page.goto('/');
-    await page.waitForSelector('#loading-screen', { state: 'hidden', timeout: 10000 }).catch(function () {});
-    await page.waitForTimeout(2000);
-
-    // Click start button
-    await page.click('.btn-primary:has-text("踏入深渊")');
-    await page.waitForTimeout(1000);
-
-    // Should be on survival guide or character creation screen
-    const onGuide = await page.locator('.guide-journal-title').isVisible().catch(function () { return false; });
-    const onCreation = await page.locator('.char-creation').isVisible().catch(function () { return false; });
-    expect(onGuide || onCreation).toBe(true);
+  test('start button navigates to the prologue', async function ({ page }) {
+    await page.locator('.title-screen .btn-primary').click();
+    await expect(page.locator('.prologue-screen')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.prologue-choice-btn').first()).toBeVisible();
   });
 
-  test('start button on empty save navigates to guide then creation', async function ({ page }) {
-    // Clear any existing save data
-    await page.evaluate(function () { localStorage.clear(); });
+  test('skipping the prologue reaches guide then character creation', async function ({ page }) {
+    await page.locator('.title-screen .btn-primary').click();
+    await expect(page.locator('.prologue-screen')).toBeVisible({ timeout: 5000 });
 
-    await page.goto('/');
-    await page.waitForSelector('#loading-screen', { state: 'hidden', timeout: 10000 }).catch(function () {});
-    await page.waitForTimeout(2000);
+    page.once('dialog', function (dialog) { return dialog.accept(); });
+    await page.locator('.prologue-skip button').click();
+    await expect(page.locator('.guide-journal')).toBeVisible({ timeout: 5000 });
 
-    await page.click('.btn-primary:has-text("踏入深渊")');
-    await page.waitForTimeout(500);
-
-    // Should show survival guide (first-run experience)
-    const guideVisible = await page.locator('.guide-journal').isVisible().catch(function () { return false; });
-    if (guideVisible) {
-      await page.click('.guide-continue-btn:has-text("我准备好了")');
-      await page.waitForTimeout(500);
-    }
-
-    // Should eventually reach character creation
-    const creationVisible = await page.locator('.char-creation').isVisible().catch(function () { return false; });
-    expect(creationVisible || guideVisible).toBe(true);
+    var continueButton = page.locator('.guide-continue-btn');
+    await expect(continueButton).toBeVisible({ timeout: 10000 });
+    await continueButton.click();
+    await expect(page.locator('.char-creation')).toBeVisible({ timeout: 5000 });
   });
 });

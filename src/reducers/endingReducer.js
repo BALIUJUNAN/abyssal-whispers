@@ -6,10 +6,18 @@
 
 import { hasClueId } from '../utils/clueNameMap.js';
 import { hasTriggered } from '../utils/triggeredSet.js';
+import {
+  getNpcAgencyForEnding,
+  getNpcTrustForEnding,
+  hasEndingFlag,
+} from '../systems/endingStateResolver.js';
 // v0.9.0: Implicit ending system — shadow scores, mutual exclusions, dormant counters
 import {
-  isEndingBlocked, checkCrossDependencies, getEndingEntropy,
-  getApproachingEndings, enrichBehaviorEndings,
+  isEndingBlocked,
+  checkCrossDependencies,
+  getEndingEntropy,
+  getApproachingEndings,
+  enrichBehaviorEndings,
 } from '../systems/implicitEndingSystem.js';
 
 // Map behavior ending condition variable names to state field accessors
@@ -60,17 +68,20 @@ export const CONDITION_VAR_MAP = {
   player_hp: (s) => s.hp || 0,
   day: (s) => s.day || 1,
   player_humanity_score: (s) => s.humanityScore ?? 50,
+  humanityScore: (s) => s.humanityScore ?? 50,
   // NPC trust (main ending variables)
-  hilda_trust: (s) => (s.npcTrust || {})['希尔达·莫里斯'] || 0,
-  old_fisher_trust: (s) => (s.npcTrust || {})['老费舍'] || 0,
-  isabella_trust: (s) => (s.npcTrust || {})['伊莎贝拉·韦伯'] || 0,
-  elias_trust: (s) => (s.npcTrust || {})['伊莱亚斯·沃德'] || 0,
-  joshua_trust: (s) => (s.npcTrust || {})['约书亚·布莱克'] || 0,
-  martha_trust: (s) => (s.npcTrust || {})['玛莎·格雷'] || 0,
-  tommy_trust: (s) => (s.npcTrust || {})['汤米·陈'] || 0,
+  hilda_trust: (s) => getNpcTrustForEnding(s, 'hilda_morris'),
+  old_fisher_trust: (s) => getNpcTrustForEnding(s, 'old_fisher'),
+  isabella_trust: (s) => getNpcTrustForEnding(s, 'isabella_weber'),
+  elias_trust: (s) => getNpcTrustForEnding(s, 'elias_ward'),
+  joshua_trust: (s) => getNpcTrustForEnding(s, 'joshua_black'),
+  martha_trust: (s) => getNpcTrustForEnding(s, 'martha_grey'),
+  tommy_trust: (s) => getNpcTrustForEnding(s, 'tommy_chen'),
   // Mythos / loop / seal
   cthulhu_mythos: (s) => s.mythosLevel || 0,
   mythos_level: (s) => s.mythosLevel || 0,
+  mythos: (s) => s.mythosLevel || 0,
+  infection: (s) => s.infection || 0,
   loop_count: (s) => s.loopCount || 0,
   pollution: (s) => Math.round((s.pollution || 0) * 100),
   city_corruption: (s) => s.safehouseCorruption || 0,
@@ -80,10 +91,10 @@ export const CONDITION_VAR_MAP = {
   difficulty_level: (s) => s.difficultyLevel || 1,
   difficulty_phase: (s) => s.difficultyPhase || 1,
   // NPC agency (for Hilda/Fisher choice endings)
-  hilda_agency: (s) => s.hilda_agency || 0,
-  old_fisher_agency: (s) => s.old_fisher_agency || 0,
+  hilda_agency: (s) => getNpcAgencyForEnding(s, 'hilda_morris', 'hilda_agency'),
+  old_fisher_agency: (s) => getNpcAgencyForEnding(s, 'old_fisher', 'old_fisher_agency'),
   old_fisher_corruption: (s) => s.old_fisher_corruption || 0,
-  isabella_agency: (s) => s.isabella_agency || 0,
+  isabella_agency: (s) => getNpcAgencyForEnding(s, 'isabella_weber', 'isabella_agency'),
   // Counts
   completed_clue_chains: (s) => (s.completedChains || []).length,
   visited_areas_count: (s) => (s.visitedAreas || []).length,
@@ -96,7 +107,9 @@ export const CONDITION_VAR_MAP = {
   // Aggregated NPC trust
   npc_trust_total: (s) => {
     var trust = s.npcTrust || {};
-    return Object.values(trust).reduce(function (sum, v) { return sum + (v || 0); }, 0);
+    return Object.values(trust).reduce(function (sum, v) {
+      return sum + (v || 0);
+    }, 0);
   },
   // Safehouse stay tracking
   safehouse_stay_days: (s) => s.behaviorTracking?.safehouse_stay_days || 0,
@@ -107,15 +120,16 @@ export const CONDITION_VAR_MAP = {
 };
 
 export function parseConditionString(condStr) {
-  // AND support: split on " AND " (must come before OR to avoid partial matches)
-  if (condStr.includes(' AND ')) {
-    const parts = condStr.split(' AND ');
-    return { type: 'and_group', conditions: parts.map((p) => parseConditionString(p.trim())) };
-  }
-  // OR support
+  // OR is the lowest-precedence operator, so split it first.  Each resulting
+  // branch may then contain an AND group.  This preserves conventional
+  // boolean meaning for strings such as "A OR B AND C OR D".
   if (condStr.includes(' OR ')) {
     const parts = condStr.split(' OR ');
     return { type: 'or_group', conditions: parts.map((p) => parseConditionString(p.trim())) };
+  }
+  if (condStr.includes(' AND ')) {
+    const parts = condStr.split(' AND ');
+    return { type: 'and_group', conditions: parts.map((p) => parseConditionString(p.trim())) };
   }
   // NOT flag: "!flag_name"
   if (condStr.startsWith('!') && !condStr.match(/[><=]/)) {
@@ -167,6 +181,11 @@ export function parseConditionString(condStr) {
       value = parseInt(match[2]);
     return { type: 'counter_eq', varName, value };
   }
+  if ((match = condStr.match(/^(\S+)\s*==\s*(\S+)$/))) {
+    const varName = match[1],
+      value = match[2];
+    return { type: 'counter_eq_str', varName, value };
+  }
   return { type: 'always_true' };
 }
 
@@ -198,11 +217,11 @@ export function checkSingleCondition(state, cond) {
     case 'has_clue':
       return hasClueId(state.clues, cond.clue_id);
     case 'has_flag':
-      return !!hasTriggered(state, cond.flag_id);
+      return hasEndingFlag(state, cond.flag_id);
     case 'not_flag':
-      return !hasTriggered(state, cond.flag_id);
+      return !hasEndingFlag(state, cond.flag_id);
     case 'npc_trust_gte':
-      return (state.npcTrust[cond.npc_id] || 0) >= cond.value;
+      return getNpcTrustForEnding(state, cond.npc_id) >= cond.value;
     case 'skill_gte':
       return (state.skills[cond.skill_name] || 0) >= cond.value;
     case 'items_count':
@@ -226,6 +245,10 @@ export function checkSingleCondition(state, cond) {
     case 'counter_neq_str': {
       const fn = CONDITION_VAR_MAP[cond.varName];
       return fn ? String(fn(state)) !== String(cond.value) : false;
+    }
+    case 'counter_eq_str': {
+      const fn = CONDITION_VAR_MAP[cond.varName];
+      return fn ? String(fn(state)) === String(cond.value) : false;
     }
     case 'or_group':
       return cond.conditions.some((c) => checkSingleCondition(state, c));
@@ -289,7 +312,8 @@ export function checkEndingDataDriven(state, ctx) {
     const condField = rawConds.map((x) => (typeof x === 'string' ? parseConditionString(x) : x));
     const blockField = rawBlocks.map((x) => (typeof x === 'string' ? parseConditionString(x) : x));
     const allMet = condField.every((cond) => checkSingleCondition(state, cond));
-    const blocked = blockField.length > 0 && blockField.some((cond) => checkSingleCondition(state, cond));
+    const blocked =
+      blockField.length > 0 && blockField.some((cond) => checkSingleCondition(state, cond));
     if (allMet && !blocked) {
       matchedIds.push(ed.id);
     }
@@ -395,7 +419,9 @@ export function checkEndingLegacy(state, ctx) {
         description: '你的理智彻底崩塌。',
       }
     );
-  if (state.day >= 28)
+  // Day 28 is the player's final action window. The unresolved time-limit
+  // ending is evaluated after that day has been spent.
+  if (state.day > 28)
     return (
       allLegacy.find((e) => e.id === 'ending_heretical_dawn') ||
       allLegacy.find((e) => e.id === 'ending_bad_ritual') || {
@@ -428,10 +454,7 @@ export function checkAfterglowUnlock(ending, state) {
 
   if (cond.startsWith('has_triggered_event:')) {
     const eventId = cond.split(':')[1];
-    return (
-      (state.everTriggeredEvents || []).includes(eventId) ||
-      hasTriggered(state, eventId)
-    );
+    return (state.everTriggeredEvents || []).includes(eventId) || hasTriggered(state, eventId);
   }
   if (cond.startsWith('has_item:')) {
     const itemId = cond.split(':')[1];

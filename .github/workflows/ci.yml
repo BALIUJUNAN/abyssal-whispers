@@ -28,16 +28,28 @@ jobs:
       - run: npm test
       - run: npm run lint:schema
       - run: npm run lint:engine
-      - run: npm run mod:validate
+      - run: npm run lint:undef
+      - run: npm run lint:san
+      - run: npm run lint:rng
+      - run: npm run lint:audio
+      - run: npm run lint:events
+      - run: npm run analyze:events:ci
+      - run: npm run lint:narrative
+      - run: npm run lint:npc
+      - run: node scripts/validate-mods.mjs
       - run: npm run build
-      - run: npm run format:check
+      - run: node check_build.cjs --dist
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
 
   # ══════════════════════════════════════════════════
   # Main / Develop — 并行 job + 依赖链
   # ══════════════════════════════════════════════════
   lint:
     name: Lint
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    # PRs use the linear pr-check job. Branch and tag pushes use this shared
+    # dependency chain so release tags cannot skip their own prerequisites.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,9 +60,15 @@ jobs:
       - run: npm ci
       - run: npm run lint:schema
       - run: npm run lint:engine
+      - run: npm run lint:undef
+      - run: npm run lint:san
+      - run: npm run lint:rng
+      - run: npm run lint:audio
+      - run: npm run lint:events
+      - run: npm run analyze:events:ci
       - run: npm run lint:narrative
       - run: npm run lint:npc
-      - run: npm run mod:validate
+      - run: node scripts/validate-mods.mjs
 
   test:
     name: Test
@@ -78,11 +96,31 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: node check_build.cjs --dist
       - uses: actions/upload-artifact@v4
         with:
           name: vite-${{ github.sha }}
           path: dist/
           retention-days: 14
+
+  e2e:
+    name: Browser E2E
+    if: github.event_name == 'push'
+    needs: build-vite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: vite-${{ github.sha }}
+          path: dist
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
 
   format-check:
     name: Format
@@ -103,24 +141,15 @@ jobs:
   deploy-preview:
     name: Deploy Preview
     if: github.ref == 'refs/heads/develop'
-    needs: [lint, test, build-vite]
+    needs: e2e
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/download-artifact@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: preview-${{ github.sha }}
-          path: dist/index.html
-          retention-days: 30
+          name: vite-${{ github.sha }}
+          path: dist
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -128,8 +157,27 @@ jobs:
           publish_dir: ./dist
           keep_files: true
           destination_dir: preview
-          custom_index: index.html
-        continue-on-error: true
+
+  # Main -> production GitHub Pages. keep_files preserves the develop preview
+  # subdirectory while replacing the production files at the branch root.
+  deploy-production:
+    name: Deploy Production
+    if: github.ref == 'refs/heads/main'
+    needs: e2e
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: vite-${{ github.sha }}
+          path: dist
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          keep_files: true
 
   # ══════════════════════════════════════════════════
   # Tag → Release 自动发布
@@ -137,7 +185,7 @@ jobs:
   release:
     name: Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [lint, test, build-vite]
+    needs: e2e
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -145,13 +193,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/download-artifact@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
+          name: vite-${{ github.sha }}
+          path: dist
+      - name: Package complete web release
+        run: |
+          test -f dist/index.html
+          test -d dist/audio
+          test -d dist/webp
+          test -d dist/webp_ending
+          cd dist
+          zip -r "../abyssal-whispers-${GITHUB_REF_NAME}-web.zip" .
       - name: Generate changelog
         id: changelog
         run: |
@@ -171,4 +224,5 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           generate_release_notes: true
-          files: dist/index.html
+          fail_on_unmatched_files: true
+          files: abyssal-whispers-${{ github.ref_name }}-web.zip

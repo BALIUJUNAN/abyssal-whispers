@@ -2,6 +2,10 @@
 // Executes effects collected during the reducer run. Deduplicates by _fxId.
 // Effect handlers are dispatched by type via EFFECT_HANDLERS map.
 
+import { audioManager } from '../managers/AudioManager.js';
+import { saveGame } from '../engine/SaveManager.js';
+import { incrementStat } from '../reducers/achievementReducer.js';
+
 export var EFFECT_HANDLERS = {
   AUDIO_PLAY: function (fx) {
     audioManager.playEffect(fx.id);

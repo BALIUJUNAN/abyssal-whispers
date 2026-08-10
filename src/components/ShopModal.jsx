@@ -1,6 +1,7 @@
 // src/components/ShopModal.jsx — In-game shop modal (GD.shops data-driven)
 // Shows items from GD.shops[shopId] with trust-gated unlocks.
 
+import React from 'react';
 const { useState, useMemo } = React;
 
 /**

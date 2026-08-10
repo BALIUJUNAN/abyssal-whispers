@@ -31,7 +31,7 @@ import { getGuideStep } from './systems/firstRunGuide.js';
 import { getSanStageFeedback } from './systems/sanFeedback.js';
 import { getCorruptionLevel } from './utils/gameHelpers.js';
 import { hasSave } from './engine/SaveManager.js';
-import { notifySave, updateSettings } from './state/uiStore.js';
+import { notifySave, updateSettings, useUiStore } from './state/uiStore.js';
 
 const { useState, useEffect, useRef, useMemo, useCallback } = React;
 

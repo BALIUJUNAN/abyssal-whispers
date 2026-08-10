@@ -67,7 +67,7 @@ export var systemSlice = {
       ];
       if (_apActions.indexOf(action.type) !== -1 && s.ap > 0) {
         var _stealChance = s._apOffset >= 3 ? 0.4 : 0.2;
-        if ((c.rng ? c.rng.next() : Math.random()) < _stealChance) {
+        if (c.rng.next() < _stealChance) {
           s.ap = Math.max(0, s.ap - 1);
           var _stealTexts = [
             '你好像忘了什么。不是记忆——是时间。',

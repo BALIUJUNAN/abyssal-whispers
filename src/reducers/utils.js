@@ -7,6 +7,7 @@
 
 export const rand = (min, max, rng) => {
   if (rng) return rng.intBetween(min, max);
+  // rng-exempt: standalone leaf utility fallback for tests/UI callers.
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 /**
@@ -21,6 +22,7 @@ export const d3 = (rng) => rand(1, 3, rng);
 export const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 export const pick = (arr, rng) => {
   if (rng) return rng.pick(arr);
+  // rng-exempt: standalone leaf utility fallback for tests/UI callers.
   return arr[Math.floor(Math.random() * arr.length)];
 };
 export const rollDice = (dice, rng) => {

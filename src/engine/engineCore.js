@@ -656,7 +656,7 @@ function processSkillCheck(state, params, GD, rng) {
 
   if (passed) {
     state.ap = Math.max(0, state.ap - 3);
-    emit('AUDIO_PLAY', { name: 'skill_pass', volume: 0.5 });
+    emit('AUDIO_PLAY', { name: 'skill_success', volume: 0.5 });
     return { success: true, result: { passed: true, roll, total, text: '检定通过！' } };
   } else {
     state.ap = Math.max(0, state.ap - 3);

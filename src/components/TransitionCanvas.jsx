@@ -1,4 +1,5 @@
 // src/components/TransitionCanvas.jsx - Canvas procedural transition effects
+import React from 'react';
 const { useRef, useEffect, useImperativeHandle, forwardRef } = React;
 
 function mulberry32(seed) {

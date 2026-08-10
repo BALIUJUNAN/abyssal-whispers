@@ -79,7 +79,9 @@ function analyzeAreaCoverage(events, GD) {
   for (var i = 0; i < areaEntries.length; i++) {
     var a = areaEntries[i];
     var status = 'OK';
-    if (a.count < 10) status = 'CRITICAL';
+    var areaInfo = report.byArea[a.id];
+    if (!areaInfo.isCanonical) status = 'CONTEXT';
+    else if (a.count < 10) status = 'CRITICAL';
     else if (a.count < 20) status = 'WARN';
     else if (a.count > 150) status = 'BLOAT';
     lines.push('  ' + a.id.padEnd(24) + a.count + ' events [' + status + ']' + (a.label !== a.id ? ' (' + a.label + ')' : ''));
@@ -277,10 +279,10 @@ function analyzePoolExhaustion(events) {
   return lines.join('\n');
 }
 
-function analyzeRecommendations(events) {
+function analyzeRecommendations(events, GD) {
   var lines = ['== Section 7: Recommendations ==', ''];
 
-  var report = getCoverageReport(events, events[0] ? { areas: [] } : {});
+  var report = getCoverageReport(events, GD);
   var redundancy = detectRedundancy(events, 0.6);
   var selection = simulateSelection(events, opts.iterations);
   var budgetIssues = validateBudgetFeasibility(events);
@@ -338,11 +340,11 @@ async function main() {
   var criticalCount = 0;
 
   if (opts.section && sections[opts.section]) {
-    results.push(sections[opts.section](events));
+    results.push(sections[opts.section](events, GD));
   } else {
     var keys = Object.keys(sections);
     for (var i = 0; i < keys.length; i++) {
-      results.push(sections[keys[i]](events));
+      results.push(sections[keys[i]](events, GD));
     }
   }
 

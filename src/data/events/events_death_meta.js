@@ -53,7 +53,7 @@ export var DEATH_FRAGMENT_META = {
  * Generate death fragments from a death context.
  * Call this in applyDeathResolution() to add fragments to state.
  */
-export function generateDeathFragments(deathContext, state) {
+export function generateDeathFragments(deathContext, state, rng) {
   var fragments = state.deathFragments || [];
   var typeKey = deathContext.mode === 'hp' ? 'hp_death' :
                 deathContext.mode === 'san' ? 'san_death' : 'hybrid_death';
@@ -62,9 +62,10 @@ export function generateDeathFragments(deathContext, state) {
 
   // Add 1-2 random fragments from the death type
   var pool = typeData.fragments;
-  var count = 1 + Math.floor(Math.random() * 2); // 1-2 fragments
+  var next = rng ? rng.next.bind(rng) : function () { return 0; };
+  var count = 1 + Math.floor(next() * 2); // 1-2 fragments
   for (var i = 0; i < count && fragments.length < DEATH_FRAGMENT_META.max_fragments; i++) {
-    var text = pool[Math.floor(Math.random() * pool.length)];
+    var text = pool[Math.floor(next() * pool.length)];
     fragments.push({
       text: text,
       type: typeKey,
@@ -119,7 +120,7 @@ export var events_death_meta_fragments = [
       max_per_run: 2,
     },
 
-    description: function (state) {
+    description: function (state, rng) {
       var fragments = state.deathFragments || [];
       if (fragments.length === 0) return null;
       var recent = fragments[fragments.length - 1];
@@ -229,7 +230,7 @@ export var events_death_meta_npc_farewell = [
       },
     },
 
-    description: function (state) {
+    description: function (state, rng) {
       var deadAreas = state.loopEchoes?.deadNpcAreas || [];
       var currentArea = state.currentArea;
       var hasDeathHere = deadAreas.indexOf(currentArea) >= 0;
@@ -247,7 +248,7 @@ export var events_death_meta_npc_farewell = [
       };
 
       var npcNames = Object.keys(npcLines);
-      var npcName = npcNames[Math.floor(Math.random() * npcNames.length)];
+      var npcName = rng ? rng.pick(npcNames) : npcNames[0];
       return npcLines[npcName] + '\n\n你停了一步。不是因为你听见了什么——是因为你知道那个声音不会再回应你了。';
     },
 

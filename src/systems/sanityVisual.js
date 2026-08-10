@@ -8,7 +8,7 @@
 //   - appHelpers.js  (getPerceptionLevels)
 //   - app.jsx  (inline CSS class derivation)
 
-import { clamp } from '../reducers/utils.js';
+import { clamp, makeRand } from '../reducers/utils.js';
 
 // --------------------------------------------
 // Section 1: Shared stage lookup (SSOT for visuals)
@@ -85,8 +85,8 @@ function _getStage(san, ctx) {
   return getCurrentSanStage(san, ctx);
 }
 
-function _pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function _pickFirst(arr) {
+  return arr[0];
 }
 
 /**
@@ -107,8 +107,12 @@ export function getSanTextVariant(baseText, san, pickFn, ctx, rng) {
   // DESIGN_REFACTOR_NOTES.md: "降低中后期触发频率" — precise horror, not noise.
   // Each tier is deliberately rarer than the last. The player should feel unease,
   // not habituation. If every text is corrupted, nothing is corrupted.
-  var _rand = rng ? rng.next.bind(rng) : Math.random;
-  var _pick = pickFn || _pick;
+  var _rand = makeRand(rng);
+  var _pickValue = pickFn
+    ? function (arr) { return pickFn(arr, rng); }
+    : rng
+      ? rng.pick
+      : _pickFirst;
 
   if (level >= 6) {
     // narrative_death: full text corruption — char-level + append
@@ -116,7 +120,7 @@ export function getSanTextVariant(baseText, san, pickFn, ctx, rng) {
     var words = baseText.split('');
     var corrupted = words
       .map(function (c, i) {
-        return _rand() < charChance ? _pick(['…', '·', '?', '□', c, c]) : c;
+        return _rand() < charChance ? _pickValue(['…', '·', '?', '□', c, c]) : c;
       })
       .join('');
     return corrupted + (_rand() < 0.35 ? '\n\n—— ' + textMod : '');

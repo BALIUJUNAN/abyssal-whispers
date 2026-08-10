@@ -3,6 +3,7 @@
 // P1-A: SAN thresholds use getSanStageFromGD (SSOT)
 // Feature 1: Difficulty-based text adjustments (第八轮深化)
 import { getSanStageFromGD } from '../reducers/sanReducer.js';
+import { createSeededRng } from '../utils/seededRng.js';
 
 // ═══════════════════════════════════════════════════════
 // Feature 4: Mod difficulty hooks — custom text swaps registry
@@ -428,9 +429,10 @@ export var AREA_DISTORTIONS = {
  *
  * @param {object} area - area object with .id and .name
  * @param {object} state - game state
+ * @param {object|null} rng - optional seeded RNG
  * @returns {string} distorted or original name
  */
-export function getDistortedName(area, state) {
+export function getDistortedName(area, state, rng) {
   if (!area) return '???';
   if (state.areaNameCache && state.areaNameCache[area.id]) return state.areaNameCache[area.id];
 
@@ -452,7 +454,13 @@ export function getDistortedName(area, state) {
   if (daysSince > fadeThreshold) distortChance += (daysSince - fadeThreshold) * 0.1;
 
   distortChance = Math.min(1, distortChance);
-  var _rand = rng ? rng.next.bind(rng) : Math.random;
+  // UI callers do not own the gameplay RNG. Derive a stable presentation RNG
+  // so repeated renders cannot flicker or change persisted log text.
+  var _areaRng = rng || createSeededRng(
+    'area-display:' + (state.runSeed || 'default') + ':' + (state.day || 1) + ':' + area.id,
+    0
+  );
+  var _rand = _areaRng.next.bind(_areaRng);
   if (_rand() >= distortChance) return area.name;
 
   var alts = AREA_DISTORTIONS[area.id];

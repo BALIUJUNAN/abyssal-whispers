@@ -57,7 +57,7 @@ export function applyMetaCorruption(s, c, intensity) {
   if (_stage.level < 3 || s.loopCount < 1) return;
   var I = Math.max(0, Math.min(100, intensity || 50)) / 100;
   var chance = META_CORRUPTION_CHANCE * I * Math.max(0, 1 - _stage.level / 5);
-  var _rand = c.rng ? c.rng.next.bind(c.rng) : Math.random;
+  var _rand = c.rng.next.bind(c.rng);
   if (_rand() >= chance) return;
 
   var roll = _rand();

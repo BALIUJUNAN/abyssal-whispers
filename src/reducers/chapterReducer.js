@@ -18,14 +18,33 @@ var _CHAPTER_DEFAULTS = {
   chapter_5: { key: 'chapter_5', mythos_cap: 10, name: '终局', day_range: [22, 28] },
 };
 
+/** Return the authoritative day-based chapter number (1-5). */
+export function getChapterNumberForDay(day) {
+  var safeDay = Number(day) || 1;
+  if (safeDay >= 22) return 5;
+  if (safeDay >= 15) return 4;
+  if (safeDay >= 8) return 3;
+  if (safeDay >= 4) return 2;
+  return 1;
+}
+
+/**
+ * Event trigger.chapter is a minimum chapter, not an exact-chapter match.
+ * This keeps earlier investigation content available while blocking future
+ * chapter reveals from entering the candidate pool early.
+ */
+export function isChapterUnlocked(requiredChapter, day) {
+  if (requiredChapter == null || requiredChapter === '') return true;
+  var match = String(requiredChapter).match(/(?:chapter_)?(\d+)/i);
+  if (!match) return true;
+  return getChapterNumberForDay(day) >= Number(match[1]);
+}
+
 export function getChapterForDay(day, ctx) {
   const { GD } = ctx;
   const chapters = GD.implementation_notes?.chapters?.chapters || {};
-  if (day >= 22) return { key: 'chapter_5', ..._CHAPTER_DEFAULTS.chapter_5, ...chapters.chapter_5 };
-  if (day >= 15) return { key: 'chapter_4', ..._CHAPTER_DEFAULTS.chapter_4, ...chapters.chapter_4 };
-  if (day >= 8) return { key: 'chapter_3', ..._CHAPTER_DEFAULTS.chapter_3, ...chapters.chapter_3 };
-  if (day >= 4) return { key: 'chapter_2', ..._CHAPTER_DEFAULTS.chapter_2, ...chapters.chapter_2 };
-  return { key: 'chapter_1', ..._CHAPTER_DEFAULTS.chapter_1, ...chapters.chapter_1 };
+  const key = 'chapter_' + getChapterNumberForDay(day);
+  return { key, ..._CHAPTER_DEFAULTS[key], ...chapters[key] };
 }
 
 export function getMythosCap(day, ctx) {

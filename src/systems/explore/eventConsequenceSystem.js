@@ -9,7 +9,7 @@ import { checkConclusions, checkFalseInterpretations } from '../../reducers/conc
 import { getMonsterManifestation } from '../../reducers/chapterReducer.js';
 import { getAreaCorruptionNarrative } from '../../systems/worldDecay.js';
 import { adjustMonsterChance } from '../../systems/firstLoopBalance.js';
-import { setNpcTrust, getNpcState, hasClueId, applyDeathResolution, checkWrongInference } from '../../utils/appHelpers.js';
+import { setNpcTrust, getNpcState, setNpcState, hasClueId, applyDeathResolution, checkWrongInference } from '../../utils/appHelpers.js';
 import { resolveClueName } from '../../utils/clueNameMap.js';
 import { initCombat } from '../../systems/combatSystem.js';
 
@@ -127,7 +127,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
   // Area corruption narrative
   const areaNarr = getAreaCorruptionNarrative(s.currentArea, s, c.rng);
   if (areaNarr) c.narr('system', areaNarr, { isSpecial: true });
-  checkChainCompletion(s, c.narr);
+  checkChainCompletion(s, c.narr, { GD: GD });
   checkWrongInference(s, c.narr, GD);
   // Conclusions
   const newConclusions = checkConclusions(s, { GD });
@@ -156,7 +156,7 @@ export function _postExploreProcessing(evt, s, c, GD) {
   // Monster manifestation — combat initiation
   var combatInitiated = false;
   const adjMonsterChance = adjustMonsterChance(GAME_BALANCE.MONSTER_MANIFEST_CHANCE, s);
-  if ((c.rng ? c.rng.next() : Math.random()) < adjMonsterChance) {
+  if (c.rng.next() < adjMonsterChance) {
     const creature = pick(['deep_ones', 'night_gaunts', 'shoggoth'], c.rng);
     const manifest = getMonsterManifestation(creature, s.day, { GD }, c.rng);
     if (manifest) {

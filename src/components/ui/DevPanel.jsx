@@ -1,4 +1,7 @@
 // src/components/ui/DevPanel.jsx - Developer Debug Panel
+import React from 'react';
+import { explainEventSelection } from '../../systems/eventDebugger.js';
+import { getGameState } from '../../state/gameStore.js';
 const { memo, useState, useEffect, useRef } = React;
 
 export var DevPanel = memo(function DevPanel(props) {

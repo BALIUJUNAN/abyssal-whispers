@@ -60,7 +60,7 @@ export function computeDailyNpcLocations(state, GD, rng) {
 
   for (var i = 0; i < npcs.length; i++) {
     var npc = npcs[i];
-    if (state.npcStates[npc.name]?.dead) {
+    if (getNpcState(state, npc.name).dead) {
       // Dead NPCs don't move (body stays where it was)
       continue;
     }
@@ -108,7 +108,7 @@ export function computeDailyNpcLocations(state, GD, rng) {
 export function getNpcLocations(state, areaId, GD) {
   var npcs = (GD?.npcs || GD?.module3_npcs || []);
   return npcs.filter(function (n) {
-    if (state.npcStates[n.name]?.dead) return false;
+    if (getNpcState(state, n.name).dead) return false;
     var loc = state.npcLocations?.[n.name];
     if (!loc) {
       // Fallback: use schedule
@@ -130,7 +130,7 @@ export function processNpcEncounters(state, c, GD) {
   var areaMap = {};
   for (var i = 0; i < npcs.length; i++) {
     var npc = npcs[i];
-    if (state.npcStates[npc.name]?.dead) continue;
+    if (getNpcState(state, npc.name).dead) continue;
     var loc = state.npcLocations?.[npc.name] || _getScheduledLocation(npc, state.day);
     if (!areaMap[loc]) areaMap[loc] = [];
     areaMap[loc].push(npc.name);

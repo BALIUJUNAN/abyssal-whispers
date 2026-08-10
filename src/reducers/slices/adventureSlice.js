@@ -158,7 +158,7 @@ export function handleAdventureAction(s, action, c, ctx) {
         // Apply loop blessings
         const bKey2 = s.loopCount <= 5 ? 'loop_' + s.loopCount : 'loop_6_plus';
         const curBlessing = GD.systems?.loop?.loop_blessings?.[bKey2];
-        if (curBlessing) applyBlessing(s, curBlessing, c.narr, ctx);
+        if (curBlessing) applyBlessing(s, curBlessing, c.narr, ctx, c.rng);
         // Loop blessing + cost: atmospheric hints, never explicit numbers
         // "You feel something different but can't name it"
         {

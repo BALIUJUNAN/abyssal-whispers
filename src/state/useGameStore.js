@@ -15,7 +15,7 @@
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { setAutoFreeze } from 'immer';
+import { enableMapSet, setAutoFreeze } from 'immer';
 import { createSlice, combineSlices } from './combineSlices.js';
 import { logAction } from '../engine/zustandDevTools.js';
 import { flushEffectsBuffer, setEffectsDispatch } from '../runtime/effectExecutor.js';
@@ -35,24 +35,117 @@ import { initialState } from './initialState.js';
 import { createSeededRng } from '../utils/seededRng.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { loadSettings } from '../reducers/miscReducer.js';
+import { GD as sharedGD } from './gameData.js';
+import { errorTracker } from '../utils/errorTracker.js';
+import { emit } from '../engine/eventBus.js';
 
 // ═══════════════════════════════════════════════════════════════
 //  Slice dispatch map — built once via combineSlices
 // ═══════════════════════════════════════════════════════════════
 
-var coreSlice = createSlice({ name: 'core', handler: handleCoreAction });
-var adventureSlice = createSlice({ name: 'adventure', handler: handleAdventureAction });
-var loopSlice = createSlice({ name: 'loop', handler: handleLoopAction });
-var dailySlice = createSlice({ name: 'daily', handler: handleDailyAction });
-var exploreSlice = createSlice({ name: 'explore', handler: handleExploreAction });
-var npcSlice = createSlice({ name: 'npc', handler: handleNpcAction });
-var darkSlice = createSlice({ name: 'dark', handler: handleDarkAction });
-var uiSlice = createSlice({ name: 'ui', handler: handleUiAction });
+function claimActions(handler, actionTypes) {
+  var owned = new Set(actionTypes);
+  return function (state, action, c, ctx) {
+    if (!owned.has(action.type)) return false;
+    handler(state, action, c, ctx);
+    return true;
+  };
+}
+
+function prepareAction(action, state) {
+  if (!action || typeof action.type !== 'string' || !action.type) {
+    var invalid = new Error('Dispatched action must have a non-empty string type');
+    invalid.name = 'InvalidActionError';
+    throw invalid;
+  }
+  var meta = { ...(action.meta || {}) };
+  if (!meta.actionId) {
+    // rng-exempt: tracing identity only; never used to seed gameplay RNG.
+    meta.actionId = Date.now() + '_' + Math.random().toString(16).slice(2, 6);
+  }
+  if (!meta.now) meta.now = Date.now();
+  if (meta._actionIndex == null) meta._actionIndex = state._actionIndex || 0;
+  return { ...action, meta: meta };
+}
+
+function shouldRethrowDispatchError() {
+  if (typeof window === 'undefined') return true;
+  return !!(import.meta.env && import.meta.env.DEV);
+}
+
+function reportDispatchFailure(action, traceEntry, error) {
+  var context = {
+    actionType: action && action.type ? action.type : 'UNKNOWN',
+    phase: error.phase || (error.name === 'UnhandledActionError' ? 'routing' : 'dispatch'),
+    slice: error.slice || (error.name === 'UnhandledActionError' ? 'unowned' : 'unknown'),
+  };
+  errorTracker.complete(traceEntry, { ok: false, error: error, context: context });
+  console.error('[dispatch] Action rolled back:', context, error);
+  emit('POPUP_SHOW', {
+    id: 'dispatch_error_' + Date.now(),
+    type: 'error',
+    icon: '⚠',
+    title: '操作未完成',
+    message: '本次操作执行失败，游戏状态未发生改变。',
+    duration: 8000,
+  });
+}
+
+var coreSlice = createSlice({
+  name: 'core',
+  handler: claimActions(handleCoreAction, [
+    'START_GAME', 'SET_DIFFICULTY', 'SET_ARCHETYPE', 'ROLL_STATS',
+    'SWITCH_SAFEHOUSE', 'GLITCH_PULSE', 'GLITCH_PULSE_CLEAR', 'RESIST_SAN_DRAIN',
+  ]),
+});
+var adventureSlice = createSlice({
+  name: 'adventure',
+  handler: claimActions(handleAdventureAction, ['BEGIN_ADVENTURE']),
+});
+var loopSlice = createSlice({
+  name: 'loop',
+  handler: claimActions(handleLoopAction, ['NEW_GAME', 'CONTINUE_GAME', 'LOOP_SHOP_PURCHASE']),
+});
+var dailySlice = createSlice({
+  name: 'daily',
+  handler: claimActions(handleDailyAction, ['REST', 'WORK', 'BUY_FOOD']),
+});
+var exploreSlice = createSlice({
+  name: 'explore',
+  handler: claimActions(handleExploreAction, [
+    'MOVE', 'EXPLORE', 'DO_SKILL_CHECK', 'START_COMBAT', 'COMBAT_ACTION', 'END_COMBAT',
+  ]),
+});
+var npcSlice = createSlice({
+  name: 'npc',
+  handler: claimActions(handleNpcAction, ['TALK_NPC', 'NPC_RESPONSE']),
+});
+var darkSlice = createSlice({
+  name: 'dark',
+  handler: claimActions(handleDarkAction, [
+    'SELF_HARM', 'SPREAD_PROPHECY', 'CONSUME_ARCHIVE',
+    'SELF_SACRIFICE', 'DESECRATE', 'BREAK_SEAL',
+  ]),
+});
+var uiSlice = createSlice({
+  name: 'ui',
+  handler: claimActions(handleUiAction, [
+    'CHOICE_SELECT', 'DISMISS_PENDING', 'CLEAR_TRANSITION', 'AUDIO_MUTE_TOGGLE',
+    'ACCESSIBILITY_TOGGLE', 'GAMBLE_CHOICE', 'START_PROLOGUE', 'PROLOGUE_CHOICE',
+    'COMPLETE_PROLOGUE', 'DISMISS_GUIDE', 'SKIP_PROLOGUE', 'MARK_NOTEBOOK_OPENED',
+    'SET_META_FIELD', 'DELAYED_NARRATE', 'BUY_FROM_SHOP', 'USE_ITEM', 'OPEN_SHOP',
+    'CLOSE_SHOP', 'ADD_NARRATIVE', 'ADD_EVENT_LOG',
+  ]),
+});
 
 var createRootReducer = combineSlices([
   coreSlice, adventureSlice, loopSlice, dailySlice,
   exploreSlice, npcSlice, darkSlice, uiSlice, systemSlice,
 ]);
+
+// Game state keeps derived Set indexes for triggered events. Immer must know
+// how to draft them before any Store action reads or mutates Set.prototype.
+enableMapSet();
 
 // Disable Immer auto-freeze in dev mode. Auto-freeze recursively freezes all
 // state objects, which triggers forceStoreRerender inside React's passive effects
@@ -79,7 +172,7 @@ var PLACEHOLDER = {
   objectives: [], completedChains: [], triggeredEvents: [], triggeredSilentEvents: [],
   seenEventTexts: {}, longTermEffects: [], madnessActive: null,
   narrative: [], eventLog: [], _dayActions: [], _actionIndex: 0, _effects: [],
-  _apLies: false, _apOffset: 0, _runtime: {}, _debug: {},
+  _apLies: false, _apOffset: 0, _runtime: {}, _debug: {}, behaviorTracking: {},
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -90,6 +183,7 @@ var PLACEHOLDER = {
 
 function buildSliceCtx(draft, rng, corruptFn, actIdx) {
   var effects = [];
+  if (!draft.behaviorTracking) draft.behaviorTracking = {};
   var _narrLocalSeq = 0;
   var narr = function (type, text, extra) {
     extra = extra || {};
@@ -122,7 +216,7 @@ function buildSliceCtx(draft, rng, corruptFn, actIdx) {
     bt: draft.behaviorTracking,
     rng: rng,
     now: function () { return Date.now(); },
-    pick: rng ? rng.pick : function (arr) { return arr[Math.floor(Math.random() * arr.length)]; },
+    pick: rng.pick,
     view: {
       phase: getPhase(draft.ap, draft.maxAp),
       visits: 0,
@@ -158,10 +252,22 @@ export var useGameStore = create(
       // ══════════════════════════════════════════════════════════
 
       dispatch: function (action) {
-        // DevTools: log action type for inspection (non-intrusive)
-        logAction(action.type, action.payload);
-
         var state = get();
+        var preparedAction;
+        try {
+          preparedAction = prepareAction(action, state);
+        } catch (invalidActionError) {
+          var invalidTrace = errorTracker.record(action || { type: 'INVALID_ACTION' }, state);
+          reportDispatchFailure(action, invalidTrace, invalidActionError);
+          if (shouldRethrowDispatchError()) throw invalidActionError;
+          return { ok: false, error: invalidActionError };
+        }
+
+        // Recording lives at the Store boundary so map-mode and background
+        // dispatches cannot bypass it.
+        var traceEntry = errorTracker.record(preparedAction, state);
+        logAction(preparedAction.type, preparedAction.payload);
+
         var GD = state._GD;
         var fearTuning = state.fearTuning || null;
         var corruptFn = fearTuning && fearTuning.primary
@@ -171,33 +277,49 @@ export var useGameStore = create(
           : function (t) { return t; };
 
         var effectsToFlush = [];
-        set(function (draft) {
-          // Build RNG for this dispatch
-          var runSeed = draft.runSeed || 'default';
-          var actIdx = action.meta && action.meta._actionIndex != null
-            ? action.meta._actionIndex
-            : draft._actionIndex || 0;
-          var rng = createSeededRng(runSeed, actIdx);
-          draft._actionIndex = actIdx + 1;
+        try {
+          set(function (draft) {
+            // Build RNG for this dispatch
+            var runSeed = draft.runSeed || 'default';
+            var actIdx = preparedAction.meta._actionIndex;
+            var rng = createSeededRng(runSeed, actIdx);
+            // Timer/LLM presentation actions are not allowed to perturb the
+            // gameplay RNG cursor merely because wall-clock timing changed.
+            if (preparedAction.meta.consumeGameplayRng !== false) {
+              draft._actionIndex = actIdx + 1;
+            }
 
-          // Build lightweight context (replaces buildReducerCtx — no module-level buffer)
-          var ctx = { GD: GD };
-          var c = buildSliceCtx(draft, rng, corruptFn, actIdx);
+            // Build lightweight context (replaces buildReducerCtx — no module-level buffer)
+            var ctx = { GD: GD };
+            var c = buildSliceCtx(draft, rng, corruptFn, actIdx);
 
-          // ── Dispatch via combineSlices root reducer ──
-          // systemSlice.before / domain handler / systemSlice.after
-          // are all managed by the combined reducer's before/after hooks.
-          var rootReducer = createRootReducer({ GD: GD });
-          rootReducer(draft, action, c);
+            // ── Dispatch via combineSlices root reducer ──
+            // systemSlice.before / domain handler / systemSlice.after
+            // are all managed by the combined reducer's before/after hooks.
+            var rootReducer = createRootReducer({ GD: GD });
+            var outcome = rootReducer(draft, preparedAction, c);
+            if (!outcome.handled) {
+              var unhandled = new Error('No reducer owns action "' + preparedAction.type + '"');
+              unhandled.name = 'UnhandledActionError';
+              unhandled.actionType = preparedAction.type;
+              throw unhandled;
+            }
 
-          // ── Collect all effects ──
-          var allEffects = c.effects ? c.effects.slice() : [];
-          draft._effects = allEffects;
-          effectsToFlush = allEffects;
-        });
+            // ── Collect all effects ──
+            var allEffects = c.effects ? c.effects.slice() : [];
+            draft._effects = allEffects;
+            effectsToFlush = allEffects;
+          });
+        } catch (dispatchError) {
+          reportDispatchFailure(preparedAction, traceEntry, dispatchError);
+          if (shouldRethrowDispatchError()) throw dispatchError;
+          return { ok: false, error: dispatchError };
+        }
 
         // Flush side effects after state update
         flushEffectsBuffer(effectsToFlush);
+        errorTracker.complete(traceEntry, { ok: true });
+        return { ok: true };
       },
 
       // ══════════════════════════════════════════════════════════
@@ -205,7 +327,13 @@ export var useGameStore = create(
       // ══════════════════════════════════════════════════════════
 
       seedState: function (gd) {
-        var realInit = initialState();
+        // Keep module-level pure readers synchronized without allowing them to
+        // import the Store back and create a reducer/store dependency cycle.
+        if (gd !== sharedGD) {
+          Object.keys(sharedGD).forEach(function (key) { delete sharedGD[key]; });
+          Object.assign(sharedGD, gd || {});
+        }
+        var realInit = initialState(gd);
         var settings = loadSettings();
         set(function (draft) {
           for (var key in realInit) {

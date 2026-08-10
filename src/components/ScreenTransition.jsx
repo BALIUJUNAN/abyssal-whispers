@@ -1,4 +1,5 @@
 // src/components/ScreenTransition.jsx - Screen transition with Canvas + audio
+import React from 'react';
 const { useState, useEffect, useRef } = React;
 import { TransitionCanvas } from "./TransitionCanvas.jsx";
 import { audioManager } from "../managers/AudioManager.js";
@@ -18,7 +19,8 @@ var AUDIO_MAP = {
   inkBleed: { type: "playEffect", id: "san_critical_breath" },
   fog: { type: "playEffect", id: "begin" },
   voidCircle: { type: "playEffect", id: "loop_memory" },
-  glitchSlices: { type: "playEffect", id: "madness_tinnitus" },
+  // EndingScreen owns the type-specific ending stinger; avoid double playback.
+  glitchSlices: { type: "none" },
 };
 
 function getVariant(screenKey) { return VARIANT_MAP[screenKey] || "default"; }
@@ -26,7 +28,7 @@ function playTransitionAudio(screenKey) {
   try {
     var entry = AUDIO_MAP[getVariant(screenKey)] || AUDIO_MAP.default;
     if (entry.type === "playEffect") audioManager.playEffect(entry.id);
-    else audioManager.playUI(entry.id);
+    else if (entry.type === "playUI") audioManager.playUI(entry.id);
   } catch (e) {}
 }
 
@@ -60,7 +62,7 @@ export function ScreenTransition({ screenKey, children, duration }) {
     if (phase === "visible" && screenKey === prevKey.current) {
       setRenderChildren(childrenRef.current);
     }
-  }, [phase, screenKey]);
+  }, [children, phase, screenKey]);
 
   useEffect(function () {
     if (screenKey === prevKey.current) return;

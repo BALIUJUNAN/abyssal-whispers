@@ -8,6 +8,7 @@ import { triggerDayCriticalSurge, triggerSanLossFlash } from '../sanVisualCorrup
 import { getSanFloor } from '../firstLoopBalance.js';
 import { getWorldDecayNarrative, getHarborDeepOneWhisper } from '../worldDecay.js';
 import { addRunMemory } from '../../utils/appHelpers.js';
+import { syncTriggeredSet } from '../../utils/triggeredSet.js';
 
 /**
  * Process day-specific critical events and world decay atmosphere.
@@ -16,7 +17,9 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
   {
     const dayCrit = getDayCriticalEvent(s.day);
     if (dayCrit && !s.triggeredEvents.includes('day_crit_' + s.day)) {
-      s.triggeredEvents.push('day_crit_' + s.day);
+      const eventId = 'day_crit_' + s.day;
+      s.triggeredEvents.push(eventId);
+      syncTriggeredSet(s, eventId);
       // Narrative Month: Trigger visual surge for critical days
       if (
         s.day === 7 ||
@@ -54,13 +57,13 @@ export function _processDayCriticalAndDecay(s, c, ctx) {
   if (sanFloor > 0 && s.san < sanFloor) {
     s.san = sanFloor;
   }
-  if ((c.rng ? c.rng.next() : Math.random()) < GAME_BALANCE.WORLD_DECAY_CHANCE) {
+  if (c.rng.next() < GAME_BALANCE.WORLD_DECAY_CHANCE) {
     const decayText = getWorldDecayNarrative(s.day, s.safehouseCorruption || 0, s);
     if (decayText) c.narr('system', decayText);
   }
   // DESIGN_REFACTOR_NOTES.md: "Day 7后harbor_district自动增加深潜者相关模糊事件"
   // 30% chance of harbor whisper when player rested near harbor, Day 7+
-  if (s.day >= 7 && (c.rng ? c.rng.next() : Math.random()) < 0.3) {
+  if (s.day >= 7 && c.rng.next() < 0.3) {
     var lastArea = s._dayStartArea || s.currentArea || '';
     if (lastArea === 'harbor_district' || lastArea === 'town_center') {
       var harborWhisper = getHarborDeepOneWhisper(s.day, s.safehouseCorruption || 0, s);

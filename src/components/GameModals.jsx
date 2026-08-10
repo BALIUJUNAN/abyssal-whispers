@@ -14,6 +14,7 @@ import { NotebookModal } from './GamePanels.jsx';
 import { ShopModal } from './ShopModal.jsx';
 import { AppToast } from './AppToast.jsx';
 import { UgcPanel } from './UgcImportExport.jsx';
+import { getAllAchievements, loadAchievements } from '../reducers/achievementReducer.js';
 
 export function SettingsModal({ open, onClose, settings, onChange, onAchOpen, onSaveOpen, onLoadOpen, dispatch }) {
   const update = (key, val) => onChange({ ...settings, [key]: val });
@@ -667,7 +668,7 @@ export function GameModals({
 
       {/* 轻提示：前传结束 → 正片 */}
       {bootHintVisible && screen === 'game' && (
-        <div className="boot-hint">按 M 切换布局 · 按 J 打开笔记本</div>
+        <div className="boot-hint">N 笔记本 · J 线索 · I 物品 · M 切换布局</div>
       )}
 
       {/* 轻提示：第一次掉 SAN */}

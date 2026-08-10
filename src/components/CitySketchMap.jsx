@@ -1,6 +1,8 @@
 // src/components/CitySketchMap.jsx - City sketch map component (extracted from GamePanels.jsx)
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { getAreaDisplayName, isAreaUnlocked } from '../utils/gameHelpers.js';
+import { MAP_EDGES, MAP_LAYOUT, MAP_ZONES } from '../data/mapConstants.js';
 
 export function CitySketchMap({ areas, state, dispatch, conn }) {
   const [fullscreen, setFullscreen] = useState(false);

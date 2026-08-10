@@ -142,32 +142,6 @@ export function devtools(options) {
 }
 
 /**
- * Wrap set to send actions to devtools before state update.
- */
-function wrapSet(set, connection) {
-  return function (partial, replace, options) {
-    var actionType = 'zustand/set';
-
-    // Extract action info from options (if passed by dispatch)
-    if (options && options.type) {
-      actionType = options.type;
-    }
-
-    set(partial, replace, options);
-
-    // Send to devtools after state update
-    try {
-      connection.send(
-        { type: actionType },
-        { state: serializeState(get()) }
-      );
-    } catch (e) {
-      // Non-fatal: devtools communication errors should never break the store
-    }
-  };
-}
-
-/**
  * Serialize state for devtools — strip circular refs and functions.
  */
 function serializeState(state) {

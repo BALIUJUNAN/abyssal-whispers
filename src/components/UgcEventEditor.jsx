@@ -1,6 +1,7 @@
 // src/components/UgcEventEditor.jsx — Visual Event Editor for UGC Mods
 // Form-based editor with live validation and JSON preview.
 
+import React from 'react';
 const { useState, useEffect, useCallback, useRef } = React;
 
 import { validateEvent, LIMITS, EFFECTS_KEYS_WHITELIST } from '../data/ugcSchema.js';

@@ -1,19 +1,24 @@
 // src/components/FloatingInfoBar.jsx — 暗黑地牢风格浮动信息栏
 // 悬浮在地图上方的 HUD，显示关键状态信息。
 // 设计参考：Darkest Dungeon 的顶部/底部状态栏
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
+import { GD } from '../state/gameData.js';
 import { NarrativeBlock } from './GameCommon.jsx';
 import { uiStore } from '../state/uiStore.js';
 import { NPCDialog } from './NPCDialog.jsx';
 import { getDisplayedAp } from '../utils/appHelpers.js';
 import { getAreaDisplayName } from '../utils/gameHelpers.js';
 import { getSanStage } from '../reducers/sanReducer.js';
+import { getInProgressConclusions } from '../reducers/conclusionReducer.js';
 import { resolveClueName } from '../utils/clueNameMap.js';
+import { CorruptibleChoice } from './SanPollutionLayer.jsx';
 // v0.9.0: Fine-grained selectors for components that don't need full state
 import { useSanLevel, useEventLog, useCurrentArea, usePollution } from '../state/selectors.js';
 
 export function FloatingInfoBar({ state, dispatch }) {
   const [clueOpen, setClueOpen] = useState(false);
+  const [inventoryOpen, setInventoryOpen] = useState(false);
   const areas = GD.areas || GD.module2_areas || [];
   const area = areas.find((a) => a.id === state.currentArea);
   const areaName = area ? getAreaDisplayName(area, state) : state.currentArea;
@@ -55,6 +60,25 @@ export function FloatingInfoBar({ state, dispatch }) {
         ? '🔔 钟声响了十二下。你还在等什么？'
         : '🔔 你在数钟声。';
   }
+
+  // Map mode owns its own clue/inventory surfaces. The classic panels are not
+  // mounted here, so the shared keyboard events must be consumed locally.
+  useEffect(() => {
+    const onClues = () => {
+      setInventoryOpen(false);
+      setClueOpen((open) => !open);
+    };
+    const onInventory = () => {
+      setClueOpen(false);
+      setInventoryOpen((open) => !open);
+    };
+    window.addEventListener('kbd:showClues', onClues);
+    window.addEventListener('kbd:showInventory', onInventory);
+    return () => {
+      window.removeEventListener('kbd:showClues', onClues);
+      window.removeEventListener('kbd:showInventory', onInventory);
+    };
+  }, []);
 
   return (
     <div className="floating-info-bar">
@@ -118,11 +142,36 @@ export function FloatingInfoBar({ state, dispatch }) {
         <span className={'finfo-pill seal seal-' + state.sealState}>封印：{sealLabel}</span>
         <span
           className={'finfo-pill clue' + (clueOpen ? ' active' : '')}
-          onClick={() => setClueOpen((v) => !v)}
+          onClick={() => {
+            setInventoryOpen(false);
+            setClueOpen((v) => !v);
+          }}
           style={{ cursor: 'pointer' }}
+          title="线索 (J)"
         >
           线索 {state.clues.length}
         </span>
+        <span
+          className={'finfo-pill inventory' + (inventoryOpen ? ' active' : '')}
+          onClick={() => {
+            setClueOpen(false);
+            setInventoryOpen((v) => !v);
+          }}
+          style={{ cursor: 'pointer' }}
+          title="随身物件 (I)"
+        >
+          🎒 {state.inventory.length}
+        </span>
+        <button
+          className="finfo-btn notebook-open-map-btn"
+          onClick={() => {
+            uiStore.setState({ notebookOpen: true, notebookEverOpened: true });
+            dispatch({ type: 'MARK_NOTEBOOK_OPENED' });
+          }}
+          title="笔记本 (N)"
+        >
+          📓
+        </button>
         <button
           className="finfo-btn"
           onClick={() => uiStore.setState({ settingsOpen: true })}
@@ -162,6 +211,13 @@ export function FloatingInfoBar({ state, dispatch }) {
       {clueOpen && (
         <CluePanel state={state} onClose={() => setClueOpen(false)} />
       )}
+      {inventoryOpen && (
+        <InventoryPanel
+          state={state}
+          dispatch={dispatch}
+          onClose={() => setInventoryOpen(false)}
+        />
+      )}
     </div>
   );
 }
@@ -169,17 +225,14 @@ export function FloatingInfoBar({ state, dispatch }) {
 // === 线索弹出面板 ===
 function CluePanel({ state, onClose }) {
   var inProgress = useMemo(function () {
-    return (GD.systems?.clue_conclusion?.conclusions || [])
-      .filter(function (c) {
-        if ((state.discoveredConclusions || []).includes(c.id)) return false;
-        var req = c.required_clue_ids || c.required_clues || [];
-        return req.length > 0 && req.some(function (id) {
-          return (state.clues || []).some(function (cl) {
-            return (typeof cl === 'object' ? cl.id : cl) === id;
-          });
-        });
-      });
-  }, [state.discoveredConclusions, state.clues]);
+    return getInProgressConclusions(state, { GD: GD });
+  }, [
+    state.clues,
+    state.discoveredConclusions,
+    state.npcTrust,
+    state.triggeredEvents,
+    state._triggeredSet,
+  ]);
 
   return (
     <div className="clue-panel-overlay" onClick={onClose}>
@@ -218,7 +271,11 @@ function CluePanel({ state, onClose }) {
             <>
               <div className="clue-panel-title" style={{ color: 'var(--text-dim)' }}>推断中</div>
               {inProgress.map(function (c, i) {
-                return <div key={i} className="clue-entry" style={{ color: 'var(--text-dim)', opacity: 0.7 }}>… {c.name}</div>;
+                return (
+                  <div key={i} className="clue-entry" style={{ color: 'var(--text-dim)', opacity: 0.7 }}>
+                    … {c.name} ({c.satisfiedEvidence.length}/{c.requiredEvidenceCount})
+                  </div>
+                );
               })}
             </>
           )}
@@ -229,6 +286,56 @@ function CluePanel({ state, onClose }) {
           )}
           {state.clues.length === 0 && (
             <div className="clue-entry" style={{ color: 'var(--text-dim)', opacity: 0.5 }}>尚未发现任何线索。</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// === 地图模式物品面板 ===
+function InventoryPanel({ state, dispatch, onClose }) {
+  var itemDefs = GD.items || [];
+  return (
+    <div className="clue-panel-overlay inventory-panel-overlay" onClick={onClose}>
+      <div className="clue-panel inventory-panel" onClick={function (e) { e.stopPropagation(); }}>
+        <div className="clue-panel-header">
+          <span>🎒 随身物件 ({state.inventory.length})</span>
+          <button className="finfo-btn" onClick={onClose}>✕</button>
+        </div>
+        <div className="clue-panel-body">
+          {(state.inventory || []).map(function (item, i) {
+            var def = itemDefs.find(function (entry) {
+              return entry.id === item.id || entry.name === item.name;
+            });
+            var useHint = def?.use_hint;
+            var exhausted = item.uses === 0;
+            return (
+              <div key={item.id || item.name || i} className="inventory-panel-item">
+                <div className="inventory-panel-item-info">
+                  <span className="inventory-panel-item-name">{item.name}</span>
+                  <span className="inventory-panel-item-uses">
+                    {item.uses > 0 ? '×' + item.uses : item.uses === -1 ? '∞' : ''}
+                  </span>
+                </div>
+                {useHint ? (
+                  <button
+                    className="btn btn-sm inventory-use-btn"
+                    disabled={exhausted}
+                    onClick={() => dispatch({ type: 'USE_ITEM', item: item })}
+                  >
+                    {useHint}
+                  </button>
+                ) : (
+                  <span className="inventory-passive-label">被动</span>
+                )}
+              </div>
+            );
+          })}
+          {state.inventory.length === 0 && (
+            <div className="clue-entry" style={{ color: 'var(--text-dim)', opacity: 0.5 }}>
+              你没有携带任何物件。
+            </div>
           )}
         </div>
       </div>

@@ -16,6 +16,7 @@ import { checkEnding } from '../../reducers/endingReducer.js';
 import { genObjectives } from '../../reducers/objectiveReducer.js';
 import { saveGame } from '../../engine/SaveManager.js';
 import { checkForcedNarrativeHook } from '../../engine/EventEngine.js';
+import { syncTriggeredSet } from '../../utils/triggeredSet.js';
 
 /**
  * Narrate new day header, area description, forced hooks, check endings and time limit.
@@ -28,6 +29,9 @@ export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues
   );
   const area = getAreaInfo(s.currentArea, ctx);
   if (area) {
+    var areaDisplayName = getAreaDisplayName(area, s, c.rng);
+    if (!s.areaNameCache) s.areaNameCache = {};
+    s.areaNameCache[s.currentArea] = areaDisplayName;
     var dayDesc = area.description;
     if (area.layout_variants && area.layout_variants.length > 0) {
       var phase = getPhase(s.ap, s.maxAp);
@@ -44,7 +48,7 @@ export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues
         var totalW = eligible.reduce(function (t, v) {
           return t + (v.weight || 1);
         }, 0);
-        var r = (c.rng ? c.rng.next() : Math.random()) * totalW;
+        var r = c.rng.next() * totalW;
         var chosen = eligible[0];
         for (var _vi = 0; _vi < eligible.length; _vi++) {
           r -= eligible[_vi].weight || 1;
@@ -57,12 +61,12 @@ export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues
       }
     }
     c.narr('location', dayDesc, {
-      locationName: getAreaDisplayName(area, s),
+      locationName: areaDisplayName,
       imageSrc: getAreaSceneImage(s.currentArea, {
         ...c.view,
         visits: (s.visitedAreas || []).filter((a) => a === s.currentArea).length,
       }),
-      imageAlt: getAreaDisplayName(area, s),
+      imageAlt: areaDisplayName,
       _areaClass: 'area-scene-' + s.currentArea,
     });
   }
@@ -70,13 +74,14 @@ export function _processDayOpenAndEndings(s, c, _startSan, _startHp, _startClues
     const hook = checkForcedNarrativeHook(s);
     if (hook) {
       s.triggeredEvents.push(hook.id);
+      syncTriggeredSet(s, hook.id);
       c.narr('system', hook.text, { isSpecial: true });
       if (hook.sanCost) applySanLoss(s, hook.sanCost);
     }
   }
   const ending = checkEnding(s, ctx);
   if (ending) s.ending = { ...ending, recap: buildDeathRecap(s) };
-  if (s.day > 28) {
+  if (s.day > 28 && !s.ending) {
     s.deathContext = {
       mode: 'hp',
       type: 'physical',

@@ -4,6 +4,7 @@
 //
 // Performance: uses granular Zustand selectors (not full state prop) to avoid
 // cascading re-renders when unrelated state changes.
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { InteractiveTownMap } from './InteractiveTownMap.jsx';
 import { FloatingInfoBar, NarrativeFloatingPanel } from './FloatingInfoBar.jsx';
@@ -12,19 +13,19 @@ import { GameHeader, LeftPanel, CenterPanel, RightPanel } from './GamePanels.jsx
 import { generateMetaCorruptionEvent, generateLoopOpening, generateCorruptedSaveName, isGlmAvailable } from '../systems/llmNarrative.js';
 import { getPhase } from '../engine/WorldTimeSystem.js';
 import { getAudioIntrusionLevel, applyAudioIntrusion, getAudioIntrusionDescription } from '../systems/audioIntrusion.js';
-import { uiStore } from '../state/uiStore.js';
+import { uiStore, useUiStore } from '../state/uiStore.js';
 import { useGameLayoutData } from '../state/selectors.js';
 import { getDispatch, useGameStore } from '../state/useGameStore.js';
 import { GD } from '../state/gameData.js';
+import { audioManager } from '../managers/AudioManager.js';
 
 export function GameLayout() {
   // Granular subscription — re-renders only when these fields change
   var gl = useGameLayoutData();
   var dispatch = getDispatch();
-  var ui = uiStore();
-  var uiMode = ui.uiMode || 'town_map';
-  var activeHotspot = ui.activeHotspot;
-  var activePanel = ui.activePanel;
+  var uiMode = useUiStore(function (s) { return s.uiMode; }) || 'town_map';
+  var activeHotspot = useUiStore(function (s) { return s.activeHotspot; });
+  var activePanel = useUiStore(function (s) { return s.activePanel; });
 
   var screen = gl.screen;
   var day = gl.day;
@@ -33,6 +34,7 @@ export function GameLayout() {
   var ap = gl.ap;
   var maxAp = gl.maxAp;
   var san = gl.san;
+  var weather = gl.weather;
   var audioMuted = gl.audioMuted;
   var deathContext = gl.deathContext;
   var level13Glitch = gl._level13GlitchScheduled;
@@ -49,6 +51,20 @@ export function GameLayout() {
       audioManager.playAreaAmbient(currentArea || 'town_center', phase);
     } catch (e) {}
   }, [currentArea, day, audioMuted]);
+
+  // Weather is a quiet secondary loop layered under the area soundscape.
+  useEffect(() => {
+    try {
+      if (audioManager.muted) {
+        audioManager.stopWeatherAmbient();
+        return;
+      }
+      audioManager.playWeatherAmbient(weather);
+    } catch (e) {}
+    return function () {
+      try { audioManager.stopWeatherAmbient(); } catch (e) {}
+    };
+  }, [weather, audioMuted]);
 
   // 感知污染 — 音频侵入层：根据 SAN/loop/mythos 调整环境音
   var _aiSan = useGameStore(function (s) { return s.san; });
@@ -98,6 +114,7 @@ export function GameLayout() {
             narrType: 'system',
             text: text,
             extra: { isSpecial: true },
+            meta: { consumeGameplayRng: false },
           });
         }
       });
@@ -128,6 +145,7 @@ export function GameLayout() {
           narrType: 'system',
           text: (result.prefix || '[异象]') + ' ' + result.text,
           extra: { isSpecial: true },
+          meta: { consumeGameplayRng: false },
         });
       }
     });
@@ -170,8 +188,8 @@ export function GameLayout() {
       }
       // N 键打开笔记本
       if (e.key === 'n' || e.key === 'N') {
-        try { uiStore.setState({ notebookOpen: true, notebookEverOpened: true }); } catch (err) {}
-        try { dispatch({ type: 'MARK_NOTEBOOK_OPENED' }); } catch (err) {}
+        uiStore.setState({ notebookOpen: true, notebookEverOpened: true });
+        dispatch({ type: 'MARK_NOTEBOOK_OPENED' });
       }
       // J 键切换到线索标签
       if (e.key === 'j' || e.key === 'J') {

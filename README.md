@@ -10,7 +10,7 @@ _Abyssal Whispers: Shadow of Voxchester_
 ![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Browser-lightgrey)
 ![Build](https://img.shields.io/badge/build-Vite_%2B_singlefile-green)
-![Tests](https://img.shields.io/badge/tests-700_passed_%2F_0_failed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-805_passed_%2F_0_failed-brightgreen)
 ![Version](https://img.shields.io/badge/version-0.9.8-orange)
 
 [在线游玩 (Browser)](https://baliujunan.github.io/abyssal-whispers/) · [桌面版 (Tauri EXE)](#桌面版) · [快速开始](#快速开始) · [游戏特色](#游戏特色) · [技术架构](#技术架构)
@@ -33,8 +33,8 @@ npm install
 npm run dev          # → http://localhost:3000
 
 # 方式二：构建后预览
-npm run build        # → dist/ (587字节HTML + 分块JS + 音频 + 图片)
-npx vite preview     # → http://localhost:4173
+npm run build        # → dist/index.html + audio/ + webp/ + webp_ending/
+npm run preview      # → http://localhost:4173
 
 # 方式三：内容编辑器
 npm run dev
@@ -62,11 +62,23 @@ npm run tauri:build
 - 手机 / 平板 / 桌面全平台响应式适配
 - **推荐佩戴耳机** — 音频体验是沉浸感的关键
 
+### 发布前游玩审核
+
+```bash
+# 12 局快速生产状态机审核
+npm run audit:playable
+
+# 48 局发布矩阵（难度 / 职业 / 玩家策略 / 回放 / 存档 / 战斗 / 低 SAN 文本）
+npm run audit:playable:release
+```
+
+审核直接驱动正式 Zustand/Immer Store 和运行时事件池，不使用简化规则；失败报告默认写入被 Git 忽略的 `test-results/playability-audit.json`。门禁和复现方法见 [完整游玩逻辑审核](docs/PLAYABILITY_AUDIT.md)。
+
 ---
 
 ## 游戏特色
 
-> **一个用 800+ 个事件、36 种行为结局、53 段原创音频和一套会对你撒谎的界面，讲述你在一座不该存在的城镇上活过、死过、再回来的故事。**
+> **一个用 800+ 个事件、36 种行为结局、77 段原创音频和一套会对你撒谎的界面，讲述你在一座不该存在的城镇上活过、死过、再回来的故事。**
 
 ### 核心数据
 
@@ -81,7 +93,7 @@ npm run tauri:build
 | **可探索区域** | 9 个 — 从镇中心到深渊墓穴，危险度递进（45-265 事件/区域）                                                                    |
 | **物品**       | 79 种 — 全部有效果，含 2 家可购买商店 + 轮回商店 6 件永久商品                                                                |
 | **事件链**     | 12 条 — 7 条主线叙事链 + 5 条玩家痕迹软连锁（has_flag/add_flag 引擎级事件依赖）                                                |
-| **音频素材**   | 53 段 (WAV + MP3) — 覆盖环境音乐 / 音效 / 中文语音                                                                          |
+| **音频素材**   | 77 段 (WAV + MP3) — 覆盖区域/天气环境、战斗、结局、仪式、SAN、死亡、探索与 UI 音效                                              |
 | **成就**       | 20 个 — 进程 / 结局 / 挑战 / 隐藏四大类                                                                                     |
 | **存档槽位**   | 6 个 — 3 自动轮转 + 3 手动管理，JSON 导入导出                                                                               |
 | **图片素材**   | 141 张 WebP — 含 72 张独立结局 CG + 3 张镇中心专用场景图                                                                     |
@@ -93,7 +105,7 @@ npm run tauri:build
 | **代码规模**   | ~54,000 行 JS/JSX — 120+ 个源文件（app.jsx 瘦身至 200 行 thin orchestrator）                                                                                          |
 | **数据校验**   | Zod Schema 855条数据全量校验 + SaveManager 安全扫描（scanSaveSecurity / sanitizeSaveState）                                                                           |
 | **引擎边界**   | src/engine/ 零游戏导入，6个独立模块，`npm run lint:engine` 自动检查                                                           |
-| **测试覆盖**   | 16 个套件 ~700 项（完整流程 48 + 存档安全 + 事件 lint 100 + 平衡系统 96 + 轮回 134 + 冒烟 53 + 集成 19 + slice handler 单元测试 40 + 其他），拼接/Vite 双构建验证                                                          |
+| **测试覆盖**   | **19 个套件、805 项**（含完整流程 48 + 存档安全 45 + 回归 35 + playability audit 11 + combineSlices 78 + 平衡系统 96 + 轮回与玩家模拟 134 + 冒烟 53 + 集成 19 + 其他），Vite ESM 构建验证；另有 Playwright 浏览器流程测试 |
 
 预计完整体验：**20-40 小时** | 三周目入门，十周目见真结局
 
@@ -163,7 +175,7 @@ npm run tauri:build
 - `FloatingInfoBar` — 悬浮 HUD，显示位置/时间/SAN/HP/AP/封印状态/天气等核心信息
 - `AreaPanelModal` — 点击热点后弹出的功能面板（行动/NPC 对话/区域信息）
 
-**经典模式**保持原有 `GamePanels` 三栏布局不变。
+**经典模式**暂时保留原有 `GamePanels` 三栏布局，作为地图模式功能迁移期间的兼容入口；待技能检定、赌博、战斗、物品和禁忌行动完成地图模式覆盖与 E2E 验证后再退役。
 
 ### 理智值 (SAN) 系统
 
@@ -315,7 +327,7 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **文本重复控制**          | 4 层污染变体：原文→微妙替换→可读腐蚀→跳过摘要，跨轮持久追踪                                        |
 | **商店系统**              | 2 家商店，NPC 信任解锁高级商品                                                                      |
 | **事件链 / 线索链**       | 顺序推进的多阶段调查，线索组合推导结论                                                              |
-| **音频系统**              | 53 段音频 — 区域环境音乐(9区×昼夜) + 技能检定音效 + 死亡叙事 + 中文语音台词 + 钟声变体 + AP消耗音效反馈 + 前传环境音 |
+| **音频系统**              | 77 段音频 — 区域/天气环境层 + 战斗结果反馈 + 四类结局 + 仪式/安全屋 + 技能检定、死亡、SAN 与 UI 音效；新增内容均为非语言音效 |
 | **笔记本系统**            | 独立浮层 UI（N 键/按钮），3 条线索链 + 5 个结论 + 线索互引标记 + 散落笔记，不影响上方数据查看          |
 | **事件日志**              | 可折叠事件记录面板（左栏全量 / 右栏最近10条 / 顶部快捷按钮），按 Day 标记，支持幻影条目过期过滤，存档持久化（200条上限）  |
 | **设置面板**              | **页面缩放**(70-140%) · 字号/行高/字族 · 闪烁/动画/高对比度 · 视觉污染/震动/文字污染/暗角 · 5路音量/静音 · 引导/跳过已读 · **存档/读档/成就入口** |
@@ -358,6 +370,8 @@ UI 层异步调用 → 渐进增强（静态文本立即显示，LLM 文本就�
 | **DevPanel**              | 开发者调试面板（~ / Ctrl+Shift+D）— 一键改状态/强制事件/权重查看/性能监控                           |
 | **AI 叙事增强**           | GLM-4.7 Flash — 9 场景动态生成，离线优先，API 失败自动回退                                          |
 | **SAN mutation 静态检查** | `npm run lint:san` — 扫描全部 reducer，禁止直接 `s.san = clamp(san-...)`，白名单除外                 |
+| **确定性 RNG 门禁**       | `npm run lint:rng` — 扫描玩法逻辑，拦截裸随机、`c.rng` 降级、`makeRand` 误用和死亡碎片 RNG 断链      |
+| **音频资源门禁**          | `npm run lint:audio` — 校验 79 个音频 ID、文件路径、动态结局映射、WAV 响度、削波与天气循环接缝      |
 | **屏幕转场动画**          | Canvas 程序化转场（噪声擦拭/墨汁渗透/虚空之环/故障切片）+ CSS enter + 主题音效联动 + 800ms 编排      |
 | **NPC 上下文对话**        | 8 位 NPC × 143+ 条条件感知对话（信任/时段/SAN/轮回/死亡遗产/物品/区域/日期里程碑/天气反应），优先未读，去重              |
 | **Day-of-Cycle 事件权重** | 关键日期(7/14/21/28)超自然事件×1.8、日常事件×0.4，营造"世界加速崩塌"节奏感                                                           |
@@ -477,9 +491,9 @@ Copyright © 2024-2026 BALIUJUNAN. All Rights Reserved.
 ### 整体架构
 
 ```
-React 18 + Zustand + Immer middleware + combineSlices 声明式切片
+React 19 + Zustand + Immer middleware + combineSlices 声明式切片
   → useGameStore (Zustand + immer) — 唯一游戏状态源，dispatch → rootReducer → flushEffects
-  → src/state/combineSlices.js — createSlice 工厂 + rootReducer 组合器，before/after 三阶段执行
+  → src/state/combineSlices.js — createSlice 工厂 + rootReducer 组合器，before/reducer/after 事务式执行，异常完整回滚
   → 8 个 domain slice（core/explore/npc/daily/dark/ui + systemSlice cross-cutting）— 薄调度层，逻辑委托 src/systems/{explore,npc,daily}/
   → 引擎层 (src/engine/) — 纯 JavaScript，独立 npm 包，零游戏导入，DI 注入
   │    EventEngine / WorldTimeSystem / SaveManager（含安全扫描）/ PollutionManager
@@ -510,7 +524,7 @@ COC/
 ├── game_meta.json            # Meta 层数据
 │
 ├── assets/webp/              # 138 张 WebP 图片素材
-├── audio/                    # 53 个音频文件（WAV + MP3）
+├── audio/                    # 77 个音频文件（WAV + MP3）
 │
 ├── src/                      # 60,282 行 JS/JSX，130+ 个源文件
 │   │   ├── initialState.js        # 游戏初始状态定义（72 行）
@@ -712,23 +726,29 @@ COC/
 │   │       ├── validateGameData.cjs    # 主校验入口
 │   │       └── validateGameData_test.cjs  # 校验器测试
 │   │   │
-│   │   └── lint_extended_events.js # 扩展事件 lint 工具
+│   │   └── validators/             # 数据校验器（由 src/data/validators 迁移，0.9.7）
+│   │
+├── scripts/                   # 构建外脚本（ESM）
+│   ├── lint/                   # 内容质量门禁：lint-narrative-quality / lint-npc-consistency
+│   ├── playability/            # 可玩性审计核心库（audit-core.mjs）
+│   ├── audit-playability.mjs   # 可玩性审计 CLI 入口（仿真 + 报告）
+│   ├── simulate_loops.cjs      # 轮回批量模拟器（--loops/--difficulty/--batch/--progress/--json）
+│   ├── check-audio-assets.cjs  # 音频资产校验（ID/路径/响度/接缝）
+│   └── archive/migrations/     # 已归档的实验性脚本（sim28balance 系列 11 个文件，0.9.8 起归档，正式平衡收敛到 src/systems/balanceSimulator.js）
 │   │
 │   ├── managers/
 │   │   └── AudioManager.js         # 音频系统
 │   │
 │   ├── docs/
-│   │   ├── adr/                    # 架构决策记录（29 条 ADR）
+│   │   ├── adr/                    # 架构决策记录（30 条 ADR）
 │   │   └── reports/                # 平衡性测试报告 + 设计文档（迁移自 tests/）
 │   │
-│   ├── scripts/
-│   │   ├── validators/             # 数据校验器（CJS，迁移自 src/data/validators/）
-│   │   ├── benchmark/              # 性能基准测试（reducer throughput + full game loop）
-│   │   ├── sim28balance*.cjs       # 28天平衡模拟器（13级难度 × 恐惧画像）
-│   │   └── ...
-│
+│   ├── scripts/                   # 构建外脚本（ESM，见顶层 scripts/ 段）
+│   │   └── validators/            # 数据校验工具（由 src/data/validators 迁移，ESM 与校验分离）
+│   │
+│   └── playability/           # 可玩性审计核心库（audit-core.mjs）
 ├── src-tauri/                # Tauri v2 桌面应用配置
-├── tests/                    # 16 个测试套件（700+ tests）
+├── tests/                    # 19 个测试套件（805 tests）+ 19 项 Playwright E2E
 │   ├── test_effect_protocol.cjs       # 效果协议测试（19 tests）
 │   ├── test_game_data_protocol.cjs    # 游戏数据协议测试（10 tests）
 │  ├── test_event_system.cjs          # 事件系统测试（19 tests）
@@ -837,7 +857,7 @@ COC/
 | **结局引擎**           | `reducers/`              | 343     | AND/OR条件解析                      | 36行为结局+10主线+隐藏+Meta打破                        |
 | **NPC系统**            | `reducers/` + `systems/` + `data/` | 350+400+206 | 8人×5级信任×5层记忆×关系网×死后遗产×200+条三层对话 | 信任门控/腐蚀/救赎路线/NPC间关系/遗产继承/日期里程碑/天气反应/SAN观察/条件感知对话 |
 | **结局余韵**           | `reducers/`              | 73      | Afterglow 文本系统                  | 条件解锁(事件/物品/周目数)/轮回记录UI                  |
-| **AudioManager**       | `managers/`              | 144     | 53段音频管理                        | 区域环境音(昼夜)/技能检定分级/SAN损失分层              |
+| **AudioManager**       | `managers/`              | 344     | 77段音频管理                        | 区域与天气双层环境音/战斗/结局/技能/SAN 分层             |
 | **Registry**           | `data/registry/`         | 227     | 身份注册表                          | 区域/物品/NPC 统一注册 + 名称别名双向解析              |
 | **Validators**         | `scripts/validators/`   | 522     | 数据验证器                          | 效果/条件/引用三层校验，构建时 + 运行时                |
 | **GLM Client**         | `utils/`                 | 190     | GLM-4.7 Flash API 客户端            | OpenAI兼容/限流2s/缓存5min/超时15s/离线回退            |
@@ -1032,10 +1052,11 @@ UGC 模组有严格的安全限制：
 
 | 流水线 | 触发 | 功能 |
 |--------|------|------|
-| **PR Quality Gate** | PR → main/develop | 测试 + 6 项 lint（schema/engine/narrative/npc/mod）+ Vite 构建 + Legacy 构建 + 格式检查，一步失败阻断合入 |
-| **Main CI** | push → main/develop | 5 个并行 job：Lint（schema/engine/narrative/npc/mod）→ Test（10min 超时）→ Vite Build（产物上传）→ Legacy Build（产物上传）→ Format Check |
-| **Preview Deploy** | push → develop | 继承 lint + test + legacy build 结果，构建后部署到 GitHub Pages（`/preview/` 子目录） |
-| **Release** | push tag `v*` | 测试 + Legacy 构建 + 自动生成 changelog + GitHub Release + 上传 `index.html` |
+| **PR Quality Gate** | PR → main/develop | 完整测试 + lint + Vite 构建产物校验 + Chromium E2E，一步失败阻断合入 |
+| **Main CI** | push → main/develop | Lint → Test → Vite Build → 构建产物 Chromium E2E，并独立执行格式检查 |
+| **Preview Deploy** | push → develop | 继承 lint + test + Vite build 结果，构建后部署到 GitHub Pages（`/preview/` 子目录） |
+| **Production Deploy** | push → main | 通过质量门后将完整 `dist/` 部署到 GitHub Pages 根目录 |
+| **Release** | push tag `v*` | 通过质量门后将完整网页产物打包为 ZIP，并创建 GitHub Release |
 
 **Node.js 版本**：22.15.0 LTS（CI + 本地 `.nvmrc` 同步）
 
@@ -1043,11 +1064,16 @@ UGC 模组有严格的安全限制：
 
 **快速测试命令**：
 ```bash
-npm test                  # 全量测试（700 tests / 16 suites）
+npm test                  # 全量测试（805 tests / 19 suites）
 npm run lint:schema       # 数据 Schema 校验
 npm run lint:engine       # 引擎边界检查
-npm run mod:validate      # Mod 格式校验
+npm run lint:rng          # 确定性 RNG 泄漏检查
+npm run lint:audio        # 音频路径、ID、WAV 响度与循环接缝检查
+npm run mod:validate -- mods/examples/new-area-lighthouse/mod.json  # 单个 Mod 格式校验
+node scripts/validate-mods.mjs                                      # 批量校验仓库内全部 Mod
 npm run build             # Vite 生产构建
+npx playwright install chromium  # 首次运行浏览器测试前安装 Chromium
+npm run test:e2e          # 18 项浏览器端主流程测试
 ```
 
 ---
@@ -1063,9 +1089,9 @@ npm run build             # Vite 生产构建
 |------|------|
 | **状态** | 已弃用（v0.9.7 删除 build.py） |
 | **背景** | 项目曾维护两条独立构建管线：Vite（开发/生产 ESM）+ `build.py`（拼接为单文件 HTML），产生双注册、构建顺序依赖等问题 |
-| **决策** | 删除 `build.py`，Vite + vite-plugin-singlefile 为唯一构建系统，产出自包含单文件 `dist/index.html` |
-| **理由** | Vite singlefile 插件已能产出自包含单 HTML 文件，满足离线分发需求；消除双构建维护成本和拼接构建的作用域隔离问题 |
-| **后果** | 新增文件只需 ESM import，无需维护文件顺序列表；`npm run build` 同时覆盖开发和分发场景 |
+| **决策** | 删除 `build.py`，Vite + vite-plugin-singlefile 为唯一构建系统；JS/CSS/JSON 内联到 `dist/index.html`，图片与音频保留为外部资源目录 |
+| **理由** | 单一 Vite 构建可消除双构建维护成本和拼接构建的作用域隔离问题，同时避免把大量媒体编码进 HTML |
+| **后果** | 新增文件只需 ESM import，无需维护文件顺序列表；发布和离线分发必须保留完整 `dist/`，不能只复制 `index.html` |
 | **相关** | ADR-005（拼接构建的作用域隔离规则）、ADR-026/027（build.py 特有 bug） |
 
 ### ADR-002: Zustand + Immer 声明式状态管理
@@ -1197,11 +1223,11 @@ nvm use   # 读取 .nvmrc → 22.15.0
 
 ### 构建路线
 
-项目使用 Vite + vite-plugin-singlefile 构建**自包含单 HTML 文件**：
+项目使用 Vite + vite-plugin-singlefile 构建：应用代码内联到 HTML，图片与音频随 `dist/` 目录一同发布。
 
 | 路线              | 命令                            | 产物                     | 适用场景                          |
 | ----------------- | ------------------------------- | ------------------------ | --------------------------------- |
-| **Vite（推荐）**  | `npm run dev` / `npm run build` | `dist/index.html`（~2.8MB，自包含） | 日常开发、离线分发、生产部署 |
+| **Vite（推荐）**  | `npm run dev` / `npm run build` | 完整 `dist/`（HTML + 图片 + 音频） | 日常开发、离线分发、生产部署 |
 | **Tauri 桌面版**  | `npm run tauri:build`           | `.exe` 安装包            | 桌面客户端                        |
 
 ```bash
@@ -1211,14 +1237,14 @@ npm install
 # ── 推荐路线 ──────────────────────────────────────────
 
 npm run dev              # 开发服务器 → http://localhost:3000（Vite HMR）
-npm run build            # 生产构建 → dist/index.html（自包含单文件，双击即可打开）
+npm run build            # 生产构建 → 完整 dist/ 网页产物
 npm run preview          # 预览生产构建 → http://localhost:4173
 npm run tauri:build      # 桌面版构建（需要 Rust）
 
 # ── 验证 ──────────────────────────────────────────────
 
 npm run verify           # 完整验证（测试 + Vite 构建）
-npm test                 # 全部测试（700 tests / 16 suites）
+npm test                 # 全部测试（805 tests / 19 suites）
 npm run test:save:security # 存档安全测试（ADR-010: scanSaveSecurity / quarantineSave / 白名单复制）
 npm run format:check     # 代码格式检查（Prettier）
 
@@ -1232,16 +1258,19 @@ npm run simulate:loops   # 批量轮回模拟（--difficulty/--batch/--progress/
 
 npm run format           # 格式化全部源文件（Prettier）
 npm run lint:san         # SAN mutation 静态检查（禁止直接 clamp）
+npm run lint:rng         # 确定性 RNG 泄漏门禁
+npm run lint:audio       # 音频资源与运行时映射门禁
 npm run lint:engine      # 引擎边界检查（src/engine/ 零游戏导入）
 npm run lint:schema      # Zod Schema 数据校验（855条数据 + difficulty_modifiers全量）
 npm run lint:events      # 扩展事件 lint
 npm run test:missing600  # 第 600 号事件测试
-npm run mod:validate     # UGC 模组校验
+npm run mod:validate -- mods/examples/new-area-lighthouse/mod.json  # 单个 UGC 模组校验
+node scripts/validate-mods.mjs                                      # 批量校验仓库内全部 UGC 模组
 npm run mod:preview      # UGC 模组预览
 npm run mod:pack         # UGC 模组打包
 ```
 
-> **路线说明**：Vite + vite-plugin-singlefile 是唯一构建系统，产出自包含单 HTML 文件（`dist/index.html`），同时支持浏览器开发和离线分发。`npm run verify` 覆盖测试 + 构建。
+> **路线说明**：Vite + vite-plugin-singlefile 是唯一构建系统。`dist/index.html` 内联应用代码，但仍依赖同目录下的 `audio/`、`webp/` 与 `webp_ending/`；请发布完整 `dist/`，或使用 Release 提供的完整 ZIP。`npm run verify` 覆盖测试、构建和产物完整性检查。
 
 ### 开发者调试面板
 
@@ -1297,7 +1326,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 | **事件系统**         | **9.5/10** | ✅ EventEngine 三层加权选择，pure/commit 分离，SSOT triggeredEvents，629 事件 + 102 结局 + has_flag 软连锁       |
 | **SAN 系统**         | **9.5/10** | ✅ SSOT 6阶段×4维度，零硬编码，CSS+Canvas+CorruptibleChoice+AbyssPopup 全实现                  |
 | **子系统**           | **9.0/10** | ✅ PollutionManager/WorldTimeSystem 引擎独立，数据驱动 infection_risk                          |
-| **构建流程**         | **9.5/10** | ✅ Vite 主线（ESM + HMR）；Legacy 单文件保留；verify 覆盖双构建；注释安全删除 + token 边界保护 |
+| **构建流程**         | **9.5/10** | ✅ Vite + vite-plugin-singlefile 唯一构建链；ESM import 解析、测试与浏览器 E2E 由 CI 验证 |
 | **开发体验**         | **9.5/10** | ✅ DevPanel(~) + 双Store选择器 + 三滑块SAN控制 + GAME_BALANCE 常量                             |
 
 ### 架构优势
@@ -1309,7 +1338,7 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 - ✅ **Slice 领域拆分** — exploreSlice（928行）和 npcSlice（774行）拆分到 `src/systems/explore/`（3 域文件）和 `src/systems/npc/`（6 域文件），切片文件变为薄调度层（explore ~70行，npc ~55行）
 - ✅ **引擎层纯 JavaScript** — 移除 3 个孤立 `.ts` 文件（EventEngine/PollutionManager/SaveManager）和 `tsconfig.json`，ENGINE_CONTRACT.md 记录 JS-only 规则
 - ✅ **CJS 保留策略** — tests/scripts 保留 CJS（~50 文件），src/ 强制 ESM，ADR-030 记录边界规则
-- ✅ **错误隔离** — 钩子/处理器各自 try/catch，单点失败不阻塞 action 链路
+- ✅ **事务式分发** — before/reducer/after 任一阶段失败即终止，Immer 完整回滚；错误附带 action/slice/phase 并由 Store 统一报告
 - ✅ **JSDoc 类型注解** — SliceConfig/SliceReducer/BeforeHook/AfterHook 四个 typedef，对齐未来 TS 迁移
 - ✅ **SAN SSOT** — `getCurrentSanStage()` 统一查询，6阶段×4维度配置，修改JSON即全局生效
 - ✅ **引擎层独立** — `src/engine/` 5 个引擎模块（纯 JavaScript），核心逻辑与 UI 完全解耦 + 确定性 RNG
@@ -1357,8 +1386,9 @@ node scripts/simulate_loops.cjs --loops 100 --difficulty 10 --batch 10 --progres
 
 | 版本      | 日期       | 主要更新                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.9.8** | 2026-08-09 | **稳定性、音频与发布收尾** — 完成 NEW_GAME 与存档往返修复、reducer ctx/RNG/ESM 依赖治理、Immer Map/Set 支持和循环依赖清理；`combineSlices` 改为 fail-fast 事务分发；修复 NPC、死亡元事件、RNG 游标、地图模式交互与结论进度协议；探索管道 6 阶段重构，低 SAN 假选项改为运行时事件克隆（不再污染共享 GD 事件定义）；NPC 探针线索系统（`probeThreadSystem`）与对话系统强化；资源/信任效果改走 `clamp` 与 `npcStateAccess` 统一访问层；将散落的实验性脚本（sim28balance 系列 11 个、narrative_analysis.json、template_dedup_detail.json、Python 变体生成器）全部归档至 `scripts/archive/migrations/`，正式平衡收敛到 `src/systems/balanceSimulator.js`（-27k 行）；新增 24 段无人物语音的发布音效，覆盖战斗、结局、天气、安全屋、探索和仪式，天气作为独立环境层播放，并增加 `lint:audio`/`lint:rng` CI 门禁（PR + release 双校验）；CI 验证真实 `dist` 并部署/打包完整媒体目录；测试扩展至 19 套件 805 项（新增 `playability_audit` 11 项），另有 19 项构建版浏览器 E2E；地图模式作为默认入口，经典三栏暂留待功能等价后退役。 |
 | **0.9.7** | 2026-07-02 | **工程质量升级：build.py 退役 + ESM 清算 + 内容质量验证** — ①删除 `build.py` 和 `build-web.cjs`，Vite + vite-plugin-singlefile 为唯一构建系统，消除双注册/构建顺序依赖债务；②`.cjs` 校验工具从 `src/data/validators/` 迁移至 `scripts/validators/`，与 ESM 游戏数据目录彻底分离；③`src/` 目录全部 `.cjs` 残留清零，ESM import 完全接管；④Zod 数据验证接入 main.jsx bootstrap，malformed 数据不再静默失败；⑤`s.clues` 混合类型归一化，10 个 push 点统一为 `{id, name}` 对象格式，消除 `[object Object]` 显示 bug；⑥`.gitattributes` 引入 + `git add --renormalize`，CRLF 编码警告全部消除；⑦`tests/test_effect_protocol.cjs` Test 17 从 build order 校验迁移为 ESM import 存在性验证；⑧`loop_contradiction_001` 叙事文本重写（75→99分），消除唯一 B 级事件；⑨全量测试 608 passed / 0 failed / 14 suites |
-| **0.9.8** | 2026-07-07 | **架构重构：useEffect 拆分 + 全局变量治理 + 事件数据归拢 + E2E 测试 + 存档安全加固** — ①app.jsx 从 678 行瘦身至 200 行（-70%）：13 个 useEffect 块拆分为 `src/hooks/` 下 13 个自定义 hooks（useSeedStore/useMigrateOldSaves/useAudioSettingsInit/useAudioAutoplayUnlock/useReducedMotion/useNotebookTutorialSync/usePageZoom/useEndingCgPreload/useChapterLazyLoad/useAchievementCheck/useSanLossHint/useBootHint/useLevel13Glitch），3 个状态聚合 hook（useGameData/useDispatchWrapper/useUiState），`bootstrap.js` 提取模块级启动引导；②全局变量治理：`window.GD` 和模块级 `GD` 全局引用消除，`sanityVisual.js` / `getVisualForSan` / `getPerceptionLevels` / `applyMythosAliases` / `applyTextFragmentation` 全部改为 `ctx.GD` 参数传递，`selectors.js` 通过 `state._GD` 订阅，`sanReducer.js` 通过 `useGameStore.getState()._GD` 读取；③`useAppGameData()` 移除（死代码，零组件消费），App 改用 `useGameData()` + `useUiState()` 聚合 hook；④事件数据归拢：18 个 `events_*.js` 从 `src/data/` 移入 `src/data/events/`，统一路径，更新 9 个文件的导入 + integration_test 路径；⑤Playwright E2E 骨架：4 个测试文件（game-startup/first-san-loss/settings-persistence/save-load/explore-actions），自动启动 dev server；⑥SaveManager 安全加固（ADR-010）：`scanSaveSecurity()` 深度扫描存档 JSON（危险键模式/危险值正则/深度上限 10/数组长度上限 500），`sanitizeSaveState()` 白名单清洗（仅允许 `SAVE_FORMAT_SPEC.requiredStateKeys` + 显式扩展键），`CONTINUE_GAME` handler 白名单复制（loopSlice.js），防止恶意存档数据通过 `__proto__` / 构造器污染 / 脚本注入攻击运行时；⑦loopSlice.js 清理 71 个未使用导入；全量测试通过，Vite build 1.26s |
+| **0.9.8** | 2026-07-07 | **架构重构里程碑：useEffect 拆分 + 全局变量治理 + 事件数据归拢 + E2E 测试 + 存档安全加固**（0.9.8 系列首条，详见 2026-08-09 收尾条目）— ①app.jsx 从 678 行瘦身至 200 行（-70%）：13 个 useEffect 块拆分为 `src/hooks/` 下 13 个自定义 hooks（useSeedStore/useMigrateOldSaves/useAudioSettingsInit/useAudioAutoplayUnlock/useReducedMotion/useNotebookTutorialSync/usePageZoom/useEndingCgPreload/useChapterLazyLoad/useAchievementCheck/useSanLossHint/useBootHint/useLevel13Glitch），3 个状态聚合 hook（useGameData/useDispatchWrapper/useUiState），`bootstrap.js` 提取模块级启动引导；②全局变量治理：`window.GD` 和模块级 `GD` 全局引用消除，`sanityVisual.js` / `getVisualForSan` / `getPerceptionLevels` / `applyMythosAliases` / `applyTextFragmentation` 全部改为 `ctx.GD` 参数传递，`selectors.js` 通过 `state._GD` 订阅，`sanReducer.js` 通过 `useGameStore.getState()._GD` 读取；③`useAppGameData()` 移除（死代码，零组件消费），App 改用 `useGameData()` + `useUiState()` 聚合 hook；④事件数据归拢：18 个 `events_*.js` 从 `src/data/` 移入 `src/data/events/`，统一路径，更新 9 个文件的导入 + integration_test 路径；⑤Playwright E2E 骨架：4 个测试文件（game-startup/first-san-loss/settings-persistence/save-load/explore-actions），自动启动 dev server；⑥SaveManager 安全加固（ADR-010）：`scanSaveSecurity()` 深度扫描存档 JSON（危险键模式/危险值正则/深度上限 10/数组长度上限 500），`sanitizeSaveState()` 白名单清洗（仅允许 `SAVE_FORMAT_SPEC.requiredStateKeys` + 显式扩展键），`CONTINUE_GAME` handler 白名单复制（loopSlice.js），防止恶意存档数据通过 `__proto__` / 构造器污染 / 脚本注入攻击运行时；⑦loopSlice.js 清理 71 个未使用导入；全量测试通过，Vite build 1.26s |
 | **0.9.6** | 2026-06-30 | **Zustand 5 迁移修复 + 每日流程领域拆分** — ①dailySlice 按领域拆分为 7 个独立系统文件（foodSystem/safehouseSystem/restRecovery/dayAdvance/dayCritical/nightEffects/dayOpen），从 594 行瘦身至 108 行纯调度层；②修复 Zustand 5.0.14 不支持 equalityFn 导致所有返回对象的 selector 触发无限重渲染（Maximum update depth exceeded），全部改用 useMemo 缓存；③修复 `buildSliceCtx` 缺失 `view` 属性导致区域场景图永远显示默认变体；④修复 Immer autoFreeze 冻结 GD 导致 `initExtendedEvents` 报错；⑤修复 `uiStore.settings: null` 导致渲染阶段 `set()` 调用；⑥`main.jsx` 静态 JSON import 替代 fetch()；⑦`seedGameStore` 移至 React 渲染前执行；⑧所有 selector 函数提取为模块级常量（稳定引用）；⑨`ScreenTransition` 修复 children 缓存导致同屏更新失效；⑩关闭 Immer autoFreeze 避免开发模式冻结问题；⑪mistake.txt 新增条目 #46（Zustand 5 equalityFn 缺失） |
 | **0.9.5** | 2026-06-22 | **扭曲文本模板化 + 文学参照文档化** — ①`distortionTemplates.js` 新建 6 个共享模板（good_return / bad_consequence / trial_early / trial_late / collective / special_trade）+ `DISTORTION_TEMPLATE_MAP` 查找表；②`events_humanity.js` 移除 23 块模板级重复文本（-107 行），添加 23 个 `distortion_template` 字段（+46 行），净省 62 行；③`EventEngine.js` 新增 `injectDistortionTemplates(GD)` 运行时注入器，事件本地含 `corruption_high`/`san_mid` 等独特键时保留本地 variants，其余按 `distortion_template` 字段或 `subtype` 名自动注入；④`extendedEventsInit.js` 注册 injector 调用；⑤文学参照补录：`DESIGN_REFACTOR_NOTES.md` 新增 Lovecraft/Baudelaire/Murakami/Borges/Houellebecq 五作者对照表 + 恐惧结局特殊文本策略说明；⑥`game_base.json` `text_style` 新增 `literary_references` 字段；⑦`mistake.txt` 条目 #44「隐性设计意图未记录」；⑧构建验证：Vite ESM 1.32s + 全测试 48/48 + lint:narrative 27S/20A/3B |
 | **0.9.4** | 2026-06-22 | **Phase 2 体系化升级** — ①轻量事件依赖机制：引擎级 `has_flag`/`add_flag` 软连锁，5 条前置事件 + 5 条回声事件，零 reducer 改造；②玩家痕迹系统扩展：3 试点→9 条痕迹（+森林低语/酒馆硬币/墓穴符号/灯塔信号/庄园日记/森林祭品），跨轮回区域描述自动追加；③NPC 语言指纹规范沉淀：`event_authoring.md` 8 位 NPC 完整指纹（句式/语气/意象/信任递进/轮回记忆/死亡回响/SAN 退化/禁用词）；④测试与平衡体系补全：`balanceSimulator.js` 轻量蒙特卡洛模拟器（13 级难度/恐惧画像/graduated protection/封印状态）+ `test_balance_system.mjs` 96 项平衡测试（10 维度：配置完整性/单调性/保护倍率/graduated protection/恐惧画像/难度梯度/消耗速率/封印递增/可复现性/输出结构）；⑤微恐怖触发率测试：19 个 micro_horror 事件数据完整性验证（weight/probability/once_per_run）；⑥NPC 台词覆盖率测试：8 位 NPC 三级优先级（low/mid/high）全覆盖，memory line 关键词验证；⑦全量回归 536 passed / 0 failed / 12 suites |

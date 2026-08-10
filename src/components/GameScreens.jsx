@@ -1,9 +1,11 @@
 // src/components/GameScreens.jsx - Screen components extracted from app.jsx
 // PrologueScreen, SurvivalGuide, CharCreation
+import React from 'react';
 const { useState, useEffect, useRef, useMemo, useCallback, memo } = React;
 import { audioManager } from '../managers/AudioManager.js';
 import { DIFFICULTY_LEVELS } from '../config/difficulty.js';
 import { getPrologueEvent, getPrologueSceneOrder } from '../reducers/prologueReducer.js';
+import { GD } from '../state/gameData.js';
 
 export function PrologueScreen({ state, dispatch }) {
   const prologue = state.prologue;
@@ -273,7 +275,7 @@ export function SurvivalGuide({ onContinue }) {
             </div>
             <div className="guide-items">
               {guideItems.slice(0, visibleItems).map((item, i) => (
-                <div key={item.id} className="guide-item" style={{ animationDelay: i * 0.1 + 's' }}>
+                <div key={item.label} className="guide-item" style={{ animationDelay: i * 0.1 + 's' }}>
                   <span className="guide-item-icon">{item.icon}</span>
                   <div className="guide-item-content">
                     <div className="guide-item-label">{item.label}</div>
@@ -304,7 +306,9 @@ export function SurvivalGuide({ onContinue }) {
 
 export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArchetype }) {
   const s = state.stats;
-  const rolled = s.STR !== 50;
+  const rolled = state.statsRolled === true ||
+    s.STR !== 50 || s.CON !== 55 || s.DEX !== 55 || s.APP !== 50 ||
+    s.POW !== 60 || s.INT !== 65 || s.SIZ !== 60 || s.EDU !== 70;
   const archetypes = GD.systems?.player?.archetypes || [];
   const selectedArch = archetypes.find((a) => a.id === state.archetype);
   const diffLevel = state.difficultyLevel || 1;
@@ -403,7 +407,7 @@ export function CharCreation({ state, onRoll, onStart, onSetDifficulty, onSetArc
           )}
         </div>
         <div style={{ color: 'var(--text-dim)', fontSize: '0.6rem' }}>
-          预期存活率 {diffConfig.survival} · 平均存活 {diffConfig.days} 天
+          预期存活率 {diffConfig.expected_survival} · 平均存活 {diffConfig.expected_days} 天
         </div>
       </div>
       {archetypes.length > 0 && (
