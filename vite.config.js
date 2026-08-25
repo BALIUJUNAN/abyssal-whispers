@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import { renameSync, existsSync, cpSync, mkdirSync } from 'fs';
+import { renameSync, existsSync, cpSync, copyFileSync } from 'fs';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
 // Dev-only plugin: redirect / to /dev.html so Vite processes dev.html
@@ -52,6 +52,13 @@ function finalizeBuildPlugin() {
           console.warn('[build] Audio copy failed:', e.message);
         }
       }
+      // Keep the dual-license boundary and dependency notices with every
+      // distributable build. dist/ is the release unit, not index.html alone.
+      const legalFiles = ['LICENSE', 'LICENSE-ASSETS.md', 'THIRD_PARTY_NOTICES.md'];
+      for (const legalFile of legalFiles) {
+        copyFileSync(resolve(__dirname, legalFile), resolve(outDir, legalFile));
+      }
+      console.log('[build] Copied legal notices to dist/');
       // JSON data is now statically imported in main.jsx and inlined by viteSingleFile.
       // Assets (webp images) are handled by publicDir: 'assets' → copied to dist/.
     },

@@ -106,6 +106,7 @@ if (!checkDist) {
   const DIST_WEBP_ENDING = path.join(DIST_PATH, 'webp_ending');
   const DIST_AUDIO = path.join(DIST_PATH, 'audio');
   const DIST_SRC = path.join(DIST_PATH, 'src');
+  const LEGAL_FILES = ['LICENSE', 'LICENSE-ASSETS.md', 'THIRD_PARTY_NOTICES.md'];
 
   // 5. dist/webp/ 和 dist/audio/ 存在（Vite publicDir 输出到 dist/ 根）
   if (fs.existsSync(DIST_WEBP) && fs.statSync(DIST_WEBP).isDirectory()) {
@@ -153,6 +154,16 @@ if (!checkDist) {
       pass('dist/audio/ 音频文件数', count + ' 个');
     } else {
       fail('dist/audio/ 音频文件数', '仅 ' + count + ' 个，期望 >= 50');
+    }
+  }
+
+  // 7d. Every distributable must retain code, asset and third-party notices.
+  for (const legalFile of LEGAL_FILES) {
+    const legalPath = path.join(DIST_PATH, legalFile);
+    if (fs.existsSync(legalPath) && fs.statSync(legalPath).size > 0) {
+      pass('dist/' + legalFile, '法律文件存在');
+    } else {
+      fail('dist/' + legalFile, '法律文件缺失或为空');
     }
   }
 }
